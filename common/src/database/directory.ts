@@ -156,3 +156,11 @@ export const UpdateDirectorySchema = DirectorySchema.pick({
 
 /** The type of a request to update a directory. */
 export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;
+
+/** Verifies a request to delete a directory. */
+export const DeleteDirectorySchema = DirectorySchema.pick({
+    id: true,
+});
+
+/** The type of a request to delete a directory. */
+export type DeleteDirectoryRequest = z.infer<typeof DeleteDirectorySchema>;

@@ -7,8 +7,14 @@ import {
     DirectorySchema,
     DirectoryVisibility,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { ApiError, errToApiGatewayProxyResultV2, requireUserInfo, success } from './api';
+import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import {
+    ApiError,
+    errToApiGatewayProxyResultV2,
+    parsePathParameters,
+    requireUserInfo,
+    success,
+} from './api';
 import { directoryTable, dynamo } from './database';
 
 const getDirectorySchema = DirectorySchema.pick({ owner: true, id: true });
@@ -24,7 +30,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
 
         const userInfo = requireUserInfo(event);
-        const request = getRequest(event);
+        const request = parsePathParameters(event, getDirectorySchema);
         const directory = await fetchDirectory(request.owner, request.id);
 
         if (
@@ -43,23 +49,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         return errToApiGatewayProxyResultV2(err);
     }
 };
-
-/**
- * Extracts a getDirectoryRequest from the given API gateway event.
- * @param event The event to extract the request from.
- * @returns The getDirectoryRequest specified in the API gateway event.
- */
-function getRequest(event: APIGatewayProxyEventV2) {
-    try {
-        return getDirectorySchema.parse(event.pathParameters);
-    } catch (err) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: body could not be unmarshaled',
-            cause: err,
-        });
-    }
-}
 
 /**
  * Fetches the directory with the given owner and id from DynamoDB.

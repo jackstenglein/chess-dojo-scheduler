@@ -140,3 +140,25 @@ export function parseBody<T>(event: APIGatewayProxyEventV2, schema: ZodSchema<T>
         });
     }
 }
+
+/**
+ * Parses the given Zod schema from the given API gateway event path parameters. If the
+ * parameters fail to parse, a 400 error is thrown.
+ * @param event The event to extract the path parameters from.
+ * @param schema The Zod schema to parse.
+ * @returns The parsed parameters.
+ */
+export function parsePathParameters<T>(
+    event: APIGatewayProxyEventV2,
+    schema: ZodSchema<T>,
+): T {
+    try {
+        return schema.parse(event.pathParameters);
+    } catch (err) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Invalid request: path parameters could not be unmarshaled',
+            cause: err,
+        });
+    }
+}
