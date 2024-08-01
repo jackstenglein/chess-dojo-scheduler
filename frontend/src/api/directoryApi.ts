@@ -18,6 +18,10 @@ export interface DirectoryApiContextType {
     updateDirectory: (
         request: UpdateDirectoryRequest,
     ) => Promise<AxiosResponse<UpdateDirectoryResponse>>;
+
+    deleteDirectory: (
+        id: string,
+    ) => Promise<AxiosResponse<Partial<UpdateDirectoryResponse>>>;
 }
 
 export function getDirectory(idToken: string, owner: string, id: string) {
@@ -47,5 +51,13 @@ export interface UpdateDirectoryResponse {
 export function updateDirectory(idToken: string, request: UpdateDirectoryRequest) {
     return axios.put<UpdateDirectoryResponse>(`${BASE_URL}/directory`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+    });
+}
+
+export function deleteDirectory(idToken: string, id: string) {
+    return axios.delete<Partial<UpdateDirectoryResponse>>(`${BASE_URL}/directory/${id}`, {
+        headers: {
+            Authorization: `Bearer ${idToken}`,
+        },
     });
 }

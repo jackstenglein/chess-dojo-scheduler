@@ -34,6 +34,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage: 'This directory cannot be updated',
+                privateMessage: `Request is for default directory ${request.id}`,
             });
         }
 

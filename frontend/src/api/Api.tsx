@@ -42,6 +42,7 @@ import {
 import {
     DirectoryApiContextType,
     createDirectory,
+    deleteDirectory,
     getDirectory,
     updateDirectory,
 } from './directoryApi';
@@ -463,6 +464,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 createDirectory(idToken, request),
             updateDirectory: (request: UpdateDirectoryRequest) =>
                 updateDirectory(idToken, request),
+            deleteDirectory: (id: string) => deleteDirectory(idToken, id),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

@@ -9,6 +9,7 @@ import {
 } from '@mui/icons-material';
 import { Divider, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
+import { DeleteDialog } from './DeleteDialog';
 import { RenameDialog } from './RenameDialog';
 
 export const ContextMenu = ({
@@ -20,16 +21,21 @@ export const ContextMenu = ({
     position?: { mouseX: number; mouseY: number };
     onClose: () => void;
 }) => {
-    console.log('Selected Item: ', selectedItem);
     const [renameOpen, setRenameOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
 
     const onRename = () => {
         setRenameOpen(true);
     };
 
+    const onDelete = () => {
+        setDeleteOpen(true);
+    };
+
     const handleClose = () => {
         onClose();
         setRenameOpen(false);
+        setDeleteOpen(false);
     };
 
     return (
@@ -63,7 +69,7 @@ export const ContextMenu = ({
                     <ListItemText primary='Move' />
                 </MenuItem>
                 <Divider />
-                <MenuItem>
+                <MenuItem onClick={onDelete}>
                     <ListItemIcon>
                         <Delete />
                     </ListItemIcon>
@@ -74,6 +80,7 @@ export const ContextMenu = ({
             {renameOpen && selectedItem.type === DirectoryItemTypes.DIRECTORY && (
                 <RenameDialog item={selectedItem} onCancel={handleClose} />
             )}
+            {deleteOpen && <DeleteDialog item={selectedItem} onCancel={handleClose} />}
         </>
     );
 };

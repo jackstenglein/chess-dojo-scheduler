@@ -20,6 +20,7 @@ export class UpdateItemBuilder {
     private exprAttrNames: Record<string, string> = {};
     private exprAttrValues: Record<string, AttributeValue> = {};
     private setExpression = '';
+    private removeExpression = '';
 
     private _condition: Condition | undefined;
     private returnValues: updateReturnType = 'NONE';
@@ -37,6 +38,7 @@ export class UpdateItemBuilder {
         this.exprAttrNames = {};
         this.exprAttrValues = {};
         this.setExpression = '';
+        this.removeExpression = '';
 
         this._condition = undefined;
         this.returnValues = 'NONE';
@@ -70,6 +72,19 @@ export class UpdateItemBuilder {
             this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value);
             this.attrIndex++;
         }
+        return this;
+    }
+
+    /**
+     * Adds a command to remove the given attribute path.
+     * @param path The attribute path to remove
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    remove(path: string): UpdateItemBuilder {
+        if (this.removeExpression.length > 0) {
+            this.removeExpression += ', ';
+        }
+        this.removeExpression += this.addExpressionPath(path);
         return this;
     }
 
@@ -112,6 +127,9 @@ export class UpdateItemBuilder {
         if (this.setExpression.length > 0) {
             updateExpression += `SET ${this.setExpression}`;
         }
+        if (this.removeExpression.length > 0) {
+            updateExpression += ` REMOVE ${this.removeExpression}`;
+        }
 
         return new UpdateItemCommand({
             Key: this.keys,
@@ -124,6 +142,13 @@ export class UpdateItemBuilder {
         });
     }
 
+    /**
+     * Converts the given attribute path into a DynamoDB-compliant path. The path is
+     * split on the . character, and each component is converted into a DynamoDB
+     * expression attribute name, which is added to the exprAttrNames object.
+     * @param path The path to convert.
+     * @returns The converted path.
+     */
     private addExpressionPath(path: string) {
         const tokens = path.split('.');
         let result = '';

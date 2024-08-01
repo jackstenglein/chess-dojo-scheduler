@@ -1,3 +1,5 @@
+import { AttributeValue } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     DirectoryItemTypes,
     DirectorySchema,
@@ -26,7 +28,9 @@ export const handler: DynamoDBStreamHandler = async (event) => {
 async function processRecord(record: DynamoDBRecord) {
     try {
         console.log('Processing record %j', record);
-        const directory = DirectorySchema.parse(record.dynamodb?.OldImage);
+        const directory = DirectorySchema.parse(
+            unmarshall(record.dynamodb?.OldImage as Record<string, AttributeValue>),
+        );
         for (const item of Object.values(directory.items)) {
             if (item.type === DirectoryItemTypes.DIRECTORY) {
                 await deleteDirectory(directory.owner, item.id);
