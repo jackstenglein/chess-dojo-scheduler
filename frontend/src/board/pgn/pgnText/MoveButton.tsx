@@ -22,7 +22,10 @@ import { useGame } from '../../../games/view/GamePage';
 import { useReconcile } from '../../Board';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
-import { convertClockToSeconds, formatTime } from '../boardTools/underboard/ClockUsage';
+import {
+    convertClockToSeconds,
+    formatTime,
+} from '../boardTools/underboard/clock/ClockUsage';
 import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
 
 export function getTextColor(move: Move, inline?: boolean): string {

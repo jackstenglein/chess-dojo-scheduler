@@ -1,12 +1,12 @@
+import { BlockBoardKeyboardShortcuts, useChess } from '@/board/pgn/PgnBoard';
 import { Chess, Move } from '@jackstenglein/chess';
 import { Stack, TextField } from '@mui/material';
 import { TimeField } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { useLocalStorage } from 'usehooks-ts';
-import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
+import { ClockFieldFormat, ClockFieldFormatKey } from '../settings/EditorSettings';
 import { convertSecondsToDateTime, onChangeClock } from './ClockEditor';
 import { convertClockToSeconds, formatTime } from './ClockUsage';
-import { ClockFieldFormat, ClockFieldFormatKey } from './settings/EditorSettings';
 
 const d = new Date();
 d.setHours(0, 0, 0);
