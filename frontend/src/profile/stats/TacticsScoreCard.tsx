@@ -1,7 +1,9 @@
 import { RequirementCategory } from '@/database/requirement';
 import Icon from '@/style/Icon';
+import { FiberManualRecord, FiberManualRecordOutlined } from '@mui/icons-material';
 import { Card, CardContent, Link, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, User } from '../../database/user';
@@ -81,16 +83,9 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                         >
                             <Tooltip title={c.description}>
                                 <Stack alignItems='center'>
-                                    <Typography variant='body2' color='text.secondary'>
-                                        {c.link ? (
-                                            <Link component={RouterLink} to={c.link}>
-                                                {c.name}
-                                            </Link>
-                                        ) : (
-                                            c.name
-                                        )}
+                                    <Typography variant='body1' color='text.secondary'>
+                                        <LinkIf to={c.link}>{c.name}</LinkIf>
                                     </Typography>
-
                                     <Typography
                                         sx={{
                                             fontSize: '2rem',
@@ -100,6 +95,39 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                     >
                                         {c.rating > 0 ? Math.round(c.rating) : '?'}
                                     </Typography>
+                                    {c.examCount && c.rating > 0 ? (
+                                        <Typography
+                                            variant='body2'
+                                            color='text.secondary'
+                                        >
+                                            <Stack direction='row'>
+                                                {[...Array(3 - c.examCount).keys()].map(
+                                                    (idx) => (
+                                                        <FiberManualRecord
+                                                            key={`taken-${idx}`}
+                                                            sx={{
+                                                                width: '0.85rem',
+                                                                height: '0.85rem',
+                                                            }}
+                                                        />
+                                                    ),
+                                                )}
+                                                {[...Array(c.examCount).keys()].map(
+                                                    (idx) => (
+                                                        <FiberManualRecordOutlined
+                                                            key={`untaken-${idx}`}
+                                                            sx={{
+                                                                width: '0.85rem',
+                                                                height: '0.85rem',
+                                                            }}
+                                                        />
+                                                    ),
+                                                )}
+                                            </Stack>
+                                        </Typography>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </Stack>
                             </Tooltip>
                         </Grid2>
@@ -137,3 +165,13 @@ function getTooltip(
 
     return tooltip;
 }
+
+const LinkIf = ({ to, children }: { to?: string; children: ReactNode }) => {
+    return to ? (
+        <Link component={RouterLink} to={to}>
+            {children}
+        </Link>
+    ) : (
+        children
+    );
+};
