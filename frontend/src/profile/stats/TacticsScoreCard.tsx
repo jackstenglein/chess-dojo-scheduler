@@ -95,13 +95,13 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                     >
                                         {c.rating > 0 ? Math.round(c.rating) : '?'}
                                     </Typography>
-                                    {c.examsCount && c.rating > 0 ? (
+                                    {c.examCount && c.rating > 0 ? (
                                         <Typography
                                             variant='body2'
                                             color='text.secondary'
                                         >
                                             <Stack direction='row'>
-                                                {[...Array(3 - c.examsCount).keys()].map(
+                                                {[...Array(3 - c.examCount).keys()].map(
                                                     (idx) => (
                                                         <FiberManualRecord
                                                             key={`taken-${idx}`}
@@ -112,7 +112,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                                         />
                                                     ),
                                                 )}
-                                                {[...Array(c.examsCount).keys()].map(
+                                                {[...Array(c.examCount).keys()].map(
                                                     (idx) => (
                                                         <FiberManualRecordOutlined
                                                             key={`untaken-${idx}`}

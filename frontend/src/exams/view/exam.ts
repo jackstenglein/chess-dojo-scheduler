@@ -207,7 +207,7 @@ export interface TacticsRatingComponent {
     link?: string;
 
     /** Number of tests used to calculate this rating */
-    examsCount?: number;
+    examCount?: number;
 }
 
 /**
@@ -363,7 +363,7 @@ function getExamRating(user: User, examType: ExamType): TacticsRatingComponent[]
                 rating,
                 description: `The average of the 3 most recent ${displayExamType(examType)} ratings. Only tests within the proper cohort range are counted.`,
                 link: linkToExamType(examType),
-                examsCount: countedExams.length,
+                examCount: countedExams.length,
             },
         ];
     }
