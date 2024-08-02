@@ -24,6 +24,8 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
 
     const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
 
+    console.log('Tactics rating: ', tacticsRating);
+
     return (
         <Card variant='outlined'>
             <CardContent>
@@ -95,13 +97,13 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                     >
                                         {c.rating > 0 ? Math.round(c.rating) : '?'}
                                     </Typography>
-                                    {c.examCount && c.rating > 0 ? (
+                                    {c.examCount !== undefined && c.rating > 0 && (
                                         <Typography
                                             variant='body2'
                                             color='text.secondary'
                                         >
                                             <Stack direction='row'>
-                                                {[...Array(3 - c.examCount).keys()].map(
+                                                {[...Array(c.examCount).keys()].map(
                                                     (idx) => (
                                                         <FiberManualRecord
                                                             key={`taken-${idx}`}
@@ -112,7 +114,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                                         />
                                                     ),
                                                 )}
-                                                {[...Array(c.examCount).keys()].map(
+                                                {[...Array(3 - c.examCount).keys()].map(
                                                     (idx) => (
                                                         <FiberManualRecordOutlined
                                                             key={`untaken-${idx}`}
@@ -125,8 +127,6 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                                 )}
                                             </Stack>
                                         </Typography>
-                                    ) : (
-                                        <></>
                                     )}
                                 </Stack>
                             </Tooltip>
