@@ -57,7 +57,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /** The type of the directory item. */
         type: z.literal(DirectoryItemTypes.OWNED_GAME),
 
-        /** The id of the directory item. */
+        /** The id of the directory item. For a game, this is the value cohort#id. */
         id: z.string(),
 
         /** The metadata of the directory item. */
@@ -164,3 +164,18 @@ export const DeleteDirectorySchema = DirectorySchema.pick({
 
 /** The type of a request to delete a directory. */
 export type DeleteDirectoryRequest = z.infer<typeof DeleteDirectorySchema>;
+
+/**
+ * Verifies a request to add an item to a directory. Currently, only
+ * games are handled by this request.
+ */
+export const AddDirectoryItemSchema = DirectorySchema.pick({
+    id: true,
+}).merge(
+    z.object({
+        game: gameMetadataSchema,
+    }),
+);
+
+/** The type of a request to add an item to a directory. */
+export type AddDirectoryItemRequest = z.infer<typeof AddDirectoryItemSchema>;

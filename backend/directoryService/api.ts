@@ -122,6 +122,32 @@ export function requireUserInfo(event: any): UserInfo {
 }
 
 /**
+ * Parses the given Zod schema from the given API gateway event. The event's body,
+ * path parameters and query string parameters are all combined together to parse
+ * the event.
+ * @param event The event to parse.
+ * @param schema The Zod schema to parse.
+ * @returns The parsed event.
+ */
+export function parseEvent<T>(event: APIGatewayProxyEventV2, schema: ZodSchema<T>): T {
+    try {
+        const body = JSON.parse(event.body || '{}');
+        const request = {
+            ...body,
+            ...event.pathParameters,
+            ...event.queryStringParameters,
+        };
+        return schema.parse(request);
+    } catch (err) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Invalid request: could not be unmarshaled',
+            cause: err,
+        });
+    }
+}
+
+/**
  * Parses the given Zod schema from the given API gateway event body. If the body fails
  * to parse, a 400 error is thrown.
  * @param event The event to extract the body from.
