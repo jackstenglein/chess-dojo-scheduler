@@ -167,7 +167,8 @@ export type DeleteDirectoryRequest = z.infer<typeof DeleteDirectorySchema>;
 
 /**
  * Verifies a request to add an item to a directory. Currently, only
- * games are handled by this request.
+ * games are handled by this request. Subdirectories can be added using
+ * the create directory request.
  */
 export const AddDirectoryItemSchema = DirectorySchema.pick({
     id: true,
@@ -179,3 +180,18 @@ export const AddDirectoryItemSchema = DirectorySchema.pick({
 
 /** The type of a request to add an item to a directory. */
 export type AddDirectoryItemRequest = z.infer<typeof AddDirectoryItemSchema>;
+
+/**
+ * Verifies a request to remove an item from a directory. Currently, only
+ * games are handled by this request. Subdirectories can be removed using
+ * the delete directory request. */
+export const RemoveDirectoryItemSchema = z.object({
+    /** The id of the directory to remove the item from. */
+    directoryId: DirectorySchema.shape.id,
+
+    /** The id of the item to remove. */
+    itemId: z.string(),
+});
+
+/** The type of a request to remove an item from a directory. */
+export type RemoveDirectoryItemRequest = z.infer<typeof RemoveDirectoryItemSchema>;

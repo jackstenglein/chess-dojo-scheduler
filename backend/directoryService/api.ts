@@ -59,6 +59,12 @@ function unknownError(err: any): APIGatewayProxyResultV2 {
     };
 }
 
+/**
+ * Converts the given error to an APIGatewayProxyResultV2. The error
+ * will also be logged.
+ * @param err The error to convert.
+ * @returns The API gateway result object.
+ */
 export function errToApiGatewayProxyResultV2(err: any): APIGatewayProxyResultV2 {
     if (err instanceof ApiError) {
         return err.apiGatewayResultV2();
@@ -80,8 +86,12 @@ export function success(value: any): APIGatewayProxyResultV2 {
     };
 }
 
+/** The info of a user making an API request. */
 export interface UserInfo {
+    /** The user's username. */
     username: string;
+
+    /** The user's email. */
     email: string;
 }
 

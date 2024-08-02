@@ -14,7 +14,8 @@ import {
     requireUserInfo,
     success,
 } from './api';
-import { attributeExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
+import { directoryTable, dynamo } from './database';
+import { removeDirectoryItem } from './removeItem';
 
 /**
  * Handles requests to the delete directory API. Returns the directory as
@@ -45,6 +46,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 userInfo.username,
                 directory.parent,
                 request.id,
+                true,
             );
         }
 
@@ -81,39 +83,4 @@ export async function deleteDirectory(
 
     const directory = unmarshall(output.Attributes);
     return DirectorySchema.parse(directory);
-}
-
-/**
- * Removes the specified item from the specified directory.
- * @param owner The owner of the directory.
- * @param directoryId The id of the directory to remove the item from.
- * @param itemId The id of the item to remove from the directory.
- * @returns The updated directory.
- */
-export async function removeDirectoryItem(
-    owner: string,
-    directoryId: string,
-    itemId: string,
-): Promise<Directory> {
-    try {
-        const input = new UpdateItemBuilder()
-            .key('owner', owner)
-            .key('id', directoryId)
-            .remove(`items.${itemId}`)
-            .set('updatedAt', new Date().toISOString())
-            .condition(attributeExists('id'))
-            .table(directoryTable)
-            .return('ALL_NEW')
-            .build();
-
-        const result = await dynamo.send(input);
-        return unmarshall(result.Attributes!) as Directory;
-    } catch (err) {
-        throw new ApiError({
-            statusCode: 500,
-            publicMessage: 'Temporary server error',
-            privateMessage: 'DDB UpdateItem failure',
-            cause: err,
-        });
-    }
 }

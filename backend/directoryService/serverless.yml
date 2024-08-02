@@ -116,6 +116,21 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt DirectoriesTable.Arn
 
+  removeItem:
+    handler: removeItem.handler
+    events:
+      - httpApi:
+          path: /directory/{directoryId}/item/{itemId}
+          method: delete
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

@@ -6,6 +6,7 @@ import {
     UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { ApiError } from './api';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 export const directoryTable = process.env.stage + '-directories';
@@ -136,7 +137,10 @@ export class UpdateItemBuilder {
             UpdateExpression: updateExpression,
             ExpressionAttributeNames: this.exprAttrNames,
             ExpressionAttributeValues: this.exprAttrValues,
-            ConditionExpression: this._condition?.build(this.exprAttrNames),
+            ConditionExpression: this._condition?.build(
+                this.exprAttrNames,
+                this.exprAttrValues,
+            ),
             ReturnValues: this.returnValues,
             TableName: this._table,
         });
@@ -163,37 +167,32 @@ export class UpdateItemBuilder {
     }
 }
 
-enum ConditionType {
-    AttributeExists,
-}
-
 class Condition {
-    private type: ConditionType;
-    private operands: string[] = [];
-    private attrIndex = 0;
+    protected attrIndex = 0;
 
-    constructor(type: ConditionType, operands: string[]) {
-        this.type = type;
-        this.operands = operands;
+    build(
+        _exprAttrNames: Record<string, string>,
+        _exprAttrValues: Record<string, AttributeValue>,
+        _parentAttrIndex = '',
+    ): string {
+        throw new ApiError({
+            statusCode: 500,
+            publicMessage: 'Temporary server error',
+            privateMessage: 'Using base Condition build function',
+        });
     }
 
-    build(exprAttrNames: Record<string, string>) {
-        let expression = '';
-
-        if (this.type === ConditionType.AttributeExists) {
-            expression = `attribute_exists (${this.addExpressionPath(this.operands[0], exprAttrNames)})`;
-        }
-
-        return expression;
-    }
-
-    private addExpressionPath(path: string, exprAttrNames: Record<string, string>) {
+    protected addExpressionPath(
+        path: string,
+        exprAttrNames: Record<string, string>,
+        parentAttrIndex: string,
+    ) {
         const tokens = path.split('.');
         let result = '';
 
         for (const token of tokens) {
-            result += `#c${this.attrIndex}.`;
-            exprAttrNames[`#c${this.attrIndex}`] = token;
+            result += `#c${parentAttrIndex}${this.attrIndex}.`;
+            exprAttrNames[`#c${parentAttrIndex}${this.attrIndex}`] = token;
             this.attrIndex++;
         }
 
@@ -201,6 +200,102 @@ class Condition {
     }
 }
 
-export function attributeExists(path: string) {
-    return new Condition(ConditionType.AttributeExists, [path]);
+class AndCondition extends Condition {
+    private conditions: Condition[];
+
+    constructor(condition1: Condition, condition2: Condition, ...rest: Condition[]) {
+        super();
+        this.conditions = [condition1, condition2, ...rest];
+    }
+
+    build(
+        exprAttrNames: Record<string, string>,
+        exprAttrValues: Record<string, AttributeValue>,
+        parentAttrIndex = '',
+    ) {
+        const result = this.conditions
+            .map((condition, index) =>
+                condition.build(
+                    exprAttrNames,
+                    exprAttrValues,
+                    `${parentAttrIndex}${index}`,
+                ),
+            )
+            .join(' AND ');
+        return `(${result})`;
+    }
+}
+
+class AttributeExistsCondition extends Condition {
+    private path: string;
+
+    constructor(path: string) {
+        super();
+        this.path = path;
+    }
+
+    build(
+        exprAttrNames: Record<string, string>,
+        _exprAttrValues: Record<string, AttributeValue>,
+        parentAttrIndex = '',
+    ) {
+        return `attribute_exists (${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)})`;
+    }
+}
+
+class NotEqualCondition extends Condition {
+    private path: string;
+    private value: any;
+
+    constructor(path: string, value: any) {
+        super();
+        this.path = path;
+        this.value = value;
+    }
+
+    build(
+        exprAttrNames: Record<string, string>,
+        exprAttrValues: Record<string, AttributeValue>,
+        parentAttrIndex = '',
+    ) {
+        const valueName = `:c${parentAttrIndex}${this.attrIndex}`;
+        this.attrIndex++;
+        exprAttrValues[valueName] = marshall(this.value, { removeUndefinedValues: true });
+
+        return `${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)} <> ${valueName}`;
+    }
+}
+
+/**
+ * Returns a condition which verifies that two or more nested conditions are
+ * all true.
+ * @param condition1 The first condition to verify.
+ * @param condition2 The second condition to verify.
+ * @param rest Additional conditions to verify.
+ */
+export function and(
+    condition1: Condition,
+    condition2: Condition,
+    ...rest: Condition[]
+): Condition {
+    return new AndCondition(condition1, condition2, ...rest);
+}
+
+/**
+ * Returns a condition which verifies that the given attribute path
+ * does not exist on the DynamoDB item.
+ * @param path The path to check.
+ */
+export function attributeExists(path: string): Condition {
+    return new AttributeExistsCondition(path);
+}
+
+/**
+ * Returns a condition which verifies that the given attribute path
+ * does not equal the given value.
+ * @param path The path to check.
+ * @param value The value to compare against.
+ */
+export function notEqual(path: string, value: any): Condition {
+    return new NotEqualCondition(path, value);
 }
