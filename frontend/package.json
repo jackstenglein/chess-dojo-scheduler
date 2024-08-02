@@ -27,7 +27,7 @@
         "@mui/x-charts": "^7.8.0",
         "@mui/x-data-grid-pro": "^7.8.0",
         "@mui/x-date-pickers": "^7.8.0",
-        "@types/node": "^20.14.9",
+        "@types/node": "^22.0.2",
         "@types/react": "^18.2.75",
         "@types/react-dom": "^18.2.24",
         "@vitejs/plugin-react": "^4.3.1",
