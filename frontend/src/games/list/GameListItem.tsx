@@ -3,6 +3,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
+import { useLocation } from 'react-router-dom';
 import { GameInfo, GameResult } from '../../database/game';
 
 interface RenderPlayersProps {
@@ -39,8 +40,14 @@ export function RenderPlayers({
     fullHeight,
 }: RenderPlayersProps) {
     const light = useLightMode();
+    const location = useLocation();
     const whiteStr = getPlayerName(white, whiteElo, whiteProvisional);
     const blackStr = getPlayerName(black, blackElo, blackProvisional);
+
+    let blackIconColor = 'grey.800';
+    if (!light && location.pathname.match(/games\/.+/)) {
+        blackIconColor = 'common.black';
+    }
 
     return (
         <Stack height={fullHeight ? 1 : undefined} justifyContent='center'>
@@ -66,7 +73,7 @@ export function RenderPlayers({
                 <CircleIcon
                     sx={{
                         fontSize: { xs: '0.75rem', sm: 'initial' },
-                        color: 'grey.800',
+                        color: blackIconColor,
                     }}
                 />
                 <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>

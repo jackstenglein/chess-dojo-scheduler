@@ -1,5 +1,6 @@
 import { getConfig } from '@/config';
 import {
+    AddDirectoryItemRequest,
     CreateDirectoryRequest,
     Directory,
     UpdateDirectoryRequest,
@@ -22,8 +23,19 @@ export interface DirectoryApiContextType {
     deleteDirectory: (
         id: string,
     ) => Promise<AxiosResponse<Partial<UpdateDirectoryResponse>>>;
+
+    addDirectoryItem: (
+        request: AddDirectoryItemRequest,
+    ) => Promise<AxiosResponse<AddDirectoryItemResponse>>;
 }
 
+/**
+ * Sends an API request to get a directory.
+ * @param idToken The id token of the current signed-in user.
+ * @param owner The owner of the directory to get.
+ * @param id The id of the directory to get.
+ * @returns The requested directory.
+ */
 export function getDirectory(idToken: string, owner: string, id: string) {
     return axios.get<Directory>(`${BASE_URL}/directory/${owner}/${id}`, {
         headers: {
@@ -54,10 +66,38 @@ export function updateDirectory(idToken: string, request: UpdateDirectoryRequest
     });
 }
 
+/**
+ * Sends an API request to delete a directory.
+ * @param idToken The id token of the current signed-in user.
+ * @param id The id of the directory to delete.
+ * @returns The directory before the delete, and the updated parent directory.
+ */
 export function deleteDirectory(idToken: string, id: string) {
     return axios.delete<Partial<UpdateDirectoryResponse>>(`${BASE_URL}/directory/${id}`, {
         headers: {
             Authorization: `Bearer ${idToken}`,
         },
     });
+}
+
+/** The response from the AddDirectoryItem API. */
+export interface AddDirectoryItemResponse {
+    /** The updated directory. */
+    directory: Directory;
+}
+
+/**
+ * Sends an AddDirectoryItem request to the API.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to send.
+ * @returns The updated directory.
+ */
+export function addDirectoryItem(idToken: string, request: AddDirectoryItemRequest) {
+    return axios.put<AddDirectoryItemResponse>(
+        `${BASE_URL}/directory/${request.id}/item`,
+        { game: request.game },
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
+    );
 }

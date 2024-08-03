@@ -1,6 +1,7 @@
 'use client';
 
 import {
+    AddDirectoryItemRequest,
     CreateDirectoryRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -41,6 +42,7 @@ import {
 } from './courseApi';
 import {
     DirectoryApiContextType,
+    addDirectoryItem,
     createDirectory,
     deleteDirectory,
     getDirectory,
@@ -465,6 +467,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             updateDirectory: (request: UpdateDirectoryRequest) =>
                 updateDirectory(idToken, request),
             deleteDirectory: (id: string) => deleteDirectory(idToken, id),
+            addDirectoryItem: (request: AddDirectoryItemRequest) =>
+                addDirectoryItem(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

@@ -1,8 +1,10 @@
 import NotFoundPage from '@/NotFoundPage';
 import { useRequiredAuth } from '@/auth/Auth';
 import { User } from '@/database/user';
+import { RenderPlayers } from '@/games/list/GameListItem';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import type { DirectoryItemType } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     DirectoryItem,
@@ -17,6 +19,7 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
+import { AddCurrentGameButton } from './AddCurrentGameButton';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs, useBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
@@ -72,7 +75,10 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     return (
         <Stack spacing={2} alignItems='start'>
             {viewer.username === user.username && (
-                <NewDirectoryButton parent={directory.id} onSuccess={putDirectory} />
+                <Stack direction='row' spacing={1}>
+                    <NewDirectoryButton parent={directory.id} onSuccess={putDirectory} />
+                    <AddCurrentGameButton directory={directory} />
+                </Stack>
             )}
 
             <DirectoryBreadcrumbs directory={directory} breadcrumbs={breadcrumbs} />
@@ -87,6 +93,11 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                 slotProps={{
                     row: {
                         onContextMenu: openContextMenu,
+                    },
+                }}
+                initialState={{
+                    sorting: {
+                        sortModel: [{ field: 'type', sort: 'asc' }],
                     },
                 }}
             />
@@ -105,11 +116,29 @@ const columns: GridColDef<DirectoryItem>[] = [
         field: 'type',
         headerName: '',
         renderCell(params: GridRenderCellParams<DirectoryItem, DirectoryItemType>) {
-            switch (params.value) {
+            const item = params.row;
+
+            switch (item.type) {
                 case DirectoryItemTypes.DIRECTORY:
                     return <Folder sx={{ height: 1 }} />;
+
+                case DirectoryItemTypes.OWNED_GAME:
+                case DirectoryItemTypes.DOJO_GAME:
+                case DirectoryItemTypes.MASTER_GAME:
+                    return (
+                        <Stack
+                            sx={{ height: 1 }}
+                            alignItems='center'
+                            justifyContent='center'
+                        >
+                            <CohortIcon
+                                cohort={item.metadata.cohort}
+                                tooltip={item.metadata.cohort}
+                                size={25}
+                            />
+                        </Stack>
+                    );
             }
-            return null;
         },
         align: 'center',
         width: 25,
@@ -125,6 +154,14 @@ const columns: GridColDef<DirectoryItem>[] = [
                     return row.metadata.name;
             }
             return '';
+        },
+        renderCell: (params: GridRenderCellParams<DirectoryItem, string>) => {
+            const item = params.row;
+            if (item.type === DirectoryItemTypes.DIRECTORY) {
+                return params.value;
+            }
+
+            return RenderPlayers(item.metadata);
         },
         flex: 1,
     },

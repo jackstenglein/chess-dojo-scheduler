@@ -15,6 +15,21 @@ const gameMetadataSchema = z.object({
 
     /** The datetime the game was uploaded to the database, in ISO format. */
     createdAt: z.string().datetime(),
+
+    /** The player with the white pieces. */
+    white: z.string(),
+
+    /** The player with the black pieces. */
+    black: z.string(),
+
+    /** The elo of the player with the white pieces. */
+    whiteElo: z.string().optional(),
+
+    /** The elo of the player with the black pieces. */
+    blackElo: z.string().optional(),
+
+    /** The result of the game. */
+    result: z.string(),
 });
 
 const directoryVisibility = z.enum(['PUBLIC', 'PRIVATE']);
@@ -137,6 +152,9 @@ export type DirectoryItem = z.TypeOf<typeof DirectoryItemSchema>;
 
 /** A subdirectory in another directory. */
 export type DirectoryItemSubdirectory = z.infer<(typeof DirectoryItemSchema.options)[0]>;
+
+/** The metadata of a game in a directory. */
+export type DirectoryItemGameMetadata = z.infer<typeof gameMetadataSchema>;
 
 export const CreateDirectorySchema = DirectorySchema.pick({
     id: true,

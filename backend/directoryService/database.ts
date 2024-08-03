@@ -58,21 +58,43 @@ export class UpdateItemBuilder {
 
     /**
      * Adds a command to set the given attribute to the given value.
-     * If the value is undefined, it is ignored.
+     * If the value is undefined, this function is a no-op. The
+     * attribute path will be split around the period character.
+     * To avoid this, use setPath instead.
      * @param path The attribute path to set.
      * @param value The value to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
     set(path: string, value: any): UpdateItemBuilder {
-        if (value !== undefined) {
-            if (this.setExpression.length > 0) {
-                this.setExpression += ', ';
-            }
-            this.setExpression += this.addExpressionPath(path);
-            this.setExpression += ` = :n${this.attrIndex}`;
-            this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value);
-            this.attrIndex++;
+        if (value === undefined) {
+            return this;
         }
+
+        return this.setPath(path.split('.'), value);
+    }
+
+    /**
+     * Adds a command to set the given attribute path to the given value.
+     * If the value is undefined, this function is a no-op.
+     * @param path The attribute path to set.
+     * @param value The value to set.
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    setPath(path: string[], value: any): UpdateItemBuilder {
+        if (value === undefined) {
+            return this;
+        }
+
+        if (this.setExpression.length > 0) {
+            this.setExpression += ', ';
+        }
+        this.setExpression += this.addExpressionTokens(path);
+        this.setExpression += ` = :n${this.attrIndex}`;
+        this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value, {
+            removeUndefinedValues: true,
+            convertTopLevelContainer: true,
+        });
+        this.attrIndex++;
         return this;
     }
 
@@ -154,7 +176,17 @@ export class UpdateItemBuilder {
      * @returns The converted path.
      */
     private addExpressionPath(path: string) {
-        const tokens = path.split('.');
+        return this.addExpressionTokens(path.split('.'));
+    }
+
+    /**
+     * Converts the given attribute path tokens into a DynamoDB-compliant path. Each token
+     * is converted into a DynamoDB expression attribute name, which is added to the exprAttrNames
+     * object.
+     * @param tokens The tokens to convert.
+     * @returns The converted path.
+     */
+    private addExpressionTokens(tokens: string[]) {
         let result = '';
 
         for (const token of tokens) {
