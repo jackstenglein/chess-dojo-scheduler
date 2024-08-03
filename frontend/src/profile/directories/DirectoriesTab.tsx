@@ -19,6 +19,7 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AddCurrentGameButton } from './AddCurrentGameButton';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs, useBreadcrumbs } from './DirectoryBreadcrumbs';
@@ -30,6 +31,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const breadcrumbs = useBreadcrumbs();
+    const navigate = useNavigate();
 
     const [selectedRowId, setSelectedRowId] = useState('');
     const [contextMenuPosition, setContextMenuPosition] = useState<{
@@ -54,6 +56,13 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const onClickRow = (params: GridRowParams<DirectoryItem>) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
             updateSearchParams({ directory: params.row.id });
+        } else {
+            navigate(
+                `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
+                    '?',
+                    '%3F',
+                )}?directory=${searchParams.get('directory')}`,
+            );
         }
     };
 

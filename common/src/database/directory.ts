@@ -14,7 +14,7 @@ const gameMetadataSchema = z.object({
     ownerDisplayName: z.string(),
 
     /** The datetime the game was uploaded to the database, in ISO format. */
-    createdAt: z.string().datetime(),
+    createdAt: z.union([z.string().datetime(), z.string().date()]),
 
     /** The player with the white pieces. */
     white: z.string(),

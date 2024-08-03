@@ -26,7 +26,10 @@ export const AddCurrentGameButton = ({ directory }: { directory: Directory }) =>
             game: {
                 owner: game.owner,
                 ownerDisplayName: game.ownerDisplayName,
-                createdAt: game.createdAt,
+                createdAt:
+                    game.createdAt ||
+                    game.date.replaceAll('.', '-') ||
+                    new Date().toISOString(),
                 id: game.id,
                 cohort: game.cohort,
                 white: game.headers.White,
