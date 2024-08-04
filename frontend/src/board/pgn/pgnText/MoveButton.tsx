@@ -1,3 +1,4 @@
+import { useGame } from '@/games/view/GameContext';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { Help } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -18,7 +19,6 @@ import {
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
-import { useGame } from '../../../games/view/GamePage';
 import { useReconcile } from '../../Board';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';

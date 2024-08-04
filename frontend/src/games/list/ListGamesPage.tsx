@@ -24,7 +24,7 @@ import { RequestSnackbar } from '../../api/Request';
 import { useFreeTier } from '../../auth/Auth';
 import { GameInfo } from '../../database/game';
 import { RequirementCategory } from '../../database/requirement';
-import { dojoCohorts } from '../../database/user';
+import { MastersCohort, dojoCohorts } from '../../database/user';
 import Avatar from '../../profile/Avatar';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
@@ -36,7 +36,6 @@ import ListGamesTutorial from './ListGamesTutorial';
 import SearchFilters from './SearchFilters';
 import { usePagination } from './pagination';
 
-export const MastersCohort = 'masters';
 export const MastersOwnerDisplayName = 'Masters DB';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [

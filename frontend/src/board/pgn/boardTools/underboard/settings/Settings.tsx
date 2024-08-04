@@ -1,6 +1,6 @@
+import { useGame } from '@/games/view/GameContext';
 import { CardContent, Stack } from '@mui/material';
 import { useAuth } from '../../../../../auth/Auth';
-import { useGame } from '../../../../../games/view/GamePage';
 import AdminSettings from './AdminSettings';
 import EditorSettings from './EditorSettings';
 import GameSettings from './GameSettings';

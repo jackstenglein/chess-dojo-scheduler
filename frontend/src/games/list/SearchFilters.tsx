@@ -28,10 +28,9 @@ import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { useFreeTier, useRequiredAuth } from '../../auth/Auth';
 import { RequirementCategory } from '../../database/requirement';
-import { dojoCohorts } from '../../database/user';
+import { MastersCohort, dojoCohorts } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
-import { MastersCohort } from './ListGamesPage';
 import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (

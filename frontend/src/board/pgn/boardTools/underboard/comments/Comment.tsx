@@ -1,3 +1,4 @@
+import { useGame } from '@/games/view/GameContext';
 import { Edit, ExpandMore } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -24,7 +25,6 @@ import { UpdateCommentRequest } from '../../../../../api/gameApi';
 import { useAuth } from '../../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
 import { PositionComment } from '../../../../../database/game';
-import { useGame } from '../../../../../games/view/GamePage';
 import Avatar from '../../../../../profile/Avatar';
 import CohortIcon from '../../../../../scoreboard/CohortIcon';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
