@@ -7,8 +7,8 @@ import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ExplorerGame } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
-const explorerTable = process.env.stage + '-explorer';
-const mastersTable = 'prod-masters-explorer';
+const explorerTable = `${process.env.stage}-explorer`;
+const mastersTable = process.env.stage === 'prod' ? 'masters-explorer' : explorerTable;
 
 /**
  * Returns a list of games with the provided FEN. The FEN is normalized before searching for games.

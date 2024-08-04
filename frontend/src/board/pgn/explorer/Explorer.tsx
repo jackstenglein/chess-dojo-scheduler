@@ -114,6 +114,7 @@ const Explorer = () => {
                             icon={<ChessDojoIcon />}
                             iconPosition='start'
                             sx={{ minHeight: '48px' }}
+                            data-cy='explorer-tab-button-dojo'
                         />
                         <Tab
                             label='Masters'
@@ -121,6 +122,7 @@ const Explorer = () => {
                             icon={<KingIcon sx={{ fontSize: '1rem' }} />}
                             iconPosition='start'
                             sx={{ minHeight: '48px' }}
+                            data-cy='explorer-tab-button-masters'
                         />
                         <Tab
                             label='Lichess'
@@ -128,6 +130,7 @@ const Explorer = () => {
                             icon={<SiLichess />}
                             iconPosition='start'
                             sx={{ minHeight: '48px' }}
+                            data-cy='explorer-tab-button-lichess'
                         />
                         <Tab
                             label='Tablebase'
@@ -135,6 +138,7 @@ const Explorer = () => {
                             icon={<RookIcon sx={{ fontSize: '1rem' }} />}
                             iconPosition='start'
                             sx={{ minHeight: '48px' }}
+                            data-cy='explorer-tab-button-tablebase'
                         />
                     </Tabs>
                 </Box>

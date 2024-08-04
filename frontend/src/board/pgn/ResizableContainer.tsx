@@ -83,7 +83,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
             rowGap={0.5}
             columnGap={{ xs: 0.5, md: 1, lg: 1 }}
         >
-            <KeyboardHandler underboardRef={underboardRef} />
+            <KeyboardHandler underboardRef={underboardRef} sizes={sizes} />
 
             {showUnderboard && (
                 <Underboard

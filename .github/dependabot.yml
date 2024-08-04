@@ -21,6 +21,10 @@ updates:
         applies-to: version-updates
         patterns:
           - '@mui/*'
+      fortawesome:
+        applies-to: version-updates
+        patterns:
+          - '@fortawesome/*'
       dev-dependencies:
         applies-to: version-updates
         patterns:

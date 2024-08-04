@@ -16,8 +16,8 @@ import {
 } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
-const explorerTable = process.env.stage + '-explorer';
-const mastersTable = 'prod-masters-explorer';
+const explorerTable = `${process.env.stage}-explorer`;
+const mastersTable = process.env.stage === 'prod' ? 'masters-explorer' : explorerTable;
 
 /**
  * Gets an ExplorerPosition for the provided FEN.

@@ -360,7 +360,7 @@ def upload_pgns(archive_num, pgns, twic_info):
                 continue
 
             batch.put_item(Item=game)
-            success += 1            
+            success += 1
     
     print(f'INFO {archive_num} Success: {success}')
     print(f'INFO {archive_num} Failed: {failed}')
