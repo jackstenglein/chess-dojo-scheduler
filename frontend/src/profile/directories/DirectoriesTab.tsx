@@ -16,6 +16,7 @@ import {
     DataGridPro,
     GridColDef,
     GridRenderCellParams,
+    GridRowHeightParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
@@ -109,9 +110,11 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                         sortModel: [{ field: 'type', sort: 'asc' }],
                     },
                 }}
+                getRowHeight={getRowHeight}
             />
 
             <ContextMenu
+                directory={directory}
                 selectedItem={directory.items[selectedRowId]}
                 onClose={closeContextMenu}
                 position={contextMenuPosition}
@@ -170,7 +173,7 @@ const columns: GridColDef<DirectoryItem>[] = [
                 return params.value;
             }
 
-            return RenderPlayers(item.metadata);
+            return RenderPlayers({ ...item.metadata, fullHeight: true });
         },
         flex: 1,
     },
@@ -181,3 +184,9 @@ const columns: GridColDef<DirectoryItem>[] = [
         flex: 1,
     },
 ];
+
+function getRowHeight(params: GridRowHeightParams) {
+    if (typeof params.id === 'string' && params.id.includes('#')) {
+        return 70;
+    }
+}

@@ -3,6 +3,7 @@ import {
     AddDirectoryItemRequest,
     CreateDirectoryRequest,
     Directory,
+    RemoveDirectoryItemRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import axios, { AxiosResponse } from 'axios';
@@ -26,6 +27,10 @@ export interface DirectoryApiContextType {
 
     addDirectoryItem: (
         request: AddDirectoryItemRequest,
+    ) => Promise<AxiosResponse<AddDirectoryItemResponse>>;
+
+    removeDirectoryItem: (
+        request: RemoveDirectoryItemRequest,
     ) => Promise<AxiosResponse<AddDirectoryItemResponse>>;
 }
 
@@ -99,5 +104,21 @@ export function addDirectoryItem(idToken: string, request: AddDirectoryItemReque
         {
             headers: { Authorization: `Bearer ${idToken}` },
         },
+    );
+}
+
+/**
+ * Sends a RemoveDirectoryItem request to the API.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to send.
+ * @returns The updated directory.
+ */
+export function removeDirectoryItem(
+    idToken: string,
+    request: RemoveDirectoryItemRequest,
+) {
+    return axios.delete<AddDirectoryItemResponse>(
+        `${BASE_URL}/directory/${request.directoryId}/item/${encodeURIComponent(request.itemId)}`,
+        { headers: { Authorization: `Bearer ${idToken}` } },
     );
 }

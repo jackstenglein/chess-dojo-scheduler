@@ -55,14 +55,17 @@ export async function removeDirectoryItem(
         const input = new UpdateItemBuilder()
             .key('owner', owner)
             .key('id', directoryId)
-            .remove(`items.${itemId}`)
+            .remove(['items', itemId])
             .set('updatedAt', new Date().toISOString())
             .condition(
                 allowSubdirectory
                     ? attributeExists('id')
                     : and(
                           attributeExists('id'),
-                          notEqual(`items.${itemId}.type`, DirectoryItemTypes.DIRECTORY),
+                          notEqual(
+                              ['items', itemId, 'type'],
+                              DirectoryItemTypes.DIRECTORY,
+                          ),
                       ),
             )
             .table(directoryTable)

@@ -1,8 +1,10 @@
 import { useApi } from '@/api/Api';
-import { useRequest } from '@/api/Request';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import {
+    Directory,
     DirectoryItem,
+    DirectoryItemGame,
     DirectoryItemSubdirectory,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -21,9 +23,11 @@ import { useState } from 'react';
 import { useDirectoryCache } from './DirectoryCache';
 
 export const DeleteDialog = ({
+    directory,
     item,
     onCancel,
 }: {
+    directory: Directory;
     item: DirectoryItem;
     onCancel: () => void;
 }) => {
@@ -31,7 +35,7 @@ export const DeleteDialog = ({
         return <DeleteDirectoryDialog item={item} onCancel={onCancel} />;
     }
 
-    return null;
+    return <RemoveGameDialog directory={directory} item={item} onCancel={onCancel} />;
 };
 
 const DeleteDirectoryDialog = ({
@@ -111,6 +115,73 @@ const DeleteDirectoryDialog = ({
                     Delete
                 </LoadingButton>
             </DialogActions>
+
+            <RequestSnackbar request={request} />
+        </Dialog>
+    );
+};
+
+const RemoveGameDialog = ({
+    directory,
+    item,
+    onCancel,
+}: {
+    directory: Directory;
+    item: DirectoryItemGame;
+    onCancel: () => void;
+}) => {
+    const request = useRequest();
+    const api = useApi();
+    const cache = useDirectoryCache();
+
+    const onRemove = () => {
+        request.onStart();
+        api.removeDirectoryItem({ directoryId: directory.id, itemId: item.id })
+            .then((resp) => {
+                console.log('removeDirectoryItem: ', resp);
+                cache.put(resp.data.directory);
+                onCancel();
+            })
+            .catch((err) => {
+                console.error('removeDirectoryItem: ', err);
+                request.onFailure(err);
+            });
+    };
+
+    return (
+        <Dialog
+            open={true}
+            onClose={request.isLoading() ? undefined : onCancel}
+            fullWidth
+        >
+            <DialogTitle>Remove game?</DialogTitle>
+            <DialogContent>
+                <Stack spacing={1}>
+                    <DialogContentText>
+                        This will remove the game{' '}
+                        <strong>
+                            {item.metadata.white} - {item.metadata.black}
+                        </strong>{' '}
+                        from the <strong>{directory.name}</strong> folder. The game will
+                        still be accessible from the Games tab and from any other folders
+                        it is in.
+                    </DialogContentText>
+                </Stack>
+            </DialogContent>
+            <DialogActions>
+                <Button disabled={request.isLoading()} onClick={onCancel}>
+                    Cancel
+                </Button>
+                <LoadingButton
+                    color='error'
+                    loading={request.isLoading()}
+                    onClick={onRemove}
+                >
+                    Remove
+                </LoadingButton>
+            </DialogActions>
+
+            <RequestSnackbar request={request} />
         </Dialog>
     );
 };

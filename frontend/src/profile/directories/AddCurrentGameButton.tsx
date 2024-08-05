@@ -15,8 +15,10 @@ export const AddCurrentGameButton = ({ directory }: { directory: Directory }) =>
         return null;
     }
 
+    const disabled = Boolean(directory.items[`${game.cohort}#${game.id}`]);
+
     const onAdd = () => {
-        if (!game) {
+        if (disabled) {
             return;
         }
 
@@ -56,6 +58,7 @@ export const AddCurrentGameButton = ({ directory }: { directory: Directory }) =>
                 variant='contained'
                 loading={request.isLoading()}
                 onClick={onAdd}
+                disabled={disabled}
             >
                 Add Current Game
             </LoadingButton>

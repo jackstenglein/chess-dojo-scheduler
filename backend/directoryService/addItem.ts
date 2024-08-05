@@ -76,12 +76,11 @@ async function addDirectoryItem(
     item: DirectoryItem,
 ): Promise<Directory> {
     try {
-        console.log('Building input for item: %j', item);
         const input = new UpdateItemBuilder()
             .key('owner', owner)
             .key('id', id)
             .set('updatedAt', new Date().toISOString())
-            .setPath(['items', item.id], item)
+            .set(['items', item.id], item)
             .condition(attributeExists('id'))
             .table(directoryTable)
             .return('ALL_NEW')

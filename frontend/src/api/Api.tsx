@@ -3,6 +3,7 @@
 import {
     AddDirectoryItemRequest,
     CreateDirectoryRequest,
+    RemoveDirectoryItemRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
@@ -46,6 +47,7 @@ import {
     createDirectory,
     deleteDirectory,
     getDirectory,
+    removeDirectoryItem,
     updateDirectory,
 } from './directoryApi';
 import {
@@ -469,6 +471,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             deleteDirectory: (id: string) => deleteDirectory(idToken, id),
             addDirectoryItem: (request: AddDirectoryItemRequest) =>
                 addDirectoryItem(idToken, request),
+            removeDirectoryItem: (request: RemoveDirectoryItemRequest) =>
+                removeDirectoryItem(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

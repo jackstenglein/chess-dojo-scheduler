@@ -58,19 +58,23 @@ export class UpdateItemBuilder {
 
     /**
      * Adds a command to set the given attribute to the given value.
-     * If the value is undefined, this function is a no-op. The
-     * attribute path will be split around the period character.
-     * To avoid this, use setPath instead.
+     * If the value is undefined, this function is a no-op. If path is a string,
+     * it will be split around the period character and each component will be
+     * converted to a DynamoDB expression attribute name. If path is an array,
+     * each item will be converted to a DynamoDB expression attribute name.
      * @param path The attribute path to set.
      * @param value The value to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    set(path: string, value: any): UpdateItemBuilder {
+    set(path: string | string[], value: any): UpdateItemBuilder {
         if (value === undefined) {
             return this;
         }
 
-        return this.setPath(path.split('.'), value);
+        if (typeof path === 'string') {
+            return this.setPath(path.split('.'), value);
+        }
+        return this.setPath(path, value);
     }
 
     /**
@@ -80,7 +84,7 @@ export class UpdateItemBuilder {
      * @param value The value to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    setPath(path: string[], value: any): UpdateItemBuilder {
+    private setPath(path: string[], value: any): UpdateItemBuilder {
         if (value === undefined) {
             return this;
         }
@@ -88,7 +92,7 @@ export class UpdateItemBuilder {
         if (this.setExpression.length > 0) {
             this.setExpression += ', ';
         }
-        this.setExpression += this.addExpressionTokens(path);
+        this.setExpression += this.addExpressionPath(path);
         this.setExpression += ` = :n${this.attrIndex}`;
         this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value, {
             removeUndefinedValues: true,
@@ -99,11 +103,26 @@ export class UpdateItemBuilder {
     }
 
     /**
-     * Adds a command to remove the given attribute path.
-     * @param path The attribute path to remove
+     * Adds a command to remove the given attribute path. If path is a string,
+     * it will be split around the period character and each component converted
+     * to a DynamoDB expression name attribute. If path is an array, each item
+     * will be converted to a DynamoDB expression name attribute.
+     * @param path The attribute path to remove.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    remove(path: string): UpdateItemBuilder {
+    remove(path: string | string[]): UpdateItemBuilder {
+        if (typeof path === 'string') {
+            return this.removePath(path.split('.'));
+        }
+        return this.removePath(path);
+    }
+
+    /**
+     * Adds a command to remove the given attribute path.
+     * @param path The attribute path to remove.
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    private removePath(path: string[]): UpdateItemBuilder {
         if (this.removeExpression.length > 0) {
             this.removeExpression += ', ';
         }
@@ -169,27 +188,16 @@ export class UpdateItemBuilder {
     }
 
     /**
-     * Converts the given attribute path into a DynamoDB-compliant path. The path is
-     * split on the . character, and each component is converted into a DynamoDB
-     * expression attribute name, which is added to the exprAttrNames object.
+     * Converts the given attribute path into a DynamoDB-compliant path. Each item in the path
+     * is converted into a DynamoDB expression attribute name, which is added to the exprAttrNames
+     * object.
      * @param path The path to convert.
      * @returns The converted path.
      */
-    private addExpressionPath(path: string) {
-        return this.addExpressionTokens(path.split('.'));
-    }
-
-    /**
-     * Converts the given attribute path tokens into a DynamoDB-compliant path. Each token
-     * is converted into a DynamoDB expression attribute name, which is added to the exprAttrNames
-     * object.
-     * @param tokens The tokens to convert.
-     * @returns The converted path.
-     */
-    private addExpressionTokens(tokens: string[]) {
+    private addExpressionPath(path: string[]) {
         let result = '';
 
-        for (const token of tokens) {
+        for (const token of path) {
             result += `#n${this.attrIndex}.`;
             this.exprAttrNames[`#n${this.attrIndex}`] = token;
             this.attrIndex++;
@@ -215,14 +223,13 @@ class Condition {
     }
 
     protected addExpressionPath(
-        path: string,
+        path: string[],
         exprAttrNames: Record<string, string>,
         parentAttrIndex: string,
     ) {
-        const tokens = path.split('.');
         let result = '';
 
-        for (const token of tokens) {
+        for (const token of path) {
             result += `#c${parentAttrIndex}${this.attrIndex}.`;
             exprAttrNames[`#c${parentAttrIndex}${this.attrIndex}`] = token;
             this.attrIndex++;
@@ -259,11 +266,15 @@ class AndCondition extends Condition {
 }
 
 class AttributeExistsCondition extends Condition {
-    private path: string;
+    private path: string[];
 
-    constructor(path: string) {
+    constructor(path: string | string[]) {
         super();
-        this.path = path;
+        if (typeof path === 'string') {
+            this.path = path.split('.');
+        } else {
+            this.path = path;
+        }
     }
 
     build(
@@ -276,12 +287,18 @@ class AttributeExistsCondition extends Condition {
 }
 
 class NotEqualCondition extends Condition {
-    private path: string;
+    private path: string[];
     private value: any;
 
-    constructor(path: string, value: any) {
+    constructor(path: string | string[], value: any) {
         super();
-        this.path = path;
+
+        if (typeof path === 'string') {
+            this.path = path.split('.');
+        } else {
+            this.path = path;
+        }
+
         this.value = value;
     }
 
@@ -318,7 +335,7 @@ export function and(
  * does not exist on the DynamoDB item.
  * @param path The path to check.
  */
-export function attributeExists(path: string): Condition {
+export function attributeExists(path: string | string[]): Condition {
     return new AttributeExistsCondition(path);
 }
 
@@ -328,6 +345,6 @@ export function attributeExists(path: string): Condition {
  * @param path The path to check.
  * @param value The value to compare against.
  */
-export function notEqual(path: string, value: any): Condition {
+export function notEqual(path: string | string[], value: any): Condition {
     return new NotEqualCondition(path, value);
 }

@@ -153,6 +153,13 @@ export type DirectoryItem = z.TypeOf<typeof DirectoryItemSchema>;
 /** A subdirectory in another directory. */
 export type DirectoryItemSubdirectory = z.infer<(typeof DirectoryItemSchema.options)[0]>;
 
+/** A directory item representing a game. */
+export type DirectoryItemGame = z.infer<
+    | (typeof DirectoryItemSchema.options)[1]
+    | (typeof DirectoryItemSchema.options)[2]
+    | (typeof DirectoryItemSchema.options)[3]
+>;
+
 /** The metadata of a game in a directory. */
 export type DirectoryItemGameMetadata = z.infer<typeof gameMetadataSchema>;
 
