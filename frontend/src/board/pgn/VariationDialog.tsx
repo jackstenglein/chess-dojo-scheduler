@@ -1,12 +1,13 @@
 import { Move } from '@jackstenglein/chess';
+import { Help } from '@mui/icons-material';
 import {
     Dialog,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     List,
     ListItemButton,
     ListItemText,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
@@ -14,13 +15,17 @@ import { useReconcile } from '../Board';
 import { compareNags, getStandardNag, nags } from './Nag';
 import { BlockBoardKeyboardShortcuts, useChess } from './PgnBoard';
 import { getTextColor } from './pgnText/MoveButton';
+import { AreaSizes } from './resize';
+
+const DIALOG_WIDTH = 231;
 
 interface VariationDialogProps {
     move: Move;
     setMove: (move: Move | null) => void;
+    sizes: AreaSizes;
 }
 
-const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
+const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove, sizes }) => {
     const [selected, setSelected] = useState(0);
     const { chess } = useChess();
     const reconcile = useReconcile();
@@ -84,14 +89,35 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
             classes={{
                 container: BlockBoardKeyboardShortcuts,
             }}
-            fullWidth
+            PaperProps={{
+                sx: {
+                    width: `${DIALOG_WIDTH}px`,
+                    position: {
+                        sm: 'absolute',
+                    },
+                    left: {
+                        sm: getSmPosition(sizes),
+                        md: getMdPosition(sizes),
+                    },
+                    marginLeft: {
+                        sm: 0,
+                    },
+                    marginRight: {
+                        sm: 0,
+                    },
+                },
+            }}
         >
-            <DialogTitle>Choose Variation</DialogTitle>
+            <DialogTitle>
+                Choose Variation
+                <Tooltip title='Use arrow keys/enter, numbers or click to select a move. Use left arrow or escape to cancel.'>
+                    <Help
+                        fontSize='small'
+                        sx={{ color: 'text.secondary', ml: 1, verticalAlign: 'middle' }}
+                    />
+                </Tooltip>
+            </DialogTitle>
             <DialogContent>
-                <DialogContentText>
-                    Use arrow keys/enter, numbers or click to select a move. Use left
-                    arrow or escape to cancel.
-                </DialogContentText>
                 <List>
                     <ListItemButton
                         selected={selected === 0}
@@ -140,3 +166,44 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
 };
 
 export default VariationDialog;
+
+function getSmPosition(sizes: AreaSizes): number | undefined {
+    if (sizes.pgn.width >= DIALOG_WIDTH) {
+        return (
+            sizes.padding / 2 +
+            sizes.board.width +
+            sizes.pgn.width / 2 +
+            2 * sizes.spacing -
+            DIALOG_WIDTH / 2
+        );
+    }
+
+    if (sizes.availableWidth - sizes.board.width - 8 > DIALOG_WIDTH) {
+        return sizes.board.width + 4;
+    }
+
+    return undefined;
+}
+
+function getMdPosition(sizes: AreaSizes): number | undefined {
+    if (sizes.underboard.width >= DIALOG_WIDTH) {
+        return sizes.underboard.width / 2 - DIALOG_WIDTH / 2 + sizes.padding / 2;
+    }
+
+    if (sizes.pgn.width >= DIALOG_WIDTH) {
+        return (
+            sizes.padding / 2 +
+            sizes.underboard.width +
+            sizes.board.width +
+            sizes.pgn.width / 2 +
+            2 * sizes.spacing -
+            DIALOG_WIDTH / 2
+        );
+    }
+
+    if (sizes.availableWidth - sizes.board.width - 8 >= DIALOG_WIDTH) {
+        return sizes.board.width + 4;
+    }
+
+    return undefined;
+}
