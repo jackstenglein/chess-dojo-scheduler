@@ -17,17 +17,19 @@ import {
     VariationBehavior,
     VariationBehaviorKey,
 } from './boardTools/underboard/settings/ViewerSettings';
+import { AreaSizes } from './resize';
 
 interface KeyboardHandlerProps {
     underboardRef: React.RefObject<UnderboardApi>;
+    sizes: AreaSizes;
 }
 
-const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
+const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef, sizes }) => {
     const { chess, board, keydownMap, toggleOrientation } = useChess();
     const reconcile = useReconcile();
     const [variationBehavior] = useLocalStorage(
         VariationBehaviorKey,
-        VariationBehavior.None,
+        VariationBehavior.Dialog,
     );
     const [variationDialogMove, setVariationDialogMove] = useState<Move | null>(null);
     const [keyBindings] = useLocalStorage(BoardKeyBindingsKey, defaultKeyBindings);
@@ -115,7 +117,11 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
     }
 
     return (
-        <VariationDialog move={variationDialogMove} setMove={setVariationDialogMove} />
+        <VariationDialog
+            move={variationDialogMove}
+            setMove={setVariationDialogMove}
+            sizes={sizes}
+        />
     );
 };
 

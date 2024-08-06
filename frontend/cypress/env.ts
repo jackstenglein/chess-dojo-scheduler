@@ -9,6 +9,9 @@ export const EnvSchema = z.object({
     cognito_domain: z.string(),
     cognito_username: z.string(),
     cognito_password: z.string(),
+    codeCoverage: z.object({
+        exclude: z.string(),
+    }),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

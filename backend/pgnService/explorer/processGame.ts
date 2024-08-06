@@ -24,9 +24,8 @@ import {
 const STARTING_POSITION_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
-const explorerTable = process.env.stage + '-explorer';
-const mastersTable =
-    process.env.stage === 'dev' ? 'dev-explorer' : 'prod-masters-explorer';
+const explorerTable = `${process.env.stage}-explorer`;
+const mastersTable = process.env.stage === 'prod' ? 'masters-explorer' : explorerTable;
 
 /** An ExplorerPosition extracted from a specific game. */
 interface ExplorerPositionExtraction {
