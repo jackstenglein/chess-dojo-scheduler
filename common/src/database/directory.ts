@@ -170,7 +170,7 @@ export const CreateDirectorySchema = DirectorySchema.pick({
     visibility: true,
 });
 
-/** The type of a request to create a directory. */
+/** A request to create a directory. */
 export type CreateDirectoryRequest = z.infer<typeof CreateDirectorySchema>;
 
 export const UpdateDirectorySchema = DirectorySchema.pick({
@@ -179,7 +179,7 @@ export const UpdateDirectorySchema = DirectorySchema.pick({
     visibility: true,
 }).partial({ name: true, visibility: true });
 
-/** The type of a request to update a directory. */
+/** A request to update a directory. */
 export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;
 
 /** Verifies a request to delete a directory. */
@@ -187,7 +187,7 @@ export const DeleteDirectorySchema = DirectorySchema.pick({
     id: true,
 });
 
-/** The type of a request to delete a directory. */
+/** A request to delete a directory. */
 export type DeleteDirectoryRequest = z.infer<typeof DeleteDirectorySchema>;
 
 /**
@@ -203,7 +203,7 @@ export const AddDirectoryItemSchema = DirectorySchema.pick({
     }),
 );
 
-/** The type of a request to add an item to a directory. */
+/** A request to add an item to a directory. */
 export type AddDirectoryItemRequest = z.infer<typeof AddDirectoryItemSchema>;
 
 /**
@@ -218,5 +218,26 @@ export const RemoveDirectoryItemSchema = z.object({
     itemId: z.string(),
 });
 
-/** The type of a request to remove an item from a directory. */
+/** A request to remove an item from a directory. */
 export type RemoveDirectoryItemRequest = z.infer<typeof RemoveDirectoryItemSchema>;
+
+/**
+ * Verifies a request to move items between directories.
+ */
+export const MoveDirectoryItemsSchema = z
+    .object({
+        /** The id of the directory currently containing the items. */
+        source: DirectorySchema.shape.id,
+
+        /** The id of the directory to move the items into. */
+        target: DirectorySchema.shape.id,
+
+        /** The ids of the items to move. */
+        items: z.string().array().nonempty(),
+    })
+    .refine((val) => val.source !== val.target, {
+        message: 'source/target directories must be different',
+    });
+
+/** A request to move items between directories. */
+export type MoveDirectoryItemsRequest = z.infer<typeof MoveDirectoryItemsSchema>;

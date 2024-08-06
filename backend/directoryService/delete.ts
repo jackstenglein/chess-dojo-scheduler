@@ -15,7 +15,7 @@ import {
     success,
 } from './api';
 import { directoryTable, dynamo } from './database';
-import { removeDirectoryItem } from './removeItem';
+import { removeDirectoryItems } from './removeItem';
 
 /**
  * Handles requests to the delete directory API. Returns the directory as
@@ -42,10 +42,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         let parent: Directory | undefined = undefined;
         const directory = await deleteDirectory(userInfo.username, request.id);
         if (directory) {
-            parent = await removeDirectoryItem(
+            parent = await removeDirectoryItems(
                 userInfo.username,
                 directory.parent,
-                request.id,
+                [request.id],
                 true,
             );
         }

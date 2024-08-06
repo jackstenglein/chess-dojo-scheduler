@@ -242,9 +242,9 @@ class Condition {
 class AndCondition extends Condition {
     private conditions: Condition[];
 
-    constructor(condition1: Condition, condition2: Condition, ...rest: Condition[]) {
+    constructor(...conditions: Condition[]) {
         super();
-        this.conditions = [condition1, condition2, ...rest];
+        this.conditions = conditions;
     }
 
     build(
@@ -318,16 +318,10 @@ class NotEqualCondition extends Condition {
 /**
  * Returns a condition which verifies that two or more nested conditions are
  * all true.
- * @param condition1 The first condition to verify.
- * @param condition2 The second condition to verify.
- * @param rest Additional conditions to verify.
+ * @param conditions The conditions to verify.
  */
-export function and(
-    condition1: Condition,
-    condition2: Condition,
-    ...rest: Condition[]
-): Condition {
-    return new AndCondition(condition1, condition2, ...rest);
+export function and(...conditions: Condition[]): Condition {
+    return new AndCondition(...conditions);
 }
 
 /**

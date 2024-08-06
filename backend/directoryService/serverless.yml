@@ -131,6 +131,22 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt DirectoriesTable.Arn
 
+  moveItems:
+    handler: moveItems.handler
+    events:
+      - httpApi:
+          path: /directory/item/move
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

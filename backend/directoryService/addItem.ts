@@ -30,7 +30,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const userInfo = requireUserInfo(event);
         const request = parseEvent(event, AddDirectoryItemSchema);
         const item = getDirectoryItem(userInfo, request);
-        const directory = await addDirectoryItem(userInfo.username, request.id, item);
+        const directory = await addDirectoryItems(userInfo.username, request.id, [item]);
         return success({ directory });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -64,28 +64,30 @@ function getDirectoryItem(
 }
 
 /**
- * Adds an item to a directory.
+ * Adds items to a directory.
  * @param owner The owner of the directory.
  * @param id The id of the directory.
- * @param item The item to add.
+ * @param items The items to add.
  * @returns The updated directory.
  */
-async function addDirectoryItem(
+export async function addDirectoryItems(
     owner: string,
     id: string,
-    item: DirectoryItem,
+    items: DirectoryItem[],
 ): Promise<Directory> {
     try {
-        const input = new UpdateItemBuilder()
+        const builder = new UpdateItemBuilder()
             .key('owner', owner)
             .key('id', id)
             .set('updatedAt', new Date().toISOString())
-            .set(['items', item.id], item)
             .condition(attributeExists('id'))
             .table(directoryTable)
-            .return('ALL_NEW')
-            .build();
+            .return('ALL_NEW');
+        for (const item of items) {
+            builder.set(['items', item.id], item);
+        }
 
+        const input = builder.build();
         console.log('Input: %j', input);
         const result = await dynamo.send(input);
         return unmarshall(result.Attributes!) as Directory;
