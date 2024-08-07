@@ -49,14 +49,14 @@ export function useDirectory(owner: string, id: string) {
             api.getDirectory(owner, id)
                 .then((resp) => {
                     console.log('getDirectory: ', resp);
-                    cache.markFetched(resp.data.id);
+                    cache.markFetched(compoundKey);
                     cache.put(resp.data);
                     cache.request.onSuccess();
                 })
                 .catch((err: AxiosError) => {
                     console.error('getDirectory: ', err);
                     if (err.response?.status === 404) {
-                        cache.markFetched(id);
+                        cache.markFetched(compoundKey);
                         cache.request.onSuccess();
                     } else {
                         cache.request.onFailure(err);

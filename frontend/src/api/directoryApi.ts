@@ -3,6 +3,7 @@ import {
     AddDirectoryItemRequest,
     CreateDirectoryRequest,
     Directory,
+    MoveDirectoryItemsRequest,
     RemoveDirectoryItemRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -32,6 +33,10 @@ export interface DirectoryApiContextType {
     removeDirectoryItem: (
         request: RemoveDirectoryItemRequest,
     ) => Promise<AxiosResponse<AddDirectoryItemResponse>>;
+
+    moveDirectoryItems: (
+        request: MoveDirectoryItemsRequest,
+    ) => Promise<AxiosResponse<MoveDirectoryItemsResponse>>;
 }
 
 /**
@@ -119,6 +124,29 @@ export function removeDirectoryItem(
 ) {
     return axios.delete<AddDirectoryItemResponse>(
         `${BASE_URL}/directory/${request.directoryId}/item/${encodeURIComponent(request.itemId)}`,
+        { headers: { Authorization: `Bearer ${idToken}` } },
+    );
+}
+
+/** The response from the MoveDirectoryItems API. */
+export interface MoveDirectoryItemsResponse {
+    /** The updated source directory. */
+    source: Directory;
+
+    /** The updated target directory. */
+    target: Directory;
+}
+
+/**
+ * Sends a MoveDirectoryItems request to the API.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to send.
+ * @returns The updated source/target directories.
+ */
+export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsRequest) {
+    return axios.put<MoveDirectoryItemsResponse>(
+        `${BASE_URL}/directory/item/move`,
+        request,
         { headers: { Authorization: `Bearer ${idToken}` } },
     );
 }

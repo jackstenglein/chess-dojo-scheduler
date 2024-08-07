@@ -12,6 +12,7 @@ import {
 import { Divider, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 import { DeleteDialog } from './DeleteDialog';
+import { MoveDialog } from './MoveDialog';
 import { RenameDialog } from './RenameDialog';
 
 export const ContextMenu = ({
@@ -26,6 +27,7 @@ export const ContextMenu = ({
     onClose: () => void;
 }) => {
     const [renameOpen, setRenameOpen] = useState(false);
+    const [moveOpen, setMoveOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
     if (!selectedItem) {
@@ -38,6 +40,10 @@ export const ContextMenu = ({
         setRenameOpen(true);
     };
 
+    const onMove = () => {
+        setMoveOpen(true);
+    };
+
     const onDelete = () => {
         setDeleteOpen(true);
     };
@@ -45,6 +51,7 @@ export const ContextMenu = ({
     const handleClose = () => {
         onClose();
         setRenameOpen(false);
+        setMoveOpen(false);
         setDeleteOpen(false);
     };
 
@@ -74,7 +81,7 @@ export const ContextMenu = ({
                         <ListItemText primary='Rename' />
                     </MenuItem>
                 )}
-                <MenuItem>
+                <MenuItem onClick={onMove}>
                     <ListItemIcon>
                         <DriveFileMoveOutlined />
                     </ListItemIcon>
@@ -93,6 +100,13 @@ export const ContextMenu = ({
 
             {renameOpen && selectedItem.type === DirectoryItemTypes.DIRECTORY && (
                 <RenameDialog item={selectedItem} onCancel={handleClose} />
+            )}
+            {moveOpen && (
+                <MoveDialog
+                    item={selectedItem}
+                    onCancel={handleClose}
+                    parent={directory}
+                />
             )}
             {deleteOpen && (
                 <DeleteDialog

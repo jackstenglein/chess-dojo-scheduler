@@ -46,9 +46,11 @@ export function useBreadcrumbs(): UseBreadcrumbs {
 export const DirectoryBreadcrumbs = ({
     directory,
     breadcrumbs,
+    onClick,
 }: {
     directory: Directory;
     breadcrumbs: UseBreadcrumbs;
+    onClick?: (id: string) => void;
 }) => {
     const { data, putBreadcrumb } = breadcrumbs;
     const { updateSearchParams } = useSearchParams();
@@ -63,7 +65,11 @@ export const DirectoryBreadcrumbs = ({
     }
 
     const handleClick = (item: BreadcrumbItem) => {
-        updateSearchParams({ directory: item.id });
+        if (onClick) {
+            onClick(item.id);
+        } else {
+            updateSearchParams({ directory: item.id });
+        }
     };
 
     return (

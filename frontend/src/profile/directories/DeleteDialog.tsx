@@ -47,7 +47,7 @@ const DeleteDirectoryDialog = ({
 }) => {
     const [value, setValue] = useState('');
     const request = useRequest();
-    const disableDelete = value.trim() !== 'permanently delete';
+    const disableDelete = value.trim() !== 'delete';
     const api = useApi();
     const cache = useDirectoryCache();
     const { updateSearchParams } = useSearchParams();
@@ -92,10 +92,10 @@ const DeleteDirectoryDialog = ({
                     </DialogContentText>
 
                     <DialogContentText>
-                        To confirm, type `permanently delete` below:
+                        To confirm, type `delete` below:
                     </DialogContentText>
                     <TextField
-                        placeholder='permanently delete'
+                        placeholder='delete'
                         value={value}
                         onChange={(e) => setValue(e.target.value.toLowerCase())}
                         fullWidth

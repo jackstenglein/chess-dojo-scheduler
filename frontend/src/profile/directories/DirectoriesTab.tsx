@@ -46,7 +46,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
         return Object.values(directory?.items || {});
     }, [directory]);
 
-    if (!request.isSent() || request.isLoading()) {
+    if (!directory && (!request.isSent() || request.isLoading())) {
         return <LoadingPage />;
     }
 
@@ -98,7 +98,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                 columns={columns}
                 onRowClick={onClickRow}
                 autoHeight
-                loading={request.isLoading()}
+                loading={!directory && request.isLoading()}
                 sx={{ width: 1 }}
                 slotProps={{
                     row: {
