@@ -35,7 +35,7 @@ export interface BreadcrumbData {
     setBreadcrumbs: Dispatch<SetStateAction<Record<string, BreadcrumbItem>>>;
 
     /** Adds a single breadcrumb item for the given directory to the cache. */
-    putBreadcrumb: (directory: Directory) => void;
+    putBreadcrumb: (directory: Partial<Directory>) => void;
 }
 
 type DirectoryCacheContextType = IdentifiableCache<Directory> & BreadcrumbData;
@@ -54,17 +54,19 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
     const [breadcrumbs, setBreadcrumbs] = useState<Record<string, BreadcrumbItem>>({});
 
     const putBreadcrumb = useCallback(
-        (directory: Directory) => {
-            setBreadcrumbs((data) => {
-                return {
-                    ...data,
-                    [`${directory.owner}/${directory.id}`]: {
-                        name: directory.name,
-                        id: directory.id,
-                        parent: directory.parent,
-                    },
-                };
-            });
+        (directory: Partial<Directory>) => {
+            if (directory.owner && directory.id && directory.name && directory.parent) {
+                setBreadcrumbs((data) => {
+                    return {
+                        ...data,
+                        [`${directory.owner}/${directory.id}`]: {
+                            name: directory.name || '',
+                            id: directory.id || '',
+                            parent: directory.parent || '',
+                        },
+                    };
+                });
+            }
         },
         [setBreadcrumbs],
     );
@@ -78,11 +80,21 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
         [put, putBreadcrumb],
     );
 
+    const update = directories.update;
+    const updateDirectory = useCallback(
+        (directory: Partial<Directory>) => {
+            update(directory);
+            putBreadcrumb(directory);
+        },
+        [update, putBreadcrumb],
+    );
+
     return (
         <DirectoryCacheContext.Provider
             value={{
                 ...directories,
                 put: putDirectory,
+                update: updateDirectory,
                 breadcrumbs,
                 setBreadcrumbs,
                 putBreadcrumb,
@@ -133,7 +145,12 @@ export function useDirectory(owner: string, id: string) {
         }
     }, [api, cache, compoundKey, owner, id]);
 
-    return { directory, request: cache.request, putDirectory: cache.put };
+    return {
+        directory,
+        request: cache.request,
+        putDirectory: cache.put,
+        updateDirectory: cache.update,
+    };
 }
 
 export function useBreadcrumbs(owner: string, id: string) {

@@ -28,6 +28,7 @@ export interface IdentifiableCache<T> {
     filter: (predicate: (obj: T) => boolean) => T[];
     put: (obj: T) => void;
     putMany: (objs: T[]) => void;
+    update: (obj: Partial<T>) => void;
     remove: (id: string) => void;
     isFetched: (id: string) => boolean;
     markFetched: (id: string) => void;
@@ -35,7 +36,7 @@ export interface IdentifiableCache<T> {
 }
 
 export function useIdentifiableCache<T>(
-    keyGetter?: (item: T) => string,
+    keyGetter?: (item: Partial<T>) => string,
 ): IdentifiableCache<T> {
     const [objects, setObjects] = useState<Record<string, T>>({});
     const fetchedIds = useRef<Record<string, boolean>>({});
@@ -83,6 +84,29 @@ export function useIdentifiableCache<T>(
         [setObjects, keyGetter],
     );
 
+    const update = useCallback(
+        (obj: Partial<T>) => {
+            const id = keyGetter ? keyGetter(obj) : (obj as any).id;
+            if (!id) {
+                return;
+            }
+
+            setObjects((objects) => {
+                if (!objects[id]) {
+                    return objects;
+                }
+                return {
+                    ...objects,
+                    [id]: {
+                        ...objects[id],
+                        obj,
+                    },
+                };
+            });
+        },
+        [setObjects, keyGetter],
+    );
+
     const remove = useCallback(
         (id: string) => {
             setObjects((objects) => {
@@ -116,6 +140,7 @@ export function useIdentifiableCache<T>(
         filter,
         put,
         putMany,
+        update,
         remove,
         isFetched,
         markFetched,
@@ -161,7 +186,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const requirements = useIdentifiableCache<Requirement>();
     const notifications = useIdentifiableCache<Notification>();
     const positions = useIdentifiableCache<GetExplorerPositionResult>(
-        (item) => item.normalizedFen,
+        (item) => item?.normalizedFen || '',
     );
     const clubs = useIdentifiableCache<Club>();
     const [imageBypass, setImageBypass] = useState(Date.now());

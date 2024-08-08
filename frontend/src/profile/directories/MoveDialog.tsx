@@ -46,6 +46,7 @@ export const MoveDialog = ({
         directory: newDirectory,
         request,
         putDirectory,
+        updateDirectory,
     } = useDirectory(user.username, newDirectoryId);
 
     const disabled = parent.id === newDirectoryId;
@@ -71,6 +72,14 @@ export const MoveDialog = ({
                 onCancel();
                 putDirectory(resp.data.source);
                 putDirectory(resp.data.target);
+                if (item.type === DirectoryItemTypes.DIRECTORY) {
+                    updateDirectory({
+                        owner: user.username,
+                        id: item.id,
+                        parent: newDirectoryId,
+                        name: item.metadata.name,
+                    });
+                }
             })
             .catch((err) => {
                 console.error('moveDirectoryItems: ', err);

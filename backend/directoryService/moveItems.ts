@@ -1,6 +1,13 @@
 import {
+    BatchExecuteStatementCommand,
+    BatchStatementRequest,
+} from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
+import {
     Directory,
     DirectoryItem,
+    DirectoryItemSubdirectory,
+    DirectoryItemTypes,
     MoveDirectoryItemsRequest,
     MoveDirectoryItemsSchema,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -13,6 +20,7 @@ import {
     requireUserInfo,
     success,
 } from './api';
+import { directoryTable, dynamo } from './database';
 import { fetchDirectory } from './get';
 import { removeDirectoryItems } from './removeItem';
 
@@ -60,6 +68,43 @@ async function moveItems(
         .map((id) => source?.items[id])
         .filter((item) => Boolean(item)) as DirectoryItem[];
     const target = await addDirectoryItems(owner, request.target, items);
+
+    await updateParent(
+        owner,
+        target.id,
+        items.filter((i) => i.type === DirectoryItemTypes.DIRECTORY),
+    );
+
     source = await removeDirectoryItems(owner, source.id, request.items, true);
     return { source, target };
+}
+
+/**
+ * Updates the parent of the directories corresponding to the given list of subdirectory items.
+ * @param owner The owner of the directories.
+ * @param parent The new parent id to set on the directories.
+ * @param items The subdirectory items corresponding to the directories to update.
+ */
+async function updateParent(
+    owner: string,
+    parent: string,
+    items: DirectoryItemSubdirectory[],
+) {
+    for (let i = 0; i < items.length; i += 25) {
+        const statements: BatchStatementRequest[] = [];
+
+        for (let j = i; j < items.length && j < i + 25; j++) {
+            const item = items[j];
+            const params = marshall([parent, owner, item.id]);
+            statements.push({
+                Statement: `UPDATE "${directoryTable}" SET parent=? WHERE owner=? AND id=?`,
+                Parameters: params,
+            });
+        }
+
+        console.log('Sending BatchExecuteStatements: ', statements);
+        const input = new BatchExecuteStatementCommand({ Statements: statements });
+        const result = await dynamo.send(input);
+        console.log('BatchExecuteResult: %j', result);
+    }
 }

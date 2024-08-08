@@ -160,6 +160,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
+          - dynamodb:PartiQLUpdate
         Resource: !GetAtt DirectoriesTable.Arn
 
 resources:
