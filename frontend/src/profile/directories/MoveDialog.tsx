@@ -98,7 +98,7 @@ export const MoveDialog = ({
                 {item.type === DirectoryItemTypes.DIRECTORY ? item.metadata.name : 'game'}
                 ?
             </DialogTitle>
-            <DialogContent>
+            <DialogContent data-cy='move-directory-form'>
                 {newDirectory ? (
                     <Stack>
                         <Stack direction='row' spacing={1.5}>

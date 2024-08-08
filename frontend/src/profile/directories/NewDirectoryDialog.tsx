@@ -57,8 +57,9 @@ export const NewDirectoryDialog = ({
             fullWidth
         >
             <DialogTitle>New Folder</DialogTitle>
-            <DialogContent>
+            <DialogContent data-cy='new-directory-form'>
                 <TextField
+                    data-cy='new-directory-name'
                     label='Name'
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -74,6 +75,7 @@ export const NewDirectoryDialog = ({
                     disabled={disableCreate}
                     loading={request.isLoading()}
                     onClick={onCreate}
+                    data-cy='new-directory-create-button'
                 >
                     Create
                 </LoadingButton>

@@ -83,7 +83,7 @@ const DeleteDirectoryDialog = ({
             fullWidth
         >
             <DialogTitle>Delete {item.metadata.name}?</DialogTitle>
-            <DialogContent>
+            <DialogContent data-cy='delete-directory-form'>
                 <Stack spacing={1}>
                     <DialogContentText>
                         This will permanently delete {item.metadata.name} and any folders
@@ -95,6 +95,7 @@ const DeleteDirectoryDialog = ({
                         To confirm, type `delete` below:
                     </DialogContentText>
                     <TextField
+                        data-cy='delete-directory-confirm'
                         placeholder='delete'
                         value={value}
                         onChange={(e) => setValue(e.target.value.toLowerCase())}
@@ -107,6 +108,7 @@ const DeleteDirectoryDialog = ({
                     Cancel
                 </Button>
                 <LoadingButton
+                    data-cy='delete-directory-button'
                     color='error'
                     disabled={disableDelete}
                     loading={request.isLoading()}

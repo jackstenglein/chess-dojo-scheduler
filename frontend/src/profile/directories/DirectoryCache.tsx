@@ -1,7 +1,11 @@
 import { useApi } from '@/api/Api';
 import { IdentifiableCache, useIdentifiableCache } from '@/api/cache/Cache';
 import { useRequest } from '@/api/Request';
-import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    Directory,
+    DirectoryVisibility,
+    HOME_DIRECTORY_ID,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { AxiosError } from 'axios';
 import {
     createContext,
@@ -105,6 +109,16 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
     );
 }
 
+const defaultHomeDirectory = {
+    id: HOME_DIRECTORY_ID,
+    parent: uuidNil,
+    name: 'Home',
+    visibility: DirectoryVisibility.PUBLIC,
+    createdAt: '',
+    updatedAt: '',
+    items: {},
+};
+
 export function useDirectory(owner: string, id: string) {
     const api = useApi();
     const cache = useDirectoryCache();
@@ -138,6 +152,9 @@ export function useDirectory(owner: string, id: string) {
                     if (err.response?.status === 404) {
                         cache.markFetched(compoundKey);
                         cache.request.onSuccess();
+                        if (id === HOME_DIRECTORY_ID) {
+                            cache.put({ ...defaultHomeDirectory, owner });
+                        }
                     } else {
                         cache.request.onFailure(err);
                     }

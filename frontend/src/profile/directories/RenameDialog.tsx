@@ -25,7 +25,7 @@ export const RenameDialog = ({
     const api = useApi();
     const cache = useDirectoryCache();
 
-    const disableSave = name.trim().length === 0;
+    const disableSave = name.trim().length === 0 || name === item.metadata.name;
 
     const onSave = () => {
         if (disableSave) {
@@ -56,8 +56,9 @@ export const RenameDialog = ({
             fullWidth
         >
             <DialogTitle>Rename Folder</DialogTitle>
-            <DialogContent>
+            <DialogContent data-cy='directory-rename-form'>
                 <TextField
+                    data-cy='directory-rename-new-name'
                     label='Name'
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -70,6 +71,7 @@ export const RenameDialog = ({
                     Cancel
                 </Button>
                 <LoadingButton
+                    data-cy='directory-rename-save-button'
                     disabled={disableSave}
                     loading={request.isLoading()}
                     onClick={onSave}

@@ -93,6 +93,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
             <DirectoryBreadcrumbs owner={user.username} id={directoryId} />
 
             <DataGridPro
+                data-cy='directories-data-grid'
                 rows={rows}
                 columns={columns}
                 onRowClick={onClickRow}
