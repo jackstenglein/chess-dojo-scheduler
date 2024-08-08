@@ -53,6 +53,21 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt DirectoriesTable.Arn
 
+  listBreadcrumbs:
+    handler: listBreadcrumbs.handler
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/breadcrumbs
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
   update:
     handler: update.handler
     events:

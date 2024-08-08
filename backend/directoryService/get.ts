@@ -17,7 +17,7 @@ import {
 } from './api';
 import { directoryTable, dynamo } from './database';
 
-const getDirectorySchema = DirectorySchema.pick({ owner: true, id: true });
+export const getDirectorySchema = DirectorySchema.pick({ owner: true, id: true });
 
 /**
  * Handles requests to the get directory API. Returns an error if the directory does
