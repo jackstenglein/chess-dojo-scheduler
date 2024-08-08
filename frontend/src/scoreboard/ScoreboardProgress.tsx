@@ -4,6 +4,53 @@ import { useAuth } from '../auth/Auth';
 import { Requirement, formatTime } from '../database/requirement';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 
+interface ProgressTextProps {
+    value: number;
+    max?: number;
+    min?: number;
+    label?: string;
+    suffix?: string;
+    isTime?: boolean;
+}
+export const ProgressText: React.FC<ProgressTextProps> = ({
+    value,
+    max,
+    min,
+    label,
+    suffix,
+    isTime,
+}) => {
+    let formattedValue = value.toString();
+    let formattedMin = min?.toString();
+    let formattedMax = max?.toString();
+    const formattedSuffix = suffix ?? '';
+
+    if (isTime) {
+        formattedValue = formatTime(value);
+        if (max !== undefined) {
+            formattedMax = formatTime(max);
+        }
+
+        if (min !== undefined) {
+            formattedMin = formatTime(min);
+        }
+    }
+    return (
+        <Typography
+            whiteSpace='no-wrap'
+            variant='body2'
+            color='text.secondary'
+            sx={{ fontWeight: 'bold' }}
+        >
+            {label
+                ? label
+                : formattedMin !== undefined && formattedMax !== undefined
+                  ? `${formattedValue} / ${formattedMax} ${formattedSuffix}`
+                  : `${formattedValue} ${formattedSuffix}`}
+        </Typography>
+    );
+};
+
 interface ScoreboardProgressProps {
     value: number;
     max: number;
@@ -15,6 +62,7 @@ interface ScoreboardProgressProps {
     fullHeight?: boolean;
     suffix?: string;
     isTime?: boolean;
+    hideProgressText?: boolean;
 }
 
 const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps> = ({
@@ -28,6 +76,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     fullHeight,
     suffix,
     isTime,
+    hideProgressText,
     ...rest
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
@@ -55,18 +104,20 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                         variant='determinate'
                         {...rest}
                         value={displayValue}
-                        
                     />
                 </Box>
-                <Box>
-                    <Typography variant='body2' color='text.secondary' sx={{fontWeight: "bold"}} >
-                        {label
-                            ? label
-                            : isTime
-                              ? `${formatTime(value)} / ${formatTime(max)}`
-                              : `${Math.max(value, min)} / ${max} ${suffix || ''}`}
-                    </Typography>
-                </Box>
+                {!hideProgressText && (
+                    <Box>
+                        <ProgressText
+                            label={label}
+                            isTime={isTime}
+                            suffix={suffix}
+                            value={value}
+                            min={min}
+                            max={max}
+                        />
+                    </Box>
+                )}
             </Box>
 
             {canUpdate && showUpdateDialog && (

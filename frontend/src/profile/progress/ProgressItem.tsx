@@ -1,9 +1,6 @@
-import { Help, Lock, Visibility } from '@mui/icons-material';
-import EditIcon from '@mui/icons-material/Edit';
-import { AddCircle } from '@mui/icons-material';
-import { blue } from '@mui/material/colors';
-import {Box} from '@mui/material';
+import { AddCircle, Lock } from '@mui/icons-material';
 import {
+    Box,
     Checkbox,
     Chip,
     Divider,
@@ -13,6 +10,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import { blue } from '@mui/material/colors';
 import React, { useMemo, useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import { useFreeTier } from '../../auth/Auth';
@@ -30,7 +28,7 @@ import {
 } from '../../database/requirement';
 import { ALL_COHORTS, User } from '../../database/user';
 import RequirementModal from '../../requirements/RequirementModal';
-import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
+import ScoreboardProgress, { ProgressText } from '../../scoreboard/ScoreboardProgress';
 import CustomTaskProgressItem from './CustomTaskProgressItem';
 import ProgressDialog from './ProgressDialog';
 
@@ -138,9 +136,8 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     onClick={() => setShowUpdateDialog(true)}
                     disabled={!isCurrentUser}
                     sx={{
-                        color: blue[800]
-                      }}
-                   
+                        color: blue[800],
+                    }}
                 />
             );
             break;
@@ -153,8 +150,8 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     value={currentCount}
                     max={totalCount}
                     min={requirement.startCount}
-                    suffix={requirement.progressBarSuffix}
                     isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
+                    hideProgressText={true}
                     sx={{ height: '6px' }}
                 />
             );
@@ -166,7 +163,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                         aria-label={`Update ${requirement.name}`}
                         onClick={() => setShowUpdateDialog(true)}
                     >
-                        <AddCircle color='primary'/>
+                        <AddCircle color='primary' />
                     </IconButton>
                 );
             break;
@@ -177,7 +174,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     aria-label={`Update ${requirement.name}`}
                     onClick={() => setShowUpdateDialog(true)}
                 >
-                    <AddCircle color='primary'/>
+                    <AddCircle color='primary' />
                 </IconButton>
             );
             break;
@@ -194,12 +191,12 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     description = description.replaceAll('{{count}}', `${totalCount}`);
 
     if (blocker.isBlocked) {
-        UpdateElement = <Lock  sx={{ marginRight: 1, color: "gray" }} />;
+        UpdateElement = <Lock sx={{ marginRight: 1, color: 'gray' }} />;
     }
 
     return (
         <Tooltip title={blocker.reason} followCursor>
-            <Stack spacing={2} mt={2} >
+            <Stack spacing={2} mt={2}>
                 {showUpdateDialog && (
                     <ProgressDialog
                         open={showUpdateDialog}
@@ -215,8 +212,6 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     alignItems='center'
                     justifyContent='space-between'
                     position='relative'
-                    
-                    
                 >
                     <Grid
                         item
@@ -229,53 +224,36 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                         onClick={() => setShowReqModal(true)}
                         sx={{ cursor: 'pointer', position: 'relative' }}
                         id='task-details'
-                        
+                        display='flex'
+                        flexDirection='column'
+                        rowGap='0.25rem'
                     >
-                        <Typography
-                            sx={{
-                                opacity: blocker.isBlocked ? 0.5 : 1, fontWeight: "bold"
-                            }}
+                        <Box
+                            display='flex'
+                            flexWrap='wrap'
+                            justifyContent='space-between'
+                            columnGap='1rem'
                         >
-                            {requirementName}
-
-                            {/* <Help
+                            <Typography
                                 sx={{
-                                
-                                    fontSize: { xs: '1rem', sm: '1.25rem' },
-                                    verticalAlign: 'middle',
-                                    marginLeft: 1,
+                                    opacity: blocker.isBlocked ? 0.5 : 1,
+                                    fontWeight: 'bold',
                                 }}
-
-                                color='secondary'
-                               
-                            /> */}
-                        </Typography>
-
-                        {/* <Typography
-                            color='text.secondary'
-                            dangerouslySetInnerHTML={{ __html: description }}
-                            sx={{
-                                WebkitLineClamp: 3,
-                                display: { xs: 'none', sm: '-webkit-box' },
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                whiteSpace: 'pre-wrap',
-                                '& ul': {
-                                    display: 'none',
-                                },
-                                '& ol': {
-                                    display: 'none',
-                                },
-                                opacity: blocker.isBlocked ? 0.7 : 1,
-                            }}
-                        />
-                        <Typography
-                            color='primary'
-                            variant='caption'
-                            sx={{ opacity: blocker.isBlocked ? 0.7 : 1 }}
-                        >
-                            View Description
-                        </Typography> */}
+                            >
+                                {requirementName}
+                            </Typography>
+                            <Box mr={1}>
+                                <ProgressText
+                                    value={currentCount}
+                                    max={totalCount}
+                                    min={requirement.startCount}
+                                    isTime={
+                                        requirement.scoreboardDisplay ===
+                                        ScoreboardDisplay.Minutes
+                                    }
+                                />
+                            </Box>
+                        </Box>
                         {DescriptionElement}
                     </Grid>
                     <Grid item xs={2} sm='auto' id='task-status'>
@@ -299,9 +277,11 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                                 {!blocker.isBlocked && (
                                     <Typography
                                         color='text.secondary'
-                                        sx={{ display: { xs: 'none', sm: 'initial' }, fontWeight: "bold" }}
+                                        sx={{
+                                            display: { xs: 'none', sm: 'initial' },
+                                            fontWeight: 'bold',
+                                        }}
                                         noWrap
-                                        
                                         textOverflow='unset'
                                     >
                                         {time}
@@ -313,7 +293,6 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     </Grid>
                 </Grid>
                 <Divider />
-               
 
                 {showReqModal && (
                     <RequirementModal

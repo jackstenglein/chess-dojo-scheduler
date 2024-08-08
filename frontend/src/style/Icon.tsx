@@ -51,6 +51,7 @@ import {
     SportsScore,
     Stadium,
     ThumbUp,
+    Today,
     Visibility,
     WavingHand,
     Whatshot,
@@ -70,6 +71,7 @@ import { RequirementCategory } from '../database/requirement';
 import { RookIcon } from './ChessIcons';
 
 export const icons = {
+    [RequirementCategory.TodaysFocus]: Today,
     [RequirementCategory.Welcome]: WavingHand,
     [RequirementCategory.Games]: Biotech,
     [RequirementCategory.Tactics]: Speed,
