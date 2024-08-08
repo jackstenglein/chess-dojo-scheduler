@@ -1,3 +1,4 @@
+import { ProgressText } from '@/scoreboard/ScoreboardProgress';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
     Accordion,
@@ -27,7 +28,7 @@ export interface Category {
 interface ProgressCategoryProps {
     c: Category;
     expanded: boolean;
-    toggleExpand: (name: string) => void;
+    toggleExpand?: (name: string) => void;
     user: User;
     isCurrentUser: boolean;
     cohort: string;
@@ -68,7 +69,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
         <Accordion
             key={c.name}
             expanded={expanded}
-            onChange={() => toggleExpand(c.name)}
+            onChange={() => !!toggleExpand && toggleExpand(c.name)}
             sx={{ width: 1 }}
         >
             <AccordionSummary
@@ -76,28 +77,36 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                 aria-controls={`${c.name.replaceAll(' ', '-')}-content`}
                 id={`${c.name.replaceAll(' ', '-')}-header`}
             >
-                <Stack
-                    direction='row'
-                    justifyContent='space-between'
-                    sx={{ width: 1, mr: 2 }}
-                >
+                <Stack direction='row' width='100%'>
                     <Typography fontWeight='bold'>
                         <Icon
                             name={c.name}
                             color='primary'
                             sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
                         />
-                        {c.name}
                     </Typography>
-                    {c.name === 'Non-Dojo' ? (
-                        <Typography color='text.secondary'>
-                            {c.requirements.length} Activities
-                        </Typography>
-                    ) : (
-                        <Typography color='text.secondary'>
-                            {`${c.totalComplete}/${c.totalRequirements} Tasks`}
-                        </Typography>
-                    )}
+                    <Stack
+                        direction='row'
+                        justifyContent='space-between'
+                        flexWrap='wrap'
+                        columnGap='1rem'
+                        sx={{ width: 1, mr: 2 }}
+                    >
+                        <Typography fontWeight='bold'>{c.name}</Typography>
+                        {c.name === 'Non-Dojo' ? (
+                            <ProgressText
+                                value={c.requirements.length}
+                                suffix='Activities'
+                            />
+                        ) : (
+                            <ProgressText
+                                value={c.totalComplete}
+                                max={c.totalRequirements}
+                                min={0}
+                                suffix='Tasks'
+                            />
+                        )}
+                    </Stack>
                 </Stack>
             </AccordionSummary>
             <AccordionDetails>
