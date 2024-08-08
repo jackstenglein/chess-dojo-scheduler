@@ -1,7 +1,10 @@
 import NotFoundPage from '@/NotFoundPage';
-import { useRequiredAuth } from '@/auth/Auth';
+import { useAuth, useRequiredAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { User } from '@/database/user';
 import { RenderPlayers } from '@/games/list/GameListItem';
+import { MastersOwnerDisplayName } from '@/games/list/ListGamesPage';
+import { useGame } from '@/games/view/GamePage';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -11,7 +14,7 @@ import {
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Folder } from '@mui/icons-material';
-import { Stack } from '@mui/material';
+import { Link, Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -20,7 +23,8 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import Avatar from '../Avatar';
 import { AddCurrentGameButton } from './AddCurrentGameButton';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
@@ -32,6 +36,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const navigate = useNavigate();
+    const { game } = useGame();
 
     const [selectedRowId, setSelectedRowId] = useState('');
     const [contextMenuPosition, setContextMenuPosition] = useState<{
@@ -109,6 +114,11 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                     sorting: {
                         sortModel: [{ field: 'type', sort: 'asc' }],
                     },
+                    columns: {
+                        columnVisibilityModel: {
+                            createdAt: !game,
+                        },
+                    },
                 }}
                 getRowHeight={getRowHeight}
             />
@@ -178,10 +188,58 @@ const columns: GridColDef<DirectoryItem>[] = [
         flex: 1,
     },
     {
+        field: 'owner',
+        headerName: 'Owner',
+        valueGetter: (_value, row) => {
+            switch (row.type) {
+                case DirectoryItemTypes.DIRECTORY:
+                    return '';
+                default:
+                    return row.metadata.owner;
+            }
+        },
+        renderCell: (params: GridRenderCellParams<DirectoryItem, string>) => {
+            const item = params.row;
+            if (
+                item.type === DirectoryItemTypes.DIRECTORY ||
+                item.metadata.ownerDisplayName === ''
+            ) {
+                return null;
+            }
+
+            if (item.metadata.ownerDisplayName === MastersOwnerDisplayName) {
+                return MastersOwnerDisplayName;
+            }
+
+            return (
+                <Stack
+                    direction='row'
+                    spacing={1}
+                    alignItems='center'
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <Avatar
+                        username={item.metadata.owner}
+                        displayName={item.metadata.ownerDisplayName}
+                        size={32}
+                    />
+                    <Link component={RouterLink} to={`/profile/${item.metadata.owner}`}>
+                        {item.metadata.ownerDisplayName}
+                    </Link>
+                </Stack>
+            );
+        },
+        flex: 1,
+    },
+    {
         field: 'createdAt',
         headerName: 'Date Created',
         valueGetter: (_value, row) => row.metadata.createdAt,
-        flex: 1,
+        renderCell(params: GridRenderCellParams<DirectoryItem, string>) {
+            return <DirectoryCreatedAt createdAt={params.value} />;
+        },
+        width: 110,
+        align: 'center',
     },
 ];
 
@@ -189,4 +247,22 @@ function getRowHeight(params: GridRowHeightParams) {
     if (typeof params.id === 'string' && params.id.includes('#')) {
         return 70;
     }
+}
+
+function DirectoryCreatedAt({ createdAt }: { createdAt?: string }) {
+    const { user } = useAuth();
+
+    if (!createdAt) {
+        return null;
+    }
+
+    const d = new Date(createdAt);
+    const date = toDojoDateString(d, user?.timezoneOverride);
+    const time = toDojoTimeString(d, user?.timezoneOverride, user?.timeFormat);
+
+    return (
+        <Tooltip title={`${date} • ${time}`}>
+            <span>{date}</span>
+        </Tooltip>
+    );
 }
