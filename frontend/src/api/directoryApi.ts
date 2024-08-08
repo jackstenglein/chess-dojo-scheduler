@@ -1,4 +1,5 @@
 import { getConfig } from '@/config';
+import { BreadcrumbItem } from '@/profile/directories/DirectoryCache';
 import {
     AddDirectoryItemRequest,
     CreateDirectoryRequest,
@@ -13,6 +14,11 @@ const BASE_URL = getConfig().api.baseUrl;
 
 export interface DirectoryApiContextType {
     getDirectory: (owner: string, id: string) => Promise<AxiosResponse<Directory>>;
+
+    listBreadcrumbs: (
+        owner: string,
+        id: string,
+    ) => Promise<AxiosResponse<Record<string, BreadcrumbItem>>>;
 
     createDirectory: (
         request: CreateDirectoryRequest,
@@ -52,6 +58,17 @@ export function getDirectory(idToken: string, owner: string, id: string) {
             Authorization: `Bearer ${idToken}`,
         },
     });
+}
+
+export function listBreadcrumbs(idToken: string, owner: string, id: string) {
+    return axios.get<Record<string, BreadcrumbItem>>(
+        `${BASE_URL}/directory/${owner}/${id}/breadcrumbs`,
+        {
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+            },
+        },
+    );
 }
 
 export interface CreateDirectoryResponse {

@@ -23,7 +23,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AddCurrentGameButton } from './AddCurrentGameButton';
 import { ContextMenu } from './ContextMenu';
-import { DirectoryBreadcrumbs, useBreadcrumbs } from './DirectoryBreadcrumbs';
+import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { NewDirectoryButton } from './NewDirectoryButton';
 
@@ -31,7 +31,6 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const { user: viewer } = useRequiredAuth();
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
-    const breadcrumbs = useBreadcrumbs();
     const navigate = useNavigate();
 
     const [selectedRowId, setSelectedRowId] = useState('');
@@ -91,7 +90,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                 </Stack>
             )}
 
-            <DirectoryBreadcrumbs directory={directory} breadcrumbs={breadcrumbs} />
+            <DirectoryBreadcrumbs owner={user.username} id={directoryId} />
 
             <DataGridPro
                 rows={rows}

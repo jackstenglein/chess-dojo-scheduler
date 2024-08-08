@@ -1,66 +1,21 @@
 import { useSearchParams } from '@/hooks/useSearchParams';
-import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { NavigateNext } from '@mui/icons-material';
 import { Breadcrumbs, Link } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-
-interface BreadcrumbItem {
-    name: string;
-    id: string;
-}
-
-type BreadcrumbData = Record<string, BreadcrumbItem[]>;
-
-interface UseBreadcrumbs {
-    data: BreadcrumbData;
-    putBreadcrumb: (directory: Directory) => void;
-}
-
-export function useBreadcrumbs(): UseBreadcrumbs {
-    const [data, setData] = useState<BreadcrumbData>({
-        home: [{ name: 'Home', id: 'home' }],
-    });
-
-    const putBreadcrumb = useCallback(
-        (directory: Directory) => {
-            if (data[directory.id]) {
-                return;
-            }
-
-            if (data[directory.parent]) {
-                setData({
-                    ...data,
-                    [directory.id]: data[directory.parent].concat({
-                        name: directory.name,
-                        id: directory.id,
-                    }),
-                });
-            }
-        },
-        [data],
-    );
-
-    return { data, putBreadcrumb };
-}
+import { BreadcrumbItem, useBreadcrumbs } from './DirectoryCache';
 
 export const DirectoryBreadcrumbs = ({
-    directory,
-    breadcrumbs,
+    owner,
+    id,
     onClick,
 }: {
-    directory: Directory;
-    breadcrumbs: UseBreadcrumbs;
+    owner: string;
+    id: string;
     onClick?: (id: string) => void;
 }) => {
-    const { data, putBreadcrumb } = breadcrumbs;
     const { updateSearchParams } = useSearchParams();
+    const currentBreadcrumbs = useBreadcrumbs(owner, id);
 
-    useEffect(() => {
-        putBreadcrumb(directory);
-    }, [directory, putBreadcrumb]);
-
-    const currentBreadcrumbs = data[directory.id];
-    if (!currentBreadcrumbs) {
+    if (currentBreadcrumbs.length === 0) {
         return null;
     }
 

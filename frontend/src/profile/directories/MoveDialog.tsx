@@ -25,7 +25,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { DirectoryBreadcrumbs, useBreadcrumbs } from './DirectoryBreadcrumbs';
+import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 
 export const MoveDialog = ({
@@ -40,7 +40,6 @@ export const MoveDialog = ({
     const { user } = useRequiredAuth();
     const moveRequest = useRequest();
     const [newDirectoryId, setNewDirectoryId] = useState('home');
-    const breadcrumbs = useBreadcrumbs();
     const api = useApi();
 
     const {
@@ -98,8 +97,8 @@ export const MoveDialog = ({
                                 Current Location:
                             </Typography>
                             <DirectoryBreadcrumbs
-                                directory={parent}
-                                breadcrumbs={breadcrumbs}
+                                owner={user.username}
+                                id={parent.id}
                                 onClick={onNavigate}
                             />
                         </Stack>
@@ -107,8 +106,8 @@ export const MoveDialog = ({
                         <Stack direction='row' spacing={1.5} mb={1}>
                             <Typography color='text.secondary'>New Location:</Typography>
                             <DirectoryBreadcrumbs
-                                directory={newDirectory}
-                                breadcrumbs={breadcrumbs}
+                                owner={user.username}
+                                id={newDirectoryId}
                                 onClick={onNavigate}
                             />
                         </Stack>

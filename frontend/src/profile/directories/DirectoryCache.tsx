@@ -1,10 +1,44 @@
 import { useApi } from '@/api/Api';
 import { IdentifiableCache, useIdentifiableCache } from '@/api/cache/Cache';
+import { useRequest } from '@/api/Request';
 import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { AxiosError } from 'axios';
-import { ReactNode, createContext, useContext, useEffect, useMemo } from 'react';
+import {
+    createContext,
+    Dispatch,
+    ReactNode,
+    SetStateAction,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
+import { NIL as uuidNil } from 'uuid';
 
-type DirectoryCacheContextType = IdentifiableCache<Directory>;
+export interface BreadcrumbItem {
+    /** The name of the directory in the breadcrumb item. */
+    name: string;
+
+    /** The id of the directory in the breadcrumb item. */
+    id: string;
+
+    /** The id of the parent directory in the breadcrumb item. */
+    parent: string;
+}
+
+export interface BreadcrumbData {
+    /** Maps a directory owner/id to its breadcrumb item. */
+    breadcrumbs: Record<string, BreadcrumbItem>;
+
+    /** Sets the entire breadcrumb data for the cache. */
+    setBreadcrumbs: Dispatch<SetStateAction<Record<string, BreadcrumbItem>>>;
+
+    /** Adds a single breadcrumb item for the given directory to the cache. */
+    putBreadcrumb: (directory: Directory) => void;
+}
+
+type DirectoryCacheContextType = IdentifiableCache<Directory> & BreadcrumbData;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const DirectoryCacheContext = createContext<DirectoryCacheContextType>(null!);
@@ -17,9 +51,43 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
     const directories = useIdentifiableCache<Directory>(
         (item) => `${item.owner}/${item.id}`,
     );
+    const [breadcrumbs, setBreadcrumbs] = useState<Record<string, BreadcrumbItem>>({});
+
+    const putBreadcrumb = useCallback(
+        (directory: Directory) => {
+            setBreadcrumbs((data) => {
+                return {
+                    ...data,
+                    [`${directory.owner}/${directory.id}`]: {
+                        name: directory.name,
+                        id: directory.id,
+                        parent: directory.parent,
+                    },
+                };
+            });
+        },
+        [setBreadcrumbs],
+    );
+
+    const put = directories.put;
+    const putDirectory = useCallback(
+        (directory: Directory) => {
+            put(directory);
+            putBreadcrumb(directory);
+        },
+        [put, putBreadcrumb],
+    );
 
     return (
-        <DirectoryCacheContext.Provider value={directories}>
+        <DirectoryCacheContext.Provider
+            value={{
+                ...directories,
+                put: putDirectory,
+                breadcrumbs,
+                setBreadcrumbs,
+                putBreadcrumb,
+            }}
+        >
             {children}
         </DirectoryCacheContext.Provider>
     );
@@ -66,4 +134,40 @@ export function useDirectory(owner: string, id: string) {
     }, [api, cache, compoundKey, owner, id]);
 
     return { directory, request: cache.request, putDirectory: cache.put };
+}
+
+export function useBreadcrumbs(owner: string, id: string) {
+    const cache = useDirectoryCache();
+    const api = useApi();
+    const request = useRequest();
+
+    let compoundKey = `${owner}/${id}`;
+
+    const result: BreadcrumbItem[] = [];
+    while (cache.breadcrumbs[compoundKey]) {
+        const item = cache.breadcrumbs[compoundKey];
+        result.push(item);
+        compoundKey = `${owner}/${item.parent}`;
+    }
+
+    const setBreadcrumbs = cache.setBreadcrumbs;
+    useEffect(() => {
+        if (id === uuidNil || request.isSent()) {
+            return;
+        }
+
+        request.onStart();
+        api.listBreadcrumbs(owner, id)
+            .then((resp) => {
+                console.log('listBreadcrumbs: ', resp);
+                request.onSuccess();
+                setBreadcrumbs((data) => ({ ...data, ...resp.data }));
+            })
+            .catch((err) => {
+                console.error('listBreadcrumbs: ', err);
+                request.onFailure(err);
+            });
+    }, [id, request, api, owner, setBreadcrumbs]);
+
+    return result.reverse();
 }
