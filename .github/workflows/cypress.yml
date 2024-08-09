@@ -28,6 +28,7 @@ jobs:
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
           record: false
+          command: npx cy:parallel -s test:cypress -t 4 -d cypress/e2e
         env:
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
