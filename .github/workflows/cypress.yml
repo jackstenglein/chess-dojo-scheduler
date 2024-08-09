@@ -40,7 +40,7 @@ jobs:
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300
           record: false
-          command: 'npx cypress-parallel -s test:cypress -t 4 --spec cypress/e2e/**/*.cy.ts'
+          command: 'shopt -s globstar && npx cypress-parallel -s test:cypress -t 4 --spec cypress/e2e/**/*.cy.ts'
         env:
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
