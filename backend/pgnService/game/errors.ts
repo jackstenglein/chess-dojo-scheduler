@@ -26,12 +26,11 @@ export class ApiError extends Error {
 
     apiGatewayResultV2(): APIGatewayProxyResultV2 {
         console.error(
-            'Status Code:%d\rPublic Message: %s\rPrivate Message:%s\rCause:%s\rStack:%s\r',
+            'Status Code:%d\rPublic Message: %s\rPrivate Message:%s\rCause:%s',
             this.statusCode,
             this.publicMessage,
             this.privateMessage,
             this.cause,
-            this.stack
         );
         return {
             statusCode: this.statusCode,

@@ -1,3 +1,5 @@
+import { useReconcile } from '@/board/Board';
+import { useChess } from '@/board/pgn/PgnBoard';
 import { useLightMode } from '@/style/useLightMode';
 import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
 import { Edit } from '@mui/icons-material';
@@ -5,11 +7,9 @@ import { Box, CardContent, IconButton, Stack, Tooltip, Typography } from '@mui/m
 import { pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
 import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
-import { useReconcile } from '../../../Board';
-import { useChess } from '../../PgnBoard';
+import { TimeControlEditor } from '../tags/TimeControlEditor';
 import ClockEditor from './ClockEditor';
 import { TimeControlDescription } from './TimeControlDescription';
-import { TimeControlEditor } from './tags/TimeControlEditor';
 
 interface Datum {
     label?: string;

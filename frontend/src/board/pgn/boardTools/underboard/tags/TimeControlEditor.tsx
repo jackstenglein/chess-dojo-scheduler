@@ -26,7 +26,7 @@ import { TimeField } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
-import { convertSecondsToDateTime } from '../ClockEditor';
+import { convertSecondsToDateTime } from '../clock/ClockEditor';
 import { TagRow } from './Tags';
 
 type TimeControlHeader = Tags['TimeControl'];

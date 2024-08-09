@@ -1,6 +1,13 @@
 'use client';
 
 import {
+    AddDirectoryItemRequest,
+    CreateDirectoryRequest,
+    MoveDirectoryItemsRequest,
+    RemoveDirectoryItemRequest,
+    UpdateDirectoryRequest,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
     ExamAttempt,
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
@@ -35,6 +42,17 @@ import {
     purchaseCourse,
     setCourse,
 } from './courseApi';
+import {
+    DirectoryApiContextType,
+    addDirectoryItem,
+    createDirectory,
+    deleteDirectory,
+    getDirectory,
+    listBreadcrumbs,
+    moveDirectoryItems,
+    removeDirectoryItem,
+    updateDirectory,
+} from './directoryApi';
 import {
     EmailApiContextType,
     SupportTicketRequest,
@@ -179,7 +197,8 @@ type ApiContextType = UserApiContextType &
     PaymentApiContextType &
     ClubApiContextType &
     ExamApiContextType &
-    EmailApiContextType;
+    EmailApiContextType &
+    DirectoryApiContextType;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const ApiContext = createContext<ApiContextType>(null!);
@@ -446,6 +465,21 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             createSupportTicket: (request: SupportTicketRequest) =>
                 createSupportTicket(idToken, request),
+
+            getDirectory: (owner: string, id: string) => getDirectory(idToken, owner, id),
+            listBreadcrumbs: (owner: string, id: string) =>
+                listBreadcrumbs(idToken, owner, id),
+            createDirectory: (request: CreateDirectoryRequest) =>
+                createDirectory(idToken, request),
+            updateDirectory: (request: UpdateDirectoryRequest) =>
+                updateDirectory(idToken, request),
+            deleteDirectory: (id: string) => deleteDirectory(idToken, id),
+            addDirectoryItem: (request: AddDirectoryItemRequest) =>
+                addDirectoryItem(idToken, request),
+            removeDirectoryItem: (request: RemoveDirectoryItemRequest) =>
+                removeDirectoryItem(idToken, request),
+            moveDirectoryItems: (request: MoveDirectoryItemsRequest) =>
+                moveDirectoryItems(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

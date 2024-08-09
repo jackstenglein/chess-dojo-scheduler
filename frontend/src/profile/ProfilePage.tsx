@@ -1,5 +1,6 @@
 import {
     Edit,
+    Folder,
     Groups,
     PieChart,
     RocketLaunch,
@@ -25,6 +26,8 @@ import GraduationDialog from './GraduationDialog';
 import ActivityTab from './activity/ActivityTab';
 import ClubsTab from './clubs/ClubsTab';
 import CoachTab from './coach/CoachTab';
+import { DirectoriesTab } from './directories/DirectoriesTab';
+import { DirectoryCacheProvider } from './directories/DirectoryCache';
 import Bio from './info/Bio';
 import CoachChip from './info/CoachChip';
 import CountChip from './info/CountChip';
@@ -222,6 +225,11 @@ const ProfilePage = () => {
                                     icon={<PawnIcon fontSize='small' />}
                                 />
                                 <ProfileTab
+                                    label='Files'
+                                    value='files'
+                                    icon={<Folder fontSize='small' />}
+                                />
+                                <ProfileTab
                                     label='Clubs'
                                     value='clubs'
                                     icon={<Groups fontSize='small' />}
@@ -242,6 +250,11 @@ const ProfilePage = () => {
                         </TabPanel>
                         <TabPanel value='games' sx={{ px: { xs: 0 } }}>
                             <GamesTab user={user} />
+                        </TabPanel>
+                        <TabPanel value='files' sx={{ px: { xs: 0 } }}>
+                            <DirectoryCacheProvider>
+                                <DirectoriesTab user={user} />
+                            </DirectoryCacheProvider>
                         </TabPanel>
                         <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>
                             <ClubsTab user={user} />
