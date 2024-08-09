@@ -1,9 +1,9 @@
 import NotFoundPage from '@/NotFoundPage';
 import { useAuth, useRequiredAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
-import { User } from '@/database/user';
-import { RenderPlayers } from '@/games/list/GameListItem';
-import { MastersOwnerDisplayName } from '@/games/list/ListGamesPage';
+import { User, dojoCohorts } from '@/database/user';
+import { RenderPlayers, RenderResult } from '@/games/list/GameListItem';
+import { MastersCohort, MastersOwnerDisplayName } from '@/games/list/ListGamesPage';
 import { useGame } from '@/games/view/GamePage';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
@@ -14,7 +14,7 @@ import {
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Folder } from '@mui/icons-material';
-import { Link, Stack, Tooltip } from '@mui/material';
+import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -47,7 +47,9 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const { directory, request, putDirectory } = useDirectory(user.username, directoryId);
 
     const rows = useMemo(() => {
-        return Object.values(directory?.items || {});
+        return Object.values(directory?.items || {}).sort((lhs, rhs) =>
+            lhs.type.localeCompare(rhs.type),
+        );
     }, [directory]);
 
     if (!directory && (!request.isSent() || request.isLoading())) {
@@ -117,6 +119,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                     columns: {
                         columnVisibilityModel: {
                             createdAt: !game,
+                            result: !game,
                         },
                     },
                 }}
@@ -137,33 +140,43 @@ const columns: GridColDef<DirectoryItem>[] = [
     {
         field: 'type',
         headerName: '',
+        valueGetter(_value, row) {
+            if (row.type === DirectoryItemTypes.DIRECTORY) {
+                return -1;
+            }
+            if (row.metadata.cohort === MastersCohort) {
+                return 2500;
+            }
+            return parseInt(row.metadata.cohort);
+        },
         renderCell(params: GridRenderCellParams<DirectoryItem, DirectoryItemType>) {
             const item = params.row;
 
-            switch (item.type) {
-                case DirectoryItemTypes.DIRECTORY:
-                    return <Folder sx={{ height: 1 }} />;
-
-                case DirectoryItemTypes.OWNED_GAME:
-                case DirectoryItemTypes.DOJO_GAME:
-                case DirectoryItemTypes.MASTER_GAME:
-                    return (
-                        <Stack
-                            sx={{ height: 1 }}
-                            alignItems='center'
-                            justifyContent='center'
-                        >
-                            <CohortIcon
-                                cohort={item.metadata.cohort}
-                                tooltip={item.metadata.cohort}
-                                size={25}
-                            />
-                        </Stack>
-                    );
+            if (item.type === DirectoryItemTypes.DIRECTORY) {
+                return <Folder sx={{ height: 1 }} />;
             }
+
+            let value = item.metadata.cohort;
+            if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
+                value = value.replace('00', '');
+            }
+
+            return (
+                <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
+                    <CohortIcon
+                        cohort={item.metadata.cohort}
+                        tooltip={item.metadata.cohort}
+                        size={30}
+                    />
+                    <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
+                        {item.metadata.cohort === MastersCohort ? 'masters' : value}
+                    </Typography>
+                </Stack>
+            );
         },
         align: 'center',
-        width: 25,
+        headerAlign: 'center',
+        width: 52,
         disableColumnMenu: true,
         resizable: false,
     },
@@ -186,6 +199,28 @@ const columns: GridColDef<DirectoryItem>[] = [
             return RenderPlayers({ ...item.metadata, fullHeight: true });
         },
         flex: 1,
+    },
+    {
+        field: 'result',
+        headerName: '',
+        headerAlign: 'center',
+        valueGetter: (_value, row) => {
+            switch (row.type) {
+                case DirectoryItemTypes.DIRECTORY:
+                    return '';
+                default:
+                    return row.metadata.result;
+            }
+        },
+        renderCell: (params) => {
+            if (params.row.type === DirectoryItemTypes.DIRECTORY) {
+                return null;
+            }
+            return RenderResult(params);
+        },
+        width: 50,
+        disableColumnMenu: true,
+        flex: 0.25,
     },
     {
         field: 'owner',
@@ -229,7 +264,7 @@ const columns: GridColDef<DirectoryItem>[] = [
                 </Stack>
             );
         },
-        flex: 1,
+        flex: 0.5,
     },
     {
         field: 'createdAt',
