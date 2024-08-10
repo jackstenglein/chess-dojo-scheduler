@@ -105,6 +105,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
                     fen,
                     startOrientation,
                     onInitialize,
+                    underboardRef,
                 }}
             />
 
