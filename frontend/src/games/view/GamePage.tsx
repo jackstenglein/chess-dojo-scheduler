@@ -142,7 +142,7 @@ const GamePage = () => {
                         pgn={request.data?.pgn}
                         startOrientation={request.data?.orientation}
                         underboardTabs={[
-                            DefaultUnderboardTab.Directories,
+                            // DefaultUnderboardTab.Directories,
                             DefaultUnderboardTab.Tags,
                             ...(isOwner ? [DefaultUnderboardTab.Editor] : []),
                             DefaultUnderboardTab.Comments,
