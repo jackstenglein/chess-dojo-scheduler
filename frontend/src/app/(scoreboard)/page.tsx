@@ -1,24 +1,41 @@
+'use client';
+
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import JoinToday from '@/landing/JoinToday';
+import Sensei from '@/landing/Sensei';
+import Testimonials from '@/landing/Testimonials';
+import WhatsIncluded from '@/landing/WhatsIncluded';
+import LoadingPage from '@/loading/LoadingPage';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AuthStatus, useAuth } from '../auth/Auth';
-import LoadingPage from '../loading/LoadingPage';
-import JoinToday from './JoinToday';
-import Sensei from './Sensei';
-import Testimonials from './Testimonials';
-import WhatsIncluded from './WhatsIncluded';
+import { Hub } from 'aws-amplify';
+import { redirect, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const LandingPage = () => {
     const auth = useAuth();
-    const navigate = useNavigate();
-    const locationState: unknown = useLocation().state;
+    const router = useRouter();
+
+    useEffect(() => {
+        return Hub.listen(
+            'auth',
+            (data: { payload?: { event: string; data?: string } }) => {
+                switch (data?.payload?.event) {
+                    case 'customOAuthState':
+                        if (data.payload.data) {
+                            router.push(data.payload.data);
+                        }
+                }
+            },
+        );
+    }, [router]);
 
     if (auth.status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/profile' replace />;
+        return redirect(`/profile${window.location.search}`);
     }
 
     return (
@@ -66,9 +83,7 @@ const LandingPage = () => {
                             <Stack direction='row' spacing={3}>
                                 <Button
                                     variant='contained'
-                                    onClick={() =>
-                                        navigate('/signup', { state: locationState })
-                                    }
+                                    href='/signup'
                                     sx={{
                                         fontSize: '1rem',
                                         textTransform: 'none',
@@ -81,9 +96,7 @@ const LandingPage = () => {
                                 </Button>
                                 <Button
                                     variant='outlined'
-                                    onClick={() =>
-                                        navigate('/signin', { state: locationState })
-                                    }
+                                    href={`/signin${window.location.search}`}
                                     sx={{
                                         fontSize: '1rem',
                                         textTransform: 'none',

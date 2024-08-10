@@ -72,6 +72,7 @@
     "scripts": {
         "start": "echo ERROR: behavior of 'npm run start' was non-standard and thus has been removed to force migration to 'npm run dev'. In the future, 'npm run start' will serve the production build via 'next start', per NextJS conventions.",
         "start:build": "next start",
+        "start:test": "npm run build:test && npm run start:build",
         "preinstall": "npm run touch-env && cd ../common && npm install && cd ../eslint-config-dojo/ && npm install",
         "touch-env": "touch .env.local .env.development.local .env.production.local .env.beta.local .env.test.local .env",
         "dev": "$npm_package_config_run_dev -- next dev",

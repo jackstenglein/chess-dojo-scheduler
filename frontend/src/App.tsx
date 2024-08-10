@@ -15,6 +15,7 @@ import {
 } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
+import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
 import ForgotPasswordPage from './auth/ForgotPasswordPage';
 import SigninPage from './auth/SigninPage';
@@ -45,7 +46,6 @@ import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
 import HelpPage from './help/HelpPage';
-import LandingPage from './landing/LandingPage';
 import BooksPage from './material/BooksPage';
 import MaterialPage from './material/MaterialPage';
 import MemorizeGamesPage from './material/MemorizeGamesPage';
@@ -237,8 +237,8 @@ const router = createBrowserRouter(
             <Route path='books-by-rating' element={<BooksPage />} />
             <Route path='books' element={<BooksPage />} />
             <Route path='recommendations' element={<BooksPage />} />
-            <Route path='training' element={<Navigate to='/' replace />} />
-            <Route path='home' element={<Navigate to='/' replace />} />
+            <Route path='training' element={<Navigate to='/profile' replace />} />
+            <Route path='home' element={<Navigate to='/profile' replace />} />
             <Route path='plans-pricing' element={<PricingPage />} />
             <Route path='shop' element={<MerchPage />} />
 

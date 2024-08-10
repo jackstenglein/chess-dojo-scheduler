@@ -41,7 +41,7 @@ const ForgotPasswordPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/' />;
+        return <Navigate to='/profile' />;
     }
 
     const onSubmit = () => {

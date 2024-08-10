@@ -10,15 +10,19 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import GoogleButton from 'react-google-button';
-import { Navigate, Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+    Navigate,
+    Link as RouterLink,
+    useNavigate,
+    useSearchParams,
+} from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
 
 const SignupPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
-    const redirectUri =
-        (useLocation().state as { redirectUri?: string } | undefined)?.redirectUri || '';
+    const redirectUri = useSearchParams()[0].get('redirectUri');
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -35,7 +39,7 @@ const SignupPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/' />;
+        return <Navigate to='/profile' />;
     }
 
     const onSignup = () => {
@@ -74,7 +78,7 @@ const SignupPage = () => {
     };
 
     const onGoogleSignIn = () => {
-        auth.socialSignin('Google', redirectUri);
+        auth.socialSignin('Google', redirectUri ? decodeURIComponent(redirectUri) : '');
     };
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

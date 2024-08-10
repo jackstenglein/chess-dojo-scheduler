@@ -31,7 +31,7 @@ const VerifyEmailPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/' />;
+        return <Navigate to='/profile' />;
     }
 
     if (!username || !email || !password) {

@@ -327,9 +327,8 @@ export function RequireAuth() {
     if (auth.status === AuthStatus.Unauthenticated || !user) {
         return (
             <Navigate
-                to='/'
+                to={`/?redirectUri=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
                 replace
-                state={{ redirectUri: `${location.pathname}${location.search}` }}
             />
         );
     }
