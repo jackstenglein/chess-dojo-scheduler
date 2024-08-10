@@ -7,6 +7,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     APIGatewayProxyEventV2,
     APIGatewayProxyHandlerV2,
@@ -69,7 +70,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     }
 };
 
-async function getUser(event: APIGatewayProxyEventV2): Promise<Record<string, any>> {
+async function getUser(event: APIGatewayProxyEventV2): Promise<User> {
     const userInfo = getUserInfo(event);
     if (!userInfo.username) {
         throw new ApiError({
@@ -93,8 +94,7 @@ async function getUser(event: APIGatewayProxyEventV2): Promise<Record<string, an
         });
     }
 
-    const caller = unmarshall(getItemOutput.Item);
-    return caller;
+    return unmarshall(getItemOutput.Item) as User;
 }
 
 export function getUserInfo(event: any): { username: string; email: string } {
@@ -180,7 +180,7 @@ export function cleanupChessbasePgn(pgn: string): string {
     );
 }
 
-function getGames(user: Record<string, any>, pgnTexts: string[]): Game[] {
+function getGames(user: User, pgnTexts: string[]): Game[] {
     const games: Game[] = [];
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
@@ -204,7 +204,7 @@ export function isFairyChess(pgnText: string) {
 }
 
 export function getGame(
-    user: Record<string, any> | undefined,
+    user: User | undefined,
     pgnText: string,
     headers?: GameImportHeaders,
 ): Game {
@@ -261,7 +261,7 @@ export function getGame(
             ownerPreviousCohort: user?.previousCohort || '',
             headers: chess.header().valueMap(),
             pgn: chess.renderPgn(),
-            orientation: GameOrientation.White,
+            orientation: getDefaultOrientation(chess, user),
             comments: [],
             positionComments: {},
             unlisted: true,
@@ -274,6 +274,35 @@ export function getGame(
             cause: err,
         });
     }
+}
+
+/**
+ * Gets the default orientation for the given chess instance and user. If any of
+ * the user's usernames match the White/Black header in the chess instance, that
+ * color is returned. If not, white is used as the default orientation.
+ * @param chess The chess instance to get the default orientation for.
+ * @param user The user to get the default orientation for.
+ * @returns The default orientation of the game.
+ */
+function getDefaultOrientation(chess: Chess, user?: User): GameOrientation {
+    if (!user) {
+        return GameOrientation.White;
+    }
+
+    for (const rating of Object.values(user.ratings)) {
+        if (rating.username?.toLowerCase() === chess.header().tags.White?.toLowerCase()) {
+            return GameOrientation.White;
+        }
+        if (rating.username?.toLowerCase() === chess.header().tags.Black?.toLowerCase()) {
+            return GameOrientation.Black;
+        }
+    }
+
+    if (user?.displayName.toLowerCase() === chess.header().tags.Black?.toLowerCase()) {
+        return GameOrientation.Black;
+    }
+
+    return GameOrientation.White;
 }
 
 async function batchPutGames(games: Game[]): Promise<number> {
