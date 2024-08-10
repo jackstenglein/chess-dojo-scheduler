@@ -23,7 +23,7 @@ export default defineConfig({
                 const myTasks = {
                     ...tasks,
                     combineCoverage: async (sentCoverage: unknown) => {
-                        const release = await lockfile.lock('.cypressCombineCoverage', {
+                        const release = await lockfile.lock('.cypressCoverage', {
                             realpath: false, // allows following symlinks and creating the file
                             retries: {
                                 retries: 10,
@@ -40,7 +40,7 @@ export default defineConfig({
                         return ret;
                     },
                     coverageReport: async () => {
-                        const release = await lockfile.lock('.cypressCoverageReport', {
+                        const release = await lockfile.lock('.cypressCoverage', {
                             realpath: false, // allows following symlinks and creating the file
                             retries: {
                                 retries: 10,
