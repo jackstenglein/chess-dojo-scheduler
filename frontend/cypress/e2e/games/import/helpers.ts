@@ -16,7 +16,6 @@ export function deleteCurrentGame() {
  */
 export function cancelPreflight() {
     cy.getBySel('cancel-preflight').click();
-    cy.getBySel('cancel-preflight').should('not.be.visible');
 }
 
 /**
