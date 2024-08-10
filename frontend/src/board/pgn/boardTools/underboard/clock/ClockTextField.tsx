@@ -1,12 +1,13 @@
 import { BlockBoardKeyboardShortcuts, useChess } from '@/board/pgn/PgnBoard';
 import { Chess, Move } from '@jackstenglein/chess';
+import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Stack, TextField } from '@mui/material';
 import { TimeField } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { useLocalStorage } from 'usehooks-ts';
 import { ClockFieldFormat, ClockFieldFormatKey } from '../settings/EditorSettings';
 import { convertSecondsToDateTime, onChangeClock } from './ClockEditor';
-import { convertClockToSeconds, formatTime } from './ClockUsage';
+import { formatTime } from './ClockUsage';
 
 const d = new Date();
 d.setHours(0, 0, 0);
@@ -41,9 +42,8 @@ const ClockTextField: React.FC<ClockTextFieldProps> = ({
                 label={label}
                 format='HH:mm:ss'
                 value={
-                    convertSecondsToDateTime(
-                        convertClockToSeconds(move.commentDiag?.clk),
-                    ) || defaultDateTime
+                    convertSecondsToDateTime(clockToSeconds(move.commentDiag?.clk)) ||
+                    defaultDateTime
                 }
                 onChange={(value) => onChangeClock(chess, move, value)}
                 fullWidth

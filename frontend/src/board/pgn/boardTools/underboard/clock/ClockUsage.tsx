@@ -2,6 +2,7 @@ import { useReconcile } from '@/board/Board';
 import { useChess } from '@/board/pgn/PgnBoard';
 import { useLightMode } from '@/style/useLightMode';
 import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
+import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Edit } from '@mui/icons-material';
 import { Box, CardContent, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { pink } from '@mui/material/colors';
@@ -123,34 +124,6 @@ export function getIncrement(pgn?: Pgn): number {
         return 0;
     }
     return increment;
-}
-
-export function convertClockToSeconds(clk?: string): number | undefined {
-    if (!clk) {
-        return undefined;
-    }
-
-    const tokens = clk.split(':');
-    let hours = 0;
-    let minutes = 0;
-    let seconds = 0;
-
-    if (tokens.length === 3) {
-        hours = parseInt(tokens[0]);
-        minutes = parseInt(tokens[1]);
-        seconds = parseInt(tokens[2]);
-    } else if (tokens.length === 2) {
-        minutes = parseInt(tokens[0]);
-        seconds = parseInt(tokens[1]);
-    } else {
-        return undefined;
-    }
-
-    if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
-        return undefined;
-    }
-
-    return hours * 3600 + minutes * 60 + seconds;
 }
 
 function shouldRerender(chess: Chess, event: Event): boolean {
@@ -282,7 +255,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 additionalTime = Math.max(0, timeControl.seconds || 0);
             }
 
-            const firstTime = convertClockToSeconds(moves[i]?.commentDiag?.clk);
+            const firstTime = clockToSeconds(moves[i]?.commentDiag?.clk);
             whiteClockDisplay.push({
                 moveNumber: i / 2 + 1,
                 seconds:
@@ -292,7 +265,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 move: moves[i],
             });
 
-            const secondTime = convertClockToSeconds(moves[i + 1]?.commentDiag?.clk);
+            const secondTime = clockToSeconds(moves[i + 1]?.commentDiag?.clk);
             blackClockDisplay.push({
                 moveNumber: i / 2 + 1,
                 seconds:
