@@ -91,7 +91,7 @@
         "lint:fix": "eslint --fix .",
         "lint:types": "tsc --noEmit",
         "lint:types:watch": "tsc --noEmit --watch",
-        "cy:parallel": "cypress-parallel -s test:cypress -t 4 --spec cypress/e2e/**/*.cy.ts"
+        "cy:parallel": "cypress-parallel -s test:cypress -t 2 --spec cypress/e2e/**/*.cy.ts"
     },
     "config": {
         "run_dev": "dotenvx run --env-file=.env.development.local --env-file=.env.local --env-file=.env.development --env-file=.env",
