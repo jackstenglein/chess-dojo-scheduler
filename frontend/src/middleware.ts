@@ -3,30 +3,37 @@ import { fetchAuthSession } from 'aws-amplify/auth/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 const publicPaths = [
-    '/',
-    '/signin',
-    '/signup',
-    '/verify-email',
-    '/forgot-password',
-    '/help',
-    '/tournaments',
-    '/courses',
-    '/material/books',
-    '/material/ratings',
-    '/blog',
-    '/coaching',
-    '/dojodigest/unsubscribe',
-    '/prices',
-    '/clubs',
-    '/games/.*/.*',
+    /^\/$/,
+    /^\/signin$/,
+    /^\/signup$/,
+    /^\/verify-email$/,
+    /^\/forgot-password$/,
+    /^\/help$/,
+    /^\/tournaments$/,
+    /^\/tournaments\/open-classical$/,
+    /^\/tournaments\/open-classical\/info$/,
+    /^\/tournaments\/open-classical\/register$/,
+    /^\/tournaments\/open-classical\/submit-results$/,
+    /^\/tournaments\/open-classical\/previous$/,
+    /^\/courses$/,
+    /^\/material\/books$/,
+    /^\/material\/ratings$/,
+    /^\/blog$/,
+    /^\/coaching$/,
+    /^\/dojodigest\/unsubscribe$/,
+    /^\/prices$/,
+    /^\/clubs$/,
+    /^\/games\/.*\/.*$/,
 ];
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const response = NextResponse.next();
+    console.log('Request: ', request);
 
     for (const path of publicPaths) {
         if (pathname.match(path)) {
+            console.log('Public path');
             return response;
         }
     }
@@ -48,10 +55,12 @@ export async function middleware(request: NextRequest) {
     });
 
     if (authenticated) {
+        console.log('Authenticated');
         return response;
     }
 
-    return NextResponse.redirect(new URL('/signin', request.url));
+    console.log('Not authenticated');
+    return NextResponse.redirect(new URL(`/?redirectUri=${pathname}`, request.url));
 }
 
 export const config = {
