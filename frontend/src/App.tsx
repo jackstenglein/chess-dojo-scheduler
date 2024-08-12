@@ -1,7 +1,7 @@
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LicenseInfo } from '@mui/x-license';
-import { Hub } from 'aws-amplify';
+import { Hub } from 'aws-amplify/utils';
 import { useEffect } from 'react';
 import {
     Navigate,
@@ -262,7 +262,7 @@ function Root() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        Hub.listen('auth', (data: { payload?: { event: string; data?: string } }) => {
+        return Hub.listen('auth', (data) => {
             switch (data?.payload?.event) {
                 case 'customOAuthState':
                     if (data.payload.data) {

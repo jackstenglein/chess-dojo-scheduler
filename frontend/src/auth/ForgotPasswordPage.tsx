@@ -57,17 +57,20 @@ const ForgotPasswordPage = () => {
                 request.onSuccess();
                 setStep(ForgotPasswordStep.Confirm);
             })
-            .catch((err: { code?: string; message?: string }) => {
-                request.onFailure(err);
-                if (err.code === 'UserNotFoundException') {
+            .catch((err: { name?: string; message?: string }) => {
+                if (err.name === 'UserNotFoundException') {
                     setEmailError('Account with this email does not exist');
-                } else if (err.code === 'NotAuthorizedException') {
+                    request.onFailure({
+                        message: 'Account with this email does not exist',
+                    });
+                } else if (err.name === 'NotAuthorizedException') {
                     setEmailError('Email is not verified');
                     request.onFailure({
                         message: googleSigninMessage,
                     });
                 } else {
                     setEmailError(err.message);
+                    request.onFailure(err);
                 }
             });
     };

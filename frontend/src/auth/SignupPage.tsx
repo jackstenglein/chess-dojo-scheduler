@@ -64,7 +64,7 @@ const SignupPage = () => {
             .then((result) => {
                 navigate('/verify-email', {
                     state: {
-                        username: result.user.getUsername(),
+                        username: result.username,
                         name: name.trim(),
                         email: email.trim(),
                         password,

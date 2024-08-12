@@ -54,11 +54,11 @@ const SigninPage = () => {
         }
 
         request.onStart();
-        auth.signin(email.trim(), password).catch((err: { code?: string }) => {
+        auth.signin(email.trim(), password).catch((err: { name?: string }) => {
             console.error(err);
             if (
-                err.code === 'NotAuthorizedException' ||
-                err.code === 'UserNotFoundException'
+                err.name === 'NotAuthorizedException' ||
+                err.name === 'UserNotFoundException'
             ) {
                 setErrors({ password: 'Incorrect email or password' });
                 request.onFailure({ message: 'Incorrect email or password' });

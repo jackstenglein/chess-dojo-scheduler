@@ -8,7 +8,7 @@ import WhatsIncluded from '@/landing/WhatsIncluded';
 import LoadingPage from '@/loading/LoadingPage';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Hub } from 'aws-amplify';
+import { Hub } from 'aws-amplify/utils';
 import { redirect, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -17,17 +17,14 @@ const LandingPage = () => {
     const router = useRouter();
 
     useEffect(() => {
-        return Hub.listen(
-            'auth',
-            (data: { payload?: { event: string; data?: string } }) => {
-                switch (data?.payload?.event) {
-                    case 'customOAuthState':
-                        if (data.payload.data) {
-                            router.push(data.payload.data);
-                        }
-                }
-            },
-        );
+        return Hub.listen('auth', (data) => {
+            switch (data?.payload?.event) {
+                case 'customOAuthState':
+                    if (data.payload.data) {
+                        router.push(data.payload.data);
+                    }
+            }
+        });
     }, [router]);
 
     if (auth.status === AuthStatus.Loading) {

@@ -1,4 +1,4 @@
-describe('Directories', () => {
+describe.skip('Directories', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'profile',

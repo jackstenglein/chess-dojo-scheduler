@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from 'react';
-import { Club } from '../../database/club';
 import { useApi } from '../Api';
 import { useRequest } from '../Request';
 import { useCache } from './Cache';
@@ -16,10 +15,10 @@ export function useClubs(clubIds: string[]) {
     const cache = useCache();
     const request = useRequest();
 
-    const clubs: Club[] = useMemo(
+    const clubs = useMemo(
         () => clubIds.map((id) => cache.clubs.get(id)).filter((c) => c !== undefined),
         [clubIds, cache.clubs],
-    ) as Club[];
+    );
 
     useEffect(() => {
         if (clubIds.length !== clubs.length && !request.isSent()) {
