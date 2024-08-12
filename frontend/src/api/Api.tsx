@@ -218,7 +218,7 @@ export function useApi() {
  */
 export function ApiProvider({ children }: { children: ReactNode }) {
     const auth = useAuth();
-    const idToken = auth.user?.cognitoUser?.session.idToken.jwtToken ?? '';
+    const idToken = auth.user?.cognitoUser?.tokens?.idToken?.toString() ?? '';
 
     const value = useMemo(() => {
         return {
