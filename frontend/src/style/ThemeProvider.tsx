@@ -1,12 +1,12 @@
 'use client';
 
 import { CssBaseline } from '@mui/material';
+import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { deepPurple } from '@mui/material/colors';
 import {
     Experimental_CssVarsProvider,
     createTheme,
     experimental_extendTheme,
-    getInitColorSchemeScript,
 } from '@mui/material/styles';
 import { ReactNode } from 'react';
 
@@ -151,7 +151,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return (
         <Experimental_CssVarsProvider defaultMode='dark' theme={theme}>
             <CssBaseline enableColorScheme />
-            {getInitColorSchemeScript()}
+            <InitColorSchemeScript />
             {children}
         </Experimental_CssVarsProvider>
     );

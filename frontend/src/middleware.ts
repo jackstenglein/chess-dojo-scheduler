@@ -3,11 +3,6 @@ import { fetchAuthSession } from 'aws-amplify/auth/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 const publicPaths = [
-    /^\/$/,
-    /^\/signin$/,
-    /^\/signup$/,
-    /^\/verify-email$/,
-    /^\/forgot-password$/,
     /^\/help$/,
     /^\/tournaments$/,
     /^\/tournaments\/open-classical$/,
@@ -26,10 +21,17 @@ const publicPaths = [
     /^\/games\/.*\/.*$/,
 ];
 
+const unauthenticatedPaths = [
+    /^\/$/,
+    /^\/signin$/,
+    /^\/signup$/,
+    /^\/verify-email$/,
+    /^\/forgot-password$/,
+];
+
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const response = NextResponse.next();
-    console.log('Request: ', request);
 
     for (const path of publicPaths) {
         if (pathname.match(path)) {
@@ -54,9 +56,21 @@ export async function middleware(request: NextRequest) {
         },
     });
 
-    if (authenticated) {
-        console.log('Authenticated');
+    let unauthenticatedPath = false;
+    for (const path of unauthenticatedPaths) {
+        if (pathname.match(path)) {
+            unauthenticatedPath = true;
+        }
+    }
+
+    if (authenticated !== unauthenticatedPath) {
+        console.log('authenticated !== unauthenticatedPath');
         return response;
+    }
+
+    if (authenticated) {
+        console.log('Redirect to /profile');
+        return NextResponse.redirect(new URL('/profile', request.url));
     }
 
     console.log('Not authenticated');

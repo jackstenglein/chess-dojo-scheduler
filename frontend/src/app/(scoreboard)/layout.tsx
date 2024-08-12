@@ -1,5 +1,5 @@
-import { Layout } from '@/legacy/Layout';
+import { UnauthenticatedLayout } from './UnauthenticatedLayout';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    return <Layout>{children}</Layout>;
+    return <UnauthenticatedLayout>{children}</UnauthenticatedLayout>;
 }

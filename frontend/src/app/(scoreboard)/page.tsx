@@ -1,40 +1,15 @@
-'use client';
-
-import { AuthStatus, useAuth } from '@/auth/Auth';
 import JoinToday from '@/landing/JoinToday';
 import Sensei from '@/landing/Sensei';
 import Testimonials from '@/landing/Testimonials';
 import WhatsIncluded from '@/landing/WhatsIncluded';
-import LoadingPage from '@/loading/LoadingPage';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Hub } from 'aws-amplify/utils';
-import { redirect, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
-const LandingPage = () => {
-    const auth = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        return Hub.listen('auth', (data) => {
-            switch (data?.payload?.event) {
-                case 'customOAuthState':
-                    if (data.payload.data) {
-                        router.push(data.payload.data);
-                    }
-            }
-        });
-    }, [router]);
-
-    if (auth.status === AuthStatus.Loading) {
-        return <LoadingPage />;
-    }
-
-    if (auth.status === AuthStatus.Authenticated) {
-        return redirect(`/profile${window.location.search}`);
-    }
-
+const LandingPage = ({
+    searchParams,
+}: {
+    searchParams?: Record<string, string | string[] | undefined>;
+}) => {
     return (
         <Container data-cy='landing-page' sx={{ py: 5 }} maxWidth='xl'>
             <Box
@@ -93,7 +68,7 @@ const LandingPage = () => {
                                 </Button>
                                 <Button
                                     variant='outlined'
-                                    href={`/signin${window.location.search}`}
+                                    href={`/signin?redirectUri=${searchParams?.redirectUri?.toString()}`}
                                     sx={{
                                         fontSize: '1rem',
                                         textTransform: 'none',
