@@ -49,23 +49,26 @@ import LoadingPage from '../loading/LoadingPage';
 import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
 
 const config = getConfig();
-Amplify.configure({
-    Auth: {
-        Cognito: {
-            userPoolId: config.auth.userPoolId,
-            userPoolClientId: config.auth.userPoolWebClientId,
-            loginWith: {
-                oauth: {
-                    domain: config.auth.oauth.domain,
-                    scopes: config.auth.oauth.scope,
-                    redirectSignIn: [config.auth.oauth.redirectSignIn],
-                    redirectSignOut: [config.auth.oauth.redirectSignOut],
-                    responseType: config.auth.oauth.responseType,
+Amplify.configure(
+    {
+        Auth: {
+            Cognito: {
+                userPoolId: config.auth.userPoolId,
+                userPoolClientId: config.auth.userPoolWebClientId,
+                loginWith: {
+                    oauth: {
+                        domain: config.auth.oauth.domain,
+                        scopes: config.auth.oauth.scope,
+                        redirectSignIn: [config.auth.oauth.redirectSignIn],
+                        redirectSignOut: [config.auth.oauth.redirectSignOut],
+                        responseType: config.auth.oauth.responseType,
+                    },
                 },
             },
         },
     },
-});
+    { ssr: true },
+);
 
 export enum AuthStatus {
     Loading = 'Loading',
