@@ -164,7 +164,7 @@ function resendSignupCode(username: string) {
 
 function forgotPassword(email: string) {
     trackEvent(EventType.ForgotPassword);
-    return resetPassword({ username: email, options: {} });
+    return resetPassword({ username: email });
 }
 
 function forgotPasswordConfirm(email: string, code: string, password: string) {
