@@ -71,7 +71,7 @@ import { RequirementCategory } from '../database/requirement';
 import { RookIcon } from './ChessIcons';
 
 export const icons = {
-    [RequirementCategory.TodaysFocus]: Today,
+    [RequirementCategory.SuggestedTasks]: Today,
     [RequirementCategory.Welcome]: WavingHand,
     [RequirementCategory.Games]: Biotech,
     [RequirementCategory.Tactics]: Speed,

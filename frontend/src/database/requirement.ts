@@ -94,7 +94,7 @@ export enum RequirementCategory {
     Opening = 'Opening',
     Graduation = 'Graduation',
     NonDojo = 'Non-Dojo',
-    TodaysFocus = "Today's Focus",
+    SuggestedTasks = 'Suggested Tasks',
 }
 
 /** A requirement in the training plan. */

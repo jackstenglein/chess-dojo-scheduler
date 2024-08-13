@@ -8,11 +8,12 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
+import { parseISO } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { RequestSnackbar } from '../../api/Request';
 import { useRequirements } from '../../api/cache/requirements';
-import { RequirementCategory, isComplete } from '../../database/requirement';
+import { Requirement, RequirementCategory, isComplete } from '../../database/requirement';
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
@@ -48,7 +49,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         Endgame: false,
         Opening: false,
         'Non-Dojo': false,
-        [RequirementCategory.TodaysFocus]: false,
+        [RequirementCategory.SuggestedTasks]: false,
     });
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
 
@@ -57,8 +58,11 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     }, [user.dojoCohort]);
 
     const categories = useMemo(() => {
+        const requirementsById: Record<string, Requirement> = {};
         const categories: Category[] = [];
         requirements.forEach((r) => {
+            requirementsById[r.id] = r;
+
             const c = categories.find((c) => c.name === r.category);
             const complete = isComplete(cohort, r, user.progress[r.id]);
 
@@ -80,15 +84,36 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             }
         });
 
-        const todaysFocus: Category = {
-            name: RequirementCategory.TodaysFocus,
+        const suggestedTasks: Category = {
+            name: RequirementCategory.SuggestedTasks,
             requirements: [],
             totalComplete: 0,
             totalRequirements: 0,
         };
-        let addMore = true;
-        while (addMore) {
-            addMore = false;
+
+        const desiredTaskCount = 3;
+        const randomTaskCount = 1;
+
+        const recentRequirements = Object.values(user.progress)
+            .toSorted(
+                (a, b) =>
+                    parseISO(b.updatedAt).getTime() - parseISO(a.updatedAt).getTime(),
+            )
+            .map((progress) => requirementsById[progress.requirementId])
+            .filter((r) => !!r && !isComplete(cohort, r, user.progress[r.id]));
+
+        while (suggestedTasks.requirements.length < desiredTaskCount - randomTaskCount) {
+            const req = recentRequirements[suggestedTasks.requirements.length];
+            if (req === undefined) {
+                break;
+            }
+
+            suggestedTasks.requirements.push(req);
+        }
+
+        let exhaustedSearch = false;
+        while (suggestedTasks.requirements.length < desiredTaskCount) {
+            exhaustedSearch = true;
             categories.forEach((c) => {
                 const requirements = c.requirements.filter(
                     (r) =>
@@ -96,19 +121,24 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                         !isComplete(cohort, r, user.progress[r.id]),
                 );
                 if (requirements.length > 0) {
-                    const idx = Math.floor(Math.random() * requirements.length);
-                    todaysFocus.requirements.push(requirements[idx]);
-                    addMore = todaysFocus.requirements.length < 3;
+                    const now = new Date();
+                    const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
+                    const idx = daysSinceEpoch % requirements.length;
+                    suggestedTasks.requirements.push(requirements[idx]);
+                    exhaustedSearch = false;
                 }
             });
+
+            if (exhaustedSearch) {
+                break;
+            }
         }
 
-        if (todaysFocus.requirements.length > 0) {
-            todaysFocus.requirements = todaysFocus.requirements.splice(0, 3);
-            todaysFocus.totalRequirements = todaysFocus.requirements.length;
-            categories.unshift(todaysFocus);
+        if (suggestedTasks.requirements.length > 0) {
+            suggestedTasks.requirements = suggestedTasks.requirements.splice(0, 3);
+            suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
+            categories.unshift(suggestedTasks);
         }
-        console.log(categories);
 
         user.customTasks?.forEach((task) => {
             if (task.counts[cohort]) {
@@ -153,7 +183,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             Endgame: true,
             Opening: true,
             'Non-Dojo': true,
-            [RequirementCategory.TodaysFocus]: true,
+            [RequirementCategory.SuggestedTasks]: true,
         });
     };
 
@@ -166,7 +196,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             Endgame: false,
             Opening: false,
             'Non-Dojo': false,
-            [RequirementCategory.TodaysFocus]: false,
+            [RequirementCategory.SuggestedTasks]: false,
         });
     };
 
