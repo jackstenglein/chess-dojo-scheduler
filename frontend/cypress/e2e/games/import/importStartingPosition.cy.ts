@@ -18,4 +18,14 @@ describe('Import Games Page - Position', () => {
 
         deleteCurrentGame();
     });
+
+    it('shows unlisted icon', () => {
+        cy.getBySel('import-starting-position').click();
+
+        cy.location('pathname').should('match', gameUrlRegex);
+        cancelPreflight();
+
+        cy.getBySel('unlisted-icon').click();
+        cy.getBySel('underboard-tab-settings').should('be.visible');
+    });
 });

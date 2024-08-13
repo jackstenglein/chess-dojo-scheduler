@@ -6,7 +6,7 @@ const YearReviewRedirect = () => {
     const user = useAuth().user;
 
     if (!user) {
-        return <Navigate to='/' replace />;
+        return <Navigate to='/profile' replace />;
     }
 
     return <Navigate to={`/yearreview/${user.username}/2023`} replace />;

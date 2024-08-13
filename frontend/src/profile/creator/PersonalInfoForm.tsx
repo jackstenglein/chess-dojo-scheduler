@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { MenuItem, Stack, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { MenuItem, Stack, TextField } from '@mui/material';
+import { useState } from 'react';
 
-import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
-import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
+import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
 function getTimezoneOptions() {
@@ -15,7 +15,7 @@ function getTimezoneOptions() {
         options.push(
             <MenuItem key={i} value={value}>
                 {displayLabel}
-            </MenuItem>
+            </MenuItem>,
         );
     }
     return options;
@@ -27,9 +27,7 @@ const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep 
 
     const [displayName, setDisplayName] = useState(user.displayName);
     const [bio, setBio] = useState(user.bio);
-    const [timezone, setTimezone] = useState(
-        user.timezoneOverride === DefaultTimezone ? '' : user.timezoneOverride
-    );
+    const [timezone, setTimezone] = useState(user.timezoneOverride || DefaultTimezone);
 
     const canSave = displayName.trim().length > 0;
 
@@ -50,6 +48,10 @@ const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep 
                 request.onFailure(err);
             });
     };
+
+    const timezoneOffset = new Date().getTimezoneOffset() / 60;
+    const browserDefaultLabel =
+        timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
 
     return (
         <Stack spacing={4}>
@@ -76,6 +78,9 @@ const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep 
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
             >
+                <MenuItem value={DefaultTimezone}>
+                    Browser Default ({browserDefaultLabel})
+                </MenuItem>
                 {getTimezoneOptions()}
             </TextField>
 

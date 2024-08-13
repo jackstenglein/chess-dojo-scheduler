@@ -33,7 +33,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     }
 
     if (user?.subscriptionStatus === SubscriptionStatus.Subscribed) {
-        return <Navigate to='/' replace />;
+        return <Navigate to='/profile' replace />;
     }
 
     const onSubscribe = (interval: 'month' | 'year') => {

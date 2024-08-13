@@ -1,6 +1,5 @@
 import { Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { useLocation, useNavigate } from 'react-router-dom';
 import PriceMatrix from '../upsell/PriceMatrix';
 
 const today = new Date();
@@ -8,9 +7,6 @@ const promoEnd = new Date('2024-06-01');
 const showPromo = today.getTime() < promoEnd.getTime();
 
 const JoinToday = () => {
-    const navigate = useNavigate();
-    const locationState: unknown = useLocation().state;
-
     return (
         <Stack width={1} alignItems='center' mt={5} textAlign='center'>
             <Typography variant='h2' mb={showPromo ? 1 : 3}>
@@ -28,10 +24,7 @@ const JoinToday = () => {
             )}
 
             <Grid2 container spacing={3} width={1}>
-                <PriceMatrix
-                    onSubscribe={() => navigate('/signup', { state: locationState })}
-                    onFreeTier={() => navigate('/signup', { state: locationState })}
-                />
+                <PriceMatrix subscribeLink='/signup' freeTierLink='/signup' />
             </Grid2>
         </Stack>
     );

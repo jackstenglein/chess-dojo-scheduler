@@ -15,17 +15,15 @@ import { useReconcile } from '../Board';
 import { compareNags, getStandardNag, nags } from './Nag';
 import { BlockBoardKeyboardShortcuts, useChess } from './PgnBoard';
 import { getTextColor } from './pgnText/MoveButton';
-import { AreaSizes } from './resize';
 
 const DIALOG_WIDTH = 231;
 
 interface VariationDialogProps {
     move: Move;
     setMove: (move: Move | null) => void;
-    sizes: AreaSizes;
 }
 
-const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove, sizes }) => {
+const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
     const [selected, setSelected] = useState(0);
     const { chess } = useChess();
     const reconcile = useReconcile();
@@ -95,10 +93,7 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove, sizes 
                     position: {
                         sm: 'absolute',
                     },
-                    left: {
-                        sm: getSmPosition(sizes),
-                        md: getMdPosition(sizes),
-                    },
+                    left: getPosition(),
                     marginLeft: {
                         sm: 0,
                     },
@@ -167,42 +162,31 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove, sizes 
 
 export default VariationDialog;
 
-function getSmPosition(sizes: AreaSizes): number | undefined {
-    if (sizes.pgn.width >= DIALOG_WIDTH) {
-        return (
-            sizes.padding / 2 +
-            sizes.board.width +
-            sizes.pgn.width / 2 +
-            2 * sizes.spacing -
-            DIALOG_WIDTH / 2
-        );
+/**
+ * Gets the X position of the variation dialog on md and larger screen sizes.
+ * Depending on how the space is allocated to different sections of the game page,
+ * the variation dialog is preferred to be placed:
+ *   1. Immediately to the left of the board, with some slight padding.
+ *   2. Immediately to the right of the board, with some slight padding.
+ *   3. Centered in the screen.
+ * @returns The X position of the variation dialog.
+ */
+function getPosition(): number | undefined {
+    const board = document.querySelector('cg-container');
+    if (!board) {
+        return undefined;
     }
 
-    if (sizes.availableWidth - sizes.board.width - 8 > DIALOG_WIDTH) {
-        return sizes.board.width + 4;
+    const boardRect = board.getBoundingClientRect();
+
+    let position = boardRect.x - 8 - DIALOG_WIDTH;
+    if (position >= 4) {
+        return position;
     }
 
-    return undefined;
-}
-
-function getMdPosition(sizes: AreaSizes): number | undefined {
-    if (sizes.underboard.width >= DIALOG_WIDTH) {
-        return sizes.underboard.width / 2 - DIALOG_WIDTH / 2 + sizes.padding / 2;
-    }
-
-    if (sizes.pgn.width >= DIALOG_WIDTH) {
-        return (
-            sizes.padding / 2 +
-            sizes.underboard.width +
-            sizes.board.width +
-            sizes.pgn.width / 2 +
-            2 * sizes.spacing -
-            DIALOG_WIDTH / 2
-        );
-    }
-
-    if (sizes.availableWidth - sizes.board.width - 8 >= DIALOG_WIDTH) {
-        return sizes.board.width + 4;
+    position = boardRect.x + boardRect.width + 8;
+    if (window.innerWidth - position - DIALOG_WIDTH >= 4) {
+        return position;
     }
 
     return undefined;

@@ -3,8 +3,9 @@ import { Color } from 'chessground/types';
 import { ResizeCallbackData } from 'react-resizable';
 
 import Board, { BoardApi, Chess } from '../Board';
-import BoardButtons from './boardTools/boardButtons/BoardButtons';
 import PlayerHeader from './PlayerHeader';
+import BoardButtons from './boardTools/boardButtons/BoardButtons';
+import { UnderboardApi } from './boardTools/underboard/Underboard';
 import { ResizableData } from './resize';
 
 interface ResizableBoardAreaProps {
@@ -16,6 +17,7 @@ interface ResizableBoardAreaProps {
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
     onInitialize: (board: BoardApi, chess: Chess) => void;
+    underboardRef: React.RefObject<UnderboardApi>;
 }
 
 const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
@@ -27,6 +29,7 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
     fen,
     startOrientation = 'white',
     onInitialize,
+    underboardRef,
 }) => {
     const handlResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
         onResize(data.size.width, data.size.height);
@@ -50,7 +53,7 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
 
             {showPlayerHeaders && <PlayerHeader type='footer' />}
 
-            <BoardButtons />
+            <BoardButtons underboardRef={underboardRef} />
         </Stack>
     );
 };

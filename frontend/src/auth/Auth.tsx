@@ -1,12 +1,27 @@
 'use client';
 
 import { getConfig } from '@/config';
-import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
-import { Amplify, Auth as AmplifyAuth } from 'aws-amplify';
+import { Amplify } from 'aws-amplify';
+import {
+    confirmSignUp as amplifyConfirmSignUp,
+    getCurrentUser as amplifyGetCurrentUser,
+    resendSignUpCode as amplifyResendSignUpCode,
+    signIn as amplifySignIn,
+    signOut as amplifySignOut,
+    signUp as amplifySignUp,
+    confirmResetPassword,
+    ConfirmSignUpOutput,
+    fetchAuthSession,
+    ResendSignUpCodeOutput,
+    resetPassword,
+    ResetPasswordOutput,
+    signInWithRedirect,
+    SignUpOutput,
+} from 'aws-amplify/auth';
 import { AxiosError, AxiosResponse } from 'axios';
 import {
-    ReactNode,
     createContext,
+    ReactNode,
     useCallback,
     useContext,
     useEffect,
@@ -16,39 +31,44 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { EventType, setUser as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
-import { useRequest } from '../api/Request';
 import { syncPurchases } from '../api/paymentApi';
+import { useRequest } from '../api/Request';
 import { getUser } from '../api/userApi';
 import {
     clearCheckoutSessionIds,
     getAllCheckoutSessionIds,
 } from '../courses/localStorage';
 import {
-    CognitoResponse,
+    CognitoUser,
+    hasCreatedProfile,
+    parseUser,
     SubscriptionStatus,
     User,
-    hasCreatedProfile,
-    parseCognitoResponse,
-    parseUser,
 } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
 
 const config = getConfig();
-Amplify.configure({
-    Auth: {
-        region: config.auth.region,
-        userPoolId: config.auth.userPoolId,
-        userPoolWebClientId: config.auth.userPoolWebClientId,
-        oauth: {
-            domain: config.auth.oauth.domain,
-            scope: config.auth.oauth.scope,
-            redirectSignIn: config.auth.oauth.redirectSignIn,
-            redirectSignOut: config.auth.oauth.redirectSignOut,
-            responseType: config.auth.oauth.responseType,
+Amplify.configure(
+    {
+        Auth: {
+            Cognito: {
+                userPoolId: config.auth.userPoolId,
+                userPoolClientId: config.auth.userPoolWebClientId,
+                loginWith: {
+                    oauth: {
+                        domain: config.auth.oauth.domain,
+                        scopes: config.auth.oauth.scope,
+                        redirectSignIn: [config.auth.oauth.redirectSignIn],
+                        redirectSignOut: [config.auth.oauth.redirectSignOut],
+                        responseType: config.auth.oauth.responseType,
+                    },
+                },
+            },
         },
     },
-});
+    { ssr: true },
+);
 
 export enum AuthStatus {
     Loading = 'Loading',
@@ -63,22 +83,22 @@ interface AuthContextType {
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
 
-    socialSignin: (provider: string, redirectUri: string) => void;
+    socialSignin: (provider: 'Google', redirectUri: string) => void;
     signin: (email: string, password: string) => Promise<void>;
 
     signup: (
         name: string,
         email: string,
         password: string,
-    ) => Promise<{ user: { getUsername: () => string } }>;
-    confirmSignup: (username: string, code: string) => Promise<void>;
-    resendSignupCode: (username: string) => Promise<void>;
-    forgotPassword: (email: string) => Promise<void>;
+    ) => Promise<SignUpOutput & { username: string }>;
+    confirmSignup: (username: string, code: string) => Promise<ConfirmSignUpOutput>;
+    resendSignupCode: (username: string) => Promise<ResendSignUpCodeOutput>;
+    forgotPassword: (email: string) => Promise<ResetPasswordOutput>;
     forgotPasswordConfirm: (
         email: string,
         code: string,
         password: string,
-    ) => Promise<string>;
+    ) => Promise<void>;
 
     signout: () => void;
 }
@@ -106,10 +126,10 @@ const AuthContext = createContext<AuthContextType>({
     signout: defaultAuthContextFunction,
 });
 
-function socialSignin(provider: string, redirectUri: string) {
+function socialSignin(provider: 'Google', redirectUri: string) {
     trackEvent(EventType.Login, { method: 'Google' });
-    AmplifyAuth.federatedSignIn({
-        provider: provider as CognitoHostedUIIdentityProvider,
+    signInWithRedirect({
+        provider,
         customState: redirectUri,
     })
         .then((value) => {
@@ -120,44 +140,43 @@ function socialSignin(provider: string, redirectUri: string) {
         });
 }
 
-function signup(name: string, email: string, password: string) {
+async function signup(name: string, email: string, password: string) {
     trackEvent(EventType.Signup);
-    return AmplifyAuth.signUp({
-        username: uuidv4(),
+    const username = uuidv4();
+    const resp = await amplifySignUp({
+        username,
         password,
-        attributes: {
-            email,
-            name,
+        options: {
+            userAttributes: {
+                email,
+                name,
+            },
         },
     });
+    return { ...resp, username };
 }
 
 function confirmSignup(username: string, code: string) {
     trackEvent(EventType.SignupConfirm);
-    return AmplifyAuth.confirmSignUp(username, code, {
-        forceAliasCreation: false,
-    }).catch((err: Error) => {
-        if (
-            (err as { code?: string }).code !== 'NotAuthorizedException' ||
-            !err.message?.includes('Current status is CONFIRMED')
-        ) {
-            throw err;
-        }
-    });
+    return amplifyConfirmSignUp({ username, confirmationCode: code });
 }
 
 function resendSignupCode(username: string) {
-    return AmplifyAuth.resendSignUp(username);
+    return amplifyResendSignUpCode({ username });
 }
 
 function forgotPassword(email: string) {
     trackEvent(EventType.ForgotPassword);
-    return AmplifyAuth.forgotPassword(email);
+    return resetPassword({ username: email });
 }
 
 function forgotPasswordConfirm(email: string, code: string, password: string) {
     trackEvent(EventType.ForgotPasswordConfirm);
-    return AmplifyAuth.forgotPasswordSubmit(email, code, password);
+    return confirmResetPassword({
+        username: email,
+        confirmationCode: code,
+        newPassword: password,
+    });
 }
 
 export function useAuth() {
@@ -182,37 +201,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
 
-    const handleCognitoResponse = useCallback(
-        async (cognitoResponse: CognitoResponse) => {
-            const cognitoUser = parseCognitoResponse(cognitoResponse);
-            const checkoutSessionIds = getAllCheckoutSessionIds();
-            let apiResponse: AxiosResponse<User>;
+    const handleCognitoResponse = useCallback(async (cognitoUser: CognitoUser) => {
+        const checkoutSessionIds = getAllCheckoutSessionIds();
+        let apiResponse: AxiosResponse<User>;
 
-            if (Object.values(checkoutSessionIds).length > 0) {
-                apiResponse = await syncPurchases(
-                    cognitoUser.session.idToken.jwtToken,
-                    checkoutSessionIds,
-                );
-                clearCheckoutSessionIds();
-            } else {
-                apiResponse = await getUser(cognitoUser.session.idToken.jwtToken);
-            }
+        if (Object.values(checkoutSessionIds).length > 0) {
+            apiResponse = await syncPurchases(
+                cognitoUser.tokens?.idToken?.toString() ?? '',
+                checkoutSessionIds,
+            );
+            clearCheckoutSessionIds();
+        } else {
+            apiResponse = await getUser(cognitoUser.tokens?.idToken?.toString() ?? '');
+        }
 
-            const user = parseUser(apiResponse.data, cognitoUser);
-            console.log('Got user: ', user);
-            setUser(user);
-            setStatus(AuthStatus.Authenticated);
-            setAnalyticsUser(user);
-        },
-        [],
-    );
+        const user = parseUser(apiResponse.data, cognitoUser);
+        console.log('Got user: ', user);
+        setUser(user);
+        setStatus(AuthStatus.Authenticated);
+        setAnalyticsUser(user);
+    }, []);
 
     const getCurrentUser = useCallback(async () => {
         try {
-            const cognitoResponse = (await AmplifyAuth.currentAuthenticatedUser({
-                bypassCache: true,
-            })) as CognitoResponse;
-            await handleCognitoResponse(cognitoResponse);
+            const authUser = await amplifyGetCurrentUser();
+            const authSession = await fetchAuthSession({ forceRefresh: true });
+            await handleCognitoResponse({
+                username: authUser.username,
+                tokens: authSession.tokens,
+            });
         } catch (err) {
             console.error('Failed to get user: ', err);
             setStatus(AuthStatus.Unauthenticated);
@@ -234,12 +251,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             void (async () => {
                 try {
                     console.log('Signing in');
-                    const cognitoResponse = (await AmplifyAuth.signIn(
-                        email,
-                        password,
-                    )) as CognitoResponse;
+                    await amplifySignIn({ username: email, password });
+                    const authUser = await amplifyGetCurrentUser();
+                    const authSession = await fetchAuthSession({ forceRefresh: true });
                     trackEvent(EventType.Login, { method: 'Cognito' });
-                    await handleCognitoResponse(cognitoResponse);
+                    await handleCognitoResponse({
+                        username: authUser.username,
+                        tokens: authSession.tokens,
+                    });
                     resolve();
                 } catch (err) {
                     console.error('Failed Auth.signIn: ', err);
@@ -252,10 +271,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signout = async () => {
         try {
-            console.log('Signing out');
-            await AmplifyAuth.signOut();
+            await amplifySignOut();
             trackEvent(EventType.Logout);
-            console.log('Signed out');
             setUser(undefined);
             setStatus(AuthStatus.Unauthenticated);
         } catch (err) {
@@ -327,9 +344,8 @@ export function RequireAuth() {
     if (auth.status === AuthStatus.Unauthenticated || !user) {
         return (
             <Navigate
-                to='/'
+                to={`/?redirectUri=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
                 replace
-                state={{ redirectUri: `${location.pathname}${location.search}` }}
             />
         );
     }

@@ -31,7 +31,7 @@ const VerifyEmailPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/' />;
+        return <Navigate to='/profile' />;
     }
 
     if (!username || !email || !password) {
@@ -49,12 +49,12 @@ const VerifyEmailPage = () => {
 
         auth.confirmSignup(username, code)
             .then(() => auth.signin(email, password))
-            .catch((err: { message?: string; code?: string }) => {
+            .catch((err: { message?: string; name?: string }) => {
                 console.dir(err);
                 if (err.message) {
                     setCodeError(err.message);
                 }
-                if (err.code === 'AliasExistsException') {
+                if (err.name === 'AliasExistsException') {
                     submitRequest.onFailure({
                         message:
                             'An account with this email already exists. ' +

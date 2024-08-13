@@ -5,10 +5,13 @@ import { Request } from '../api/Request';
 import SellingPoint, { SellingPointStatus } from './SellingPoint';
 
 interface PriceMatrixProps {
-    onSubscribe: (interval: 'month' | 'year') => void;
+    onSubscribe?: (interval: 'month' | 'year') => void;
     request?: Request;
     interval?: string;
     onFreeTier?: () => void;
+
+    subscribeLink?: string;
+    freeTierLink?: string;
 }
 
 const PriceMatrix: React.FC<PriceMatrixProps> = ({
@@ -16,10 +19,12 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
     interval,
     onSubscribe,
     onFreeTier,
+    subscribeLink,
+    freeTierLink,
 }) => {
     return (
         <>
-            {onFreeTier && (
+            {(onFreeTier || freeTierLink) && (
                 <Grid2 xs={12} sm={4}>
                     <Card variant='outlined' sx={{ height: 1 }}>
                         <CardContent sx={{ height: 1 }}>
@@ -66,6 +71,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                     disabled={request?.isLoading()}
                                     color='subscribe'
                                     onClick={onFreeTier}
+                                    href={freeTierLink}
                                 >
                                     Continue for Free
                                 </Button>
@@ -75,7 +81,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                 </Grid2>
             )}
 
-            <Grid2 xs={12} sm={onFreeTier ? 4 : 6}>
+            <Grid2 xs={12} sm={onFreeTier || freeTierLink ? 4 : 6}>
                 <Card variant='outlined' sx={{ height: 1 }}>
                     <CardContent sx={{ height: 1 }}>
                         <Stack alignItems='center' spacing={3} height={1}>
@@ -116,7 +122,10 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                 fullWidth
                                 loading={request?.isLoading() && interval === 'month'}
                                 disabled={request?.isLoading() && interval !== 'month'}
-                                onClick={() => onSubscribe('month')}
+                                onClick={
+                                    onSubscribe ? () => onSubscribe('month') : undefined
+                                }
+                                href={subscribeLink}
                                 color='subscribe'
                             >
                                 Subscribe
@@ -126,7 +135,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                 </Card>
             </Grid2>
 
-            <Grid2 xs={12} sm={onFreeTier ? 4 : 6}>
+            <Grid2 xs={12} sm={onFreeTier || freeTierLink ? 4 : 6}>
                 <Card variant='outlined' sx={{ height: 1 }}>
                     <CardContent sx={{ height: 1 }}>
                         <Stack alignItems='center' spacing={3} height={1}>
@@ -159,7 +168,10 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                 fullWidth
                                 loading={request?.isLoading() && interval === 'year'}
                                 disabled={request?.isLoading() && interval !== 'year'}
-                                onClick={() => onSubscribe('year')}
+                                onClick={
+                                    onSubscribe ? () => onSubscribe('year') : undefined
+                                }
+                                href={subscribeLink}
                                 color='subscribe'
                             >
                                 Subscribe

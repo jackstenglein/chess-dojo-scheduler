@@ -1,6 +1,12 @@
 describe('Forgot Password Page', () => {
     beforeEach(() => {
-        cy.intercept('POST', 'https://cognito-idp.us-east-1.amazonaws.com/', {});
+        cy.intercept('POST', 'https://cognito-idp.us-east-1.amazonaws.com/', {
+            codeDeliveryDetails: {
+                attributeName: 'email',
+                deliveryMedium: 'EMAIL',
+                destination: 'jackstenglein+test@gmail.com',
+            },
+        });
         cy.visit('/forgot-password');
     });
 
@@ -91,7 +97,7 @@ describe('Forgot Password Page', () => {
         cy.get('#password-confirm').type('12345678');
         cy.getBySel('submit-button').click();
 
-        cy.get('#code-helper-text').should('have.text', 'Incorrect recovery code');
+        cy.get('#code-helper-text').should('have.text', 'Incorrect recovery code.');
     });
 
     it('redirects back to signin after completion', () => {

@@ -1,4 +1,4 @@
-import task from '@cypress/code-coverage/task';
+// import task from '@cypress/code-coverage/task';
 import { defineConfig } from 'cypress';
 import dotenv from 'dotenv';
 import { EnvSchema } from './cypress/env';
@@ -15,10 +15,52 @@ export default defineConfig({
     e2e: {
         baseUrl: 'http://localhost:3000',
         experimentalRunAllSpecs: true,
-        setupNodeEvents(on, config) {
-            task(on, config);
-            return config;
-        },
+        // setupNodeEvents(on, config) {
+        //     task((_ignored, tasks) => {
+        //         // we use our own locking here to prevent a race condition with cypress-coverage and
+        //         // cypress-parallel
+        //         const myTasks = {
+        //             ...tasks,
+        //             combineCoverage: async (sentCoverage: unknown) => {
+        //                 const release = await lockfile.lock('.cypressCoverage', {
+        //                     realpath: false, // allows following symlinks and creating the file
+        //                     retries: {
+        //                         retries: 10,
+        //                         factor: 2,
+        //                         minTimeout: 100,
+        //                         maxTimeout: 1000,
+        //                         randomize: true,
+        //                     },
+        //                 });
+        //                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+        //                 const ret = await (tasks as any).combineCoverage(sentCoverage);
+        //                 await release();
+        //                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        //                 return ret;
+        //             },
+        //             coverageReport: async () => {
+        //                 const release = await lockfile.lock('.cypressCoverage', {
+        //                     realpath: false, // allows following symlinks and creating the file
+        //                     retries: {
+        //                         retries: 10,
+        //                         factor: 2,
+        //                         minTimeout: 100,
+        //                         maxTimeout: 1000,
+        //                         randomize: true,
+        //                     },
+        //                 });
+        //                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+        //                 const ret = await (tasks as any).coverageReport();
+        //                 await release();
+        //                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        //                 return ret;
+        //             },
+        //         };
+        //         on('task', myTasks);
+        //     }, config);
+
+        //     return config;
+        // },
     },
 
     env: EnvSchema.strict().parse({
@@ -38,6 +80,7 @@ export default defineConfig({
 
         codeCoverage: {
             exclude: 'cypress/**/*.*',
+            url: 'http://localhost:3000/api/__coverage__',
         },
     }),
 });

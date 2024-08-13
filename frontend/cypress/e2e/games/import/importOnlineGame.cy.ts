@@ -87,6 +87,7 @@ describe('Import Games Page - Import Online Games', () => {
     it('submits from a Lichess chapter URL with missing headers successfully', () => {
         importUrl(testUrls.lichessChapterMissingData);
         cancelPreflight();
+        cy.tick(1000); // Necessary when using cy.clock with modals: https://stackoverflow.com/a/71974637
 
         verifyGame({
             lastMove: 'd4',
@@ -113,6 +114,7 @@ describe('Import Games Page - Import Online Games', () => {
 
         // This particular analysis is missing headers
         cancelPreflight();
+        cy.tick(1000); // Necessary when using cy.clock with modals: https://stackoverflow.com/a/71974637
 
         verifyGame({
             lastMove: 'Nxb6',
@@ -146,7 +148,7 @@ describe('Import Games Page - Import Online Games', () => {
     });
 
     if (cy.dojo.env('cognito_username') === 'jackstenglein+test@gmail.com') {
-        it.only('submits from Chess.com recent game', () => {
+        it('submits from Chess.com recent game', () => {
             cy.contains('othaluran').click();
             verifyGame({
                 white: 'JackStenglein',
@@ -174,9 +176,10 @@ describe('Import Games Page - Import Online Games', () => {
             black: 'JackStenglein',
             lastMove: 'Rf4+',
             lastMoveClock: {
-                white: '15:36',
-                black: '10:24',
+                white: '0:15:36',
+                black: '0:10:24',
             },
+            orientation: 'black',
         });
         deleteCurrentGame();
     });

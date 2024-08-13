@@ -1,4 +1,5 @@
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
+import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Help } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
@@ -22,7 +23,7 @@ import { useGame } from '../../../games/view/GamePage';
 import { useReconcile } from '../../Board';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
-import { convertClockToSeconds, formatTime } from '../boardTools/underboard/ClockUsage';
+import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
 import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
 
 export function getTextColor(move: Move, inline?: boolean): string {
@@ -390,7 +391,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
 };
 
 function getMoveTime(chess: Chess | undefined, move: Move): string {
-    const seconds = convertClockToSeconds(move.commentDiag?.clk);
+    const seconds = clockToSeconds(move.commentDiag?.clk);
     if (!seconds) {
         return '0';
     }
@@ -426,7 +427,7 @@ function getMoveTime(chess: Chess | undefined, move: Move): string {
     let prevSeconds = undefined;
     do {
         prev = prev.previous?.previous;
-        prevSeconds = convertClockToSeconds(prev?.commentDiag?.clk);
+        prevSeconds = clockToSeconds(prev?.commentDiag?.clk);
     } while (prev && prevSeconds === undefined);
 
     if (prevSeconds === undefined) {

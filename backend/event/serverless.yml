@@ -242,6 +242,12 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /calendar/{id+}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:

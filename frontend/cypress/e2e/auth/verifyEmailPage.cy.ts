@@ -1,7 +1,13 @@
 describe('Verify Email Page', () => {
     beforeEach(() => {
         cy.visit('/verify-email');
-        cy.intercept('POST', 'https://cognito-idp.us-east-1.amazonaws.com/', {});
+        cy.intercept('POST', 'https://cognito-idp.us-east-1.amazonaws.com/', {
+            CodeDeliveryDetails: {
+                AttributeName: 'email',
+                DeliveryMedium: 'EMAIL',
+                Destination: 'test@email.com',
+            },
+        });
         cy.get('#name').type('Test Name');
         cy.get('#email').type('test@email.com');
         cy.get('#password').type('testpassword');
