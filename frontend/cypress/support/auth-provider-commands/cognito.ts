@@ -1,23 +1,26 @@
 import { Amplify } from 'aws-amplify';
 import { signIn } from 'aws-amplify/auth';
 
-Amplify.configure({
-    Auth: {
-        Cognito: {
-            userPoolId: cy.dojo.env('cognito_user_pool_id'),
-            userPoolClientId: cy.dojo.env('cognito_user_pool_web_client_id'),
-            loginWith: {
-                oauth: {
-                    domain: cy.dojo.env('cognito_domain'),
-                    scopes: ['profile', 'email', 'openid'],
-                    redirectSignIn: [Cypress.config('baseUrl') ?? ''],
-                    redirectSignOut: [Cypress.config('baseUrl') ?? ''],
-                    responseType: 'code',
+Amplify.configure(
+    {
+        Auth: {
+            Cognito: {
+                userPoolId: cy.dojo.env('cognito_user_pool_id'),
+                userPoolClientId: cy.dojo.env('cognito_user_pool_web_client_id'),
+                loginWith: {
+                    oauth: {
+                        domain: cy.dojo.env('cognito_domain'),
+                        scopes: ['profile', 'email', 'openid'],
+                        redirectSignIn: [Cypress.config('baseUrl') ?? ''],
+                        redirectSignOut: [Cypress.config('baseUrl') ?? ''],
+                        responseType: 'code',
+                    },
                 },
             },
         },
     },
-});
+    { ssr: true },
+);
 
 const loginToCognito = (email: string, password: string) => {
     const log = Cypress.log({

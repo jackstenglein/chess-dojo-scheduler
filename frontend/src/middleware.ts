@@ -35,7 +35,6 @@ export async function middleware(request: NextRequest) {
 
     for (const path of publicPaths) {
         if (pathname.match(path)) {
-            console.log('Public path');
             return response;
         }
     }
@@ -64,16 +63,13 @@ export async function middleware(request: NextRequest) {
     }
 
     if (authenticated !== unauthenticatedPath) {
-        console.log('authenticated !== unauthenticatedPath');
         return response;
     }
 
     if (authenticated) {
-        console.log('Redirect to /profile');
         return NextResponse.redirect(new URL('/profile', request.url));
     }
 
-    console.log('Not authenticated');
     return NextResponse.redirect(new URL(`/?redirectUri=${pathname}`, request.url));
 }
 

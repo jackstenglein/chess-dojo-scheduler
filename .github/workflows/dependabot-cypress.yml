@@ -54,13 +54,13 @@ jobs:
           name: screenshots
           path: frontend/cypress/screenshots
       
-      - name: Check Coverage
-        working-directory: frontend
-        run: npx nyc report --reporter=text-summary >> $GITHUB_STEP_SUMMARY
+      # - name: Check Coverage
+      #   working-directory: frontend
+      #   run: npx nyc report --reporter=text-summary >> $GITHUB_STEP_SUMMARY
 
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage
-          path: frontend/coverage
+      # - name: Upload Coverage Report
+      #   uses: actions/upload-artifact@v4
+      #   if: always()
+      #   with:
+      #     name: coverage
+      #     path: frontend/coverage
