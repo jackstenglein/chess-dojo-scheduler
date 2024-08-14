@@ -6,11 +6,11 @@ import {
     Divider,
     Grid,
     IconButton,
+    LinearProgressProps,
     Stack,
     Tooltip,
     Typography,
 } from '@mui/material';
-import { blue } from '@mui/material/colors';
 import React, { useMemo, useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import { useFreeTier } from '../../auth/Auth';
@@ -38,6 +38,7 @@ interface ProgressItemProps {
     requirement: Requirement | CustomTask;
     cohort: string;
     isCurrentUser: boolean;
+    color?: LinearProgressProps['color'];
 }
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
@@ -80,6 +81,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     requirement,
     cohort,
     isCurrentUser,
+    color,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
@@ -122,6 +124,9 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     const currentCount = getCurrentCount(cohort, requirement, progress);
     const time = formatTime(getTotalTime(cohort, progress));
     const expired = isExpired(requirement, progress);
+    if (!color) {
+        color = 'primary';
+    }
 
     let DescriptionElement = null;
     let UpdateElement = null;
@@ -136,7 +141,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     onClick={() => setShowUpdateDialog(true)}
                     disabled={!isCurrentUser}
                     sx={{
-                        color: blue[800],
+                        color,
                     }}
                 />
             );
@@ -149,6 +154,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                 <ScoreboardProgress
                     value={currentCount}
                     max={totalCount}
+                    color={color}
                     min={requirement.startCount}
                     isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
                     hideProgressText={true}
@@ -184,11 +190,6 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     if (requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
         requirementName += ` (${totalCount})`;
     }
-
-    let description = isFreeTier
-        ? requirement.freeDescription || requirement.description
-        : requirement.description;
-    description = description.replaceAll('{{count}}', `${totalCount}`);
 
     if (blocker.isBlocked) {
         UpdateElement = <Lock sx={{ marginRight: 1, color: 'gray' }} />;

@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
-import { Stack, Typography, Card, CardHeader, CardContent, Box } from '@mui/material';
+import { Box, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
+import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 
+import { CategoryColors } from '@/style/ThemeProvider';
 import { useAuth } from '../../auth/Auth';
-import { SectionProps } from './YearReviewPage';
+import { formatTime } from '../../database/requirement';
 import {
     Datum,
     getCategoryData,
@@ -12,9 +13,8 @@ import {
     getTaskData,
     primaryAxis,
 } from './DojoPointSection';
-import { formatTime } from '../../database/requirement';
-import { CategoryColors } from '../activity/activity';
 import Percentiles from './Percentiles';
+import { SectionProps } from './YearReviewPage';
 
 const secondaryAxes: AxisOptions<Datum>[] = [
     {

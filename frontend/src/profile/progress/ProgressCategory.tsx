@@ -121,6 +121,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                             requirement={r}
                             progress={user.progress[r.id]}
                             cohort={cohort}
+                            color={r.category}
                             isCurrentUser={isCurrentUser}
                             user={user}
                         />

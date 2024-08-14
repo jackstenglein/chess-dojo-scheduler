@@ -2,13 +2,14 @@ import { Box, Card, CardContent, CardHeader, Stack, Typography } from '@mui/mate
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useMemo } from 'react';
 
+import { CategoryColors } from '@/style/ThemeProvider';
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';
+import { RequirementCategory } from '../../database/requirement';
 import { YearReviewDataSection } from '../../database/yearReview';
-import { CategoryColors, ScoreCategories } from '../activity/activity';
+import { ScoreCategories } from '../activity/activity';
 import Percentiles from './Percentiles';
 import { SectionProps } from './YearReviewPage';
-import { RequirementCategory } from '../../database/requirement';
 
 export interface Datum {
     primary: string;

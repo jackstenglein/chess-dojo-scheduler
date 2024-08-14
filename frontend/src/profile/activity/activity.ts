@@ -1,3 +1,4 @@
+import { CategoryColors } from '@/style/ThemeProvider';
 import {
     CustomTask,
     getCurrentCount,
@@ -11,17 +12,6 @@ import { TimelineEntry } from '../../database/timeline';
 import { ALL_COHORTS, dojoCohorts, User } from '../../database/user';
 import { PieChartData } from './PieChart';
 
-export const CategoryColors: Record<RequirementCategory, string> = {
-    [RequirementCategory.Welcome]: '#c27ba0', // light magenta 1
-    [RequirementCategory.Games]: '#ff9900', // orange
-    [RequirementCategory.Tactics]: '#38761d', // dark green 2
-    [RequirementCategory.Middlegames]: '#0000ff', // blue
-    [RequirementCategory.Endgame]: '#674ea7', // dark purple 1
-    [RequirementCategory.Opening]: '#cc0000', // dark red 1
-    [RequirementCategory.Graduation]: '#f44336', // red
-    [RequirementCategory.NonDojo]: '#cccccc', // gray
-};
-
 export const ScoreCategories = [
     RequirementCategory.Games,
     RequirementCategory.Tactics,
@@ -30,6 +20,7 @@ export const ScoreCategories = [
     RequirementCategory.Opening,
 ];
 
+// TODO: Yeet into sun before PR merge
 export const RequirementColors = [
     '#c27ba0',
     '#ff9900',
@@ -193,13 +184,10 @@ function getTimeframeScoreChartData(
 
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
-    const requirementMap = requirements.reduce<Record<string, Requirement>>(
-        (m, r) => {
-            m[r.id] = r;
-            return m;
-        },
-        {},
-    );
+    const requirementMap = requirements.reduce<Record<string, Requirement>>((m, r) => {
+        m[r.id] = r;
+        return m;
+    }, {});
 
     for (const entry of timeline) {
         if (
@@ -268,13 +256,10 @@ function getCategoryScoreChartData(
 
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
-    const requirementMap = requirements.reduce<Record<string, Requirement>>(
-        (m, r) => {
-            m[r.id] = r;
-            return m;
-        },
-        {},
-    );
+    const requirementMap = requirements.reduce<Record<string, Requirement>>((m, r) => {
+        m[r.id] = r;
+        return m;
+    }, {});
 
     for (const entry of timeline) {
         if (
@@ -495,13 +480,10 @@ function getAllTimeTimeChartData(
     requirements: Requirement[],
 ): PieChartData[] {
     const requirementMap =
-        requirements.reduce<Record<string, Requirement | CustomTask>>(
-            (map, r) => {
-                map[r.id] = r;
-                return map;
-            },
-            {},
-        ) ?? {};
+        requirements.reduce<Record<string, Requirement | CustomTask>>((map, r) => {
+            map[r.id] = r;
+            return map;
+        }, {}) ?? {};
 
     user.customTasks?.forEach((t) => {
         requirementMap[t.id] = t;
@@ -567,13 +549,10 @@ function getCategoryTimeChartData(
     }
 
     const requirementMap =
-        requirements.reduce<Record<string, Requirement>>(
-            (map, r) => {
-                map[r.id] = r;
-                return map;
-            },
-            {},
-        ) ?? {};
+        requirements.reduce<Record<string, Requirement>>((map, r) => {
+            map[r.id] = r;
+            return map;
+        }, {}) ?? {};
 
     const data: Record<string, PieChartData> = {};
     const timeCutoff = timeframeToISO(timeframe);
