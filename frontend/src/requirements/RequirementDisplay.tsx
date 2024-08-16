@@ -1,4 +1,4 @@
-import { Lock, Loop } from '@mui/icons-material';
+import { Lock, Loop, Edit } from '@mui/icons-material';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import CheckIcon from '@mui/icons-material/Check';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
@@ -289,6 +289,8 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                             <Button
                                 variant='contained'
                                 onClick={() => setShowUpdateDialog(true)}
+                                color='success'
+                                startIcon={<Edit />}
                             >
                                 Update Progress
                             </Button>

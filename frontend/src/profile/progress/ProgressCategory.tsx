@@ -1,3 +1,4 @@
+import { ProgressText } from '@/scoreboard/ScoreboardProgress';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
     Accordion,
@@ -79,6 +80,10 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                 <Stack
                     direction='row'
                     justifyContent='space-between'
+                    alignItems='center'
+                    flexWrap='wrap'
+                    columnGap='1rem'
+                    rowGap={0.5}
                     sx={{ width: 1, mr: 2 }}
                 >
                     <Typography fontWeight='bold'>
@@ -90,13 +95,14 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                         {c.name}
                     </Typography>
                     {c.name === 'Non-Dojo' ? (
-                        <Typography color='text.secondary'>
-                            {c.requirements.length} Activities
-                        </Typography>
+                        <ProgressText label={`${c.requirements.length} Activities`} />
                     ) : (
-                        <Typography color='text.secondary'>
-                            {`${c.totalComplete}/${c.totalRequirements} Tasks`}
-                        </Typography>
+                        <ProgressText
+                            value={c.totalComplete}
+                            max={c.totalRequirements}
+                            min={0}
+                            suffix='Tasks'
+                        />
                     )}
                 </Stack>
             </AccordionSummary>
