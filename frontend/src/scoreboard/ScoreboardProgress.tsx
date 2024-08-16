@@ -14,11 +14,11 @@ interface ProgressTextProps {
 }
 
 export const ProgressText = ({
-    value,
-    max,
+    value = 0,
+    max = 0,
     min = 0,
     label,
-    suffix,
+    suffix = '',
     isTime,
 }: ProgressTextProps) => {
     let formattedLabel: string;
@@ -26,9 +26,9 @@ export const ProgressText = ({
     if (label) {
         formattedLabel = label;
     } else if (isTime) {
-        formattedLabel = `${formatTime(value ?? 0)} / ${formatTime(max ?? 0)}`;
+        formattedLabel = `${formatTime(value)} / ${formatTime(max)}`;
     } else {
-        formattedLabel = `${Math.max(value ?? 0, min)} / ${max} ${suffix ?? ''}`;
+        formattedLabel = `${Math.max(value, min)} / ${max} ${suffix}`;
     }
 
     return (
@@ -99,16 +99,14 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                     />
                 </Box>
                 {!hideProgressText && (
-                    <Box>
-                        <ProgressText
-                            label={label}
-                            isTime={isTime}
-                            suffix={suffix}
-                            value={value}
-                            min={min}
-                            max={max}
-                        />
-                    </Box>
+                    <ProgressText
+                        label={label}
+                        isTime={isTime}
+                        suffix={suffix}
+                        value={value}
+                        min={min}
+                        max={max}
+                    />
                 )}
             </Box>
 
