@@ -5,36 +5,32 @@ import { Requirement, formatTime } from '../database/requirement';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ProgressTextProps {
-    value: number;
+    value?: number;
     max?: number;
     min?: number;
     label?: string;
     suffix?: string;
     isTime?: boolean;
 }
-export const ProgressText: React.FC<ProgressTextProps> = ({
+
+export const ProgressText = ({
     value,
     max,
-    min,
+    min = 0,
     label,
     suffix,
     isTime,
-}) => {
-    let formattedValue = value.toString();
-    let formattedMin = min?.toString();
-    let formattedMax = max?.toString();
-    const formattedSuffix = suffix ?? '';
+}: ProgressTextProps) => {
+    let formattedLabel: string;
 
-    if (isTime) {
-        formattedValue = formatTime(value);
-        if (max !== undefined) {
-            formattedMax = formatTime(max);
-        }
-
-        if (min !== undefined) {
-            formattedMin = formatTime(min);
-        }
+    if (label) {
+        formattedLabel = label;
+    } else if (isTime) {
+        formattedLabel = `${formatTime(value ?? 0)} / ${formatTime(max ?? 0)}`;
+    } else {
+        formattedLabel = `${Math.max(value ?? 0, min)} / ${max} ${suffix ?? ''}`;
     }
+
     return (
         <Typography
             whiteSpace='no-wrap'
@@ -42,11 +38,7 @@ export const ProgressText: React.FC<ProgressTextProps> = ({
             color='text.secondary'
             sx={{ fontWeight: 'bold' }}
         >
-            {label
-                ? label
-                : formattedMin !== undefined && formattedMax !== undefined
-                  ? `${formattedValue} / ${formattedMax} ${formattedSuffix}`
-                  : `${formattedValue} ${formattedSuffix}`}
+            {formattedLabel}
         </Typography>
     );
 };

@@ -40,13 +40,13 @@ const steps: Step[] = [
         target: '#Welcome-to-the-Dojo-header',
         title: 'Task Categories',
         content:
-            'Tasks are divided into 6 categories. You can click on a category header to expand it and view/update the tasks within that category.',
+            'Tasks are divided into categories. You can click on a category header to expand it and view/update the tasks within that category.',
     },
     {
         target: '#task-details',
         title: 'Task Details',
         content:
-            'Here you can see the name and a short description of the task, and you can click on "View Description" to see the full task description.',
+            'Here you can see the name of each task, as well as your progress on it. You can click the task name to see the full description and instructions.',
     },
     {
         target: '#task-status',

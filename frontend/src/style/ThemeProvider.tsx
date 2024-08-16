@@ -2,7 +2,7 @@
 
 import { CssBaseline } from '@mui/material';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
-import { deepPurple } from '@mui/material/colors';
+import { blue, deepPurple } from '@mui/material/colors';
 import {
     Experimental_CssVarsProvider,
     createTheme,
@@ -21,6 +21,7 @@ declare module '@mui/material/styles' {
         book: Palette['primary'];
         meet: Palette['primary'];
         explorerTotal: Palette['primary'];
+        trainingPlanTaskComplete: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
@@ -32,6 +33,7 @@ declare module '@mui/material/styles' {
         book?: Palette['primary'];
         meet?: Palette['primary'];
         explorerTotal?: Palette['primary'];
+        trainingPlanTaskComplete?: Palette['primary'];
     }
 }
 
@@ -56,6 +58,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        trainingPlanTaskComplete: true;
     }
 
     interface ButtonPropsColorOverrides {
@@ -132,6 +135,12 @@ const defaultPalette = {
         },
         name: 'coaching',
     }),
+    trainingPlanTaskComplete: defaultTheme.palette.augmentColor({
+        color: {
+            main: blue[800],
+        },
+        name: 'trainingPlanTaskComplete',
+    }),
 };
 
 const theme = experimental_extendTheme({
@@ -139,6 +148,12 @@ const theme = experimental_extendTheme({
         light: {
             palette: {
                 ...defaultPalette,
+                trainingPlanTaskComplete: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: blue[400],
+                    },
+                    name: 'trainingPlanTaskComplete',
+                }),
             },
         },
         dark: {
