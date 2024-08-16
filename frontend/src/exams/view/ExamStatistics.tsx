@@ -23,7 +23,7 @@ import {
     axisClasses,
     legendClasses,
     lineElementClasses,
-} from '@mui/x-charts';
+} from '@mui/x-charts-pro';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../../auth/Auth';
 import {

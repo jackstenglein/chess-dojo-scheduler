@@ -1,5 +1,7 @@
 import {
+    faChessBishop,
     faChessKing,
+    faChessKnight,
     faChessPawn,
     faChessQueen,
     faChessRook,
@@ -21,4 +23,12 @@ export function KingIcon(props: SvgIconProps) {
 
 export function PawnIcon(props: SvgIconProps) {
     return <FontAwesomeSvgIcon icon={faChessPawn} {...props} />;
+}
+
+export function BishopIcon(props: SvgIconProps) {
+    return <FontAwesomeSvgIcon icon={faChessBishop} {...props} />;
+}
+
+export function KnightIcon(props: SvgIconProps) {
+    return <FontAwesomeSvgIcon icon={faChessKnight} {...props} />;
 }
