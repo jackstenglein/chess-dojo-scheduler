@@ -48,7 +48,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         Endgame: false,
         Opening: false,
         'Non-Dojo': false,
-        [RequirementCategory.TodaysFocus]: false,
     });
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
 
@@ -79,36 +78,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                 }
             }
         });
-
-        const todaysFocus: Category = {
-            name: RequirementCategory.TodaysFocus,
-            requirements: [],
-            totalComplete: 0,
-            totalRequirements: 0,
-        };
-        let addMore = true;
-        while (addMore) {
-            addMore = false;
-            categories.forEach((c) => {
-                const requirements = c.requirements.filter(
-                    (r) =>
-                        r.category !== RequirementCategory.NonDojo &&
-                        !isComplete(cohort, r, user.progress[r.id]),
-                );
-                if (requirements.length > 0) {
-                    const idx = Math.floor(Math.random() * requirements.length);
-                    todaysFocus.requirements.push(requirements[idx]);
-                    addMore = todaysFocus.requirements.length < 3;
-                }
-            });
-        }
-
-        if (todaysFocus.requirements.length > 0) {
-            todaysFocus.requirements = todaysFocus.requirements.splice(0, 3);
-            todaysFocus.totalRequirements = todaysFocus.requirements.length;
-            categories.unshift(todaysFocus);
-        }
-        console.log(categories);
 
         user.customTasks?.forEach((task) => {
             if (task.counts[cohort]) {
@@ -153,7 +122,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             Endgame: true,
             Opening: true,
             'Non-Dojo': true,
-            [RequirementCategory.TodaysFocus]: true,
         });
     };
 
@@ -166,7 +134,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             Endgame: false,
             Opening: false,
             'Non-Dojo': false,
-            [RequirementCategory.TodaysFocus]: false,
         });
     };
 
