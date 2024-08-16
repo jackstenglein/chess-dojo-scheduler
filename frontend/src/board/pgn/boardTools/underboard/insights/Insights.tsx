@@ -1,5 +1,6 @@
+import AnnotationWarnings from '@/board/pgn/annotations/AnnotationWarnings';
 import { EventType } from '@jackstenglein/chess';
-import { CardContent, Stack } from '@mui/material';
+import { CardContent, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useGame } from '../../../../../games/view/GamePage';
 import { useChess } from '../../../PgnBoard';
@@ -32,10 +33,11 @@ export default function Insights() {
     }
 
     return (
-        <CardContent sx={{ height: 1, p: 0 }}>
-            <Stack height={1}>
-                <Stack flexGrow={1} sx={{ overflowY: 'auto', p: 2 }}>
-                    <Stack direction='row' spacing={1}></Stack>
+        <CardContent>
+            <Stack spacing={5} height={1}>
+                <Stack spacing={2}>
+                    <Typography variant='h5'>Annotations Feedback</Typography>
+                    <AnnotationWarnings inplace={true} />
                 </Stack>
             </Stack>
         </CardContent>

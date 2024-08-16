@@ -8,12 +8,12 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { useReconcile } from '../../Board';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
-import { getWarnings } from './warningRules';
+import { getWarnings, Warning } from './warningRules';
 
 function getMoveText(move: Move | null): string {
     if (!move) {
@@ -38,11 +38,15 @@ function getMoveText(move: Move | null): string {
     return text;
 }
 
-const AnnotationWarnings = () => {
+interface AnnotationWarningsProps {
+    inplace?: boolean;
+}
+
+export default function AnnotationWarnings({ inplace }: AnnotationWarningsProps) {
     const { chess } = useChess();
-    const [showDetails, setShowDetails] = useState(false);
     const [forceRender, setForceRender] = useState(0);
     const reconcile = useReconcile();
+    const [showDetails, setShowDetails] = useState(false);
 
     useEffect(() => {
         if (chess) {
@@ -80,6 +84,85 @@ const AnnotationWarnings = () => {
         setShowDetails(false);
     };
 
+    const content = (
+        <AnnotationWarningsContent
+            {...{ setShowDetails, showDetails, warnings, onClickMove }}
+        />
+    );
+
+    if (inplace) {
+        return content;
+    } else {
+        return (
+            <AnnotationWarningsOpener
+                {...{ setShowDetails, showDetails, warnings, onClickMove }}
+            >
+                {content}
+            </AnnotationWarningsOpener>
+        );
+    }
+}
+
+interface AnnotationWarningsContentProps {
+    setShowDetails: (show: boolean) => void;
+    showDetails: boolean;
+    warnings: Record<string, Warning> | never[];
+    onClickMove: (move: Move | null) => void;
+}
+
+function AnnotationWarningsContent({
+    onClickMove,
+    warnings,
+}: AnnotationWarningsContentProps) {
+    return (
+        <Stack spacing={2}>
+            {Object.values(warnings).map((w) => (
+                <Stack key={w.displayName}>
+                    <Typography variant='h6'>{w.displayName}</Typography>
+
+                    <Typography>{w.description}</Typography>
+                    <Stack
+                        mt={0.5}
+                        direction='row'
+                        spacing={1}
+                        alignItems='center'
+                        flexWrap='wrap'
+                    >
+                        <Typography>Applicable Moves:</Typography>
+                        {w.moves.map((m, idx) => (
+                            <Button
+                                key={idx}
+                                variant='text'
+                                sx={{
+                                    textTransform: 'none',
+                                    width: 'fit-content',
+                                    ml: -1,
+                                }}
+                                onClick={() => onClickMove(m)}
+                            >
+                                {getMoveText(m)}
+                            </Button>
+                        ))}
+                    </Stack>
+                </Stack>
+            ))}
+        </Stack>
+    );
+}
+
+interface AnnotationWarningsOpenerProps {
+    setShowDetails: (show: boolean) => void;
+    showDetails: boolean;
+    warnings: Record<string, Warning> | never[];
+    children: ReactNode;
+}
+
+function AnnotationWarningsOpener({
+    setShowDetails,
+    showDetails,
+    warnings,
+    children,
+}: AnnotationWarningsOpenerProps) {
     return (
         <Stack sx={{ mb: 1 }}>
             <Alert
@@ -105,43 +188,8 @@ const AnnotationWarnings = () => {
                 <DialogTitle component='div'>
                     <Typography variant='h5'>Annotation Warnings</Typography>
                 </DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2}>
-                        {Object.values(warnings).map((w) => (
-                            <Stack key={w.displayName}>
-                                <Typography variant='h6'>{w.displayName}</Typography>
-
-                                <Typography>{w.description}</Typography>
-                                <Stack
-                                    mt={0.5}
-                                    direction='row'
-                                    spacing={1}
-                                    alignItems='center'
-                                    flexWrap='wrap'
-                                >
-                                    <Typography>Applicable Moves:</Typography>
-                                    {w.moves.map((m, idx) => (
-                                        <Button
-                                            key={idx}
-                                            variant='text'
-                                            sx={{
-                                                textTransform: 'none',
-                                                width: 'fit-content',
-                                                ml: -1,
-                                            }}
-                                            onClick={() => onClickMove(m)}
-                                        >
-                                            {getMoveText(m)}
-                                        </Button>
-                                    ))}
-                                </Stack>
-                            </Stack>
-                        ))}
-                    </Stack>
-                </DialogContent>
+                <DialogContent>{children}</DialogContent>
             </Dialog>
         </Stack>
     );
-};
-
-export default AnnotationWarnings;
+}
