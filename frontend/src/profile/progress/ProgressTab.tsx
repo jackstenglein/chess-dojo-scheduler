@@ -91,21 +91,22 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         };
 
         const desiredTaskCount = 3;
-        const recentTaskCount = 2;
 
         const recentRequirements = Object.values(user.progress)
             .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt))
             .map((progress) => requirementsById[progress.requirementId])
             .filter((r) => !!r && !isComplete(cohort, r, user.progress[r.id]));
 
-        suggestedTasks.requirements = recentRequirements.slice(0, recentTaskCount);
+        suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
 
-        let randomTaskCandidates = categories.flatMap((c) =>
+        const otherIncompleteRequirements = categories.flatMap((c) =>
             c.requirements.filter(
                 (r) =>
                     r.category !== RequirementCategory.NonDojo &&
                     !isComplete(cohort, r, user.progress[r.id]) &&
-                    !recentRequirements.findIndex((recent) => recent.id === r.id),
+                    suggestedTasks.requirements.findIndex(
+                        (recent) => recent.id === r.id,
+                    ) < 0,
             ),
         );
 
@@ -113,17 +114,16 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
         const idx = daysSinceEpoch % requirements.length;
 
-        randomTaskCandidates = [
-            ...randomTaskCandidates.slice(idx),
-            ...randomTaskCandidates.slice(0, idx),
+        // Fill the remaining suggest tasks slots with tasks that rotate day by day.
+        suggestedTasks.requirements = [
+            ...suggestedTasks.requirements,
+            ...[
+                ...otherIncompleteRequirements.slice(idx),
+                ...otherIncompleteRequirements.slice(0, idx),
+            ].slice(0, desiredTaskCount - suggestedTasks.requirements.length),
         ];
-        suggestedTasks.requirements = randomTaskCandidates.slice(
-            0,
-            desiredTaskCount - suggestedTasks.requirements.length,
-        );
 
         if (suggestedTasks.requirements.length > 0) {
-            suggestedTasks.requirements = suggestedTasks.requirements.splice(0, 3);
             suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
             categories.unshift(suggestedTasks);
         }
