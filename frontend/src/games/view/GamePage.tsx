@@ -148,6 +148,7 @@ const GamePage = () => {
                             DefaultUnderboardTab.Comments,
                             DefaultUnderboardTab.Explorer,
                             DefaultUnderboardTab.Clocks,
+                            DefaultUnderboardTab.Insights,
                             DefaultUnderboardTab.Settings,
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}

@@ -18,6 +18,7 @@ import {
     Tooltip,
 } from '@mui/material';
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import { TbMicroscope as MicroscopeIcon } from 'react-icons/tb';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { AuthStatus, useAuth } from '../../../../auth/Auth';
 import { useGame } from '../../../../games/view/GamePage';
@@ -29,6 +30,7 @@ import Editor from './Editor';
 import ClockUsage from './clock/ClockUsage';
 import Comments from './comments/Comments';
 import { Directories } from './directories/Directories';
+import Insights from './insights/Insights';
 import Settings from './settings/Settings';
 import Tags from './tags/Tags';
 
@@ -40,6 +42,7 @@ export enum DefaultUnderboardTab {
     Explorer = 'explorer',
     Clocks = 'clocks',
     Settings = 'settings',
+    Insights = 'insights',
 }
 
 export interface DefaultUnderboardTabInfo {
@@ -84,6 +87,11 @@ const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
         name: DefaultUnderboardTab.Clocks,
         tooltip: 'Clock Usage',
         icon: <AccessAlarm />,
+    },
+    [DefaultUnderboardTab.Insights]: {
+        name: DefaultUnderboardTab.Insights,
+        tooltip: 'Insights',
+        icon: <MicroscopeIcon size='24px' />,
     },
     [DefaultUnderboardTab.Settings]: {
         name: DefaultUnderboardTab.Settings,
@@ -249,6 +257,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                             />
                         )}
                         {underboard === DefaultUnderboardTab.Explorer && <Explorer />}
+                        {underboard === DefaultUnderboardTab.Insights && <Insights />}
                         {underboard === DefaultUnderboardTab.Settings && (
                             <Settings showEditor={isOwner} />
                         )}

@@ -62,6 +62,9 @@ export enum ShortcutAction {
     /** Open the clock usage tab. */
     OpenClocks = 'OPEN_CLOCKS',
 
+    /** Open the insights tab. */
+    OpenInsights = 'OPEN_INSIGHTS',
+
     /** Open the settings tab. */
     OpenSettings = 'OPEN_SETTINGS',
 
@@ -114,6 +117,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Open Position Database';
         case ShortcutAction.OpenClocks:
             return 'Open Clock Usage';
+        case ShortcutAction.OpenInsights:
+            return 'Open Insights';
         case ShortcutAction.OpenSettings:
             return 'Open Settings';
         case ShortcutAction.FocusMainTextField:
@@ -160,6 +165,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Open the Position Database tab.';
         case ShortcutAction.OpenClocks:
             return 'Open the Clock Usage tab.';
+        case ShortcutAction.OpenInsights:
+            return 'Open the Insights tab.';
         case ShortcutAction.OpenSettings:
             return 'Open the Settings tab.';
         case ShortcutAction.FocusMainTextField:
@@ -210,6 +217,7 @@ export const defaultKeyBindings: Record<ShortcutAction, KeyBinding> = {
     [ShortcutAction.OpenComments]: { modifier: '', key: '' },
     [ShortcutAction.OpenDatabase]: { modifier: '', key: '' },
     [ShortcutAction.OpenClocks]: { modifier: '', key: '' },
+    [ShortcutAction.OpenInsights]: { modifier: '', key: '' },
     [ShortcutAction.OpenSettings]: { modifier: '', key: '' },
     [ShortcutAction.FocusMainTextField]: { modifier: '', key: '' },
     [ShortcutAction.FocusCommentTextField]: { modifier: '', key: '' },
@@ -414,6 +422,15 @@ function handleOpenClocks({ opts }: ShortcutHandlerProps) {
 }
 
 /**
+ * Handles opening the Insights tab in the underboard. This function is a no-op if opts
+ * does not contain a valid underboardApi object.
+ * @param opts The options to use.
+ */
+function handleOpenInsights({ opts }: ShortcutHandlerProps) {
+    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Insights);
+}
+
+/**
  * Handles opening the Settings tab in the underboard. This function is a no-op if opts
  * does not contain a valid underboardApi object.
  * @param opts The options to use.
@@ -487,6 +504,7 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.OpenComments]: handleOpenComments,
     [ShortcutAction.OpenDatabase]: handleOpenDatabase,
     [ShortcutAction.OpenClocks]: handleOpenClocks,
+    [ShortcutAction.OpenInsights]: handleOpenInsights,
     [ShortcutAction.OpenSettings]: handleOpenSettings,
     [ShortcutAction.FocusMainTextField]: handleFocusMainTextField,
     [ShortcutAction.FocusCommentTextField]: handleFocusCommentTextField,
