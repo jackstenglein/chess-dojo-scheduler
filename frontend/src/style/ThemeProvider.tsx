@@ -1,27 +1,14 @@
 'use client';
 
-import { RequirementCategory } from '@/database/requirement';
 import { CssBaseline } from '@mui/material';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
-import { deepPurple } from '@mui/material/colors';
+import { blue, deepPurple } from '@mui/material/colors';
 import {
     Experimental_CssVarsProvider,
     createTheme,
     experimental_extendTheme,
 } from '@mui/material/styles';
 import { ReactNode } from 'react';
-
-export const CategoryColors: Record<RequirementCategory, string> = {
-    [RequirementCategory.Welcome]: '#c27ba0',
-    [RequirementCategory.Games]: '#fccdcf',
-    [RequirementCategory.Tactics]: '#fc526d',
-    [RequirementCategory.Middlegames]: '#f16fa4',
-    [RequirementCategory.Endgame]: '#f897aa',
-    [RequirementCategory.Opening]: '#d64c6c',
-    [RequirementCategory.Graduation]: '#b22375',
-    [RequirementCategory.NonDojo]: '#6f273a',
-    [RequirementCategory.SuggestedTasks]: '#a31c60',
-};
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -34,6 +21,7 @@ declare module '@mui/material/styles' {
         book: Palette['primary'];
         meet: Palette['primary'];
         explorerTotal: Palette['primary'];
+        trainingPlanTaskComplete: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
@@ -45,22 +33,11 @@ declare module '@mui/material/styles' {
         book?: Palette['primary'];
         meet?: Palette['primary'];
         explorerTotal?: Palette['primary'];
+        trainingPlanTaskComplete?: Palette['primary'];
     }
 }
 
 declare module '@mui/material' {
-    interface LinearProgressPropsColorOverrides {
-        [RequirementCategory.Welcome]: true;
-        [RequirementCategory.Games]: true;
-        [RequirementCategory.Tactics]: true;
-        [RequirementCategory.Middlegames]: true;
-        [RequirementCategory.Endgame]: true;
-        [RequirementCategory.Opening]: true;
-        [RequirementCategory.Graduation]: true;
-        [RequirementCategory.NonDojo]: true;
-        [RequirementCategory.SuggestedTasks]: true;
-    }
-
     interface ChipPropsColorOverrides {
         opening: true;
         endgame: true;
@@ -81,6 +58,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        trainingPlanTaskComplete: true;
     }
 
     interface ButtonPropsColorOverrides {
@@ -105,14 +83,6 @@ declare module '@mui/material' {
         meet: true;
     }
 }
-
-const augmentRequirementColor = (c: RequirementCategory) =>
-    defaultTheme.palette.augmentColor({
-        color: {
-            main: CategoryColors[c],
-        },
-        name: c,
-    });
 
 const defaultTheme = createTheme({});
 
@@ -141,53 +111,17 @@ const defaultPalette = {
         },
         name: 'dojoOrange',
     }),
-    games: defaultTheme.palette.augmentColor({
-        color: {
-            main: CategoryColors[RequirementCategory.Games],
-        },
-        name: 'games',
-    }),
     opening: defaultTheme.palette.augmentColor({
         color: {
-            main: CategoryColors.Opening,
+            main: '#cc0000',
         },
         name: 'opening',
     }),
-    middlegames: defaultTheme.palette.augmentColor({
-        color: {
-            main: CategoryColors[RequirementCategory.Middlegames],
-        },
-        name: 'middlegames',
-    }),
     endgame: defaultTheme.palette.augmentColor({
         color: {
-            main: CategoryColors.Endgame,
+            main: '#674ea7',
         },
         name: 'endgame',
-    }),
-    welcome: defaultTheme.palette.augmentColor({
-        color: {
-            main: CategoryColors[RequirementCategory.Welcome],
-        },
-        name: 'welcome',
-    }),
-    suggestedTasks: defaultTheme.palette.augmentColor({
-        color: {
-            main: CategoryColors[RequirementCategory.SuggestedTasks],
-        },
-        name: 'suggestedTasks',
-    }),
-    tactics: defaultTheme.palette.augmentColor({
-        color: {
-            main: CategoryColors.Tactics,
-        },
-        name: 'tactics',
-    }),
-    graduation: defaultTheme.palette.augmentColor({
-        color: {
-            main: CategoryColors.Graduation,
-        },
-        name: 'graduation',
     }),
     subscribe: defaultTheme.palette.augmentColor({
         color: {
@@ -201,10 +135,12 @@ const defaultPalette = {
         },
         name: 'coaching',
     }),
-
-    ...Object.fromEntries(
-        Object.values(RequirementCategory).map((c) => [c, augmentRequirementColor(c)]),
-    ),
+    trainingPlanTaskComplete: defaultTheme.palette.augmentColor({
+        color: {
+            main: blue[800],
+        },
+        name: 'trainingPlanTaskComplete',
+    }),
 };
 
 const theme = experimental_extendTheme({
@@ -212,6 +148,12 @@ const theme = experimental_extendTheme({
         light: {
             palette: {
                 ...defaultPalette,
+                trainingPlanTaskComplete: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: blue[400],
+                    },
+                    name: 'trainingPlanTaskComplete',
+                }),
             },
         },
         dark: {

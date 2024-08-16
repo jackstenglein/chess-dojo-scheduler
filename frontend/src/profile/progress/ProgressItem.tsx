@@ -6,7 +6,6 @@ import {
     Divider,
     Grid,
     IconButton,
-    LinearProgressProps,
     Stack,
     Tooltip,
     Typography,
@@ -38,7 +37,6 @@ interface ProgressItemProps {
     requirement: Requirement | CustomTask;
     cohort: string;
     isCurrentUser: boolean;
-    color?: LinearProgressProps['color'];
 }
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
@@ -81,7 +79,6 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     requirement,
     cohort,
     isCurrentUser,
-    color,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
@@ -124,12 +121,16 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     const currentCount = getCurrentCount(cohort, requirement, progress);
     const time = formatTime(getTotalTime(cohort, progress));
     const expired = isExpired(requirement, progress);
-    if (!color) {
-        color = 'primary';
-    }
 
     let DescriptionElement = null;
     let UpdateElement = null;
+
+    let color: string | undefined = undefined;
+    if (isCurrentUser && currentCount >= totalCount) {
+        color = 'trainingPlanTaskComplete.main';
+    } else if (isCurrentUser) {
+        color = 'primary.main';
+    }
 
     switch (requirement.scoreboardDisplay) {
         case ScoreboardDisplay.Hidden:
@@ -142,6 +143,9 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     disabled={!isCurrentUser}
                     sx={{
                         color,
+                        '&.Mui-checked:not(.Mui-disabled)': {
+                            color,
+                        },
                     }}
                 />
             );
@@ -154,7 +158,6 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                 <ScoreboardProgress
                     value={currentCount}
                     max={totalCount}
-                    color={color}
                     min={requirement.startCount}
                     isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
                     hideProgressText={true}
@@ -163,7 +166,11 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
             );
             UpdateElement =
                 currentCount >= totalCount ? (
-                    <Checkbox checked onClick={() => setShowUpdateDialog(true)} />
+                    <Checkbox
+                        checked
+                        onClick={() => setShowUpdateDialog(true)}
+                        color={isCurrentUser ? 'trainingPlanTaskComplete' : undefined}
+                    />
                 ) : !isCurrentUser ? null : (
                     <IconButton
                         aria-label={`Update ${requirement.name}`}
@@ -192,7 +199,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     }
 
     if (blocker.isBlocked) {
-        UpdateElement = <Lock sx={{ marginRight: 1, color: 'gray' }} />;
+        UpdateElement = <Lock sx={{ marginRight: 1, color: 'text.secondary' }} />;
     }
 
     return (
@@ -229,10 +236,23 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                         flexDirection='column'
                         rowGap='0.25rem'
                     >
-                        <Box
-                            display='flex'
+                        {expired && (
+                            <Tooltip title='Your progress on this task has expired and it must be recompleted'>
+                                <Chip
+                                    variant='outlined'
+                                    color='error'
+                                    label='Expired'
+                                    size='small'
+                                    sx={{ alignSelf: 'start', mb: 0.5 }}
+                                />
+                            </Tooltip>
+                        )}
+
+                        <Stack
+                            direction='row'
                             flexWrap='wrap'
                             justifyContent='space-between'
+                            alignItems='center'
                             columnGap='1rem'
                         >
                             <Typography
@@ -243,53 +263,43 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                             >
                                 {requirementName}
                             </Typography>
-                            <Box mr={1}>
-                                <ProgressText
-                                    value={currentCount}
-                                    max={totalCount}
-                                    min={requirement.startCount}
-                                    isTime={
-                                        requirement.scoreboardDisplay ===
-                                        ScoreboardDisplay.Minutes
-                                    }
-                                />
-                            </Box>
-                        </Box>
+                            {showCount(requirement) && (
+                                <Box mr={1}>
+                                    <ProgressText
+                                        value={currentCount}
+                                        max={totalCount}
+                                        min={requirement.startCount}
+                                        isTime={
+                                            requirement.scoreboardDisplay ===
+                                            ScoreboardDisplay.Minutes
+                                        }
+                                    />
+                                </Box>
+                            )}
+                        </Stack>
                         {DescriptionElement}
                     </Grid>
                     <Grid item xs={2} sm='auto' id='task-status'>
-                        <Stack>
-                            {expired && (
-                                <Tooltip title='Your progress on this task has expired and it must be recompleted'>
-                                    <Chip
-                                        variant='outlined'
-                                        color='error'
-                                        label='Expired'
-                                    />
-                                </Tooltip>
+                        <Stack
+                            direction='row'
+                            alignItems='center'
+                            justifyContent='end'
+                            gap={1}
+                        >
+                            {!blocker.isBlocked && (
+                                <Typography
+                                    color='text.secondary'
+                                    sx={{
+                                        display: { xs: 'none', sm: 'initial' },
+                                        fontWeight: 'bold',
+                                    }}
+                                    noWrap
+                                    textOverflow='unset'
+                                >
+                                    {time}
+                                </Typography>
                             )}
-
-                            <Stack
-                                direction='row'
-                                alignItems='center'
-                                justifyContent='end'
-                                gap={1}
-                            >
-                                {!blocker.isBlocked && (
-                                    <Typography
-                                        color='text.secondary'
-                                        sx={{
-                                            display: { xs: 'none', sm: 'initial' },
-                                            fontWeight: 'bold',
-                                        }}
-                                        noWrap
-                                        textOverflow='unset'
-                                    >
-                                        {time}
-                                    </Typography>
-                                )}
-                                {UpdateElement}
-                            </Stack>
+                            {UpdateElement}
                         </Stack>
                     </Grid>
                 </Grid>
@@ -307,3 +317,11 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
         </Tooltip>
     );
 };
+
+function showCount(requirement: Requirement): boolean {
+    return (
+        requirement.scoreboardDisplay !== ScoreboardDisplay.NonDojo &&
+        requirement.scoreboardDisplay !== ScoreboardDisplay.Checkbox &&
+        requirement.scoreboardDisplay !== ScoreboardDisplay.Hidden
+    );
+}

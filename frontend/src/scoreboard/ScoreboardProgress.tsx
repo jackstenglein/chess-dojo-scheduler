@@ -5,36 +5,32 @@ import { Requirement, formatTime } from '../database/requirement';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ProgressTextProps {
-    value: number;
+    value?: number;
     max?: number;
     min?: number;
     label?: string;
     suffix?: string;
     isTime?: boolean;
 }
-export const ProgressText: React.FC<ProgressTextProps> = ({
-    value,
-    max,
-    min,
+
+export const ProgressText = ({
+    value = 0,
+    max = 0,
+    min = 0,
     label,
-    suffix,
+    suffix = '',
     isTime,
-}) => {
-    let formattedValue = value.toString();
-    let formattedMin = min?.toString();
-    let formattedMax = max?.toString();
-    const formattedSuffix = suffix ?? '';
+}: ProgressTextProps) => {
+    let formattedLabel: string;
 
-    if (isTime) {
-        formattedValue = formatTime(value);
-        if (max !== undefined) {
-            formattedMax = formatTime(max);
-        }
-
-        if (min !== undefined) {
-            formattedMin = formatTime(min);
-        }
+    if (label) {
+        formattedLabel = label;
+    } else if (isTime) {
+        formattedLabel = `${formatTime(value)} / ${formatTime(max)}`;
+    } else {
+        formattedLabel = `${Math.max(value, min)} / ${max} ${suffix}`;
     }
+
     return (
         <Typography
             whiteSpace='no-wrap'
@@ -42,11 +38,7 @@ export const ProgressText: React.FC<ProgressTextProps> = ({
             color='text.secondary'
             sx={{ fontWeight: 'bold' }}
         >
-            {label
-                ? label
-                : formattedMin !== undefined && formattedMax !== undefined
-                  ? `${formattedValue} / ${formattedMax} ${formattedSuffix}`
-                  : `${formattedValue} ${formattedSuffix}`}
+            {formattedLabel}
         </Typography>
     );
 };
@@ -107,16 +99,14 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                     />
                 </Box>
                 {!hideProgressText && (
-                    <Box>
-                        <ProgressText
-                            label={label}
-                            isTime={isTime}
-                            suffix={suffix}
-                            value={value}
-                            min={min}
-                            max={max}
-                        />
-                    </Box>
+                    <ProgressText
+                        label={label}
+                        isTime={isTime}
+                        suffix={suffix}
+                        value={value}
+                        min={min}
+                        max={max}
+                    />
                 )}
             </Box>
 

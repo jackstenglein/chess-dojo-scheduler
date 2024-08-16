@@ -9,7 +9,7 @@ import LoadingPage from '@/loading/LoadingPage';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Hub } from 'aws-amplify/utils';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 const LandingPage = ({
@@ -36,7 +36,8 @@ const LandingPage = ({
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return redirect(`/profile`);
+        router.replace('/profile');
+        return <LoadingPage />;
     }
 
     return (
