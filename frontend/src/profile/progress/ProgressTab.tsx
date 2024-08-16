@@ -8,7 +8,6 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { parseISO } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { RequestSnackbar } from '../../api/Request';
@@ -95,10 +94,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         const recentTaskCount = 2;
 
         const recentRequirements = Object.values(user.progress)
-            .toSorted(
-                (a, b) =>
-                    parseISO(b.updatedAt).getTime() - parseISO(a.updatedAt).getTime(),
-            )
+            .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt))
             .map((progress) => requirementsById[progress.requirementId])
             .filter((r) => !!r && !isComplete(cohort, r, user.progress[r.id]));
 
