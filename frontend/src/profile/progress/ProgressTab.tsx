@@ -92,7 +92,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         };
 
         const desiredTaskCount = 3;
-        const randomTaskCount = 1;
+        const recentTaskCount = 2;
 
         const recentRequirements = Object.values(user.progress)
             .toSorted(
@@ -102,37 +102,29 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             .map((progress) => requirementsById[progress.requirementId])
             .filter((r) => !!r && !isComplete(cohort, r, user.progress[r.id]));
 
-        while (suggestedTasks.requirements.length < desiredTaskCount - randomTaskCount) {
-            const req = recentRequirements[suggestedTasks.requirements.length];
-            if (req === undefined) {
-                break;
-            }
+        suggestedTasks.requirements = recentRequirements.slice(0, recentTaskCount);
 
-            suggestedTasks.requirements.push(req);
-        }
+        let randomTaskCandidates = categories.flatMap((c) =>
+            c.requirements.filter(
+                (r) =>
+                    r.category !== RequirementCategory.NonDojo &&
+                    !isComplete(cohort, r, user.progress[r.id]) &&
+                    !recentRequirements.findIndex((recent) => recent.id === r.id),
+            ),
+        );
 
-        let exhaustedSearch = false;
-        while (suggestedTasks.requirements.length < desiredTaskCount) {
-            exhaustedSearch = true;
-            categories.forEach((c) => {
-                const requirements = c.requirements.filter(
-                    (r) =>
-                        r.category !== RequirementCategory.NonDojo &&
-                        !isComplete(cohort, r, user.progress[r.id]),
-                );
-                if (requirements.length > 0) {
-                    const now = new Date();
-                    const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
-                    const idx = daysSinceEpoch % requirements.length;
-                    suggestedTasks.requirements.push(requirements[idx]);
-                    exhaustedSearch = false;
-                }
-            });
+        const now = new Date();
+        const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
+        const idx = daysSinceEpoch % requirements.length;
 
-            if (exhaustedSearch) {
-                break;
-            }
-        }
+        randomTaskCandidates = [
+            ...randomTaskCandidates.slice(idx),
+            ...randomTaskCandidates.slice(0, idx),
+        ];
+        suggestedTasks.requirements = randomTaskCandidates.slice(
+            0,
+            desiredTaskCount - suggestedTasks.requirements.length,
+        );
 
         if (suggestedTasks.requirements.length > 0) {
             suggestedTasks.requirements = suggestedTasks.requirements.splice(0, 3);
