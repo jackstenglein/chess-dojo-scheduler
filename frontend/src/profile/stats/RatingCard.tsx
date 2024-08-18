@@ -174,6 +174,7 @@ interface RatingCardProps {
     name?: string;
     isPreferred?: boolean;
     ratingHistory?: RatingHistory[];
+    height?: string;
 }
 
 const RatingCard: React.FC<RatingCardProps> = ({
@@ -186,6 +187,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
     name,
     isPreferred,
     ratingHistory,
+    height,
 }) => {
     const dark = !useAuth().user?.enableLightMode;
     const ratingChange = currentRating - startRating;
@@ -196,8 +198,8 @@ const RatingCard: React.FC<RatingCardProps> = ({
     }, [ratingHistory, currentRating]);
 
     return (
-        <Card variant='outlined'>
-            <CardContent>
+        <Card sx={{ height }} variant='outlined'>
+            <CardContent sx={{ display: 'flex', flexDirection: 'column', height }}>
                 <Stack direction='row' justifyContent='space-between' mb={2}>
                     <Stack direction='row' spacing={1.5} alignItems='center'>
                         <RatingSystemIcon system={system} />
@@ -373,8 +375,8 @@ const RatingCard: React.FC<RatingCardProps> = ({
                 </Grid>
 
                 {historyData.length > 0 && (
-                    <Stack>
-                        <Box height={300} mt={2}>
+                    <Stack flex={1}>
+                        <Box flex={1} mt={2}>
                             <Chart
                                 options={{
                                     data: historyData,
