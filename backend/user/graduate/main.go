@@ -63,8 +63,14 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if startedAt == "" {
 		startedAt = user.CreatedAt
 	}
-	now := time.Now()
-	createdAt := now.Format(time.RFC3339)
+
+	startedAtTime, err := time.Parse(time.RFC3339, startedAt)
+	if err != nil {
+		return api.Failure(errors.Wrap(500, "Unable to parse started at date", "", err)), nil
+	}
+
+	createdAtTime := time.Now()
+	createdAt := createdAtTime.Format(time.RFC3339)
 
 	startRating, currentRating := user.GetRatings()
 
@@ -77,6 +83,28 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	nonDojoTime := totalTime - dojoTime
 
 	log.Debugf("Total Time: %d, Dojo Time: %d, NonDojo Time: %d", totalTime, dojoTime, nonDojoTime)
+
+	ratingHistories := make(map[database.RatingSystem][]database.RatingHistory)
+	for rs, history := range user.RatingHistories {
+		for _, item := range history {
+			date, err := time.Parse(time.RFC3339, item.Date)
+			if err != nil {
+				return api.Failure(errors.Wrap(500, "Unable to parse rating histoy date", "", err)), nil
+			}
+
+			if date.After(startedAtTime) {
+				if date.After(createdAtTime) {
+					break
+				}
+
+				ratingHistories[rs] = append(ratingHistories[rs], item)
+			}
+		}
+	}
+
+	if len(ratingHistories) == 0 {
+		ratingHistories = user.RatingHistories
+	}
 
 	graduation := database.Graduation{
 		Type:                "GRADUATION",
@@ -96,6 +124,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		GraduationCohorts:   graduationCohorts,
 		DojoMinutes:         dojoTime,
 		NonDojoMinutes:      nonDojoTime,
+		RatingHistories:     ratingHistories,
 	}
 	if err := repository.PutGraduation(&graduation); err != nil {
 		return api.Failure(err), nil
@@ -104,7 +133,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	timelineEntry := database.TimelineEntry{
 		TimelineEntryKey: database.TimelineEntryKey{
 			Owner: info.Username,
-			Id:    fmt.Sprintf("%s_%s", now.Format(time.DateOnly), uuid.NewString()),
+			Id:    fmt.Sprintf("%s_%s", createdAtTime.Format(time.DateOnly), uuid.NewString()),
 		},
 		OwnerDisplayName:    user.DisplayName,
 		RequirementId:       "Graduation",
