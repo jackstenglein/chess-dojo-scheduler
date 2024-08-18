@@ -71,15 +71,17 @@ function datesAreSameDay(first: Date, second: Date) {
 export function getChartData(
     ratingHistory: RatingHistory[] | undefined,
     currentRating: number,
+    isHistorical: boolean,
 ) {
     if (!ratingHistory || ratingHistory.length === 0) {
         return [];
     }
 
-    const dates = everySevenDays(new Date(ratingHistory[0].date), new Date());
+    const startDate = new Date(ratingHistory[0].date);
+    const dates = everySevenDays(startDate, new Date());
     let data = [];
 
-    if (dates.length === ratingHistory.length) {
+    if (dates.length === ratingHistory.length || isHistorical) {
         data = ratingHistory.map((r) => ({
             date: new Date(r.date),
             rating: r.rating,
@@ -105,12 +107,14 @@ export function getChartData(
         }
     }
 
-    const now = new Date();
-    if (data.length > 0 && !datesAreSameDay(now, data[data.length - 1].date)) {
-        data.push({
-            date: now,
-            rating: currentRating,
-        });
+    if (!isHistorical) {
+        const now = new Date();
+        if (data.length > 0 && !datesAreSameDay(now, data[data.length - 1].date)) {
+            data.push({
+                date: now,
+                rating: currentRating,
+            });
+        }
     }
 
     return [{ label: 'Rating', data }];
@@ -174,7 +178,8 @@ interface RatingCardProps {
     name?: string;
     isPreferred?: boolean;
     ratingHistory?: RatingHistory[];
-    height?: string;
+    isHistorical?: boolean;
+    isPresentationMode?: boolean;
 }
 
 const RatingCard: React.FC<RatingCardProps> = ({
@@ -187,19 +192,20 @@ const RatingCard: React.FC<RatingCardProps> = ({
     name,
     isPreferred,
     ratingHistory,
-    height,
+    isHistorical,
+    isPresentationMode,
 }) => {
     const dark = !useAuth().user?.enableLightMode;
     const ratingChange = currentRating - startRating;
     const graduation = getRatingBoundary(cohort, system);
 
     const historyData = useMemo(() => {
-        return getChartData(ratingHistory, currentRating);
-    }, [ratingHistory, currentRating]);
+        return getChartData(ratingHistory, currentRating, !!isHistorical);
+    }, [ratingHistory, currentRating, isHistorical]);
 
     return (
-        <Card sx={{ height }} variant='outlined'>
-            <CardContent sx={{ display: 'flex', flexDirection: 'column', height }}>
+        <Card variant='outlined'>
+            <CardContent>
                 <Stack direction='row' justifyContent='space-between' mb={2}>
                     <Stack direction='row' spacing={1.5} alignItems='center'>
                         <RatingSystemIcon system={system} />
@@ -217,7 +223,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         </Stack>
                     </Stack>
 
-                    {isPreferred && (
+                    {isPreferred && !isPresentationMode && (
                         <Chip label='Preferred' variant='outlined' color='success' />
                     )}
                 </Stack>
@@ -226,7 +232,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                     <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
                         <Stack alignItems='center'>
                             <Typography variant='subtitle2' color='text.secondary'>
-                                Current
+                                {isHistorical ? 'Final' : 'Current '}
                             </Typography>
                             <Stack direction='row' alignItems='end'>
                                 <Typography
@@ -238,15 +244,17 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 >
                                     {currentRating}
                                 </Typography>
-                                <Tooltip title='Ratings are updated every 24 hours'>
-                                    <HelpIcon
-                                        sx={{
-                                            mb: '5px',
-                                            ml: '3px',
-                                            color: 'text.secondary',
-                                        }}
-                                    />
-                                </Tooltip>
+                                {!isPresentationMode && (
+                                    <Tooltip title='Ratings are updated every 24 hours'>
+                                        <HelpIcon
+                                            sx={{
+                                                mb: '5px',
+                                                ml: '3px',
+                                                color: 'text.secondary',
+                                            }}
+                                        />
+                                    </Tooltip>
+                                )}
                             </Stack>
                         </Stack>
                     </Grid>
@@ -323,7 +331,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         >
                             <Stack alignItems='center'>
                                 <Typography variant='subtitle2' color='text.secondary'>
-                                    Normalized
+                                    {isPresentationMode ? 'Dojo Rating' : 'Normalized'}
                                 </Typography>
                                 <Stack direction='row' alignItems='end'>
                                     <Typography
@@ -337,46 +345,57 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                             normalizeToFide(currentRating, system),
                                         )}
                                     </Typography>
-                                    <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
-                                        <HelpIcon
-                                            sx={{
-                                                mb: '5px',
-                                                ml: '3px',
-                                                color: 'text.secondary',
-                                            }}
-                                        />
-                                    </Tooltip>
+                                    {!isPresentationMode && (
+                                        <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
+                                            <HelpIcon
+                                                sx={{
+                                                    mb: '5px',
+                                                    ml: '3px',
+                                                    color: 'text.secondary',
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    )}
                                 </Stack>
                             </Stack>
                         </Grid>
                     )}
 
-                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
-                        <Stack alignItems='center'>
-                            <Typography
-                                variant='subtitle2'
-                                color='text.secondary'
-                                whiteSpace='nowrap'
-                            >
-                                Next Graduation
-                            </Typography>
+                    {!isHistorical && (
+                        <Grid
+                            item
+                            xs={6}
+                            sm={3}
+                            md
+                            display='flex'
+                            justifyContent='center'
+                        >
+                            <Stack alignItems='center'>
+                                <Typography
+                                    variant='subtitle2'
+                                    color='text.secondary'
+                                    whiteSpace='nowrap'
+                                >
+                                    Next Graduation
+                                </Typography>
 
-                            <Typography
-                                sx={{
-                                    fontSize: '2.25rem',
-                                    lineHeight: 1,
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                {graduation || 'N/A'}
-                            </Typography>
-                        </Stack>
-                    </Grid>
+                                <Typography
+                                    sx={{
+                                        fontSize: '2.25rem',
+                                        lineHeight: 1,
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    {graduation || 'N/A'}
+                                </Typography>
+                            </Stack>
+                        </Grid>
+                    )}
                 </Grid>
 
                 {historyData.length > 0 && (
-                    <Stack flex={1}>
-                        <Box flex={1} mt={2}>
+                    <Stack>
+                        <Box height={300} mt={2}>
                             <Chart
                                 options={{
                                     data: historyData,
@@ -388,14 +407,16 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 }}
                             />
                         </Box>
-                        <Typography
-                            variant='caption'
-                            color='text.secondary'
-                            mt={0.5}
-                            ml={0.5}
-                        >
-                            *Graphs are updated weekly
-                        </Typography>
+                        {!isPresentationMode && (
+                            <Typography
+                                variant='caption'
+                                color='text.secondary'
+                                mt={0.5}
+                                ml={0.5}
+                            >
+                                *Graphs are updated weekly
+                            </Typography>
+                        )}
                     </Stack>
                 )}
             </CardContent>

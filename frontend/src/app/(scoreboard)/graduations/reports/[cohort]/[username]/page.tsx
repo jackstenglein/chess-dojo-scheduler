@@ -27,7 +27,7 @@ export default async function Page({ params }: PageProps) {
     const gradSummary = userGraduations[userGraduations.length - 1];
 
     return (
-        <Container maxWidth='md' sx={{ py: 5 }}>
+        <Container sx={{ py: 5 }}>
             <GraduationReport graduation={gradSummary} />
         </Container>
     );
