@@ -35,7 +35,10 @@ export const GraduationLinkCard = ({ graduation, to }: GraduationLinkCardProps) 
                                 color='text.secondary'
                                 lineHeight='1.3'
                             >
-                                Graduated on {dateStr} • {timeStr}
+                                <div>Graduated to {newCohort}</div>
+                                <div>
+                                    {dateStr} • {timeStr}
+                                </div>
                             </Typography>
                         </Stack>
                     </CardContent>
