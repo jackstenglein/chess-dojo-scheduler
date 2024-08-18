@@ -61,6 +61,9 @@ type Graduation struct {
 
 	// The amount of time spent in minutes on non-dojo tasks in the cohort
 	NonDojoMinutes int `dynamodbav:"nonDojoMinutes,omitempty" json:"nonDojoMinutes,omitempty"`
+
+	// A map from a rating system to a slice of RatingHistory objects for that rating system.
+	RatingHistories map[RatingSystem][]RatingHistory `dynamodbav:"ratingHistories" json:"ratingHistories"`
 }
 
 type GraduationCreator interface {
