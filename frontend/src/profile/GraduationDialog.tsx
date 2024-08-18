@@ -1,3 +1,4 @@
+import { Graduation } from '@/database/graduation';
 import SchoolIcon from '@mui/icons-material/School';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -18,6 +19,7 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
 import { RatingSystem, shouldPromptGraduation } from '../database/user';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
+import GraduationShareDialog from './GraduationShareDialog';
 
 const GraduationDialog = () => {
     const [comments, setComments] = useState('');
@@ -27,6 +29,8 @@ const GraduationDialog = () => {
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
+    const [showShareDialog, setShareDialog] = useState(false);
+    const [graduation, setGraduation] = useState<Graduation>();
 
     const shouldGraduate = shouldPromptGraduation(user);
     const disableGraduation =
@@ -44,7 +48,7 @@ const GraduationDialog = () => {
         request.onStart();
         api.graduate(comments)
             .then((response) => {
-                console.log('graduate: ', response);
+                setGraduation(response.data.graduation);
                 request.onSuccess('Congratulations! You have successfully graduated!');
                 trackEvent(EventType.Graduate, {
                     previous_cohort: response.data.graduation.previousCohort,
@@ -53,9 +57,9 @@ const GraduationDialog = () => {
                 });
                 setUserCohort(response.data.userUpdate.dojoCohort);
                 setShowGraduationDialog(false);
+                setShareDialog(true);
             })
             .catch((err) => {
-                console.error('graduate: ', err);
                 request.onFailure(err);
             });
     };
@@ -129,6 +133,13 @@ const GraduationDialog = () => {
                     </LoadingButton>
                 </DialogActions>
             </Dialog>
+            {!!graduation && (
+                <GraduationShareDialog
+                    open={showShareDialog}
+                    graduation={graduation}
+                    onClose={() => setShareDialog(false)}
+                />
+            )}
             <UpsellDialog
                 open={upsellDialogOpen}
                 onClose={setUpsellDialogOpen}

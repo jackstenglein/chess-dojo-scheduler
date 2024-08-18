@@ -1,5 +1,6 @@
 'use client';
 
+import { EventType, trackEvent } from '@/analytics/events';
 import { Graduation } from '@/database/graduation';
 import { formatRatingSystem } from '@/database/user';
 import RatingCard from '@/profile/stats/RatingCard';
@@ -112,7 +113,6 @@ export default function GraduationReport({ graduation }: GraduationReportProps) 
         // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
 
-        //      manually increase the resolution.
         toPng(node, {
             backgroundColor,
             cacheBust: true,
@@ -122,6 +122,13 @@ export default function GraduationReport({ graduation }: GraduationReportProps) 
                 link.href = dataUrl;
                 link.download = `graduation-${newCohort}.png`;
                 link.click();
+
+                trackEvent(EventType.DownloadGradBox, {
+                    previous_cohort: graduation.previousCohort,
+                    new_cohort: graduation.newCohort,
+                    dojo_score: graduation.score,
+                    graduated_at: graduation.createdAt,
+                });
             })
             .catch((error) => {
                 console.error('error :-(', error);
