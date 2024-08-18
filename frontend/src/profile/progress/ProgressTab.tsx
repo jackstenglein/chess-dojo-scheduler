@@ -99,15 +99,10 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
         suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
 
-        const otherIncompleteRequirements = categories.flatMap((c) =>
-            c.requirements.filter(
-                (r) =>
-                    r.category !== RequirementCategory.NonDojo &&
-                    !isComplete(cohort, r, user.progress[r.id]) &&
-                    suggestedTasks.requirements.findIndex(
-                        (recent) => recent.id === r.id,
-                    ) < 0,
-            ),
+        const otherIncompleteRequirements = requirements.filter(
+            (r) =>
+                !isComplete(cohort, r, user.progress[r.id]) &&
+                suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
         );
 
         const now = new Date();
