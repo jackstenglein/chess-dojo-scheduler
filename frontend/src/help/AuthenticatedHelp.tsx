@@ -18,8 +18,10 @@ import { TutorialName } from '../tutorial/tutorialNames';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import HelpItem from './HelpItem';
 import SupportTicket from './SupportTicket';
+import { faq } from './UnauthenticatedHelp';
 
 const helpSections = [
+    faq,
     {
         title: 'Account/Profile',
         items: [

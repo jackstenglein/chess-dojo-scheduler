@@ -1,34 +1,16 @@
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
+import { AuthTokens } from 'aws-amplify/auth';
 import { ExamType } from './exam';
 import { CustomTask, RequirementProgress } from './requirement';
 import { ScoreboardSummary } from './scoreboard';
 
-interface CognitoSession {
-    idToken: {
-        jwtToken: string;
-    };
-    refreshToken: {
-        token: string;
-    };
-}
-
+/** The user as returned by Cognito. */
 export interface CognitoUser {
-    session: CognitoSession;
+    /** The user's username. */
     username: string;
-    rawResponse: CognitoResponse;
-}
 
-export interface CognitoResponse {
-    signInUserSession: CognitoSession;
-    username: string;
-}
-
-export function parseCognitoResponse(cognitoResponse: CognitoResponse): CognitoUser {
-    return {
-        session: cognitoResponse.signInUserSession,
-        username: cognitoResponse.username,
-        rawResponse: cognitoResponse,
-    };
+    /** The user's authentication tokens. */
+    tokens?: AuthTokens;
 }
 
 export enum RatingSystem {

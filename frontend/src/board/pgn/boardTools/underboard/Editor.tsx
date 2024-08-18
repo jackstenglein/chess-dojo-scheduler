@@ -30,8 +30,8 @@ import {
     setNagsInSet,
 } from '../../Nag';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
-import ClockTextField from './ClockTextField';
-import { TimeControlDescription } from './TimeControlDescription';
+import ClockTextField from './clock/ClockTextField';
+import { TimeControlDescription } from './clock/TimeControlDescription';
 import { TimeControlEditor } from './tags/TimeControlEditor';
 
 interface NagButtonProps extends ToggleButtonProps {

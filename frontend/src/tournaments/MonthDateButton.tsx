@@ -11,7 +11,7 @@ export const MIN_DATE = '2023-07-11';
 
 interface LocaleArrowProps extends Omit<IconButtonProps, 'type'> {
     type: 'prev' | 'next';
-    onClick?(e?: MouseEvent): void;
+    onClick?: (e?: MouseEvent) => void;
 }
 
 export const LocaleArrow = ({ type, onClick, ...props }: LocaleArrowProps) => {
@@ -38,7 +38,7 @@ export const LocaleArrow = ({ type, onClick, ...props }: LocaleArrowProps) => {
 
 interface MonthDateButtonProps {
     selectedDate: DateTime;
-    onChange(value: DateTime): void;
+    onChange: (value: DateTime) => void;
 }
 
 const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {

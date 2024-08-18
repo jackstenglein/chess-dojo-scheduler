@@ -7,7 +7,7 @@ import { LocaleArrow, MIN_DATE, MIN_YEAR } from './MonthDateButton';
 
 interface YearDateButtonProps {
     selectedDate: DateTime;
-    onChange(value: DateTime): void;
+    onChange: (value: DateTime) => void;
 }
 
 const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {

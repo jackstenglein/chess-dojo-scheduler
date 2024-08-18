@@ -221,6 +221,11 @@ const ProfilePage = () => {
                                     value='games'
                                     icon={<PawnIcon fontSize='small' />}
                                 />
+                                {/* <ProfileTab
+                                    label='Files'
+                                    value='files'
+                                    icon={<Folder fontSize='small' />}
+                                /> */}
                                 <ProfileTab
                                     label='Clubs'
                                     value='clubs'
@@ -243,6 +248,11 @@ const ProfilePage = () => {
                         <TabPanel value='games' sx={{ px: { xs: 0 } }}>
                             <GamesTab user={user} />
                         </TabPanel>
+                        {/* <TabPanel value='files' sx={{ px: { xs: 0 } }}>
+                            <DirectoryCacheProvider>
+                                <DirectoriesTab user={user} />
+                            </DirectoryCacheProvider>
+                        </TabPanel> */}
                         <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>
                             <ClubsTab user={user} />
                         </TabPanel>

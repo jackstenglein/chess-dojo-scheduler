@@ -1,0 +1,193 @@
+# Deploys the directory service.
+
+service: chess-dojo-directories
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+functions:
+  create:
+    handler: create.handler
+    events:
+      - httpApi:
+          path: /directory
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  get:
+    handler: get.handler
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  listBreadcrumbs:
+    handler: listBreadcrumbs.handler
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/breadcrumbs
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  update:
+    handler: update.handler
+    events:
+      - httpApi:
+          path: /directory
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  delete:
+    handler: delete.handler
+    events:
+      - httpApi:
+          path: /directory/{id}
+          method: delete
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  recursiveDelete:
+    handler: recursiveDelete.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt DirectoriesTable.StreamArn
+          batchWindow: 60
+          batchSize: 100
+          parallelizationFactor: 10
+          filterPatterns:
+            - eventName: [REMOVE]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  addItem:
+    handler: addItem.handler
+    events:
+      - httpApi:
+          path: /directory/{id}/item
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  removeItem:
+    handler: removeItem.handler
+    events:
+      - httpApi:
+          path: /directory/{directoryId}/item/{itemId}
+          method: delete
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  moveItems:
+    handler: moveItems.handler
+    events:
+      - httpApi:
+          path: /directory/item/move
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+          - dynamodb:PartiQLUpdate
+        Resource: !GetAtt DirectoriesTable.Arn
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
+  Resources:
+    DirectoriesTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-directories
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        AttributeDefinitions:
+          - AttributeName: owner
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: owner
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        StreamSpecification:
+          StreamViewType: OLD_IMAGE

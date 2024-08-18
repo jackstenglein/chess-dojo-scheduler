@@ -22,19 +22,22 @@ import { useApi } from '../Api';
 import { GetExplorerPositionResult } from '../explorerApi';
 import { Request, useRequest } from '../Request';
 
-interface IdentifiableCache<T> {
+export interface IdentifiableCache<T> {
     get: (id: string) => T | undefined;
     list: () => T[];
     filter: (predicate: (obj: T) => boolean) => T[];
     put: (obj: T) => void;
     putMany: (objs: T[]) => void;
+    update: (obj: Partial<T>) => void;
     remove: (id: string) => void;
     isFetched: (id: string) => boolean;
     markFetched: (id: string) => void;
     request: Request;
 }
 
-function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
+export function useIdentifiableCache<T>(
+    keyGetter?: (item: Partial<T>) => string,
+): IdentifiableCache<T> {
     const [objects, setObjects] = useState<Record<string, T>>({});
     const fetchedIds = useRef<Record<string, boolean>>({});
     const request = useRequest();
@@ -57,19 +60,19 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
 
     const put = useCallback(
         (obj: T) => {
-            const id = key ? (obj as any)[key] : (obj as any).id;
+            const id = keyGetter ? keyGetter(obj) : (obj as any).id;
             setObjects((objects) => ({
                 ...objects,
                 [id]: obj,
             }));
         },
-        [setObjects, key],
+        [setObjects, keyGetter],
     );
 
     const putMany = useCallback(
         (objs: T[]) => {
             const newMap = objs.reduce((map: Record<string, T>, obj: T) => {
-                const id = key ? (obj as any)[key] : (obj as any).id;
+                const id = keyGetter ? keyGetter(obj) : (obj as any).id;
                 map[id] = obj;
                 return map;
             }, {});
@@ -78,7 +81,30 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
                 ...newMap,
             }));
         },
-        [setObjects, key],
+        [setObjects, keyGetter],
+    );
+
+    const update = useCallback(
+        (obj: Partial<T>) => {
+            const id = keyGetter ? keyGetter(obj) : (obj as any).id;
+            if (!id) {
+                return;
+            }
+
+            setObjects((objects) => {
+                if (!objects[id]) {
+                    return objects;
+                }
+                return {
+                    ...objects,
+                    [id]: {
+                        ...objects[id],
+                        obj,
+                    },
+                };
+            });
+        },
+        [setObjects, keyGetter],
     );
 
     const remove = useCallback(
@@ -114,6 +140,7 @@ function useIdentifiableCache<T>(key?: string): IdentifiableCache<T> {
         filter,
         put,
         putMany,
+        update,
         remove,
         isFetched,
         markFetched,
@@ -158,7 +185,9 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const events = useIdentifiableCache<Event>();
     const requirements = useIdentifiableCache<Requirement>();
     const notifications = useIdentifiableCache<Notification>();
-    const positions = useIdentifiableCache<GetExplorerPositionResult>('normalizedFen');
+    const positions = useIdentifiableCache<GetExplorerPositionResult>(
+        (item) => item?.normalizedFen || '',
+    );
     const clubs = useIdentifiableCache<Club>();
     const [imageBypass, setImageBypass] = useState(Date.now());
 

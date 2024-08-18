@@ -1,12 +1,12 @@
 'use client';
 
 import { CssBaseline } from '@mui/material';
-import { deepPurple } from '@mui/material/colors';
+import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
+import { blue, deepPurple } from '@mui/material/colors';
 import {
     Experimental_CssVarsProvider,
     createTheme,
     experimental_extendTheme,
-    getInitColorSchemeScript,
 } from '@mui/material/styles';
 import { ReactNode } from 'react';
 
@@ -21,6 +21,7 @@ declare module '@mui/material/styles' {
         book: Palette['primary'];
         meet: Palette['primary'];
         explorerTotal: Palette['primary'];
+        trainingPlanTaskComplete: Palette['primary'];
     }
     interface PaletteOptions {
         opening?: PaletteOptions['primary'];
@@ -32,6 +33,7 @@ declare module '@mui/material/styles' {
         book?: Palette['primary'];
         meet?: Palette['primary'];
         explorerTotal?: Palette['primary'];
+        trainingPlanTaskComplete?: Palette['primary'];
     }
 }
 
@@ -56,6 +58,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        trainingPlanTaskComplete: true;
     }
 
     interface ButtonPropsColorOverrides {
@@ -132,6 +135,12 @@ const defaultPalette = {
         },
         name: 'coaching',
     }),
+    trainingPlanTaskComplete: defaultTheme.palette.augmentColor({
+        color: {
+            main: blue[800],
+        },
+        name: 'trainingPlanTaskComplete',
+    }),
 };
 
 const theme = experimental_extendTheme({
@@ -139,6 +148,12 @@ const theme = experimental_extendTheme({
         light: {
             palette: {
                 ...defaultPalette,
+                trainingPlanTaskComplete: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: blue[400],
+                    },
+                    name: 'trainingPlanTaskComplete',
+                }),
             },
         },
         dark: {
@@ -151,7 +166,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return (
         <Experimental_CssVarsProvider defaultMode='dark' theme={theme}>
             <CssBaseline enableColorScheme />
-            {getInitColorSchemeScript()}
+            <InitColorSchemeScript />
             {children}
         </Experimental_CssVarsProvider>
     );

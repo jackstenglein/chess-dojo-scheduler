@@ -4,6 +4,7 @@ import {
     AccessAlarm,
     Chat,
     Edit,
+    Folder,
     Sell,
     Settings as SettingsIcon,
     Storage,
@@ -24,13 +25,15 @@ import { useChess } from '../../PgnBoard';
 import ResizeHandle from '../../ResizeHandle';
 import Explorer from '../../explorer/Explorer';
 import { ResizableData } from '../../resize';
-import ClockUsage from './ClockUsage';
 import Editor from './Editor';
+import ClockUsage from './clock/ClockUsage';
 import Comments from './comments/Comments';
+import { Directories } from './directories/Directories';
 import Settings from './settings/Settings';
 import Tags from './tags/Tags';
 
 export enum DefaultUnderboardTab {
+    Directories = 'directories',
     Tags = 'tags',
     Editor = 'editor',
     Comments = 'comments',
@@ -52,6 +55,11 @@ export interface CustomUnderboardTab extends DefaultUnderboardTabInfo {
 export type UnderboardTab = DefaultUnderboardTab | CustomUnderboardTab;
 
 const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
+    [DefaultUnderboardTab.Directories]: {
+        name: DefaultUnderboardTab.Directories,
+        tooltip: 'Files',
+        icon: <Folder />,
+    },
     [DefaultUnderboardTab.Tags]: {
         name: DefaultUnderboardTab.Tags,
         tooltip: 'PGN Tags',
@@ -228,6 +236,9 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                     )}
 
                     <Stack sx={{ overflowY: 'auto', flexGrow: 1 }}>
+                        {underboard === DefaultUnderboardTab.Directories && (
+                            <Directories />
+                        )}
                         {underboard === DefaultUnderboardTab.Tags && (
                             <Tags game={game} allowEdits={isOwner} />
                         )}

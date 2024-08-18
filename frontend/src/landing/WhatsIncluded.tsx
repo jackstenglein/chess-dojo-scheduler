@@ -1,3 +1,5 @@
+'use client';
+
 import { CheckCircleOutline } from '@mui/icons-material';
 import { TabContext, TabPanel } from '@mui/lab';
 import {

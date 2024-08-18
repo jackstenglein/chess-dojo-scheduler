@@ -2,11 +2,17 @@ import { useGame } from '@/games/view/GameContext';
 import { useLightMode } from '@/style/useLightMode';
 import { Box, Paper, Stack } from '@mui/material';
 import { useChess } from '../../PgnBoard';
+import { UnderboardApi } from '../underboard/Underboard';
 import ControlButtons from './ControlButtons';
 import StartButtons from './StartButtons';
 import StatusIcon from './StatusIcon';
+import { VisibilityIcon } from './VisibilityIcon';
 
-const BoardButtons = () => {
+const BoardButtons = ({
+    underboardRef,
+}: {
+    underboardRef?: React.RefObject<UnderboardApi>;
+}) => {
     const light = useLightMode();
     const { game, isOwner: isGameOwner } = useGame();
     const { chess } = useChess();
@@ -33,7 +39,12 @@ const BoardButtons = () => {
                 <StartButtons />
                 <ControlButtons />
                 {game && isGameOwner ? (
-                    <StatusIcon game={game} />
+                    <Stack direction='row' spacing={1}>
+                        {underboardRef && (
+                            <VisibilityIcon game={game} underboardRef={underboardRef} />
+                        )}
+                        <StatusIcon game={game} />
+                    </Stack>
                 ) : (
                     <Box sx={{ width: '40px' }}></Box>
                 )}

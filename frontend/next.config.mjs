@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    experimental: {
-        // enable babel only for test https://nextjs.org/docs/messages/swc-disabled
-        forceSwcTransforms: !process.env.INSTRUMENT_CODE,
-    },
     images: {
         remotePatterns: [
             {

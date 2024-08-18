@@ -7,6 +7,11 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
+import {
+    clockToSeconds,
+    secondsToClock,
+} from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import {
     APIGatewayProxyEventV2,
     APIGatewayProxyHandlerV2,
@@ -69,7 +74,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     }
 };
 
-async function getUser(event: APIGatewayProxyEventV2): Promise<Record<string, any>> {
+async function getUser(event: APIGatewayProxyEventV2): Promise<User> {
     const userInfo = getUserInfo(event);
     if (!userInfo.username) {
         throw new ApiError({
@@ -93,8 +98,7 @@ async function getUser(event: APIGatewayProxyEventV2): Promise<Record<string, an
         });
     }
 
-    const caller = unmarshall(getItemOutput.Item);
-    return caller;
+    return unmarshall(getItemOutput.Item) as User;
 }
 
 export function getUserInfo(event: any): { username: string; email: string } {
@@ -169,18 +173,105 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
     });
 }
 
-export function cleanupChessbasePgn(pgn: string): string {
+/**
+ * Cleans up a PGN to remove Chessbase-specific issues. If the PGN is from
+ * Chessbase (determined by the presence of the %evp command), then we apply
+ * two transformations to the PGN. First, all newlines in the PGN are converted
+ * to the space character to revert Chessbase PGN line wrapping. After this
+ * conversion, any double spaces are converted to a newline to re-introduce
+ * newlines added by the user in a comment. Second, if the clock times are
+ * present in %emt format, they are converted to %clk format.
+ * @param pgn The PGN to potentially clean up.
+ * @returns The cleaned PGN if it is from Chessbase, or the PGN unchanged if not.
+ */
+function cleanupChessbasePgn(pgn: string): string {
     const startIndex = pgn.indexOf('{[%evp');
     if (startIndex < 0) {
         return pgn;
     }
-    return (
+    return convertEmt(
         pgn.substring(0, startIndex) +
-        pgn.substring(startIndex).replaceAll('\n', ' ').replaceAll('  ', '\n')
+            pgn.substring(startIndex).replaceAll('\n', ' ').replaceAll('  ', '\n'),
     );
 }
 
-function getGames(user: Record<string, any>, pgnTexts: string[]): Game[] {
+/**
+ * Converts %emt commands to %clk commands in the PGN using the following
+ * algorithm:
+ *   1. If the TimeControl header is not present in the PGN, then %emt is
+ *      converted to %clk using raw string replacement.
+ *   2. Otherwise, go through each move and use the %emt value to calculate
+ *      the player's remaining clock time after the move. Set %clk to that
+ *      value.
+ *   3. If at any point during step 2 a player has a negative clock time,
+ *      assume that Chessbase incorrectly used %emt and fallback to using
+ *      raw string replacement.
+ * @param pgn The PGN to convert.
+ * @returns The converted PGN.
+ */
+function convertEmt(pgn: string): string {
+    const chess = new Chess({ pgn });
+    const timeControls = chess.header().tags.TimeControl?.items;
+
+    if (!timeControls || timeControls.length === 0) {
+        return pgn.replaceAll('[%emt', '[%clk');
+    }
+
+    let timeControlIdx = 0;
+    let evenPlayerClock = timeControls[0].seconds || 0;
+    let oddPlayerClock = timeControls[0].seconds || 0;
+
+    for (let i = 0; i < chess.history().length; i++) {
+        const move = chess.history()[i];
+        const timeControl = timeControls[timeControlIdx];
+
+        let timeUsed = clockToSeconds(move.commentDiag?.emt) ?? 0;
+        if ((i === 0 || i === 1) && timeUsed === 60) {
+            // Chessbase has a weird bug where it will say the players used 1 min on the first
+            // move even if they actually used no time
+            timeUsed = 0;
+        }
+
+        let newTime: number;
+        let additionalTime = 0;
+
+        if (
+            timeControl.moves &&
+            timeControlIdx + 1 < timeControls.length &&
+            i / 2 === timeControl.moves - 1
+        ) {
+            additionalTime = Math.max(0, timeControls[timeControlIdx + 1].seconds ?? 0);
+            if (move.color === 'b') {
+                timeControlIdx++;
+            }
+        }
+
+        if (i % 2) {
+            oddPlayerClock =
+                oddPlayerClock -
+                timeUsed +
+                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0);
+            newTime = oddPlayerClock;
+        } else {
+            evenPlayerClock =
+                evenPlayerClock -
+                timeUsed +
+                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0);
+            newTime = evenPlayerClock;
+        }
+
+        if (newTime < 0) {
+            return pgn.replaceAll('[%emt', '[%clk');
+        }
+
+        chess.setCommand('emt', '', move);
+        chess.setCommand('clk', secondsToClock(newTime), move);
+    }
+
+    return chess.renderPgn();
+}
+
+function getGames(user: User, pgnTexts: string[]): Game[] {
     const games: Game[] = [];
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
@@ -204,7 +295,7 @@ export function isFairyChess(pgnText: string) {
 }
 
 export function getGame(
-    user: Record<string, any> | undefined,
+    user: User | undefined,
     pgnText: string,
     headers?: GameImportHeaders,
 ): Game {
@@ -261,7 +352,7 @@ export function getGame(
             ownerPreviousCohort: user?.previousCohort || '',
             headers: chess.header().valueMap(),
             pgn: chess.renderPgn(),
-            orientation: GameOrientation.White,
+            orientation: getDefaultOrientation(chess, user),
             comments: [],
             positionComments: {},
             unlisted: true,
@@ -274,6 +365,35 @@ export function getGame(
             cause: err,
         });
     }
+}
+
+/**
+ * Gets the default orientation for the given chess instance and user. If any of
+ * the user's usernames match the White/Black header in the chess instance, that
+ * color is returned. If not, white is used as the default orientation.
+ * @param chess The chess instance to get the default orientation for.
+ * @param user The user to get the default orientation for.
+ * @returns The default orientation of the game.
+ */
+function getDefaultOrientation(chess: Chess, user?: User): GameOrientation {
+    if (!user) {
+        return GameOrientation.White;
+    }
+
+    for (const rating of Object.values(user.ratings)) {
+        if (rating.username?.toLowerCase() === chess.header().tags.White?.toLowerCase()) {
+            return GameOrientation.White;
+        }
+        if (rating.username?.toLowerCase() === chess.header().tags.Black?.toLowerCase()) {
+            return GameOrientation.Black;
+        }
+    }
+
+    if (user?.displayName.toLowerCase() === chess.header().tags.Black?.toLowerCase()) {
+        return GameOrientation.Black;
+    }
+
+    return GameOrientation.White;
 }
 
 async function batchPutGames(games: Game[]): Promise<number> {

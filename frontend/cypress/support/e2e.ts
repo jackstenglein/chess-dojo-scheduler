@@ -12,7 +12,7 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-import '@cypress/code-coverage/support';
+// import '@cypress/code-coverage/support';
 
 // Import commands.ts first so the commands defined in it are
 // available to the top level of subsequently imported files.

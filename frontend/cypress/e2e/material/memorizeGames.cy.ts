@@ -43,7 +43,7 @@ describe('Memorize Games Tab', () => {
         cy.getBySel('pgn-text-move-button').first().should('have.text', 'e4');
     });
 
-    it.only('should restrict free tier users', () => {
+    it('should restrict free tier users', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/material?view=memorizeGames');

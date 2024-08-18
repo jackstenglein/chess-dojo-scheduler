@@ -10,16 +10,14 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import GoogleButton from 'react-google-button';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
 
 const SigninPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
-    const redirectUri =
-        (useLocation().state as { redirectUri?: string } | undefined)?.redirectUri || '';
+    const redirectUri = useSearchParams()[0].get('redirectUri');
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -36,9 +34,9 @@ const SigninPage = () => {
 
     if (auth.status === AuthStatus.Authenticated) {
         if (redirectUri) {
-            return <Navigate to={redirectUri} />;
+            return <Navigate to={decodeURIComponent(redirectUri)} />;
         }
-        return <Navigate to='/' />;
+        return <Navigate to='/profile' />;
     }
 
     const onSignin = () => {
@@ -56,11 +54,11 @@ const SigninPage = () => {
         }
 
         request.onStart();
-        auth.signin(email.trim(), password).catch((err: { code?: string }) => {
+        auth.signin(email.trim(), password).catch((err: { name?: string }) => {
             console.error(err);
             if (
-                err.code === 'NotAuthorizedException' ||
-                err.code === 'UserNotFoundException'
+                err.name === 'NotAuthorizedException' ||
+                err.name === 'UserNotFoundException'
             ) {
                 setErrors({ password: 'Incorrect email or password' });
                 request.onFailure({ message: 'Incorrect email or password' });
@@ -71,7 +69,7 @@ const SigninPage = () => {
     };
 
     const onGoogleSignIn = () => {
-        auth.socialSignin('Google', redirectUri);
+        auth.socialSignin('Google', redirectUri ? decodeURIComponent(redirectUri) : '');
     };
 
     const onKeyDown = (event: React.KeyboardEvent) => {

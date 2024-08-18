@@ -1,9 +1,9 @@
+import { useChess } from '@/board/pgn/PgnBoard';
 import { Chess, Move } from '@jackstenglein/chess';
 import { Edit } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { DateTime } from 'luxon';
-import { useChess } from '../../PgnBoard';
 import ClockTextField from './ClockTextField';
 import { formatTime } from './ClockUsage';
 import { TimeControlDescription } from './TimeControlDescription';

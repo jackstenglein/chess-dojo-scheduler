@@ -12,6 +12,9 @@ cypress/fixtures/auth/signinCredentials.json
 /coverage
 cypress/screenshots/
 .nyc_output/
+runner-results/
+.cypressCombineCoverage.lock/
+.cypressCoverageReport.lock/
 
 # production
 /build

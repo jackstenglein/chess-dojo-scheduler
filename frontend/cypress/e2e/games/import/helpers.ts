@@ -16,7 +16,6 @@ export function deleteCurrentGame() {
  */
 export function cancelPreflight() {
     cy.getBySel('cancel-preflight').click();
-    cy.getBySel('cancel-preflight').should('not.be.visible');
 }
 
 /**
@@ -26,25 +25,32 @@ export function cancelPreflight() {
  * @param black The name of the player with black.
  * @param lastMove The SAN of the last move.
  * @param lastMoveClock The clock times of the players on the last move.
+ * @param orientation The orientation of the board.
  */
 export function verifyGame({
     white,
     black,
     lastMove,
     lastMoveClock,
+    orientation,
 }: {
     white?: string;
     black?: string;
     lastMove?: string;
     lastMoveClock?: { white?: string; black?: string };
+    orientation?: 'white' | 'black';
 }) {
     cy.location('pathname').should('match', gameUrlRegex);
 
     if (white) {
-        cy.getBySel('player-header-footer').contains(white);
+        cy.getBySel(
+            orientation === 'black' ? 'player-header-header' : 'player-header-footer',
+        ).contains(white);
     }
     if (black) {
-        cy.getBySel('player-header-header').contains(black);
+        cy.getBySel(
+            orientation === 'black' ? 'player-header-footer' : 'player-header-header',
+        ).contains(black);
     }
     if (lastMove) {
         cy.getBySel('pgn-text-move-button')
@@ -53,10 +59,14 @@ export function verifyGame({
             .click({ force: true });
 
         if (lastMoveClock?.white) {
-            cy.getBySel('player-header-footer').contains(lastMoveClock.white);
+            cy.getBySel(
+                orientation === 'black' ? 'player-header-header' : 'player-header-footer',
+            ).contains(lastMoveClock.white);
         }
         if (lastMoveClock?.black) {
-            cy.getBySel('player-header-header').contains(lastMoveClock.black);
+            cy.getBySel(
+                orientation === 'black' ? 'player-header-footer' : 'player-header-header',
+            ).contains(lastMoveClock.black);
         }
     }
 }

@@ -4,6 +4,45 @@ import { useAuth } from '../auth/Auth';
 import { Requirement, formatTime } from '../database/requirement';
 import ProgressDialog from '../profile/progress/ProgressDialog';
 
+interface ProgressTextProps {
+    value?: number;
+    max?: number;
+    min?: number;
+    label?: string;
+    suffix?: string;
+    isTime?: boolean;
+}
+
+export const ProgressText = ({
+    value = 0,
+    max = 0,
+    min = 0,
+    label,
+    suffix = '',
+    isTime,
+}: ProgressTextProps) => {
+    let formattedLabel: string;
+
+    if (label) {
+        formattedLabel = label;
+    } else if (isTime) {
+        formattedLabel = `${formatTime(value)} / ${formatTime(max)}`;
+    } else {
+        formattedLabel = `${Math.max(value, min)} / ${max} ${suffix}`;
+    }
+
+    return (
+        <Typography
+            whiteSpace='no-wrap'
+            variant='body2'
+            color='text.secondary'
+            sx={{ fontWeight: 'bold' }}
+        >
+            {formattedLabel}
+        </Typography>
+    );
+};
+
 interface ScoreboardProgressProps {
     value: number;
     max: number;
@@ -15,6 +54,7 @@ interface ScoreboardProgressProps {
     fullHeight?: boolean;
     suffix?: string;
     isTime?: boolean;
+    hideProgressText?: boolean;
 }
 
 const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps> = ({
@@ -28,6 +68,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     fullHeight,
     suffix,
     isTime,
+    hideProgressText,
     ...rest
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
@@ -57,15 +98,16 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                         value={displayValue}
                     />
                 </Box>
-                <Box>
-                    <Typography variant='body2' color='text.secondary'>
-                        {label
-                            ? label
-                            : isTime
-                              ? `${formatTime(value)} / ${formatTime(max)}`
-                              : `${Math.max(value, min)} / ${max} ${suffix || ''}`}
-                    </Typography>
-                </Box>
+                {!hideProgressText && (
+                    <ProgressText
+                        label={label}
+                        isTime={isTime}
+                        suffix={suffix}
+                        value={value}
+                        min={min}
+                        max={max}
+                    />
+                )}
             </Box>
 
             {canUpdate && showUpdateDialog && (

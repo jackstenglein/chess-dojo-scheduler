@@ -78,6 +78,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                 }
             }
         });
+
         user.customTasks?.forEach((task) => {
             if (task.counts[cohort]) {
                 const c = categories.find((c) => c.name === 'Non-Dojo');

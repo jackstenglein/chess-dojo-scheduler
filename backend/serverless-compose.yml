@@ -155,4 +155,9 @@ services:
     path: twicService
     params:
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
-      
+  
+  directoryService:
+    path: directoryService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
