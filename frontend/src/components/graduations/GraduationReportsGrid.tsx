@@ -1,6 +1,6 @@
 import { GraduationLinkCard } from '@/components/graduations/GraduationLinkCard';
 import { Graduation } from '@/database/graduation';
-import { Container } from '@mui/material';
+import { Grid } from '@mui/material';
 
 interface GraduationReportsGridProps {
     graduations: Graduation[];
@@ -14,14 +14,21 @@ export default function GraduationReportsGrid({
     );
 
     return (
-        <Container maxWidth='md' sx={{ py: 5 }}>
+        <Grid container spacing={2} alignItems='center' justifyContent='center'>
             {graduations.map((grad) => (
-                <GraduationLinkCard
+                <Grid
                     key={`${grad.username}//${grad.createdAt}`}
-                    graduation={grad}
-                    to={`/graduations/reports/${grad.newCohort}/${grad.username}`}
-                />
+                    item
+                    xs={8}
+                    md={4}
+                    xl={2}
+                >
+                    <GraduationLinkCard
+                        graduation={grad}
+                        to={`/graduations/reports/${grad.previousCohort}/${grad.username}`}
+                    />
+                </Grid>
             ))}
-        </Container>
+        </Grid>
     );
 }
