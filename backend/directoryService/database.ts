@@ -286,6 +286,27 @@ class AttributeExistsCondition extends Condition {
     }
 }
 
+class AttributeNotExistsCondition extends Condition {
+    private path: string[];
+
+    constructor(path: string | string[]) {
+        super();
+        if (typeof path === 'string') {
+            this.path = path.split('.');
+        } else {
+            this.path = path;
+        }
+    }
+
+    build(
+        exprAttrNames: Record<string, string>,
+        _exprAttrValues: Record<string, AttributeValue>,
+        parentAttrIndex = '',
+    ) {
+        return `attribute_not_exists (${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)})`;
+    }
+}
+
 class NotEqualCondition extends Condition {
     private path: string[];
     private value: any;
@@ -326,11 +347,20 @@ export function and(...conditions: Condition[]): Condition {
 
 /**
  * Returns a condition which verifies that the given attribute path
- * does not exist on the DynamoDB item.
+ * exists on the DynamoDB item.
  * @param path The path to check.
  */
 export function attributeExists(path: string | string[]): Condition {
     return new AttributeExistsCondition(path);
+}
+
+/**
+ * Returns a condition which verifies that the given attribute path
+ * does not exist on the DynamoDB item.
+ * @param path The path to check.
+ */
+export function attributeNotExists(path: string | string[]): Condition {
+    return new AttributeNotExistsCondition(path);
 }
 
 /**
