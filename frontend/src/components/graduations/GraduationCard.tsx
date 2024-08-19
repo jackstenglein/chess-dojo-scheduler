@@ -1,14 +1,39 @@
 'use client';
 
 import { EventType, trackEvent } from '@/analytics/events';
+import { useAuth } from '@/auth/Auth';
 import { Graduation } from '@/database/graduation';
-import { formatRatingSystem } from '@/database/user';
-import RatingCard from '@/profile/stats/RatingCard';
+import { formatRatingSystem, RatingSystem } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import { SaveAlt } from '@mui/icons-material';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { LoadingButton } from '@mui/lab';
-import { Box, Stack, useTheme } from '@mui/material';
+import { Box, Stack, Typography, useTheme } from '@mui/material';
 import { toPng } from 'html-to-image';
-import { ForwardedRef, forwardRef, useMemo, useRef } from 'react';
+import { ForwardedRef, forwardRef, ReactNode, useMemo, useRef } from 'react';
+import { AxisOptions, Chart, UserSerie } from 'react-charts';
+
+interface Datum {
+    date: Date;
+    rating: number;
+}
+
+export const primaryAxis: AxisOptions<Datum> = {
+    scaleType: 'time',
+    getValue: (datum) => datum.date,
+};
+
+export const secondaryAxes: AxisOptions<Datum>[] = [
+    {
+        scaleType: 'linear',
+        getValue: (datum) => datum.rating,
+        formatters: {
+            scale: (value) => `${value}`,
+        },
+    },
+];
 
 interface ReportCanvasProps {
     width?: number | string;
@@ -28,7 +53,11 @@ const ReportCanvas = forwardRef(function ReportCanvas(
         */
 
     return (
-        <Box ref={ref} sx={{ aspectRatio: '1.91 / 1' }}>
+        <Box
+            ref={ref}
+            display='grid'
+            sx={{ border: 'solid', borderColor: 'white', aspectRatio: '1.91 / 1' }}
+        >
             {children}
         </Box>
     );
@@ -38,12 +67,155 @@ interface GraduationCardProps {
     graduation: Graduation;
 }
 
+function getChartData(graduation: Graduation): UserSerie<Datum>[] {
+    const { ratingSystem: preferredSystem, startedAt } = graduation;
+
+    const ratingHistory =
+        graduation.ratingHistories?.[preferredSystem]
+            ?.filter(
+                (
+                    rating, // TODO INVESTIGATE THAT EQUALITY NEEDS TO BE FLIPPED
+                ) => rating.date.localeCompare(startedAt) <= 0,
+            )
+            ?.map(({ date, rating }) => ({ rating, date: new Date(date) })) ?? [];
+
+    return [{ label: 'Rating', data: ratingHistory }];
+}
+
+function StatLabel({ children, center }: { children: ReactNode; center?: boolean }) {
+    return (
+        <Typography
+            component='span'
+            fontSize='1.25rem'
+            variant='subtitle2'
+            color='text.secondary'
+            sx={{
+                textAlign: center ? 'center' : 'left',
+            }}
+        >
+            {children}
+        </Typography>
+    );
+}
+
+function Stat({
+    label,
+    value,
+    center,
+}: {
+    label: string;
+    value: number | string;
+    center?: boolean;
+}) {
+    return (
+        <Stack>
+            <StatLabel center={center}>{label}</StatLabel>
+            <Typography
+                sx={{
+                    fontSize: '2.25rem',
+                    lineHeight: 1,
+                    fontWeight: 'bold',
+                }}
+            >
+                {value}
+            </Typography>
+        </Stack>
+    );
+}
+
+function RatingStat({ system, value }: { value: number | string; system: RatingSystem }) {
+    const systemName = formatRatingSystem(system);
+
+    return (
+        <Stack>
+            <Stack direction='row' spacing={1.5} alignItems='center'>
+                <RatingSystemIcon system={system} />
+
+                <Stack>
+                    <Typography variant='h6' sx={{ mb: -1 }}>
+                        {formatRatingSystem(system)}
+                        {system === RatingSystem.Custom &&
+                            systemName &&
+                            ` (${systemName})`}
+                    </Typography>
+                </Stack>
+            </Stack>
+            <Typography
+                textAlign='center'
+                sx={{
+                    fontSize: '2.25rem',
+                    lineHeight: 1,
+                    fontWeight: 'bold',
+                }}
+            >
+                {value}
+            </Typography>
+        </Stack>
+    );
+}
+
+function ChangeStat({
+    label,
+    value,
+    center,
+}: {
+    label: string;
+    value: number;
+    center?: boolean;
+}) {
+    return (
+        <Stack>
+            <StatLabel center={center}>{label}</StatLabel>
+            <Stack direction='row' alignItems='start'>
+                {value >= 0 ? (
+                    <ArrowUpwardIcon
+                        sx={{
+                            fontSize: '2.25rem',
+                            fontWeight: 'bold',
+                            mt: '-3px',
+                        }}
+                        color='success'
+                    />
+                ) : (
+                    <ArrowDownwardIcon
+                        sx={{
+                            fontSize: '2.25rem',
+                            fontWeight: 'bold',
+                            mt: '-3px',
+                        }}
+                        color='error'
+                    />
+                )}
+
+                <Typography
+                    alignContent={center ? 'center' : 'left'}
+                    sx={{
+                        fontSize: '2.25rem',
+                        lineHeight: 1,
+                        fontWeight: 'bold',
+                    }}
+                    color={value >= 0 ? 'success.main' : 'error.main'}
+                >
+                    {Math.abs(value)}
+                </Typography>
+            </Stack>
+        </Stack>
+    );
+}
+
 export default function GraduationCard({ graduation }: GraduationCardProps) {
-    const { newCohort } = graduation;
+    const { newCohort, ratingSystem, score, progress, currentRating, startRating } =
+        graduation;
     const reportRef = useRef<HTMLDivElement>(null);
 
     const theme = useTheme();
     const backgroundColor = theme.palette.background.default;
+    const dark = !useAuth().user?.enableLightMode;
+
+    const hours =
+        Object.values(progress)
+            .flatMap((reqProg) => Object.values(reqProg.minutesSpent))
+            .reduce((a, b) => a + b, 0) / 60;
 
     const onDownload = () => {
         const node = reportRef.current;
@@ -77,58 +249,84 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
             });
     };
 
-    const {
-        previousCohort,
-        ratingSystem: preferredSystem,
-        startedAt,
-        ratingHistories: allRatingHistories,
-    } = graduation;
+    const historyData = useMemo(() => getChartData(graduation), [graduation]);
 
-    const preferredSystemHistory = allRatingHistories?.[preferredSystem];
-
-    const lastImprovementDate = preferredSystemHistory?.reduce((highest, history) =>
-        history.rating > highest.rating ? history : highest,
-    ).date;
-
-    const ratingHistory = useMemo(() => {
-        return (
-            preferredSystemHistory?.filter(
-                (rating) =>
-                    (!lastImprovementDate ||
-                        rating.date.localeCompare(lastImprovementDate) <= 0) &&
-                    // TODO INVESTIGATE THAT EQUALITY NEEDS TO BE FLIPPED
-                    rating.date.localeCompare(startedAt) <= 0,
-            ) ?? []
-        );
-    }, [preferredSystemHistory, lastImprovementDate, startedAt]);
-
-    if (ratingHistory.length <= 0) {
-        return <></>;
-    }
-
-    const startRating = ratingHistory[0];
-    const lastRating = ratingHistory[ratingHistory.length - 1];
+    const finalRating = currentRating;
+    const ratingChange = finalRating - startRating;
 
     return (
-        <>
+        <Stack>
             <ReportCanvas ref={reportRef}>
-                <RatingCard
-                    system={preferredSystem}
-                    cohort={previousCohort}
-                    currentRating={lastRating.rating}
-                    startRating={startRating.rating}
-                    username={''}
-                    usernameHidden={true}
-                    isPreferred={true}
-                    ratingHistory={ratingHistory}
-                    name={formatRatingSystem(preferredSystem)}
-                />
+                <Box
+                    height='100%'
+                    display='grid'
+                    gap='0.5rem'
+                    paddingY='32px'
+                    paddingX='64px'
+                    gridTemplateColumns='1fr auto'
+                    gridTemplateRows='1fr 8fr 2fr'
+                    gridTemplateAreas={[
+                        '"header blank"',
+                        '"chart dojo"',
+                        '"stats empty"',
+                    ].join('\n')}
+                >
+                    <Stack
+                        direction='row'
+                        alignItems='center'
+                        justifyContent='center'
+                        gridArea='header'
+                    >
+                        <Typography variant='h4'>
+                            Welcome to the{' '}
+                            <Typography
+                                variant='h4'
+                                component='span'
+                                color='dojoOrange.main'
+                            >
+                                {newCohort}
+                            </Typography>{' '}
+                            Chess Dojo cohort!
+                        </Typography>
+                    </Stack>
+                    <Stack
+                        direction='row'
+                        alignContent='center'
+                        justifyContent='space-around'
+                        gridArea='stats'
+                    >
+                        <Stat center label='Start' value={startRating} />
+                        <RatingStat system={ratingSystem} value={finalRating} />
+                        <ChangeStat center label='Progress' value={ratingChange} />
+                    </Stack>
+
+                    <Box display='flex' gridArea='chart'>
+                        <Chart
+                            options={{
+                                data: historyData,
+                                primaryAxis,
+                                secondaryAxes,
+                                dark,
+                                interactionMode: 'closest',
+                                tooltip: false,
+                            }}
+                        />
+                    </Box>
+                    <Stack
+                        alignContent='center'
+                        justifyContent='center'
+                        gridArea='dojo'
+                        spacing={2}
+                    >
+                        <Stat label='Dojo Points' value={score} />
+                        <Stat label='Dojo Hours' value={hours} />
+                        <CohortIcon size={75} cohort={newCohort} />
+                    </Stack>
+                </Box>
             </ReportCanvas>
-            <Stack direction='row'>
-                <LoadingButton startIcon={<SaveAlt />} onClick={() => onDownload()}>
-                    Download Badge
-                </LoadingButton>
-            </Stack>
-        </>
+            <LoadingButton startIcon={<SaveAlt />} onClick={() => onDownload()}>
+                Download Badge
+            </LoadingButton>
+        </Stack>
     );
 }
