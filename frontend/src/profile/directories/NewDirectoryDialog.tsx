@@ -26,7 +26,7 @@ export const NewDirectoryDialog = ({
     const api = useApi();
     const request = useRequest();
 
-    const disableCreate = name.trim().length === 0;
+    const disableCreate = name.trim().length === 0 || name.trim().length > 100;
 
     const onCreate = () => {
         if (disableCreate) {
@@ -65,6 +65,8 @@ export const NewDirectoryDialog = ({
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
                     sx={{ mt: 0.75 }}
+                    helperText={`${name.trim().length} / 100 characters`}
+                    error={name.trim().length > 100}
                 />
             </DialogContent>
             <DialogActions>

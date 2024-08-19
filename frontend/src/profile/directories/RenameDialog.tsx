@@ -31,7 +31,10 @@ export const RenameDialog = ({
     const api = useApi();
     const cache = useDirectoryCache();
 
-    const disableSave = name.trim().length === 0 || name === item.metadata.name;
+    const disableSave =
+        name.trim().length === 0 ||
+        name === item.metadata.name ||
+        name.trim().length > 100;
 
     const onSave = () => {
         if (disableSave) {
@@ -81,6 +84,8 @@ export const RenameDialog = ({
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
                     sx={{ mt: 0.75 }}
+                    error={name.trim().length > 100}
+                    helperText={`${name.trim().length} / 100 characters`}
                 />
             </DialogContent>
             <DialogActions>

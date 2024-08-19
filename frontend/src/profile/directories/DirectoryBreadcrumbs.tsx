@@ -12,6 +12,8 @@ import {
 import { useState } from 'react';
 import { BreadcrumbItem, useBreadcrumbs } from './DirectoryCache';
 
+const MAX_ITEM_LENGTH = 50;
+
 export const DirectoryBreadcrumbs = ({
     owner,
     id,
@@ -37,6 +39,7 @@ export const DirectoryBreadcrumbs = ({
     }
 
     const handleClick = (item: BreadcrumbItem) => {
+        setMenuAnchor(undefined);
         if (onClick) {
             onClick(item.id);
         } else {
@@ -68,9 +71,15 @@ export const DirectoryBreadcrumbs = ({
                         onClose={() => setMenuAnchor(undefined)}
                     >
                         {currentBreadcrumbs.slice(0, hiddenBreadcrumbs).map((b) => (
-                            <MenuItem key={b.id} onClick={() => handleClick(b)}>
-                                {b.name}
-                            </MenuItem>
+                            <Tooltip
+                                key={b.id}
+                                title={b.name.length > MAX_ITEM_LENGTH ? b.name : ''}
+                            >
+                                <MenuItem key={b.id} onClick={() => handleClick(b)}>
+                                    {b.name.slice(0, MAX_ITEM_LENGTH)}
+                                    {b.name.length > MAX_ITEM_LENGTH && '...'}
+                                </MenuItem>
+                            </Tooltip>
                         ))}
                     </Menu>
                 </>
@@ -78,15 +87,21 @@ export const DirectoryBreadcrumbs = ({
 
             <Breadcrumbs separator={<NavigateNext fontSize='small' />}>
                 {currentBreadcrumbs.slice(hiddenBreadcrumbs).map((b) => (
-                    <Link
+                    <Tooltip
                         key={b.id}
-                        underline='hover'
-                        color='inherit'
-                        onClick={() => handleClick(b)}
-                        sx={{ cursor: 'pointer' }}
+                        title={b.name.length > MAX_ITEM_LENGTH ? b.name : ''}
                     >
-                        {b.name}
-                    </Link>
+                        <Link
+                            key={b.id}
+                            underline='hover'
+                            color='inherit'
+                            onClick={() => handleClick(b)}
+                            sx={{ cursor: 'pointer' }}
+                        >
+                            {b.name.slice(0, MAX_ITEM_LENGTH)}
+                            {b.name.length > MAX_ITEM_LENGTH && '...'}
+                        </Link>
+                    </Tooltip>
                 ))}
             </Breadcrumbs>
         </Stack>
