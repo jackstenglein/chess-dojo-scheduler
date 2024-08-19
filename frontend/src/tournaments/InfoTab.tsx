@@ -1,37 +1,82 @@
-import { Stack, Typography, Link, List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
+import { Stack, Typography, Link, List, ListItem, ListItemIcon, ListItemText, Divider, Table, TableBody, TableCell, TableContainer, TableRow, Paper } from '@mui/material';
+
 import GroupIcon from '@mui/icons-material/Group';
-import EventIcon from '@mui/icons-material/Event';
+import PublicIcon from '@mui/icons-material/Public';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import StarIcon from '@mui/icons-material/Star';
+import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
+import { SiLichess } from 'react-icons/si';
+import { SiChessdotcom } from 'react-icons/si';
+import { SiDiscord } from 'react-icons/si';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 
 const InfoTab = () => {
     return (
         <Stack spacing={2}>
-            <Typography variant="h5" color="primary">
+            <Typography variant="h5" textAlign='center'color="primary">
                 <WavingHandIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
                 Welcome to the DojoLiga!
-            </Typography>
-
-            <Typography>
-                The DojoLiga is ChessDojo's blitz, rapid, and classical league. It is open
-                to all players worldwide.
             </Typography>
 
             <Divider />
 
             <Typography variant="h6" color="primary">
-                <EventIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
-                How to Join?
+                <MilitaryTechIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
+                DojoLiga Info
+            </Typography>
+            <List>
+                <ListItem>
+                    <ListItemIcon>
+                        <PublicIcon color="secondary" />
+                    </ListItemIcon>
+                    <ListItemText primary="The DojoLiga is ChessDojo's blitz, rapid, and classical league. It is open
+            to all players worldwide." />
+                </ListItem>
+            <ListItem>
+                    <ListItemIcon>
+                        <GroupIcon color="secondary" />
+                    </ListItemIcon>
+                    <ListItemText primary="Participate in any league tournaments on either platform. All players will be automatically tracked on the leaderboard." />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <AllInclusiveIcon color="secondary" />
+                    </ListItemIcon>
+                    <ListItemText primary="The league consists of both arena and swiss tournaments with various
+                time controls: blitz, rapid, and classical. Check the ARENAS / SWISS tabs
+                for links to upcoming events." />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <EmojiEventsIcon color="secondary" />
+                    </ListItemIcon>
+                    <ListItemText primary="At the end of each year, the top players on the leaderboard will be
+                invited to the annual Dojo Championship. More info to be announced in
+                September." />
+                </ListItem>
+                <ListItem>
+                <ListItemIcon>
+                        <NotInterestedIcon color="secondary" />
+                    </ListItemIcon>
+                    <ListItemText primary="Strict anti-cheat measures in place to allow players to learn and grow in the game they love." />
+                </ListItem>
+               
+
+            </List>
+
+            <Typography variant="h6" color="primary">
+                <HelpCenterIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
+                Registration Info
             </Typography>
 
             <List>
                 <ListItem>
                     <ListItemIcon>
-                        <GroupIcon color="secondary" />
+                        <SiLichess fontSize={25}/>
                     </ListItemIcon>
                     <ListItemText
                         primary={
@@ -46,30 +91,57 @@ const InfoTab = () => {
                                 >
                                     ChessDojo's Team
                                 </Link>{' '}
-                                on Lichess. A team admin will approve your entry.
+                                on Lichess.
                             </>
                         }
                     />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <EmojiEventsIcon color="secondary" />
+                        <SiChessdotcom fontSize={25} style={{ color: '#81b64c' }}/>
                     </ListItemIcon>
-                    <ListItemText primary="Participate in any league tournaments. All players will be automatically tracked on the leaderboard." />
+                    <ListItemText
+                        primary={
+                            <>
+                                Join{' '}
+                                <Link
+                                    data-cy="chesscom-team-link"
+                                    href="https://www.chess.com/club/chessdojo"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    color="secondary"
+                                >
+                                    ChessDojo's Team
+                                </Link>{' '}
+                                on Chess.com. 
+                            </>
+                        }
+                    />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <SiDiscord fontSize={25} style={{ color: '7289da' }} />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={
+                            <>
+                                Join{' '}
+                                <Link
+                                    data-cy="chesscom-team-link"
+                                    href="https://www.chess.com/club/chessdojo"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    color="secondary"
+                                >
+                                    ChessDojo's Discord 
+                                </Link>{' '}
+                                to optionally connect your Lichess and Chess.com accounts! 
+                            </>
+                        }
+                    />
                 </ListItem>
             </List>
-
-            <Typography>
-                The league consists of both arena and swiss tournaments with various
-                time controls: blitz, rapid, and classical. Check the ARENAS / SWISS tabs
-                for links to upcoming events.
-            </Typography>
-
-            <Typography>
-                At the end of each year, the top players on the leaderboard will be
-                invited to the annual Dojo Championship. More info to be announced in
-                September.
-            </Typography>
+            
 
             <Divider />
 
@@ -114,6 +186,88 @@ const InfoTab = () => {
                     <ListItemText primary="Endgame Sparring - Total points scored in endgame sparring tournaments." />
                 </ListItem>
             </List>
+
+            <Typography variant="h6" color="primary">
+                <NotInterestedIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
+                Anti-cheat Info
+            </Typography>
+
+            <Typography>
+                DojoLiga treats the matter of cheating with a high priority, and automatically takes care of anti-cheat system
+            </Typography>
+
+            <List>
+                <ListItem>
+                    <ListItemIcon>
+                        <RadioButtonCheckedIcon color="secondary" />
+                    </ListItemIcon>
+                    <ListItemText primary="If a player's account gets closed for cheating/fair play violations on Chess.com/Lichess, they are subject to being banned ChessDojo's Discord server." />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <RadioButtonCheckedIcon color="secondary" />
+                    </ListItemIcon>
+                    <ListItemText primary="If a player is caught cheating but immediately admit wrongdoing and apologize, based on the severity of their actions they may be given a second chance but will still be prohibited from playing in DojoLiga for at least 3 months" />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <RadioButtonCheckedIcon color="secondary" />
+                    </ListItemIcon>
+                    <ListItemText primary="Cheaters are tracked by the system automatically, and are evicted from leaderboards immediately" />
+                </ListItem>
+            </List>
+
+            <Divider/>
+
+            <Typography variant="h6" color="primary">
+                <SiDiscord style={{ verticalAlign: 'middle', marginRight: 9, color: '7289da' }} />
+                Discord Info
+            </Typography>
+
+            <Typography>
+                Join the the ChessDojo Discord and connect your accounts, run additional commands in #player-commands channel to stay up to date with the liga!
+            </Typography>
+
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>/verify</TableCell>
+                            <TableCell>Join the league & connect your Discord to Lichess account</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>/verifychesscom</TableCell>
+                            <TableCell>Join the league & connect your Discord to Chess.com account</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>/profile</TableCell>
+                            <TableCell>View your ratings & stats</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>/update</TableCell>
+                            <TableCell>Update your ratings/belt role</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>/score</TableCell>
+                            <TableCell>View your individual scores in the league</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>/rank</TableCell>
+                            <TableCell>View your individual rankings in the league</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>/top10</TableCell>
+                            <TableCell>View top 10 players for blitz, classical, rapid ratings in league</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>/help</TableCell>
+                            <TableCell>See list of commands</TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+
         </Stack>
     );
 };

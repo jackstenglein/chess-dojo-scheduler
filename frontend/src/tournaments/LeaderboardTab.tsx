@@ -5,6 +5,9 @@ import { useEffect, useState } from 'react';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { TimeControl, TimePeriod } from '../api/tournamentApi';
+import { SiLichess } from 'react-icons/si';
+import { SiChessdotcom } from 'react-icons/si';
+import Icon from '@/style/Icon';
 import {
     Leaderboard,
     LeaderboardPlayer,
@@ -14,6 +17,9 @@ import {
 import LoadingPage from '../loading/LoadingPage';
 import MonthDateButton from './MonthDateButton';
 import YearDateButton from './YearDateButton';
+import { RequirementCategory } from '@/database/requirement';
+import { AvailabilityType, TimeControlType } from '@/database/event';
+import { getColor } from './TournamentCalendarFilters';
 
 const columns: GridColDef<LeaderboardPlayer>[] = [
     {
@@ -22,13 +28,13 @@ const columns: GridColDef<LeaderboardPlayer>[] = [
     },
     {
         field: 'username',
-        headerName: 'Lichess Username',
+        headerName: 'Username',
         minWidth: 250,
         flex: 1,
     },
     {
         field: 'rating',
-        headerName: 'Lichess Rating',
+        headerName: 'Rating',
         minWidth: 100,
         flex: 1,
     },
@@ -102,10 +108,11 @@ const LeaderboardTab = () => {
                         select
                         label='Site'
                         value={site}
+                        color='primary'
                         onChange={(e) => setSite(e.target.value as LeaderboardSite)}
                     >
-                        <MenuItem value={LeaderboardSite.Lichess}>Lichess</MenuItem>
-                        <MenuItem value={LeaderboardSite.Chesscom}>Chess.com</MenuItem>
+                        <MenuItem value={LeaderboardSite.Lichess}> <SiLichess fontSize={25} style={{verticalAlign: "middle", marginRight: 6}}/>   Lichess</MenuItem>
+                        <MenuItem value={LeaderboardSite.Chesscom}><SiChessdotcom fontSize={25} style={{ color: '#81b64c', verticalAlign: "middle", marginRight: 1 }}/> Chess.com</MenuItem>
                     </TextField>
 
                     <TextField
@@ -114,11 +121,12 @@ const LeaderboardTab = () => {
                         select
                         label='Time Control'
                         value={timeControl}
+                        color='primary'
                         onChange={(e) => setTimeControl(e.target.value as TimeControl)}
                     >
-                        <MenuItem value={'blitz'}>Blitz</MenuItem>
-                        <MenuItem value={'rapid'}>Rapid</MenuItem>
-                        <MenuItem value={'classical'}>Classical</MenuItem>
+                        <MenuItem value={'blitz'}><Icon name={TimeControlType.Blitz} sx={{verticalAlign: "middle", marginRight: 1}} color={getColor(TimeControlType.Blitz)}/> Blitz</MenuItem>
+                        <MenuItem value={'rapid'}><Icon name={TimeControlType.Rapid} sx={{verticalAlign: "middle", marginRight: 1}} color={getColor(TimeControlType.Rapid)}/>Rapid</MenuItem>
+                        <MenuItem value={'classical'}><Icon name={TimeControlType.Classical} sx={{verticalAlign: "middle", marginRight: 1}} color={getColor(TimeControlType.Classical)}/>Classical</MenuItem>
                     </TextField>
 
                     <TextField
@@ -126,18 +134,22 @@ const LeaderboardTab = () => {
                         sx={{ minWidth: 130 }}
                         select
                         label='Tournament Type'
+                        color='primary'
                         value={tournamentType}
                         onChange={(e) =>
                             setTournamentType(e.target.value as TournamentType)
                         }
                     >
-                        <MenuItem value={TournamentType.Arena}>Arena</MenuItem>
-                        <MenuItem value={TournamentType.Swiss}>Swiss</MenuItem>
-                        <MenuItem value={TournamentType.GrandPrix}>Grand Prix</MenuItem>
+                        <MenuItem value={TournamentType.Arena}> <Icon name={TournamentType.Arena} sx={{verticalAlign: "middle", marginRight: 1}} color={'secondary'}/>Arena</MenuItem>
+                        <MenuItem value={TournamentType.Swiss}><Icon name={TournamentType.Swiss} sx={{verticalAlign: "middle", marginRight: 1}} color={'secondary'}/>Swiss</MenuItem>
+                        <MenuItem value={TournamentType.GrandPrix}><Icon name={'liga'} sx={{verticalAlign: "middle", marginRight: 1}} color={'secondary'}/>Grand Prix</MenuItem>
                         <MenuItem value={TournamentType.MiddlegameSparring}>
+                        <Icon name={AvailabilityType.MiddlegameSparring} sx={{verticalAlign: "middle", marginRight: 1}} color={'secondary'}/>
                             Middlegame Sparring
                         </MenuItem>
                         <MenuItem value={TournamentType.EndgameSparring}>
+                        <Icon name={AvailabilityType.EndgameSparring} sx={{verticalAlign: "middle", marginRight: 1}} color={'secondary'}/>
+
                             Endgame Sparring
                         </MenuItem>
                     </TextField>
