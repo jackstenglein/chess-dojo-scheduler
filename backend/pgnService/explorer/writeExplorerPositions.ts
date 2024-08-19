@@ -38,7 +38,7 @@ async function main() {
     await client.connect();
     const db = client.db('masters');
     collection = db.collection<ExplorerPosition>('documents');
-    const cursor = collection.find();
+    const cursor = collection.find().sort({ _id: 1 });
 
     const inputStream = Readable.from(cursorToStream(cursor));
     const writeStream = fs.createWriteStream('explorer-positions.json');
