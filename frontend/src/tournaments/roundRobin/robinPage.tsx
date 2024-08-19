@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppBar, Box, Paper, Tab, Tabs, Container } from '@mui/material';
+import { AppBar, Box, Paper, Tab, Tabs, Container, Typography } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import GroupIcon from '@mui/icons-material/Group';
 import TableChartIcon from '@mui/icons-material/TableChart';
@@ -28,7 +28,10 @@ const TournamentViewer: React.FC = () => {
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Typography variant='h6'>
+                Nmp is working on it boss
+            </Typography>
+            {/* <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" aria-label="tournament viewer tabs">
                     <Tab label="Info" icon={<InfoIcon />} />
                     <Tab label="Pairings" icon={<GroupIcon />} />
@@ -43,7 +46,7 @@ const TournamentViewer: React.FC = () => {
             </TabPanel>
             <TabPanel value={tabValue} index={2}>
                 <Crosstable />
-            </TabPanel>
+            </TabPanel> */}
         </Container>
     );
 };

@@ -141,6 +141,12 @@ const defaultPalette = {
         },
         name: 'trainingPlanTaskComplete',
     }),
+    dullGrey: defaultTheme.palette.augmentColor({
+        color: {
+           main: '#FFFFFF', 
+        },
+        name: 'dullGrey',
+    })
 };
 
 const theme = experimental_extendTheme({
