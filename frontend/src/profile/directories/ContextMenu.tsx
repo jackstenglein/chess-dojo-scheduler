@@ -99,7 +99,11 @@ export const ContextMenu = ({
             </Menu>
 
             {renameOpen && selectedItem.type === DirectoryItemTypes.DIRECTORY && (
-                <RenameDialog item={selectedItem} onCancel={handleClose} />
+                <RenameDialog
+                    parent={directory}
+                    item={selectedItem}
+                    onCancel={handleClose}
+                />
             )}
             {moveOpen && (
                 <MoveDialog

@@ -1,6 +1,10 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { DirectoryItemSubdirectory } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    Directory,
+    DirectoryItemSubdirectory,
+    DirectoryItemTypes,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -14,9 +18,11 @@ import { useState } from 'react';
 import { useDirectoryCache } from './DirectoryCache';
 
 export const RenameDialog = ({
+    parent,
     item,
     onCancel,
 }: {
+    parent: Directory;
     item: DirectoryItemSubdirectory;
     onCancel: () => void;
 }) => {
@@ -29,6 +35,17 @@ export const RenameDialog = ({
 
     const onSave = () => {
         if (disableSave) {
+            return;
+        }
+
+        if (
+            Object.values(parent.items || {}).some(
+                (item) =>
+                    item.type === DirectoryItemTypes.DIRECTORY &&
+                    item.metadata.name === name,
+            )
+        ) {
+            request.onFailure({ message: `${parent.name}/${name} already exists` });
             return;
         }
 
