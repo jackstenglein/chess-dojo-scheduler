@@ -5,6 +5,7 @@ import { useAuth } from '@/auth/Auth';
 import { Graduation } from '@/database/graduation';
 import { formatRatingSystem, RatingSystem } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import { SaveAlt } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -56,7 +57,13 @@ const ReportCanvas = forwardRef(function ReportCanvas(
         <Box
             ref={ref}
             display='grid'
-            sx={{ border: 'solid', borderColor: 'white', aspectRatio: '1.91 / 1' }}
+            sx={{
+                border: 'solid',
+                borderColor: 'white',
+                width: '800px',
+                height: '500px',
+                aspectRatio: '1 / 1',
+            }}
         >
             {children}
         </Box>
@@ -86,7 +93,7 @@ function StatLabel({ children, center }: { children: ReactNode; center?: boolean
     return (
         <Typography
             component='span'
-            fontSize='1.25rem'
+            fontSize='1rem'
             variant='subtitle2'
             color='text.secondary'
             sx={{
@@ -115,6 +122,7 @@ function Stat({
                     fontSize: '2.25rem',
                     lineHeight: 1,
                     fontWeight: 'bold',
+                    textAlign: center ? 'center' : 'left',
                 }}
             >
                 {value}
@@ -129,16 +137,10 @@ function RatingStat({ system, value }: { value: number | string; system: RatingS
     return (
         <Stack>
             <Stack direction='row' spacing={1.5} alignItems='center'>
-                <RatingSystemIcon system={system} />
-
-                <Stack>
-                    <Typography variant='h6' sx={{ mb: -1 }}>
-                        {formatRatingSystem(system)}
-                        {system === RatingSystem.Custom &&
-                            systemName &&
-                            ` (${systemName})`}
-                    </Typography>
-                </Stack>
+                <StatLabel center>
+                    {formatRatingSystem(system)}
+                    {system === RatingSystem.Custom && systemName && ` (${systemName})`}
+                </StatLabel>
             </Stack>
             <Typography
                 textAlign='center'
@@ -148,6 +150,8 @@ function RatingStat({ system, value }: { value: number | string; system: RatingS
                     fontWeight: 'bold',
                 }}
             >
+                <RatingSystemIcon system={system} />
+
                 {value}
             </Typography>
         </Stack>
@@ -204,8 +208,15 @@ function ChangeStat({
 }
 
 export default function GraduationCard({ graduation }: GraduationCardProps) {
-    const { newCohort, ratingSystem, score, progress, currentRating, startRating } =
-        graduation;
+    const {
+        newCohort,
+        ratingSystem,
+        score,
+        progress,
+        currentRating,
+        startRating,
+        displayName,
+    } = graduation;
     const reportRef = useRef<HTMLDivElement>(null);
 
     const theme = useTheme();
@@ -272,21 +283,22 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                     ].join('\n')}
                 >
                     <Stack
-                        direction='row'
+                        direction='column'
                         alignItems='center'
                         justifyContent='center'
                         gridArea='header'
                     >
-                        <Typography variant='h4'>
-                            Welcome to the{' '}
+                        <Typography variant='h5'>
+                            Congrats{' '}
                             <Typography
-                                variant='h4'
+                                variant='h5'
                                 component='span'
                                 color='dojoOrange.main'
                             >
-                                {newCohort}
+                                {displayName}
                             </Typography>{' '}
-                            Chess Dojo cohort!
+                            on graduating to <CohortIcon size={20} cohort={newCohort} />{' '}
+                            {newCohort}!
                         </Typography>
                     </Stack>
                     <Stack
@@ -318,9 +330,20 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                         gridArea='dojo'
                         spacing={2}
                     >
-                        <Stat label='Dojo Points' value={score} />
-                        <Stat label='Dojo Hours' value={hours} />
-                        <CohortIcon size={75} cohort={newCohort} />
+                        <Stat center label='Dojo Points' value={score} />
+                        <Stat center label='Dojo Hours' value={hours} />
+                        <Stack
+                            display='flex'
+                            alignItems='center'
+                            justifyContent='center'
+                            spacing={1}
+                            component='div'
+                        >
+                            <Box fontSize='64px' width='64px' height='64px'>
+                                <ChessDojoIcon fontSize='inherit' />
+                            </Box>
+                            <Typography variant='subtitle2'>ChessDojo</Typography>
+                        </Stack>
                     </Stack>
                 </Box>
             </ReportCanvas>
