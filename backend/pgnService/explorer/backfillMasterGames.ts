@@ -1,22 +1,33 @@
+import { once } from 'events';
 import * as fs from 'fs';
 import * as readline from 'readline';
+import { Readable } from 'stream';
 import { close, initialize } from './cache';
 import { processRecord, processed, skipped } from './processGame';
 
 const MIN_FILE = 0;
 const MAX_FILE = 26;
 
+const gamesToTwic = {
+    '23': '1548',
+    '25': '1550',
+    '26': '1551',
+};
+
 async function main() {
     await initialize();
 
-    for (let i = MIN_FILE; i < MAX_FILE; i++) {
-        console.log(`${new Date().toISOString()} INFO ${i}: starting game file`);
+    for (const [gameNum, twicNum] of Object.entries(gamesToTwic)) {
+        console.log(`${new Date().toISOString()} INFO ${gameNum}: starting game file`);
 
-        const fileStream = fs.createReadStream(`/home/ec2-user/games-${i}.json`);
+        const fileStream = fs.createReadStream(`/home/ec2-user/games-${gameNum}.json`);
         const reader = readline.createInterface({ input: fileStream });
-        await processRecord(i, reader);
+        const inputStream = Readable.from(processRecord(gameNum, reader));
+        const writeStream = fs.createWriteStream(`output-${gameNum}.json`);
 
-        console.log(`${new Date().toISOString()} INFO ${i}: finished game file`);
+        inputStream.pipe(writeStream);
+        await once(writeStream, 'finish');
+        console.log(`${new Date().toISOString()} INFO ${gameNum}: finished game file`);
     }
 
     console.log(

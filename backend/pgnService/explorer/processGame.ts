@@ -71,7 +71,7 @@ const PRINT_MOD = 10_000;
  * Extracts the positions from a single Game and saves or removes them as necessary.
  * @param record A single DynamoDB stream record to extract positions from.
  */
-export async function processRecord(fileNum: number, reader: readline.Interface) {
+export async function* processRecord(fileNum: string, reader: readline.Interface) {
     for await (const line of reader) {
         const item = JSON.parse(line).Item;
         if (item.cohort.S !== 'masters') {
@@ -90,17 +90,18 @@ export async function processRecord(fileNum: number, reader: readline.Interface)
                 continue;
             }
 
-            const cohort = getExplorerCohort(newGame);
-            // console.log('INFO: game (%s, %s)', cohort, newGame.id);
-
             const newExplorerPositions = extractPositions(newGame);
             const updates = getUpdates({}, newExplorerPositions);
 
-            const promises: Promise<void>[] = [];
             for (const update of updates) {
-                promises.push(updatePosition(update, cohort));
+                const explorerGame = getExplorerGame(newGame, update);
+                if (explorerGame) {
+                    yield `${JSON.stringify(explorerGame)}\n`;
+                } else {
+                    skipped++;
+                    continue;
+                }
             }
-            await Promise.all(promises);
         } catch (err) {
             console.log(
                 `${new Date().toISOString()} ERROR ${fileNum}: Failed to process record %j: `,
