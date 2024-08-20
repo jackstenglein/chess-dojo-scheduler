@@ -179,7 +179,7 @@ const LeaderboardTab = () => {
                         <MenuItem value={TournamentType.Arena}>
                             {' '}
                             <Icon
-                                name={TournamentType.Arena}
+                                name={'Arena'}
                                 sx={{ verticalAlign: 'middle', marginRight: 1 }}
                                 color={'secondary'}
                             />
@@ -187,7 +187,7 @@ const LeaderboardTab = () => {
                         </MenuItem>
                         <MenuItem value={TournamentType.Swiss}>
                             <Icon
-                                name={TournamentType.Swiss}
+                                name={'Swiss'}
                                 sx={{ verticalAlign: 'middle', marginRight: 1 }}
                                 color={'secondary'}
                             />

@@ -47,6 +47,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        dullGrey: true;
     }
 
     interface CheckboxPropsColorOverrides {
@@ -59,6 +60,7 @@ declare module '@mui/material' {
         book: true;
         meet: true;
         trainingPlanTaskComplete: true;
+        dullGrey: true;
     }
 
     interface ButtonPropsColorOverrides {
@@ -70,6 +72,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        dullGrey: true;
     }
 
     interface SvgIconPropsColorOverrides {
@@ -81,6 +84,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        dullGrey: true;
     }
 }
 
