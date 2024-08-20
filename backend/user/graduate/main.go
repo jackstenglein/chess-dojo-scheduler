@@ -93,10 +93,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 			}
 
 			if date.After(startedAtTime) {
-				if date.After(createdAtTime) {
-					break
-				}
-
 				ratingHistories[rs] = append(ratingHistories[rs], item)
 			}
 		}
