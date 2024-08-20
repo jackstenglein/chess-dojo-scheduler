@@ -22,13 +22,13 @@ export default function GraduationShareDialog({
     graduation,
 }: GraduationShareDialogProps) {
     return (
-        <Dialog open={open} fullWidth>
+        <Dialog open={open} onClose={onClose} fullWidth>
             <DialogTitle>Share your progress!</DialogTitle>
             <DialogContent>
                 <Stack spacing={2}>
                     <DialogContentText>
-                        Show off the hard work you've done and welcome the world to the
-                        dojo. Download this image and share on social media.
+                        Show off your hard work and welcome the world to the Dojo!
+                        Download this image and share on social media.
                     </DialogContentText>
                     <GraduationCard graduation={graduation} />
                 </Stack>

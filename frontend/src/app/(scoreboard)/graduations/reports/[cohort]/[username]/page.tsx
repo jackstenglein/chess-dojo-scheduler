@@ -1,4 +1,4 @@
-import { listGraduationsByCohort } from '@/api/graduationApi';
+import { listGraduationsByOwner } from '@/api/graduationApi';
 import GraduationCard from '@/components/graduations/GraduationCard';
 import { Container } from '@mui/material';
 import { notFound } from 'next/navigation';
@@ -13,13 +13,15 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
     const { username, cohort } = params;
 
-    const graduations = await listGraduationsByCohort(cohort);
+    const graduations = await listGraduationsByOwner(username);
 
-    graduations.filter((grad) => grad.username === username);
+    graduations.filter((grad) => grad.previousCohort === cohort);
 
     if (graduations.length <= 0) {
         return notFound();
     }
+
+    graduations.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
     const gradSummary = graduations[0];
 

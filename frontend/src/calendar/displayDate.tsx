@@ -53,7 +53,7 @@ export function getTimeZonedDate(
 
 export function toDojoDateString(
     date: Date,
-    timezone?: string,
+    timezone: string | undefined,
     timezoneDirection: 'forward' | 'backward' = 'backward',
     options?: Intl.DateTimeFormatOptions,
 ): string {
@@ -63,7 +63,7 @@ export function toDojoDateString(
 
 export function toDojoTimeString(
     date: Date,
-    timezone?: string,
+    timezone: string | undefined,
     timeFormat?: TimeFormat,
     timezoneDirection: 'forward' | 'backward' = 'backward',
     options?: Intl.DateTimeFormatOptions,

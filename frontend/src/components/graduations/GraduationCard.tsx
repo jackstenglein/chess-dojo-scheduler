@@ -1,5 +1,6 @@
 'use client';
 
+import { EventType, trackEvent } from '@/analytics/events';
 import { useAuth } from '@/auth/Auth';
 import { Graduation } from '@/database/graduation';
 import { formatRatingSystem, RatingSystem } from '@/database/user';
@@ -65,10 +66,6 @@ const ReportCanvas = forwardRef(function ReportCanvas(
         </Box>
     );
 });
-
-interface GraduationCardProps {
-    graduation: Graduation;
-}
 
 function getChartData(graduation: Graduation): UserSerie<Datum>[] {
     const { ratingSystem: preferredSystem, startedAt } = graduation;
@@ -203,6 +200,10 @@ function ChangeStat({
     );
 }
 
+interface GraduationCardProps {
+    graduation: Graduation;
+}
+
 export default function GraduationCard({ graduation }: GraduationCardProps) {
     const { newCohort } = graduation;
     const reportRef = useRef<HTMLDivElement>(null);
@@ -224,17 +225,9 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
         domToPng(node, { backgroundColor })
             .then((dataUrl) => {
                 setImageData(dataUrl);
-                /*
-                trackEvent(EventType.DownloadGradBox, {
-                    previous_cohort: graduation.previousCohort,
-                    new_cohort: graduation.newCohort,
-                    dojo_score: graduation.score,
-                    graduated_at: graduation.createdAt,
-                });
-                */
             })
             .catch((error) => {
-                console.error('error :-(', error);
+                console.error('domToPng: ', error);
             });
     };
 
@@ -246,6 +239,12 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
         if (!imageData) {
             return;
         }
+        trackEvent(EventType.DownloadGradBox, {
+            previous_cohort: graduation.previousCohort,
+            new_cohort: graduation.newCohort,
+            dojo_score: graduation.score,
+            graduated_at: graduation.createdAt,
+        });
 
         const link = document.createElement('a');
         link.href = imageData;
@@ -260,7 +259,7 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
             {imageData ? (
                 <Stack>
                     <img src={imageData} alt='Preview of graduation image' />
-                    <LoadingButton startIcon={<SaveAlt />} onClick={() => onDownload()}>
+                    <LoadingButton startIcon={<SaveAlt />} onClick={onDownload}>
                         Download Badge
                     </LoadingButton>
                 </Stack>
