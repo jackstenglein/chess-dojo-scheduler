@@ -1,6 +1,5 @@
 'use client';
 
-import { EventType, trackEvent } from '@/analytics/events';
 import { useAuth } from '@/auth/Auth';
 import { Graduation } from '@/database/graduation';
 import { formatRatingSystem, RatingSystem } from '@/database/user';
@@ -12,10 +11,17 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { LoadingButton } from '@mui/lab';
 import { Box, Stack, Typography, useTheme } from '@mui/material';
-import { toPng } from 'html-to-image';
-import { ForwardedRef, forwardRef, ReactNode, useMemo, useRef } from 'react';
+import { domToPng } from 'modern-screenshot';
+import {
+    ForwardedRef,
+    forwardRef,
+    ReactNode,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import { AxisOptions, Chart, UserSerie } from 'react-charts';
-
 interface Datum {
     date: Date;
     rating: number;
@@ -46,23 +52,13 @@ const ReportCanvas = forwardRef(function ReportCanvas(
     { children }: ReportCanvasProps,
     ref: ForwardedRef<HTMLDivElement>,
 ) {
-    /*
-    const { previousCohort, newCohort, createdAt } = graduation;
-    const header = `Welcome to ${newCohort} cohort!`;
-    const dateStr = formatDate(createdAt, 'PPP');
-    const footer = `Gratuated from the ${previousCohort} band on ${dateStr}`;
-        */
-
     return (
         <Box
             ref={ref}
             display='grid'
             sx={{
-                border: 'solid',
-                borderColor: 'white',
                 width: '800px',
                 height: '500px',
-                aspectRatio: '1 / 1',
             }}
         >
             {children}
@@ -208,27 +204,14 @@ function ChangeStat({
 }
 
 export default function GraduationCard({ graduation }: GraduationCardProps) {
-    const {
-        newCohort,
-        ratingSystem,
-        score,
-        progress,
-        currentRating,
-        startRating,
-        displayName,
-    } = graduation;
+    const { newCohort } = graduation;
     const reportRef = useRef<HTMLDivElement>(null);
+    const [imageData, setImageData] = useState<string>();
 
     const theme = useTheme();
     const backgroundColor = theme.palette.background.default;
-    const dark = !useAuth().user?.enableLightMode;
 
-    const hours =
-        Object.values(progress)
-            .flatMap((reqProg) => Object.values(reqProg.minutesSpent))
-            .reduce((a, b) => a + b, 0) / 60;
-
-    const onDownload = () => {
+    const renderImage = () => {
         const node = reportRef.current;
         if (!node) {
             return;
@@ -238,27 +221,75 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
         // https://github.com/bubkoo/html-to-image/issues/40
         // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
-        toPng(node, {
-            backgroundColor,
-            cacheBust: true,
-        })
+        domToPng(node, { backgroundColor })
             .then((dataUrl) => {
-                const link = document.createElement('a');
-                link.href = dataUrl;
-                link.download = `graduation-${newCohort}.png`;
-                link.click();
-
+                setImageData(dataUrl);
+                /*
                 trackEvent(EventType.DownloadGradBox, {
                     previous_cohort: graduation.previousCohort,
                     new_cohort: graduation.newCohort,
                     dojo_score: graduation.score,
                     graduated_at: graduation.createdAt,
                 });
+                */
             })
             .catch((error) => {
                 console.error('error :-(', error);
             });
     };
+
+    useEffect(() => {
+        renderImage();
+    });
+
+    const onDownload = () => {
+        if (!imageData) {
+            return;
+        }
+
+        const link = document.createElement('a');
+        link.href = imageData;
+        link.download = `graduation-${newCohort}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    return (
+        <Stack>
+            {imageData ? (
+                <Stack>
+                    <img src={imageData} alt='Preview of graduation image' />
+                    <LoadingButton startIcon={<SaveAlt />} onClick={() => onDownload()}>
+                        Download Badge
+                    </LoadingButton>
+                </Stack>
+            ) : (
+                <ReportCanvas ref={reportRef}>
+                    <GraduationCardDisplay graduation={graduation} />
+                </ReportCanvas>
+            )}
+        </Stack>
+    );
+}
+
+export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
+    const {
+        newCohort,
+        ratingSystem,
+        score,
+        progress,
+        currentRating,
+        startRating,
+        displayName,
+    } = graduation;
+
+    const dark = !useAuth().user?.enableLightMode;
+
+    const hours =
+        Object.values(progress)
+            .flatMap((reqProg) => Object.values(reqProg.minutesSpent))
+            .reduce((a, b) => a + b, 0) / 60;
 
     const historyData = useMemo(() => getChartData(graduation), [graduation]);
 
@@ -266,90 +297,77 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
     const ratingChange = finalRating - startRating;
 
     return (
-        <Stack>
-            <ReportCanvas ref={reportRef}>
-                <Box
-                    height='100%'
-                    display='grid'
-                    gap='0.5rem'
-                    paddingY='32px'
-                    paddingX='64px'
-                    gridTemplateColumns='1fr auto'
-                    gridTemplateRows='1fr 8fr 2fr'
-                    gridTemplateAreas={[
-                        '"header blank"',
-                        '"chart dojo"',
-                        '"stats empty"',
-                    ].join('\n')}
-                >
-                    <Stack
-                        direction='column'
-                        alignItems='center'
-                        justifyContent='center'
-                        gridArea='header'
-                    >
-                        <Typography variant='h5'>
-                            Congrats{' '}
-                            <Typography
-                                variant='h5'
-                                component='span'
-                                color='dojoOrange.main'
-                            >
-                                {displayName}
-                            </Typography>{' '}
-                            on graduating to <CohortIcon size={20} cohort={newCohort} />{' '}
-                            {newCohort}!
-                        </Typography>
-                    </Stack>
-                    <Stack
-                        direction='row'
-                        alignContent='center'
-                        justifyContent='space-around'
-                        gridArea='stats'
-                    >
-                        <Stat center label='Start' value={startRating} />
-                        <RatingStat system={ratingSystem} value={finalRating} />
-                        <ChangeStat center label='Progress' value={ratingChange} />
-                    </Stack>
+        <Box
+            height='100%'
+            display='grid'
+            gap='0.5rem'
+            paddingY='32px'
+            paddingX='64px'
+            gridTemplateColumns='1fr auto'
+            gridTemplateRows='1fr 8fr 2fr'
+            gridTemplateAreas={['"header blank"', '"chart dojo"', '"stats empty"'].join(
+                '\n',
+            )}
+        >
+            <Stack
+                direction='column'
+                alignItems='center'
+                justifyContent='center'
+                gridArea='header'
+            >
+                <Typography variant='h5'>
+                    Congrats{' '}
+                    <Typography variant='h5' component='span' color='dojoOrange.main'>
+                        {displayName}
+                    </Typography>{' '}
+                    on graduating to <CohortIcon size={20} cohort={newCohort} />{' '}
+                    {newCohort}!
+                </Typography>
+            </Stack>
+            <Stack
+                direction='row'
+                alignContent='center'
+                justifyContent='space-around'
+                gridArea='stats'
+            >
+                <Stat center label='Start' value={startRating} />
+                <RatingStat system={ratingSystem} value={finalRating} />
+                <ChangeStat center label='Progress' value={ratingChange} />
+            </Stack>
 
-                    <Box display='flex' gridArea='chart'>
-                        <Chart
-                            options={{
-                                data: historyData,
-                                primaryAxis,
-                                secondaryAxes,
-                                dark,
-                                interactionMode: 'closest',
-                                tooltip: false,
-                            }}
-                        />
+            <Box display='flex' gridArea='chart'>
+                <Chart
+                    options={{
+                        data: historyData,
+                        primaryAxis,
+                        secondaryAxes,
+                        dark,
+                        interactionMode: 'closest',
+                        tooltip: false,
+                    }}
+                />
+            </Box>
+            <Stack
+                alignContent='center'
+                justifyContent='center'
+                gridArea='dojo'
+                spacing={2}
+            >
+                <Stat center label='Dojo Points' value={score} />
+                <Stat center label='Dojo Hours' value={hours} />
+                <Stack
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='center'
+                    spacing={1}
+                    component='div'
+                >
+                    <Box fontSize='64px' width='64px' height='64px'>
+                        <ChessDojoIcon fontSize='inherit' />
                     </Box>
-                    <Stack
-                        alignContent='center'
-                        justifyContent='center'
-                        gridArea='dojo'
-                        spacing={2}
-                    >
-                        <Stat center label='Dojo Points' value={score} />
-                        <Stat center label='Dojo Hours' value={hours} />
-                        <Stack
-                            display='flex'
-                            alignItems='center'
-                            justifyContent='center'
-                            spacing={1}
-                            component='div'
-                        >
-                            <Box fontSize='64px' width='64px' height='64px'>
-                                <ChessDojoIcon fontSize='inherit' />
-                            </Box>
-                            <Typography variant='subtitle2'>ChessDojo</Typography>
-                        </Stack>
-                    </Stack>
-                </Box>
-            </ReportCanvas>
-            <LoadingButton startIcon={<SaveAlt />} onClick={() => onDownload()}>
-                Download Badge
-            </LoadingButton>
-        </Stack>
+                    <Typography variant='subtitle2'>ChessDojo</Typography>
+                </Stack>
+            </Stack>
+        </Box>
     );
 }
