@@ -97,9 +97,6 @@ export async function* processRecord(fileNum: string, reader: readline.Interface
                 const explorerGame = getExplorerGame(newGame, update);
                 if (explorerGame) {
                     yield `${JSON.stringify(explorerGame)}\n`;
-                } else {
-                    skipped++;
-                    continue;
                 }
             }
         } catch (err) {
