@@ -14,7 +14,7 @@ import {
     Stack,
 } from '@mui/material';
 import { domToPng } from 'modern-screenshot';
-import { ForwardedRef, forwardRef, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface GraduationShareDialogProps {
     open: boolean;
@@ -28,12 +28,11 @@ export default function GraduationShareDialog({
     graduation,
 }: GraduationShareDialogProps) {
     const { newCohort } = graduation;
-    const reportRef = useRef<HTMLDivElement>(null);
+    const [reportRef, setReportRef] = useState<HTMLDivElement>();
     const [imageData, setImageData] = useState<string>();
 
-    const renderImage = () => {
-        const node = reportRef.current;
-        if (!node) {
+    useEffect(() => {
+        if (!reportRef) {
             return;
         }
 
@@ -41,7 +40,7 @@ export default function GraduationShareDialog({
         // https://github.com/bubkoo/html-to-image/issues/40
         // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
-        domToPng(node, {
+        domToPng(reportRef, {
             debug: true,
             fetch: {
                 bypassingCache: true,
@@ -56,16 +55,13 @@ export default function GraduationShareDialog({
             .catch((error) => {
                 console.error('domToPng: ', error);
             });
-    };
-
-    useEffect(() => {
-        renderImage();
-    });
+    }, [reportRef, setImageData]);
 
     const onDownload = (closeAfter: boolean) => {
         if (!imageData) {
             return;
         }
+
         trackEvent(EventType.DownloadGradBox, {
             previous_cohort: graduation.previousCohort,
             new_cohort: graduation.newCohort,
@@ -100,14 +96,19 @@ export default function GraduationShareDialog({
                         justifyContent='center'
                     >
                         {imageData ? (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 onClick={() => onDownload(false)}
-                                style={{ height: 'auto', maxWidth: '100%' }}
+                                style={{
+                                    height: 'auto',
+                                    maxWidth: '100%',
+                                    borderRadius: '8px',
+                                }}
                                 alt='dojo graduation badge'
                                 src={imageData}
                             />
                         ) : (
-                            <ReportCanvas ref={reportRef}>
+                            <ReportCanvas reportRef={setReportRef}>
                                 <GraduationCard graduation={graduation} />
                             </ReportCanvas>
                         )}
@@ -127,18 +128,16 @@ export default function GraduationShareDialog({
 interface ReportCanvasProps {
     width?: number | string;
     height?: number | string;
+    reportRef: React.Dispatch<React.SetStateAction<HTMLDivElement | undefined>>;
     children: React.ReactElement;
 }
 
-const ReportCanvas = forwardRef(function ReportCanvas(
-    { children }: ReportCanvasProps,
-    ref: ForwardedRef<HTMLDivElement>,
-) {
+const ReportCanvas = ({ reportRef, children }: ReportCanvasProps) => {
     return (
         <Box
             position='relative'
             overflow='hidden'
-            sx={{ aspectRatio: '1.6/1' }}
+            sx={{ aspectRatio: '1.6/1', borderRadius: 1 }}
             width='100%'
             height='auto'
         >
@@ -148,14 +147,13 @@ const ReportCanvas = forwardRef(function ReportCanvas(
                 width='100%'
                 bgcolor='background.default'
                 position='absolute'
-                zIndex={9}
+                zIndex={1}
             >
                 <LoadingPage />
             </Box>
             <Box
-                ref={ref}
+                ref={reportRef}
                 display='grid'
-                zIndex={8}
                 sx={{
                     width: '800px',
                     height: '540px',
@@ -165,4 +163,4 @@ const ReportCanvas = forwardRef(function ReportCanvas(
             </Box>
         </Box>
     );
-});
+};
