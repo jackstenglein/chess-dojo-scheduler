@@ -356,8 +356,8 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
                 gridArea='dojo'
                 spacing={2}
             >
-                <Stat center label='Dojo Points' value={score.toFixed(2)} />
-                <Stat center label='Dojo Hours' value={hours.toFixed(1)} />
+                <Stat center label='Dojo Points' value={Math.round(100 * score) / 100} />
+                <Stat center label='Dojo Hours' value={Math.round(10 * hours) / 10} />
                 <Stack
                     display='flex'
                     alignItems='center'
