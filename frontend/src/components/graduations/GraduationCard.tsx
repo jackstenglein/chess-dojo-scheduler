@@ -227,7 +227,7 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                         </Typography>
                     </Stack>
                 </Box>
-                <CohortIcon size={40} cohort={newCohort} />
+                <CohortIcon size={40} cohort={newCohort} skipCache />
             </Stack>
             <Stack
                 direction='row'

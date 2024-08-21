@@ -57,7 +57,11 @@ export default function GraduationShareDialog({
             });
     }, [reportRef, setImageData]);
 
-    const onDownload = (closeAfter: boolean) => {
+    if (!open) {
+        return null;
+    }
+
+    const onDownload = () => {
         if (!imageData) {
             return;
         }
@@ -75,13 +79,15 @@ export default function GraduationShareDialog({
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        if (closeAfter) {
-            onClose();
-        }
+    };
+
+    const handleClose = () => {
+        setImageData(undefined);
+        onClose();
     };
 
     return (
-        <Dialog maxWidth='md' open={open} onClose={onClose} fullWidth>
+        <Dialog maxWidth='md' open={open} onClose={handleClose} fullWidth>
             <DialogTitle>Share your progress!</DialogTitle>
             <DialogContent>
                 <Stack spacing={2}>
@@ -98,7 +104,6 @@ export default function GraduationShareDialog({
                         {imageData ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
-                                onClick={() => onDownload(false)}
                                 style={{
                                     height: 'auto',
                                     maxWidth: '100%',
@@ -116,8 +121,8 @@ export default function GraduationShareDialog({
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => onClose()}>Close</Button>
-                <LoadingButton loading={!imageData} onClick={() => onDownload(true)}>
+                <Button onClick={handleClose}>Close</Button>
+                <LoadingButton loading={!imageData} onClick={onDownload}>
                     Download
                 </LoadingButton>
             </DialogActions>
