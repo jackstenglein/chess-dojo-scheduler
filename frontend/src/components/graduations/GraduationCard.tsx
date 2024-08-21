@@ -23,6 +23,7 @@ import {
     useState,
 } from 'react';
 import { AxisOptions, Chart, UserSerie } from 'react-charts';
+
 interface Datum {
     date: Date;
     rating: number;
@@ -219,7 +220,7 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
         // https://github.com/bubkoo/html-to-image/issues/40
         // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
-        domToPng(node, { backgroundColor })
+        domToPng(node, { quality: 1, backgroundColor })
             .then((dataUrl) => {
                 setImageData(dataUrl);
             })
@@ -310,18 +311,19 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
                 flexWrap='wrap'
                 alignItems='center'
                 justifyContent='center'
+                gap='1ch'
                 gridArea='header'
             >
-                <Stack direction='row' flexWrap='wrap'>
+                <Stack direction='row' gap='1ch' flexWrap='wrap'>
                     <Typography variant='h5'>Congrats </Typography>
-                    <Typography variant='h5' component='span' color='dojoOrange.main'>
+                    <Typography variant='h5' color='dojoOrange.main'>
+                        {' '}
                         {displayName}
-                    </Typography>{' '}
+                    </Typography>
                 </Stack>
-                <Box> </Box>
-                <Stack direction='row' flexWrap='wrap'>
+                <Stack direction='row' gap='1ch' flexWrap='wrap'>
                     <Typography variant='h5'>on graduating to</Typography>
-                    <CohortIcon size={20} cohort={newCohort} />{' '}
+                    <CohortIcon size={32} cohort={newCohort} />
                     <Typography variant='h5'>{newCohort}!</Typography>
                 </Stack>
             </Stack>
@@ -354,7 +356,7 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
                 gridArea='dojo'
                 spacing={2}
             >
-                <Stat center label='Dojo Points' value={score} />
+                <Stat center label='Dojo Points' value={score.toFixed(2)} />
                 <Stat center label='Dojo Hours' value={hours.toFixed(1)} />
                 <Stack
                     display='flex'
