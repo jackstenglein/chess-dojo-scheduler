@@ -333,8 +333,8 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
                 justifyContent='space-around'
                 gridArea='stats'
             >
-                <Stat center label='Start' value={startRating} />
                 <RatingStat system={ratingSystem} value={finalRating} />
+                <Stat center label='Start' value={startRating} />
                 <ChangeStat center label='Progress' value={ratingChange} />
             </Stack>
 
