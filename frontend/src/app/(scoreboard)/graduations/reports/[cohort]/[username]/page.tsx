@@ -13,9 +13,9 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
     const { username, cohort } = params;
 
-    const graduations = await listGraduationsByOwner(username);
+    let graduations = await listGraduationsByOwner(username);
 
-    graduations.filter((grad) => grad.previousCohort === cohort);
+    graduations = graduations.filter((grad) => grad.previousCohort === cohort);
 
     if (graduations.length <= 0) {
         return notFound();
