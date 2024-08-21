@@ -12,7 +12,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { LoadingButton } from '@mui/lab';
 import { Box, Stack, Typography, useTheme } from '@mui/material';
-import { domToPng } from 'modern-screenshot';
+import { domToJpeg } from 'modern-screenshot';
 import {
     ForwardedRef,
     forwardRef,
@@ -220,7 +220,7 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
         // https://github.com/bubkoo/html-to-image/issues/40
         // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
-        domToPng(node, { quality: 1, backgroundColor })
+        domToJpeg(node, { quality: 1, scale: 2, backgroundColor })
             .then((dataUrl) => {
                 setImageData(dataUrl);
             })
