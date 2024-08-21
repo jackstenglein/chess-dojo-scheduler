@@ -63,14 +63,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if startedAt == "" {
 		startedAt = user.CreatedAt
 	}
-
-	startedAtTime, err := time.Parse(time.RFC3339, startedAt)
-	if err != nil {
-		return api.Failure(errors.Wrap(500, "Unable to parse started at date", "", err)), nil
-	}
-
-	createdAtTime := time.Now()
-	createdAt := createdAtTime.Format(time.RFC3339)
+	now := time.Now()
+	createdAt := now.Format(time.RFC3339)
 
 	startRating, currentRating := user.GetRatings()
 
@@ -92,7 +86,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 				return api.Failure(errors.Wrap(500, "Unable to parse rating histoy date", "", err)), nil
 			}
 
-			if date.After(startedAtTime) {
+			if item.Date >= createdAt {
 				ratingHistories[rs] = append(ratingHistories[rs], item)
 			}
 		}
@@ -129,7 +123,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	timelineEntry := database.TimelineEntry{
 		TimelineEntryKey: database.TimelineEntryKey{
 			Owner: info.Username,
-			Id:    fmt.Sprintf("%s_%s", createdAtTime.Format(time.DateOnly), uuid.NewString()),
+			Id:    fmt.Sprintf("%s_%s", now.Format(time.DateOnly), uuid.NewString()),
 		},
 		OwnerDisplayName:    user.DisplayName,
 		RequirementId:       "Graduation",
