@@ -1,34 +1,41 @@
-import { Container, Typography } from '@mui/material';
-import React from 'react';
+import {
+    Group as GroupIcon,
+    Info as InfoIcon,
+    TableChart as TableChartIcon,
+} from '@mui/icons-material';
+import { Box, Container, Tab, Tabs } from '@mui/material';
+import React, { useState } from 'react';
+import Crosstable from './robinCrosstablePage';
+import InfoPage from './robinInfoPage';
+import PairingsPage from './robinPairingPage';
 
-// const TabPanel: React.FC<{
-//     children?: React.ReactNode;
-//     index: number;
-//     value: number;
-// }> = ({ children, value, index }) => {
-//     return (
-//         <div
-//             role='tabpanel'
-//             hidden={value !== index}
-//             id={`tabpanel-${index}`}
-//             aria-labelledby={`tab-${index}`}
-//         >
-//             {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-//         </div>
-//     );
-// };
+const TabPanel: React.FC<{
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+}> = ({ children, value, index }) => {
+    return (
+        <div
+            role='tabpanel'
+            hidden={value !== index}
+            id={`tabpanel-${index}`}
+            aria-labelledby={`tab-${index}`}
+        >
+            {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+        </div>
+    );
+};
 
 const TournamentViewer: React.FC = () => {
-    // const [tabValue, setTabValue] = useState(0);
+    const [tabValue, setTabValue] = useState(0);
 
-    // const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    //     setTabValue(newValue);
-    // };
+    const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
+    };
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
-            <Typography>Nmp is working on it boss</Typography>
-            {/* <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs
                     value={tabValue}
                     onChange={handleTabChange}
@@ -48,7 +55,7 @@ const TournamentViewer: React.FC = () => {
             </TabPanel>
             <TabPanel value={tabValue} index={2}>
                 <Crosstable />
-            </TabPanel> */}
+            </TabPanel>
         </Container>
     );
 };
