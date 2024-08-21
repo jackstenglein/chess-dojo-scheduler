@@ -81,11 +81,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	ratingHistories := make(map[database.RatingSystem][]database.RatingHistory)
 	for rs, history := range user.RatingHistories {
 		for _, item := range history {
-			date, err := time.Parse(time.RFC3339, item.Date)
-			if err != nil {
-				return api.Failure(errors.Wrap(500, "Unable to parse rating histoy date", "", err)), nil
-			}
-
 			if item.Date >= createdAt {
 				ratingHistories[rs] = append(ratingHistories[rs], item)
 			}
