@@ -216,7 +216,14 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
         // https://github.com/bubkoo/html-to-image/issues/40
         // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
-        domToPng(node, { quality: 1, scale: 2, backgroundColor: '#121212' })
+        domToPng(node, {
+            fetch: {
+                bypassingCache: true,
+            },
+            quality: 1,
+            scale: 2,
+            backgroundColor: '#121212',
+        })
             .then((dataUrl) => {
                 setImageData(dataUrl);
             })
