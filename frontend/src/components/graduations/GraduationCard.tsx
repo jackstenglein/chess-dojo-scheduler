@@ -1,7 +1,6 @@
 'use client';
 
 import { EventType, trackEvent } from '@/analytics/events';
-import { useAuth } from '@/auth/Auth';
 import { Graduation } from '@/database/graduation';
 import { formatRatingSystem, RatingSystem } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -11,8 +10,8 @@ import { SaveAlt } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { LoadingButton } from '@mui/lab';
-import { Box, Stack, Typography, useTheme } from '@mui/material';
-import { domToJpeg } from 'modern-screenshot';
+import { Box, Stack, Typography } from '@mui/material';
+import { domToPng } from 'modern-screenshot';
 import {
     ForwardedRef,
     forwardRef,
@@ -207,9 +206,6 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
     const reportRef = useRef<HTMLDivElement>(null);
     const [imageData, setImageData] = useState<string>();
 
-    const theme = useTheme();
-    const backgroundColor = theme.palette.background.default;
-
     const renderImage = () => {
         const node = reportRef.current;
         if (!node) {
@@ -220,7 +216,7 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
         // https://github.com/bubkoo/html-to-image/issues/40
         // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
-        domToJpeg(node, { quality: 1, scale: 2, backgroundColor })
+        domToPng(node, { quality: 1, scale: 2, backgroundColor: '#121212' })
             .then((dataUrl) => {
                 setImageData(dataUrl);
             })
@@ -253,7 +249,7 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
     };
 
     return (
-        <Stack>
+        <Stack alignItems='center'>
             <ReportCanvas>
                 <GraduationCardDisplay graduation={graduation} />
             </ReportCanvas>
@@ -283,8 +279,6 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
         startRating,
         displayName,
     } = graduation;
-
-    const dark = !useAuth().user?.enableLightMode;
 
     const hours =
         Object.values(progress)
@@ -355,7 +349,7 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
                         data: historyData,
                         primaryAxis,
                         secondaryAxes,
-                        dark,
+                        dark: true,
                         interactionMode: 'closest',
                         tooltip: false,
                     }}
