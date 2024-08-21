@@ -1,3 +1,4 @@
+import { getConfig } from '@/config';
 import { Chess } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { createContext, useContext, useEffect } from 'react';
@@ -18,6 +19,8 @@ import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Unde
 import { Game } from '../../database/game';
 import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
 import PgnErrorBoundary from './PgnErrorBoundary';
+
+const isBeta = getConfig().isBeta;
 
 interface GameContextType {
     game?: Game;
@@ -142,7 +145,7 @@ const GamePage = () => {
                         pgn={request.data?.pgn}
                         startOrientation={request.data?.orientation}
                         underboardTabs={[
-                            // DefaultUnderboardTab.Directories,
+                            ...(isBeta ? [DefaultUnderboardTab.Directories] : []),
                             DefaultUnderboardTab.Tags,
                             ...(isOwner ? [DefaultUnderboardTab.Editor] : []),
                             DefaultUnderboardTab.Comments,

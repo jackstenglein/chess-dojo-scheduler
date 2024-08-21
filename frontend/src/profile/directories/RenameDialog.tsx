@@ -1,6 +1,10 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { DirectoryItemSubdirectory } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    Directory,
+    DirectoryItemSubdirectory,
+    DirectoryItemTypes,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -14,9 +18,11 @@ import { useState } from 'react';
 import { useDirectoryCache } from './DirectoryCache';
 
 export const RenameDialog = ({
+    parent,
     item,
     onCancel,
 }: {
+    parent: Directory;
     item: DirectoryItemSubdirectory;
     onCancel: () => void;
 }) => {
@@ -25,10 +31,24 @@ export const RenameDialog = ({
     const api = useApi();
     const cache = useDirectoryCache();
 
-    const disableSave = name.trim().length === 0 || name === item.metadata.name;
+    const disableSave =
+        name.trim().length === 0 ||
+        name === item.metadata.name ||
+        name.trim().length > 100;
 
     const onSave = () => {
         if (disableSave) {
+            return;
+        }
+
+        if (
+            Object.values(parent.items || {}).some(
+                (item) =>
+                    item.type === DirectoryItemTypes.DIRECTORY &&
+                    item.metadata.name === name,
+            )
+        ) {
+            request.onFailure({ message: `${parent.name}/${name} already exists` });
             return;
         }
 
@@ -64,6 +84,8 @@ export const RenameDialog = ({
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
                     sx={{ mt: 0.75 }}
+                    error={name.trim().length > 100}
+                    helperText={`${name.trim().length} / 100 characters`}
                 />
             </DialogContent>
             <DialogActions>

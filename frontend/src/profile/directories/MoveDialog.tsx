@@ -101,7 +101,7 @@ export const MoveDialog = ({
             <DialogContent data-cy='move-directory-form'>
                 {newDirectory ? (
                     <Stack>
-                        <Stack direction='row' spacing={1.5}>
+                        <Stack alignItems='center' direction='row' spacing={1.5}>
                             <Typography color='text.secondary'>
                                 Current Location:
                             </Typography>
@@ -112,7 +112,7 @@ export const MoveDialog = ({
                             />
                         </Stack>
 
-                        <Stack direction='row' spacing={1.5} mb={1}>
+                        <Stack alignItems='center' direction='row' spacing={1.5} mb={1}>
                             <Typography color='text.secondary'>New Location:</Typography>
                             <DirectoryBreadcrumbs
                                 owner={user.username}
