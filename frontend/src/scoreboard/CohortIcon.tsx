@@ -6,7 +6,6 @@ import {
     tooltipClasses,
 } from '@mui/material';
 import { SxProps, styled } from '@mui/material/styles';
-import Image from 'next/image';
 import { CSSProperties } from 'react';
 import { ALL_COHORTS } from '../database/user';
 import { MastersCohort } from '../games/list/ListGamesPage';
@@ -75,7 +74,7 @@ const CohortIcon: React.FC<CohortIconProps & SvgIconProps> = ({
 
     return (
         <Tooltip title={tooltip !== undefined ? tooltip : `Graduated from ${cohort}`}>
-            <Image
+            <img
                 data-cy='graduation-icon'
                 src={url}
                 alt=''
