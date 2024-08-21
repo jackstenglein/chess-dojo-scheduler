@@ -68,16 +68,13 @@ const ReportCanvas = forwardRef(function ReportCanvas(
 });
 
 function getChartData(graduation: Graduation): UserSerie<Datum>[] {
-    const { ratingSystem: preferredSystem, startedAt } = graduation;
+    const { ratingSystem: preferredSystem } = graduation;
 
     const ratingHistory =
-        graduation.ratingHistories?.[preferredSystem]
-            ?.filter(
-                (
-                    rating, // TODO INVESTIGATE THAT EQUALITY NEEDS TO BE FLIPPED
-                ) => rating.date.localeCompare(startedAt) <= 0,
-            )
-            ?.map(({ date, rating }) => ({ rating, date: new Date(date) })) ?? [];
+        graduation.ratingHistories?.[preferredSystem]?.map(({ date, rating }) => ({
+            rating,
+            date: new Date(date),
+        })) ?? [];
 
     return [{ label: 'Rating', data: ratingHistory }];
 }
@@ -309,19 +306,24 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
             )}
         >
             <Stack
-                direction='column'
+                direction='row'
+                flexWrap='wrap'
                 alignItems='center'
                 justifyContent='center'
                 gridArea='header'
             >
-                <Typography variant='h5'>
-                    Congrats{' '}
+                <Stack direction='row' flexWrap='wrap'>
+                    <Typography variant='h5'>Congrats </Typography>
                     <Typography variant='h5' component='span' color='dojoOrange.main'>
                         {displayName}
                     </Typography>{' '}
-                    on graduating to <CohortIcon size={20} cohort={newCohort} />{' '}
-                    {newCohort}!
-                </Typography>
+                </Stack>
+                <Box> </Box>
+                <Stack direction='row' flexWrap='wrap'>
+                    <Typography variant='h5'>on graduating to</Typography>
+                    <CohortIcon size={20} cohort={newCohort} />{' '}
+                    <Typography variant='h5'>{newCohort}!</Typography>
+                </Stack>
             </Stack>
             <Stack
                 direction='row'
@@ -353,7 +355,7 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
                 spacing={2}
             >
                 <Stat center label='Dojo Points' value={score} />
-                <Stat center label='Dojo Hours' value={hours} />
+                <Stat center label='Dojo Hours' value={hours.toFixed(1)} />
                 <Stack
                     display='flex'
                     alignItems='center'
