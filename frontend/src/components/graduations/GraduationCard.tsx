@@ -254,6 +254,9 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
 
     return (
         <Stack>
+            <ReportCanvas>
+                <GraduationCardDisplay graduation={graduation} />
+            </ReportCanvas>
             {imageData ? (
                 <Stack>
                     <img src={imageData} alt='Preview of graduation image' />
@@ -301,7 +304,7 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
             paddingY='32px'
             paddingX='64px'
             gridTemplateColumns='1fr auto'
-            gridTemplateRows='1fr 8fr 2fr'
+            gridTemplateRows='auto max-content auto'
             gridTemplateAreas={['"header blank"', '"chart dojo"', '"stats empty"'].join(
                 '\n',
             )}
@@ -309,23 +312,31 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
             <Stack
                 direction='row'
                 flexWrap='wrap'
-                alignItems='center'
                 justifyContent='center'
-                gap='1ch'
+                alignItems='center'
+                columnGap='1ch'
                 gridArea='header'
             >
-                <Stack direction='row' gap='1ch' flexWrap='wrap'>
-                    <Typography variant='h5'>Congrats </Typography>
-                    <Typography variant='h5' color='dojoOrange.main'>
-                        {' '}
-                        {displayName}
-                    </Typography>
-                </Stack>
-                <Stack direction='row' gap='1ch' flexWrap='wrap'>
-                    <Typography variant='h5'>on graduating to</Typography>
-                    <CohortIcon size={32} cohort={newCohort} />
-                    <Typography variant='h5'>{newCohort}!</Typography>
-                </Stack>
+                <Box>
+                    <Stack direction='row' columnGap='1ch' flexWrap='wrap'>
+                        <Typography lineHeight={1} variant='h5'>
+                            Congrats{' '}
+                        </Typography>
+                        <Typography lineHeight={1} variant='h5' color='dojoOrange.main'>
+                            {' '}
+                            {displayName}
+                        </Typography>
+                    </Stack>
+                    <Stack direction='row' columnGap='1ch' flexWrap='wrap'>
+                        <Typography lineHeight={1} variant='h5'>
+                            on graduating to
+                        </Typography>
+                        <Typography lineHeight={1} variant='h5'>
+                            {newCohort}!
+                        </Typography>
+                    </Stack>
+                </Box>
+                <CohortIcon size={40} cohort={newCohort} />
             </Stack>
             <Stack
                 direction='row'
