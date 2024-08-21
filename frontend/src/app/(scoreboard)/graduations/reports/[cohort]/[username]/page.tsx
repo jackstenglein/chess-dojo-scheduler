@@ -1,6 +1,6 @@
 import { listGraduationsByOwner } from '@/api/graduationApi';
 import GraduationCard from '@/components/graduations/GraduationCard';
-import { Container } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import { notFound } from 'next/navigation';
 
 interface PageProps {
@@ -26,8 +26,10 @@ export default async function Page({ params }: PageProps) {
     const gradSummary = graduations[0];
 
     return (
-        <Container sx={{ py: 5 }}>
-            <GraduationCard graduation={gradSummary} />
+        <Container>
+            <Box margin='auto'>
+                <GraduationCard graduation={gradSummary} />
+            </Box>
         </Container>
     );
 }

@@ -1,26 +1,14 @@
 'use client';
 
-import { EventType, trackEvent } from '@/analytics/events';
 import { Graduation } from '@/database/graduation';
 import { formatRatingSystem, RatingSystem } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
-import { SaveAlt } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { LoadingButton } from '@mui/lab';
 import { Box, Stack, Typography } from '@mui/material';
-import { domToPng } from 'modern-screenshot';
-import {
-    ForwardedRef,
-    forwardRef,
-    ReactNode,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from 'react';
+import { ReactNode, useMemo } from 'react';
 import { AxisOptions, Chart, UserSerie } from 'react-charts';
 
 interface Datum {
@@ -42,30 +30,6 @@ export const secondaryAxes: AxisOptions<Datum>[] = [
         },
     },
 ];
-
-interface ReportCanvasProps {
-    width?: number | string;
-    height?: number | string;
-    children: React.ReactElement;
-}
-
-const ReportCanvas = forwardRef(function ReportCanvas(
-    { children }: ReportCanvasProps,
-    ref: ForwardedRef<HTMLDivElement>,
-) {
-    return (
-        <Box
-            ref={ref}
-            display='grid'
-            sx={{
-                width: '800px',
-                height: '500px',
-            }}
-        >
-            {children}
-        </Box>
-    );
-});
 
 function getChartData(graduation: Graduation): UserSerie<Datum>[] {
     const { ratingSystem: preferredSystem } = graduation;
@@ -202,81 +166,6 @@ interface GraduationCardProps {
 }
 
 export default function GraduationCard({ graduation }: GraduationCardProps) {
-    const { newCohort } = graduation;
-    const reportRef = useRef<HTMLDivElement>(null);
-    const [imageData, setImageData] = useState<string>();
-
-    const renderImage = () => {
-        const node = reportRef.current;
-        if (!node) {
-            return;
-        }
-
-        // There are potentials CORS issues with AWS
-        // https://github.com/bubkoo/html-to-image/issues/40
-        // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
-        // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
-        domToPng(node, {
-            fetch: {
-                bypassingCache: true,
-            },
-            quality: 1,
-            scale: 2,
-            backgroundColor: '#121212',
-        })
-            .then((dataUrl) => {
-                setImageData(dataUrl);
-            })
-            .catch((error) => {
-                console.error('domToPng: ', error);
-            });
-    };
-
-    useEffect(() => {
-        renderImage();
-    });
-
-    const onDownload = () => {
-        if (!imageData) {
-            return;
-        }
-        trackEvent(EventType.DownloadGradBox, {
-            previous_cohort: graduation.previousCohort,
-            new_cohort: graduation.newCohort,
-            dojo_score: graduation.score,
-            graduated_at: graduation.createdAt,
-        });
-
-        const link = document.createElement('a');
-        link.href = imageData;
-        link.download = `graduation-${newCohort}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    return (
-        <Stack alignItems='center'>
-            <ReportCanvas>
-                <GraduationCardDisplay graduation={graduation} />
-            </ReportCanvas>
-            {imageData ? (
-                <Stack>
-                    <img src={imageData} alt='Preview of graduation image' />
-                    <LoadingButton startIcon={<SaveAlt />} onClick={onDownload}>
-                        Download Badge
-                    </LoadingButton>
-                </Stack>
-            ) : (
-                <ReportCanvas ref={reportRef}>
-                    <GraduationCardDisplay graduation={graduation} />
-                </ReportCanvas>
-            )}
-        </Stack>
-    );
-}
-
-export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
     const {
         newCohort,
         ratingSystem,
@@ -299,7 +188,8 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
 
     return (
         <Box
-            height='100%'
+            width='800px'
+            height='540px'
             display='grid'
             gap='0.5rem'
             paddingY='32px'
@@ -315,7 +205,7 @@ export function GraduationCardDisplay({ graduation }: GraduationCardProps) {
                 flexWrap='wrap'
                 justifyContent='center'
                 alignItems='center'
-                columnGap='1ch'
+                columnGap='2ch'
                 gridArea='header'
             >
                 <Box>
