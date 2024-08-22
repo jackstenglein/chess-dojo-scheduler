@@ -81,7 +81,6 @@ import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
 import AdminPage from './tournaments/openClassical/admin/AdminPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 import PricingPage from './upsell/PricingPage';
-import TournamentViewer from './tournaments/roundRobin/robinPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
@@ -99,7 +98,6 @@ const router = createBrowserRouter(
                 <Route path='help' element={<HelpPage />} />
                 <Route path='tournaments'>
                     <Route index element={<TournamentsPage />} />
-                    <Route path='round-robin' element={<TournamentViewer />} />
                     <Route path='open-classical'>
                         <Route index element={<DetailsPage />} />
                         <Route path='info' element={<InfoPage />} />

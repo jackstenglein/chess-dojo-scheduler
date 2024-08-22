@@ -154,11 +154,6 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     icon: <MilitaryTech />,
                     href: '/tournaments/open-classical',
                 },
-                {
-                    name: 'Round Robin',
-                    icon: <MilitaryTech />,
-                    href: '/tournaments/round-robin',
-                },
             ],
         },
         {

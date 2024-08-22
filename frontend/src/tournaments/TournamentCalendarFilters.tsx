@@ -19,7 +19,7 @@ import { RequirementCategory } from '../database/requirement';
 import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
 import Icon from '../style/Icon';
 
-export function getColor(timeControlType: TimeControlType) {
+function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {
         case TimeControlType.AllTimeContols:
             return 'primary';
