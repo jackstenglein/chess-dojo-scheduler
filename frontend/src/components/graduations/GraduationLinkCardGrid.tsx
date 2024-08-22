@@ -19,7 +19,7 @@ export default function GraduationLinkCardGrid({
         <Grid container p='16px' spacing={2} alignItems='center' justifyContent='center'>
             {graduations.map((grad) => (
                 <Grid
-                    key={`${grad.username}//${grad.createdAt}`}
+                    key={`${grad.username} ${grad.createdAt}`}
                     item
                     xs={8}
                     md={4}

@@ -64,7 +64,7 @@ export function toDojoDateString(
 export function toDojoTimeString(
     date: Date,
     timezone: string | undefined,
-    timeFormat?: TimeFormat,
+    timeFormat: TimeFormat | undefined,
     timezoneDirection: 'forward' | 'backward' = 'backward',
     options?: Intl.DateTimeFormatOptions,
 ): string {

@@ -36,10 +36,9 @@ export default function GraduationShareDialog({
             return;
         }
 
-        // There are potentials CORS issues with AWS
-        // https://github.com/bubkoo/html-to-image/issues/40
-        // https://stackoverflow.com/questions/42263223/how-do-i-handle-cors-with-html2canvas-and-aws-s3-images
-        // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome
+        // There are potentials CORS issues with AWS S3 that causes images within
+        // not to load in Firefox and ios. Then when CORS settings change (e.g. you fix it),
+        // the cache may cause Chrome to break loading that same image.
         domToPng(reportRef, {
             debug: true,
             fetch: {

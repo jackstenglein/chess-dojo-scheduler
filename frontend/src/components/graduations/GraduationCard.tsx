@@ -1,7 +1,7 @@
 'use client';
 
 import { Graduation } from '@/database/graduation';
-import { formatRatingSystem, RatingSystem } from '@/database/user';
+import { formatRatingSystem } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
@@ -85,33 +85,6 @@ function Stat({
     );
 }
 
-function RatingStat({ system, value }: { value: number | string; system: RatingSystem }) {
-    const systemName = formatRatingSystem(system);
-
-    return (
-        <Stack>
-            <Stack direction='row' spacing={1.5} alignItems='center'>
-                <StatLabel center>
-                    {formatRatingSystem(system)}
-                    {system === RatingSystem.Custom && systemName && ` (${systemName})`}
-                </StatLabel>
-            </Stack>
-            <Typography
-                textAlign='center'
-                sx={{
-                    fontSize: '2.25rem',
-                    lineHeight: 1,
-                    fontWeight: 'bold',
-                }}
-            >
-                <RatingSystemIcon system={system} />
-
-                {value}
-            </Typography>
-        </Stack>
-    );
-}
-
 function ChangeStat({
     label,
     value,
@@ -168,7 +141,7 @@ interface GraduationCardProps {
 export default function GraduationCard({ graduation }: GraduationCardProps) {
     const {
         newCohort,
-        ratingSystem,
+        ratingSystem: preferredSystem,
         score,
         progress,
         currentRating,
@@ -194,21 +167,23 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
             gap='0.5rem'
             paddingY='32px'
             paddingX='64px'
-            gridTemplateColumns='1fr auto'
+            gridTemplateColumns='1fr auto auto'
             gridTemplateRows='auto max-content auto'
-            gridTemplateAreas={['"header blank"', '"chart dojo"', '"stats empty"'].join(
-                '\n',
-            )}
+            gridTemplateAreas={[
+                '"header header"',
+                '"system-name blank"',
+                '"chart dojo"',
+                '"stats empty"',
+            ].join('\n')}
         >
             <Stack
                 direction='row'
-                flexWrap='wrap'
                 justifyContent='center'
                 alignItems='center'
                 columnGap='2ch'
                 gridArea='header'
             >
-                <Box>
+                <Stack direction='row' columnGap='1ch' flexWrap='wrap'>
                     <Stack direction='row' columnGap='1ch' flexWrap='wrap'>
                         <Typography lineHeight={1} variant='h5'>
                             Congrats{' '}
@@ -222,11 +197,11 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                         <Typography lineHeight={1} variant='h5'>
                             on graduating to
                         </Typography>
-                        <Typography lineHeight={1} variant='h5'>
+                        <Typography color='dojoOrange.main' lineHeight={1} variant='h5'>
                             {newCohort}!
                         </Typography>
                     </Stack>
-                </Box>
+                </Stack>
                 <CohortIcon size={40} cohort={newCohort} skipCache />
             </Stack>
             <Stack
@@ -235,12 +210,22 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                 justifyContent='space-around'
                 gridArea='stats'
             >
-                <RatingStat system={ratingSystem} value={finalRating} />
                 <Stat center label='Start' value={startRating} />
+                <Stat center label='Final' value={finalRating} />
                 <ChangeStat center label='Progress' value={ratingChange} />
             </Stack>
-
-            <Box display='flex' gridArea='chart'>
+            <Stack
+                direction='row'
+                gridArea='system-name'
+                spacing={1.5}
+                alignItems='center'
+            >
+                <RatingSystemIcon system={preferredSystem} />
+                <Typography variant='h6' sx={{ mb: -1 }}>
+                    {formatRatingSystem(preferredSystem)}
+                </Typography>
+            </Stack>
+            <Box display='grid' gridArea='chart'>
                 <Chart
                     options={{
                         data: historyData,

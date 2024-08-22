@@ -1,9 +1,0 @@
-/home/bestieboots/projects/dojo/old/grad/frontend/.env.test.local
-/home/bestieboots/projects/dojo/grad/frontend/.env.test.local
-/home/bestieboots/projects/dojo/heatmap/frontend/.env.test.local
-/home/bestieboots/projects/dojo/merge/frontend/.env.test.local
-/home/bestieboots/projects/dojo/separate-window/frontend/.env.test.local
-/home/bestieboots/projects/dojo/training-plan/frontend/.env.test.local
-/home/bestieboots/projects/dojo/dots/frontend/.env.test.local
-/home/danimal/projects/work/import-redux/frontend/.env.test.local
-/home/danimal/projects/work/old/chess-dojo-scheduler/frontend/.env.test.local
