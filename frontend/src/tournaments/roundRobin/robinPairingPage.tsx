@@ -12,6 +12,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Typography,
 } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -20,6 +21,18 @@ interface Pairing {
     round: number;
     player1: string;
     player2: string;
+}
+
+interface TournamentData {
+    info: string;
+    tournamentname: string;
+    pairs: string[][];
+    message: string;
+    desc: string;
+    crosstable: string[][];
+    crosstableString: string;
+    leaderboard: string[];
+    statusCode: number;
 }
 
 export const cohorts = [
@@ -47,28 +60,13 @@ export const cohorts = [
     { label: '2300-2400', value: 2300 },
 ];
 
-const generateRandomPairings = (): Pairing[] => {
-    const players = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank'];
-    const pairings: Pairing[] = [];
-
-    for (let i = 1; i <= 9; i++) {
-        const shuffledPlayers = players.sort(() => 0.5 - Math.random());
-        for (let j = 0; j < shuffledPlayers.length; j += 2) {
-            pairings.push({
-                round: i,
-                player1: shuffledPlayers[j],
-                player2: shuffledPlayers[j + 1],
-            });
-        }
-    }
-
-    return pairings;
-};
-
 const PairingsPage: React.FC = () => {
     const [selectedCohort, setSelectedCohort] = useState<number>(0);
     const [selectedRound, setSelectedRound] = useState<number>(1);
     const [tournamentIds, setTournamentIds] = useState<string[]>([]);
+    const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
+    const authToken = 'my-token';
+    const endpoint = 'https://vmqy3k7nj8.execute-api.us-east-1.amazonaws.com';
 
     const handleCohortChange = (event: SelectChangeEvent<number>) => {
         setSelectedCohort(Number(event.target.value));
@@ -80,19 +78,12 @@ const PairingsPage: React.FC = () => {
 
     const fetchTournamentIds = async (cohortValue: number) => {
         try {
-            const response = await axios.get(
-                'https://vmqy3k7nj8.execute-api.us-east-1.amazonaws.com/tournamentid',
-                {
-                    headers: {
-                        Authorization: 'my-token',
-                        'cohort-start': cohortValue,
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Headers': '*',
-                        'Access-Control-Allow-Methods': '*',
-                        'Content-Type': 'application/json',
-                    },
+            const response = await axios.get(endpoint + '/tournamentid', {
+                headers: {
+                    Authorization: authToken,
+                    'cohort-start': cohortValue,
                 },
-            );
+            });
 
             const idsString = response.data.id;
             const ids = idsString.replace(/[\[\]]/g, '').split(',');
@@ -103,13 +94,36 @@ const PairingsPage: React.FC = () => {
         }
     };
 
+    const fetchTournamentData = async (id: string) => {
+        try {
+            const response = await axios.get(endpoint + `/info`, {
+                headers: {
+                    Authorization: authToken,
+                    tournamentid: id,
+                },
+            });
+
+            const tournament = response.data as TournamentData;
+            setTournamentData((prevData) => [...prevData, tournament]);
+        } catch (error) {
+            console.error('Error fetching tournament data:', error);
+        }
+    };
+
     useEffect(() => {
         if (selectedCohort !== 0) {
             fetchTournamentIds(selectedCohort);
         }
     }, [selectedCohort]);
 
-    const pairings = generateRandomPairings();
+    useEffect(() => {
+        if (tournamentIds.length > 0) {
+            setTournamentData([]); // Clear previous tournament data
+            tournamentIds.forEach((id) => {
+                fetchTournamentData(id);
+            });
+        }
+    }, [tournamentIds]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -147,34 +161,34 @@ const PairingsPage: React.FC = () => {
                 </FormControl>
             </Box>
 
-            {tournamentIds.length > 0 && (
+            {tournamentData.length > 0 && (
                 <Box sx={{ mb: 3 }}>
-                    <strong>Tournament IDs:</strong> {tournamentIds.join(', ')}
+                    {tournamentData.map((tournament) => (
+                        <div key={tournament.info}>
+                            <Typography variant='h6' fontWeight={'body'}> Name: <Typography> {tournament.tournamentname}</Typography> </Typography>
+                            <Typography variant='body1' fontWeight={'body'}> Description: <Typography> {tournament.desc}</Typography> </Typography>
+                            <TableContainer sx={{ mt: 2 }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Pairings</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {tournament.pairs[selectedRound - 1]?.map(
+                                            (pair, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell>{pair}</TableCell>
+                                                </TableRow>
+                                            ),
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </div>
+                    ))}
                 </Box>
             )}
-
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Round</TableCell>
-                            <TableCell>Player 1</TableCell>
-                            <TableCell>Player 2</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {pairings
-                            .filter((pairing) => pairing.round === selectedRound)
-                            .map((pairing, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{pairing.round}</TableCell>
-                                    <TableCell>{pairing.player1}</TableCell>
-                                    <TableCell>{pairing.player2}</TableCell>
-                                </TableRow>
-                            ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
         </Container>
     );
 };
