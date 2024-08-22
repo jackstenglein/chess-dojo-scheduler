@@ -16,7 +16,7 @@ export const GraduationLinkCard = ({ graduation, to }: GraduationLinkCardProps) 
     const { newCohort, displayName, createdAt: graduatedAt } = graduation;
 
     const dateStr = toDojoDateString(new Date(graduatedAt), undefined);
-    const timeStr = toDojoTimeString(new Date(graduatedAt), undefined);
+    const timeStr = toDojoTimeString(new Date(graduatedAt), undefined, undefined);
 
     return (
         <Grid2 xs={12} sm={6}>
