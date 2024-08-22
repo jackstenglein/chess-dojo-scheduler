@@ -43,7 +43,7 @@ function getChartData(graduation: Graduation): UserSerie<Datum>[] {
     return [{ label: 'Rating', data: ratingHistory }];
 }
 
-function StatLabel({ children, center }: { children: ReactNode; center?: boolean }) {
+function StatLabel({ children }: { children: ReactNode }) {
     return (
         <Typography
             component='span'
@@ -51,7 +51,7 @@ function StatLabel({ children, center }: { children: ReactNode; center?: boolean
             variant='subtitle2'
             color='text.secondary'
             sx={{
-                textAlign: center ? 'center' : 'left',
+                textAlign: 'center',
             }}
         >
             {children}
@@ -59,24 +59,16 @@ function StatLabel({ children, center }: { children: ReactNode; center?: boolean
     );
 }
 
-function Stat({
-    label,
-    value,
-    center,
-}: {
-    label: string;
-    value: number | string;
-    center?: boolean;
-}) {
+function Stat({ label, value }: { label: string; value: number | string }) {
     return (
         <Stack>
-            <StatLabel center={center}>{label}</StatLabel>
+            <StatLabel>{label}</StatLabel>
             <Typography
                 sx={{
                     fontSize: '2.25rem',
                     lineHeight: 1,
                     fontWeight: 'bold',
-                    textAlign: center ? 'center' : 'left',
+                    textAlign: 'center',
                 }}
             >
                 {value}
@@ -85,18 +77,10 @@ function Stat({
     );
 }
 
-function ChangeStat({
-    label,
-    value,
-    center,
-}: {
-    label: string;
-    value: number;
-    center?: boolean;
-}) {
+function ChangeStat({ label, value }: { label: string; value: number }) {
     return (
         <Stack>
-            <StatLabel center={center}>{label}</StatLabel>
+            <StatLabel>{label}</StatLabel>
             <Stack direction='row' alignItems='start'>
                 {value >= 0 ? (
                     <ArrowUpwardIcon
@@ -119,7 +103,7 @@ function ChangeStat({
                 )}
 
                 <Typography
-                    alignContent={center ? 'center' : 'left'}
+                    alignContent='center'
                     sx={{
                         fontSize: '2.25rem',
                         lineHeight: 1,
@@ -210,9 +194,9 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                 justifyContent='space-around'
                 gridArea='stats'
             >
-                <Stat center label='Start' value={startRating} />
-                <Stat center label='Final' value={finalRating} />
-                <ChangeStat center label='Progress' value={ratingChange} />
+                <Stat label='Start' value={startRating} />
+                <Stat label='Final' value={finalRating} />
+                <ChangeStat label='Progress' value={ratingChange} />
             </Stack>
             <Stack
                 direction='row'
@@ -243,8 +227,8 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                 gridArea='dojo'
                 spacing={2}
             >
-                <Stat center label='Dojo Points' value={Math.round(100 * score) / 100} />
-                <Stat center label='Dojo Hours' value={Math.round(10 * hours) / 10} />
+                <Stat label='Dojo Points' value={Math.round(100 * score) / 100} />
+                <Stat label='Dojo Hours' value={Math.round(10 * hours) / 10} />
                 <Stack
                     display='flex'
                     alignItems='center'
