@@ -18,6 +18,8 @@ export const EnvSchema = z.object({
     }),
     api: z.object({
         baseUrl: z.string(),
+        roundRobinUrl: z.string(),
+        roundRobinAuthToken: z.string(),
     }),
     media: z.object({
         picturesBucket: z.string(),
@@ -39,6 +41,7 @@ export function getConfig(): Config {
             region: process.env.NEXT_PUBLIC_AUTH_REGION,
             userPoolId: process.env.NEXT_PUBLIC_AUTH_USER_POOL_ID,
             userPoolWebClientId: process.env.NEXT_PUBLIC_AUTH_USER_POOL_WEB_CLIENT_ID,
+            
             oauth: {
                 domain: process.env.NEXT_PUBLIC_AUTH_OAUTH_DOMAIN,
                 scope: process.env.NEXT_PUBLIC_AUTH_OAUTH_SCOPES,
@@ -49,6 +52,8 @@ export function getConfig(): Config {
         },
         api: {
             baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+            roundRobinUrl: process.env.NEXT_ROUND_ROBIN_API,
+            roundRobinAuthToken: process.env.NEXT_ROUND_ROBIN_AUTH,
         },
         media: {
             picturesBucket: process.env.NEXT_PUBLIC_MEDIA_PICTURES_BUCKET,

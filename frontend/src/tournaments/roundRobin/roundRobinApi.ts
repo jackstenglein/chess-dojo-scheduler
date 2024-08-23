@@ -1,5 +1,6 @@
-import axios from "axios";
 
+import axios from "axios";
+import {getConfig } from "@/config";
 
 export interface TournamentData {
     info: string;
@@ -14,7 +15,7 @@ export interface TournamentData {
 }
 
 export const cohorts = [
-    { label: '0-300', value: 0 },
+    { label: '0-300', value: 0},
     { label: '300-400', value: 300 },
     { label: '400-500', value: 400 },
     { label: '500-600', value: 500 },
@@ -38,16 +39,18 @@ export const cohorts = [
     { label: '2300-2400', value: 2300 },
 ];
 
-const authToken = 'my-token'; 
-const endpoint = 'https://vmqy3k7nj8.execute-api.us-east-1.amazonaws.com';
+const authToken = getConfig().api.roundRobinAuthToken; 
+const endpoint = getConfig().api.roundRobinUrl;
 
 export const fetchTournamentIds = async (cohortValue: number): Promise<string[]> => {
     try {
         const response = await axios.get(endpoint + '/tournamentid', {
             headers: {
                 Authorization: authToken,
-                'cohort-start': cohortValue,
             },
+            params: {
+              'cohort-start': cohortValue,
+            }
         });
 
         const idsString = response.data.id;
@@ -65,8 +68,10 @@ export const fetchTournamentData = async (id: string): Promise<TournamentData> =
         const response = await axios.get(endpoint + `/info`, {
             headers: {
                 Authorization: authToken,
-                tournamentid: id,
             },
+            params: {
+                tournamentid: id,
+            }
         });
 
         return response.data as TournamentData;

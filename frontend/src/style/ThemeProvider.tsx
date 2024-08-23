@@ -147,7 +147,7 @@ const defaultPalette = {
     }),
     dullGrey: defaultTheme.palette.augmentColor({
         color: {
-           main: '#FFFFFF', 
+           main: '#E8E8E8', 
         },
         name: 'dullGrey',
     })

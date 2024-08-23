@@ -1,3 +1,4 @@
+import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Box,
     Card,
@@ -67,6 +68,12 @@ const PairingsPage: React.FC = () => {
                     >
                         {cohorts.map((cohort) => (
                             <MenuItem key={cohort.value} value={cohort.value}>
+                                <CohortIcon
+                                    cohort={cohort.label}
+                                    sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                                    tooltip=''
+                                    size={25}
+                                />{' '}
                                 {cohort.label}
                             </MenuItem>
                         ))}

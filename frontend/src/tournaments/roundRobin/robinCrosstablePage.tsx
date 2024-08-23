@@ -1,5 +1,7 @@
+import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Box,
+    Card,
     Container,
     FormControl,
     InputLabel,
@@ -12,18 +14,20 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Card,
     Typography,
 } from '@mui/material';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { cohorts, TournamentData, fetchTournamentData, fetchTournamentIds } from './roundRobinApi';
+import {
+    cohorts,
+    fetchTournamentData,
+    fetchTournamentIds,
+    TournamentData,
+} from './roundRobinApi';
 
 const Crosstable: React.FC = () => {
     const [selectedCohort, setSelectedCohort] = useState<number>(0);
     const [tournamentIds, setTournamentIds] = useState<string[]>([]);
     const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
-   
 
     const handleCohortChange = (event: SelectChangeEvent<number>) => {
         setSelectedCohort(Number(event.target.value));
@@ -31,7 +35,9 @@ const Crosstable: React.FC = () => {
 
     useEffect(() => {
         if (selectedCohort !== 0) {
-            fetchTournamentIds(selectedCohort).then(setTournamentIds).catch(console.error);
+            fetchTournamentIds(selectedCohort)
+                .then(setTournamentIds)
+                .catch(console.error);
         }
     }, [selectedCohort]);
 
@@ -72,6 +78,12 @@ const Crosstable: React.FC = () => {
                     >
                         {cohorts.map((cohort) => (
                             <MenuItem key={cohort.value} value={cohort.value}>
+                                <CohortIcon
+                                    cohort={cohort.label}
+                                    sx={{ marginRight: '0.6em', verticalAlign: 'middle' }}
+                                    tooltip=''
+                                    size={25}
+                                />{' '}
                                 {cohort.label}
                             </MenuItem>
                         ))}
@@ -79,8 +91,6 @@ const Crosstable: React.FC = () => {
                 </FormControl>
             </Box>
 
-            
-            
             {tournamentData.length > 0 && (
                 <Box sx={{ mb: 3 }}>
                     {tournamentData.map((tournament, idx) => (
@@ -90,13 +100,20 @@ const Crosstable: React.FC = () => {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>
-                                                <Typography variant='h6' textAlign={'left'}>
+                                                <Typography
+                                                    variant='h6'
+                                                    textAlign={'left'}
+                                                >
                                                     {tournament.tournamentname} Crosstable
                                                 </Typography>
                                             </TableCell>
-                                            {tournament.leaderboard.map((player, index) => (
-                                                <TableCell key={index}>{player}</TableCell>
-                                            ))}
+                                            {tournament.leaderboard.map(
+                                                (player, index) => (
+                                                    <TableCell key={index}>
+                                                        {player}
+                                                    </TableCell>
+                                                ),
+                                            )}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -124,4 +141,3 @@ const Crosstable: React.FC = () => {
 };
 
 export default Crosstable;
-
