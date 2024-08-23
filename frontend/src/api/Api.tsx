@@ -356,11 +356,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 setRequirement(idToken, requirement),
 
             listGraduationsByCohort: (cohort: string, startKey?: string) =>
-                listGraduationsByCohort(idToken, cohort, startKey),
+                listGraduationsByCohort(cohort, startKey),
             listGraduationsByOwner: (username: string, startKey?: string) =>
-                listGraduationsByOwner(idToken, username, startKey),
-            listGraduationsByDate: (startKey?: string) =>
-                listGraduationsByDate(idToken, startKey),
+                listGraduationsByOwner(username, startKey),
+            listGraduationsByDate: (startKey?: string) => listGraduationsByDate(startKey),
 
             getCourse: (type: string, id: string, checkoutId?: string) =>
                 getCourse(idToken, type, id, checkoutId),
