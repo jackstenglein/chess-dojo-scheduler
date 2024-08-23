@@ -1,5 +1,7 @@
+import { useApi } from '@/api/Api';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import {
+    Badge,
     Button,
     Container,
     Divider,
@@ -18,7 +20,7 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar } from '../../api/Request';
 import { useFreeTier } from '../../auth/Auth';
@@ -148,6 +150,22 @@ const ListGamesPage = () => {
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [upsellAction, setUpsellAction] = useState('');
     const type = useSearchParams()[0].get('type') || '';
+    const api = useApi();
+    const [reviewQueueLabel, setReviewQueueLabel] = useState('');
+
+    useEffect(() => {
+        api.listGamesForReview()
+            .then((resp) => {
+                if (resp.data.games.length > 0) {
+                    setReviewQueueLabel(
+                        `${resp.data.games.length}${resp.data.lastEvaluatedKey ? '+' : ''}`,
+                    );
+                }
+            })
+            .catch((err) => {
+                console.error('listGamesForReview: ', err);
+            });
+    }, [setReviewQueueLabel, api]);
 
     const columns = useMemo(() => {
         let columns = gameTableColumns;
@@ -308,19 +326,34 @@ const ListGamesPage = () => {
                         />
 
                         <Stack spacing={0.5}>
-                            <Typography variant='body2' alignSelf='start'>
-                                <Link component={RouterLink} to='/games/review-queue'>
-                                    <Icon
-                                        name='line'
-                                        color='primary'
+                            <Stack direction='row' spacing={1}>
+                                <Typography variant='body2' alignSelf='start'>
+                                    <Link component={RouterLink} to='/games/review-queue'>
+                                        <Icon
+                                            name='line'
+                                            color='primary'
+                                            sx={{
+                                                marginRight: '0.5rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                        />
+                                        Sensei Game Review Queue
+                                    </Link>
+                                </Typography>
+
+                                {reviewQueueLabel && (
+                                    <Badge
+                                        badgeContent={reviewQueueLabel}
+                                        color='secondary'
                                         sx={{
-                                            marginRight: '0.5rem',
-                                            verticalAlign: 'middle',
+                                            '& .MuiBadge-badge': {
+                                                transform: 'none',
+                                                position: 'relative',
+                                            },
                                         }}
-                                    />
-                                    Sensei Game Review Queue
-                                </Link>
-                            </Typography>
+                                    ></Badge>
+                                )}
+                            </Stack>
 
                             <Typography
                                 data-cy='download-database-button'
@@ -346,7 +379,7 @@ const ListGamesPage = () => {
                                             verticalAlign: 'middle',
                                         }}
                                     />
-                                    Download full database (updated every 24 hours)
+                                    Download full database (updated daily)
                                 </Link>
                             </Typography>
                         </Stack>
