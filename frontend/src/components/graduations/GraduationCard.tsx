@@ -195,8 +195,8 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                 gridArea='stats'
             >
                 <Stat label='Start' value={startRating} />
-                <Stat label='Final' value={finalRating} />
                 <ChangeStat label='Progress' value={ratingChange} />
+                <Stat label='Graduation' value={finalRating} />
             </Stack>
             <Stack
                 direction='row'
