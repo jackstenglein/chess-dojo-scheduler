@@ -12,36 +12,52 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Card,
+    Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { cohorts } from './robinPairingPage';
-interface PlayerResult {
-    player: string;
-    scores: number[];
-    total: number;
-}
-
-const generateRandomCrosstableData = (): PlayerResult[] => {
-    const players = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank'];
-    const playerCount = players.length;
-    const results: PlayerResult[] = players.map((player) => {
-        const scores = Array.from({ length: playerCount }, () =>
-            Math.floor(Math.random() * 2),
-        ); // 0, 0.5, or 1
-        const total = scores.reduce((acc, score) => acc + score, 0);
-        return { player, scores, total };
-    });
-    return results;
-};
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { cohorts, TournamentData, fetchTournamentData, fetchTournamentIds } from './roundRobinApi';
 
 const Crosstable: React.FC = () => {
     const [selectedCohort, setSelectedCohort] = useState<number>(0);
+    const [tournamentIds, setTournamentIds] = useState<string[]>([]);
+    const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
+   
 
     const handleCohortChange = (event: SelectChangeEvent<number>) => {
         setSelectedCohort(Number(event.target.value));
     };
 
-    const crosstableData = generateRandomCrosstableData();
+    useEffect(() => {
+        if (selectedCohort !== 0) {
+            fetchTournamentIds(selectedCohort).then(setTournamentIds).catch(console.error);
+        }
+    }, [selectedCohort]);
+
+    useEffect(() => {
+        if (tournamentIds.length > 0) {
+            setTournamentData([]); // Clear previous tournament data
+            Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
+                .then(setTournamentData)
+                .catch(console.error);
+        }
+    }, [tournamentIds]);
+
+    useEffect(() => {
+        if (selectedCohort !== 0) {
+            fetchTournamentIds(selectedCohort);
+        }
+    }, [selectedCohort]);
+
+    useEffect(() => {
+        if (tournamentIds.length > 0) {
+            setTournamentData([]); // Clear previous tournament data
+            tournamentIds.forEach((id) => {
+                fetchTournamentData(id);
+            });
+        }
+    }, [tournamentIds]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -63,32 +79,49 @@ const Crosstable: React.FC = () => {
                 </FormControl>
             </Box>
 
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Player</TableCell>
-                            {crosstableData.map((result, index) => (
-                                <TableCell key={index}>{result.player}</TableCell>
-                            ))}
-                            <TableCell>Total</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {crosstableData.map((result, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{result.player}</TableCell>
-                                {result.scores.map((score, scoreIndex) => (
-                                    <TableCell key={scoreIndex}>{score}</TableCell>
-                                ))}
-                                <TableCell>{result.total}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+            
+            
+            {tournamentData.length > 0 && (
+                <Box sx={{ mb: 3 }}>
+                    {tournamentData.map((tournament, idx) => (
+                        <div key={idx}>
+                            <TableContainer sx={{ mt: 2 }} component={Card}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>
+                                                <Typography variant='h6' textAlign={'left'}>
+                                                    {tournament.tournamentname} Crosstable
+                                                </Typography>
+                                            </TableCell>
+                                            {tournament.leaderboard.map((player, index) => (
+                                                <TableCell key={index}>{player}</TableCell>
+                                            ))}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {tournament.crosstable.map((row, rowIndex) => (
+                                            <TableRow key={rowIndex}>
+                                                <TableCell>
+                                                    {tournament.leaderboard[rowIndex]}
+                                                </TableCell>
+                                                {row.map((result, colIndex) => (
+                                                    <TableCell key={colIndex}>
+                                                        {result}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </div>
+                    ))}
+                </Box>
+            )}
         </Container>
     );
 };
 
 export default Crosstable;
+
