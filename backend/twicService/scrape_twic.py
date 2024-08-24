@@ -182,12 +182,12 @@ def read_zip_pgn(file, archive_num):
     
     foundMoves = False
     while line := read_zip_line(file, archive_num):
+        pgn += line
+
         if foundMoves and is_pgn_end(line, pgn):
             break
         elif line == '\n' or line == '\r\n':
             foundMoves = True
-
-        pgn += line
     
     return pgn
 
@@ -203,7 +203,6 @@ def is_pgn_end(line, pgn):
     
     line = line.strip()
     if line.endswith('1-0') or line.endswith('0-1') or line.endswith('1/2-1/2') or line.endswith('*'):
-        pgn += line
         return True
     
     return False

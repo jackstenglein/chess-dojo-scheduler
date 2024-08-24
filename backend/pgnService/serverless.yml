@@ -47,7 +47,7 @@ functions:
         Resource: !If
           - IsProd
           - - !GetAtt ExplorerTable.Arn
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
           - !GetAtt ExplorerTable.Arn
 
   notifyFollowers:
@@ -89,7 +89,7 @@ functions:
         Resource: !If
           - IsProd
           - - !GetAtt ExplorerTable.Arn
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
           - !GetAtt ExplorerTable.Arn
 
   listGamesByPosition:
@@ -108,7 +108,7 @@ functions:
         Resource: !If
           - IsProd
           - - !GetAtt ExplorerTable.Arn
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
           - !GetAtt ExplorerTable.Arn
 
   followPosition:
