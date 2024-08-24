@@ -21,17 +21,15 @@ var repository = database.DynamoDB
 
 var now = time.Now()
 
-type ratingFetchFunc func(username string) (int, error)
-
 type isBannedFunc func(username string) bool
 
-func updateRating(rating *database.Rating, systemName string, fetcher ratingFetchFunc) bool {
+func updateRating(rating *database.Rating, systemName string, fetcher ratings.RatingFetchFunc) bool {
 	rating.Username = strings.TrimSpace(rating.Username)
 	if rating.Username == "" {
 		return false
 	}
 
-	currentRating, err := fetcher(rating.Username)
+	data, err := fetcher(rating.Username)
 	if err != nil {
 		log.Errorf("Failed to get %s rating for %q: %v", systemName, rating.Username, err)
 		return false
@@ -39,20 +37,22 @@ func updateRating(rating *database.Rating, systemName string, fetcher ratingFetc
 
 	shouldUpdate := false
 
-	if currentRating != rating.CurrentRating {
-		rating.CurrentRating = currentRating
+	if data.CurrentRating != rating.CurrentRating || data.Deviation != rating.Deviation || data.NumGames != rating.NumGames {
+		rating.CurrentRating = data.CurrentRating
+		rating.Deviation = data.Deviation
+		rating.NumGames = data.NumGames
 		shouldUpdate = true
 	}
 
 	if rating.StartRating == 0 {
-		rating.StartRating = currentRating
+		rating.StartRating = data.CurrentRating
 		shouldUpdate = true
 	}
 
 	return shouldUpdate
 }
 
-func updateIfNecessary(user *database.User, queuedUpdates []*database.User, ratingFetchFuncs map[database.RatingSystem]ratingFetchFunc, isBannedLichess isBannedFunc) (*database.User, []*database.User) {
+func updateIfNecessary(user *database.User, queuedUpdates []*database.User, ratingFetchFuncs map[database.RatingSystem]ratings.RatingFetchFunc, isBannedLichess isBannedFunc) (*database.User, []*database.User) {
 	shouldUpdate := false
 
 	for system, rating := range user.Ratings {
@@ -115,11 +115,15 @@ func updateUsers(users []*database.User) {
 		log.Error(err)
 	}
 
-	fetchLichessRating := func(username string) (int, error) {
+	fetchLichessRating := func(username string) (*database.Rating, error) {
 		if rating, ok := lichessRatings[strings.ToLower(username)]; !ok {
-			return 0, errors.New("no Lichess rating found in cache")
+			return nil, errors.New("no Lichess rating found in cache")
 		} else {
-			return rating.Performances.Classical.Rating, nil
+			return &database.Rating{
+				CurrentRating: rating.Performances.Classical.Rating,
+				Deviation:     rating.Performances.Classical.Deviation,
+				NumGames:      rating.Performances.Classical.NumGames,
+			}, nil
 		}
 	}
 
@@ -131,7 +135,7 @@ func updateUsers(users []*database.User) {
 		}
 	}
 
-	ratingFetchFuncs := map[database.RatingSystem]ratingFetchFunc{
+	ratingFetchFuncs := map[database.RatingSystem]ratings.RatingFetchFunc{
 		database.Chesscom: ratings.FetchChesscomRating,
 		database.Lichess:  fetchLichessRating,
 		database.Fide:     ratings.FetchFideRating,

@@ -19,13 +19,21 @@ import (
 
 var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
 var uscfRegexp, _ = regexp.Compile(`<input type=text name=rating1 size=20 readonly maxlength=20 tabindex=120 value='(\d+)`)
+var uscfGameCountRegexp, _ = regexp.Compile(`<tr><td></td><td><b>(\d+)`)
 var acfRegexp, _ = regexp.Compile(`Current Rating:\s*</div>\s*<div id="stats-box-data-col">\s*[-\d]*\s*</div>\s*<div id="stats-box-data-col">\s*(\d+)`)
 
 type ChesscomResponse struct {
 	Rapid struct {
 		Last struct {
-			Rating int `json:"rating"`
+			Rating    int `json:"rating"`
+			Deviation int `json:"rd"`
 		} `json:"last"`
+
+		Record struct {
+			Wins   int `json:"win"`
+			Losses int `json:"loss"`
+			Draws  int `json:"draw"`
+		} `json:"record"`
 	} `json:"chess_rapid"`
 }
 
@@ -35,7 +43,9 @@ type LichessResponse struct {
 
 	Performances struct {
 		Classical struct {
-			Rating int `json:"rating"`
+			Rating    int `json:"rating"`
+			NumGames  int `json:"games"`
+			Deviation int `json:"rd"`
 		} `json:"classical"`
 	} `json:"perfs"`
 
@@ -52,7 +62,7 @@ type CfcResponse struct {
 	} `json:"player"`
 }
 
-type RatingFetchFunc func(username string) (int, error)
+type RatingFetchFunc func(username string) (*database.Rating, error)
 
 var RatingFetchFuncs map[database.RatingSystem]RatingFetchFunc = map[database.RatingSystem]RatingFetchFunc{
 	database.Chesscom: FetchChesscomRating,
@@ -66,48 +76,59 @@ var RatingFetchFuncs map[database.RatingSystem]RatingFetchFunc = map[database.Ra
 	database.Knsb:     FetchKnsbRating,
 }
 
-func FetchChesscomRating(chesscomUsername string) (int, error) {
+func FetchChesscomRating(chesscomUsername string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://api.chess.com/pub/player/%s/stats", chesscomUsername))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to get chess.com stats", err)
-		return 0, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: chess.com returned status `%d` for given player", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	var rating ChesscomResponse
 	err = json.NewDecoder(resp.Body).Decode(&rating)
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read chess.com response", err)
-		return 0, err
+		return nil, err
 	}
 
-	return rating.Rapid.Last.Rating, nil
+	dojoRating := &database.Rating{
+		CurrentRating: rating.Rapid.Last.Rating,
+		Deviation:     rating.Rapid.Last.Deviation,
+		NumGames:      rating.Rapid.Record.Wins + rating.Rapid.Record.Draws + rating.Rapid.Record.Losses,
+	}
+
+	return dojoRating, nil
 }
 
-func FetchLichessRating(lichessUsername string) (int, error) {
+func FetchLichessRating(lichessUsername string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://lichess.org/api/user/%s", lichessUsername))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to get lichess stats", err)
-		return 0, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: lichess returned status `%d` for given player", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	var rating LichessResponse
 	err = json.NewDecoder(resp.Body).Decode(&rating)
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read lichess response", err)
-		return 0, err
+		return nil, err
 	}
 
-	return rating.Performances.Classical.Rating, nil
+	dojoRating := &database.Rating{
+		CurrentRating: rating.Performances.Classical.Rating,
+		Deviation:     rating.Performances.Classical.Deviation,
+		NumGames:      rating.Performances.Classical.NumGames,
+	}
+	return dojoRating, nil
 }
 
 func FetchBulkLichessRatings(lichessUsernames []string) (map[string]LichessResponse, error) {
@@ -151,177 +172,203 @@ func findRating(body []byte, regex *regexp.Regexp) (int, error) {
 	return rating, nil
 }
 
-func FetchFideRating(fideId string) (int, error) {
+func FetchFideRating(fideId string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://ratings.fide.com/profile/%s", fideId))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to get Fide page", err)
-		return 0, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: FIDE returned status `%d` for given ID", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	b, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read FIDE response", err)
-		return 0, err
+		return nil, err
 	}
 
 	rating, err := findRating(b, fideRegexp)
 	if err != nil {
-		return 0, errors.Wrap(400, fmt.Sprintf("Invalid FIDE id `%s`: no rating found on FIDE website", fideId), "", err)
+		return nil, errors.Wrap(400, fmt.Sprintf("Invalid FIDE id `%s`: no rating found on FIDE website", fideId), "", err)
 	}
-	return rating, nil
+	return &database.Rating{CurrentRating: rating}, nil
 }
 
-func FetchUscfRating(uscfId string) (int, error) {
+func FetchUscfRating(uscfId string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://www.uschess.org/msa/thin3.php?%s", uscfId))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to get lichess stats", err)
-		return 0, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: USCF returned status `%d` for given ID", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	b, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read USCF response", err)
-		return 0, err
+		return nil, err
 	}
 
 	rating, err := findRating(b, uscfRegexp)
 	if err != nil {
 		if bytes.Contains(b, []byte("Non-Member")) {
 			err := errors.New(404, "Invalid request: the given USCF ID does not exist", "")
-			return 0, err
+			return nil, err
 		}
-		return 0, errors.Wrap(400, fmt.Sprintf("Invalid USCF id `%s`: no rating found on USCF website", uscfId), "", err)
+		return nil, errors.Wrap(400, fmt.Sprintf("Invalid USCF id `%s`: no rating found on USCF website", uscfId), "", err)
 	}
-	return rating, nil
+
+	dojoRating := &database.Rating{CurrentRating: rating}
+
+	resp, err = http.Get(fmt.Sprintf("https://www.uschess.org/datapage/gamestats.php?memid=%s", uscfId))
+	if err != nil {
+		log.Errorf("Failed to get USCF game stats for ID %s: %v", uscfId, err)
+		return dojoRating, nil
+	}
+	if resp.StatusCode != 200 {
+		log.Errorf("Invalid request: USCF game stats returned status `%d` for ID %s", resp.StatusCode, uscfId)
+		return dojoRating, nil
+	}
+	b, err = io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		log.Errorf("Failed to read USCF game stats response for ID %s: %v", uscfId, err)
+		return dojoRating, nil
+	}
+
+	gameCount, err := findRating(b, uscfGameCountRegexp)
+	if err != nil {
+		log.Errorf("Failed to find game count for USCF ID %s: %v", uscfId, err)
+		return dojoRating, nil
+	}
+
+	dojoRating.NumGames = gameCount
+	return dojoRating, nil
 }
 
-func FetchEcfRating(ecfId string) (int, error) {
+func FetchEcfRating(ecfId string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://www.ecfrating.org.uk/v2/new/api.php?v2/ratings/S/%s/%s", ecfId, time.Now().Format(time.DateOnly)))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed call to ECF API", err)
-		return 0, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: ECF API returned status `%d`", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	var rating EcfResponse
 	if err := json.NewDecoder(resp.Body).Decode(&rating); err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to parse ECF API response", err)
-		return 0, err
+		return nil, err
 	}
 
-	return rating.Rating, nil
+	return &database.Rating{CurrentRating: rating.Rating}, nil
 }
 
-func FetchCfcRating(cfcId string) (int, error) {
+func FetchCfcRating(cfcId string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://server.chess.ca/api/player/v1/%s", cfcId))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed call to CFC API", err)
-		return 0, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: CFC API returned status `%d`", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	var r CfcResponse
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to parse CFC API response", err)
-		return 0, err
+		return nil, err
 	}
-	return r.Player.Rating, nil
+	return &database.Rating{CurrentRating: r.Player.Rating}, nil
 }
 
-func FetchDwzRating(dwzId string) (int, error) {
+func FetchDwzRating(dwzId string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://www.schachbund.de/php/dewis/spieler.php?pkz=%s", dwzId))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed call to DWZ API", err)
-		return 0, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: DWZ API returned status `%d`", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	b, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read DWZ response", err)
-		return 0, err
+		return nil, err
 	}
 
 	const ratingIndex = 13
 	tokens := strings.Split(string(b), "|")
 	if ratingIndex >= len(tokens) {
 		err = errors.New(400, "Invalid request: DWZ API did not return a rating", fmt.Sprintf("ratingIndex out of bounds for tokens %v", tokens))
-		return 0, err
+		return nil, err
 	}
 
 	rating, err := strconv.Atoi(tokens[ratingIndex])
 	if err != nil {
-		return 0, errors.Wrap(400, fmt.Sprintf("Invalid request: DWZ API returned rating `%s` which cannot be converted to integer", tokens[14]), "", err)
+		return nil, errors.Wrap(400, fmt.Sprintf("Invalid request: DWZ API returned rating `%s` which cannot be converted to integer", tokens[14]), "", err)
 	}
-	return rating, nil
+	return &database.Rating{CurrentRating: rating}, nil
 }
 
-func FetchAcfRating(acfId string) (int, error) {
+func FetchAcfRating(acfId string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://sachess.org.au/ratings/player?id=%s", acfId))
 	if err != nil {
-		return 0, errors.Wrap(500, "Temporary server error", "Failed to fetch ACF site", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to fetch ACF site", err)
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: ACF site returned status `%d`", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	b, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read ACF response", err)
-		return 0, err
+		return nil, err
 	}
 
 	rating, err := findRating(b, acfRegexp)
 	if err != nil {
-		return 0, errors.Wrap(400, fmt.Sprintf("Invalid ACF id `%s`: no rating found on ACF website", acfId), "", err)
+		return nil, errors.Wrap(400, fmt.Sprintf("Invalid ACF id `%s`: no rating found on ACF website", acfId), "", err)
 	}
-	return rating, nil
+	return &database.Rating{CurrentRating: rating}, nil
 }
 
-func FetchKnsbRating(knsbId string) (int, error) {
+func FetchKnsbRating(knsbId string) (*database.Rating, error) {
 	resp, err := http.Get(fmt.Sprintf("https://ratingviewer.nl/metrics/getByName/%s/Rating-S.json", knsbId))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed call to KNSB API", err)
-		return 0, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		err = errors.New(400, fmt.Sprintf("Invalid request: KNSB API returned status `%d`", resp.StatusCode), "")
-		return 0, err
+		return nil, err
 	}
 
 	var r map[string]int
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to parse KNSB API response", err)
-		return 0, err
+		return nil, err
 	}
 
 	var keys = make([]string, 0, len(r))
@@ -330,5 +377,5 @@ func FetchKnsbRating(knsbId string) (int, error) {
 	}
 	slices.Sort(keys)
 
-	return r[keys[len(keys)-1]], nil
+	return &database.Rating{CurrentRating: r[keys[len(keys)-1]]}, nil
 }
