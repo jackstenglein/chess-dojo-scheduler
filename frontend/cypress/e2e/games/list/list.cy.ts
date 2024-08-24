@@ -24,7 +24,7 @@ describe('List Games Page', () => {
     });
 
     it('has link to full database', () => {
-        cy.contains('Download full database (updated every 24 hours)').should(
+        cy.contains('Download full database (updated daily)').should(
             'have.attr',
             'href',
             'https://chess-dojo-prod-game-database.s3.amazonaws.com/dojo_database.zip',
@@ -36,7 +36,7 @@ describe('List Games Page', () => {
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/games');
 
-        cy.contains('Download full database (updated every 24 hours)').should(
+        cy.contains('Download full database (updated daily)').should(
             'not.have.attr',
             'href',
         );
