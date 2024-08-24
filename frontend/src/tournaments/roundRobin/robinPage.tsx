@@ -5,9 +5,9 @@ import {
 } from '@mui/icons-material';
 import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { useState } from 'react';
-import Crosstable from './robinCrosstablePage';
-import InfoPage from './robinInfoPage';
-import PairingsPage from './robinPairingPage';
+import Crosstable from './CrosstablePage';
+import InfoPage from './InfoPage';
+import PairingsPage from './PairingPage';
 
 const TabPanel: React.FC<{
     children?: React.ReactNode;

@@ -24,14 +24,11 @@ import {
     TournamentData,
 } from './roundRobinApi';
 
-const Crosstable: React.FC = () => {
+const PairingsPage: React.FC = () => {
     const [selectedCohort, setSelectedCohort] = useState<number>(0);
+    const [selectedRound, setSelectedRound] = useState<number>(1);
     const [tournamentIds, setTournamentIds] = useState<string[]>([]);
     const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
-
-    const handleCohortChange = (event: SelectChangeEvent<number>) => {
-        setSelectedCohort(Number(event.target.value));
-    };
 
     useEffect(() => {
         if (selectedCohort !== 0) {
@@ -43,27 +40,22 @@ const Crosstable: React.FC = () => {
 
     useEffect(() => {
         if (tournamentIds.length > 0) {
-            setTournamentData([]); // Clear previous tournament data
+            setTournamentData([]);
             Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
                 .then(setTournamentData)
                 .catch(console.error);
         }
     }, [tournamentIds]);
 
-    useEffect(() => {
-        if (selectedCohort !== 0) {
-            fetchTournamentIds(selectedCohort);
-        }
-    }, [selectedCohort]);
+    const handleCohortChange = (event: SelectChangeEvent<number>) => {
+        setSelectedCohort(Number(event.target.value));
+    };
 
-    useEffect(() => {
-        if (tournamentIds.length > 0) {
-            setTournamentData([]); // Clear previous tournament data
-            tournamentIds.forEach((id) => {
-                fetchTournamentData(id);
-            });
-        }
-    }, [tournamentIds]);
+    const handleRoundChange = (event: SelectChangeEvent<number>) => {
+        setSelectedRound(Number(event.target.value));
+    };
+
+    
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -89,12 +81,28 @@ const Crosstable: React.FC = () => {
                         ))}
                     </Select>
                 </FormControl>
+
+                <FormControl fullWidth>
+                    <InputLabel id='round-selector-label'>Select Round</InputLabel>
+                    <Select
+                        labelId='round-selector-label'
+                        value={selectedRound}
+                        onChange={handleRoundChange}
+                        label='Select Round'
+                    >
+                        {[...Array(9).keys()].map((round) => (
+                            <MenuItem key={round + 1} value={round + 1}>
+                                Round {round + 1}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Box>
 
             {tournamentData.length > 0 && (
                 <Box sx={{ mb: 3 }}>
-                    {tournamentData.map((tournament, idx) => (
-                        <div key={idx}>
+                    {tournamentData.map((tournament) => (
+                        <div key={tournament.info}>
                             <TableContainer sx={{ mt: 2 }} component={Card}>
                                 <Table>
                                     <TableHead>
@@ -104,31 +112,25 @@ const Crosstable: React.FC = () => {
                                                     variant='h6'
                                                     textAlign={'left'}
                                                 >
-                                                    {tournament.tournamentname} Crosstable
+                                                    {' '}
+                                                    {tournament.tournamentname}{' '}
+                                                    {' Tournament Pairings'}{' '}
                                                 </Typography>
                                             </TableCell>
-                                            {tournament.leaderboard.map(
-                                                (player, index) => (
-                                                    <TableCell key={index}>
-                                                        {player}
-                                                    </TableCell>
-                                                ),
-                                            )}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {tournament.crosstable.map((row, rowIndex) => (
-                                            <TableRow key={rowIndex}>
-                                                <TableCell>
-                                                    {tournament.leaderboard[rowIndex]}
-                                                </TableCell>
-                                                {row.map((result, colIndex) => (
-                                                    <TableCell key={colIndex}>
-                                                        {result}
+                                        {tournament.pairs[selectedRound - 1]?.map(
+                                            (pair, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell>
+                                                        <Typography textAlign={'left'}>
+                                                            {pair.replaceAll('**', '')}
+                                                        </Typography>
                                                     </TableCell>
-                                                ))}
-                                            </TableRow>
-                                        ))}
+                                                </TableRow>
+                                            ),
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
@@ -140,4 +142,4 @@ const Crosstable: React.FC = () => {
     );
 };
 
-export default Crosstable;
+export default PairingsPage;

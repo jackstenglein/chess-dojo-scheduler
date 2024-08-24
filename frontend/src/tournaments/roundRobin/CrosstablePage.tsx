@@ -24,19 +24,10 @@ import {
     TournamentData,
 } from './roundRobinApi';
 
-const PairingsPage: React.FC = () => {
+const Crosstable: React.FC = () => {
     const [selectedCohort, setSelectedCohort] = useState<number>(0);
-    const [selectedRound, setSelectedRound] = useState<number>(1);
     const [tournamentIds, setTournamentIds] = useState<string[]>([]);
     const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
-
-    const handleCohortChange = (event: SelectChangeEvent<number>) => {
-        setSelectedCohort(Number(event.target.value));
-    };
-
-    const handleRoundChange = (event: SelectChangeEvent<number>) => {
-        setSelectedRound(Number(event.target.value));
-    };
 
     useEffect(() => {
         if (selectedCohort !== 0) {
@@ -48,13 +39,19 @@ const PairingsPage: React.FC = () => {
 
     useEffect(() => {
         if (tournamentIds.length > 0) {
-            setTournamentData([]);
+            setTournamentData([]); // Clear previous tournament data
             Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
                 .then(setTournamentData)
                 .catch(console.error);
         }
     }, [tournamentIds]);
 
+
+    const handleCohortChange = (event: SelectChangeEvent<number>) => {
+        setSelectedCohort(Number(event.target.value));
+    };
+
+   
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
             <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
@@ -79,28 +76,12 @@ const PairingsPage: React.FC = () => {
                         ))}
                     </Select>
                 </FormControl>
-
-                <FormControl fullWidth>
-                    <InputLabel id='round-selector-label'>Select Round</InputLabel>
-                    <Select
-                        labelId='round-selector-label'
-                        value={selectedRound}
-                        onChange={handleRoundChange}
-                        label='Select Round'
-                    >
-                        {[...Array(9).keys()].map((round) => (
-                            <MenuItem key={round + 1} value={round + 1}>
-                                Round {round + 1}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
             </Box>
 
             {tournamentData.length > 0 && (
                 <Box sx={{ mb: 3 }}>
-                    {tournamentData.map((tournament) => (
-                        <div key={tournament.info}>
+                    {tournamentData.map((tournament, idx) => (
+                        <div key={idx}>
                             <TableContainer sx={{ mt: 2 }} component={Card}>
                                 <Table>
                                     <TableHead>
@@ -110,25 +91,31 @@ const PairingsPage: React.FC = () => {
                                                     variant='h6'
                                                     textAlign={'left'}
                                                 >
-                                                    {' '}
-                                                    {tournament.tournamentname}{' '}
-                                                    {' Tournament Pairings'}{' '}
+                                                    {tournament.tournamentname} Crosstable
                                                 </Typography>
                                             </TableCell>
+                                            {tournament.leaderboard.map(
+                                                (player, index) => (
+                                                    <TableCell key={index}>
+                                                        {player}
+                                                    </TableCell>
+                                                ),
+                                            )}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {tournament.pairs[selectedRound - 1]?.map(
-                                            (pair, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell>
-                                                        <Typography textAlign={'left'}>
-                                                            {pair.replaceAll('**', '')}
-                                                        </Typography>
+                                        {tournament.crosstable.map((row, rowIndex) => (
+                                            <TableRow key={rowIndex}>
+                                                <TableCell>
+                                                    {tournament.leaderboard[rowIndex]}
+                                                </TableCell>
+                                                {row.map((result, colIndex) => (
+                                                    <TableCell key={colIndex}>
+                                                        {result}
                                                     </TableCell>
-                                                </TableRow>
-                                            ),
-                                        )}
+                                                ))}
+                                            </TableRow>
+                                        ))}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
@@ -140,4 +127,4 @@ const PairingsPage: React.FC = () => {
     );
 };
 
-export default PairingsPage;
+export default Crosstable;

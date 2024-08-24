@@ -110,7 +110,6 @@ const LeaderboardTab = () => {
                         onChange={(e) => setSite(e.target.value as LeaderboardSite)}
                     >
                         <MenuItem value={LeaderboardSite.Lichess}>
-                            {' '}
                             <SiLichess
                                 fontSize={25}
                                 style={{ verticalAlign: 'middle', marginRight: 6 }}
@@ -139,7 +138,7 @@ const LeaderboardTab = () => {
                         color='primary'
                         onChange={(e) => setTimeControl(e.target.value as TimeControl)}
                     >
-                        <MenuItem value={'blitz'}>
+                        <MenuItem value={TimeControlType.Blitz}>
                             <Icon
                                 name={TimeControlType.Blitz}
                                 sx={{ verticalAlign: 'middle', marginRight: 1 }}
@@ -147,7 +146,7 @@ const LeaderboardTab = () => {
                             />{' '}
                             Blitz
                         </MenuItem>
-                        <MenuItem value={'rapid'}>
+                        <MenuItem value={TimeControlType.Rapid}>
                             <Icon
                                 name={TimeControlType.Rapid}
                                 sx={{ verticalAlign: 'middle', marginRight: 1 }}
@@ -155,7 +154,7 @@ const LeaderboardTab = () => {
                             />
                             Rapid
                         </MenuItem>
-                        <MenuItem value={'classical'}>
+                        <MenuItem value={TimeControlType.Classical}>
                             <Icon
                                 name={TimeControlType.Classical}
                                 sx={{ verticalAlign: 'middle', marginRight: 1 }}

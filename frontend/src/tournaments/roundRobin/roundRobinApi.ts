@@ -1,6 +1,5 @@
 
 import axios from "axios";
-import {getConfig } from "@/config";
 
 export interface TournamentData {
     info: string;
@@ -11,7 +10,14 @@ export interface TournamentData {
     crosstable: string[][];
     crosstableString: string;
     leaderboard: string[];
+    players: string[];
+    gameSub: string[];
     statusCode: number;
+}
+
+interface TournamentId{
+    id: string;
+    message: string;
 }
 
 export const cohorts = [
@@ -39,22 +45,22 @@ export const cohorts = [
     { label: '2300-2400', value: 2300 },
 ];
 
-const authToken = getConfig().api.roundRobinAuthToken; 
-const endpoint = getConfig().api.roundRobinUrl;
+const authToken = process.env.NEXT_ROUND_ROBIN_AUTH; 
+const endpoint = process.env.NEXT_ROUND_ROBIN_API;
 
 export const fetchTournamentIds = async (cohortValue: number): Promise<string[]> => {
     try {
-        const response = await axios.get(endpoint + '/tournamentid', {
+        console.log(endpoint);
+        const response = await axios.get(endpoint + '/tournamentid?cohort-start=' + cohortValue, {
             headers: {
                 Authorization: authToken,
             },
-            params: {
-              'cohort-start': cohortValue,
-            }
+            
         });
 
-        const idsString = response.data.id;
-        const ids = idsString.replace(/[\[\]]/g, '').split(',');
+
+        const idsString: string = response.data.id;
+        const ids: string[] = idsString.replace(/[\[\]]/g, '').split(',');
 
         return ids;
     } catch (error) {
@@ -65,13 +71,10 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
 
 export const fetchTournamentData = async (id: string): Promise<TournamentData> => {
     try {
-        const response = await axios.get(endpoint + `/info`, {
+        const response = await axios.get(endpoint + `/info?tournamentid=` + id, {
             headers: {
                 Authorization: authToken,
             },
-            params: {
-                tournamentid: id,
-            }
         });
 
         return response.data as TournamentData;
