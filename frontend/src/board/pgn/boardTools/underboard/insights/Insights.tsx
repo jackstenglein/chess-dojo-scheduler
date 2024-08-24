@@ -1,5 +1,6 @@
 import Board from '@/board/Board';
 import AnnotationWarnings from '@/board/pgn/annotations/AnnotationWarnings';
+import { getNagGlyph } from '@/board/pgn/Nag';
 import { Color, EventType } from '@jackstenglein/chess';
 import { Circle } from '@mui/icons-material';
 import { TabContext } from '@mui/lab';
@@ -22,9 +23,9 @@ export enum InsightType {
 const insightTabKey = 'insightTab';
 
 const HOT = red[500];
-const WARM = red[200];
+const WARM = red[300];
 const NEUTRAL = undefined;
-const COOL = blue[200];
+const COOL = blue[300];
 const COLD = blue[500];
 
 const heatColors: [number, string | undefined][] = [
@@ -81,16 +82,19 @@ function SquareControl() {
 
         setLabels(
             Object.entries(data).flatMap(([square, value]) => {
-                const heatCol = getHeatColor(value);
-                if (!heatCol) {
+                const heatColor = getHeatColor(value);
+                if (value === 0 || heatColor === undefined) {
                     return [];
                 }
 
                 return {
                     orig: square as Key,
-                    label: {
-                        text: '',
-                        fill: heatCol,
+                    customSvg: {
+                        html: getNagGlyph({
+                            color: heatColor,
+                            label: (value > 0 ? '+' : '') + value.toString(),
+                            description: (value > 0 ? '+' : '') + value.toString(),
+                        }),
                     },
                 };
             }),
@@ -110,6 +114,7 @@ function SquareControl() {
                             viewOnly: true,
                             drawable: {
                                 shapes: labels,
+                                eraseOnClick: false,
                             },
                         }}
                     />
