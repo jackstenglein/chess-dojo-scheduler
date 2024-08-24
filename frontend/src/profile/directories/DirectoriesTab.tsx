@@ -5,6 +5,7 @@ import { User, dojoCohorts } from '@/database/user';
 import { RenderPlayers, RenderResult } from '@/games/list/GameListItem';
 import { MastersCohort, MastersOwnerDisplayName } from '@/games/list/ListGamesPage';
 import { useGame } from '@/games/view/GamePage';
+import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -22,7 +23,7 @@ import {
     GridRowHeightParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Avatar from '../Avatar';
 import { AddCurrentGameButton } from './AddCurrentGameButton';
@@ -38,11 +39,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const navigate = useNavigate();
     const { game } = useGame();
 
-    const [selectedRowId, setSelectedRowId] = useState('');
-    const [contextMenuPosition, setContextMenuPosition] = useState<{
-        mouseX: number;
-        mouseY: number;
-    }>();
+    const contextMenu = useDataGridContextMenu();
 
     const { directory, request, putDirectory } = useDirectory(user.username, directoryId);
 
@@ -73,21 +70,6 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
         }
     };
 
-    const openContextMenu = (event: React.MouseEvent) => {
-        event.preventDefault();
-        setSelectedRowId(event.currentTarget.getAttribute('data-id') || '');
-        setContextMenuPosition(
-            contextMenuPosition
-                ? undefined
-                : { mouseX: event.clientX - 2, mouseY: event.clientY - 4 },
-        );
-    };
-
-    const closeContextMenu = () => {
-        setSelectedRowId('');
-        setContextMenuPosition(undefined);
-    };
-
     return (
         <Stack spacing={2} alignItems='start'>
             {viewer.username === user.username && (
@@ -109,7 +91,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                 sx={{ width: 1 }}
                 slotProps={{
                     row: {
-                        onContextMenu: openContextMenu,
+                        onContextMenu: contextMenu.open,
                     },
                 }}
                 initialState={{
@@ -128,9 +110,9 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
 
             <ContextMenu
                 directory={directory}
-                selectedItem={directory.items[selectedRowId]}
-                onClose={closeContextMenu}
-                position={contextMenuPosition}
+                selectedItem={directory.items[contextMenu.rowId]}
+                onClose={contextMenu.close}
+                position={contextMenu.position}
             />
         </Stack>
     );
