@@ -67,7 +67,7 @@ const endpoint = process.env.ROUND_ROBIN_API_ENDPOINT;
 export const fetchTournamentIds = async (cohortValue: number): Promise<string[]> => {
     try {
         console.log(endpoint);
-        const response = await axios.get<TournamentId>(endpoint + '/tournamentid', {
+        const response = await axios.get<TournamentId>(`${endpoint}/tournamentid`, {
             headers: {
                 Authorization: authToken,
             },
@@ -97,7 +97,7 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
 
 export const fetchTournamentData = async (id: string): Promise<TournamentData> => {
     try {
-        const response = await axios.get<TournamentData>(endpoint + `/info`, {
+        const response = await axios.get<TournamentData>(`${endpoint}/info`, {
             headers: {
                 Authorization: authToken,
             },
