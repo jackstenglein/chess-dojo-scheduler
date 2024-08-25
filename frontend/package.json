@@ -133,7 +133,7 @@
         "babel-plugin-istanbul": "^7.0.0",
         "command-line-args": "^6.0.0",
         "command-line-usage": "^7.0.3",
-        "cypress": "^13.13.2",
+        "cypress": "^13.13.3",
         "cypress-parallel": "^0.14.0",
         "eslint": "^8.57.0",
         "eslint-config-next": "^14.2.5",

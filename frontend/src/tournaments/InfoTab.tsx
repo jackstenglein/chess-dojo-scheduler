@@ -153,8 +153,8 @@ const InfoTab = () => {
                             <>
                                 Join{' '}
                                 <Link
-                                    data-cy='chesscom-team-link'
-                                    href='https://www.chess.com/club/chessdojo'
+                                    data-cy='discord-invite-link'
+                                    href='https://discord.gg/AEeHwBWqAX'
                                     target='_blank'
                                     rel='noreferrer'
                                     color='primary'
