@@ -40,6 +40,7 @@ import ClubsTab from './clubs/ClubsTab';
 import CoachTab from './coach/CoachTab';
 import { DirectoriesTab } from './directories/DirectoriesTab';
 import { DirectoryCacheProvider } from './directories/DirectoryCache';
+import { ActivityCard } from './info/ActivityCard';
 import Bio from './info/Bio';
 import CoachChip from './info/CoachChip';
 import CountChip from './info/CountChip';
@@ -319,6 +320,7 @@ const ProfilePage = () => {
             >
                 <Stack spacing={2}>
                     <StatsCard user={user} />
+                    <ActivityCard user={user} />
 
                     <Card>
                         <CardHeader title='Badges' />
