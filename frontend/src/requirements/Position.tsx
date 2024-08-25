@@ -130,7 +130,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 }
             />
             <CardContent sx={{ pt: 0, px: 1 }}>
-                <Box sx={{ width: '320px', aspectRatio: '1 / 1', minWidth: '320px' }}>
+                <Box sx={{ aspectRatio: '1 / 1' }}>
                     <Board
                         config={{
                             fen: position.fen.trim(),
@@ -140,10 +140,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     />
                 </Box>
             </CardContent>
-            <CardActions
-                disableSpacing
-                sx={{ flexWrap: 'wrap', width: '336px', columnGap: 1 }}
-            >
+            <CardActions disableSpacing sx={{ flexWrap: 'wrap', columnGap: 1 }}>
                 <CopyToClipboard
                     data-cy='position-fen-copy'
                     text={position.fen.trim()}
