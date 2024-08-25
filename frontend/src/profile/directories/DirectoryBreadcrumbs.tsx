@@ -8,6 +8,7 @@ import {
     MenuItem,
     Stack,
     Tooltip,
+    Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { BreadcrumbItem, useBreadcrumbs } from './DirectoryCache';
@@ -63,7 +64,7 @@ export const DirectoryBreadcrumbs = ({
                         </IconButton>
                     </Tooltip>
 
-                    <NavigateNext fontSize='small' sx={{ color: 'text.secondary' }} />
+                    <NavigateNext sx={{ color: 'text.secondary' }} />
 
                     <Menu
                         open={!!menuAnchor}
@@ -91,16 +92,18 @@ export const DirectoryBreadcrumbs = ({
                         key={b.id}
                         title={b.name.length > MAX_ITEM_LENGTH ? b.name : ''}
                     >
-                        <Link
-                            key={b.id}
-                            underline='hover'
-                            color='inherit'
-                            onClick={() => handleClick(b)}
-                            sx={{ cursor: 'pointer' }}
-                        >
-                            {b.name.slice(0, MAX_ITEM_LENGTH)}
-                            {b.name.length > MAX_ITEM_LENGTH && '...'}
-                        </Link>
+                        <Typography variant='h6'>
+                            <Link
+                                key={b.id}
+                                underline='hover'
+                                color='inherit'
+                                onClick={() => handleClick(b)}
+                                sx={{ cursor: 'pointer' }}
+                            >
+                                {b.name.slice(0, MAX_ITEM_LENGTH)}
+                                {b.name.length > MAX_ITEM_LENGTH && '...'}
+                            </Link>
+                        </Typography>
                     </Tooltip>
                 ))}
             </Breadcrumbs>

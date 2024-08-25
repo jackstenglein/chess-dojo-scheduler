@@ -353,6 +353,11 @@ def upload_pgns(archive_num, pgns, twic_info):
                 continue
 
             game = convert_game(game, time_headers, archive_num)
+            if game['headers']['PlyCount'] == '0':
+                print(f'INFO {archive_num} Skipping PGN with no moves: ', pgn)
+                skipped += 1
+                continue
+
             if is_variant(game):
                 print(f'INFO {archive_num} Skipping variant PGN: ', pgn)
                 skipped += 1

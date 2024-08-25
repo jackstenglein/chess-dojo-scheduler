@@ -161,14 +161,14 @@ export const MoveDialog = ({
     );
 };
 
-function MoveListItem({
+export function MoveListItem({
     item,
     onNavigate,
     disabled,
 }: {
     item: DirectoryItem;
     onNavigate: (id: string) => void;
-    disabled: boolean;
+    disabled?: boolean;
 }) {
     if (item.type === DirectoryItemTypes.DIRECTORY) {
         return (

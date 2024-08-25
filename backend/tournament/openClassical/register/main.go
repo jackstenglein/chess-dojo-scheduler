@@ -135,10 +135,10 @@ func checkRequest(req *RegisterRequest) error {
 	}
 
 	rating, err := ratings.FetchLichessRating(req.LichessUsername)
-	if req.Section == "U1800" && rating >= 1800 {
+	if req.Section == "U1800" && rating.CurrentRating >= 1800 {
 		return errors.New(400, "Your Lichess rating is above 1800. Please register for the open section instead.", "")
 	}
 
-	req.LichessRating = rating
+	req.LichessRating = rating.CurrentRating
 	return err
 }

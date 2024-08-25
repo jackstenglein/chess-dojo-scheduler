@@ -1,4 +1,5 @@
 import { useApi } from '@/api/Api';
+import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import {
     Badge,
@@ -35,6 +36,7 @@ import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellPage from '../../upsell/UpsellPage';
 import { RenderPlayersCell, RenderResult } from './GameListItem';
 import ListGamesTutorial from './ListGamesTutorial';
+import { ListItemContextMenu } from './ListItemContextMenu';
 import SearchFilters from './SearchFilters';
 import { usePagination } from './pagination';
 
@@ -152,6 +154,7 @@ const ListGamesPage = () => {
     const type = useSearchParams()[0].get('type') || '';
     const api = useApi();
     const [reviewQueueLabel, setReviewQueueLabel] = useState('');
+    const contextMenu = useDataGridContextMenu();
 
     useEffect(() => {
         api.listGamesForReview()
@@ -295,7 +298,22 @@ const ListGamesPage = () => {
                                 />
                             ),
                         }}
+                        slotProps={{
+                            row: {
+                                onContextMenu: contextMenu.open,
+                            },
+                        }}
                         pagination
+                    />
+
+                    <ListItemContextMenu
+                        game={
+                            contextMenu.rowId
+                                ? data.find((g) => g.id === contextMenu.rowId)
+                                : undefined
+                        }
+                        onClose={contextMenu.close}
+                        position={contextMenu.position}
                     />
                 </Grid>
 
