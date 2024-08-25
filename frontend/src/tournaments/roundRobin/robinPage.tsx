@@ -1,3 +1,4 @@
+import { PawnIcon } from '@/style/ChessIcons';
 import {
     Group as GroupIcon,
     Info as InfoIcon,
@@ -6,8 +7,17 @@ import {
 import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { useState } from 'react';
 import Crosstable from './CrosstablePage';
+import GameSubmission from './gameSubmission';
 import InfoPage from './InfoPage';
 import PairingsPage from './PairingPage';
+
+/**
+ * Preview tab of the pannel
+ * @param index the int index value
+ * @param value the int value
+ * @param children ReactNode children
+ * @returns
+ */
 
 const TabPanel: React.FC<{
     children?: React.ReactNode;
@@ -25,6 +35,11 @@ const TabPanel: React.FC<{
         </div>
     );
 };
+
+/**
+ * Handles the logic for tournament viewer
+ * @returns
+ */
 
 const TournamentViewer: React.FC = () => {
     const [tabValue, setTabValue] = useState(0);
@@ -45,6 +60,7 @@ const TournamentViewer: React.FC = () => {
                     <Tab label='Info' icon={<InfoIcon />} />
                     <Tab label='Pairings' icon={<GroupIcon />} />
                     <Tab label='Crosstable' icon={<TableChartIcon />} />
+                    <Tab label='Games' icon={<PawnIcon />} />
                 </Tabs>
             </Box>
             <TabPanel value={tabValue} index={0}>
@@ -55,6 +71,9 @@ const TournamentViewer: React.FC = () => {
             </TabPanel>
             <TabPanel value={tabValue} index={2}>
                 <Crosstable />
+            </TabPanel>
+            <TabPanel value={tabValue} index={3}>
+                <GameSubmission />
             </TabPanel>
         </Container>
     );

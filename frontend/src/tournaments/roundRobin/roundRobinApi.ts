@@ -1,24 +1,33 @@
 
 import axios from "axios";
 
+/**
+ * The Round Robin Info API response
+ */
 export interface TournamentData {
-    info: string;
-    tournamentname: string;
-    pairs: string[][];
-    message: string;
-    desc: string;
-    crosstable: string[][];
-    crosstableString: string;
-    leaderboard: string[];
-    players: string[];
-    gameSub: string[];
-    statusCode: number;
+    info: string; // tournament id
+    tournamentname: string; // name
+    pairs: string[][]; // pairings
+    message: string; // success message
+    desc: string; // tournament desc
+    crosstable: string[][]; // raw crosstable data
+    crosstableString: string; // debugging crosstable string
+    leaderboard: string[]; // leaderboard
+    players: string[]; // players
+    gameSub: string[]; // game submissions
+    statusCode: number; // status code
+    scores: number[]; // leaderboard scores
 }
 
-interface TournamentId{
-    id: string;
-    message: string;
+/**
+ * The Round Robin Tournament ID API response
+ */
+interface TournamentId {
+    id: string; // list of list of tournament ids in string
+    message: string; // success/error message 
 }
+
+
 
 export const cohorts = [
     { label: '0-300', value: 0},
@@ -45,22 +54,32 @@ export const cohorts = [
     { label: '2300-2400', value: 2300 },
 ];
 
-const authToken = process.env.NEXT_ROUND_ROBIN_AUTH; 
-const endpoint = process.env.NEXT_ROUND_ROBIN_API;
+const authToken = process.env.ROUND_ROBIN_AUTH_TOKEN; 
+const endpoint = process.env.ROUND_ROBIN_API_ENDPOINT;
+
+
+/**
+ * method to fetch tournament ids for given cohort start value
+ * @param cohortValue int type of cohort value
+ * @returns list of tournament ids
+ */
 
 export const fetchTournamentIds = async (cohortValue: number): Promise<string[]> => {
     try {
         console.log(endpoint);
-        const response = await axios.get(endpoint + '/tournamentid?cohort-start=' + cohortValue, {
+        const response = await axios.get<TournamentId>(endpoint + '/tournamentid', {
             headers: {
                 Authorization: authToken,
             },
+            params: {
+                'cohort-start': cohortValue
+            }
             
         });
 
 
         const idsString: string = response.data.id;
-        const ids: string[] = idsString.replace(/[\[\]]/g, '').split(',');
+        const ids: string[] = idsString.replaceAll(/[[\]]/g, '').split(', ');
 
         return ids;
     } catch (error) {
@@ -69,15 +88,25 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
     }
 };
 
+
+/**
+ * method to fetch round robin tournament data from given tournament id
+ * @param id string tournament id
+ * @returns tournamentData object
+ */
+
 export const fetchTournamentData = async (id: string): Promise<TournamentData> => {
     try {
-        const response = await axios.get(endpoint + `/info?tournamentid=` + id, {
+        const response = await axios.get<TournamentData>(endpoint + `/info`, {
             headers: {
                 Authorization: authToken,
             },
+            params: {
+                'tournamentid': id
+            }
         });
 
-        return response.data as TournamentData;
+        return response.data;
     } catch (error) {
         console.error('Error fetching tournament data:', error);
         throw error;

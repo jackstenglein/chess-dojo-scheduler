@@ -1,7 +1,9 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
+import Circle from '@mui/icons-material/Circle';
 import {
     Box,
     Card,
+    CircularProgress,
     Container,
     FormControl,
     InputLabel,
@@ -16,7 +18,7 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     cohorts,
     fetchTournamentData,
@@ -24,28 +26,19 @@ import {
     TournamentData,
 } from './roundRobinApi';
 
-const PairingsPage: React.FC = () => {
+/**
+ * Handles the pairing page
+ * @returns the pairing page
+ */
+
+const PairingsPage = () => {
     const [selectedCohort, setSelectedCohort] = useState<number>(0);
     const [selectedRound, setSelectedRound] = useState<number>(1);
     const [tournamentIds, setTournamentIds] = useState<string[]>([]);
     const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
-
-    useEffect(() => {
-        if (selectedCohort !== 0) {
-            fetchTournamentIds(selectedCohort)
-                .then(setTournamentIds)
-                .catch(console.error);
-        }
-    }, [selectedCohort]);
-
-    useEffect(() => {
-        if (tournamentIds.length > 0) {
-            setTournamentData([]);
-            Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
-                .then(setTournamentData)
-                .catch(console.error);
-        }
-    }, [tournamentIds]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const displayIcon =
+        selectedCohort !== 0 ? `${selectedCohort}-${selectedCohort + 100}` : '0-300';
 
     const handleCohortChange = (event: SelectChangeEvent<number>) => {
         setSelectedCohort(Number(event.target.value));
@@ -55,7 +48,29 @@ const PairingsPage: React.FC = () => {
         setSelectedRound(Number(event.target.value));
     };
 
-    
+    useEffect(() => {
+        if (selectedCohort !== 0) {
+            setLoading(true);
+            fetchTournamentIds(selectedCohort)
+                .then(setTournamentIds)
+                .catch(console.error)
+                .finally(() => setLoading(false));
+        }
+    }, [selectedCohort]);
+
+    useEffect(() => {
+        if (tournamentIds.length > 0) {
+            setLoading(true);
+            setTournamentData([]);
+            Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
+                .then((data) => {
+                    console.log('Fetched Tournament Data:', data);
+                    setTournamentData((prevData) => [...prevData, ...data]);
+                })
+                .catch(console.error)
+                .finally(() => setLoading(false));
+        }
+    }, [tournamentIds]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -99,44 +114,107 @@ const PairingsPage: React.FC = () => {
                 </FormControl>
             </Box>
 
-            {tournamentData.length > 0 && (
-                <Box sx={{ mb: 3 }}>
-                    {tournamentData.map((tournament) => (
-                        <div key={tournament.info}>
-                            <TableContainer sx={{ mt: 2 }} component={Card}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>
-                                                <Typography
-                                                    variant='h6'
-                                                    textAlign={'left'}
-                                                >
-                                                    {' '}
-                                                    {tournament.tournamentname}{' '}
-                                                    {' Tournament Pairings'}{' '}
-                                                </Typography>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {tournament.pairs[selectedRound - 1]?.map(
-                                            (pair, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell>
-                                                        <Typography textAlign={'left'}>
-                                                            {pair.replaceAll('**', '')}
+            {loading ? (
+                <Box
+                    display='flex'
+                    justifyContent='center'
+                    alignItems='center'
+                    height='300px'
+                >
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <>
+                    {tournamentData.length > 0 && tournamentIds.length > 0 ? (
+                        <Box sx={{ mb: 3 }}>
+                            {tournamentData.map((tournament) => (
+                                <TableContainer
+                                    sx={{ mt: 2 }}
+                                    component={Card}
+                                    key={tournament.info}
+                                >
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>
+                                                    <Typography
+                                                        variant='h6'
+                                                        textAlign={'center'}
+                                                    >
+                                                        <CohortIcon
+                                                            cohort={displayIcon}
+                                                            sx={{
+                                                                marginRight: '0.6em',
+                                                                verticalAlign: 'middle',
+                                                            }}
+                                                            tooltip=''
+                                                            size={25}
+                                                        />{' '}
+                                                        {tournament.tournamentname}{' '}
+                                                        Tournament Pairings
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {tournament.pairs?.[selectedRound - 1] ? (
+                                                tournament.pairs[selectedRound - 1]?.map(
+                                                    (pair, index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell>
+                                                                <Typography
+                                                                    textAlign={'center'}
+                                                                >
+                                                                    {
+                                                                        <Circle
+                                                                            sx={{
+                                                                                verticalAlign:
+                                                                                    'middle',
+                                                                                marginRight: 3,
+                                                                                color: 'white',
+                                                                            }}
+                                                                        />
+                                                                    }{' '}
+                                                                    {pair.replaceAll(
+                                                                        '**',
+                                                                        '',
+                                                                    )}{' '}
+                                                                    {
+                                                                        <Circle
+                                                                            sx={{
+                                                                                verticalAlign:
+                                                                                    'middle',
+                                                                                marginLeft: 1,
+                                                                                color: 'grey',
+                                                                            }}
+                                                                        />
+                                                                    }
+                                                                </Typography>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ),
+                                                )
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={2}>
+                                                        <Typography textAlign={'center'}>
+                                                            No pairings available for this
+                                                            round.
                                                         </Typography>
                                                     </TableCell>
                                                 </TableRow>
-                                            ),
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </div>
-                    ))}
-                </Box>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            ))}
+                        </Box>
+                    ) : (
+                        <Typography variant='h6' textAlign={'center'}>
+                            No tournament data available.
+                        </Typography>
+                    )}
+                </>
             )}
         </Container>
     );
