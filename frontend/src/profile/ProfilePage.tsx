@@ -1,4 +1,5 @@
 import { getConfig } from '@/config';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Edit,
     Folder,
@@ -11,7 +12,17 @@ import {
     Timeline,
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
-import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Container,
+    Stack,
+    Tab,
+    Tabs,
+} from '@mui/material';
 import { useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import NotFoundPage from '../NotFoundPage';
@@ -19,7 +30,7 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { FollowerEntry } from '../database/follower';
-import { User } from '../database/user';
+import { compareCohorts, User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import { PawnIcon } from '../style/ChessIcons';
 import GamesTab from './GamesTab';
@@ -35,6 +46,7 @@ import CountChip from './info/CountChip';
 import CreatedAtChip from './info/CreatedAtChip';
 import DiscordChip from './info/DiscordChip';
 import InactiveChip from './info/InactiveChip';
+import { StatsCard } from './info/StatsCard';
 import TimezoneChip from './info/TimezoneChip';
 import UserInfo from './info/UserInfo';
 import ProgressTab from './progress/ProgressTab';
@@ -123,159 +135,213 @@ const ProfilePage = () => {
     };
 
     return (
-        <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
-            <RequestSnackbar request={followRequest} />
+        <Box
+            display='grid'
+            sx={{
+                py: 6,
+                gridTemplateAreas: {
+                    xs: '"profile"',
+                    lg: '". profile stats ."',
+                },
+                gridTemplateColumns: {
+                    xs: '1fr',
+                    lg: 'auto max-content minmax(350px, 444px) auto',
+                },
+            }}
+        >
+            <Container maxWidth='md' sx={{ gridArea: 'profile', marginRight: 0 }}>
+                <RequestSnackbar request={followRequest} />
 
-            <Stack>
-                <Stack
-                    direction='row'
-                    justifyContent='space-between'
-                    alignItems='start'
-                    flexWrap='wrap'
-                    rowGap={2}
-                >
-                    <UserInfo user={user} />
+                <Stack>
+                    <Stack
+                        direction='row'
+                        justifyContent='space-between'
+                        alignItems='start'
+                        flexWrap='wrap'
+                        rowGap={2}
+                    >
+                        <UserInfo user={user} />
 
-                    {currentUserProfile ? (
-                        <Stack direction='row' spacing={2}>
-                            <GraduationDialog />
-                            <Button
-                                id='edit-profile-button'
+                        {currentUserProfile ? (
+                            <Stack direction='row' spacing={2}>
+                                <GraduationDialog />
+                                <Button
+                                    id='edit-profile-button'
+                                    variant='contained'
+                                    startIcon={<Edit />}
+                                    onClick={() => navigate('/profile/edit')}
+                                >
+                                    Edit Profile
+                                </Button>
+                            </Stack>
+                        ) : (
+                            <LoadingButton
+                                data-cy='follow-button'
                                 variant='contained'
-                                startIcon={<Edit />}
-                                onClick={() => navigate('/profile/edit')}
+                                onClick={onFollow}
+                                loading={followRequest.isLoading()}
+                                startIcon={
+                                    followRequest.data ? <ThumbDown /> : <ThumbUp />
+                                }
                             >
-                                Edit Profile
-                            </Button>
-                        </Stack>
-                    ) : (
-                        <LoadingButton
-                            data-cy='follow-button'
-                            variant='contained'
-                            onClick={onFollow}
-                            loading={followRequest.isLoading()}
-                            startIcon={followRequest.data ? <ThumbDown /> : <ThumbUp />}
-                        >
-                            {followRequest.data ? 'Unfollow' : 'Follow'}
-                        </LoadingButton>
-                    )}
-                </Stack>
-
-                <Stack
-                    mt={3}
-                    mb={4}
-                    direction='row'
-                    flexWrap='wrap'
-                    rowGap={1}
-                    columnGap={1.5}
-                >
-                    <CoachChip user={user} />
-                    <InactiveChip user={user} />
-                    <DiscordChip username={user.discordUsername} />
-                    <TimezoneChip timezone={user.timezoneOverride} />
-                    <CreatedAtChip createdAt={user.createdAt} />
-                    <CountChip
-                        count={user.followerCount}
-                        label='Followers'
-                        singularLabel='Follower'
-                        link={`/profile/${user.username}/followers`}
-                    />
-                    <CountChip
-                        count={user.followingCount}
-                        label='Following'
-                        link={`/profile/${user.username}/following`}
-                    />
-                </Stack>
-
-                <Bio bio={user.bio} />
-
-                <Box sx={{ width: '100%', typography: 'body1', mt: 5 }}>
-                    <TabContext value={searchParams.get('view') || 'stats'}>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                            <Tabs
-                                value={searchParams.get('view') || 'stats'}
-                                onChange={(_, t: string) => setSearchParams({ view: t })}
-                                aria-label='profile tabs'
-                                variant='scrollable'
-                            >
-                                <ProfileTab
-                                    label='Ratings'
-                                    value='stats'
-                                    icon={<Timeline fontSize='small' />}
-                                />
-
-                                {user.isCoach && (
-                                    <ProfileTab
-                                        label='Coaching'
-                                        value='coaching'
-                                        icon={<RocketLaunch fontSize='small' />}
-                                    />
-                                )}
-                                <ProfileTab
-                                    id='training-plan-tab'
-                                    label='Training Plan'
-                                    value='progress'
-                                    icon={<Star fontSize='small' />}
-                                />
-                                <ProfileTab
-                                    label='Activity'
-                                    value='activity'
-                                    icon={<PieChart fontSize='small' />}
-                                />
-                                <ProfileTab
-                                    label='Games'
-                                    value='games'
-                                    icon={<PawnIcon fontSize='small' />}
-                                />
-                                {isBeta && (
-                                    <ProfileTab
-                                        label='Files'
-                                        value='files'
-                                        icon={<Folder fontSize='small' />}
-                                    />
-                                )}
-                                <ProfileTab
-                                    label='Clubs'
-                                    value='clubs'
-                                    icon={<Groups fontSize='small' />}
-                                />
-                            </Tabs>
-                        </Box>
-                        <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
-                            <StatsTab user={user} />
-                        </TabPanel>
-                        <TabPanel value='coaching' sx={{ px: { xs: 0, sm: 3 } }}>
-                            <CoachTab user={user} />
-                        </TabPanel>
-                        <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
-                            <ProgressTab user={user} isCurrentUser={currentUserProfile} />
-                        </TabPanel>
-                        <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
-                            <ActivityTab user={user} />
-                        </TabPanel>
-                        <TabPanel value='games' sx={{ px: { xs: 0 } }}>
-                            <GamesTab user={user} />
-                        </TabPanel>
-                        {isBeta && (
-                            <TabPanel value='files' sx={{ px: { xs: 0 } }}>
-                                <DirectoryCacheProvider>
-                                    <DirectoriesTab user={user} />
-                                </DirectoryCacheProvider>
-                            </TabPanel>
+                                {followRequest.data ? 'Unfollow' : 'Follow'}
+                            </LoadingButton>
                         )}
-                        <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>
-                            <ClubsTab user={user} />
-                        </TabPanel>
-                    </TabContext>
-                </Box>
-            </Stack>
+                    </Stack>
 
-            {currentUserProfile && (
-                <>
-                    <ProfilePageTutorial />
-                </>
-            )}
-        </Container>
+                    <Stack
+                        mt={3}
+                        mb={4}
+                        direction='row'
+                        flexWrap='wrap'
+                        rowGap={1}
+                        columnGap={1.5}
+                    >
+                        <CoachChip user={user} />
+                        <InactiveChip user={user} />
+                        <DiscordChip username={user.discordUsername} />
+                        <TimezoneChip timezone={user.timezoneOverride} />
+                        <CreatedAtChip createdAt={user.createdAt} />
+                        <CountChip
+                            count={user.followerCount}
+                            label='Followers'
+                            singularLabel='Follower'
+                            link={`/profile/${user.username}/followers`}
+                        />
+                        <CountChip
+                            count={user.followingCount}
+                            label='Following'
+                            link={`/profile/${user.username}/following`}
+                        />
+                    </Stack>
+
+                    <Bio bio={user.bio} />
+
+                    <Box sx={{ width: '100%', typography: 'body1', mt: 5 }}>
+                        <TabContext value={searchParams.get('view') || 'stats'}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                <Tabs
+                                    value={searchParams.get('view') || 'stats'}
+                                    onChange={(_, t: string) =>
+                                        setSearchParams({ view: t })
+                                    }
+                                    aria-label='profile tabs'
+                                    variant='scrollable'
+                                >
+                                    <ProfileTab
+                                        label='Ratings'
+                                        value='stats'
+                                        icon={<Timeline fontSize='small' />}
+                                    />
+
+                                    {user.isCoach && (
+                                        <ProfileTab
+                                            label='Coaching'
+                                            value='coaching'
+                                            icon={<RocketLaunch fontSize='small' />}
+                                        />
+                                    )}
+                                    <ProfileTab
+                                        id='training-plan-tab'
+                                        label='Training Plan'
+                                        value='progress'
+                                        icon={<Star fontSize='small' />}
+                                    />
+                                    <ProfileTab
+                                        label='Activity'
+                                        value='activity'
+                                        icon={<PieChart fontSize='small' />}
+                                    />
+                                    <ProfileTab
+                                        label='Games'
+                                        value='games'
+                                        icon={<PawnIcon fontSize='small' />}
+                                    />
+                                    {isBeta && (
+                                        <ProfileTab
+                                            label='Files'
+                                            value='files'
+                                            icon={<Folder fontSize='small' />}
+                                        />
+                                    )}
+                                    <ProfileTab
+                                        label='Clubs'
+                                        value='clubs'
+                                        icon={<Groups fontSize='small' />}
+                                    />
+                                </Tabs>
+                            </Box>
+                            <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
+                                <StatsTab user={user} />
+                            </TabPanel>
+                            <TabPanel value='coaching' sx={{ px: { xs: 0, sm: 3 } }}>
+                                <CoachTab user={user} />
+                            </TabPanel>
+                            <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
+                                <ProgressTab
+                                    user={user}
+                                    isCurrentUser={currentUserProfile}
+                                />
+                            </TabPanel>
+                            <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
+                                <ActivityTab user={user} />
+                            </TabPanel>
+                            <TabPanel value='games' sx={{ px: { xs: 0 } }}>
+                                <GamesTab user={user} />
+                            </TabPanel>
+                            {isBeta && (
+                                <TabPanel value='files' sx={{ px: { xs: 0 } }}>
+                                    <DirectoryCacheProvider>
+                                        <DirectoriesTab user={user} />
+                                    </DirectoryCacheProvider>
+                                </TabPanel>
+                            )}
+                            <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>
+                                <ClubsTab user={user} />
+                            </TabPanel>
+                        </TabContext>
+                    </Box>
+                </Stack>
+
+                {currentUserProfile && (
+                    <>
+                        <ProfilePageTutorial />
+                    </>
+                )}
+            </Container>
+
+            <Container
+                sx={{
+                    marginLeft: 0,
+                    gridArea: 'stats',
+                    display: { xs: 'none', lg: 'initial' },
+                }}
+            >
+                <Stack spacing={2}>
+                    <StatsCard user={user} />
+
+                    <Card>
+                        <CardHeader title='Badges' />
+                        <CardContent>
+                            <Stack
+                                direction='row'
+                                spacing={0.5}
+                                flexWrap='wrap'
+                                rowGap={1}
+                            >
+                                {user.graduationCohorts
+                                    ?.sort(compareCohorts)
+                                    .filter(
+                                        (c, i) =>
+                                            user.graduationCohorts?.indexOf(c) === i,
+                                    )
+                                    .map((c) => <CohortIcon key={c} cohort={c} />)}
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Stack>
+            </Container>
+        </Box>
     );
 };
 
