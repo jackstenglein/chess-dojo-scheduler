@@ -56,7 +56,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         setCohort(user.dojoCohort);
     }, [user.dojoCohort]);
 
-    const categories = useMemo(() => {
+    const categories: Category[] = useMemo(() => {
         const requirementsById: Record<string, Requirement> = {};
         const categories: Category[] = [];
         requirements.forEach((r) => {
@@ -99,24 +99,49 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
         suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
 
-        const otherIncompleteRequirements = requirements.filter(
+        const now = new Date();
+        const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
+        const categoryOffset = daysSinceEpoch % categories.length;
+
+        const categoriesOfInterest: RequirementCategory[] = [
+            ...categories.slice(categoryOffset),
+            ...categories.slice(0, categoryOffset),
+        ]
+            .map((c) => c.name)
+            .filter((c) => c !== RequirementCategory.NonDojo);
+
+        const tasksOfInterest = requirements.filter(
             (r) =>
                 !isComplete(cohort, r, user.progress[r.id]) &&
+                categoriesOfInterest.includes(r.category) &&
                 suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
         );
 
-        const now = new Date();
-        const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
-        const idx = daysSinceEpoch % requirements.length;
+        const tasksByCategory = tasksOfInterest.reduce<Record<string, Requirement[]>>(
+            (acc, req) => {
+                acc[req.category] ??= [];
+                acc[req.category].push(req);
+
+                return acc;
+            },
+            {} as Record<string, Requirement[]>,
+        );
+
+        // Once per task we need, get one task of each category
+        const moreTasks = [
+            ...Array(desiredTaskCount - suggestedTasks.requirements.length).keys(),
+        ].flatMap((n) =>
+            categoriesOfInterest
+                .map((c) => tasksByCategory[c] ?? [])
+                .filter((tasks) => tasks.length > 0)
+                .flatMap((tasks) => tasks[(daysSinceEpoch + n) % tasks.length]),
+        );
 
         // Fill the remaining suggest tasks slots with tasks that rotate day by day.
         suggestedTasks.requirements = [
             ...suggestedTasks.requirements,
-            ...[
-                ...otherIncompleteRequirements.slice(idx),
-                ...otherIncompleteRequirements.slice(0, idx),
-            ].slice(0, desiredTaskCount - suggestedTasks.requirements.length),
-        ];
+            ...moreTasks,
+        ].slice(0, desiredTaskCount);
 
         if (suggestedTasks.requirements.length > 0) {
             suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
