@@ -52,7 +52,6 @@ const InputSlider: React.FC<InputSliderProps> = ({
                     step={1}
                     max={max}
                     min={min}
-                    color='success'
                 />
             </Grid2>
             <Grid2 xs={12} sm={3} md={2}>

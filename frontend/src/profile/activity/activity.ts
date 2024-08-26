@@ -20,7 +20,6 @@ export const ScoreCategories = [
     RequirementCategory.Opening,
 ];
 
-// TODO: Yeet into sun before PR merge
 export const RequirementColors = [
     '#c27ba0',
     '#ff9900',
