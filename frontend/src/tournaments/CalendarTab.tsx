@@ -165,6 +165,7 @@ const CalendarTab = () => {
             <Grid item xs={12} md={9.5}>
                 <Scheduler
                     ref={calendarRef}
+                    agenda={false}
                     editable={false}
                     deletable={false}
                     draggable={false}

@@ -9,6 +9,7 @@
         "@aws-sdk/util-dynamodb": "^3.436.0",
         "@jackstenglein/chess": "^2.1.7",
         "@jackstenglein/chess-dojo-common": "file:../../common",
+        "chess-dojo-directory-service": "file:../directoryService",
         "@savi2w/chess-tcn": "^1.0.0",
         "deep-equal": "^2.2.3",
         "happy-dom": "^14.11.0",

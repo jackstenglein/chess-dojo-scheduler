@@ -251,12 +251,16 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                         ['White', 'Date', 'Black'].includes(name) &&
                         stripTagValue(value) === ''
                     ) {
-                        setError(`${name} tag is required`);
+                        setError(`${name} tag is required to publish`);
                         return oldRow;
                     }
 
                     if (dateTags.includes(name) && value && !isValidDate(value)) {
                         setError('PGN dates must be in the format 2024.12.31');
+                        return oldRow;
+                    }
+
+                    if (!value) {
                         return oldRow;
                     }
 

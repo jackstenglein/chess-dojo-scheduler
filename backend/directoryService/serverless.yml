@@ -191,3 +191,7 @@ resources:
             KeyType: RANGE
         StreamSpecification:
           StreamViewType: OLD_IMAGE
+
+  Outputs:
+    DirectoriesTableArn:
+      Value: !GetAtt DirectoriesTable.Arn

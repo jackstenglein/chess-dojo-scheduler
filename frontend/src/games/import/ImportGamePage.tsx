@@ -1,4 +1,5 @@
 import { Container } from '@mui/material';
+import { useSearchParams } from 'next/navigation';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
@@ -10,8 +11,13 @@ const ImportGamePage = () => {
     const api = useApi();
     const request = useRequest<string>();
     const navigate = useNavigate();
+    const searchParams = useSearchParams();
 
     const onCreate = (req: CreateGameRequest) => {
+        req.directory = searchParams.get('directory') || '';
+
+        console.log('Req.directory: ', req.directory);
+
         request.onStart();
         api.createGame(req)
             .then((response) => {

@@ -14,6 +14,7 @@ export enum EventType {
     CreateProfile = 'create_profile',
     EditProfile = 'edit_profile',
     Graduate = 'graduate',
+    DownloadGradBox = 'download_grad_box',
     UpdateProgress = 'update_progress',
     UpdateTimeline = 'update_timeline',
     CreateNondojoTask = 'create_nondojo_task',

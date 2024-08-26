@@ -77,6 +77,9 @@ export interface CreateGameRequest {
 
     /** The raw PGN text of the Game, if supported by type. */
     pgnText?: string;
+
+    /** The id of the directory to add the game to. */
+    directory?: string;
 }
 
 /** A request to update an existing Game. */

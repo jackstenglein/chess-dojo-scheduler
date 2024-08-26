@@ -2,10 +2,24 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useGame } from '@/games/view/GamePage';
 import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { LoadingButton } from '@mui/lab';
+import { DriveFileMove } from '@mui/icons-material';
+import {
+    CircularProgress,
+    Divider,
+    ListItemIcon,
+    ListItemText,
+    MenuItem,
+    Tooltip,
+} from '@mui/material';
 import { useDirectoryCache } from './DirectoryCache';
 
-export const AddCurrentGameButton = ({ directory }: { directory: Directory }) => {
+export const AddCurrentGameMenuItem = ({
+    directory,
+    onSuccess,
+}: {
+    directory: Directory;
+    onSuccess: () => void;
+}) => {
     const api = useApi();
     const request = useRequest();
     const { game } = useGame();
@@ -45,6 +59,7 @@ export const AddCurrentGameButton = ({ directory }: { directory: Directory }) =>
                 console.log('addDirectoryItem: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess();
+                onSuccess();
             })
             .catch((err) => {
                 console.error('addDirectoryItem: ', err);
@@ -54,14 +69,26 @@ export const AddCurrentGameButton = ({ directory }: { directory: Directory }) =>
 
     return (
         <>
-            <LoadingButton
-                variant='contained'
-                loading={request.isLoading()}
-                onClick={onAdd}
-                disabled={disabled}
+            <Tooltip
+                title={disabled ? 'This game is already in this folder' : ''}
+                disableInteractive
             >
-                Add Current Game
-            </LoadingButton>
+                <span>
+                    <MenuItem disabled={disabled || request.isLoading()} onClick={onAdd}>
+                        <ListItemIcon>
+                            {request.isLoading() ? (
+                                <CircularProgress size={24} />
+                            ) : (
+                                <DriveFileMove />
+                            )}
+                        </ListItemIcon>
+                        <ListItemText primary='Add Current Game' />
+                    </MenuItem>
+                </span>
+            </Tooltip>
+
+            <Divider sx={{ my: 1 }} />
+
             <RequestSnackbar request={request} />
         </>
     );

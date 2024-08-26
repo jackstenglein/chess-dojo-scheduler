@@ -65,7 +65,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
             visibility: directoryVisibility,
 
             /** The name of the directory. */
-            name: z.string(),
+            name: z.string().trim().max(100),
         }),
     }),
     z.object({
@@ -129,7 +129,7 @@ export const DirectorySchema = z.object({
     parent: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID)]),
 
     /** The name of the directory. */
-    name: z.string().trim(),
+    name: z.string().trim().max(100),
 
     /** Whether the directory is visible to other users. */
     visibility: directoryVisibility,
