@@ -1,5 +1,5 @@
 import { isObject } from './scoreboard';
-import { User } from './user';
+import { SubscriptionStatus, User } from './user';
 
 /** The status of a requirement. */
 export enum RequirementStatus {
@@ -524,4 +524,45 @@ export function getUnitScore(cohort: string, requirement: Requirement): number {
         return requirement.unitScoreOverride[cohort];
     }
     return requirement.unitScore;
+}
+
+/**
+ * Returns whether the given requirement is currently blocked for the given user/cohort.
+ * @param cohort The cohort to check.
+ * @param user The user to check.
+ * @param requirement The requirement to check.
+ * @param requirements The list of all requirements which could be blockers.
+ * @returns An object containing a boolean field and a user-facing reason if blocked.
+ */
+export function isBlocked(
+    cohort: string,
+    user: User,
+    requirement: Requirement,
+    requirements: Requirement[],
+): { isBlocked: boolean; reason?: string } {
+    if (!requirement.blockers || requirement.blockers.length === 0) {
+        return { isBlocked: false };
+    }
+
+    const requirementMap = requirements.reduce<Record<string, Requirement>>((acc, r) => {
+        acc[r.id] = r;
+        return acc;
+    }, {});
+
+    const isFreeTier = user.subscriptionStatus !== SubscriptionStatus.Subscribed;
+
+    for (const blockerId of requirement.blockers) {
+        const blocker = requirementMap[blockerId];
+        if (
+            blocker &&
+            (blocker.isFree || !isFreeTier) &&
+            !isComplete(cohort, blocker, user.progress[blockerId])
+        ) {
+            return {
+                isBlocked: true,
+                reason: `This task is locked until you complete ${blocker.category} - ${blocker.name}.`,
+            };
+        }
+    }
+    return { isBlocked: false };
 }

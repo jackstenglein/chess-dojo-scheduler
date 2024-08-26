@@ -13,7 +13,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { RequestSnackbar } from '../../api/Request';
 import { useRequirements } from '../../api/cache/requirements';
-import { Requirement, RequirementCategory, isComplete } from '../../database/requirement';
+import {
+    Requirement,
+    RequirementCategory,
+    isBlocked,
+    isComplete,
+} from '../../database/requirement';
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
@@ -117,6 +122,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                 ((isFreeTier && r.isFree) || !isFreeTier) &&
                 !isComplete(cohort, r, user.progress[r.id]) &&
                 categoriesOfInterest.includes(r.category) &&
+                !isBlocked(cohort, user, r, requirements).isBlocked &&
                 suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
         );
 
@@ -127,7 +133,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
                 return acc;
             },
-            {} as Record<string, Requirement[]>,
+            {},
         );
 
         // Once per task we need, get one task of each category
@@ -168,7 +174,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             }
         });
         return categories;
-    }, [requirements, user, cohort, hideCompleted]);
+    }, [requirements, user, cohort, hideCompleted, isFreeTier]);
 
     if (requirementRequest.isLoading() || categories.length === 0) {
         return <LoadingPage />;
