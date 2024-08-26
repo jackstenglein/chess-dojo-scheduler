@@ -1,3 +1,4 @@
+import { useFreeTier } from '@/auth/Auth';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
     Button,
@@ -51,6 +52,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         [RequirementCategory.SuggestedTasks]: false,
     });
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
+    const isFreeTier = useFreeTier();
 
     useEffect(() => {
         setCohort(user.dojoCohort);
@@ -112,6 +114,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
         const tasksOfInterest = requirements.filter(
             (r) =>
+                ((isFreeTier && r.isFree) || !isFreeTier) &&
                 !isComplete(cohort, r, user.progress[r.id]) &&
                 categoriesOfInterest.includes(r.category) &&
                 suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
