@@ -1,5 +1,6 @@
 import { DefaultTimezone, useFilters } from '@/calendar/filters/CalendarFilters';
 import { RequirementCategory } from '@/database/requirement';
+import { CategoryColors } from '@/style/ThemeProvider';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { CalendarMonth, FormatListBulleted } from '@mui/icons-material';
@@ -21,7 +22,6 @@ import LoadingPage from '../../loading/LoadingPage';
 import NewsfeedItem from '../../newsfeed/detail/NewsfeedItem';
 import NewsfeedItemHeader from '../../newsfeed/detail/NewsfeedItemHeader';
 import LoadMoreButton from '../../newsfeed/list/LoadMoreButton';
-import { CategoryColors } from './activity';
 import { UseTimelineResponse } from './useTimeline';
 
 export function getTimeSpent(timelineItem: TimelineEntry): string {

@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
-import { useFreeTier } from '../../auth/Auth';
 import {
     CustomTask,
     Requirement,
@@ -21,7 +20,7 @@ import {
     formatTime,
     getCurrentCount,
     getTotalTime,
-    isComplete,
+    isBlocked,
     isExpired,
     isRequirement,
 } from '../../database/requirement';
@@ -82,40 +81,11 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
-    const isFreeTier = useFreeTier();
     const { requirements } = useRequirements(ALL_COHORTS, false);
 
     const blocker = useMemo(() => {
-        if (!isRequirement(requirement)) {
-            return { isBlocked: false };
-        }
-
-        if (!requirement.blockers || requirement.blockers.length === 0) {
-            return { isBlocked: false };
-        }
-
-        const requirementMap = requirements.reduce<Record<string, Requirement>>(
-            (acc, r) => {
-                acc[r.id] = r;
-                return acc;
-            },
-            {},
-        );
-        for (const blockerId of requirement.blockers) {
-            const blocker = requirementMap[blockerId];
-            if (
-                blocker &&
-                (blocker.isFree || !isFreeTier) &&
-                !isComplete(cohort, blocker, user.progress[blockerId])
-            ) {
-                return {
-                    isBlocked: true,
-                    reason: `This task is locked until you complete ${blocker.category} - ${blocker.name}.`,
-                };
-            }
-        }
-        return { isBlocked: false };
-    }, [requirement, requirements, cohort, user, isFreeTier]);
+        return isBlocked(cohort, user, requirement, requirements);
+    }, [requirement, requirements, cohort, user]);
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);

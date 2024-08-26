@@ -1,3 +1,4 @@
+import { CategoryColors } from '@/style/ThemeProvider';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../auth/Auth';
@@ -5,7 +6,6 @@ import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
 import { RequirementCategory } from '../../database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
 import Avatar from '../../profile/Avatar';
-import { CategoryColors } from '../../profile/activity/activity';
 import CohortIcon from '../../scoreboard/CohortIcon';
 
 interface NewsfeedItemHeaderProps {
