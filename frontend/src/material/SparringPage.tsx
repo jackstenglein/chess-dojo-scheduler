@@ -69,7 +69,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                         justifyContent={{ xs: 'center', sm: 'start' }}
                     >
                         {requirement.positions.map((p) => (
-                            <Grid2 xs='auto' key={p.fen}>
+                            <Grid2 md='auto' key={p.fen}>
                                 <Position position={p} />
                             </Grid2>
                         ))}
@@ -83,7 +83,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
         return (
             <Grid2 container spacing={2} justifyContent={{ xs: 'center', sm: 'start' }}>
                 {requirement.positions.map((p) => (
-                    <Grid2 xs='auto' key={p.fen}>
+                    <Grid2 md='auto' key={p.fen}>
                         <Position position={p} />
                     </Grid2>
                 ))}
@@ -94,7 +94,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
     return (
         <>
             {requirement.positions.map((p) => (
-                <Grid2 xs='auto' key={p.fen}>
+                <Grid2 md='auto' key={p.fen}>
                     <Position position={p} />
                 </Grid2>
             ))}

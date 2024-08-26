@@ -114,7 +114,7 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
                         blurOnSelect
                     />
 
-                    <Box sx={{ width: '336px', aspectRatio: 1 }}>
+                    <Box sx={{ aspectRatio: 1, width: '100%', maxWidth: '336px' }}>
                         <Board
                             key={fen}
                             config={{

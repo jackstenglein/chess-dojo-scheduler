@@ -271,10 +271,10 @@ export const ExtraSmallMenuUnauthenticated = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem href='/signin'>
+                <MenuItem component='a' href='/signin'>
                     <Typography textAlign='center'>Sign In</Typography>
                 </MenuItem>
-                <MenuItem href='/signup'>
+                <MenuItem component='a' href='/signup'>
                     <Typography textAlign='center'>Sign Up</Typography>
                 </MenuItem>
 
