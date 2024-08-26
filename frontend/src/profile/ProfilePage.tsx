@@ -1,5 +1,4 @@
 import { getConfig } from '@/config';
-import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Edit,
     Folder,
@@ -12,17 +11,7 @@ import {
     Timeline,
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    CardHeader,
-    Container,
-    Stack,
-    Tab,
-    Tabs,
-} from '@mui/material';
+import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import NotFoundPage from '../NotFoundPage';
@@ -30,7 +19,7 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
 import { FollowerEntry } from '../database/follower';
-import { compareCohorts, User } from '../database/user';
+import { User } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
 import { PawnIcon } from '../style/ChessIcons';
 import GamesTab from './GamesTab';
@@ -41,13 +30,14 @@ import CoachTab from './coach/CoachTab';
 import { DirectoriesTab } from './directories/DirectoriesTab';
 import { DirectoryCacheProvider } from './directories/DirectoryCache';
 import { ActivityCard } from './info/ActivityCard';
+import { BadgeCard } from './info/BadeCard';
 import Bio from './info/Bio';
 import CoachChip from './info/CoachChip';
 import CountChip from './info/CountChip';
 import CreatedAtChip from './info/CreatedAtChip';
 import DiscordChip from './info/DiscordChip';
 import InactiveChip from './info/InactiveChip';
-import { StatsCard } from './info/StatsCard';
+import { RatingsCard } from './info/RatingsCard';
 import TimezoneChip from './info/TimezoneChip';
 import UserInfo from './info/UserInfo';
 import ProgressTab from './progress/ProgressTab';
@@ -145,12 +135,12 @@ const ProfilePage = () => {
                     lg: '". profile stats ."',
                 },
                 gridTemplateColumns: {
-                    xs: '1fr',
-                    lg: 'auto max-content minmax(350px, 444px) auto',
+                    xs: '100%',
+                    lg: 'auto minmax(750px, max-content) minmax(350px, 444px) auto',
                 },
             }}
         >
-            <Container maxWidth='md' sx={{ gridArea: 'profile', marginRight: 0 }}>
+            <Container maxWidth='md' sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}>
                 <RequestSnackbar request={followRequest} />
 
                 <Stack>
@@ -319,28 +309,9 @@ const ProfilePage = () => {
                 }}
             >
                 <Stack spacing={2}>
-                    <StatsCard user={user} />
+                    <RatingsCard user={user} />
                     <ActivityCard user={user} />
-
-                    <Card>
-                        <CardHeader title='Badges' />
-                        <CardContent>
-                            <Stack
-                                direction='row'
-                                spacing={0.5}
-                                flexWrap='wrap'
-                                rowGap={1}
-                            >
-                                {user.graduationCohorts
-                                    ?.sort(compareCohorts)
-                                    .filter(
-                                        (c, i) =>
-                                            user.graduationCohorts?.indexOf(c) === i,
-                                    )
-                                    .map((c) => <CohortIcon key={c} cohort={c} />)}
-                            </Stack>
-                        </CardContent>
-                    </Card>
+                    <BadgeCard user={user} />
                 </Stack>
             </Container>
         </Box>

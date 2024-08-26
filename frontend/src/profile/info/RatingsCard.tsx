@@ -8,7 +8,7 @@ import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import { Card, CardContent, CardHeader, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
-export const StatsCard = ({ user }: { user: User }) => {
+export const RatingsCard = ({ user }: { user: User }) => {
     const systems = Object.values(RatingSystem)
         .filter((rs) => user.ratings[rs])
         .sort(
@@ -19,8 +19,8 @@ export const StatsCard = ({ user }: { user: User }) => {
 
     return (
         <Card>
-            <CardHeader title='Stats' />
-            <CardContent>
+            <CardHeader title='Ratings' />
+            <CardContent sx={{ pt: 1 }}>
                 <Grid2 container rowGap={1} alignItems='center'>
                     {systems.map((rs) => {
                         const currentRating = getSystemCurrentRating(user, rs);
