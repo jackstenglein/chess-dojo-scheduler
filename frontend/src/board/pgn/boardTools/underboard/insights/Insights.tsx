@@ -22,26 +22,46 @@ export enum InsightType {
 
 const insightTabKey = 'insightTab';
 
-const HOT = red[500];
-const WARM = red[300];
-const NEUTRAL = undefined;
-const COOL = blue[300];
-const COLD = blue[500];
+enum HeatLevel {
+    Hot = 'hot',
+    Warm = 'warm',
+    Neutral = 'neutral',
+    Cool = 'cool',
+    Cold = 'cold',
+}
 
-const heatColors: [number, string | undefined][] = [
-    [-2, HOT],
-    [-1, WARM],
-    [0, NEUTRAL],
-    [1, COOL],
-    [Infinity, COLD],
-];
+const HeatLevelBreakpoints = {
+    [HeatLevel.Hot]: -2,
+    [HeatLevel.Warm]: -1,
+    [HeatLevel.Neutral]: 0,
+    [HeatLevel.Cool]: 1,
+    [HeatLevel.Cold]: 100,
+};
+
+const HeatColors: Record<string, string | null> = {
+    [HeatLevel.Hot]: red[500],
+    [HeatLevel.Warm]: red[300],
+    [HeatLevel.Neutral]: null,
+    [HeatLevel.Cool]: blue[300],
+    [HeatLevel.Cold]: blue[500],
+};
 
 function AnnotationFeedback() {
     return <AnnotationWarnings inplace={true} />;
 }
 
-function getHeatColor(value: number): string | undefined {
-    return heatColors.find(([bp]) => value <= bp)?.[1];
+function getHeatColor(value: number): string | null {
+    for (const [level, bp] of Object.entries(HeatLevelBreakpoints)) {
+        if (value <= bp) {
+            return HeatColors[level];
+        }
+    }
+    const level = Object.entries(HeatLevelBreakpoints).find(([, bp]) => value <= bp)?.[0];
+    if (level === undefined) {
+        return null;
+    }
+
+    return HeatColors[level];
 }
 
 type SquareControlData = Record<Square, number>;
@@ -49,15 +69,35 @@ type SquareControlData = Record<Square, number>;
 function SquareControl() {
     const { chess, gameOrientation } = useChess();
     const [labels, setLabels] = useState<DrawShape[]>([]);
-
-    const currentMove = chess?.currentMove();
+    const [fen, setFen] = useState(chess?.fen());
 
     useEffect(() => {
         if (!chess) {
             return;
         }
 
-        const chessjs = new ChessJS(chess.fen(currentMove));
+        const observer = {
+            types: [
+                EventType.LegalMove,
+                EventType.NewVariation,
+                EventType.DeleteMove,
+                EventType.PromoteVariation,
+            ],
+            handler: () => {
+                // We partly do this to force a re-render
+                setFen(chess.fen());
+            },
+        };
+        chess.addObserver(observer);
+        return () => chess.removeObserver(observer);
+    }, [chess, setFen]);
+
+    useEffect(() => {
+        if (!chess) {
+            return;
+        }
+
+        const chessjs = new ChessJS(fen);
         const rows = [8, 7, 6, 5, 4, 3, 2, 1];
         const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         const squares = rows.flatMap((row) =>
@@ -73,17 +113,23 @@ function SquareControl() {
         }
 
         const data: SquareControlData = Object.fromEntries(
-            squares.map((square) => [
-                square,
-                chessjs.attackers(square, us).length -
-                    chessjs.attackers(square, them).length,
-            ]),
+            squares.map((square) => {
+                return [
+                    square,
+                    chessjs.attackers(square, us).length -
+                        chessjs.attackers(square, them).length,
+                ];
+            }),
         ) as SquareControlData;
 
         setLabels(
             Object.entries(data).flatMap(([square, value]) => {
+                if (!value) {
+                    return [];
+                }
+
                 const heatColor = getHeatColor(value);
-                if (value === 0 || heatColor === undefined) {
+                if (heatColor === null) {
                     return [];
                 }
 
@@ -91,7 +137,7 @@ function SquareControl() {
                     orig: square as Key,
                     customSvg: {
                         html: getNagGlyph({
-                            color: heatColor,
+                            color: heatColor ?? undefined,
                             label: (value > 0 ? '+' : '') + value.toString(),
                             description: (value > 0 ? '+' : '') + value.toString(),
                         }),
@@ -99,7 +145,9 @@ function SquareControl() {
                 };
             }),
         );
-    }, [chess, gameOrientation, currentMove]);
+    }, [chess, gameOrientation, fen]);
+
+    const opponentDisplay = gameOrientation === 'white' ? 'Black' : 'White';
 
     return (
         <Stack spacing={2}>
@@ -122,20 +170,20 @@ function SquareControl() {
             </Box>
             <Stack spacing={0.25} display='flex' flexWrap='wrap'>
                 <Box display='flex' gap='0.25rem'>
-                    <Circle sx={{ color: COLD }} />
-                    <Box>2 more eyes on square than Black</Box>
+                    <Circle sx={{ color: HeatColors[HeatLevel.Cold] }} />
+                    <Box>2 more eyes on square than {opponentDisplay}</Box>
                 </Box>
                 <Box display='flex' gap='0.25rem'>
-                    <Circle sx={{ color: COOL }} />
-                    <Box>1 more eye on square than Black</Box>
+                    <Circle sx={{ color: HeatColors[HeatLevel.Cool] }} />
+                    <Box>1 more eye on square than {opponentDisplay}</Box>
                 </Box>
                 <Box display='flex' gap='0.25rem'>
-                    <Circle sx={{ color: WARM }} />
-                    <Box>1 less eye on square than Black</Box>
+                    <Circle sx={{ color: HeatColors[HeatLevel.Warm] }} />
+                    <Box>1 less eye on square than {opponentDisplay}</Box>
                 </Box>
                 <Box display='flex' gap='0.25rem'>
-                    <Circle sx={{ color: HOT }} />
-                    <Box>2 less eyes on square than Black</Box>
+                    <Circle sx={{ color: HeatColors[HeatLevel.Hot] }} />
+                    <Box>2 less eyes on square than {opponentDisplay}</Box>
                 </Box>
             </Stack>
         </Stack>
@@ -144,27 +192,8 @@ function SquareControl() {
 
 export default function Insights() {
     const { chess } = useChess();
-    const [, setForceRender] = useState(0);
     const { game } = useGame();
     const [tab, setTab] = useLocalStorage(insightTabKey, InsightType.Annotations);
-
-    useEffect(() => {
-        if (chess) {
-            const observer = {
-                types: [
-                    EventType.LegalMove,
-                    EventType.NewVariation,
-                    EventType.DeleteMove,
-                    EventType.PromoteVariation,
-                ],
-                handler: () => {
-                    setForceRender((v) => v + 1);
-                },
-            };
-            chess.addObserver(observer);
-            return () => chess.removeObserver(observer);
-        }
-    }, [chess, setForceRender]);
 
     if (!game || !chess) {
         return null;
@@ -193,13 +222,6 @@ export default function Insights() {
                             iconPosition='start'
                             sx={{ minHeight: '48px' }}
                             data-cy='insight-tab-square-control'
-                        />
-                        <Tab
-                            label='Openings'
-                            value={InsightType.Opening}
-                            iconPosition='start'
-                            sx={{ minHeight: '48px' }}
-                            data-cy='insight-tab-openings'
                         />
                     </Tabs>
                 </Box>
