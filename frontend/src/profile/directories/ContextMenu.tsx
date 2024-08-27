@@ -9,7 +9,14 @@ import {
     DriveFileRenameOutline,
     FolderOff,
 } from '@mui/icons-material';
-import { Divider, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
+import {
+    Divider,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+    PopoverPosition,
+} from '@mui/material';
 import { useState } from 'react';
 import { DeleteDialog } from './DeleteDialog';
 import { MoveDialog } from './MoveDialog';
@@ -23,7 +30,7 @@ export const ContextMenu = ({
 }: {
     directory: Directory;
     selectedItem?: DirectoryItem;
-    position?: { mouseX: number; mouseY: number };
+    position?: PopoverPosition;
     onClose: () => void;
 }) => {
     const [renameOpen, setRenameOpen] = useState(false);
@@ -61,9 +68,7 @@ export const ContextMenu = ({
                 open={!!selectedItem && !renameOpen}
                 onClose={onClose}
                 anchorReference='anchorPosition'
-                anchorPosition={
-                    position ? { top: position.mouseY, left: position.mouseX } : undefined
-                }
+                anchorPosition={position}
                 slotProps={{
                     root: {
                         onContextMenu: (e) => {
@@ -99,7 +104,11 @@ export const ContextMenu = ({
             </Menu>
 
             {renameOpen && selectedItem.type === DirectoryItemTypes.DIRECTORY && (
-                <RenameDialog item={selectedItem} onCancel={handleClose} />
+                <RenameDialog
+                    parent={directory}
+                    item={selectedItem}
+                    onCancel={handleClose}
+                />
             )}
             {moveOpen && (
                 <MoveDialog

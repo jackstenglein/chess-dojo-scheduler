@@ -1,5 +1,6 @@
 'use client';
 
+import { RequirementCategory } from '@/database/requirement';
 import { CssBaseline } from '@mui/material';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { blue, deepPurple } from '@mui/material/colors';
@@ -9,6 +10,18 @@ import {
     experimental_extendTheme,
 } from '@mui/material/styles';
 import { ReactNode } from 'react';
+
+export const CategoryColors: Record<RequirementCategory, string> = {
+    [RequirementCategory.SuggestedTasks]: '#c27ba0', // light magenta 1
+    [RequirementCategory.Welcome]: '#c27ba0', // light magenta 1
+    [RequirementCategory.Games]: '#ff9900', // orange
+    [RequirementCategory.Tactics]: '#38761d', // dark green 2
+    [RequirementCategory.Middlegames]: '#0000ff', // blue
+    [RequirementCategory.Endgame]: '#674ea7', // dark purple 1
+    [RequirementCategory.Opening]: '#cc0000', // dark red 1
+    [RequirementCategory.Graduation]: '#f44336', // red
+    [RequirementCategory.NonDojo]: '#cccccc', // gray
+};
 
 declare module '@mui/material/styles' {
     interface Palette {

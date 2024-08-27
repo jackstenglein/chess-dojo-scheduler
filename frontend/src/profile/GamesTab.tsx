@@ -1,3 +1,5 @@
+import { ListItemContextMenu } from '@/games/list/ListItemContextMenu';
+import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Button, Stack, Tooltip } from '@mui/material';
 import {
@@ -28,6 +30,8 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const api = useApi();
     const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
+    const contextMenu = useDataGridContextMenu();
+
     const columns = useMemo(() => {
         const columns = gameTableColumns.filter((c) => c.field !== 'owner');
         if (currentUser?.username === user.username) {
@@ -145,8 +149,23 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                             />
                         ),
                     }}
+                    slotProps={{
+                        row: {
+                            onContextMenu: contextMenu.open,
+                        },
+                    }}
                 />
             )}
+
+            <ListItemContextMenu
+                game={
+                    contextMenu.rowId
+                        ? data.find((g) => g.id === contextMenu.rowId)
+                        : undefined
+                }
+                onClose={contextMenu.close}
+                position={contextMenu.position}
+            />
         </Stack>
     );
 };

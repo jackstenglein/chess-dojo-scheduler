@@ -1,10 +1,11 @@
 import NotFoundPage from '@/NotFoundPage';
-import { useAuth, useRequiredAuth } from '@/auth/Auth';
+import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { User, dojoCohorts } from '@/database/user';
 import { RenderPlayers, RenderResult } from '@/games/list/GameListItem';
 import { MastersCohort, MastersOwnerDisplayName } from '@/games/list/ListGamesPage';
 import { useGame } from '@/games/view/GamePage';
+import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -22,29 +23,23 @@ import {
     GridRowHeightParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Avatar from '../Avatar';
-import { AddCurrentGameButton } from './AddCurrentGameButton';
+import { AddButton } from './AddButton';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
-import { NewDirectoryButton } from './NewDirectoryButton';
 
 export const DirectoriesTab = ({ user }: { user: User }) => {
-    const { user: viewer } = useRequiredAuth();
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const navigate = useNavigate();
     const { game } = useGame();
 
-    const [selectedRowId, setSelectedRowId] = useState('');
-    const [contextMenuPosition, setContextMenuPosition] = useState<{
-        mouseX: number;
-        mouseY: number;
-    }>();
+    const contextMenu = useDataGridContextMenu();
 
-    const { directory, request, putDirectory } = useDirectory(user.username, directoryId);
+    const { directory, request } = useDirectory(user.username, directoryId);
 
     const rows = useMemo(() => {
         return Object.values(directory?.items || {}).sort((lhs, rhs) =>
@@ -73,31 +68,11 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
         }
     };
 
-    const openContextMenu = (event: React.MouseEvent) => {
-        event.preventDefault();
-        setSelectedRowId(event.currentTarget.getAttribute('data-id') || '');
-        setContextMenuPosition(
-            contextMenuPosition
-                ? undefined
-                : { mouseX: event.clientX - 2, mouseY: event.clientY - 4 },
-        );
-    };
-
-    const closeContextMenu = () => {
-        setSelectedRowId('');
-        setContextMenuPosition(undefined);
-    };
-
     return (
         <Stack spacing={2} alignItems='start'>
-            {viewer.username === user.username && (
-                <Stack direction='row' spacing={1}>
-                    <NewDirectoryButton parent={directory.id} onSuccess={putDirectory} />
-                    <AddCurrentGameButton directory={directory} />
-                </Stack>
-            )}
-
             <DirectoryBreadcrumbs owner={user.username} id={directoryId} />
+
+            <AddButton directory={directory} />
 
             <DataGridPro
                 data-cy='directories-data-grid'
@@ -109,7 +84,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                 sx={{ width: 1 }}
                 slotProps={{
                     row: {
-                        onContextMenu: openContextMenu,
+                        onContextMenu: contextMenu.open,
                     },
                 }}
                 initialState={{
@@ -128,9 +103,9 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
 
             <ContextMenu
                 directory={directory}
-                selectedItem={directory.items[selectedRowId]}
-                onClose={closeContextMenu}
-                position={contextMenuPosition}
+                selectedItem={directory.items[contextMenu.rowId]}
+                onClose={contextMenu.close}
+                position={contextMenu.position}
             />
         </Stack>
     );

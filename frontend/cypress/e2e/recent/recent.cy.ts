@@ -14,14 +14,14 @@ describe('Graduations', () => {
     });
 
     it('displays correct message when no graduations', () => {
-        cy.interceptApi('GET', '/graduations', {
+        cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/noGraduations.json',
         });
         cy.contains('No graduations in the selected timeframe');
     });
 
     it('displays correct columns for graduations', () => {
-        cy.interceptApi('GET', '/graduations', {
+        cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
 
@@ -41,7 +41,7 @@ describe('Graduations', () => {
     });
 
     it('displays correct graduations from past week', () => {
-        cy.interceptApi('GET', '/graduations', {
+        cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
 
@@ -52,7 +52,7 @@ describe('Graduations', () => {
     });
 
     it('displays correct graduations for other timeframes', () => {
-        cy.interceptApi('GET', '/graduations', {
+        cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
 

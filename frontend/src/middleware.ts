@@ -81,7 +81,9 @@ export const config = {
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
+         * - opengraph-image.png
+         * - twitter-image.png
          */
-        '/((?!api|_next/static|_next/image|favicon.ico|manifest.json).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|manifest.json|opengraph-image.png|twitter-image.png).*)',
     ],
 };

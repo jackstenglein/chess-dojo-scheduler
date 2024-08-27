@@ -51,6 +51,7 @@ interface CohortIconProps {
     size?: number;
     sx?: SxProps;
     tooltip?: string;
+    skipCache?: boolean;
 }
 
 const CohortIcon: React.FC<CohortIconProps & SvgIconProps> = ({
@@ -58,6 +59,7 @@ const CohortIcon: React.FC<CohortIconProps & SvgIconProps> = ({
     size = 40,
     sx,
     tooltip,
+    skipCache,
     ...svgProps
 }) => {
     if (!cohort) {
@@ -77,7 +79,7 @@ const CohortIcon: React.FC<CohortIconProps & SvgIconProps> = ({
         <Tooltip title={tooltip !== undefined ? tooltip : `Graduated from ${cohort}`}>
             <Image
                 data-cy='graduation-icon'
-                src={url}
+                src={`${url}${skipCache ? `?bypassCache=${new Date().getTime()}` : ''}`}
                 alt=''
                 width={size}
                 height={size}

@@ -1,4 +1,4 @@
-describe.skip('Directories', () => {
+describe('Directories', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'profile',
@@ -13,13 +13,24 @@ describe.skip('Directories', () => {
         cy.contains('No rows');
     });
 
+    it('links to game import page', () => {
+        cy.contains('Add').click();
+        cy.contains('New Game').should(
+            'have.attr',
+            'href',
+            '/games/import?directory=home',
+        );
+    });
+
     it('displays new directory dialog', () => {
+        cy.contains('Add').click();
         cy.contains('New Folder').click();
 
         cy.getBySel('new-directory-form').should('be.visible');
     });
 
     it('requires name to create new directory', () => {
+        cy.contains('Add').click();
         cy.contains('New Folder').click();
         cy.getBySel('new-directory-create-button').should('be.disabled');
 
@@ -42,6 +53,7 @@ describe.skip('Directories', () => {
     });
 
     it('creates and deletes directory', () => {
+        cy.contains('Add').click();
         cy.contains('New Folder').click();
         cy.getBySel('new-directory-name').type('Test');
         cy.getBySel('new-directory-create-button').click();

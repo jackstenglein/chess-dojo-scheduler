@@ -78,6 +78,19 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	log.Debugf("Total Time: %d, Dojo Time: %d, NonDojo Time: %d", totalTime, dojoTime, nonDojoTime)
 
+	ratingHistories := make(map[database.RatingSystem][]database.RatingHistory)
+	for rs, history := range user.RatingHistories {
+		for _, item := range history {
+			if item.Date >= createdAt {
+				ratingHistories[rs] = append(ratingHistories[rs], item)
+			}
+		}
+	}
+
+	if len(ratingHistories) == 0 {
+		ratingHistories = user.RatingHistories
+	}
+
 	graduation := database.Graduation{
 		Type:                "GRADUATION",
 		Username:            info.Username,
@@ -96,6 +109,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		GraduationCohorts:   graduationCohorts,
 		DojoMinutes:         dojoTime,
 		NonDojoMinutes:      nonDojoTime,
+		RatingHistories:     ratingHistories,
 	}
 	if err := repository.PutGraduation(&graduation); err != nil {
 		return api.Failure(err), nil

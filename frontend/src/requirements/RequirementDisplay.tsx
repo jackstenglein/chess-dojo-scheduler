@@ -1,4 +1,4 @@
-import { Lock, Loop, Edit } from '@mui/icons-material';
+import { Edit, Lock, Loop } from '@mui/icons-material';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import CheckIcon from '@mui/icons-material/Check';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
@@ -312,9 +312,9 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                 />
 
                 {requirement.positions && (
-                    <Grid container spacing={2}>
+                    <Grid container gap={2}>
                         {requirement.positions.map((p) => (
-                            <Grid key={p.fen} item xs='auto'>
+                            <Grid key={p.fen} item md='auto'>
                                 <Position position={p} />
                             </Grid>
                         ))}

@@ -40,6 +40,7 @@
         "lodash.debounce": "^4.0.8",
         "luxon": "^3.4.4",
         "ml-regression-simple-linear": "^3.0.0",
+        "modern-screenshot": "^4.4.39",
         "next": "^14.2.5",
         "react": "^18.2.0",
         "react-charts": "^3.0.0-beta.57",

@@ -7,6 +7,10 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import {
+    DirectoryItem,
+    DirectoryItemTypes,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     clockToSeconds,
@@ -17,6 +21,7 @@ import {
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
+import { addDirectoryItems } from 'chess-dojo-directory-service/addItem';
 import { v4 as uuidv4 } from 'uuid';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
@@ -65,6 +70,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         }
 
         const updated = await batchPutGames(games);
+
+        if (request.directory) {
+            await addGamesToDirectory(request.directory, games);
+        }
+
         if (games.length === 1) {
             return success(games[0]);
         }
@@ -250,13 +260,15 @@ function convertEmt(pgn: string): string {
             oddPlayerClock =
                 oddPlayerClock -
                 timeUsed +
-                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0);
+                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0) +
+                additionalTime;
             newTime = oddPlayerClock;
         } else {
             evenPlayerClock =
                 evenPlayerClock -
                 timeUsed +
-                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0);
+                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0) +
+                additionalTime;
             newTime = evenPlayerClock;
         }
 
@@ -431,4 +443,35 @@ async function batchPutGames(games: Game[]): Promise<number> {
     }
 
     return updated;
+}
+
+/**
+ * Adds the given games to the given directory.
+ * @param directoryId The id of the directory. Must be owned by the owner of the games.
+ * @param games The games to add. Must all have the same owner.
+ */
+async function addGamesToDirectory(directoryId: string, games: Game[]) {
+    try {
+        console.log('Adding %d games to directory %s', games.length, directoryId);
+        const directoryItems: DirectoryItem[] = games.map((g) => ({
+            type: DirectoryItemTypes.OWNED_GAME,
+            id: `${g.cohort}#${g.id}`,
+            metadata: {
+                cohort: g.cohort,
+                id: g.id,
+                owner: g.owner,
+                ownerDisplayName: g.ownerDisplayName || '',
+                createdAt: g.createdAt,
+                white: g.headers.White,
+                black: g.headers.Black,
+                whiteElo: g.headers.WhiteElo,
+                blackElo: g.headers.BlackElo,
+                result: g.headers.Result,
+            },
+        }));
+
+        await addDirectoryItems(games[0].owner, directoryId, directoryItems);
+    } catch (err) {
+        console.error('Failed to add games to directory: ', err);
+    }
 }

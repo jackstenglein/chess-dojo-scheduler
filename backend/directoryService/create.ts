@@ -3,7 +3,6 @@
 import {
     ConditionalCheckFailedException,
     PutItemCommand,
-    UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import {
@@ -18,7 +17,12 @@ import {
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { NIL as uuidNil, v4 as uuidv4 } from 'uuid';
 import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, success } from './api';
-import { directoryTable, dynamo } from './database';
+import {
+    attributeNotExists,
+    directoryTable,
+    dynamo,
+    UpdateItemBuilder,
+} from './database';
 import { fetchDirectory } from './get';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -53,7 +57,9 @@ async function handleCreateDirectory(event: APIGatewayProxyEventV2) {
     let parent = await fetchDirectory(userInfo.username, request.parent);
     if (
         Object.values(parent?.items || {}).some(
-            (item) => item.type === 'DIRECTORY' && item.metadata.name === request.name,
+            (item) =>
+                item.type === DirectoryItemTypes.DIRECTORY &&
+                item.metadata.name === request.name,
         )
     ) {
         throw new ApiError({
@@ -197,25 +203,15 @@ async function addSubDirectory(
         },
     };
 
-    const input = new UpdateItemCommand({
-        Key: {
-            owner: { S: parent.owner },
-            id: { S: parent.id },
-        },
-        ConditionExpression: 'attribute_not_exists(#items.#id)',
-        UpdateExpression: `SET #items.#id = :directory, #updatedAt = :updatedAt`,
-        ExpressionAttributeNames: {
-            '#items': 'items',
-            '#id': request.id,
-            '#updatedAt': 'updatedAt',
-        },
-        ExpressionAttributeValues: {
-            ':directory': { M: marshall(subdirectory) },
-            ':updatedAt': { S: createdAt },
-        },
-        TableName: directoryTable,
-        ReturnValues: 'NONE',
-    });
+    const input = new UpdateItemBuilder()
+        .key('owner', parent.owner)
+        .key('id', parent.id)
+        .set(`items.${request.id}`, subdirectory)
+        .set('updatedAt', createdAt)
+        .condition(attributeNotExists(`items.${request.id}`))
+        .table(directoryTable)
+        .return('NONE')
+        .build();
     await dynamo.send(input);
 
     parent.items[request.id] = subdirectory;

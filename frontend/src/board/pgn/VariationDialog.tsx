@@ -80,6 +80,8 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
         return null;
     }
 
+    const position = getPosition();
+
     return (
         <Dialog
             open
@@ -93,15 +95,14 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
                     position: {
                         sm: 'absolute',
                     },
-                    left: getPosition(),
-                    marginLeft: {
-                        sm: 0,
-                    },
-                    marginRight: {
-                        sm: 0,
-                    },
+                    left: position?.x,
+                    top: position?.y,
+                    margin: { sm: 0 },
+                    pointerEvents: 'auto',
                 },
             }}
+            style={{ pointerEvents: 'none' }}
+            hideBackdrop
         >
             <DialogTitle>
                 Choose Variation
@@ -163,15 +164,15 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
 export default VariationDialog;
 
 /**
- * Gets the X position of the variation dialog on md and larger screen sizes.
+ * Gets the X, Y position of the variation dialog on md and larger screen sizes.
  * Depending on how the space is allocated to different sections of the game page,
  * the variation dialog is preferred to be placed:
- *   1. Immediately to the left of the board, with some slight padding.
- *   2. Immediately to the right of the board, with some slight padding.
+ *   1. Immediately to the right of the board, with some slight padding.
+ *   2. Immediately to the left of the board, with some slight padding.
  *   3. Centered in the screen.
- * @returns The X position of the variation dialog.
+ * @returns The X, Y position of the variation dialog.
  */
-function getPosition(): number | undefined {
+function getPosition(): { x: number; y: number } | undefined {
     const board = document.querySelector('cg-container');
     if (!board) {
         return undefined;
@@ -179,14 +180,14 @@ function getPosition(): number | undefined {
 
     const boardRect = board.getBoundingClientRect();
 
-    let position = boardRect.x - 8 - DIALOG_WIDTH;
-    if (position >= 4) {
-        return position;
+    let position = boardRect.x + boardRect.width + 10;
+    if (window.innerWidth - position - DIALOG_WIDTH >= 4) {
+        return { x: position, y: boardRect.y };
     }
 
-    position = boardRect.x + boardRect.width + 8;
-    if (window.innerWidth - position - DIALOG_WIDTH >= 4) {
-        return position;
+    position = boardRect.x - 8 - DIALOG_WIDTH;
+    if (position >= 4) {
+        return { x: position, y: boardRect.y };
     }
 
     return undefined;
