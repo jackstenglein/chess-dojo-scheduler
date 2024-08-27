@@ -137,6 +137,9 @@ export const DirectorySchema = z.object({
     /** The items in the directory, mapped by their ids. */
     items: z.record(z.string(), DirectoryItemSchema),
 
+    /** The ids of the items in the directory in their default order. */
+    itemIds: z.string().array(),
+
     /** The datetime the directory was created, in ISO format. */
     createdAt: z.string().datetime(),
 
@@ -216,6 +219,9 @@ export const RemoveDirectoryItemSchema = z.object({
 
     /** The id of the item to remove. */
     itemId: z.string(),
+
+    /** The index of the item to remove in the itemIds list. */
+    itemIndex: z.number().min(0),
 });
 
 /** A request to remove an item from a directory. */

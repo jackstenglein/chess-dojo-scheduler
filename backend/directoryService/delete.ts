@@ -46,6 +46,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 userInfo.username,
                 directory.parent,
                 [request.id],
+                undefined,
                 true,
             );
         }

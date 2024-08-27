@@ -141,7 +141,10 @@ export function removeDirectoryItem(
 ) {
     return axios.delete<AddDirectoryItemResponse>(
         `${BASE_URL}/directory/${request.directoryId}/item/${encodeURIComponent(request.itemId)}`,
-        { headers: { Authorization: `Bearer ${idToken}` } },
+        {
+            params: { itemIndex: request.itemIndex },
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
     );
 }
 

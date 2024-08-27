@@ -21,6 +21,7 @@ import {
     GridColDef,
     GridRenderCellParams,
     GridRowHeightParams,
+    GridRowOrderChangeParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
@@ -36,14 +37,30 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const directoryId = searchParams.get('directory') || 'home';
     const navigate = useNavigate();
     const { game } = useGame();
+    const { user: viewer } = useAuth();
 
     const contextMenu = useDataGridContextMenu();
 
     const { directory, request } = useDirectory(user.username, directoryId);
 
     const rows = useMemo(() => {
-        return Object.values(directory?.items || {}).sort((lhs, rhs) =>
-            lhs.type.localeCompare(rhs.type),
+        return (
+            (directory?.itemIds
+                .map((id) => {
+                    const item = directory.items[id];
+                    if (!item) {
+                        return undefined;
+                    }
+
+                    return {
+                        ...item,
+                        __reorder__:
+                            item.type === DirectoryItemTypes.DIRECTORY
+                                ? item.metadata.name
+                                : `${item.metadata.white} - ${item.metadata.black}`,
+                    };
+                })
+                .filter((item) => Boolean(item)) as DirectoryItem[]) ?? []
         );
     }, [directory]);
 
@@ -68,6 +85,10 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
         }
     };
 
+    const handleRowOrderChange = (params: GridRowOrderChangeParams) => {
+        console.log('Params: ', params);
+    };
+
     return (
         <Stack spacing={2} alignItems='start'>
             <DirectoryBreadcrumbs owner={user.username} id={directoryId} />
@@ -88,9 +109,6 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                     },
                 }}
                 initialState={{
-                    sorting: {
-                        sortModel: [{ field: 'type', sort: 'asc' }],
-                    },
                     columns: {
                         columnVisibilityModel: {
                             createdAt: !game,
@@ -99,6 +117,8 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                     },
                 }}
                 getRowHeight={getRowHeight}
+                rowReordering={viewer?.username === user.username}
+                onRowOrderChange={handleRowOrderChange}
             />
 
             <ContextMenu

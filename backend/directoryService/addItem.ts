@@ -17,7 +17,14 @@ import {
     success,
     UserInfo,
 } from './api';
-import { attributeExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
+import {
+    and,
+    attributeExists,
+    attributeNotExists,
+    directoryTable,
+    dynamo,
+    UpdateItemBuilder,
+} from './database';
 
 /**
  * Handles requests to the add directory item API. Returns the updated directory.
@@ -76,6 +83,7 @@ export async function addDirectoryItems(
     items: DirectoryItem[],
 ): Promise<Directory> {
     try {
+        const conditions = [];
         const builder = new UpdateItemBuilder()
             .key('owner', owner)
             .key('id', id)
@@ -85,7 +93,13 @@ export async function addDirectoryItems(
             .return('ALL_NEW');
         for (const item of items) {
             builder.set(['items', item.id], item);
+            conditions.push(attributeNotExists(['items', item.id]));
         }
+        builder.condition(and(...conditions));
+        builder.appendToList(
+            'itemIds',
+            items.map((item) => item.id),
+        );
 
         const input = builder.build();
         console.log('Input: %j', input);

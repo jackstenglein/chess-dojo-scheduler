@@ -4,7 +4,7 @@ import {
     ConditionalCheckFailedException,
     PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     CreateDirectoryRequest,
     CreateDirectorySchema,
@@ -86,6 +86,7 @@ async function handleCreateDirectory(event: APIGatewayProxyEventV2) {
         name: request.name,
         visibility: request.visibility,
         items: {},
+        itemIds: [],
         createdAt: parent.items[request.id].metadata.createdAt,
         updatedAt: parent.items[request.id].metadata.createdAt,
     };
@@ -149,6 +150,7 @@ async function createHomeDirectory(
                 },
             },
         },
+        itemIds: [request.id],
     };
     await createDirectory(directory);
     return directory;
@@ -207,13 +209,12 @@ async function addSubDirectory(
         .key('owner', parent.owner)
         .key('id', parent.id)
         .set(`items.${request.id}`, subdirectory)
+        .appendToList('itemIds', [request.id])
         .set('updatedAt', createdAt)
         .condition(attributeNotExists(`items.${request.id}`))
         .table(directoryTable)
-        .return('NONE')
+        .return('ALL_NEW')
         .build();
-    await dynamo.send(input);
-
-    parent.items[request.id] = subdirectory;
-    return parent;
+    const output = await dynamo.send(input);
+    return unmarshall(output.Attributes || {}) as Directory;
 }

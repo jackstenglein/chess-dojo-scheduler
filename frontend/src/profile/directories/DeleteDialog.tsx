@@ -138,7 +138,11 @@ const RemoveGameDialog = ({
 
     const onRemove = () => {
         request.onStart();
-        api.removeDirectoryItem({ directoryId: directory.id, itemId: item.id })
+        api.removeDirectoryItem({
+            directoryId: directory.id,
+            itemId: item.id,
+            itemIndex: directory.itemIds.indexOf(item.id),
+        })
             .then((resp) => {
                 console.log('removeDirectoryItem: ', resp);
                 cache.put(resp.data.directory);

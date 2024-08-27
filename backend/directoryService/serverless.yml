@@ -97,6 +97,7 @@ functions:
         Action:
           - dynamodb:DeleteItem
           - dynamodb:UpdateItem
+          - dynamodb:GetItem
         Resource: !GetAtt DirectoriesTable.Arn
 
   recursiveDelete:
