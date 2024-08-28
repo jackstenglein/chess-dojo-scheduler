@@ -37,7 +37,7 @@ export const RenameDialog = ({
         name.trim().length > 100;
 
     const onSave = () => {
-        if (disableSave) {
+        if (disableSave || request.isLoading()) {
             return;
         }
 
@@ -84,6 +84,11 @@ export const RenameDialog = ({
                     label='Name'
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            onSave();
+                        }
+                    }}
                     fullWidth
                     sx={{ mt: 0.75 }}
                     error={name.trim().length > 100}
