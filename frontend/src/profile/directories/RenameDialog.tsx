@@ -60,7 +60,9 @@ export const RenameDialog = ({
             .then((resp) => {
                 console.log('updateDirectory: ', resp);
                 cache.put(resp.data.directory);
-                cache.put(resp.data.parent);
+                if (resp.data.parent) {
+                    cache.put(resp.data.parent);
+                }
                 onCancel();
             })
             .catch((err) => {

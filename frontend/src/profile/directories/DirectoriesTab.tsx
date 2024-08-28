@@ -1,4 +1,6 @@
 import NotFoundPage from '@/NotFoundPage';
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { User, dojoCohorts } from '@/database/user';
@@ -38,10 +40,12 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
     const navigate = useNavigate();
     const { game } = useGame();
     const { user: viewer } = useAuth();
+    const api = useApi();
+    const reorderRequest = useRequest();
 
     const contextMenu = useDataGridContextMenu();
 
-    const { directory, request } = useDirectory(user.username, directoryId);
+    const { directory, request, putDirectory } = useDirectory(user.username, directoryId);
 
     const rows = useMemo(() => {
         return (
@@ -87,6 +91,23 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
 
     const handleRowOrderChange = (params: GridRowOrderChangeParams) => {
         console.log('Params: ', params);
+
+        const newIds = rows.map((row) => row.id);
+        const id = newIds.splice(params.oldIndex, 1)[0];
+        newIds.splice(params.targetIndex, 0, id);
+
+        api.updateDirectory({
+            id: directoryId,
+            itemIds: newIds,
+        })
+            .then((resp) => {
+                console.log('updateDirectory: ', resp);
+                putDirectory(resp.data.directory);
+            })
+            .catch((err) => {
+                reorderRequest.onFailure(err);
+                console.error('updateDirectory: ', err);
+            });
     };
 
     return (

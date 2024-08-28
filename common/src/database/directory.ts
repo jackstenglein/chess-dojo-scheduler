@@ -176,11 +176,20 @@ export const CreateDirectorySchema = DirectorySchema.pick({
 /** A request to create a directory. */
 export type CreateDirectoryRequest = z.infer<typeof CreateDirectorySchema>;
 
+/** Verifies a request to update a directory. */
 export const UpdateDirectorySchema = DirectorySchema.pick({
+    /** The id of the directory to update. */
     id: true,
+
+    /** The new name to set on the directory. */
     name: true,
+
+    /** The new visibility to set on the directory. */
     visibility: true,
-}).partial({ name: true, visibility: true });
+
+    /** The new order of the items to set on the directory. */
+    itemIds: true,
+}).partial({ name: true, visibility: true, itemIds: true });
 
 /** A request to update a directory. */
 export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;

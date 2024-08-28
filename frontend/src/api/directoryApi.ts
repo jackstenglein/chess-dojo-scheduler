@@ -84,7 +84,7 @@ export function createDirectory(idToken: string, request: CreateDirectoryRequest
 
 export interface UpdateDirectoryResponse {
     directory: Directory;
-    parent: Directory;
+    parent?: Directory;
 }
 
 export function updateDirectory(idToken: string, request: UpdateDirectoryRequest) {
