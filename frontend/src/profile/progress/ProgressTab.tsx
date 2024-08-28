@@ -100,7 +100,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         const desiredTaskCount = 3;
 
         const recentRequirements = Object.values(user.progress)
-            .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+            .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
             .map((progress) => requirementsById[progress.requirementId])
             .filter((r) => !!r && !isComplete(cohort, r, user.progress[r.id]));
 
