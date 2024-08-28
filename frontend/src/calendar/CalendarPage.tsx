@@ -1,6 +1,7 @@
 import { Scheduler } from '@aldabil/react-scheduler';
 import type { EventRendererProps, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Button, Container, Grid, Snackbar, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
@@ -31,7 +32,6 @@ import {
     getHours,
     useFilters,
 } from './filters/CalendarFilters';
-import { SiDiscord, SiTwitch, SiYoutube } from 'react-icons/si';
 
 function processAvailability(
     user: User | undefined,
@@ -489,7 +489,10 @@ export default function CalendarPage() {
 
             <Grid container spacing={2}>
                 <Grid item xs={12} md={2.5}>
-                    <Button onClick={toggleFilters}>
+                    <Button
+                        onClick={toggleFilters}
+                        startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
+                    >
                         {showFilters ? 'Hide Filters' : 'Show Filters'}
                     </Button>
                     {showFilters && <CalendarFilters filters={filters} />}
@@ -573,18 +576,32 @@ interface CustomEventRendererProps extends EventRendererProps {
     timeFormat: TimeFormat | undefined;
 }
 
-export function getLocationIcon(location: string | undefined){
-
-    if(location == undefined){
+export function getLocationIcon(location: string | undefined) {
+    if (location == undefined) {
         return 'meet';
     }
 
-    if(location.toLocaleLowerCase().includes('discord')){
+    if (location.toLocaleLowerCase().includes('discord')) {
         return 'discord';
-    }else if(location.toLocaleLowerCase().includes('twitch')){
+    } else if (location.toLocaleLowerCase().includes('twitch')) {
         return 'twitch';
-    }else if(location.toLocaleLowerCase().includes('youtube')){
+    } else if (location.toLocaleLowerCase().includes('youtube')) {
         return 'youtube';
+    }
+}
+
+export function getStreamColor(
+    location: string | undefined,
+    normalColor: string | undefined,
+) {
+    const color = getLocationIcon(location);
+    switch (color) {
+        case 'twitch':
+            return '#6441a5';
+        case 'youtube':
+            return '#FF0000';
+        default:
+            return normalColor;
     }
 }
 
@@ -616,7 +633,7 @@ export function CustomEventRenderer({
         <Stack
             sx={{
                 height: '100%',
-                backgroundColor: event.color,
+                backgroundColor: getStreamColor(location, event.color),
                 color: textColor,
                 fontSize: '0.775em',
                 pl: 0.25,

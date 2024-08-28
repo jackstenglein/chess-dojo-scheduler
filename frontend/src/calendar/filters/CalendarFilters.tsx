@@ -6,6 +6,8 @@ import {
     Link,
     Stack,
     SvgIconOwnProps,
+    ToggleButton,
+    ToggleButtonGroup,
     Typography,
     useMediaQuery,
 } from '@mui/material';
@@ -416,22 +418,27 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 />
                                 My Dojo Calendar
                             </Typography>
-                            <MultipleSelectChip
-                                selected={filters.sessions}
-                                setSelected={onChangeSessions}
-                                options={Object.values(CalendarSessionType).map((t) => ({
-                                    value: t,
-                                    label: getDisplaySessionString(t),
-                                    icon: (
-                                        <Icon name={t} color={getSessionTypeColor(t)} />
-                                    ),
-                                }))}
-                                displayEmpty='None'
-                                size='small'
-                                data-cy='my-dojo-calendar'
-                            />
+                            <ToggleButtonGroup
+                                orientation='vertical'
+                                value={filters.sessions}
+                                onChange={(_event, newSessions: string[]) =>
+                                    onChangeSessions(newSessions)
+                                }
+                                exclusive={false}
+                                sx={{ display: 'flex', flexDirection: 'column' }}
+                            >
+                                {Object.values(CalendarSessionType).map((t) => (
+                                    <ToggleButton key={t} value={t}>
+                                        <Icon
+                                            name={t}
+                                            color={getSessionTypeColor(t)}
+                                            sx={{ marginRight: '0.5rem' }}
+                                        />
+                                        {getDisplaySessionString(t)}
+                                    </ToggleButton>
+                                ))}
+                            </ToggleButtonGroup>
                         </Stack>
-
                         <Stack>
                             <Typography variant='h6' color='text.secondary'>
                                 <Icon
@@ -445,18 +452,29 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 />
                                 DojoLiga Tournaments
                             </Typography>
-                            <MultipleSelectChip
-                                selected={filters.tournamentTimeControls}
-                                setSelected={onChangeTournamentTimeControls}
-                                options={Object.values(TimeControlType).map((t) => ({
-                                    value: t,
-                                    label: displayTimeControlType(t),
-                                    icon: <Icon name={t} color='liga' />,
-                                }))}
-                                displayEmpty='None'
-                                size='small'
-                                data-cy='dojoliga-tournaments'
-                            />
+
+                            <ToggleButtonGroup
+                                orientation='vertical'
+                                value={filters.tournamentTimeControls}
+                                onChange={(_event, newTournamentTimeControls: string[]) =>
+                                    onChangeTournamentTimeControls(
+                                        newTournamentTimeControls,
+                                    )
+                                }
+                                exclusive={false} // Allow multiple selections
+                                sx={{ display: 'flex', flexDirection: 'column' }} // Ensure vertical layout
+                            >
+                                {Object.values(TimeControlType).map((t) => (
+                                    <ToggleButton key={t} value={t}>
+                                        <Icon
+                                            name={t}
+                                            color='liga'
+                                            sx={{ marginRight: '0.5rem' }}
+                                        />
+                                        {displayTimeControlType(t)}
+                                    </ToggleButton>
+                                ))}
+                            </ToggleButtonGroup>
                         </Stack>
 
                         <Stack>
