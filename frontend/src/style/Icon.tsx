@@ -69,6 +69,7 @@ import {
 } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import { RookIcon } from './ChessIcons';
+import { DiscordIcon, TwitchIcon, YoutubeIcon } from './SocialMediaIcons';
 
 export const icons = {
     [RequirementCategory.SuggestedTasks]: Today,
@@ -126,6 +127,9 @@ export const icons = {
     'Analyze Own Game': Biotech,
     'Book Study': AutoStories,
     'Rook Endgame Progression': RookIcon,
+    'discord': DiscordIcon,
+    'twitch': TwitchIcon,
+    'youtube': YoutubeIcon,
     'Middlegame Win Conversions': ControlCamera,
     'Endgame Win Conversions': ZoomOutMap,
     'Endgame Algorithms': EmojiObjects,

@@ -1,7 +1,7 @@
 import { Scheduler } from '@aldabil/react-scheduler';
 import type { EventRendererProps, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Container, Grid, Snackbar, Stack, Typography } from '@mui/material';
+import { Button, Container, Grid, Snackbar, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -31,6 +31,7 @@ import {
     getHours,
     useFilters,
 } from './filters/CalendarFilters';
+import { SiDiscord, SiTwitch, SiYoutube } from 'react-icons/si';
 
 function processAvailability(
     user: User | undefined,
@@ -322,6 +323,12 @@ export default function CalendarPage() {
     const copyRequest = useRequest();
     const deleteRequest = useRequest<string>();
 
+    const [showFilters, setShowFilters] = useState(true);
+
+    const toggleFilters = () => {
+        setShowFilters(!showFilters);
+    };
+
     const deleteAvailability = useCallback(
         async (id: string) => {
             try {
@@ -482,9 +489,12 @@ export default function CalendarPage() {
 
             <Grid container spacing={2}>
                 <Grid item xs={12} md={2.5}>
-                    <CalendarFilters filters={filters} />
+                    <Button onClick={toggleFilters}>
+                        {showFilters ? 'Hide Filters' : 'Show Filters'}
+                    </Button>
+                    {showFilters && <CalendarFilters filters={filters} />}
                 </Grid>
-                <Grid item xs={12} md={9.5}>
+                <Grid item xs={12} md={showFilters ? 9.5 : 12}>
                     <Stack spacing={3}>
                         {isFreeTier && (
                             <UpsellAlert>
@@ -563,6 +573,21 @@ interface CustomEventRendererProps extends EventRendererProps {
     timeFormat: TimeFormat | undefined;
 }
 
+export function getLocationIcon(location: string | undefined){
+
+    if(location == undefined){
+        return 'meet';
+    }
+
+    if(location.toLocaleLowerCase().includes('discord')){
+        return 'discord';
+    }else if(location.toLocaleLowerCase().includes('twitch')){
+        return 'twitch';
+    }else if(location.toLocaleLowerCase().includes('youtube')){
+        return 'youtube';
+    }
+}
+
 export function CustomEventRenderer({
     event,
     timeFormat,
@@ -585,6 +610,7 @@ export function CustomEventRenderer({
     const quarterHours = Math.abs(event.start.getTime() - event.end.getTime()) / 900000;
     const maxLines = 2 + Math.max(0, quarterHours - 4);
     const dojoEvent = event.event as Event | undefined;
+    const location = dojoEvent?.location;
 
     return (
         <Stack
@@ -602,7 +628,7 @@ export function CustomEventRenderer({
                 <Icon
                     name={
                         (dojoEvent?.ligaTournament?.timeControlType ||
-                            dojoEvent?.type) as keyof typeof icons
+                            getLocationIcon(location)) as keyof typeof icons
                     }
                     color='inherit'
                     fontSize='inherit'

@@ -2,6 +2,7 @@ import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Stack, Typography } from '@mui/material';
 import { Event } from '../../database/event';
 import Icon from '../../style/Icon';
+import { getLocationIcon } from '../CalendarPage';
 
 interface DojoEventViewerProps {
     processedEvent: ProcessedEvent;
@@ -15,7 +16,7 @@ const DojoEventViewer: React.FC<DojoEventViewerProps> = ({ processedEvent }) => 
             <Stack>
                 <Typography variant='subtitle2' color='text.secondary'>
                     <Icon
-                        name='location'
+                        name={getLocationIcon(event.location)}
                         color='primary'
                         sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}
                     />
