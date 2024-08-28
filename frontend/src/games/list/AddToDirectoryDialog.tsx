@@ -97,6 +97,7 @@ export const AddToDirectoryDialog = ({
                                 owner={user.username}
                                 id={directoryId}
                                 onClick={onNavigate}
+                                variant='body1'
                             />
 
                             <List>
