@@ -17,10 +17,16 @@ provider:
 custom:
   pythonRequirements:
     dockerizePip: true
+  prod:
+    schedule: cron(0 0 ? * FRI *)
+  dev:
+    schedule: cron(0 0 ? * FRI 1970)
 
 functions:
   scrapeTwic:
     handler: scrape_twic.handler
+    events:
+      - schedule: ${self:custom.${sls:stage}.schedule}
     timeout: 900
     iamRoleStatements:
       - Effect: Allow
