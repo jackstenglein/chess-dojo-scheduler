@@ -23,7 +23,7 @@ export interface TournamentData {
  * The Round Robin Tournament ID API response
  */
 interface TournamentId {
-    id: string; // list of list of tournament ids in string
+    ids: string[]; // list of tournament ids in string
     message: string; // success/error message 
 }
 
@@ -77,9 +77,7 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
             
         });
 
-
-        const idsString: string = response.data.id;
-        const ids: string[] = idsString.replaceAll(/[[\]]/g, '').split(', ');
+        const ids: string[] = response.data.ids;
 
         return ids;
     } catch (error) {
