@@ -139,10 +139,10 @@ export function removeDirectoryItem(
     idToken: string,
     request: RemoveDirectoryItemRequest,
 ) {
-    return axios.delete<AddDirectoryItemResponse>(
-        `${BASE_URL}/directory/${request.directoryId}/item/${encodeURIComponent(request.itemId)}`,
+    return axios.put<AddDirectoryItemResponse>(
+        `${BASE_URL}/directory/${request.directoryId}/item/delete`,
+        { itemId: request.itemId, itemIndex: request.itemIndex },
         {
-            params: { itemIndex: request.itemIndex },
             headers: { Authorization: `Bearer ${idToken}` },
         },
     );

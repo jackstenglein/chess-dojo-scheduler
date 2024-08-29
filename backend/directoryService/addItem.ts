@@ -1,5 +1,9 @@
-import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import {
+    BatchExecuteStatementCommand,
+    BatchStatementRequest,
+    ConditionalCheckFailedException,
+} from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     AddDirectoryItemRequest,
     AddDirectoryItemSchema,
@@ -23,6 +27,7 @@ import {
     attributeNotExists,
     directoryTable,
     dynamo,
+    gameTable,
     UpdateItemBuilder,
 } from './database';
 
@@ -38,6 +43,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const request = parseEvent(event, AddDirectoryItemSchema);
         const item = getDirectoryItem(userInfo, request);
         const directory = await addDirectoryItems(userInfo.username, request.id, [item]);
+
         return success({ directory });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -65,7 +71,7 @@ function getDirectoryItem(
 
     return {
         type,
-        id: `${request.game.cohort}#${request.game.id}`,
+        id: `${request.game.cohort}/${request.game.id}`,
         metadata: request.game,
     };
 }
@@ -104,7 +110,11 @@ export async function addDirectoryItems(
         const input = builder.build();
         console.log('Input: %j', input);
         const result = await dynamo.send(input);
-        return unmarshall(result.Attributes!) as Directory;
+        const directory = unmarshall(result.Attributes!) as Directory;
+
+        await addDirectoryToGames(owner, id, items);
+
+        return directory;
     } catch (err) {
         if (err instanceof ConditionalCheckFailedException) {
             throw new ApiError({
@@ -121,5 +131,37 @@ export async function addDirectoryItems(
             privateMessage: 'DDB UpdateItem failure',
             cause: err,
         });
+    }
+}
+
+/**
+ * Adds the given directory to the Games represented by the game items in the given DirectoryItem list.
+ * @param owner The owner of the directory.
+ * @param id The id of the directory.
+ * @param items The items to add the directory to. Only items representing games are affected.
+ */
+export async function addDirectoryToGames(
+    owner: string,
+    id: string,
+    items: DirectoryItem[],
+) {
+    const gameItems = items.filter((item) => item.type !== DirectoryItemTypes.DIRECTORY);
+
+    for (let i = 0; i < gameItems.length; i += 25) {
+        const statements: BatchStatementRequest[] = [];
+
+        for (let j = i; j < items.length && j < i + 25; j++) {
+            const item = gameItems[j];
+            const params = marshall([item.metadata.cohort, item.metadata.id]);
+            statements.push({
+                Statement: `UPDATE "${gameTable}" SET directories=set_add(directories, <<'${owner}/${id}'>>) WHERE cohort=? AND id=?`,
+                Parameters: params,
+            });
+        }
+
+        console.log('Sending BatchExecuteStatements: %j', statements);
+        const input = new BatchExecuteStatementCommand({ Statements: statements });
+        const result = await dynamo.send(input);
+        console.log('BatchExecuteResult: %j', result);
     }
 }

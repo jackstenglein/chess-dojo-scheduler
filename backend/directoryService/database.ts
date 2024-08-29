@@ -10,6 +10,7 @@ import { ApiError } from './api';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 export const directoryTable = process.env.stage + '-directories';
+export const gameTable = process.env.stage + '-games';
 
 type updateReturnType = 'NONE' | 'ALL_OLD' | 'UPDATED_OLD' | 'ALL_NEW' | 'UPDATED_NEW';
 
@@ -229,19 +230,13 @@ export class UpdateItemBuilder {
         let result = '';
 
         for (const token of path) {
-            console.log('Token: ', token);
-            console.log('Result: ', result);
-
             if (typeof token === 'number') {
-                console.log('Number');
                 result = result.slice(0, -1) + `[${token}].`;
             } else {
-                console.log('String');
                 result += `#n${this.attrIndex}.`;
                 this.exprAttrNames[`#n${this.attrIndex}`] = token;
                 this.attrIndex++;
             }
-            console.log('New Result: ', result);
         }
 
         return result.slice(0, -1);

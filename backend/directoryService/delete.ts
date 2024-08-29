@@ -3,7 +3,7 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     DeleteDirectorySchema,
     Directory,
-    DirectorySchema,
+    DirectoryItemTypes,
     isDefaultDirectory,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
@@ -15,7 +15,7 @@ import {
     success,
 } from './api';
 import { directoryTable, dynamo } from './database';
-import { removeDirectoryItems } from './removeItem';
+import { removeDirectoryFromGames, removeDirectoryItems } from './removeItem';
 
 /**
  * Handles requests to the delete directory API. Returns the directory as
@@ -82,6 +82,14 @@ export async function deleteDirectory(
         return undefined;
     }
 
-    const directory = unmarshall(output.Attributes);
-    return DirectorySchema.parse(directory);
+    const directory = unmarshall(output.Attributes) as Directory;
+    await removeDirectoryFromGames(
+        directory.owner,
+        directory.id,
+        Object.values(directory.items)
+            .filter((item) => item.type !== DirectoryItemTypes.DIRECTORY)
+            .map((item) => item.id),
+    );
+
+    return directory;
 }

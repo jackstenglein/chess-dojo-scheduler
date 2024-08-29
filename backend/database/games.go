@@ -229,6 +229,9 @@ type Game struct {
 
 	// A map from the normalized FEN of a position to a map from the id of a comment to the comment.
 	PositionComments map[string]map[string]PositionComment `dynamodbav:"positionComments" json:"positionComments"`
+
+	// A set of directories containing this game, in the form `owner/id`.
+	Directories []string `dynamodbav:"directories,stringset,omitempty" json:"directories,omitempty"`
 }
 
 type Reviewer struct {

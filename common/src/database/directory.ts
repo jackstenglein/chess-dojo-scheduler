@@ -72,7 +72,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /** The type of the directory item. */
         type: z.literal(DirectoryItemTypes.OWNED_GAME),
 
-        /** The id of the directory item. For a game, this is the value cohort#id. */
+        /** The id of the directory item. For a game, this is the value cohort/id. */
         id: z.string(),
 
         /** The metadata of the directory item. */

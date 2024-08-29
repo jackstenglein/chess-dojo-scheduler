@@ -44,7 +44,7 @@ export const AddToDirectoryDialog = ({
         setDirectoryId(id);
     };
 
-    const alreadyExists = Boolean(directory?.items[`${game?.cohort}#${game?.id}`]);
+    const alreadyExists = Boolean(directory?.items[`${game?.cohort}/${game?.id}`]);
 
     const onAdd = () => {
         if (!game || alreadyExists) {
