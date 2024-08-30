@@ -97,7 +97,12 @@ functions:
         Action:
           - dynamodb:DeleteItem
           - dynamodb:UpdateItem
+          - dynamodb:GetItem
         Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
 
   recursiveDelete:
     handler: recursiveDelete.handler
@@ -115,6 +120,10 @@ functions:
         Action:
           - dynamodb:DeleteItem
         Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
 
   addItem:
     handler: addItem.handler
@@ -130,13 +139,17 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
 
   removeItem:
     handler: removeItem.handler
     events:
       - httpApi:
-          path: /directory/{directoryId}/item/{itemId}
-          method: delete
+          path: /directory/{directoryId}/item/delete
+          method: put
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
@@ -145,6 +158,10 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
 
   moveItems:
     handler: moveItems.handler
@@ -162,6 +179,10 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:PartiQLUpdate
         Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
 
 resources:
   Conditions:

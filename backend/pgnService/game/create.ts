@@ -61,7 +61,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const pgnTexts = await getPgnTexts(request);
         console.log('PGN texts length: ', pgnTexts.length);
 
-        const games = getGames(user, pgnTexts);
+        const games = getGames(user, pgnTexts, request.directory);
         if (games.length === 0) {
             throw new ApiError({
                 statusCode: 400,
@@ -283,11 +283,18 @@ function convertEmt(pgn: string): string {
     return chess.renderPgn();
 }
 
-function getGames(user: User, pgnTexts: string[]): Game[] {
+/**
+ * Converts the list of PGNs into a list of Games.
+ * @param user The user owning the new Games.
+ * @param pgnTexts The PGNs to convert.
+ * @param directory The directory to place the Games into.
+ * @returns A list of new Games.
+ */
+function getGames(user: User, pgnTexts: string[], directory?: string): Game[] {
     const games: Game[] = [];
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
-        games.push(getGame(user, pgnTexts[i]));
+        games.push(getGame(user, pgnTexts[i], undefined, directory));
     }
     return games;
 }
@@ -306,10 +313,19 @@ export function isFairyChess(pgnText: string) {
     );
 }
 
+/**
+ * Converts the given PGN into a Game.
+ * @param user The user owning the new Game.
+ * @param pgnText The PGN to convert.
+ * @param headers The import headers which will be applied to the Game's headers.
+ * @param directory The directory to place the Game into.
+ * @returns A new Game object.
+ */
 export function getGame(
     user: User | undefined,
     pgnText: string,
     headers?: GameImportHeaders,
+    directory?: string,
 ): Game {
     // We do not support variants due to current limitations with
     // @JackStenglein/pgn-parser
@@ -368,6 +384,7 @@ export function getGame(
             comments: [],
             positionComments: {},
             unlisted: true,
+            directories: directory ? [directory] : undefined,
         };
     } catch (err) {
         throw new ApiError({
@@ -412,7 +429,13 @@ async function batchPutGames(games: Game[]): Promise<number> {
     const writeRequests = games.map((g) => {
         return {
             PutRequest: {
-                Item: marshall(g),
+                Item: marshall(
+                    {
+                        ...g,
+                        directories: g.directories ? new Set(g.directories) : undefined,
+                    },
+                    { removeUndefinedValues: true },
+                ),
             },
         };
     });
@@ -455,7 +478,7 @@ async function addGamesToDirectory(directoryId: string, games: Game[]) {
         console.log('Adding %d games to directory %s', games.length, directoryId);
         const directoryItems: DirectoryItem[] = games.map((g) => ({
             type: DirectoryItemTypes.OWNED_GAME,
-            id: `${g.cohort}#${g.id}`,
+            id: `${g.cohort}/${g.id}`,
             metadata: {
                 cohort: g.cohort,
                 id: g.id,

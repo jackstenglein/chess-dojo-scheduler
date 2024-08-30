@@ -29,7 +29,7 @@ export const NewDirectoryDialog = ({
     const disableCreate = name.trim().length === 0 || name.trim().length > 100;
 
     const onCreate = () => {
-        if (disableCreate) {
+        if (disableCreate || request.isLoading()) {
             return;
         }
 
@@ -63,6 +63,11 @@ export const NewDirectoryDialog = ({
                     label='Name'
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            onCreate();
+                        }
+                    }}
                     fullWidth
                     sx={{ mt: 0.75 }}
                     helperText={`${name.trim().length} / 100 characters`}

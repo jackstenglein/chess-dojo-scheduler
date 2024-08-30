@@ -54,7 +54,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         Endgame: false,
         Opening: false,
         'Non-Dojo': false,
-        [RequirementCategory.SuggestedTasks]: false,
+        [RequirementCategory.SuggestedTasks]: true,
     });
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
     const isFreeTier = useFreeTier();
@@ -64,11 +64,8 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     }, [user.dojoCohort]);
 
     const categories: Category[] = useMemo(() => {
-        const requirementsById: Record<string, Requirement> = {};
         const categories: Category[] = [];
         requirements.forEach((r) => {
-            requirementsById[r.id] = r;
-
             const c = categories.find((c) => c.name === r.category);
             const complete = isComplete(cohort, r, user.progress[r.id]);
 
@@ -90,6 +87,26 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             }
         });
 
+        user.customTasks?.forEach((task) => {
+            if (task.counts[cohort]) {
+                const c = categories.find((c) => c.name === 'Non-Dojo');
+                if (c === undefined) {
+                    categories.push({
+                        name: RequirementCategory.NonDojo,
+                        requirements: [task],
+                        totalComplete: 0,
+                        totalRequirements: 1,
+                    });
+                } else {
+                    c.requirements.push(task);
+                    c.totalRequirements++;
+                }
+            }
+        });
+        return categories;
+    }, [requirements, user, cohort, hideCompleted]);
+
+    const suggestedTasks: Category = useMemo(() => {
         const suggestedTasks: Category = {
             name: RequirementCategory.SuggestedTasks,
             requirements: [],
@@ -99,10 +116,17 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
 
         const desiredTaskCount = 3;
 
+        const requirementsById = Object.fromEntries(requirements.map((r) => [r.id, r]));
+
         const recentRequirements = Object.values(user.progress)
-            .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+            .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
             .map((progress) => requirementsById[progress.requirementId])
-            .filter((r) => !!r && !isComplete(cohort, r, user.progress[r.id]));
+            .filter(
+                (r) =>
+                    !!r &&
+                    !isComplete(cohort, r, user.progress[r.id]) &&
+                    r.category !== RequirementCategory.NonDojo,
+            );
 
         suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
 
@@ -152,29 +176,10 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             ...moreTasks,
         ].slice(0, desiredTaskCount);
 
-        if (suggestedTasks.requirements.length > 0) {
-            suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
-            categories.unshift(suggestedTasks);
-        }
+        suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
 
-        user.customTasks?.forEach((task) => {
-            if (task.counts[cohort]) {
-                const c = categories.find((c) => c.name === 'Non-Dojo');
-                if (c === undefined) {
-                    categories.push({
-                        name: RequirementCategory.NonDojo,
-                        requirements: [task],
-                        totalComplete: 0,
-                        totalRequirements: 1,
-                    });
-                } else {
-                    c.requirements.push(task);
-                    c.totalRequirements++;
-                }
-            }
-        });
-        return categories;
-    }, [requirements, user, cohort, hideCompleted, isFreeTier]);
+        return suggestedTasks;
+    }, [categories, isFreeTier, user, cohort, requirements]);
 
     if (requirementRequest.isLoading() || categories.length === 0) {
         return <LoadingPage />;
@@ -276,6 +281,20 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     </Button>
                 </Stack>
             </Stack>
+
+            {suggestedTasks.requirements.length > 0 && (
+                <ProgressCategory
+                    color='dojoOrange'
+                    key={suggestedTasks.name}
+                    c={suggestedTasks}
+                    expanded={expanded[suggestedTasks.name]}
+                    toggleExpand={toggleExpand}
+                    user={user}
+                    isCurrentUser={isCurrentUser}
+                    cohort={cohort}
+                    setShowCustomTaskEditor={setShowCustomTaskEditor}
+                />
+            )}
 
             {categories.map((c) => (
                 <ProgressCategory

@@ -38,12 +38,29 @@ describe('Directories', () => {
         cy.getBySel('new-directory-create-button').should('be.enabled');
     });
 
+    it('requires name to be <= 100 characters', () => {
+        cy.contains('Add').click();
+        cy.contains('New Folder').click();
+        cy.getBySel('new-directory-create-button').should('be.disabled');
+
+        cy.getBySel('new-directory-name').type('A');
+        cy.getBySel('new-directory-create-button').should('be.enabled');
+
+        for (let i = 0; i < 10; i++) {
+            cy.getBySel('new-directory-name').type('AAAAAAAAAA');
+        }
+        cy.getBySel('new-directory-create-button').should('be.disabled');
+        cy.contains('101 / 100 characters');
+    });
+
     it('requires confirmation to delete directory', () => {
         cy.interceptApi('GET', '/directory/398ee7df-13a1-4fbf-bae3-e156f252512d/home', {
             fixture: 'profile/directories/basic.json',
         });
 
-        cy.getBySel('directories-data-grid').contains('Test').rightclick();
+        cy.getBySel('directories-data-grid')
+            .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
+            .rightclick();
         cy.contains('Delete').click();
         cy.getBySel('delete-directory-form').should('be.visible');
 
@@ -59,7 +76,9 @@ describe('Directories', () => {
         cy.getBySel('new-directory-create-button').click();
         cy.getBySel('new-directory-form').should('not.exist');
 
-        cy.getBySel('directories-data-grid').contains('Test').rightclick();
+        cy.getBySel('directories-data-grid')
+            .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
+            .rightclick();
         cy.contains('Delete').click();
         cy.getBySel('delete-directory-form').should('be.visible');
 
@@ -75,7 +94,9 @@ describe('Directories', () => {
             fixture: 'profile/directories/basic.json',
         });
 
-        cy.getBySel('directories-data-grid').contains('Test').rightclick();
+        cy.getBySel('directories-data-grid')
+            .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
+            .rightclick();
         cy.contains('Move').click();
 
         cy.getBySel('move-directory-form').should('be.visible');
@@ -86,7 +107,9 @@ describe('Directories', () => {
             fixture: 'profile/directories/basic.json',
         });
 
-        cy.getBySel('directories-data-grid').contains('Test').rightclick();
+        cy.getBySel('directories-data-grid')
+            .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
+            .rightclick();
         cy.contains('Rename').click();
 
         cy.getBySel('directory-rename-new-name').clear();

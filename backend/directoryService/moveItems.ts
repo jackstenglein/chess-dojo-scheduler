@@ -63,20 +63,40 @@ async function moveItems(
             publicMessage: 'source directory does not exist',
         });
     }
+    const itemOrderMap = getItemIndexMap(source.itemIds);
 
     const items = request.items
         .map((id) => source?.items[id])
         .filter((item) => Boolean(item)) as DirectoryItem[];
-    const target = await addDirectoryItems(owner, request.target, items);
+    items.sort((lhs, rhs) => (itemOrderMap[lhs.id] ?? 0) - (itemOrderMap[rhs.id] ?? 0));
 
+    const target = await addDirectoryItems(owner, request.target, items);
     await updateParent(
         owner,
         target.id,
         items.filter((i) => i.type === DirectoryItemTypes.DIRECTORY),
     );
 
-    source = await removeDirectoryItems(owner, source.id, request.items, true);
+    source = await removeDirectoryItems(
+        owner,
+        source.id,
+        request.items,
+        itemOrderMap,
+        true,
+    );
     return { source, target };
+}
+
+/**
+ * Converts a list of item ids in order to a map from item id to index.
+ * @param itemIds The list of ids in order.
+ * @returns A map from item id to index.
+ */
+export function getItemIndexMap(itemIds: string[]) {
+    return itemIds.reduce<Record<string, number>>((acc, id, index) => {
+        acc[id] = index;
+        return acc;
+    }, {});
 }
 
 /**

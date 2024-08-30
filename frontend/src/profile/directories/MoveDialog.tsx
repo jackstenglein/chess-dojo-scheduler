@@ -102,22 +102,22 @@ export const MoveDialog = ({
                 {newDirectory ? (
                     <Stack>
                         <Stack alignItems='center' direction='row' spacing={1.5}>
-                            <Typography color='text.secondary'>
-                                Current Location:
-                            </Typography>
+                            <Typography color='text.secondary'>From:</Typography>
                             <DirectoryBreadcrumbs
                                 owner={user.username}
                                 id={parent.id}
                                 onClick={onNavigate}
+                                variant='body1'
                             />
                         </Stack>
 
                         <Stack alignItems='center' direction='row' spacing={1.5} mb={1}>
-                            <Typography color='text.secondary'>New Location:</Typography>
+                            <Typography color='text.secondary'>To:</Typography>
                             <DirectoryBreadcrumbs
                                 owner={user.username}
                                 id={newDirectoryId}
                                 onClick={onNavigate}
+                                variant='body1'
                             />
                         </Stack>
 

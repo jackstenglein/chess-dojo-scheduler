@@ -109,7 +109,7 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
     );
 }
 
-const defaultHomeDirectory = {
+const defaultHomeDirectory: Omit<Directory, 'owner'> = {
     id: HOME_DIRECTORY_ID,
     parent: uuidNil,
     name: 'Home',
@@ -117,6 +117,7 @@ const defaultHomeDirectory = {
     createdAt: '',
     updatedAt: '',
     items: {},
+    itemIds: [],
 };
 
 export function useDirectory(owner: string, id: string) {
