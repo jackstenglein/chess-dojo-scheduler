@@ -33,6 +33,7 @@ interface ProgressCategoryProps {
     isCurrentUser: boolean;
     cohort: string;
     setShowCustomTaskEditor: (v: boolean) => void;
+    color?: string;
 }
 
 const TutorialProgressCategory: React.FC<ProgressCategoryProps> = (props) => {
@@ -55,6 +56,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
     isCurrentUser,
     cohort,
     setShowCustomTaskEditor,
+    color,
 }) => {
     const isFreeTier = useFreeTier();
 
@@ -64,6 +66,10 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
         }
         return c.requirements.filter((r) => !r.isFree).length;
     }, [c.requirements, isFreeTier]);
+
+    if (!color) {
+        color = 'primary';
+    }
 
     return (
         <Accordion
@@ -89,7 +95,7 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
                     <Typography fontWeight='bold'>
                         <Icon
                             name={c.name}
-                            color='primary'
+                            color={color}
                             sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
                         />
                         {c.name}
