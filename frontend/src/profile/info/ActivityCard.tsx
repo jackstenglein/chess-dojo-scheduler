@@ -6,7 +6,6 @@ import {
     CardContent,
     CardHeader,
     MenuItem,
-    Stack,
     TextField,
     Tooltip,
 } from '@mui/material';
@@ -15,11 +14,12 @@ import ActivityCalendar, { Activity } from 'react-activity-calendar';
 import { useTimeline } from '../activity/useTimeline';
 
 const MAX_LEVEL = 4;
-const MAX_COUNT = 10;
+const MAX_POINTS_COUNT = 10;
+const MAX_HOURS_COUNT = 5 * 60;
 const MIN_DATE = '2024-01-01';
 
 export const ActivityCard = ({ user }: { user: User }) => {
-    const [view, setView] = useState('points');
+    const [view, setView] = useState('time');
     const { entries } = useTimeline(user.username);
 
     const [activities, totalCount] = useMemo(() => {
@@ -33,22 +33,15 @@ export const ActivityCard = ({ user }: { user: User }) => {
         <Card>
             <CardHeader
                 title={
-                    <Stack
-                        direction='row'
-                        alignItems='center'
-                        justifyContent='space-between'
+                    <TextField
+                        size='small'
+                        select
+                        value={view}
+                        onChange={(e) => setView(e.target.value)}
                     >
-                        Activity
-                        <TextField
-                            size='small'
-                            select
-                            value={view}
-                            onChange={(e) => setView(e.target.value)}
-                        >
-                            <MenuItem value='points'>Dojo Points</MenuItem>
-                            <MenuItem value='time'>Time Spent</MenuItem>
-                        </TextField>
-                    </Stack>
+                        <MenuItem value='points'>Dojo Points</MenuItem>
+                        <MenuItem value='time'>Hours Worked</MenuItem>
+                    </TextField>
                 }
             />
             <CardContent
@@ -59,7 +52,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                 <ActivityCalendar
                     colorScheme='dark'
                     theme={{
-                        dark: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'],
+                        dark: ['#ebedf0', '#F7941F'],
                     }}
                     data={activities}
                     renderBlock={(block, activity) => (
@@ -81,6 +74,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                 : `${formatTime(totalCount)} in 2024`,
                     }}
                     totalCount={Math.round(10 * totalCount) / 10}
+                    maxLevel={MAX_LEVEL}
                 />
             </CardContent>
         </Card>
@@ -90,9 +84,11 @@ export const ActivityCard = ({ user }: { user: User }) => {
 function getActivity(
     entries: TimelineEntry[],
     field: 'dojoPoints' | 'minutesSpent',
+    clamp?: number,
 ): [Activity[], number] {
     const activities: Record<string, Activity> = {};
     let totalCount = 0;
+    let maxCount = 0;
 
     for (const entry of entries) {
         if (entry[field] <= 0) {
@@ -110,15 +106,29 @@ function getActivity(
             level: 0,
         };
         activity.count += entry[field];
-        activity.level = Math.ceil(
-            Math.min(MAX_COUNT, activity.count) / (MAX_COUNT / MAX_LEVEL),
-        );
+
+        if (activity.count > maxCount) {
+            maxCount = activity.count;
+        }
+
         totalCount += entry[field];
         activities[date] = activity;
     }
 
     if (!activities[MIN_DATE]) {
         activities[MIN_DATE] = { date: MIN_DATE, count: 0, level: 0 };
+    }
+
+    if (clamp) {
+        maxCount = Math.min(maxCount, clamp);
+    }
+
+    if (maxCount) {
+        for (const activity of Object.values(activities)) {
+            activity.level = Math.ceil(
+                Math.min(maxCount, activity.count) / (maxCount / MAX_LEVEL),
+            );
+        }
     }
 
     return [
@@ -128,9 +138,9 @@ function getActivity(
 }
 
 function getDojoPointsActivity(entries: TimelineEntry[]): [Activity[], number] {
-    return getActivity(entries, 'dojoPoints');
+    return getActivity(entries, 'dojoPoints', MAX_POINTS_COUNT);
 }
 
 function getTimeSpentActivity(entries: TimelineEntry[]): [Activity[], number] {
-    return getActivity(entries, 'minutesSpent');
+    return getActivity(entries, 'minutesSpent', MAX_HOURS_COUNT);
 }

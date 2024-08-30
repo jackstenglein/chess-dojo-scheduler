@@ -30,7 +30,7 @@ import CoachTab from './coach/CoachTab';
 import { DirectoriesTab } from './directories/DirectoriesTab';
 import { DirectoryCacheProvider } from './directories/DirectoryCache';
 import { ActivityCard } from './info/ActivityCard';
-import { BadgeCard } from './info/BadeCard';
+import { BadgeCard } from './info/BadgeCard';
 import Bio from './info/Bio';
 import CoachChip from './info/CoachChip';
 import CountChip from './info/CountChip';

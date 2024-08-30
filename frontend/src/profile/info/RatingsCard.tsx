@@ -5,7 +5,7 @@ import {
     User,
 } from '@/database/user';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
-import { Card, CardContent, CardHeader, Typography } from '@mui/material';
+import { Card, CardContent, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 export const RatingsCard = ({ user }: { user: User }) => {
@@ -19,8 +19,7 @@ export const RatingsCard = ({ user }: { user: User }) => {
 
     return (
         <Card>
-            <CardHeader title='Ratings' />
-            <CardContent sx={{ pt: 1 }}>
+            <CardContent>
                 <Grid2 container rowGap={1} alignItems='center'>
                     {systems.map((rs) => {
                         const currentRating = getSystemCurrentRating(user, rs);
