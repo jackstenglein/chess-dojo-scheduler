@@ -7,6 +7,7 @@ import {
     Button,
     Divider,
     Stack,
+    SvgIconOwnProps,
     Typography,
 } from '@mui/material';
 import { useMemo } from 'react';
@@ -33,7 +34,7 @@ interface ProgressCategoryProps {
     isCurrentUser: boolean;
     cohort: string;
     setShowCustomTaskEditor: (v: boolean) => void;
-    color?: string;
+    color?: SvgIconOwnProps['color'];
 }
 
 const TutorialProgressCategory: React.FC<ProgressCategoryProps> = (props) => {

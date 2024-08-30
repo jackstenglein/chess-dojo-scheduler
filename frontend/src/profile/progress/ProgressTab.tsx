@@ -285,7 +285,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             {suggestedTasks.requirements.length > 0 && (
                 <ProgressCategory
                     color='dojoOrange'
-                    borderColor='dojoOrange'
                     key={suggestedTasks.name}
                     c={suggestedTasks}
                     expanded={expanded[suggestedTasks.name]}
