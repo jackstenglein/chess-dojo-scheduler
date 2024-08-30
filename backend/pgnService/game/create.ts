@@ -429,10 +429,13 @@ async function batchPutGames(games: Game[]): Promise<number> {
     const writeRequests = games.map((g) => {
         return {
             PutRequest: {
-                Item: marshall({
-                    ...g,
-                    directories: g.directories ? new Set(g.directories) : undefined,
-                }),
+                Item: marshall(
+                    {
+                        ...g,
+                        directories: g.directories ? new Set(g.directories) : undefined,
+                    },
+                    { removeUndefinedValues: true },
+                ),
             },
         };
     });
