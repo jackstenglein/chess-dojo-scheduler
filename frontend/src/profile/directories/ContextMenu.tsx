@@ -1,7 +1,10 @@
+import { useApi } from '@/api/Api';
+import { Request } from '@/api/Request';
 import {
     Directory,
     DirectoryItem,
     DirectoryItemTypes,
+    DirectoryVisibilityType,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     Delete,
@@ -19,8 +22,9 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { DeleteDialog } from './DeleteDialog';
+import { useDirectoryCache } from './DirectoryCache';
 import { MoveDialog } from './MoveDialog';
-import { RenameDialog } from './RenameDialog';
+import { UpdateDirectoryDialog } from './UpdateDirectoryDialog';
 
 export const ContextMenu = ({
     directory,
@@ -36,6 +40,8 @@ export const ContextMenu = ({
     const [renameOpen, setRenameOpen] = useState(false);
     const [moveOpen, setMoveOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
+    const api = useApi();
+    const cache = useDirectoryCache();
 
     if (!selectedItem) {
         return null;
@@ -62,6 +68,47 @@ export const ContextMenu = ({
         setDeleteOpen(false);
     };
 
+    const onUpdateDirectory = (
+        name: string,
+        visibility: DirectoryVisibilityType,
+        disabled: boolean,
+        request: Request,
+    ) => {
+        if (disabled || request.isLoading()) {
+            return;
+        }
+
+        if (
+            Object.values(directory.items || {}).some(
+                (item) =>
+                    item.type === DirectoryItemTypes.DIRECTORY &&
+                    item.metadata.name === name,
+            )
+        ) {
+            request.onFailure({ message: `${parent.name}/${name} already exists` });
+            return;
+        }
+
+        request.onStart();
+        api.updateDirectory({
+            id: selectedItem.id,
+            name,
+            visibility,
+        })
+            .then((resp) => {
+                console.log('updateDirectory: ', resp);
+                cache.put(resp.data.directory);
+                if (resp.data.parent) {
+                    cache.put(resp.data.parent);
+                }
+                handleClose();
+            })
+            .catch((err) => {
+                console.error('updateDirectory: ', err);
+                request.onFailure(err);
+            });
+    };
+
     return (
         <>
             <Menu
@@ -83,7 +130,7 @@ export const ContextMenu = ({
                         <ListItemIcon>
                             <DriveFileRenameOutline />
                         </ListItemIcon>
-                        <ListItemText primary='Rename' />
+                        <ListItemText primary='Edit Name/Visibility' />
                     </MenuItem>
                 )}
                 <MenuItem onClick={onMove}>
@@ -104,9 +151,18 @@ export const ContextMenu = ({
             </Menu>
 
             {renameOpen && selectedItem.type === DirectoryItemTypes.DIRECTORY && (
-                <RenameDialog
-                    parent={directory}
-                    item={selectedItem}
+                <UpdateDirectoryDialog
+                    initialName={selectedItem.metadata.name}
+                    initialVisibility={selectedItem.metadata.visibility}
+                    title='Edit Folder'
+                    saveLabel='Save'
+                    disableSave={(name, visibility) =>
+                        name.trim().length === 0 ||
+                        name.trim().length > 100 ||
+                        (name === selectedItem.metadata.name &&
+                            visibility === selectedItem.metadata.visibility)
+                    }
+                    onSave={onUpdateDirectory}
                     onCancel={handleClose}
                 />
             )}

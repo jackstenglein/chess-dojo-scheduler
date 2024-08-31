@@ -37,6 +37,8 @@ const directoryVisibility = z.enum(['PUBLIC', 'PRIVATE']);
 /** The visibility of a directory. */
 export const DirectoryVisibility = directoryVisibility.enum;
 
+export type DirectoryVisibilityType = z.infer<typeof directoryVisibility>;
+
 const directoryItemType = z.enum(['DIRECTORY', 'OWNED_GAME', 'MASTER_GAME', 'DOJO_GAME']);
 
 export type DirectoryItemType = z.infer<typeof directoryItemType>;
