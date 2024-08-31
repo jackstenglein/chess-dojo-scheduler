@@ -82,10 +82,11 @@ export const ContextMenu = ({
             Object.values(directory.items || {}).some(
                 (item) =>
                     item.type === DirectoryItemTypes.DIRECTORY &&
-                    item.metadata.name === name,
+                    item.metadata.name === name &&
+                    item.id !== selectedItem.id,
             )
         ) {
-            request.onFailure({ message: `${parent.name}/${name} already exists` });
+            request.onFailure({ message: `${directory.name}/${name} already exists` });
             return;
         }
 

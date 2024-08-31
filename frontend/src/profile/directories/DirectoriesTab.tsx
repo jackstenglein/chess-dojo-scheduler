@@ -3,7 +3,7 @@ import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
-import { User, dojoCohorts } from '@/database/user';
+import { dojoCohorts } from '@/database/user';
 import { RenderPlayers, RenderResult } from '@/games/list/GameListItem';
 import { MastersCohort, MastersOwnerDisplayName } from '@/games/list/ListGamesPage';
 import { useGame } from '@/games/view/GamePage';
@@ -34,7 +34,7 @@ import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 
-export const DirectoriesTab = ({ user }: { user: User }) => {
+export const DirectoriesTab = ({ username }: { username: string }) => {
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const navigate = useNavigate();
@@ -45,7 +45,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
 
     const contextMenu = useDataGridContextMenu();
 
-    const { directory, request, putDirectory } = useDirectory(user.username, directoryId);
+    const { directory, request, putDirectory } = useDirectory(username, directoryId);
 
     const rows = useMemo(() => {
         return (
@@ -84,14 +84,12 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                 `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
                     '?',
                     '%3F',
-                )}?directory=${searchParams.get('directory')}`,
+                )}?directory=${searchParams.get('directory')}&directoryOwner=${username}`,
             );
         }
     };
 
     const handleRowOrderChange = (params: GridRowOrderChangeParams) => {
-        console.log('Params: ', params);
-
         const newIds = rows.map((row) => row.id);
         const id = newIds.splice(params.oldIndex, 1)[0];
         newIds.splice(params.targetIndex, 0, id);
@@ -112,7 +110,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
 
     return (
         <Stack spacing={2} alignItems='start'>
-            <DirectoryBreadcrumbs owner={user.username} id={directoryId} />
+            <DirectoryBreadcrumbs owner={username} id={directoryId} />
 
             <AddButton directory={directory} />
 
@@ -125,9 +123,12 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                 loading={!directory && request.isLoading()}
                 sx={{ width: 1 }}
                 slotProps={{
-                    row: {
-                        onContextMenu: contextMenu.open,
-                    },
+                    row:
+                        viewer?.username === username
+                            ? {
+                                  onContextMenu: contextMenu.open,
+                              }
+                            : undefined,
                 }}
                 initialState={{
                     columns: {
@@ -138,7 +139,7 @@ export const DirectoriesTab = ({ user }: { user: User }) => {
                     },
                 }}
                 getRowHeight={getRowHeight}
-                rowReordering={viewer?.username === user.username}
+                rowReordering={viewer?.username === username}
                 onRowOrderChange={handleRowOrderChange}
             />
 
@@ -295,7 +296,7 @@ const columns: GridColDef<DirectoryItem>[] = [
 ];
 
 function getRowHeight(params: GridRowHeightParams) {
-    if (typeof params.id === 'string' && params.id.includes('#')) {
+    if (typeof params.id === 'string' && params.id.includes('/')) {
         return 70;
     }
 }
