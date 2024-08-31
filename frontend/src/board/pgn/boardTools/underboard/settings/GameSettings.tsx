@@ -252,7 +252,7 @@ const SaveGameButton = ({
             }
 
             update.headers = newHeaders;
-            update.type = GameSubmissionType.Manual;
+            update.type = GameSubmissionType.Editor;
             update.pgnText = chess?.renderPgn();
         }
 

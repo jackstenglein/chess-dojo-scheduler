@@ -95,7 +95,7 @@ const GamePage = () => {
             headers,
             unlisted: true,
             orientation,
-            type: GameSubmissionType.Manual,
+            type: GameSubmissionType.Editor,
             pgnText: chess.renderPgn(),
         };
 

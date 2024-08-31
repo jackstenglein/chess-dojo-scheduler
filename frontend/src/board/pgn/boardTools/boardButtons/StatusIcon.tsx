@@ -46,7 +46,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
         if (pgnText !== initialPgn) {
             request.onStart();
             api.updateGame(cohort, id, {
-                type: GameSubmissionType.Manual,
+                type: GameSubmissionType.Editor,
                 pgnText,
             })
                 .then(() => {

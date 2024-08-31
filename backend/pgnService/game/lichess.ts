@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ApiError } from './errors';
 import { getPathSegment } from './helpers';
+import { isValidResult } from './types';
 
 /**
  * Fetches the PGN of the given Lichess game.
@@ -56,23 +57,39 @@ export async function getLichessStudy(url?: string): Promise<string[]> {
     const exportUrl = `https://lichess.org/study/${studyId}.pgn?source=true`;
     try {
         const response = await axios.get<string>(exportUrl);
-        const games = response.data.split('\n\n\n[');
-        return games
-            .map((g, i) => {
-                g = g.trim();
-                if (!g) {
-                    return g;
-                }
-                if (i === 0) {
-                    return g;
-                }
-                return `[${g}`;
-            })
-            .filter((v) => v !== '');
+        return splitPgns(response.data);
     } catch (err) {
         handleError('Lichess Study', err);
         throw err;
     }
+}
+
+/**
+ * Splits a list of PGNs in the same string into a list of strings,
+ * using the provided separator.
+ * @param pgns The PGN string to split.
+ * @param separator The separator to split around. Defaults to a game
+ * termination symbol, followed by 1 or more newlines, followed by the [ character.
+ * @returns The list of split PGNs.
+ */
+export function splitPgns(
+    pgns: string,
+    separator = /(1-0|0-1|1\/2-1\/2|\*)(\r?\n)+\[/,
+): string[] {
+    const splits = pgns.split(separator);
+    const games: string[] = [];
+
+    for (const split of splits) {
+        if (isValidResult(split) && games.length > 0) {
+            games[games.length - 1] += split;
+        } else if (split[0] === '[') {
+            games.push(split);
+        } else if (split.trim().length > 0) {
+            games.push(`[${split}`);
+        }
+    }
+
+    return games.map((g) => g.trim()).filter((v) => v !== '');
 }
 
 /**
