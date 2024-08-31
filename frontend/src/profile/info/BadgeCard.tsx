@@ -10,7 +10,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
     return (
         <Card>
             <CardHeader title='Badges' />
-            <CardContent>
+            <CardContent sx={{ pt: 0 }}>
                 <Stack direction='row' spacing={0.5} flexWrap='wrap' rowGap={1}>
                     {user.graduationCohorts
                         ?.sort(compareCohorts)
