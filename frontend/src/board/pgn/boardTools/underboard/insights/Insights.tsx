@@ -66,37 +66,15 @@ function getHeatColor(value: number): string | null {
 
 type SquareControlData = Record<Square, number>;
 
-function SquareControl() {
-    const { chess, gameOrientation } = useChess();
+interface SquareControlProps {
+    gameOrientation: string;
+    fen: string;
+}
+
+function SquareControl({ gameOrientation, fen }: SquareControlProps) {
     const [labels, setLabels] = useState<DrawShape[]>([]);
-    const [fen, setFen] = useState(chess?.fen());
 
     useEffect(() => {
-        if (!chess) {
-            return;
-        }
-
-        const observer = {
-            types: [
-                EventType.LegalMove,
-                EventType.NewVariation,
-                EventType.DeleteMove,
-                EventType.PromoteVariation,
-            ],
-            handler: () => {
-                // We partly do this to force a re-render
-                setFen(chess.fen());
-            },
-        };
-        chess.addObserver(observer);
-        return () => chess.removeObserver(observer);
-    }, [chess, setFen]);
-
-    useEffect(() => {
-        if (!chess) {
-            return;
-        }
-
         const chessjs = new ChessJS(fen);
         const rows = [8, 7, 6, 5, 4, 3, 2, 1];
         const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -145,7 +123,7 @@ function SquareControl() {
                 };
             }),
         );
-    }, [chess, gameOrientation, fen]);
+    }, [gameOrientation, fen]);
 
     const opponentDisplay = gameOrientation === 'white' ? 'Black' : 'White';
 
@@ -159,6 +137,7 @@ function SquareControl() {
                 <Box sx={{ width: '336px', aspectRatio: 1 }}>
                     <Board
                         config={{
+                            fen,
                             viewOnly: true,
                             drawable: {
                                 shapes: labels,
@@ -191,9 +170,33 @@ function SquareControl() {
 }
 
 export default function Insights() {
-    const { chess } = useChess();
+    const { chess, gameOrientation } = useChess();
     const { game } = useGame();
     const [tab, setTab] = useLocalStorage(insightTabKey, InsightType.Annotations);
+    const [fen, setFen] = useState<string>(
+        chess?.fen() ?? 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    );
+
+    useEffect(() => {
+        if (!chess) {
+            return;
+        }
+
+        const observer = {
+            types: [
+                EventType.LegalMove,
+                EventType.NewVariation,
+                EventType.DeleteMove,
+                EventType.PromoteVariation,
+            ],
+            handler: () => {
+                // We partly do this to force a re-render
+                setFen(chess.fen());
+            },
+        };
+        chess.addObserver(observer);
+        return () => chess.removeObserver(observer);
+    }, [chess, setFen]);
 
     if (!game || !chess) {
         return null;
@@ -229,7 +232,10 @@ export default function Insights() {
                     {tab === InsightType.Annotations ? (
                         <AnnotationFeedback />
                     ) : tab === InsightType.SquareControl ? (
-                        <SquareControl />
+                        <SquareControl
+                            fen={fen}
+                            gameOrientation={gameOrientation ?? Color.white}
+                        />
                     ) : tab === InsightType.Opening ? (
                         <></>
                     ) : (
