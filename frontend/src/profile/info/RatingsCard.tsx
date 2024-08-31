@@ -17,6 +17,10 @@ export const RatingsCard = ({ user }: { user: User }) => {
                 (user.ratings[lhs]?.currentRating ?? 0),
         );
 
+    if (systems.length === 0) {
+        return null;
+    }
+
     return (
         <Card>
             <CardContent>

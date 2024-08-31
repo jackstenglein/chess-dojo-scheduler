@@ -1,6 +1,7 @@
 import { formatTime } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
+import { useLightMode } from '@/style/useLightMode';
 import {
     Card,
     CardContent,
@@ -21,6 +22,7 @@ const MIN_DATE = '2024-01-01';
 export const ActivityCard = ({ user }: { user: User }) => {
     const [view, setView] = useState('time');
     const { entries } = useTimeline(user.username);
+    const isLight = useLightMode();
 
     const [activities, totalCount] = useMemo(() => {
         if (view === 'points') {
@@ -50,9 +52,10 @@ export const ActivityCard = ({ user }: { user: User }) => {
                 }}
             >
                 <ActivityCalendar
-                    colorScheme='dark'
+                    colorScheme={isLight ? 'light' : 'dark'}
                     theme={{
-                        dark: ['#ebedf0', '#F7941F'],
+                        dark: ['#393939', '#F7941F'],
+                        light: ['#EBEDF0', '#F7941F'],
                     }}
                     data={activities}
                     renderBlock={(block, activity) => (
@@ -117,6 +120,11 @@ function getActivity(
 
     if (!activities[MIN_DATE]) {
         activities[MIN_DATE] = { date: MIN_DATE, count: 0, level: 0 };
+    }
+
+    const endDate = new Date().toISOString().split('T')[0];
+    if (!activities[endDate]) {
+        activities[endDate] = { date: endDate, count: 0, level: 0 };
     }
 
     if (clamp) {
