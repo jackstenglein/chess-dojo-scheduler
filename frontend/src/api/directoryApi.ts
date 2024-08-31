@@ -84,7 +84,7 @@ export function createDirectory(idToken: string, request: CreateDirectoryRequest
 
 export interface UpdateDirectoryResponse {
     directory: Directory;
-    parent: Directory;
+    parent?: Directory;
 }
 
 export function updateDirectory(idToken: string, request: UpdateDirectoryRequest) {
@@ -139,9 +139,12 @@ export function removeDirectoryItem(
     idToken: string,
     request: RemoveDirectoryItemRequest,
 ) {
-    return axios.delete<AddDirectoryItemResponse>(
-        `${BASE_URL}/directory/${request.directoryId}/item/${encodeURIComponent(request.itemId)}`,
-        { headers: { Authorization: `Bearer ${idToken}` } },
+    return axios.put<AddDirectoryItemResponse>(
+        `${BASE_URL}/directory/${request.directoryId}/item/delete`,
+        { itemId: request.itemId, itemIndex: request.itemIndex },
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
     );
 }
 

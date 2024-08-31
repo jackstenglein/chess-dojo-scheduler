@@ -134,7 +134,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                 : isOwner
                   ? DefaultUnderboardTab.Editor
                   : game
-                    ? DefaultUnderboardTab.Comments
+                    ? DefaultUnderboardTab.Tags
                     : DefaultUnderboardTab.Explorer,
         );
         const light = useLightMode();

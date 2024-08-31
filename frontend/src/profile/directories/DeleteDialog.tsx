@@ -53,7 +53,7 @@ const DeleteDirectoryDialog = ({
     const { updateSearchParams } = useSearchParams();
 
     const onDelete = () => {
-        if (disableDelete) {
+        if (disableDelete || request.isLoading()) {
             return;
         }
 
@@ -99,6 +99,11 @@ const DeleteDirectoryDialog = ({
                         placeholder='delete'
                         value={value}
                         onChange={(e) => setValue(e.target.value.toLowerCase())}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                onDelete();
+                            }
+                        }}
                         fullWidth
                     />
                 </Stack>
@@ -138,7 +143,11 @@ const RemoveGameDialog = ({
 
     const onRemove = () => {
         request.onStart();
-        api.removeDirectoryItem({ directoryId: directory.id, itemId: item.id })
+        api.removeDirectoryItem({
+            directoryId: directory.id,
+            itemId: item.id,
+            itemIndex: directory.itemIds.indexOf(item.id),
+        })
             .then((resp) => {
                 console.log('removeDirectoryItem: ', resp);
                 cache.put(resp.data.directory);

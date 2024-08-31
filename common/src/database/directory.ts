@@ -72,7 +72,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /** The type of the directory item. */
         type: z.literal(DirectoryItemTypes.OWNED_GAME),
 
-        /** The id of the directory item. For a game, this is the value cohort#id. */
+        /** The id of the directory item. For a game, this is the value cohort/id. */
         id: z.string(),
 
         /** The metadata of the directory item. */
@@ -137,6 +137,9 @@ export const DirectorySchema = z.object({
     /** The items in the directory, mapped by their ids. */
     items: z.record(z.string(), DirectoryItemSchema),
 
+    /** The ids of the items in the directory in their default order. */
+    itemIds: z.string().array(),
+
     /** The datetime the directory was created, in ISO format. */
     createdAt: z.string().datetime(),
 
@@ -173,11 +176,20 @@ export const CreateDirectorySchema = DirectorySchema.pick({
 /** A request to create a directory. */
 export type CreateDirectoryRequest = z.infer<typeof CreateDirectorySchema>;
 
+/** Verifies a request to update a directory. */
 export const UpdateDirectorySchema = DirectorySchema.pick({
+    /** The id of the directory to update. */
     id: true,
+
+    /** The new name to set on the directory. */
     name: true,
+
+    /** The new visibility to set on the directory. */
     visibility: true,
-}).partial({ name: true, visibility: true });
+
+    /** The new order of the items to set on the directory. */
+    itemIds: true,
+}).partial({ name: true, visibility: true, itemIds: true });
 
 /** A request to update a directory. */
 export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;
@@ -216,6 +228,9 @@ export const RemoveDirectoryItemSchema = z.object({
 
     /** The id of the item to remove. */
     itemId: z.string(),
+
+    /** The index of the item to remove in the itemIds list. */
+    itemIndex: z.number().min(0),
 });
 
 /** A request to remove an item from a directory. */

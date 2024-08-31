@@ -9,6 +9,7 @@ import {
     Stack,
     Tooltip,
     Typography,
+    TypographyOwnProps,
 } from '@mui/material';
 import { useState } from 'react';
 import { BreadcrumbItem, useBreadcrumbs } from './DirectoryCache';
@@ -20,11 +21,13 @@ export const DirectoryBreadcrumbs = ({
     id,
     onClick,
     maxItems = 3,
+    variant = 'h6',
 }: {
     owner: string;
     id: string;
     onClick?: (id: string) => void;
     maxItems?: number;
+    variant?: TypographyOwnProps['variant'];
 }) => {
     const { updateSearchParams } = useSearchParams();
     const currentBreadcrumbs = useBreadcrumbs(owner, id);
@@ -92,7 +95,7 @@ export const DirectoryBreadcrumbs = ({
                         key={b.id}
                         title={b.name.length > MAX_ITEM_LENGTH ? b.name : ''}
                     >
-                        <Typography variant='h6'>
+                        <Typography variant={variant}>
                             <Link
                                 key={b.id}
                                 underline='hover'

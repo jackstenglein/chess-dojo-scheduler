@@ -29,7 +29,7 @@ export const AddCurrentGameMenuItem = ({
         return null;
     }
 
-    const disabled = Boolean(directory.items[`${game.cohort}#${game.id}`]);
+    const disabled = Boolean(directory.items[`${game.cohort}/${game.id}`]);
 
     const onAdd = () => {
         if (disabled) {
