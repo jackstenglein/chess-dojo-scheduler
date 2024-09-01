@@ -1,9 +1,16 @@
 import { Link, Stack, Typography } from '@mui/material';
+import { Metadata } from 'next';
 import { Container } from '../../common/Container';
 import { Footer } from '../../common/Footer';
 import { Header } from '../../common/Header';
 import { DojoAchievements } from '../components/DojoAchievements';
 import newTestsImage from './newTests.png';
+
+export const metadata: Metadata = {
+    title: 'Rolling out Additional Tactics Tests | ChessDojo Blog',
+    description: 'Adding tactics tests for all cohorts, and other site updates',
+    keywords: ['Chess', 'Dojo', 'Training', 'Tactics'],
+};
 
 export default function DojoDigestVol9() {
     return (

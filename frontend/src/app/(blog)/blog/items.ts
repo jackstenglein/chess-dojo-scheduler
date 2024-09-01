@@ -1,4 +1,5 @@
 import mastersImage from './dojo-digest/vol-10/masters.png';
+import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
@@ -16,6 +17,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Jesse Kraai Scores Clear Second at the US Senior',
+        subtitle: 'Dojo Digest Vol 11 • August 1, 2024',
+        body: `Sensei Kraai trusted the program and the results finally came. In a field of legends, 9 GMs and one IM, the sensei won his last four games and scored his fifth GM norm...`,
+        href: '/blog/dojo-digest/vol-11',
+        image: {
+            src: dojoDigestVol11Image,
+            alt: '',
+        },
+    },
     {
         title: 'Introducing the Dojo Masters Database',
         subtitle: 'Dojo Digest Vol 10 • July 1, 2024',

@@ -6,10 +6,17 @@ interface HeaderProps {
     title: ReactNode;
     subtitle: ReactNode;
     image?: string;
+    imageCaption?: string;
     hideDivider?: boolean;
 }
 
-export const Header = ({ title, subtitle, image, hideDivider }: HeaderProps) => {
+export const Header = ({
+    title,
+    subtitle,
+    image,
+    imageCaption,
+    hideDivider,
+}: HeaderProps) => {
     return (
         <>
             <Stack mb={3}>
@@ -22,12 +29,19 @@ export const Header = ({ title, subtitle, image, hideDivider }: HeaderProps) => 
             </Stack>
 
             {image && (
-                <Image
-                    src={image}
-                    alt=''
-                    style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
-                    priority
-                />
+                <Stack alignItems='center'>
+                    <Image
+                        src={image}
+                        alt=''
+                        style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                        priority
+                    />
+                    {imageCaption && (
+                        <Typography textAlign='center' color='text.secondary'>
+                            {imageCaption}
+                        </Typography>
+                    )}
+                </Stack>
             )}
         </>
     );
