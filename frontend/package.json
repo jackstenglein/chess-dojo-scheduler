@@ -32,7 +32,7 @@
         "@types/react-dom": "^18.2.24",
         "@vitejs/plugin-react": "^4.3.1",
         "aws-amplify": "^6.5.0",
-        "axios": "^1.7.3",
+        "axios": "^1.7.7",
         "chessground": "^9.1.1",
         "copy-to-clipboard": "^3.3.3",
         "date-fns": "^3.6.0",
