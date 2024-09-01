@@ -196,13 +196,13 @@ export const UpdateDirectorySchema = DirectorySchema.pick({
 /** A request to update a directory. */
 export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;
 
-/** Verifies a request to delete a directory. */
-export const DeleteDirectorySchema = DirectorySchema.pick({
-    id: true,
+/** Verifies a request to delete directories. */
+export const DeleteDirectoriesSchema = z.object({
+    ids: z.string().array(),
 });
 
-/** A request to delete a directory. */
-export type DeleteDirectoryRequest = z.infer<typeof DeleteDirectorySchema>;
+/** A request to delete directories. All directories in the request must have the same parent. */
+export type DeleteDirectoriesRequest = z.infer<typeof DeleteDirectoriesSchema>;
 
 /**
  * Verifies a request to add an item to a directory. Currently, only
@@ -221,22 +221,19 @@ export const AddDirectoryItemSchema = DirectorySchema.pick({
 export type AddDirectoryItemRequest = z.infer<typeof AddDirectoryItemSchema>;
 
 /**
- * Verifies a request to remove an item from a directory. Currently, only
+ * Verifies a request to remove items from a directory. Currently, only
  * games are handled by this request. Subdirectories can be removed using
  * the delete directory request. */
-export const RemoveDirectoryItemSchema = z.object({
+export const RemoveDirectoryItemsSchema = z.object({
     /** The id of the directory to remove the item from. */
     directoryId: DirectorySchema.shape.id,
 
-    /** The id of the item to remove. */
-    itemId: z.string(),
-
-    /** The index of the item to remove in the itemIds list. */
-    itemIndex: z.number().min(0),
+    /** The ids of the item to remove. */
+    itemIds: z.string().array(),
 });
 
-/** A request to remove an item from a directory. */
-export type RemoveDirectoryItemRequest = z.infer<typeof RemoveDirectoryItemSchema>;
+/** A request to remove game items from a directory. */
+export type RemoveDirectoryItemsRequest = z.infer<typeof RemoveDirectoryItemsSchema>;
 
 /**
  * Verifies a request to move items between directories.
@@ -250,7 +247,7 @@ export const MoveDirectoryItemsSchema = z
         target: DirectorySchema.shape.id,
 
         /** The ids of the items to move. */
-        items: z.string().array().nonempty(),
+        items: z.string().array(),
     })
     .refine((val) => val.source !== val.target, {
         message: 'source/target directories must be different',

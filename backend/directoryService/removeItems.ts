@@ -7,7 +7,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     Directory,
     DirectoryItemTypes,
-    RemoveDirectoryItemSchema,
+    RemoveDirectoryItemsSchema,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import {
@@ -41,12 +41,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
         const userInfo = requireUserInfo(event);
-        const request = parseEvent(event, RemoveDirectoryItemSchema);
+        const request = parseEvent(event, RemoveDirectoryItemsSchema);
         const directory = await removeDirectoryItems(
             userInfo.username,
             request.directoryId,
-            [request.itemId],
-            { [request.itemId]: request.itemIndex },
+            request.itemIds,
         );
         return success({ directory });
     } catch (err) {

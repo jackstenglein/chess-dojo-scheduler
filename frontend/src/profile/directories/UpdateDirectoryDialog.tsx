@@ -1,6 +1,10 @@
+import { ApiContextType } from '@/api/Api';
 import { Request, RequestSnackbar, useRequest } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';
 import {
+    Directory,
+    DirectoryItem,
+    DirectoryItemTypes,
     DirectoryVisibility,
     DirectoryVisibilityType,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -22,6 +26,7 @@ import {
     Tooltip,
 } from '@mui/material';
 import { useState } from 'react';
+import { DirectoryCacheContextType } from './DirectoryCache';
 
 const defaultDisableSave = (name: string) =>
     name.trim().length === 0 || name.trim().length > 100;
@@ -131,3 +136,53 @@ export const UpdateDirectoryDialog = ({
         </Dialog>
     );
 };
+
+export const onUpdateDirectory =
+    (
+        api: ApiContextType,
+        cache: DirectoryCacheContextType,
+        directory: Directory,
+        selectedItem: DirectoryItem,
+        handleClose: () => void,
+    ) =>
+    (
+        name: string,
+        visibility: DirectoryVisibilityType,
+        disabled: boolean,
+        request: Request,
+    ) => {
+        if (disabled || request.isLoading()) {
+            return;
+        }
+
+        if (
+            Object.values(directory.items || {}).some(
+                (item) =>
+                    item.type === DirectoryItemTypes.DIRECTORY &&
+                    item.metadata.name === name &&
+                    item.id !== selectedItem.id,
+            )
+        ) {
+            request.onFailure({ message: `${directory.name}/${name} already exists` });
+            return;
+        }
+
+        request.onStart();
+        api.updateDirectory({
+            id: selectedItem.id,
+            name,
+            visibility,
+        })
+            .then((resp) => {
+                console.log('updateDirectory: ', resp);
+                cache.put(resp.data.directory);
+                if (resp.data.parent) {
+                    cache.put(resp.data.parent);
+                }
+                handleClose();
+            })
+            .catch((err) => {
+                console.error('updateDirectory: ', err);
+                request.onFailure(err);
+            });
+    };

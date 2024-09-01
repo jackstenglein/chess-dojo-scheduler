@@ -159,8 +159,8 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
 
             <ListItemContextMenu
                 game={
-                    contextMenu.rowId
-                        ? data.find((g) => g.id === contextMenu.rowId)
+                    contextMenu.rowIds
+                        ? data.find((g) => g.id === contextMenu.rowIds[0])
                         : undefined
                 }
                 onClose={contextMenu.close}

@@ -16,14 +16,18 @@ import {
     GridRowHeightParams,
     GridRowOrderChangeParams,
     GridRowParams,
+    GridRowSelectionModel,
 } from '@mui/x-data-grid-pro';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AddButton } from './AddButton';
+import { BulkItemEditor } from './BulkItemEditor';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { ownerColumns, publicColumns } from './DirectoryGridColumns';
+
+const pageSizeOptions = [10, 25, 50, 100];
 
 export const DirectoriesTab = ({ username }: { username: string }) => {
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
@@ -33,9 +37,8 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
     const { user: viewer } = useAuth();
     const api = useApi();
     const reorderRequest = useRequest();
-
-    const contextMenu = useDataGridContextMenu();
-
+    const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
+    const contextMenu = useDataGridContextMenu(rowSelectionModel);
     const { directory, request, putDirectory } = useDirectory(username, directoryId);
 
     const rows = useMemo(() => {
@@ -66,6 +69,8 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
     if (!directory) {
         return <NotFoundPage />;
     }
+
+    const isOwner = viewer?.username === username;
 
     const onClickRow = (params: GridRowParams<DirectoryItem>) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
@@ -103,23 +108,37 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
         <Stack spacing={2} alignItems='start'>
             <DirectoryBreadcrumbs owner={username} id={directoryId} />
 
-            <AddButton directory={directory} />
+            <Stack
+                direction='row'
+                alignItems='center'
+                gap={2}
+                width={1}
+                flexWrap='wrap'
+                sx={{ minHeight: '42px' }}
+            >
+                <AddButton directory={directory} />
+
+                <BulkItemEditor
+                    directory={directory}
+                    itemIds={rowSelectionModel as string[]}
+                    onClear={() => setRowSelectionModel([])}
+                />
+            </Stack>
 
             <DataGridPro
                 data-cy='directories-data-grid'
                 rows={rows}
-                columns={viewer?.username === username ? ownerColumns : publicColumns}
+                columns={isOwner ? ownerColumns : publicColumns}
                 onRowClick={onClickRow}
                 autoHeight
                 loading={!directory && request.isLoading()}
                 sx={{ width: 1 }}
                 slotProps={{
-                    row:
-                        viewer?.username === username
-                            ? {
-                                  onContextMenu: contextMenu.open,
-                              }
-                            : undefined,
+                    row: isOwner
+                        ? {
+                              onContextMenu: contextMenu.open,
+                          }
+                        : undefined,
                 }}
                 initialState={{
                     columns: {
@@ -128,15 +147,24 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
                             result: !game,
                         },
                     },
+                    pagination: {
+                        paginationModel: { pageSize: 10 },
+                    },
                 }}
                 getRowHeight={getRowHeight}
-                rowReordering={viewer?.username === username}
+                checkboxSelection={isOwner}
+                checkboxSelectionVisibleOnly
+                onRowSelectionModelChange={setRowSelectionModel}
+                rowSelectionModel={rowSelectionModel}
+                rowReordering={isOwner}
                 onRowOrderChange={handleRowOrderChange}
+                pagination
+                pageSizeOptions={pageSizeOptions}
             />
 
             <ContextMenu
                 directory={directory}
-                selectedItem={directory.items[contextMenu.rowId]}
+                itemIds={contextMenu.rowIds as string[]}
                 onClose={contextMenu.close}
                 position={contextMenu.position}
             />

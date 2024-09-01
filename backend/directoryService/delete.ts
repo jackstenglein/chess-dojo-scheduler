@@ -1,7 +1,7 @@
 import { DeleteItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
-    DeleteDirectorySchema,
+    DeleteDirectoriesSchema,
     Directory,
     DirectoryItemTypes,
     isDefaultDirectory,
@@ -10,18 +10,19 @@ import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
-    parsePathParameters,
+    parseBody,
     requireUserInfo,
     success,
 } from './api';
 import { directoryTable, dynamo } from './database';
-import { removeDirectoryFromGames, removeDirectoryItems } from './removeItem';
+import { removeDirectoryFromGames, removeDirectoryItems } from './removeItems';
 
 /**
- * Handles requests to the delete directory API. Returns the directory as
- * it was before the delete. If the directory did not exist, returns undefined.
- * Note that only the specified directory is deleted. Subdirectories are deleted
- * asynchronously by the recursiveDelete stream handler.
+ * Handles requests to the delete directories API. Returns the directories as
+ * they were before the delete. If a directory did not exist, returns undefined.
+ * Note that only the specified directories are deleted. Subdirectories are deleted
+ * asynchronously by the recursiveDelete stream handler. All directories in the
+ * request must have the same parent.
  * @param event The API gateway event that triggered the request.
  * @returns The directory before the delete, or undefined if it did not exist.
  */
@@ -29,67 +30,76 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
         const userInfo = requireUserInfo(event);
-        const request = parsePathParameters(event, DeleteDirectorySchema);
+        const request = parseBody(event, DeleteDirectoriesSchema);
 
-        if (isDefaultDirectory(request.id)) {
+        if (request.ids.some((id) => isDefaultDirectory(id))) {
             throw new ApiError({
                 statusCode: 400,
-                publicMessage: 'This directory cannot be deleted',
-                privateMessage: `Request is for default directory ${request.id}`,
+                publicMessage: 'One or more directories cannot be deleted',
+                privateMessage: `Request is for directories ${request.ids.toString()}`,
             });
         }
 
         let parent: Directory | undefined = undefined;
-        const directory = await deleteDirectory(userInfo.username, request.id);
-        if (directory) {
+        const directories = await deleteDirectories(userInfo.username, request.ids);
+        if (directories.length > 0) {
             parent = await removeDirectoryItems(
                 userInfo.username,
-                directory.parent,
-                [request.id],
+                directories[0].parent,
+                request.ids,
                 undefined,
                 true,
             );
         }
 
-        return success({ directory, parent });
+        return success({ parent });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
     }
 };
 
 /**
- * Deletes the specified directory from DynamoDB. Subdirectories are not deleted
+ * Deletes the specified directories from DynamoDB. Subdirectories are not deleted
  * and must be explicitly deleted separately.
  * @param owner The owner of the directory.
- * @param id The id of the directory.
- * @returns The directory object as it was before deletion.
+ * @param ids The ids of the directories.
+ * @returns The directory objects as they were before deletion.
  */
-export async function deleteDirectory(
+export async function deleteDirectories(
     owner: string,
-    id: string,
-): Promise<Directory | undefined> {
-    const output = await dynamo.send(
-        new DeleteItemCommand({
-            Key: {
-                owner: { S: owner },
-                id: { S: id },
-            },
-            TableName: directoryTable,
-            ReturnValues: 'ALL_OLD',
-        }),
-    );
-    if (!output.Attributes) {
-        return undefined;
+    ids: string[],
+): Promise<Directory[]> {
+    if (ids.length === 0) {
+        return [];
     }
 
-    const directory = unmarshall(output.Attributes) as Directory;
-    await removeDirectoryFromGames(
-        directory.owner,
-        directory.id,
-        Object.values(directory.items)
-            .filter((item) => item.type !== DirectoryItemTypes.DIRECTORY)
-            .map((item) => item.id),
-    );
+    const directories = [];
 
-    return directory;
+    for (const id of ids) {
+        const output = await dynamo.send(
+            new DeleteItemCommand({
+                Key: {
+                    owner: { S: owner },
+                    id: { S: id },
+                },
+                TableName: directoryTable,
+                ReturnValues: 'ALL_OLD',
+            }),
+        );
+        if (!output.Attributes) {
+            continue;
+        }
+
+        const directory = unmarshall(output.Attributes) as Directory;
+        await removeDirectoryFromGames(
+            directory.owner,
+            directory.id,
+            Object.values(directory.items)
+                .filter((item) => item.type !== DirectoryItemTypes.DIRECTORY)
+                .map((item) => item.id),
+        );
+        directories.push(directory);
+    }
+
+    return directories;
 }

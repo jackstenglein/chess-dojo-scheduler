@@ -146,11 +146,12 @@ export async function addDirectoryToGames(
     items: DirectoryItem[],
 ) {
     const gameItems = items.filter((item) => item.type !== DirectoryItemTypes.DIRECTORY);
+    console.log('Game items: %j', gameItems);
 
     for (let i = 0; i < gameItems.length; i += 25) {
         const statements: BatchStatementRequest[] = [];
 
-        for (let j = i; j < items.length && j < i + 25; j++) {
+        for (let j = i; j < gameItems.length && j < i + 25; j++) {
             const item = gameItems[j];
             const params = marshall([item.metadata.cohort, item.metadata.id]);
             statements.push({

@@ -82,7 +82,7 @@ export function splitPgns(
     for (const split of splits) {
         if (isValidResult(split) && games.length > 0) {
             games[games.length - 1] += split;
-        } else if (split[0] === '[') {
+        } else if (split[0] === '[' || split.trim().match(/^\d+/)) {
             games.push(split);
         } else if (split.trim().length > 0) {
             games.push(`[${split}`);

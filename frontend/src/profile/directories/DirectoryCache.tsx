@@ -42,7 +42,7 @@ export interface BreadcrumbData {
     putBreadcrumb: (directory: Partial<Directory>) => void;
 }
 
-type DirectoryCacheContextType = IdentifiableCache<Directory> & BreadcrumbData;
+export type DirectoryCacheContextType = IdentifiableCache<Directory> & BreadcrumbData;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const DirectoryCacheContext = createContext<DirectoryCacheContextType>(null!);
