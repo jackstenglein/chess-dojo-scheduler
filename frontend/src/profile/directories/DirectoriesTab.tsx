@@ -108,22 +108,24 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
         <Stack spacing={2} alignItems='start'>
             <DirectoryBreadcrumbs owner={username} id={directoryId} />
 
-            <Stack
-                direction='row'
-                alignItems='center'
-                gap={2}
-                width={1}
-                flexWrap='wrap'
-                sx={{ minHeight: '42px' }}
-            >
-                <AddButton directory={directory} />
+            {isOwner && (
+                <Stack
+                    direction='row'
+                    alignItems='center'
+                    gap={2}
+                    width={1}
+                    flexWrap='wrap'
+                    sx={{ minHeight: '42px' }}
+                >
+                    <AddButton directory={directory} />
 
-                <BulkItemEditor
-                    directory={directory}
-                    itemIds={rowSelectionModel as string[]}
-                    onClear={() => setRowSelectionModel([])}
-                />
-            </Stack>
+                    <BulkItemEditor
+                        directory={directory}
+                        itemIds={rowSelectionModel as string[]}
+                        onClear={() => setRowSelectionModel([])}
+                    />
+                </Stack>
+            )}
 
             <DataGridPro
                 data-cy='directories-data-grid'
