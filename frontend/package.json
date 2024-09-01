@@ -5,7 +5,7 @@
     "type": "module",
     "dependencies": {
         "@aldabil/react-scheduler": "^2.9.2",
-        "@aws-amplify/adapter-nextjs": "^1.2.12",
+        "@aws-amplify/adapter-nextjs": "^1.2.15",
         "@dotenvx/dotenvx": "^1.12.1",
         "@emotion/cache": "^11.13.1",
         "@emotion/react": "^11.13.3",
@@ -31,7 +31,7 @@
         "@types/react": "^18.3.5",
         "@types/react-dom": "^18.2.24",
         "@vitejs/plugin-react": "^4.3.1",
-        "aws-amplify": "^6.5.0",
+        "aws-amplify": "^6.5.3",
         "axios": "^1.7.7",
         "chessground": "^9.1.1",
         "copy-to-clipboard": "^3.3.3",
