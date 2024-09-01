@@ -1,12 +1,13 @@
 import {
     BatchExecuteStatementCommand,
     BatchStatementRequest,
+    ConditionalCheckFailedException,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     Directory,
     DirectoryItemTypes,
-    RemoveDirectoryItemSchema,
+    RemoveDirectoryItemsSchema,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import {
@@ -40,12 +41,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
         const userInfo = requireUserInfo(event);
-        const request = parseEvent(event, RemoveDirectoryItemSchema);
+        const request = parseEvent(event, RemoveDirectoryItemsSchema);
         const directory = await removeDirectoryItems(
             userInfo.username,
             request.directoryId,
-            [request.itemId],
-            { [request.itemId]: request.itemIndex },
+            request.itemIds,
         );
         return success({ directory });
     } catch (err) {
@@ -109,6 +109,16 @@ export async function removeDirectoryItems(
         await removeDirectoryFromGames(owner, directoryId, items);
         return unmarshall(result.Attributes!) as Directory;
     } catch (err) {
+        if (err instanceof ConditionalCheckFailedException) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage:
+                    'Invalid request: directory has been changed already or you do not have permission to update it',
+                privateMessage: 'DDB conditional check failed',
+                cause: err,
+            });
+        }
+
         throw new ApiError({
             statusCode: 500,
             publicMessage: 'Temporary server error',

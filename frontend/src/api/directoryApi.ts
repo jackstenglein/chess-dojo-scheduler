@@ -5,7 +5,7 @@ import {
     CreateDirectoryRequest,
     Directory,
     MoveDirectoryItemsRequest,
-    RemoveDirectoryItemRequest,
+    RemoveDirectoryItemsRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import axios, { AxiosResponse } from 'axios';
@@ -28,16 +28,14 @@ export interface DirectoryApiContextType {
         request: UpdateDirectoryRequest,
     ) => Promise<AxiosResponse<UpdateDirectoryResponse>>;
 
-    deleteDirectory: (
-        id: string,
-    ) => Promise<AxiosResponse<Partial<UpdateDirectoryResponse>>>;
+    deleteDirectories: (ids: string[]) => Promise<AxiosResponse<{ parent?: Directory }>>;
 
     addDirectoryItem: (
         request: AddDirectoryItemRequest,
     ) => Promise<AxiosResponse<AddDirectoryItemResponse>>;
 
     removeDirectoryItem: (
-        request: RemoveDirectoryItemRequest,
+        request: RemoveDirectoryItemsRequest,
     ) => Promise<AxiosResponse<AddDirectoryItemResponse>>;
 
     moveDirectoryItems: (
@@ -94,17 +92,21 @@ export function updateDirectory(idToken: string, request: UpdateDirectoryRequest
 }
 
 /**
- * Sends an API request to delete a directory.
+ * Sends an API request to delete directories.
  * @param idToken The id token of the current signed-in user.
- * @param id The id of the directory to delete.
- * @returns The directory before the delete, and the updated parent directory.
+ * @param ids The ids of the directories to delete.
+ * @returns The updated parent directory.
  */
-export function deleteDirectory(idToken: string, id: string) {
-    return axios.delete<Partial<UpdateDirectoryResponse>>(`${BASE_URL}/directory/${id}`, {
-        headers: {
-            Authorization: `Bearer ${idToken}`,
+export function deleteDirectories(idToken: string, ids: string[]) {
+    return axios.put<{ parent?: Directory }>(
+        `${BASE_URL}/directory/delete`,
+        { ids },
+        {
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+            },
         },
-    });
+    );
 }
 
 /** The response from the AddDirectoryItem API. */
@@ -137,11 +139,11 @@ export function addDirectoryItem(idToken: string, request: AddDirectoryItemReque
  */
 export function removeDirectoryItem(
     idToken: string,
-    request: RemoveDirectoryItemRequest,
+    request: RemoveDirectoryItemsRequest,
 ) {
     return axios.put<AddDirectoryItemResponse>(
-        `${BASE_URL}/directory/${request.directoryId}/item/delete`,
-        { itemId: request.itemId, itemIndex: request.itemIndex },
+        `${BASE_URL}/directory/${request.directoryId}/items/delete`,
+        { itemIds: request.itemIds },
         {
             headers: { Authorization: `Bearer ${idToken}` },
         },
@@ -165,7 +167,7 @@ export interface MoveDirectoryItemsResponse {
  */
 export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsRequest) {
     return axios.put<MoveDirectoryItemsResponse>(
-        `${BASE_URL}/directory/item/move`,
+        `${BASE_URL}/directory/items/move`,
         request,
         { headers: { Authorization: `Bearer ${idToken}` } },
     );

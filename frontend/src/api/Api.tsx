@@ -4,7 +4,7 @@ import {
     AddDirectoryItemRequest,
     CreateDirectoryRequest,
     MoveDirectoryItemsRequest,
-    RemoveDirectoryItemRequest,
+    RemoveDirectoryItemsRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
@@ -46,7 +46,7 @@ import {
     DirectoryApiContextType,
     addDirectoryItem,
     createDirectory,
-    deleteDirectory,
+    deleteDirectories,
     getDirectory,
     listBreadcrumbs,
     moveDirectoryItems,
@@ -183,7 +183,7 @@ import {
 /**
  * ApiContextType defines the interface of the API as available through ApiProvider.
  */
-type ApiContextType = UserApiContextType &
+export type ApiContextType = UserApiContextType &
     EventApiContextType &
     GameApiContextType &
     RequirementApiContextType &
@@ -472,10 +472,10 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 createDirectory(idToken, request),
             updateDirectory: (request: UpdateDirectoryRequest) =>
                 updateDirectory(idToken, request),
-            deleteDirectory: (id: string) => deleteDirectory(idToken, id),
+            deleteDirectories: (ids: string[]) => deleteDirectories(idToken, ids),
             addDirectoryItem: (request: AddDirectoryItemRequest) =>
                 addDirectoryItem(idToken, request),
-            removeDirectoryItem: (request: RemoveDirectoryItemRequest) =>
+            removeDirectoryItem: (request: RemoveDirectoryItemsRequest) =>
                 removeDirectoryItem(idToken, request),
             moveDirectoryItems: (request: MoveDirectoryItemsRequest) =>
                 moveDirectoryItems(idToken, request),

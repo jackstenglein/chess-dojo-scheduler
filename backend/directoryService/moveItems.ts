@@ -22,7 +22,7 @@ import {
 } from './api';
 import { directoryTable, dynamo } from './database';
 import { fetchDirectory } from './get';
-import { removeDirectoryItems } from './removeItem';
+import { removeDirectoryItems } from './removeItems';
 
 /**
  * Handles requests to the move directory items API. Returns the updated

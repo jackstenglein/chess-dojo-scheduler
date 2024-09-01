@@ -283,7 +283,7 @@ const ProfilePage = () => {
                             {isBeta && (
                                 <TabPanel value='files' sx={{ px: { xs: 0 } }}>
                                     <DirectoryCacheProvider>
-                                        <DirectoriesTab user={user} />
+                                        <DirectoriesTab username={user.username} />
                                     </DirectoryCacheProvider>
                                 </TabPanel>
                             )}

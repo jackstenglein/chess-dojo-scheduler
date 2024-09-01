@@ -202,6 +202,7 @@ export enum GameSubmissionType {
     LichessGame = 'lichessGame',
     ChesscomGame = 'chesscomGame',
     ChesscomAnalysis = 'chesscomAnalysis',
+    Editor = 'editor',
     Manual = 'manual',
     StartingPosition = 'startingPosition',
     Fen = 'fen',

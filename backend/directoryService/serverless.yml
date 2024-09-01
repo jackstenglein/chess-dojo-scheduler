@@ -87,8 +87,8 @@ functions:
     handler: delete.handler
     events:
       - httpApi:
-          path: /directory/{id}
-          method: delete
+          path: /directory/delete
+          method: put
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
@@ -144,11 +144,11 @@ functions:
           - dynamodb:PartiQLUpdate
         Resource: ${param:GamesTableArn}
 
-  removeItem:
-    handler: removeItem.handler
+  removeItems:
+    handler: removeItems.handler
     events:
       - httpApi:
-          path: /directory/{directoryId}/item/delete
+          path: /directory/{directoryId}/items/delete
           method: put
           authorizer:
             type: jwt
@@ -157,6 +157,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
+          - dynamodb:GetItem
         Resource: !GetAtt DirectoriesTable.Arn
       - Effect: Allow
         Action:
@@ -167,7 +168,7 @@ functions:
     handler: moveItems.handler
     events:
       - httpApi:
-          path: /directory/item/move
+          path: /directory/items/move
           method: put
           authorizer:
             type: jwt

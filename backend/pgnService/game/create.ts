@@ -25,7 +25,7 @@ import { addDirectoryItems } from 'chess-dojo-directory-service/addItem';
 import { v4 as uuidv4 } from 'uuid';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
-import { getLichessChapter, getLichessGame, getLichessStudy } from './lichess';
+import { getLichessChapter, getLichessGame, getLichessStudy, splitPgns } from './lichess';
 import {
     CreateGameRequest,
     Game,
@@ -40,6 +40,7 @@ export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const usersTable = process.env.stage + '-users';
 export const gamesTable = process.env.stage + '-games';
 export const timelineTable = process.env.stage + '-timeline';
+const MAX_GAMES_PER_IMPORT = 100;
 
 export function success(value: any): APIGatewayProxyResultV2 {
     if (process.env.stage !== 'prod') {
@@ -59,6 +60,13 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const request = getRequest(event);
 
         const pgnTexts = await getPgnTexts(request);
+        if (pgnTexts.length > MAX_GAMES_PER_IMPORT) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `Invalid request: number of games in PGN (${pgnTexts.length}) is greater than limit of ${MAX_GAMES_PER_IMPORT} games at a time`,
+            });
+        }
+
         console.log('PGN texts length: ', pgnTexts.length);
 
         const games = getGames(user, pgnTexts, request.directory);
@@ -164,7 +172,7 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
         case GameImportType.ChesscomAnalysis:
             return [await getChesscomAnalysis(request.url)];
 
-        case GameImportType.Manual:
+        case GameImportType.Editor:
         case GameImportType.StartingPosition:
         case GameImportType.Fen:
             if (request.pgnText === undefined) {
@@ -174,7 +182,17 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
                         'Invalid request: pgnText is required for this import method',
                 });
             }
-            return [cleanupChessbasePgn(request.pgnText)];
+            return [request.pgnText];
+
+        case GameImportType.Manual:
+            if (request.pgnText === undefined) {
+                throw new ApiError({
+                    statusCode: 400,
+                    publicMessage:
+                        'Invalid request: pgnText is required for this import method',
+                });
+            }
+            return splitPgns(request.pgnText).map(cleanupChessbasePgn);
     }
 
     throw new ApiError({
