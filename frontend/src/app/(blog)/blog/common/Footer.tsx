@@ -2,11 +2,19 @@ import { Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import logoBlack from './logoBlack.png';
 
-export function Footer() {
+export function Footer({
+    utmSource = 'newsletter',
+    utmMedium = 'blog',
+    utmCampaign,
+}: {
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign: string;
+}) {
     return (
         <Stack alignItems='center' mt={4}>
             <a
-                href='https://www.chessdojo.club?utm_source=newsletter&utm_medium=blog&utm_campaign=digest10'
+                href={`https://www.chessdojo.club?utm_source=${utmSource}&utm_medium=${utmMedium}&utm_campaign=${utmCampaign}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 style={{ cursor: 'pointer', textDecoration: 'none' }}

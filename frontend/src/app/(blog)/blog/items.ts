@@ -1,5 +1,6 @@
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
+import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
 import tacticsTestImage from './tactics-test/image.png';
 
@@ -32,6 +33,16 @@ const items: BlogItem[] = [
         href: '/blog/dojo-talks/top-10-2025',
         image: {
             src: talkstop2025,
+            alt: '',
+        },
+    },
+    {
+        title: 'Rolling out Additional Tactics Tests',
+        subtitle: 'Dojo Digest Vol 9 • June 1, 2024',
+        body: 'May has been all about the development of our three trainers: tactics, endgame, and positional. On May 1st we posted our tests for 1500-2000 and 2000+. June 1st will see the rollout of tests for all cohorts...',
+        href: '/blog/dojo-digest/vol-9',
+        image: {
+            src: dojoDigestVol9Image,
             alt: '',
         },
     },

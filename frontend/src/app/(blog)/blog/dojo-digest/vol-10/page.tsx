@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     keywords: ['Chess', 'Dojo', 'Training'],
 };
 
-export default function DojoDigestVol8() {
+export default function DojoDigestVol10() {
     return (
         <Container maxWidth='sm' sx={{ py: 5 }}>
             <Stack sx={{ mb: 3 }}>
@@ -113,7 +113,7 @@ export default function DojoDigestVol8() {
                     Keep up the great work!
                 </Typography>
 
-                <Footer />
+                <Footer utmCampaign='digest10' />
             </Stack>
         </Container>
     );
