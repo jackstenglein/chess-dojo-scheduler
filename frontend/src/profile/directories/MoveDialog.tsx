@@ -9,7 +9,7 @@ import {
     DirectoryItem,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { Folder } from '@mui/icons-material';
+import { ChevronRight, Folder } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -178,6 +178,7 @@ export function MoveListItem({
                     <Folder />
                 </ListItemIcon>
                 <ListItemText primary={item.metadata.name} />
+                <ChevronRight />
             </ListItemButton>
         );
     }

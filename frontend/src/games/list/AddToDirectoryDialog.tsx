@@ -14,6 +14,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Divider,
     List,
     Stack,
     Tooltip,
@@ -89,7 +90,7 @@ export const AddToDirectoryDialog = ({
                 onClose={request.isLoading() ? undefined : onClose}
                 fullWidth
             >
-                <DialogTitle>Add Game to Folder?</DialogTitle>
+                <DialogTitle>Add Game to {directory?.name ?? 'Folder'}?</DialogTitle>
                 <DialogContent>
                     {directory ? (
                         <Stack spacing={1}>
@@ -97,8 +98,10 @@ export const AddToDirectoryDialog = ({
                                 owner={user.username}
                                 id={directoryId}
                                 onClick={onNavigate}
-                                variant='body1'
+                                variant='h6'
                             />
+
+                            <Divider>Current Contents</Divider>
 
                             <List>
                                 {Object.values(directory.items)
