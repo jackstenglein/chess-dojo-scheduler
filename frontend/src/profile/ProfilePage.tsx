@@ -1,4 +1,3 @@
-import { getConfig } from '@/config';
 import {
     Edit,
     Folder,
@@ -43,8 +42,6 @@ import UserInfo from './info/UserInfo';
 import ProgressTab from './progress/ProgressTab';
 import StatsTab from './stats/StatsTab';
 import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
-
-const isBeta = getConfig().isBeta;
 
 const ProfilePage = () => {
     const { username } = useParams();
@@ -248,13 +245,11 @@ const ProfilePage = () => {
                                         value='games'
                                         icon={<PawnIcon fontSize='small' />}
                                     />
-                                    {isBeta && (
-                                        <ProfileTab
-                                            label='Files'
-                                            value='files'
-                                            icon={<Folder fontSize='small' />}
-                                        />
-                                    )}
+                                    <ProfileTab
+                                        label='Files'
+                                        value='files'
+                                        icon={<Folder fontSize='small' />}
+                                    />
                                     <ProfileTab
                                         label='Clubs'
                                         value='clubs'
@@ -280,13 +275,11 @@ const ProfilePage = () => {
                             <TabPanel value='games' sx={{ px: { xs: 0 } }}>
                                 <GamesTab user={user} />
                             </TabPanel>
-                            {isBeta && (
-                                <TabPanel value='files' sx={{ px: { xs: 0 } }}>
-                                    <DirectoryCacheProvider>
-                                        <DirectoriesTab username={user.username} />
-                                    </DirectoryCacheProvider>
-                                </TabPanel>
-                            )}
+                            <TabPanel value='files' sx={{ px: { xs: 0 } }}>
+                                <DirectoryCacheProvider>
+                                    <DirectoriesTab username={user.username} />
+                                </DirectoryCacheProvider>
+                            </TabPanel>
                             <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>
                                 <ClubsTab user={user} />
                             </TabPanel>
