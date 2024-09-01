@@ -139,11 +139,11 @@
         "cypress-parallel": "^0.14.0",
         "eslint": "^8.57.0",
         "eslint-config-next": "^14.2.7",
-        "eslint-plugin-cypress": "^3.4.0",
+        "eslint-plugin-cypress": "^3.5.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "eslint-plugin-react": "^7.35.0",
         "eslint-plugin-react-hooks": "^4.6.2",
-        "happy-dom": "^14.12.3",
+        "happy-dom": "^15.7.2",
         "nodemon": "^3.1.4",
         "nyc": "^17.0.0",
         "prettier-plugin-organize-imports": "^3.2.4",
@@ -151,7 +151,7 @@
         "swc-plugin-coverage-instrument": "^0.0.24",
         "tsx": "^4.19.0",
         "typescript": "^5.4.5",
-        "typescript-eslint": "^8.0.0",
+        "typescript-eslint": "^8.3.0",
         "vite-plugin-eslint": "^1.8.1"
     },
     "overrides": {
