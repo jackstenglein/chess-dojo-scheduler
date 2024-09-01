@@ -70,9 +70,11 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
                     params.value.startsWith('https://www.chess.com/'))
             ) {
                 return (
-                    <a target='_blank' rel='noopener noreferrer' href={params.value}>
-                        <OpenInNew color='primary' fontSize='small' />
-                    </a>
+                    <Stack height={1} alignItems='center' justifyContent='center'>
+                        <a target='_blank' rel='noopener noreferrer' href={params.value}>
+                            <OpenInNew color='primary' fontSize='small' />
+                        </a>
+                    </Stack>
                 );
             }
             return null;

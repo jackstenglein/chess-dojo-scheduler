@@ -1,4 +1,4 @@
-import { Tooltip, Typography } from '@mui/material';
+import { Stack, Tooltip, Typography } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
 import { OpenClassical, OpenClassicalPlayerStatus } from '../../database/tournament';
@@ -18,9 +18,11 @@ enum Result {
 const NUM_ROUNDS = 7;
 
 const Bye = (
-    <Tooltip title='Player receieved a bye for 0.5 points'>
-        <Typography>Bye</Typography>
-    </Tooltip>
+    <Stack height={1} alignItems='center' justifyContent='center'>
+        <Tooltip title='Player receieved a bye for 0.5 points'>
+            <Typography>Bye</Typography>
+        </Tooltip>
+    </Stack>
 );
 
 function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
@@ -52,9 +54,11 @@ function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
                         return Bye;
                     }
                     return (
-                        <Tooltip title='Player was withdrawn'>
-                            <Typography>-</Typography>
-                        </Tooltip>
+                        <Stack height={1} alignItems='center' justifyContent='center'>
+                            <Tooltip title='Player was withdrawn'>
+                                <Typography>-</Typography>
+                            </Tooltip>
+                        </Stack>
                     );
                 }
                 if (round.result === Result.Bye) {
@@ -68,12 +72,14 @@ function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
                 const opponent = params.api.getAllRowIds().indexOf(round.opponent) + 1;
 
                 return (
-                    <Tooltip title={getResultDescription(result, opponent)}>
-                        <Typography>
-                            {result}
-                            {opponent}
-                        </Typography>
-                    </Tooltip>
+                    <Stack height={1} alignItems='center' justifyContent='center'>
+                        <Tooltip title={getResultDescription(result, opponent)}>
+                            <Typography>
+                                {result}
+                                {opponent}
+                            </Typography>
+                        </Tooltip>
+                    </Stack>
                 );
             },
         });
