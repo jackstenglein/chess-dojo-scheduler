@@ -32,7 +32,9 @@ const TutorialTooltip: React.FC<TooltipRenderProps> = ({
                 title={step.title}
                 action={
                     <IconButton arra-label='close' onClick={closeProps.onClick}>
-                        <CloseIcon />
+                        <Typography component='span' color='Gray'>
+                            <CloseIcon fontSize='small' />
+                        </Typography>
                     </IconButton>
                 }
             />
