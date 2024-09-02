@@ -1,5 +1,6 @@
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
+import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
@@ -17,6 +18,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Introducing the Dojo File System',
+        subtitle: 'Dojo Digest Vol 12 • September 1, 2024',
+        body: `The Dojo has a new file system to help you organize and manage your games! A new files tab has been added to your profile. You'll start out with an empty Home folder, where you can add games or nested folders...`,
+        href: '/blog/dojo-digest/vol-12',
+        image: {
+            src: dojoDigestVol12Image,
+            alt: '',
+        },
+    },
     {
         title: 'Jesse Kraai Scores Clear Second at the US Senior',
         subtitle: 'Dojo Digest Vol 11 • August 1, 2024',
