@@ -28,16 +28,13 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
     const callback = useCallback(
         (state: CallBackProps) => {
             if (state.status === 'finished' || state.action === 'close') {
+                setTutorialState({});
                 api.updateUser({
                     tutorials: {
                         ...user?.tutorials,
                         [name]: true,
                     },
-                })
-                    .then(() => {
-                        setTutorialState({});
-                    })
-                    .catch((err: unknown) => console.error('completeTutorial: ', err));
+                }).catch((err: unknown) => console.error('completeTutorial: ', err));
             }
         },
         [setTutorialState, api, user?.tutorials, name],
