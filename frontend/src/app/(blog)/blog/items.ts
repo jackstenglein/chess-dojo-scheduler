@@ -5,14 +5,13 @@ import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
 import tacticsTestImage from './tactics-test/image.png';
-import chessjourneys from './player-spotlight/lifecanbesonice/Chess-Journeys.jpg'
 
 export interface BlogItem {
     title: string;
     subtitle?: string;
     body: string;
     href: string;
-    image: {
+    image?: {
         src: string;
         alt: string;
     };
@@ -20,14 +19,10 @@ export interface BlogItem {
 
 const items: BlogItem[] = [
     {
-        title: 'LifeCanBeSoNice',
+        title: 'Will LifeCanBeSoNice Reach 2000?',
         subtitle: 'Dojo Player Spotlight • September 2, 2024',
-        body: `Jan, aka Lifecanbesonice, is going for it. Since joining the Dojo last year he has gained 279 points and has started his own chess improvement channel with his coach IM Jurica Srbis. His goal is 2000 lichess. It’s a magical number! Will he be able to make it?`,
+        body: `Jan, aka LifeCanBeSoNice, is going for it. Since joining the Dojo last year, he has gained 279 points and has started his own chess improvement channel with his coach IM Jurica Srbis. His goal is 2000 Lichess. It’s a magical number! Will he be able to make it?`,
         href: '/blog/player-spotlight/lifecanbesonice',
-        image: {
-            src: chessjourneys,
-            alt: '',
-        },
     },
     {
         title: 'Introducing the Dojo File System',
