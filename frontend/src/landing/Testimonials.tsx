@@ -90,8 +90,9 @@ const Testimonials = () => {
                         size={{
                             xs: 10,
                             sm: 4,
-                            lg: 3
-                        }}>
+                            lg: 3,
+                        }}
+                    >
                         <Card sx={{ height: 1 }}>
                             <CardContent>
                                 <Typography variant='h5'>{t.name}</Typography>

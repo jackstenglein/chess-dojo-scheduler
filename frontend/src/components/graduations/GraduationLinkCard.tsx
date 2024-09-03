@@ -25,11 +25,12 @@ export const GraduationLinkCard = ({ graduation, to }: GraduationLinkCardProps) 
     const timeStr = toDojoTimeString(new Date(graduatedAt), undefined, undefined);
 
     return (
-        (<Grid2
+        <Grid2
             size={{
                 xs: 12,
-                sm: 6
-            }}>
+                sm: 6,
+            }}
+        >
             <Card sx={{ height: 1 }}>
                 <CardActionArea component={Link} sx={{ height: 1 }} href={to}>
                     <CardContent>
@@ -56,6 +57,6 @@ export const GraduationLinkCard = ({ graduation, to }: GraduationLinkCardProps) 
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>)
+        </Grid2>
     );
 };

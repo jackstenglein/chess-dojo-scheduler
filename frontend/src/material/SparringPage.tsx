@@ -42,7 +42,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
 
     if (!forceExpanded && requirement.positions.length > 1) {
         return (
-            (<Box>
+            <Box>
                 <Stack direction='row' alignItems='center'>
                     <IconButton size='small' onClick={toggleOpen}>
                         {open ? (
@@ -68,41 +68,52 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                         justifyContent={{ xs: 'center', sm: 'start' }}
                     >
                         {requirement.positions.map((p) => (
-                            <Grid2 key={p.fen} size={{
-                                md: 'auto'
-                            }}>
+                            <Grid2
+                                key={p.fen}
+                                size={{
+                                    md: 'auto',
+                                }}
+                            >
                                 <Position position={p} />
                             </Grid2>
                         ))}
                     </Grid2>
                 </Collapse>
-            </Box>)
+            </Box>
         );
     }
 
     if (stacked) {
         return (
-            (<Grid2 container spacing={2} justifyContent={{ xs: 'center', sm: 'start' }}>
+            <Grid2 container spacing={2} justifyContent={{ xs: 'center', sm: 'start' }}>
                 {requirement.positions.map((p) => (
-                    <Grid2 key={p.fen} size={{
-                        md: 'auto'
-                    }}>
+                    <Grid2
+                        key={p.fen}
+                        size={{
+                            md: 'auto',
+                        }}
+                    >
                         <Position position={p} />
                     </Grid2>
                 ))}
-            </Grid2>)
+            </Grid2>
         );
     }
 
-    return (<>
-        {requirement.positions.map((p) => (
-            <Grid2 key={p.fen} size={{
-                md: 'auto'
-            }}>
-                <Position position={p} />
-            </Grid2>
-        ))}
-    </>);
+    return (
+        <>
+            {requirement.positions.map((p) => (
+                <Grid2
+                    key={p.fen}
+                    size={{
+                        md: 'auto',
+                    }}
+                >
+                    <Position position={p} />
+                </Grid2>
+            ))}
+        </>
+    );
 };
 
 interface SparringSubsectionProps {
@@ -117,7 +128,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
     };
 
     return (
-        (<Box>
+        <Box>
             <Stack direction='row' alignItems='center'>
                 <IconButton size='small' onClick={toggleOpen}>
                     {open ? (
@@ -196,7 +207,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                     </Grid2>
                 )}
             </Collapse>
-        </Box>)
+        </Box>
     );
 };
 

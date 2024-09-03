@@ -154,18 +154,19 @@ const RecentGameGrid = ({
     onClickGame: (game: OnlineGame) => void;
 }) => {
     return (
-        (<Grid2 container spacing={{ xs: 1, sm: 2 }}>
+        <Grid2 container spacing={{ xs: 1, sm: 2 }}>
             {games.map((game) => (
                 <Grid2
                     key={game.id}
                     size={{
                         xs: 12,
-                        sm: 6
-                    }}>
+                        sm: 6,
+                    }}
+                >
                     <RecentGameCell onClick={onClickGame} game={game} />
                 </Grid2>
             ))}
-        </Grid2>)
+        </Grid2>
     );
 };
 

@@ -162,7 +162,7 @@ const CreateClubPage = () => {
     };
 
     return (
-        (<Container sx={{ py: 4 }}>
+        <Container sx={{ py: 4 }}>
             <RequestSnackbar request={saveRequest} />
             <Typography variant='h5'>{id ? 'Edit Club' : 'Create New Club'}</Typography>
             <Stack spacing={3} mt={5}>
@@ -245,9 +245,11 @@ const CreateClubPage = () => {
                 />
 
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
-                    <Grid2 size={{
-                        sm: 4
-                    }}>
+                    <Grid2
+                        size={{
+                            sm: 4,
+                        }}
+                    >
                         <TextField
                             label='City'
                             fullWidth
@@ -255,9 +257,11 @@ const CreateClubPage = () => {
                             onChange={(e) => setCity(e.target.value)}
                         />
                     </Grid2>
-                    <Grid2 size={{
-                        sm: 4
-                    }}>
+                    <Grid2
+                        size={{
+                            sm: 4,
+                        }}
+                    >
                         <TextField
                             label='State'
                             fullWidth
@@ -265,9 +269,11 @@ const CreateClubPage = () => {
                             onChange={(e) => setState(e.target.value)}
                         />
                     </Grid2>
-                    <Grid2 size={{
-                        sm: 4
-                    }}>
+                    <Grid2
+                        size={{
+                            sm: 4,
+                        }}
+                    >
                         <TextField
                             label='Country'
                             fullWidth
@@ -316,7 +322,7 @@ const CreateClubPage = () => {
                     {id ? 'Save' : 'Create Club'}
                 </LoadingButton>
             </Stack>
-        </Container>)
+        </Container>
     );
 };
 

@@ -19,7 +19,7 @@ const GameSection: React.FC<SectionProps> = ({ review }) => {
     );
 
     return (
-        (<Stack width={1} alignItems='center'>
+        <Stack width={1} alignItems='center'>
             <Typography
                 variant='h6'
                 fontWeight='800'
@@ -37,8 +37,9 @@ const GameSection: React.FC<SectionProps> = ({ review }) => {
                             justifyContent='center'
                             size={{
                                 xs: 12,
-                                sm: 4
-                            }}>
+                                sm: 4,
+                            }}
+                        >
                             <Stack alignItems='end'>
                                 <Typography variant='caption' color='text.secondary'>
                                     Analyses Submitted
@@ -81,7 +82,7 @@ const GameSection: React.FC<SectionProps> = ({ review }) => {
                     </Stack>
                 </CardContent>
             </Card>
-        </Stack>)
+        </Stack>
     );
 };
 

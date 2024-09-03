@@ -34,7 +34,7 @@ const InputSlider: React.FC<InputSliderProps> = ({
     };
 
     return (
-        (<Grid2
+        <Grid2
             container
             width={1}
             columnGap={4}
@@ -46,8 +46,9 @@ const InputSlider: React.FC<InputSliderProps> = ({
             <Grid2
                 size={{
                     xs: 12,
-                    sm: "grow"
-                }}>
+                    sm: 'grow',
+                }}
+            >
                 <Slider
                     value={typeof value === 'number' ? value : 0}
                     onChange={handleSliderChange}
@@ -61,8 +62,9 @@ const InputSlider: React.FC<InputSliderProps> = ({
                 size={{
                     xs: 12,
                     sm: 3,
-                    md: 2
-                }}>
+                    md: 2,
+                }}
+            >
                 <FormControl sx={{ width: 1 }}>
                     {suffix && <InputLabel htmlFor='input-slider'>{suffix}</InputLabel>}
                     <OutlinedInput
@@ -84,7 +86,7 @@ const InputSlider: React.FC<InputSliderProps> = ({
                     />
                 </FormControl>
             </Grid2>
-        </Grid2>)
+        </Grid2>
     );
 };
 

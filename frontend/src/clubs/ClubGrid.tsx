@@ -32,7 +32,7 @@ function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
     }
 
     return (
-        (<Grid2 container rowSpacing={2} columnSpacing={2}>
+        <Grid2 container rowSpacing={2} columnSpacing={2}>
             <RequestSnackbar request={request} />
             {clubs.map((club) => (
                 <Grid2
@@ -40,12 +40,13 @@ function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
                     size={{
                         xs: 12,
                         sm: 6,
-                        md: 4
-                    }}>
+                        md: 4,
+                    }}
+                >
                     <ListClubItem club={club} sx={{ height: 1 }} />
                 </Grid2>
             ))}
-        </Grid2>)
+        </Grid2>
     );
 }
 

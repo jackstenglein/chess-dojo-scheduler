@@ -627,7 +627,7 @@ const KeyboardShortcuts = () => {
     };
 
     return (
-        (<Stack>
+        <Stack>
             <Typography variant='h6'>Keyboard Shortcuts</Typography>
             <Typography variant='subtitle2' color='text.secondary'>
                 Keyboard shortcuts are disabled while editing text fields (comments, clock
@@ -646,7 +646,7 @@ const KeyboardShortcuts = () => {
                 {Object.values(ShortcutAction).map((a) => {
                     const binding = keyBindings[a] || defaultKeyBindings[a];
                     return (
-                        (<Fragment key={a}>
+                        <Fragment key={a}>
                             <Grid2 size={5}>
                                 <Stack direction='row' spacing={1} alignItems='center'>
                                     <Typography variant='body2'>
@@ -692,7 +692,7 @@ const KeyboardShortcuts = () => {
                                     {displayKey(binding.key)}
                                 </Button>
                             </Grid2>
-                        </Fragment>)
+                        </Fragment>
                     );
                 })}
                 <Grid2 size={12}>
@@ -736,7 +736,7 @@ const KeyboardShortcuts = () => {
                     <Button onClick={onSaveEditor}>Save</Button>
                 </DialogActions>
             </Dialog>
-        </Stack>)
+        </Stack>
     );
 };
 

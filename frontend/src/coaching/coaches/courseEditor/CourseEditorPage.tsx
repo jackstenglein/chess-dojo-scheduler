@@ -412,7 +412,7 @@ const CourseEditorPage = () => {
     };
 
     return (
-        (<Container
+        <Container
             maxWidth={false}
             sx={{
                 py: 4,
@@ -866,7 +866,7 @@ const CourseEditorPage = () => {
                     </Stack>
                 </FormGroup>
             </Stack>
-        </Container>)
+        </Container>
     );
 };
 

@@ -45,13 +45,14 @@ const NewsfeedListPage = () => {
     }, [clubs, user.dojoCohort]);
 
     return (
-        (<Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
+        <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
             <Grid container columnSpacing={8}>
                 <Grid
                     size={{
                         xs: 12,
-                        md: 7
-                    }}>
+                        md: 7,
+                    }}
+                >
                     <Stack spacing={3}>
                         <Typography variant='h6'>Newsfeed</Typography>
 
@@ -63,9 +64,12 @@ const NewsfeedListPage = () => {
                     </Stack>
                 </Grid>
 
-                <Grid display={{ xs: 'none', md: 'initial' }} size={{
-                    md: 5
-                }}>
+                <Grid
+                    display={{ xs: 'none', md: 'initial' }}
+                    size={{
+                        md: 5,
+                    }}
+                >
                     <Stack direction='row' height={1}>
                         <Divider orientation='vertical' flexItem sx={{ mr: 8 }} />
                         <Stack spacing={3} width={1}>
@@ -87,7 +91,7 @@ const NewsfeedListPage = () => {
                     </Stack>
                 </Grid>
             </Grid>
-        </Container>)
+        </Container>
     );
 };
 

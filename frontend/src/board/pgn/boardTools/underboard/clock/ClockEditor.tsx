@@ -69,7 +69,7 @@ const ClockEditor = ({
     }
 
     return (
-        (<Grid2 container columnSpacing={1} rowGap={3} alignItems='center' pb={2}>
+        <Grid2 container columnSpacing={1} rowGap={3} alignItems='center' pb={2}>
             <Grid2 size={12}>
                 <Stack direction='row' alignItems='center' spacing={0.5}>
                     <Typography variant='subtitle1'>Time Control</Typography>
@@ -96,7 +96,7 @@ const ClockEditor = ({
                 </Typography>
             </Grid2>
             {grid}
-        </Grid2>)
+        </Grid2>
     );
 };
 

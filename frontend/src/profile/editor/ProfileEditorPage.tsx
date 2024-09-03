@@ -432,7 +432,7 @@ const ProfileEditorPage = () => {
     };
 
     return (
-        (<Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
+        <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
             <RequestSnackbar request={request} showSuccess />
             <Grid2 container columnSpacing={8}>
                 <Grid2
@@ -443,8 +443,9 @@ const ProfileEditorPage = () => {
                     }}
                     size={{
                         xs: 0,
-                        sm: 'auto'
-                    }}>
+                        sm: 'auto',
+                    }}
+                >
                     <Card
                         variant='outlined'
                         sx={{
@@ -521,10 +522,11 @@ const ProfileEditorPage = () => {
                 <Grid2
                     size={{
                         xs: 12,
-                        sm: "grow",
-                        md: "grow",
-                        lg: "grow"
-                    }}>
+                        sm: 'grow',
+                        md: 'grow',
+                        lg: 'grow',
+                    }}
+                >
                     {user.dojoCohort !== 'NO_COHORT' &&
                         user.dojoCohort !== '' &&
                         !dojoCohorts.includes(user.dojoCohort) && (
@@ -917,7 +919,7 @@ const ProfileEditorPage = () => {
                     </Stack>
                 </Grid2>
             </Grid2>
-        </Container>)
+        </Container>
     );
 };
 

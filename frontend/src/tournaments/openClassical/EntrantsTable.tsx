@@ -1,6 +1,6 @@
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
-import { OpenClassical } from '../../database/tournament';
 import { useMemo } from 'react';
+import { OpenClassical } from '../../database/tournament';
 
 interface EntrantsTableRow {
     lichessUsername: string;

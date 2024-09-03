@@ -55,7 +55,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     };
 
     return (
-        (<Container sx={{ py: 5 }}>
+        <Container sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
             <Grid2 container spacing={3} justifyContent='center'>
                 {showPromo && (
@@ -84,7 +84,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
                     </Typography>
                 </Grid2>
             </Grid2>
-        </Container>)
+        </Container>
     );
 };
 
