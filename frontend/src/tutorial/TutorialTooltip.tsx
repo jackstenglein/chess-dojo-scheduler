@@ -1,5 +1,5 @@
+import CloseButton from '@/components/ui/CloseButton';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
-import CloseIcon from '@mui/icons-material/Close';
 import {
     Box,
     Button,
@@ -7,10 +7,8 @@ import {
     CardActions,
     CardContent,
     CardHeader,
-    IconButton,
     Typography,
 } from '@mui/material';
-import grey from '@mui/material/colors/grey';
 import { TooltipRenderProps } from 'react-joyride';
 
 const TutorialTooltip: React.FC<TooltipRenderProps> = ({
@@ -31,11 +29,7 @@ const TutorialTooltip: React.FC<TooltipRenderProps> = ({
         >
             <CardHeader
                 title={step.title}
-                action={
-                    <IconButton arra-label='close' onClick={closeProps.onClick}>
-                        <CloseIcon sx={{ color: grey[500] }} fontSize='small' />
-                    </IconButton>
-                }
+                action={<CloseButton onClose={closeProps.onClick} />}
             />
             <CardContent>
                 <Typography>{step.content}</Typography>
