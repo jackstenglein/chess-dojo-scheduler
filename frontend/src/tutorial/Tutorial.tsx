@@ -54,6 +54,7 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
                         zIndex: zIndex || 100,
                     },
                 }}
+                disableOverlayClose
                 scrollOffset={100}
                 callback={callback}
             />
