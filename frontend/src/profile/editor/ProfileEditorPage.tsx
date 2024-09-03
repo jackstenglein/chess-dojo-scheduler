@@ -19,13 +19,13 @@ import {
     FormControlLabel,
     FormLabel,
     Grid,
+    Grid2,
     Link,
     MenuItem,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
@@ -432,19 +432,19 @@ const ProfileEditorPage = () => {
     };
 
     return (
-        <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
+        (<Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
             <RequestSnackbar request={request} showSuccess />
-
             <Grid2 container columnSpacing={8}>
                 <Grid2
-                    xs={0}
-                    sm='auto'
                     sx={{
                         display: { xs: 'none', sm: 'initial' },
                         borderRightWidth: 1,
                         borderColor: 'divider',
                     }}
-                >
+                    size={{
+                        xs: 0,
+                        sm: 'auto'
+                    }}>
                     <Card
                         variant='outlined'
                         sx={{
@@ -518,7 +518,13 @@ const ProfileEditorPage = () => {
                     </Card>
                 </Grid2>
 
-                <Grid2 xs={12} sm={true} md={true} lg={true}>
+                <Grid2
+                    size={{
+                        xs: 12,
+                        sm: "grow",
+                        md: "grow",
+                        lg: "grow"
+                    }}>
                     {user.dojoCohort !== 'NO_COHORT' &&
                         user.dojoCohort !== '' &&
                         !dojoCohorts.includes(user.dojoCohort) && (
@@ -911,7 +917,7 @@ const ProfileEditorPage = () => {
                     </Stack>
                 </Grid2>
             </Grid2>
-        </Container>
+        </Container>)
     );
 };
 

@@ -1,6 +1,13 @@
 import { Help } from '@mui/icons-material';
-import { Card, CardContent, Stack, SxProps, Tooltip, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import {
+    Card,
+    CardContent,
+    Grid2,
+    Stack,
+    SxProps,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { useRequirements } from '../../api/cache/requirements';
 import {
     ALL_COHORTS,
@@ -20,14 +27,21 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
     const { requirements } = useRequirements(ALL_COHORTS, true);
 
     return (
-        <Card variant='outlined' sx={sx}>
+        (<Card variant='outlined' sx={sx}>
             <CardContent>
                 <Typography variant='h6' sx={{ mb: 2 }}>
                     Metrics
                 </Typography>
 
                 <Grid2 container justifyContent='center' rowGap={1} columnGap={1}>
-                    <Grid2 xs={12} sm={4} md={3} display='flex' justifyContent='center'>
+                    <Grid2
+                        display='flex'
+                        justifyContent='center'
+                        size={{
+                            xs: 12,
+                            sm: 4,
+                            md: 3
+                        }}>
                         <Stack direction='row' alignItems='center'>
                             <Typography>Tactics Rating</Typography>
 
@@ -52,14 +66,15 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
                         }
 
                         return (
-                            <Grid2
+                            (<Grid2
                                 key={rs}
-                                xs={12}
-                                sm={4}
-                                md={3}
                                 display='flex'
                                 justifyContent='center'
-                            >
+                                size={{
+                                    xs: 12,
+                                    sm: 4,
+                                    md: 3
+                                }}>
                                 <Stack direction='row' alignItems='center'>
                                     <Typography>{formatRatingSystem(rs)}</Typography>
 
@@ -67,12 +82,12 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
                                         {currentRating}
                                     </Typography>
                                 </Stack>
-                            </Grid2>
+                            </Grid2>)
                         );
                     })}
                 </Grid2>
             </CardContent>
-        </Card>
+        </Card>)
     );
 };
 

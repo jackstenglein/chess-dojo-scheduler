@@ -1,7 +1,6 @@
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
-import { Stack } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { Grid2, Stack } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useApi } from '../../api/Api';
 import { Request, RequestSnackbar, useRequest } from '../../api/Request';
@@ -162,9 +161,13 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
     const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
 
     return (
-        <Grid2 container spacing={2}>
+        (<Grid2 container spacing={2}>
             <RequestSnackbar request={request} />
-            <Grid2 xs={12} md={2.5}>
+            <Grid2
+                size={{
+                    xs: 12,
+                    md: 2.5
+                }}>
                 <Stack
                     data-cy='calendar-filters'
                     sx={{
@@ -178,7 +181,11 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                     <TimezoneFilter filters={filters} />
                 </Stack>
             </Grid2>
-            <Grid2 xs={12} md={9.5}>
+            <Grid2
+                size={{
+                    xs: 12,
+                    md: 9.5
+                }}>
                 <Scheduler
                     ref={calendarRef}
                     editable={user?.isCoach}
@@ -218,7 +225,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                     hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                 />
             </Grid2>
-        </Grid2>
+        </Grid2>)
     );
 };
 

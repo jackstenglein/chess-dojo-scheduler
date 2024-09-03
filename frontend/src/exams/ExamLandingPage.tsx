@@ -3,13 +3,13 @@ import {
     CardActionArea,
     CardContent,
     Container,
+    Grid2,
     Stack,
     SvgIconProps,
     SvgIconTypeMap,
     Typography,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Link } from 'react-router-dom';
 import { KingIcon, QueenIcon, RookIcon } from '../style/ChessIcons';
 
@@ -59,7 +59,12 @@ interface ExamCardProps {
 const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) => {
     const Icon = icon;
     return (
-        <Grid2 xs={12} sm={6} md={4}>
+        (<Grid2
+            size={{
+                xs: 12,
+                sm: 6,
+                md: 4
+            }}>
             <Card
                 variant={disabled ? 'outlined' : 'elevation'}
                 sx={{ opacity: disabled ? 0.8 : 1, height: 1 }}
@@ -87,6 +92,6 @@ const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) =>
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>
+        </Grid2>)
     );
 };

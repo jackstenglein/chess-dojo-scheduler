@@ -3,12 +3,12 @@
 import {
     Card,
     CardContent,
+    Grid2,
     Stack,
     Typography,
     useMediaQuery,
     useTheme,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import Carousel from 'react-material-ui-carousel';
 
 const testimonials = [
@@ -85,7 +85,13 @@ const Testimonials = () => {
         items.push(
             <Grid2 key={i} container columnSpacing={3} justifyContent='center'>
                 {testimonials.slice(i, i + quotesPerSlide).map((t) => (
-                    <Grid2 key={t.name} xs={10} sm={4} lg={3}>
+                    <Grid2
+                        key={t.name}
+                        size={{
+                            xs: 10,
+                            sm: 4,
+                            lg: 3
+                        }}>
                         <Card sx={{ height: 1 }}>
                             <CardContent>
                                 <Typography variant='h5'>{t.name}</Typography>

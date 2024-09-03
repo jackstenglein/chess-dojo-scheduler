@@ -4,11 +4,11 @@ import {
     CardHeader,
     Container,
     Divider,
+    Grid2,
     Link,
     Stack,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { RatingSystem, formatRatingSystem } from '../database/user';
@@ -171,9 +171,11 @@ const UnauthenticatedHelp = () => {
     };
 
     return (
-        <Container maxWidth='xl' sx={{ py: 4 }}>
+        (<Container maxWidth='xl' sx={{ py: 4 }}>
             <Grid2 container columnSpacing={4}>
-                <Grid2 md={3} sx={{ display: { xs: 'none', md: 'initial' } }}>
+                <Grid2 sx={{ display: { xs: 'none', md: 'initial' } }} size={{
+                    md: 3
+                }}>
                     <Card
                         variant='outlined'
                         sx={{
@@ -223,7 +225,9 @@ const UnauthenticatedHelp = () => {
                     </Card>
                 </Grid2>
 
-                <Grid2 id='scroll-parent' md={9}>
+                <Grid2 id='scroll-parent' size={{
+                    md: 9
+                }}>
                     <Stack spacing={5}>
                         <Stack>
                             <Typography variant='h4'>Help/FAQs</Typography>
@@ -261,7 +265,7 @@ const UnauthenticatedHelp = () => {
                     </Stack>
                 </Grid2>
             </Grid2>
-        </Container>
+        </Container>)
     );
 };
 

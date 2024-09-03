@@ -6,8 +6,15 @@ import Sensei from '@/landing/Sensei';
 import Testimonials from '@/landing/Testimonials';
 import WhatsIncluded from '@/landing/WhatsIncluded';
 import LoadingPage from '@/loading/LoadingPage';
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import {
+    Box,
+    Button,
+    Container,
+    Grid2,
+    Stack,
+    Typography,
+    useColorScheme,
+} from '@mui/material';
 import { Hub } from 'aws-amplify/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -19,6 +26,9 @@ const LandingPage = ({
 }) => {
     const auth = useAuth();
     const router = useRouter();
+    const { mode, systemMode } = useColorScheme();
+    console.log('Mode: ', mode);
+    console.log('System Mode: ', systemMode);
 
     useEffect(() => {
         return Hub.listen('auth', (data) => {
@@ -49,7 +59,13 @@ const LandingPage = ({
                 }}
             >
                 <Grid2 container rowSpacing={4} columnSpacing={2}>
-                    <Grid2 xs={12} md={6} justifyContent='center'>
+                    <Grid2
+                        justifyContent='center'
+                        size={{
+                            xs: 12,
+                            md: 6,
+                        }}
+                    >
                         <Stack
                             height={1}
                             justifyContent='center'
@@ -113,7 +129,12 @@ const LandingPage = ({
                         </Stack>
                     </Grid2>
 
-                    <Grid2 xs={12} md={6}>
+                    <Grid2
+                        size={{
+                            xs: 12,
+                            md: 6,
+                        }}
+                    >
                         <Stack height={1} justifyContent='center' alignItems='center'>
                             <iframe
                                 style={{ width: '100%', aspectRatio: '1.77' }}
@@ -128,7 +149,6 @@ const LandingPage = ({
                     </Grid2>
                 </Grid2>
             </Box>
-
             <WhatsIncluded />
             <Sensei />
             <Testimonials />

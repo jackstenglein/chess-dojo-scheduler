@@ -3,6 +3,7 @@ import { Help, QuestionMark } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import {
     Box,
+    Grid2,
     Link,
     MenuItem,
     Stack,
@@ -13,7 +14,6 @@ import {
     lighten,
     styled,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
 import {
     DataGridPro,
     GridColDef,
@@ -288,7 +288,7 @@ function Database<T>({
     };
 
     return (
-        <Grid
+        (<Grid2
             data-cy={`explorer-tab-${type}`}
             container
             columnSpacing={1}
@@ -297,7 +297,11 @@ function Database<T>({
         >
             {type === ExplorerDatabaseType.Dojo && (
                 <>
-                    <Grid xs={6} sm={6}>
+                    <Grid2
+                        size={{
+                            xs: 6,
+                            sm: 6
+                        }}>
                         <TextField
                             select
                             fullWidth
@@ -311,8 +315,12 @@ function Database<T>({
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </Grid>
-                    <Grid xs={6} sm={6}>
+                    </Grid2>
+                    <Grid2
+                        size={{
+                            xs: 6,
+                            sm: 6
+                        }}>
                         <TextField
                             select
                             fullWidth
@@ -333,13 +341,12 @@ function Database<T>({
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </Grid>
+                    </Grid2>
                 </>
             )}
-
             {type === ExplorerDatabaseType.Masters && (
                 <>
-                    <Grid xs={12}>
+                    <Grid2 size={12}>
                         <Stack direction='row' alignItems='center' spacing={0.5}>
                             <MultipleSelectChip
                                 label='Time Controls'
@@ -366,11 +373,10 @@ function Database<T>({
                                 <Help sx={{ color: 'text.secondary' }} />
                             </Tooltip>
                         </Stack>
-                    </Grid>
+                    </Grid2>
                 </>
             )}
-
-            <Grid xs={12}>
+            <Grid2 size={12}>
                 <StyledDataGrid
                     autoHeight
                     disableColumnMenu
@@ -411,10 +417,9 @@ function Database<T>({
                         fontSize: '0.8rem',
                     }}
                 />
-            </Grid>
-
+            </Grid2>
             {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
-                <Grid xs={12} display='flex' justifyContent='center'>
+                <Grid2 display='flex' justifyContent='center' size={12}>
                     <Link
                         component={RouterLink}
                         to={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
@@ -424,9 +429,9 @@ function Database<T>({
                         View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'}{' '}
                         games containing this position
                     </Link>
-                </Grid>
+                </Grid2>
             )}
-        </Grid>
+        </Grid2>)
     );
 }
 

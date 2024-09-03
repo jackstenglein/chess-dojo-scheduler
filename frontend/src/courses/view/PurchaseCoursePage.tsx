@@ -1,10 +1,16 @@
-import { Container, Stack, Typography, Divider, Alert, Button } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-
+import {
+    Alert,
+    Button,
+    Container,
+    Divider,
+    Grid2,
+    Stack,
+    Typography,
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { Course } from '../../database/course';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import PurchaseOption from './PurchaseOption';
-import { useNavigate } from 'react-router-dom';
 
 interface PurchaseCoursePageProps {
     course?: Course;
@@ -22,7 +28,7 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
     }
 
     return (
-        <Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
+        (<Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
             <Stack>
                 <Typography variant='h4'>{course.name}</Typography>
                 <Typography variant='h5' color='text.secondary'>
@@ -34,7 +40,14 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
                     <Grid2 container rowSpacing={2} columnSpacing={4} alignItems='center'>
                         <PurchaseMessage course={course} isFreeTier={isFreeTier} />
 
-                        <Grid2 xs={12} sm={12} md={6} lg={6} xl={4}>
+                        <Grid2
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 6,
+                                lg: 6,
+                                xl: 4
+                            }}>
                             <Stack spacing={2}>
                                 {course.description.split('\n\n').map((p, i) => (
                                     <Typography key={i} mb={2}>
@@ -57,7 +70,14 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
 
                         {(!isFreeTier || course.availableForFreeUsers) &&
                             course.purchaseOptions?.map((option) => (
-                                <Grid2 key={option.name} xs={12} md={6} lg={4} xl={3}>
+                                <Grid2
+                                    key={option.name}
+                                    size={{
+                                        xs: 12,
+                                        md: 6,
+                                        lg: 4,
+                                        xl: 3
+                                    }}>
                                     <PurchaseOption
                                         course={course}
                                         purchaseOption={option}
@@ -68,7 +88,7 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
                     </Grid2>
                 </Stack>
             </Stack>
-        </Container>
+        </Container>)
     );
 };
 
@@ -125,14 +145,25 @@ const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier })
         return null;
     }
 
-    return (
-        <>
-            <Grid2 xs={12} sm={12} md={12} lg={10} xl={7} mb={2}>
-                {content}
-            </Grid2>
-            <Grid2 xs={0} lg={2} xl={5}></Grid2>
-        </>
-    );
+    return (<>
+        <Grid2
+            mb={2}
+            size={{
+                xs: 12,
+                sm: 12,
+                md: 12,
+                lg: 10,
+                xl: 7
+            }}>
+            {content}
+        </Grid2>
+        <Grid2
+            size={{
+                xs: 0,
+                lg: 2,
+                xl: 5
+            }}></Grid2>
+    </>);
 };
 
 export default PurchaseCoursePage;
