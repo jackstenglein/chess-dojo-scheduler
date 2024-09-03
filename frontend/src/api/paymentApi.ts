@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
 
 import { getConfig } from '../config';
-import { User } from '../database/user';
 import { StripeAccount } from '../database/payment';
+import { User } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -13,7 +13,7 @@ export interface PaymentApiContextType {
      * @returns A subscription checkout session URL.
      */
     subscriptionCheckout: (
-        request: SubscriptionCheckoutRequest
+        request: SubscriptionCheckoutRequest,
     ) => Promise<AxiosResponse<StripeUrlResponse>>;
 
     /**
@@ -67,7 +67,7 @@ interface StripeUrlResponse {
  */
 export function subscriptionCheckout(
     idToken: string,
-    request: SubscriptionCheckoutRequest
+    request: SubscriptionCheckoutRequest,
 ) {
     return axios.post<StripeUrlResponse>(`${BASE_URL}/subscription/checkout`, request, {
         headers: {
@@ -85,7 +85,7 @@ export function subscriptionManage(idToken: string) {
     return axios.post<StripeUrlResponse>(
         `${BASE_URL}/subscription/manage`,
         {},
-        { headers: { Authorization: 'Bearer ' + idToken } }
+        { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }
 
@@ -115,7 +115,7 @@ export function createPaymentAccount(idToken: string) {
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        }
+        },
     );
 }
 

@@ -134,7 +134,7 @@ export const MissingGameDataPreflight = ({
     };
 
     return (
-        (<Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
+        <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 {children && <DialogContentText>{children}</DialogContentText>}
@@ -144,8 +144,9 @@ export const MissingGameDataPreflight = ({
                         <Grid2
                             size={{
                                 xs: 12,
-                                sm: "grow"
-                            }}>
+                                sm: 'grow',
+                            }}
+                        >
                             <TextField
                                 fullWidth
                                 data-cy='white'
@@ -160,8 +161,9 @@ export const MissingGameDataPreflight = ({
                         <Grid2
                             size={{
                                 xs: 12,
-                                sm: "grow"
-                            }}>
+                                sm: 'grow',
+                            }}
+                        >
                             <TextField
                                 fullWidth
                                 data-cy='black'
@@ -176,8 +178,9 @@ export const MissingGameDataPreflight = ({
                         <Grid2
                             size={{
                                 xs: 12,
-                                sm: "grow"
-                            }}>
+                                sm: 'grow',
+                            }}
+                        >
                             <TextField
                                 select
                                 data-cy='result'
@@ -197,8 +200,9 @@ export const MissingGameDataPreflight = ({
                         <Grid2
                             size={{
                                 xs: 12,
-                                sm: "grow"
-                            }}>
+                                sm: 'grow',
+                            }}
+                        >
                             <DatePicker
                                 label='Date'
                                 disableFuture
@@ -258,6 +262,6 @@ export const MissingGameDataPreflight = ({
                     Submit
                 </LoadingButton>
             </DialogActions>
-        </Dialog>)
+        </Dialog>
     );
 };

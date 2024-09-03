@@ -288,7 +288,7 @@ function Database<T>({
     };
 
     return (
-        (<Grid2
+        <Grid2
             data-cy={`explorer-tab-${type}`}
             container
             columnSpacing={1}
@@ -300,8 +300,9 @@ function Database<T>({
                     <Grid2
                         size={{
                             xs: 6,
-                            sm: 6
-                        }}>
+                            sm: 6,
+                        }}
+                    >
                         <TextField
                             select
                             fullWidth
@@ -319,8 +320,9 @@ function Database<T>({
                     <Grid2
                         size={{
                             xs: 6,
-                            sm: 6
-                        }}>
+                            sm: 6,
+                        }}
+                    >
                         <TextField
                             select
                             fullWidth
@@ -431,7 +433,7 @@ function Database<T>({
                     </Link>
                 </Grid2>
             )}
-        </Grid2>)
+        </Grid2>
     );
 }
 

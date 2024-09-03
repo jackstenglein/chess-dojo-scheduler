@@ -54,18 +54,20 @@ const RatingRow = ({
     currentRating: number;
     name?: string;
 }) => {
-    return (<>
-        <Grid2 display='flex' alignItems='center' justifyContent='center' size={2}>
-            <RatingSystemIcon system={system} size='small' />
-        </Grid2>
-        <Grid2 size={8}>
-            <Typography>
-                {formatRatingSystem(system)}{' '}
-                {system === RatingSystem.Custom && name && ` (${name})`}
-            </Typography>
-        </Grid2>
-        <Grid2 size={2}>
-            <Typography fontWeight='bold'>{currentRating}</Typography>
-        </Grid2>
-    </>);
+    return (
+        <>
+            <Grid2 display='flex' alignItems='center' justifyContent='center' size={2}>
+                <RatingSystemIcon system={system} size='small' />
+            </Grid2>
+            <Grid2 size={8}>
+                <Typography>
+                    {formatRatingSystem(system)}{' '}
+                    {system === RatingSystem.Custom && name && ` (${name})`}
+                </Typography>
+            </Grid2>
+            <Grid2 size={2}>
+                <Typography fontWeight='bold'>{currentRating}</Typography>
+            </Grid2>
+        </>
+    );
 };

@@ -38,7 +38,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
     );
 
     return (
-        (<Card variant='outlined' sx={{ width: 1 }}>
+        <Card variant='outlined' sx={{ width: 1 }}>
             <CardContent>
                 <Stack direction='row' justifyContent='space-between'>
                     <Stack>
@@ -79,8 +79,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                         size={{
                             xs: 6,
                             sm: 4,
-                            md: "grow"
-                        }}>
+                            md: 'grow',
+                        }}
+                    >
                         <Stack alignItems={{ xs: 'start', sm: 'end' }}>
                             <Typography variant='caption' color='text.secondary'>
                                 Jan 1, 2023
@@ -104,8 +105,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                         size={{
                             xs: 6,
                             sm: 4,
-                            md: "grow"
-                        }}>
+                            md: 'grow',
+                        }}
+                    >
                         <Stack alignItems='end'>
                             <Typography variant='caption' color='text.secondary'>
                                 Dec 25, 2023
@@ -128,8 +130,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                         size={{
                             xs: 6,
                             sm: 4,
-                            md: "grow"
-                        }}>
+                            md: 'grow',
+                        }}
+                    >
                         <Stack alignItems={{ xs: 'start', sm: 'end' }}>
                             <Typography variant='caption' color='text.secondary'>
                                 Change
@@ -182,8 +185,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                 size={{
                                     xs: 6,
                                     sm: 4,
-                                    md: "grow"
-                                }}>
+                                    md: 'grow',
+                                }}
+                            >
                                 <Stack alignItems='end'>
                                     <Stack
                                         spacing={0.5}
@@ -229,8 +233,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                 size={{
                                     xs: 6,
                                     sm: 4,
-                                    md: "grow"
-                                }}>
+                                    md: 'grow',
+                                }}
+                            >
                                 <Stack alignItems={{ xs: 'start', sm: 'end' }}>
                                     <Stack
                                         spacing={0.5}
@@ -281,8 +286,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                 size={{
                                     xs: 6,
                                     sm: 4,
-                                    md: "grow"
-                                }}>
+                                    md: 'grow',
+                                }}
+                            >
                                 <Stack alignItems='end'>
                                     <Stack
                                         spacing={0.5}
@@ -346,7 +352,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                     </Box>
                 </Stack>
             </CardContent>
-        </Card>)
+        </Card>
     );
 };
 

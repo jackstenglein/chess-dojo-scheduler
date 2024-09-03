@@ -34,7 +34,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     console.log('Tactics rating: ', tacticsRating);
 
     return (
-        (<Card variant='outlined'>
+        <Card variant='outlined'>
             <CardContent>
                 <Stack
                     direction='row'
@@ -89,8 +89,9 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                             size={{
                                 xs: 6,
                                 sm: 3,
-                                md: "grow"
-                            }}>
+                                md: 'grow',
+                            }}
+                        >
                             <Tooltip title={c.description}>
                                 <Stack alignItems='center'>
                                     <Typography variant='body1' color='text.secondary'>
@@ -142,7 +143,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     ))}
                 </Grid2>
             </CardContent>
-        </Card>)
+        </Card>
     );
 };
 

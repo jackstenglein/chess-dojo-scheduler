@@ -1,6 +1,6 @@
+import { Place } from '@mui/icons-material';
 import { Chip } from '@mui/material';
 import { ClubLocation } from '../database/club';
-import { Place } from '@mui/icons-material';
 
 interface LocationChipProps {
     location: ClubLocation;

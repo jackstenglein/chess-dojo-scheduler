@@ -33,14 +33,15 @@ const ListCoursesPage = () => {
     const noItems = !request.data?.length;
 
     return (
-        (<Container maxWidth='xl' sx={{ py: 5 }}>
+        <Container maxWidth='xl' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
             <Grid2 container spacing={3}>
                 <Grid2
                     size={{
                         xs: 12,
-                        md: 2
-                    }}>
+                        md: 2,
+                    }}
+                >
                     <CourseFilterEditor filters={courseFilters} />
                 </Grid2>
 
@@ -49,16 +50,18 @@ const ListCoursesPage = () => {
                     spacing={2}
                     size={{
                         xs: 12,
-                        md: 10
-                    }}>
+                        md: 10,
+                    }}
+                >
                     {request.data?.map((course) => (
                         <Grid2
                             key={course.id}
                             size={{
                                 xs: 12,
                                 md: 6,
-                                lg: 4
-                            }}>
+                                lg: 4,
+                            }}
+                        >
                             <CourseListItem
                                 key={course.id}
                                 course={course}
@@ -79,7 +82,7 @@ const ListCoursesPage = () => {
                     {noItems && request.isLoading() && <LoadingPage />}
                 </Grid2>
             </Grid2>
-        </Container>)
+        </Container>
     );
 };
 

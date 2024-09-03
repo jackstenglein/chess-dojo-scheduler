@@ -1,5 +1,5 @@
-import { Chip, Tooltip } from '@mui/material';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
+import { Chip, Tooltip } from '@mui/material';
 
 import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 

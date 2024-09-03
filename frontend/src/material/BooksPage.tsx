@@ -80,7 +80,7 @@ const BooksPage = () => {
     };
 
     return (
-        (<Container sx={{ py: 3 }}>
+        <Container sx={{ py: 3 }}>
             <Stack spacing={3}>
                 <Typography variant='h5' align='center'>
                     ChessDojo Recommended Books
@@ -123,8 +123,9 @@ const BooksPage = () => {
                                 key={cohort}
                                 size={{
                                     xs: 12,
-                                    sm: 6
-                                }}>
+                                    sm: 6,
+                                }}
+                            >
                                 <Card
                                     variant='outlined'
                                     sx={{
@@ -164,7 +165,7 @@ const BooksPage = () => {
                     )}
                 </Grid2>
             </Stack>
-        </Container>)
+        </Container>
     );
 };
 

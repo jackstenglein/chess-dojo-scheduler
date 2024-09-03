@@ -43,7 +43,7 @@ const TimeSection: React.FC<SectionProps> = ({ review }) => {
     const taskData = useMemo(() => getTaskData('Time Spent', data), [data]);
 
     return (
-        (<Stack width={1} alignItems='center'>
+        <Stack width={1} alignItems='center'>
             <Typography
                 variant='h6'
                 fontWeight='800'
@@ -61,8 +61,9 @@ const TimeSection: React.FC<SectionProps> = ({ review }) => {
                             justifyContent='center'
                             size={{
                                 xs: 12,
-                                sm: 4
-                            }}>
+                                sm: 4,
+                            }}
+                        >
                             <Stack alignItems='end'>
                                 <Typography variant='caption' color='text.secondary'>
                                     Total Time
@@ -140,7 +141,7 @@ const TimeSection: React.FC<SectionProps> = ({ review }) => {
                     </Stack>
                 </CardContent>
             </Card>
-        </Stack>)
+        </Stack>
     );
 };
 

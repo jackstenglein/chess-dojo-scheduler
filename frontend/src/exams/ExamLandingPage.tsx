@@ -59,12 +59,13 @@ interface ExamCardProps {
 const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) => {
     const Icon = icon;
     return (
-        (<Grid2
+        <Grid2
             size={{
                 xs: 12,
                 sm: 6,
-                md: 4
-            }}>
+                md: 4,
+            }}
+        >
             <Card
                 variant={disabled ? 'outlined' : 'elevation'}
                 sx={{ opacity: disabled ? 0.8 : 1, height: 1 }}
@@ -92,6 +93,6 @@ const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) =>
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>)
+        </Grid2>
     );
 };

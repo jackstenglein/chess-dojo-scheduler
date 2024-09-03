@@ -28,7 +28,7 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
     }
 
     return (
-        (<Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
+        <Container maxWidth={false} sx={{ pt: 6, pb: 4 }}>
             <Stack>
                 <Typography variant='h4'>{course.name}</Typography>
                 <Typography variant='h5' color='text.secondary'>
@@ -46,8 +46,9 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
                                 sm: 12,
                                 md: 6,
                                 lg: 6,
-                                xl: 4
-                            }}>
+                                xl: 4,
+                            }}
+                        >
                             <Stack spacing={2}>
                                 {course.description.split('\n\n').map((p, i) => (
                                     <Typography key={i} mb={2}>
@@ -76,8 +77,9 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
                                         xs: 12,
                                         md: 6,
                                         lg: 4,
-                                        xl: 3
-                                    }}>
+                                        xl: 3,
+                                    }}
+                                >
                                     <PurchaseOption
                                         course={course}
                                         purchaseOption={option}
@@ -88,7 +90,7 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
                     </Grid2>
                 </Stack>
             </Stack>
-        </Container>)
+        </Container>
     );
 };
 
@@ -145,25 +147,29 @@ const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier })
         return null;
     }
 
-    return (<>
-        <Grid2
-            mb={2}
-            size={{
-                xs: 12,
-                sm: 12,
-                md: 12,
-                lg: 10,
-                xl: 7
-            }}>
-            {content}
-        </Grid2>
-        <Grid2
-            size={{
-                xs: 0,
-                lg: 2,
-                xl: 5
-            }}></Grid2>
-    </>);
+    return (
+        <>
+            <Grid2
+                mb={2}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 10,
+                    xl: 7,
+                }}
+            >
+                {content}
+            </Grid2>
+            <Grid2
+                size={{
+                    xs: 0,
+                    lg: 2,
+                    xl: 5,
+                }}
+            ></Grid2>
+        </>
+    );
 };
 
 export default PurchaseCoursePage;

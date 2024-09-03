@@ -1,9 +1,9 @@
+import { Link, Stack, Typography } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Stack, Typography, Link } from '@mui/material';
 
-import { RequestSnackbar, useRequest } from '../api/Request';
 import { useApi } from '../api/Api';
+import { RequestSnackbar, useRequest } from '../api/Request';
 import { Course, CourseType } from '../database/course';
 import LoadingPage from '../loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';

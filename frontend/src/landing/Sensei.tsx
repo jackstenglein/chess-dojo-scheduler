@@ -26,7 +26,7 @@ const senseis = [
 
 const Sensei = () => {
     return (
-        (<Stack width={1} alignItems='center' mt={3}>
+        <Stack width={1} alignItems='center' mt={3}>
             <Typography variant='h2' textAlign='center'>
                 ChessDojo{' '}
                 <Typography variant='h2' color='dojoOrange.main' component='span'>
@@ -49,8 +49,9 @@ const Sensei = () => {
                         size={{
                             xs: 12,
                             sm: 4,
-                            lg: 3
-                        }}>
+                            lg: 3,
+                        }}
+                    >
                         <Card sx={{ height: 1 }}>
                             <CardMedia
                                 component='img'
@@ -71,7 +72,7 @@ const Sensei = () => {
                     </Grid2>
                 ))}
             </Grid2>
-        </Stack>)
+        </Stack>
     );
 };
 

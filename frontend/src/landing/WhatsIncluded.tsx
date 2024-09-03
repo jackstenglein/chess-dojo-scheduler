@@ -118,7 +118,7 @@ const WhatsIncluded = () => {
     const [value, setValue] = useState('plan');
 
     return (
-        (<Stack width={1} justifyContent='center' alignItems='center'>
+        <Stack width={1} justifyContent='center' alignItems='center'>
             <Typography variant='h2' textAlign='center' mb={5}>
                 See what's included
             </Typography>
@@ -159,8 +159,9 @@ const WhatsIncluded = () => {
                                         <Grid2
                                             size={{
                                                 xs: 12,
-                                                md: 6
-                                            }}>
+                                                md: 6,
+                                            }}
+                                        >
                                             {data.title}
 
                                             <Divider sx={{ mt: 1, mb: 3 }} />
@@ -171,8 +172,9 @@ const WhatsIncluded = () => {
                                             alignSelf='center'
                                             size={{
                                                 xs: 12,
-                                                md: 6
-                                            }}>
+                                                md: 6,
+                                            }}
+                                        >
                                             <Stack>
                                                 {data.images.map((image) => (
                                                     <img
@@ -198,7 +200,7 @@ const WhatsIncluded = () => {
                     ))}
                 </TabContext>
             </Box>
-        </Stack>)
+        </Stack>
     );
 };
 

@@ -67,10 +67,7 @@ export interface ClubApiContextType {
      * @param notes The notes the user is including in the request.
      * @returns An AxiosResponse containing the club's updated details.
      */
-    requestToJoinClub: (
-        id: string,
-        notes: string,
-    ) => Promise<AxiosResponse<ClubDetails>>;
+    requestToJoinClub: (id: string, notes: string) => Promise<AxiosResponse<ClubDetails>>;
 
     /**
      * Applies the given status to the given club join request.

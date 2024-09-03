@@ -358,7 +358,7 @@ const AuthenticatedHelp = () => {
     };
 
     return (
-        (<Container maxWidth='xl' sx={{ py: 4 }}>
+        <Container maxWidth='xl' sx={{ py: 4 }}>
             {isFreeTier && (
                 <UpsellDialog
                     open={upsellDialogOpen}
@@ -367,9 +367,12 @@ const AuthenticatedHelp = () => {
                 />
             )}
             <Grid container columnSpacing={4}>
-                <Grid sx={{ display: { xs: 'none', md: 'initial' } }} size={{
-                    md: 3
-                }}>
+                <Grid
+                    sx={{ display: { xs: 'none', md: 'initial' } }}
+                    size={{
+                        md: 3,
+                    }}
+                >
                     <Card
                         variant='outlined'
                         sx={{
@@ -418,9 +421,12 @@ const AuthenticatedHelp = () => {
                     </Card>
                 </Grid>
 
-                <Grid id='scroll-parent' size={{
-                    md: 9
-                }}>
+                <Grid
+                    id='scroll-parent'
+                    size={{
+                        md: 9,
+                    }}
+                >
                     <Stack spacing={5}>
                         <Stack>
                             <Typography variant='h4'>Help/FAQs</Typography>
@@ -529,7 +535,7 @@ const AuthenticatedHelp = () => {
                     </Stack>
                 </Grid>
             </Grid>
-        </Container>)
+        </Container>
     );
 };
 

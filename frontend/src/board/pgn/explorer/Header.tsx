@@ -1,33 +1,33 @@
-import React, { useState } from 'react';
-import copy from 'copy-to-clipboard';
+import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
+import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
+import CheckIcon from '@mui/icons-material/Check';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import HelpIcon from '@mui/icons-material/Help';
 import {
+    Button,
+    Checkbox,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    FormControlLabel,
+    IconButton,
+    MenuItem,
     Stack,
     TextField,
     Tooltip,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    MenuItem,
-    FormControlLabel,
-    Checkbox,
     Typography,
-    DialogActions,
-    Button,
 } from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckIcon from '@mui/icons-material/Check';
-import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
-import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
-import HelpIcon from '@mui/icons-material/Help';
+import copy from 'copy-to-clipboard';
+import React, { useState } from 'react';
 
-import { ExplorerPositionFollower } from '../../../database/explorer';
-import { dojoCohorts } from '../../../database/user';
+import { LoadingButton } from '@mui/lab';
 import { useApi } from '../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { LoadingButton } from '@mui/lab';
 import { useFreeTier } from '../../../auth/Auth';
+import { ExplorerPositionFollower } from '../../../database/explorer';
+import { dojoCohorts } from '../../../database/user';
 
 interface HeaderProps {
     fen: string;
@@ -130,7 +130,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({
     const [minCohort, setMinCohort] = useState(follower?.minCohort || initialMinCohort);
     const [maxCohort, setMaxCohort] = useState(follower?.maxCohort || initialMaxCohort);
     const [disableVariations, setDisableVariations] = useState(
-        follower?.disableVariations || false
+        follower?.disableVariations || false,
     );
 
     const api = useApi();

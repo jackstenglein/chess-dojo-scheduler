@@ -69,7 +69,7 @@ const SupportTicket = () => {
     }
 
     return (
-        (<Stack id='support-ticket'>
+        <Stack id='support-ticket'>
             <Typography variant='h4'>Contact Support</Typography>
             <Typography color='text.secondary' mb={2}>
                 Please note that we are a small team, and it may take a few business days
@@ -79,8 +79,9 @@ const SupportTicket = () => {
                 <Grid2
                     size={{
                         xs: 12,
-                        sm: 6
-                    }}>
+                        sm: 6,
+                    }}
+                >
                     <TextField
                         data-cy='support-ticket-name'
                         label='Full Name'
@@ -95,8 +96,9 @@ const SupportTicket = () => {
                 <Grid2
                     size={{
                         xs: 12,
-                        sm: 6
-                    }}>
+                        sm: 6,
+                    }}
+                >
                     <TextField
                         data-cy='support-ticket-email'
                         label='Email'
@@ -147,7 +149,7 @@ const SupportTicket = () => {
                 </Grid2>
             </Grid2>
             <RequestSnackbar request={request} />
-        </Stack>)
+        </Stack>
     );
 };
 

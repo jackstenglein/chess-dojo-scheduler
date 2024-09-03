@@ -1,17 +1,17 @@
+import { LoadingButton } from '@mui/lab';
+import { Card, CardActionArea, CardContent, Stack } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardActionArea, CardContent, Stack } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 
+import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { listCoaches } from '../../api/coachApi';
+import { useAuth } from '../../auth/Auth';
+import { FollowerEntry } from '../../database/follower';
 import { User, compareCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import UserInfo from '../../profile/info/UserInfo';
-import { FollowerEntry } from '../../database/follower';
-import { useAuth } from '../../auth/Auth';
-import { useApi } from '../../api/Api';
 import Bio from '../../profile/info/Bio';
+import UserInfo from '../../profile/info/UserInfo';
 
 const CoachesTab = () => {
     const request = useRequest<User[]>();
@@ -24,8 +24,8 @@ const CoachesTab = () => {
                     console.log('listCoaches: ', resp);
                     request.onSuccess(
                         resp.data.sort((lhs, rhs) =>
-                            compareCohorts(rhs.dojoCohort, lhs.dojoCohort)
-                        )
+                            compareCohorts(rhs.dojoCohort, lhs.dojoCohort),
+                        ),
                     );
                 })
                 .catch((err) => {

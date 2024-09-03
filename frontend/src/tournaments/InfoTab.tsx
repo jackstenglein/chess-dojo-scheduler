@@ -1,4 +1,4 @@
-import { Stack, Typography, Link } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
 
 const InfoTab = () => {
     return (

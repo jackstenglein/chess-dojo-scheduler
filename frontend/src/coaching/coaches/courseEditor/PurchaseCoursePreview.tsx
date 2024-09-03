@@ -29,7 +29,7 @@ const PurchaseCoursePreview: React.FC<PurchaseCoursePreviewProps> = ({
     const [previewTab, setPreviewTab] = useState('listCourses');
 
     return (
-        (<Container maxWidth={false} sx={{ py: 4 }}>
+        <Container maxWidth={false} sx={{ py: 4 }}>
             <Stack>
                 <Stack direction='row' justifyContent='space-between' alignItems='center'>
                     <Typography variant='h4'>Preview</Typography>
@@ -68,8 +68,9 @@ const PurchaseCoursePreview: React.FC<PurchaseCoursePreviewProps> = ({
                                     size={{
                                         xs: 12,
                                         md: 6,
-                                        lg: 4
-                                    }}>
+                                        lg: 4,
+                                    }}
+                                >
                                     <CourseListItem
                                         preview
                                         course={course}
@@ -97,7 +98,7 @@ const PurchaseCoursePreview: React.FC<PurchaseCoursePreviewProps> = ({
                     </TabContext>
                 </Stack>
             </Stack>
-        </Container>)
+        </Container>
     );
 };
 

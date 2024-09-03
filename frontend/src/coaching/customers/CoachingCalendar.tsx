@@ -161,13 +161,14 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
     const [minHour, maxHour] = getHours(filters.minHour, filters.maxHour);
 
     return (
-        (<Grid2 container spacing={2}>
+        <Grid2 container spacing={2}>
             <RequestSnackbar request={request} />
             <Grid2
                 size={{
                     xs: 12,
-                    md: 2.5
-                }}>
+                    md: 2.5,
+                }}
+            >
                 <Stack
                     data-cy='calendar-filters'
                     sx={{
@@ -184,8 +185,9 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
             <Grid2
                 size={{
                     xs: 12,
-                    md: 9.5
-                }}>
+                    md: 9.5,
+                }}
+            >
                 <Scheduler
                     ref={calendarRef}
                     editable={user?.isCoach}
@@ -225,7 +227,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                     hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                 />
             </Grid2>
-        </Grid2>)
+        </Grid2>
     );
 };
 

@@ -1,5 +1,5 @@
-import { Alert, Button, Snackbar } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { Alert, Button, Snackbar } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -68,7 +68,7 @@ export function SwitchCohortPrompt() {
                 >
                     {showGraduation
                         ? `Congrats on reaching ${getCurrentRating(
-                              user
+                              user,
                           )}! Go to your profile to
                     officially graduate!`
                         : `Your rating has been less than your cohort's minimum rating for 90 days. We recommend moving down a cohort in your settings.`}

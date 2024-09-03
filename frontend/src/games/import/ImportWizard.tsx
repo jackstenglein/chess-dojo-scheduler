@@ -146,11 +146,12 @@ const ImportSourceCard = ({
 }: ImportSourceCardProps) => {
     const Icon = icon;
     return (
-        (<Grid2
+        <Grid2
             size={{
                 xs: 12,
-                sm: 6
-            }}>
+                sm: 6,
+            }}
+        >
             <Card sx={{ height: 1 }}>
                 <CardActionArea
                     sx={{ height: 1 }}
@@ -185,6 +186,6 @@ const ImportSourceCard = ({
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>)
+        </Grid2>
     );
 };

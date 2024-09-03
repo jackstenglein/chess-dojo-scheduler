@@ -86,7 +86,7 @@ export default function GraduationShareDialog({
     };
 
     return (
-        (<Dialog maxWidth='md' open={open} onClose={handleClose} fullWidth>
+        <Dialog maxWidth='md' open={open} onClose={handleClose} fullWidth>
             <DialogTitle>Share your progress!</DialogTitle>
             <DialogContent>
                 <Stack spacing={2}>
@@ -102,7 +102,7 @@ export default function GraduationShareDialog({
                     >
                         {imageData ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            (<img
+                            <img
                                 style={{
                                     height: 'auto',
                                     maxWidth: '100%',
@@ -110,7 +110,7 @@ export default function GraduationShareDialog({
                                 }}
                                 alt='dojo graduation badge'
                                 src={imageData}
-                            />)
+                            />
                         ) : (
                             <ReportCanvas reportRef={setReportRef}>
                                 <GraduationCard graduation={graduation} />
@@ -125,7 +125,7 @@ export default function GraduationShareDialog({
                     Download
                 </LoadingButton>
             </DialogActions>
-        </Dialog>)
+        </Dialog>
     );
 }
 
