@@ -265,6 +265,14 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     }
 
                     chess.setHeader(newRow.name, newRow.value as string);
+
+                    if (defaultTags.includes(name)) {
+                        return {
+                            ...newRow,
+                            value: chess.header().getRawValue(name),
+                        };
+                    }
+
                     return {
                         ...newRow,
                         value: chess.header().getValue(newRow.name),
