@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import ReactJoyride, { CallBackProps, Step } from 'react-joyride';
 
-import { useApi } from '../api/Api';
-import { useAuth } from '../auth/Auth';
+import { useApi } from '@/api/Api';
+import { useAuth } from '@/auth/Auth';
 import { useTutorial } from './TutorialContext';
 import { TutorialName } from './tutorialNames';
 import TutorialTooltip from './TutorialTooltip';
@@ -27,17 +27,14 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
 
     const callback = useCallback(
         (state: CallBackProps) => {
-            if (state.status === 'finished') {
+            if (state.status === 'finished' || state.action === 'close') {
+                setTutorialState({});
                 api.updateUser({
                     tutorials: {
                         ...user?.tutorials,
                         [name]: true,
                     },
-                })
-                    .then(() => {
-                        setTutorialState({});
-                    })
-                    .catch((err: unknown) => console.error('completeTutorial: ', err));
+                }).catch((err: unknown) => console.error('completeTutorial: ', err));
             }
         },
         [setTutorialState, api, user?.tutorials, name],
@@ -49,7 +46,6 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
             <ReactJoyride
                 run={activeTutorial === name}
                 continuous
-                hideCloseButton
                 steps={steps}
                 tooltipComponent={TutorialTooltip}
                 styles={{
@@ -58,7 +54,6 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
                         zIndex: zIndex || 100,
                     },
                 }}
-                disableCloseOnEsc
                 disableOverlayClose
                 scrollOffset={100}
                 callback={callback}
@@ -67,7 +62,7 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
         [activeTutorial, callback, darkMode, steps, name, zIndex],
     );
 
-    return <>{Joyride}</>;
+    return Joyride;
 };
 
 export default Tutorial;
