@@ -10,6 +10,7 @@ import {
     IconButton,
     Typography,
 } from '@mui/material';
+import grey from '@mui/material/colors/grey';
 import { TooltipRenderProps } from 'react-joyride';
 
 const TutorialTooltip: React.FC<TooltipRenderProps> = ({
@@ -32,9 +33,7 @@ const TutorialTooltip: React.FC<TooltipRenderProps> = ({
                 title={step.title}
                 action={
                     <IconButton arra-label='close' onClick={closeProps.onClick}>
-                        <Typography component='span' color='Gray'>
-                            <CloseIcon fontSize='small' />
-                        </Typography>
+                        <CloseIcon sx={{ color: grey[500] }} fontSize='small' />
                     </IconButton>
                 }
             />
