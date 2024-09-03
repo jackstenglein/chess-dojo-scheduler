@@ -1,3 +1,4 @@
+import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Grid2, Stack } from '@mui/material';
@@ -8,11 +9,7 @@ import { useAuth } from '../../auth/Auth';
 import { getProcessedEvents } from '../../calendar/CalendarPage';
 import EventEditor from '../../calendar/eventEditor/EventEditor';
 import ProcessedEventViewer from '../../calendar/eventViewer/ProcessedEventViewer';
-import {
-    DefaultTimezone,
-    getHours,
-    useFilters,
-} from '../../calendar/filters/CalendarFilters';
+import { getHours, useFilters } from '../../calendar/filters/CalendarFilters';
 import TimezoneFilter from '../../calendar/filters/TimezoneFilter';
 import { Event } from '../../database/event';
 import { TimeFormat } from '../../database/user';
