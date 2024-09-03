@@ -92,7 +92,9 @@
         "lint:fix": "eslint --fix .",
         "lint:types": "tsc --noEmit",
         "lint:types:watch": "tsc --noEmit --watch",
-        "cy:parallel": "cypress-parallel -s test:cypress -t 3 --spec $(find cypress/e2e -name '*.cy.ts')"
+        "cy:parallel": "cypress-parallel -s test:cypress -t 3 --spec $(find cypress/e2e -name '*.cy.ts')",
+        "format": "prettier src cypress/e2e --write",
+        "format:check": "prettier src cypress/e2e --check"
     },
     "config": {
         "run_dev": "dotenvx run --env-file=.env.development.local --env-file=.env.local --env-file=.env.development --env-file=.env",
@@ -144,6 +146,7 @@
         "happy-dom": "^15.7.2",
         "nodemon": "^3.1.4",
         "nyc": "^17.0.0",
+        "prettier": "^3.3.3",
         "prettier-plugin-organize-imports": "^3.2.4",
         "proper-lockfile": "^4.1.2",
         "swc-plugin-coverage-instrument": "^0.0.24",
