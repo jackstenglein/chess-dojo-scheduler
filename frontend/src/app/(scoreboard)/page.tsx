@@ -6,15 +6,7 @@ import Sensei from '@/landing/Sensei';
 import Testimonials from '@/landing/Testimonials';
 import WhatsIncluded from '@/landing/WhatsIncluded';
 import LoadingPage from '@/loading/LoadingPage';
-import {
-    Box,
-    Button,
-    Container,
-    Grid2,
-    Stack,
-    Typography,
-    useColorScheme,
-} from '@mui/material';
+import { Box, Button, Container, Grid2, Stack, Typography } from '@mui/material';
 import { Hub } from 'aws-amplify/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -26,9 +18,6 @@ const LandingPage = ({
 }) => {
     const auth = useAuth();
     const router = useRouter();
-    const { mode, systemMode } = useColorScheme();
-    console.log('Mode: ', mode);
-    console.log('System Mode: ', systemMode);
 
     useEffect(() => {
         return Hub.listen('auth', (data) => {
