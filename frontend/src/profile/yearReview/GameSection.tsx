@@ -1,13 +1,11 @@
+import { Box, Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
 import { Chart } from 'react-charts';
-
-import { SectionProps } from './YearReviewPage';
-import Percentiles from './Percentiles';
-import { getMonthData, primaryAxis, secondaryAxes } from './DojoPointSection';
-import { YearReviewDataSection } from '../../database/yearReview';
 import { useAuth } from '../../auth/Auth';
+import { YearReviewDataSection } from '../../database/yearReview';
+import { getMonthData, primaryAxis, secondaryAxes } from './DojoPointSection';
+import Percentiles from './Percentiles';
+import { SectionProps } from './YearReviewPage';
 
 const GameSection: React.FC<SectionProps> = ({ review }) => {
     const viewer = useAuth().user;
@@ -17,7 +15,7 @@ const GameSection: React.FC<SectionProps> = ({ review }) => {
 
     const monthData = useMemo(
         () => getMonthData('Games Submitted', data as YearReviewDataSection),
-        [data]
+        [data],
     );
 
     return (
@@ -31,11 +29,17 @@ const GameSection: React.FC<SectionProps> = ({ review }) => {
                 Finally, we all know analyzing your own games is a cornerstone of the
                 Dojo, so let's see how many you've analyzed!
             </Typography>
-
             <Card variant='outlined' sx={{ width: 1, mt: 4 }}>
                 <CardContent>
                     <Grid2 container alignItems='center' rowSpacing={2}>
-                        <Grid2 xs={12} sm={4} display='flex' justifyContent='center'>
+                        <Grid2
+                            display='flex'
+                            justifyContent='center'
+                            size={{
+                                xs: 12,
+                                sm: 4,
+                            }}
+                        >
                             <Stack alignItems='end'>
                                 <Typography variant='caption' color='text.secondary'>
                                     Analyses Submitted

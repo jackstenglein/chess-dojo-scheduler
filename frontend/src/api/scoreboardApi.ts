@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 import { getConfig } from '../config';
-import { User } from '../database/user';
 import { ScoreboardSummary } from '../database/scoreboard';
+import { User } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -31,7 +31,7 @@ interface GetScoreboardResponse {
  */
 export async function getScoreboard(
     idToken: string,
-    type: string
+    type: string,
 ): Promise<(User | ScoreboardSummary)[]> {
     const params = { startKey: '' };
     const result: (User | ScoreboardSummary)[] = [];
@@ -44,7 +44,7 @@ export async function getScoreboard(
                 headers: {
                     Authorization: 'Bearer ' + idToken,
                 },
-            }
+            },
         );
         result.push(...resp.data.data);
         params.startKey = resp.data.lastEvaluatedKey;

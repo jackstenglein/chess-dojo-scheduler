@@ -1,7 +1,7 @@
 'use client';
 
 import {
-    AddDirectoryItemRequest,
+    AddDirectoryItemsRequest,
     CreateDirectoryRequest,
     MoveDirectoryItemsRequest,
     RemoveDirectoryItemsRequest,
@@ -44,7 +44,7 @@ import {
 } from './courseApi';
 import {
     DirectoryApiContextType,
-    addDirectoryItem,
+    addDirectoryItems,
     createDirectory,
     deleteDirectories,
     getDirectory,
@@ -473,8 +473,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             updateDirectory: (request: UpdateDirectoryRequest) =>
                 updateDirectory(idToken, request),
             deleteDirectories: (ids: string[]) => deleteDirectories(idToken, ids),
-            addDirectoryItem: (request: AddDirectoryItemRequest) =>
-                addDirectoryItem(idToken, request),
+            addDirectoryItems: (request: AddDirectoryItemsRequest) =>
+                addDirectoryItems(idToken, request),
             removeDirectoryItem: (request: RemoveDirectoryItemsRequest) =>
                 removeDirectoryItem(idToken, request),
             moveDirectoryItems: (request: MoveDirectoryItemsRequest) =>

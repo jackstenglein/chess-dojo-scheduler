@@ -1,7 +1,7 @@
 import {
     Container,
     Divider,
-    Unstable_Grid2 as Grid,
+    Grid2 as Grid,
     Link,
     Stack,
     Typography,
@@ -47,7 +47,12 @@ const NewsfeedListPage = () => {
     return (
         <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
             <Grid container columnSpacing={8}>
-                <Grid xs={12} md={7}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 7,
+                    }}
+                >
                     <Stack spacing={3}>
                         <Typography variant='h6'>Newsfeed</Typography>
 
@@ -59,7 +64,12 @@ const NewsfeedListPage = () => {
                     </Stack>
                 </Grid>
 
-                <Grid md={5} display={{ xs: 'none', md: 'initial' }}>
+                <Grid
+                    display={{ xs: 'none', md: 'initial' }}
+                    size={{
+                        md: 5,
+                    }}
+                >
                     <Stack direction='row' height={1}>
                         <Divider orientation='vertical' flexItem sx={{ mr: 8 }} />
                         <Stack spacing={3} width={1}>

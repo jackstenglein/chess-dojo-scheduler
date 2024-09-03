@@ -5,11 +5,11 @@ import {
     CardHeader,
     Container,
     Divider,
+    Grid2 as Grid,
     Link,
     Stack,
     Typography,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useFreeTier } from '../auth/Auth';
@@ -366,9 +366,13 @@ const AuthenticatedHelp = () => {
                     currentAction={RestrictedAction.JoinDiscord}
                 />
             )}
-
             <Grid container columnSpacing={4}>
-                <Grid md={3} sx={{ display: { xs: 'none', md: 'initial' } }}>
+                <Grid
+                    sx={{ display: { xs: 'none', md: 'initial' } }}
+                    size={{
+                        md: 3,
+                    }}
+                >
                     <Card
                         variant='outlined'
                         sx={{
@@ -417,7 +421,12 @@ const AuthenticatedHelp = () => {
                     </Card>
                 </Grid>
 
-                <Grid id='scroll-parent' md={9}>
+                <Grid
+                    id='scroll-parent'
+                    size={{
+                        md: 9,
+                    }}
+                >
                     <Stack spacing={5}>
                         <Stack>
                             <Typography variant='h4'>Help/FAQs</Typography>

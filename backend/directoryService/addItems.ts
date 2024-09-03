@@ -5,8 +5,8 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
-    AddDirectoryItemRequest,
-    AddDirectoryItemSchema,
+    AddDirectoryItemsRequest,
+    AddDirectoryItemsSchema,
     Directory,
     DirectoryItem,
     DirectoryItemType,
@@ -32,19 +32,24 @@ import {
 } from './database';
 
 /**
- * Handles requests to the add directory item API. Returns the updated directory.
+ * Handles requests to the add directory items API. Returns the updated directory.
  * @param event The API gateway event that triggered the request.
- * @returns The updated directory after the item is added.
- * @deprecated Use the addItems handler instead.
+ * @returns The updated directory after the items are added.
  */
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
         const userInfo = requireUserInfo(event);
-        const request = parseEvent(event, AddDirectoryItemSchema);
-        const item = getDirectoryItem(userInfo, request);
-        const directory = await addDirectoryItems(userInfo.username, request.id, [item]);
+        const request = parseEvent(event, AddDirectoryItemsSchema);
+        const items = getDirectoryItems(userInfo, request);
+        if (items.length === 0) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Invalid request: at least one item is required',
+            });
+        }
 
+        const directory = await addDirectoryItems(userInfo.username, request.id, items);
         return success({ directory });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -52,29 +57,35 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 };
 
 /**
- * Converts the given AddDirectoryItemRequest into the DirectoryItem to add.
+ * Converts the given AddDirectoryItemsRequest into an array of DirectoryItems to add.
  * @param userInfo The info of the calling user.
  * @param request The request to convert.
- * @returns The converted DirectoryItem.
+ * @returns An array of the converted DirectoryItems.
  */
-function getDirectoryItem(
+function getDirectoryItems(
     userInfo: UserInfo,
-    request: AddDirectoryItemRequest,
-): DirectoryItem {
-    let type: DirectoryItemType;
-    if (request.game.owner === userInfo.username) {
-        type = DirectoryItemTypes.OWNED_GAME;
-    } else if (request.game.cohort === 'masters') {
-        type = DirectoryItemTypes.MASTER_GAME;
-    } else {
-        type = DirectoryItemTypes.DOJO_GAME;
+    request: AddDirectoryItemsRequest,
+): DirectoryItem[] {
+    const result: DirectoryItem[] = [];
+
+    for (const game of request.games) {
+        let type: DirectoryItemType;
+        if (game.owner === userInfo.username) {
+            type = DirectoryItemTypes.OWNED_GAME;
+        } else if (game.cohort === 'masters') {
+            type = DirectoryItemTypes.MASTER_GAME;
+        } else {
+            type = DirectoryItemTypes.DOJO_GAME;
+        }
+
+        result.push({
+            type,
+            id: `${game.cohort}/${game.id}`,
+            metadata: game,
+        });
     }
 
-    return {
-        type,
-        id: `${request.game.cohort}/${request.game.id}`,
-        metadata: request.game,
-    };
+    return result;
 }
 
 /**
@@ -90,18 +101,19 @@ export async function addDirectoryItems(
     items: DirectoryItem[],
 ): Promise<Directory> {
     try {
-        const conditions = [];
+        const conditions = [attributeExists('id')];
         const builder = new UpdateItemBuilder()
             .key('owner', owner)
             .key('id', id)
             .set('updatedAt', new Date().toISOString())
-            .condition(attributeExists('id'))
             .table(directoryTable)
             .return('ALL_NEW');
+
         for (const item of items) {
             builder.set(['items', item.id], item);
             conditions.push(attributeNotExists(['items', item.id]));
         }
+
         builder.condition(and(...conditions));
         builder.appendToList(
             'itemIds',

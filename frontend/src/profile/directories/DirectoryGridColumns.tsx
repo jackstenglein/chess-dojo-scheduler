@@ -73,7 +73,11 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
         renderCell: (params: GridRenderCellParams<DirectoryItem, string>) => {
             const item = params.row;
             if (item.type === DirectoryItemTypes.DIRECTORY) {
-                return params.value;
+                return (
+                    <Link color='inherit' sx={{ cursor: 'pointer' }}>
+                        {params.value}
+                    </Link>
+                );
             }
 
             return RenderPlayers({ ...item.metadata, fullHeight: true });

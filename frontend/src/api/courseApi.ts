@@ -19,7 +19,7 @@ export interface CourseApiContextType {
     getCourse: (
         type: string,
         id: string,
-        checkoutId?: string
+        checkoutId?: string,
     ) => Promise<AxiosResponse<GetCourseResponse>>;
 
     /**
@@ -49,7 +49,7 @@ export interface CourseApiContextType {
         type: string,
         id: string,
         purchaseOption?: string,
-        cancelUrl?: string
+        cancelUrl?: string,
     ) => Promise<AxiosResponse<PurchaseCourseResponse>>;
 
     /**
@@ -84,7 +84,7 @@ export function getCourse(
     idToken: string,
     type: string,
     id: string,
-    checkoutId?: string
+    checkoutId?: string,
 ) {
     if (idToken) {
         return axios.get<GetCourseResponse>(`${BASE_URL}/courses/${type}/${id}`, {
@@ -95,7 +95,7 @@ export function getCourse(
     }
 
     return axios.get<GetCourseResponse>(
-        `${BASE_URL}/public/courses/${type}/${id}?checkoutId=${checkoutId}`
+        `${BASE_URL}/public/courses/${type}/${id}?checkoutId=${checkoutId}`,
     );
 }
 
@@ -170,7 +170,7 @@ export function purchaseCourse(
     type: string,
     id: string,
     purchaseOption?: string,
-    cancelUrl?: string
+    cancelUrl?: string,
 ) {
     const url = idToken
         ? `${BASE_URL}/courses/${type}/${id}/purchase`

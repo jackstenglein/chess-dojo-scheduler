@@ -1,6 +1,5 @@
 import { Help } from '@mui/icons-material';
-import { Stack, Typography, Tooltip } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
+import { Grid2, Stack, Tooltip, Typography } from '@mui/material';
 
 interface PercentilesProps {
     cohort: string;
@@ -17,7 +16,14 @@ const Percentiles: React.FC<PercentilesProps> = ({
 }) => {
     return (
         <>
-            <Grid2 xs={12} sm={4} display='flex' justifyContent='center'>
+            <Grid2
+                display='flex'
+                justifyContent='center'
+                size={{
+                    xs: 12,
+                    sm: 4,
+                }}
+            >
                 <Stack alignItems='end'>
                     <Stack spacing={0.5} direction='row' alignItems='center'>
                         <Typography variant='caption' color='text.secondary'>
@@ -46,8 +52,14 @@ const Percentiles: React.FC<PercentilesProps> = ({
                     </Typography>
                 </Stack>
             </Grid2>
-
-            <Grid2 xs={12} sm={4} display='flex' justifyContent='center'>
+            <Grid2
+                display='flex'
+                justifyContent='center'
+                size={{
+                    xs: 12,
+                    sm: 4,
+                }}
+            >
                 <Stack alignItems='end'>
                     <Stack spacing={0.5} direction='row' alignItems='center'>
                         <Typography variant='caption' color='text.secondary'>

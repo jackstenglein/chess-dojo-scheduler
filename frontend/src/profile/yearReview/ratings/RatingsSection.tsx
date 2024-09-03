@@ -1,16 +1,16 @@
 import { Stack, Typography } from '@mui/material';
 
-import { RatingSystem, formatRatingSystem } from '../../../database/user';
-import { SectionProps } from '../YearReviewPage';
-import { toDojoDateString } from '../../../calendar/displayDate';
 import { useAuth } from '../../../auth/Auth';
-import RatingCard from './RatingCard';
+import { toDojoDateString } from '../../../calendar/displayDate';
+import { RatingSystem, formatRatingSystem } from '../../../database/user';
 import { YearReviewRatingData } from '../../../database/yearReview';
+import { SectionProps } from '../YearReviewPage';
+import RatingCard from './RatingCard';
 
 function getDescription(
     system: RatingSystem,
     data: YearReviewRatingData,
-    dojoMemberSince: string
+    dojoMemberSince: string,
 ): React.ReactNode {
     const current = data.currentRating.value;
 
@@ -84,7 +84,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
 
     const customRatingData = review.ratings
         ? Object.entries(review.ratings).filter(
-              (data) => data[0] === RatingSystem.Custom
+              (data) => data[0] === RatingSystem.Custom,
           )[0]?.[1]
         : undefined;
 
@@ -94,7 +94,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
     if (userJoinedAt && userJoinedAt > '2023-01-01') {
         dojoMemberSince = `${toDojoDateString(
             new Date(userJoinedAt),
-            viewer?.timezoneOverride
+            viewer?.timezoneOverride,
         )}.`;
     }
 
@@ -119,7 +119,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                         {getDescription(
                             preferred[0] as RatingSystem,
                             preferred[1],
-                            dojoMemberSince
+                            dojoMemberSince,
                         )}
                     </Typography>
 

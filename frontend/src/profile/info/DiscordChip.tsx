@@ -42,8 +42,8 @@ export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconPr
 );
 FontAwesomeSvgIcon.displayName = 'FontAwesomeSvgIcon';
 
-export function DiscordIcon() {
-    return <FontAwesomeSvgIcon icon={faDiscord} />;
+export function DiscordIcon(props: SvgIconProps) {
+    return <FontAwesomeSvgIcon icon={faDiscord} {...props} />;
 }
 
 interface DiscordChipProps {
