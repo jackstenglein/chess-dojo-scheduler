@@ -6,7 +6,7 @@ import { DiscordIcon, FontAwesomeSvgIcon } from '../profile/info/DiscordChip';
 const icons = [
     <Tooltip key='twitch' title='Twitch'>
         <IconButton href='http://twitch.tv/chessdojo' target='_blank' rel='noopener'>
-            <FontAwesomeSvgIcon icon={faTwitch} />
+            <FontAwesomeSvgIcon icon={faTwitch} sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -16,19 +16,19 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <YouTube />
+            <YouTube sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='discord' title='Discord'>
         <IconButton href='https://discord.gg/GnmmegXAsa' target='_blank' rel='noopener'>
-            <DiscordIcon />
+            <DiscordIcon sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='twitter' title='Twitter'>
         <IconButton href='https://twitter.com/chessdojo' target='_blank' rel='noopener'>
-            <Twitter />
+            <Twitter sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -38,7 +38,7 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <FontAwesomeSvgIcon icon={faSpotify} />
+            <FontAwesomeSvgIcon icon={faSpotify} sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -48,7 +48,7 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <FontAwesomeSvgIcon icon={faPatreon} />
+            <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -58,13 +58,13 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <Instagram />
+            <Instagram sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='facebook' title='Facebook'>
         <IconButton href='http://facebook.com/chessdojo' target='_blank' rel='noopener'>
-            <FacebookOutlined />
+            <FacebookOutlined sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 ];
