@@ -1,30 +1,21 @@
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, IconButton, IconButtonProps } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import grey from '@mui/material/colors/grey';
+import { MouseEventHandler } from 'react';
 
-interface CloseButtonPropsOwn {
-    onClose: () => void;
+interface CloseButtonProps {
+    onClose?: (() => void) | MouseEventHandler<HTMLElement>;
 }
 
-type CloseButtonProps = IconButtonProps & CloseButtonPropsOwn;
-
-export default function CloseButton({ onClose, ...iconButtonProps }: CloseButtonProps) {
-    iconButtonProps.sx = {
-        // Compensate for padding while maintaining hover effect area.
-        right: '-8px',
-        top: '-8px',
-        ...(iconButtonProps?.sx ?? {}),
-    };
-
+export default function CloseButton({ onClose }: CloseButtonProps) {
     return (
         <Box display='relative'>
             <IconButton
                 arra-label='close'
-                onClick={onClose}
-                {...iconButtonProps}
-                display='absolute'
+                onClick={(e) => onClose?.(e)}
+                sx={{ right: '-8px', top: '-8px', display: 'absolute' }}
             >
-                <CloseIcon m='auto' sx={{ color: grey[500] }} fontSize='small' />
+                <CloseIcon sx={{ margin: 'auto', color: grey[500] }} fontSize='small' />
             </IconButton>
         </Box>
     );

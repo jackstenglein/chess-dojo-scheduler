@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import CloseButton from './CloseButton';
 
 interface ModalTitleProps {
-    onClose: () => void;
+    onClose?: () => void;
     children: ReactNode;
 }
 
