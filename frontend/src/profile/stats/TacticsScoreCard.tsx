@@ -1,8 +1,15 @@
 import { RequirementCategory } from '@/database/requirement';
 import Icon from '@/style/Icon';
 import { FiberManualRecord, FiberManualRecordOutlined } from '@mui/icons-material';
-import { Card, CardContent, Link, Stack, Tooltip, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import {
+    Card,
+    CardContent,
+    Grid2,
+    Link,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useRequirements } from '../../api/cache/requirements';
@@ -27,7 +34,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     console.log('Tactics rating: ', tacticsRating);
 
     return (
-        <Card variant='outlined'>
+        (<Card variant='outlined'>
             <CardContent>
                 <Stack
                     direction='row'
@@ -77,12 +84,13 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     {tacticsRating.components.map((c) => (
                         <Grid2
                             key={c.name}
-                            xs={6}
-                            sm={3}
-                            md
                             display='flex'
                             justifyContent='center'
-                        >
+                            size={{
+                                xs: 6,
+                                sm: 3,
+                                md: "grow"
+                            }}>
                             <Tooltip title={c.description}>
                                 <Stack alignItems='center'>
                                     <Typography variant='body1' color='text.secondary'>
@@ -134,7 +142,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     ))}
                 </Grid2>
             </CardContent>
-        </Card>
+        </Card>)
     );
 };
 

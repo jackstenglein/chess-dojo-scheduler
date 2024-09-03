@@ -9,13 +9,13 @@ import {
     FormControl,
     FormControlLabel,
     FormLabel,
+    Grid2,
     MenuItem,
     Radio,
     RadioGroup,
     Stack,
     TextField,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
@@ -134,14 +134,18 @@ export const MissingGameDataPreflight = ({
     };
 
     return (
-        <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
+        (<Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 {children && <DialogContentText>{children}</DialogContentText>}
 
                 <Stack spacing={3} mt={3}>
                     <Grid2 container columnSpacing={1} rowSpacing={2}>
-                        <Grid2 xs={12} sm={true}>
+                        <Grid2
+                            size={{
+                                xs: 12,
+                                sm: "grow"
+                            }}>
                             <TextField
                                 fullWidth
                                 data-cy='white'
@@ -153,7 +157,11 @@ export const MissingGameDataPreflight = ({
                             />
                         </Grid2>
 
-                        <Grid2 xs={12} sm={true}>
+                        <Grid2
+                            size={{
+                                xs: 12,
+                                sm: "grow"
+                            }}>
                             <TextField
                                 fullWidth
                                 data-cy='black'
@@ -165,7 +173,11 @@ export const MissingGameDataPreflight = ({
                             />
                         </Grid2>
 
-                        <Grid2 xs={12} sm={true}>
+                        <Grid2
+                            size={{
+                                xs: 12,
+                                sm: "grow"
+                            }}>
                             <TextField
                                 select
                                 data-cy='result'
@@ -182,7 +194,11 @@ export const MissingGameDataPreflight = ({
                             </TextField>
                         </Grid2>
 
-                        <Grid2 xs={12} sm={true}>
+                        <Grid2
+                            size={{
+                                xs: 12,
+                                sm: "grow"
+                            }}>
                             <DatePicker
                                 label='Date'
                                 disableFuture
@@ -204,7 +220,7 @@ export const MissingGameDataPreflight = ({
                             />
                         </Grid2>
 
-                        <Grid2 xs={12}>
+                        <Grid2 size={12}>
                             <FormControl>
                                 <FormLabel>Default Orientation</FormLabel>
                                 <RadioGroup
@@ -242,6 +258,6 @@ export const MissingGameDataPreflight = ({
                     Submit
                 </LoadingButton>
             </DialogActions>
-        </Dialog>
+        </Dialog>)
     );
 };

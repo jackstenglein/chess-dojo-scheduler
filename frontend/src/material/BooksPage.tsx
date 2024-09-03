@@ -3,11 +3,11 @@ import {
     CardContent,
     CardHeader,
     Container,
+    Grid2,
     Link,
     Stack,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
@@ -80,7 +80,7 @@ const BooksPage = () => {
     };
 
     return (
-        <Container sx={{ py: 3 }}>
+        (<Container sx={{ py: 3 }}>
             <Stack spacing={3}>
                 <Typography variant='h5' align='center'>
                     ChessDojo Recommended Books
@@ -119,7 +119,12 @@ const BooksPage = () => {
                 <Grid2 container rowGap={2} columnSpacing={2}>
                     {(cohorts[0] === ALL_COHORTS ? dojoCohorts : cohorts).map(
                         (cohort) => (
-                            <Grid2 key={cohort} xs={12} sm={6}>
+                            <Grid2
+                                key={cohort}
+                                size={{
+                                    xs: 12,
+                                    sm: 6
+                                }}>
                                 <Card
                                     variant='outlined'
                                     sx={{
@@ -159,7 +164,7 @@ const BooksPage = () => {
                     )}
                 </Grid2>
             </Stack>
-        </Container>
+        </Container>)
     );
 };
 

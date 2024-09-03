@@ -1,5 +1,4 @@
-import { Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { Grid2, Stack, Typography } from '@mui/material';
 import PriceMatrix from '../upsell/PriceMatrix';
 
 const today = new Date();

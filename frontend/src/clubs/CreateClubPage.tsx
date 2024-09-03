@@ -6,11 +6,11 @@ import {
     Container,
     FormControlLabel,
     FormLabel,
+    Grid2,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -162,11 +162,9 @@ const CreateClubPage = () => {
     };
 
     return (
-        <Container sx={{ py: 4 }}>
+        (<Container sx={{ py: 4 }}>
             <RequestSnackbar request={saveRequest} />
-
             <Typography variant='h5'>{id ? 'Edit Club' : 'Create New Club'}</Typography>
-
             <Stack spacing={3} mt={5}>
                 <Stack>
                     <FormLabel sx={{ mb: 1 }}>Club Logo</FormLabel>
@@ -247,7 +245,9 @@ const CreateClubPage = () => {
                 />
 
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
-                    <Grid2 sm={4}>
+                    <Grid2 size={{
+                        sm: 4
+                    }}>
                         <TextField
                             label='City'
                             fullWidth
@@ -255,7 +255,9 @@ const CreateClubPage = () => {
                             onChange={(e) => setCity(e.target.value)}
                         />
                     </Grid2>
-                    <Grid2 sm={4}>
+                    <Grid2 size={{
+                        sm: 4
+                    }}>
                         <TextField
                             label='State'
                             fullWidth
@@ -263,7 +265,9 @@ const CreateClubPage = () => {
                             onChange={(e) => setState(e.target.value)}
                         />
                     </Grid2>
-                    <Grid2 sm={4}>
+                    <Grid2 size={{
+                        sm: 4
+                    }}>
                         <TextField
                             label='Country'
                             fullWidth
@@ -312,7 +316,7 @@ const CreateClubPage = () => {
                     {id ? 'Save' : 'Create Club'}
                 </LoadingButton>
             </Stack>
-        </Container>
+        </Container>)
     );
 };
 

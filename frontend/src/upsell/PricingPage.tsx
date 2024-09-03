@@ -1,5 +1,4 @@
-import { Alert, Container, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { Alert, Container, Grid2, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -56,18 +55,17 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     };
 
     return (
-        <Container sx={{ py: 5 }}>
+        (<Container sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
-
             <Grid2 container spacing={3} justifyContent='center'>
                 {showPromo && (
-                    <Grid2 xs='auto' mb={5}>
+                    <Grid2 mb={5} size='auto'>
                         <Alert severity='info' variant='outlined'>
                             Use code DOJO30 at checkout for 30% off your first month
                         </Alert>
                     </Grid2>
                 )}
-                <Grid2 xs={12} textAlign='center'>
+                <Grid2 textAlign='center' size={12}>
                     <Typography variant='subtitle1' color='text.secondary'>
                         Choose your pricing plan
                     </Typography>
@@ -80,13 +78,13 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
                     onFreeTier={onFreeTier}
                 />
 
-                <Grid2 xs={12} textAlign='center'>
+                <Grid2 textAlign='center' size={12}>
                     <Typography variant='body2' color='text.secondary'>
                         Plans automatically renew until canceled
                     </Typography>
                 </Grid2>
             </Grid2>
-        </Container>
+        </Container>)
     );
 };
 

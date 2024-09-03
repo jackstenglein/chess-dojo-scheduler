@@ -1,16 +1,14 @@
-import { Container } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { Container, Grid2 } from '@mui/material';
 import { useEffect } from 'react';
-
-import { CourseFilterEditor, useCourseFilters } from './CourseFilters';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Course } from '../../database/course';
 import { useApi } from '../../api/Api';
-import CourseListItem from './CourseListItem';
-import LoadingPage from '../../loading/LoadingPage';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { useAuth } from '../../auth/Auth';
+import { Course } from '../../database/course';
 import { SubscriptionStatus } from '../../database/user';
+import LoadingPage from '../../loading/LoadingPage';
 import { getCheckoutSessionId } from '../localStorage';
+import { CourseFilterEditor, useCourseFilters } from './CourseFilters';
+import CourseListItem from './CourseListItem';
 
 const ListCoursesPage = () => {
     const courseFilters = useCourseFilters();
@@ -35,17 +33,32 @@ const ListCoursesPage = () => {
     const noItems = !request.data?.length;
 
     return (
-        <Container maxWidth='xl' sx={{ py: 5 }}>
+        (<Container maxWidth='xl' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
-
             <Grid2 container spacing={3}>
-                <Grid2 xs={12} md={2}>
+                <Grid2
+                    size={{
+                        xs: 12,
+                        md: 2
+                    }}>
                     <CourseFilterEditor filters={courseFilters} />
                 </Grid2>
 
-                <Grid2 container xs={12} md={10} spacing={2}>
+                <Grid2
+                    container
+                    spacing={2}
+                    size={{
+                        xs: 12,
+                        md: 10
+                    }}>
                     {request.data?.map((course) => (
-                        <Grid2 key={course.id} xs={12} md={6} lg={4}>
+                        <Grid2
+                            key={course.id}
+                            size={{
+                                xs: 12,
+                                md: 6,
+                                lg: 4
+                            }}>
                             <CourseListItem
                                 key={course.id}
                                 course={course}
@@ -66,7 +79,7 @@ const ListCoursesPage = () => {
                     {noItems && request.isLoading() && <LoadingPage />}
                 </Grid2>
             </Grid2>
-        </Container>
+        </Container>)
     );
 };
 

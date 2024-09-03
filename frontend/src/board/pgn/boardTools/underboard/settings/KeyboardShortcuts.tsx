@@ -7,13 +7,13 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Grid2,
     MenuItem,
     Stack,
     TextField,
     Tooltip,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { BoardApi } from '../../../../Board';
@@ -627,28 +627,27 @@ const KeyboardShortcuts = () => {
     };
 
     return (
-        <Stack>
+        (<Stack>
             <Typography variant='h6'>Keyboard Shortcuts</Typography>
             <Typography variant='subtitle2' color='text.secondary'>
                 Keyboard shortcuts are disabled while editing text fields (comments, clock
                 times, tags, etc).
             </Typography>
-
             <Grid2 container rowGap={2} columnSpacing={2} alignItems='center' mt={1.5}>
-                <Grid2 xs={5} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Grid2 sx={{ borderBottom: 1, borderColor: 'divider' }} size={5}>
                     <Typography>Action</Typography>
                 </Grid2>
-                <Grid2 xs={3.5} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Grid2 sx={{ borderBottom: 1, borderColor: 'divider' }} size={3.5}>
                     <Typography textAlign='center'>Modifier</Typography>
                 </Grid2>
-                <Grid2 xs={3.5} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Grid2 sx={{ borderBottom: 1, borderColor: 'divider' }} size={3.5}>
                     <Typography textAlign='center'>Key</Typography>
                 </Grid2>
                 {Object.values(ShortcutAction).map((a) => {
                     const binding = keyBindings[a] || defaultKeyBindings[a];
                     return (
-                        <Fragment key={a}>
-                            <Grid2 xs={5}>
+                        (<Fragment key={a}>
+                            <Grid2 size={5}>
                                 <Stack direction='row' spacing={1} alignItems='center'>
                                     <Typography variant='body2'>
                                         {displayShortcutAction(a)}
@@ -659,7 +658,7 @@ const KeyboardShortcuts = () => {
                                     </Tooltip>
                                 </Stack>
                             </Grid2>
-                            <Grid2 xs={3.5}>
+                            <Grid2 size={3.5}>
                                 <TextField
                                     size='small'
                                     fullWidth
@@ -680,7 +679,7 @@ const KeyboardShortcuts = () => {
                                     </MenuItem>
                                 </TextField>
                             </Grid2>
-                            <Grid2 xs={3.5}>
+                            <Grid2 size={3.5}>
                                 <Button
                                     variant='contained'
                                     sx={{
@@ -693,10 +692,10 @@ const KeyboardShortcuts = () => {
                                     {displayKey(binding.key)}
                                 </Button>
                             </Grid2>
-                        </Fragment>
+                        </Fragment>)
                     );
                 })}
-                <Grid2 xs={12}>
+                <Grid2 size={12}>
                     <Button
                         color='error'
                         onClick={onReset}
@@ -706,7 +705,6 @@ const KeyboardShortcuts = () => {
                     </Button>
                 </Grid2>
             </Grid2>
-
             <Dialog
                 open={!!editAction}
                 onClose={onCloseEditor}
@@ -738,7 +736,7 @@ const KeyboardShortcuts = () => {
                     <Button onClick={onSaveEditor}>Save</Button>
                 </DialogActions>
             </Dialog>
-        </Stack>
+        </Stack>)
     );
 };
 

@@ -1,8 +1,14 @@
-import { Box, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { useMemo } from 'react';
-
 import { CategoryColors } from '@/style/ThemeProvider';
+import {
+    Box,
+    Card,
+    CardContent,
+    CardHeader,
+    Grid2,
+    Stack,
+    Typography,
+} from '@mui/material';
+import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';
 import { RequirementCategory } from '../../database/requirement';
@@ -113,7 +119,7 @@ const DojoPointSection: React.FC<SectionProps> = ({ review }) => {
     const taskData = useMemo(() => getTaskData('Dojo Points', data), [data]);
 
     return (
-        <Stack width={1} alignItems='center'>
+        (<Stack width={1} alignItems='center'>
             <Typography
                 variant='h6'
                 fontWeight='800'
@@ -123,12 +129,17 @@ const DojoPointSection: React.FC<SectionProps> = ({ review }) => {
                 The Dojo is all about sweat work! Let's take a look at the work you've
                 done this year!
             </Typography>
-
             <Card variant='outlined' sx={{ width: 1, mt: 4 }}>
                 <CardHeader title='Dojo Score' />
                 <CardContent>
                     <Grid2 container alignItems='center' rowSpacing={2}>
-                        <Grid2 xs={12} sm={4} display='flex' justifyContent='center'>
+                        <Grid2
+                            display='flex'
+                            justifyContent='center'
+                            size={{
+                                xs: 12,
+                                sm: 4
+                            }}>
                             <Stack alignItems='end'>
                                 <Typography variant='caption' color='text.secondary'>
                                     Total Points
@@ -206,7 +217,7 @@ const DojoPointSection: React.FC<SectionProps> = ({ review }) => {
                     </Stack>
                 </CardContent>
             </Card>
-        </Stack>
+        </Stack>)
     );
 };
 

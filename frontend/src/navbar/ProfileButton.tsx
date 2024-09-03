@@ -23,9 +23,12 @@ import Avatar from '../profile/Avatar';
 const ProfileButton = () => {
     const auth = useAuth();
     const user = auth.user;
-    const { mode, setMode } = useColorScheme();
+    const { mode, setMode, systemMode } = useColorScheme();
     const api = useApi();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    console.log('Mode: ', mode);
+    console.log('System Mode: ', systemMode);
 
     if (!user) {
         return null;
