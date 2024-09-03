@@ -1,3 +1,4 @@
+import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import { Scheduler } from '@aldabil/react-scheduler';
 import {
     EventRendererProps,
@@ -9,12 +10,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useEvents } from '../api/cache/Cache';
 import { CustomEventRenderer } from '../calendar/CalendarPage';
 import ProcessedEventViewer from '../calendar/eventViewer/ProcessedEventViewer';
-import {
-    DefaultTimezone,
-    Filters,
-    getHours,
-    useFilters,
-} from '../calendar/filters/CalendarFilters';
+import { Filters, getHours, useFilters } from '../calendar/filters/CalendarFilters';
 import {
     Event,
     EventType,

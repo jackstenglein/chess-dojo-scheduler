@@ -1,7 +1,6 @@
+import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import { Chip, Tooltip } from '@mui/material';
-
-import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 
 const timezoneDisplayLabels: Record<string, string> = {
     'Etc/GMT+12': 'UTC-12',

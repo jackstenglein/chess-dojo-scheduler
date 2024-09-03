@@ -4,21 +4,8 @@ import { TimePicker } from '@mui/x-date-pickers';
 import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
 import { TimeFormat } from '../../database/user';
-import { DefaultTimezone, Filters } from './CalendarFilters';
-
-function getTimezoneOptions() {
-    const options = [];
-    for (let i = -12; i <= 14; i++) {
-        const displayLabel = i < 0 ? `UTC${i}` : `UTC+${i}`;
-        const value = i <= 0 ? `Etc/GMT+${Math.abs(i)}` : `Etc/GMT-${i}`;
-        options.push(
-            <MenuItem key={i} value={value}>
-                {displayLabel}
-            </MenuItem>,
-        );
-    }
-    return options;
-}
+import { Filters } from './CalendarFilters';
+import { TimezoneSelector } from './TimezoneSelector';
 
 interface TimezoneFilterProps {
     filters: Filters;
@@ -55,10 +42,6 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
         }
     };
 
-    const timezoneOffset = new Date().getTimezoneOffset() / 60;
-    const browserDefaultLabel =
-        timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
-
     const minHourNum = minHour?.hour || 0;
     const maxHourNum = (maxHour?.hour || 23) + 1;
 
@@ -76,19 +59,11 @@ const TimezoneFilter: React.FC<TimezoneFilterProps> = ({ filters }) => {
                 <MenuItem value={TimeFormat.TwentyFourHour}>24 Hour</MenuItem>
             </TextField>
 
-            <TextField
-                label='Timezone'
-                select
-                data-cy='timezone-selector'
+            <TimezoneSelector
                 value={timezone}
-                onChange={(e) => onChangeTimezone(e.target.value)}
-                size='small'
-            >
-                <MenuItem value={DefaultTimezone}>
-                    Browser Default ({browserDefaultLabel})
-                </MenuItem>
-                {getTimezoneOptions()}
-            </TextField>
+                onChange={onChangeTimezone}
+                textFieldProps={{ size: 'small' }}
+            />
 
             <TextField
                 label='Week Start'

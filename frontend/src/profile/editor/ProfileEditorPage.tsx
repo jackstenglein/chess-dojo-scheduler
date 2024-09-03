@@ -1,3 +1,4 @@
+import { DefaultTimezone, TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
@@ -33,7 +34,6 @@ import { useApi } from '../../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
 import { useCache } from '../../api/cache/Cache';
 import { useRequiredAuth } from '../../auth/Auth';
-import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 import {
     Rating,
     RatingSystem,
@@ -181,20 +181,6 @@ function getUpdate(
     return update;
 }
 
-function getTimezoneOptions() {
-    const options = [];
-    for (let i = -12; i <= 14; i++) {
-        const displayLabel = i < 0 ? `UTC${i}` : `UTC+${i}`;
-        const value = i <= 0 ? `Etc/GMT+${Math.abs(i)}` : `Etc/GMT-${i}`;
-        options.push(
-            <MenuItem key={i} value={value}>
-                {displayLabel}
-            </MenuItem>,
-        );
-    }
-    return options;
-}
-
 export function encodeFileToBase64(file: File): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -224,9 +210,7 @@ const ProfileEditorPage = () => {
     );
     const [bio, setBio] = useState(user.bio);
     const [coachBio, setCoachBio] = useState(user.coachBio || '');
-    const [timezone, setTimezone] = useState(
-        user.timezoneOverride === DefaultTimezone ? '' : user.timezoneOverride,
-    );
+    const [timezone, setTimezone] = useState(user.timezoneOverride || DefaultTimezone);
 
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
     const [ratingEditors, setRatingEditors] = useState(getRatingEditors(user.ratings));
@@ -326,7 +310,7 @@ const ProfileEditorPage = () => {
             dojoCohort,
             bio,
             coachBio,
-            timezoneOverride: timezone === '' ? user.timezoneOverride : timezone,
+            timezoneOverride: timezone,
             ratingSystem,
             ratings: getRatingsFromEditors(ratingEditors),
 
@@ -681,14 +665,7 @@ const ProfileEditorPage = () => {
                                 />
                             )}
 
-                            <TextField
-                                select
-                                label='Timezone'
-                                value={timezone}
-                                onChange={(e) => setTimezone(e.target.value)}
-                            >
-                                {getTimezoneOptions()}
-                            </TextField>
+                            <TimezoneSelector value={timezone} onChange={setTimezone} />
                         </Stack>
 
                         <Stack spacing={4}>
