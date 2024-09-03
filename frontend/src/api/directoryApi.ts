@@ -1,7 +1,7 @@
 import { getConfig } from '@/config';
 import { BreadcrumbItem } from '@/profile/directories/DirectoryCache';
 import {
-    AddDirectoryItemRequest,
+    AddDirectoryItemsRequest,
     CreateDirectoryRequest,
     Directory,
     MoveDirectoryItemsRequest,
@@ -30,13 +30,13 @@ export interface DirectoryApiContextType {
 
     deleteDirectories: (ids: string[]) => Promise<AxiosResponse<{ parent?: Directory }>>;
 
-    addDirectoryItem: (
-        request: AddDirectoryItemRequest,
-    ) => Promise<AxiosResponse<AddDirectoryItemResponse>>;
+    addDirectoryItems: (
+        request: AddDirectoryItemsRequest,
+    ) => Promise<AxiosResponse<AddDirectoryItemsResponse>>;
 
     removeDirectoryItem: (
         request: RemoveDirectoryItemsRequest,
-    ) => Promise<AxiosResponse<AddDirectoryItemResponse>>;
+    ) => Promise<AxiosResponse<AddDirectoryItemsResponse>>;
 
     moveDirectoryItems: (
         request: MoveDirectoryItemsRequest,
@@ -109,22 +109,22 @@ export function deleteDirectories(idToken: string, ids: string[]) {
     );
 }
 
-/** The response from the AddDirectoryItem API. */
-export interface AddDirectoryItemResponse {
+/** The response from the AddDirectoryItems API. */
+export interface AddDirectoryItemsResponse {
     /** The updated directory. */
     directory: Directory;
 }
 
 /**
- * Sends an AddDirectoryItem request to the API.
+ * Sends an AddDirectoryItems request to the API.
  * @param idToken The id token of the current signed-in user.
  * @param request The request to send.
  * @returns The updated directory.
  */
-export function addDirectoryItem(idToken: string, request: AddDirectoryItemRequest) {
-    return axios.put<AddDirectoryItemResponse>(
-        `${BASE_URL}/directory/${request.id}/item`,
-        { game: request.game },
+export function addDirectoryItems(idToken: string, request: AddDirectoryItemsRequest) {
+    return axios.put<AddDirectoryItemsResponse>(
+        `${BASE_URL}/directory/${request.id}/items`,
+        { games: request.games },
         {
             headers: { Authorization: `Bearer ${idToken}` },
         },
@@ -141,7 +141,7 @@ export function removeDirectoryItem(
     idToken: string,
     request: RemoveDirectoryItemsRequest,
 ) {
-    return axios.put<AddDirectoryItemResponse>(
+    return axios.put<AddDirectoryItemsResponse>(
         `${BASE_URL}/directory/${request.directoryId}/items/delete`,
         { itemIds: request.itemIds },
         {

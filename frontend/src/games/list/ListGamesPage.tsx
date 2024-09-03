@@ -47,7 +47,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
-        width: 120,
+        width: 65,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
             let value = params.value;
             if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
@@ -55,16 +55,10 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
             }
 
             return (
-                <Stack
-                    direction='row'
-                    spacing={1}
-                    alignItems='center'
-                    onClick={(e) => e.stopPropagation()}
-                    height={1}
-                >
-                    <CohortIcon cohort={params.value} size={25} tooltip='' />
-                    <Typography variant='body2'>
-                        {value === MastersCohort ? 'Masters DB' : value}
+                <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
+                    <CohortIcon cohort={params.value} tooltip={params.value} size={30} />
+                    <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
+                        {value === MastersCohort ? 'masters' : value}
                     </Typography>
                 </Stack>
             );
@@ -104,6 +98,8 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'players',
         headerName: 'Players',
+        valueGetter: (_value, row) =>
+            `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
         renderCell: RenderPlayersCell,
         flex: 1,
         minWidth: 150,
