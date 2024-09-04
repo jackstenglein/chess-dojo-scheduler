@@ -12,6 +12,7 @@ interface ScoreboardCheckProps {
     username?: string;
     cohort: string;
     requirement?: Requirement;
+    fullHeight?: boolean;
 }
 
 const ScoreboardCheck: React.FC<ScoreboardCheckProps> = ({
@@ -20,6 +21,7 @@ const ScoreboardCheck: React.FC<ScoreboardCheckProps> = ({
     username,
     cohort,
     requirement,
+    fullHeight,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const { user } = useAuth();
@@ -30,7 +32,13 @@ const ScoreboardCheck: React.FC<ScoreboardCheckProps> = ({
     return (
         <>
             <Box
-                sx={{ width: 1, display: 'flex', justifyContent: 'center' }}
+                sx={{
+                    width: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: fullHeight ? 1 : undefined,
+                }}
                 onClick={onClick}
             >
                 {value < total ? (

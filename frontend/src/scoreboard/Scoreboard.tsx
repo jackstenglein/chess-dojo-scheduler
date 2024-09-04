@@ -206,7 +206,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
                 params.value
             ) : (
                 <Tooltip title='Custom ratings cannot be converted to FIDE'>
-                    <HelpIcon sx={{ ml: 1, color: 'text.secondary' }} />
+                    <HelpIcon sx={{ ml: 1, color: 'text.secondary', height: 1 }} />
                 </Tooltip>
             ),
         align: 'center',
