@@ -6,7 +6,7 @@ import {
     Button,
     Container,
     Divider,
-    Grid,
+    Grid2,
     IconButton,
     Link,
     Stack,
@@ -255,8 +255,8 @@ const ListGamesPage = () => {
                 </>
             )}
 
-            <Grid container spacing={5} wrap='wrap-reverse'>
-                <Grid item xs={12} md={9} lg={8}>
+            <Grid2 container spacing={5} wrap='wrap-reverse'>
+                <Grid2 size={{ xs: 12, md: 8, lg: 8 }}>
                     <DataGridPro
                         data-cy='games-table'
                         columns={columns}
@@ -311,9 +311,9 @@ const ListGamesPage = () => {
                         onClose={contextMenu.close}
                         position={contextMenu.position}
                     />
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} md={3} lg={4} pr={2}>
+                <Grid2 size={{ xs: 12, md: 4, lg: 4 }}>
                     <Stack spacing={4}>
                         <Button
                             data-cy='import-game-button'
@@ -398,8 +398,8 @@ const ListGamesPage = () => {
                             </Typography>
                         </Stack>
                     </Stack>
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
 
             <ListGamesTutorial />
         </Container>

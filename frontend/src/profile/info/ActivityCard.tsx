@@ -23,6 +23,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
     const [view, setView] = useState('time');
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
+    const [, setCalendarRef] = useState<HTMLElement | null>(null);
 
     const [activities, totalCount] = useMemo(() => {
         if (view === 'points') {
@@ -38,7 +39,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
         if (scroller) {
             scroller.scrollLeft = scroller.scrollWidth;
         }
-    }, []);
+    });
 
     return (
         <Card>
@@ -61,6 +62,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                 }}
             >
                 <ActivityCalendar
+                    ref={setCalendarRef}
                     colorScheme={isLight ? 'light' : 'dark'}
                     theme={{
                         dark: ['#393939', '#F7941F'],
