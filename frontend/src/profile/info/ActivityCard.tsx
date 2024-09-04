@@ -10,7 +10,7 @@ import {
     TextField,
     Tooltip,
 } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ActivityCalendar, { Activity } from 'react-activity-calendar';
 import { useTimeline } from '../activity/useTimeline';
 
@@ -30,6 +30,15 @@ export const ActivityCard = ({ user }: { user: User }) => {
         }
         return getTimeSpentActivity(entries);
     }, [view, entries]);
+
+    useEffect(() => {
+        const scroller = document.getElementsByClassName(
+            'react-activity-calendar__scroll-container',
+        )[0];
+        if (scroller) {
+            scroller.scrollLeft = scroller.scrollWidth;
+        }
+    }, []);
 
     return (
         <Card>
