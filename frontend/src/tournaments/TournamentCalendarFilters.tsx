@@ -1,11 +1,4 @@
-import {
-    Stack,
-    Theme,
-    ToggleButton,
-    ToggleButtonGroup,
-    Typography,
-    useMediaQuery,
-} from '@mui/material';
+import { Stack, Theme, Typography, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import {
     Accordion,
@@ -23,6 +16,7 @@ import {
     displayTournamentType,
 } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
+import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
 import Icon from '../style/Icon';
 
 function getColor(timeControlType: TimeControlType) {
@@ -115,6 +109,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                 <AccordionDetails sx={{ border: 'none' }}>
                     <Stack sx={{ mt: 2, pb: 2 }} spacing={3}>
                         <TimezoneFilter filters={filters} />
+
                         <Stack>
                             <Typography variant='h6' color='text.secondary'>
                                 <Icon
@@ -128,28 +123,20 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                 />
                                 Types
                             </Typography>
-                            <ToggleButtonGroup
-                                orientation='vertical'
-                                value={filters.tournamentTypes}
-                                onChange={(_event, newTournamentTypes: string[]) =>
-                                    onChangeTournamentType(newTournamentTypes)
-                                }
-                                exclusive={false}
-                                sx={{ display: 'flex', flexDirection: 'column' }}
+                            <MultipleSelectChip
+                                selected={filters.tournamentTypes}
+                                setSelected={onChangeTournamentType}
+                                options={Object.values(TournamentType).map((t) => ({
+                                    value: t,
+                                    label: displayTournamentType(t),
+                                    icon: <Icon name={t} color='liga' />,
+                                }))}
+                                displayEmpty='None'
+                                size='small'
                                 data-cy='tournament-types'
-                            >
-                                {Object.values(TournamentType).map((t) => (
-                                    <ToggleButton key={t} value={t}>
-                                        <Icon
-                                            name={t}
-                                            color='liga'
-                                            sx={{ marginRight: '0.5rem' }}
-                                        />
-                                        {displayTournamentType(t)}
-                                    </ToggleButton>
-                                ))}
-                            </ToggleButtonGroup>
+                            />
                         </Stack>
+
                         <Stack>
                             <Typography variant='h6' color='text.secondary'>
                                 <Icon
@@ -163,29 +150,18 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                 />
                                 Time Controls
                             </Typography>
-                            <ToggleButtonGroup
-                                orientation='vertical'
-                                value={filters.tournamentTimeControls}
-                                onChange={(_event, newTournamentTimeControls: string[]) =>
-                                    onChangeTournamentTimeControls(
-                                        newTournamentTimeControls,
-                                    )
-                                }
-                                exclusive={false}
-                                sx={{ display: 'flex', flexDirection: 'column' }}
+                            <MultipleSelectChip
+                                selected={filters.tournamentTimeControls}
+                                setSelected={onChangeTournamentTimeControls}
+                                options={Object.values(TimeControlType).map((t) => ({
+                                    value: t,
+                                    label: displayTimeControlType(t),
+                                    icon: <Icon name={t} color={getColor(t)} />,
+                                }))}
+                                displayEmpty='None'
+                                size='small'
                                 data-cy='time-controls'
-                            >
-                                {Object.values(TimeControlType).map((t) => (
-                                    <ToggleButton key={t} value={t}>
-                                        <Icon
-                                            name={t}
-                                            color={getColor(t)}
-                                            sx={{ marginRight: '0.5rem' }}
-                                        />
-                                        {displayTimeControlType(t)}
-                                    </ToggleButton>
-                                ))}
-                            </ToggleButtonGroup>
+                            />
                         </Stack>
 
                         <Stack>
@@ -201,27 +177,18 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
                                 />
                                 Starting Position
                             </Typography>
-                            <ToggleButtonGroup
-                                orientation='vertical'
-                                value={filters.tournamentPositions}
-                                onChange={(_event, newTournamentPositions: string[]) =>
-                                    onChangeTournamentPositions(newTournamentPositions)
-                                }
-                                exclusive={false}
-                                sx={{ display: 'flex', flexDirection: 'column' }}
+                            <MultipleSelectChip
+                                selected={filters.tournamentPositions}
+                                setSelected={onChangeTournamentPositions}
+                                options={Object.values(PositionType).map((t) => ({
+                                    value: t,
+                                    label: displayPositionType(t),
+                                    icon: <Icon name={t} color='warning' />,
+                                }))}
+                                displayEmpty='None'
+                                size='small'
                                 data-cy='starting-position'
-                            >
-                                {Object.values(PositionType).map((t) => (
-                                    <ToggleButton key={t} value={t}>
-                                        <Icon
-                                            name={t}
-                                            color='warning'
-                                            sx={{ marginRight: '0.5rem' }}
-                                        />
-                                        {displayPositionType(t)}
-                                    </ToggleButton>
-                                ))}
-                            </ToggleButtonGroup>
+                            />
                         </Stack>
                     </Stack>
                 </AccordionDetails>
