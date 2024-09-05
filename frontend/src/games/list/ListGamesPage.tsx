@@ -6,7 +6,7 @@ import {
     Button,
     Container,
     Divider,
-    Grid,
+    Grid2,
     IconButton,
     Link,
     Stack,
@@ -47,7 +47,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
-        width: 120,
+        width: 65,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
             let value = params.value;
             if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
@@ -55,16 +55,10 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
             }
 
             return (
-                <Stack
-                    direction='row'
-                    spacing={1}
-                    alignItems='center'
-                    onClick={(e) => e.stopPropagation()}
-                    height={1}
-                >
-                    <CohortIcon cohort={params.value} size={25} tooltip='' />
-                    <Typography variant='body2'>
-                        {value === MastersCohort ? 'Masters DB' : value}
+                <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
+                    <CohortIcon cohort={params.value} tooltip={params.value} size={30} />
+                    <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
+                        {value === MastersCohort ? 'masters' : value}
                     </Typography>
                 </Stack>
             );
@@ -104,6 +98,8 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'players',
         headerName: 'Players',
+        valueGetter: (_value, row) =>
+            `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
         renderCell: RenderPlayersCell,
         flex: 1,
         minWidth: 150,
@@ -259,8 +255,8 @@ const ListGamesPage = () => {
                 </>
             )}
 
-            <Grid container spacing={5} wrap='wrap-reverse'>
-                <Grid item xs={12} md={9} lg={8}>
+            <Grid2 container spacing={5} wrap='wrap-reverse'>
+                <Grid2 size={{ xs: 12, md: 8, lg: 8 }}>
                     <DataGridPro
                         data-cy='games-table'
                         columns={columns}
@@ -308,16 +304,16 @@ const ListGamesPage = () => {
 
                     <ListItemContextMenu
                         game={
-                            contextMenu.rowId
-                                ? data.find((g) => g.id === contextMenu.rowId)
+                            contextMenu.rowIds
+                                ? data.find((g) => g.id === contextMenu.rowIds[0])
                                 : undefined
                         }
                         onClose={contextMenu.close}
                         position={contextMenu.position}
                     />
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} md={3} lg={4} pr={2}>
+                <Grid2 size={{ xs: 12, md: 4, lg: 4 }}>
                     <Stack spacing={4}>
                         <Button
                             data-cy='import-game-button'
@@ -402,8 +398,8 @@ const ListGamesPage = () => {
                             </Typography>
                         </Stack>
                     </Stack>
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
 
             <ListGamesTutorial />
         </Container>

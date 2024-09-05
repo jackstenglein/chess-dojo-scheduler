@@ -3,12 +3,12 @@ import {
     CardActionArea,
     CardContent,
     CardHeader,
+    Grid2,
     Stack,
     SxProps,
     Theme,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
 import { useNavigate } from 'react-router-dom';
 import { Request, RequestSnackbar } from '../api/Request';
 import { Club } from '../database/club';
@@ -35,7 +35,14 @@ function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
         <Grid2 container rowSpacing={2} columnSpacing={2}>
             <RequestSnackbar request={request} />
             {clubs.map((club) => (
-                <Grid2 key={club.id} xs={12} sm={6} md={4}>
+                <Grid2
+                    key={club.id}
+                    size={{
+                        xs: 12,
+                        sm: 6,
+                        md: 4,
+                    }}
+                >
                     <ListClubItem club={club} sx={{ height: 1 }} />
                 </Grid2>
             ))}

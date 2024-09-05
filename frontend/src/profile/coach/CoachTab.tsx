@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { CalendarToday, FormatListBulleted } from '@mui/icons-material';
 import {
     Divider,
     Stack,
@@ -7,13 +7,13 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { CalendarToday, FormatListBulleted } from '@mui/icons-material';
+import { useCallback } from 'react';
 
-import { User } from '../../database/user';
-import Bio from '../info/Bio';
 import { displayEvent } from '../../coaching/customers/CoachingList';
 import UpcomingSessions from '../../coaching/customers/UpcomingSessions';
 import { Event } from '../../database/event';
+import { User } from '../../database/user';
+import Bio from '../info/Bio';
 
 interface CoachTabProps {
     user: User;
@@ -22,7 +22,7 @@ interface CoachTabProps {
 const CoachTab: React.FC<CoachTabProps> = ({ user }) => {
     const filterFunction = useCallback(
         (e: Event, viewer?: User) => e.owner === user.username && displayEvent(e, viewer),
-        [user]
+        [user],
     );
 
     if (!user.isCoach) {

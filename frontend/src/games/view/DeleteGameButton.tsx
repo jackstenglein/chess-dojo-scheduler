@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Dialog,
-    DialogTitle,
-    DialogContent,
     DialogActions,
-    Tooltip,
+    DialogContent,
+    DialogTitle,
     IconButton,
+    Tooltip,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { LoadingButton } from '@mui/lab';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { Game } from '../../database/game';
+import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { EventType, trackEvent } from '../../analytics/events';
+import { Game } from '../../database/game';
 
 interface DeleteGameButtonProps {
     game: Game;

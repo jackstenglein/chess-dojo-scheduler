@@ -84,6 +84,7 @@ export function getColumnDefinition(
             case ScoreboardDisplay.Checkbox:
                 return (
                     <ScoreboardCheck
+                        fullHeight
                         value={score}
                         total={totalCount}
                         username={params.row.username}

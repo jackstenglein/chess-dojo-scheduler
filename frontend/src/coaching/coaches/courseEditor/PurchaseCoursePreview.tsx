@@ -6,11 +6,11 @@ import {
     Container,
     Divider,
     FormControlLabel,
+    Grid2,
     Stack,
     Tab,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
 import { useState } from 'react';
 import CourseListItem from '../../../courses/list/CourseListItem';
 import PurchaseCoursePage from '../../../courses/view/PurchaseCoursePage';
@@ -63,7 +63,14 @@ const PurchaseCoursePreview: React.FC<PurchaseCoursePreviewProps> = ({
                         </Box>
                         <TabPanel value='listCourses'>
                             <Grid2 container>
-                                <Grid2 key={course.id} xs={12} md={6} lg={4}>
+                                <Grid2
+                                    key={course.id}
+                                    size={{
+                                        xs: 12,
+                                        md: 6,
+                                        lg: 4,
+                                    }}
+                                >
                                     <CourseListItem
                                         preview
                                         course={course}

@@ -1,9 +1,15 @@
-import { Box, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
+import { CategoryColors } from '@/style/ThemeProvider';
+import {
+    Box,
+    Card,
+    CardContent,
+    CardHeader,
+    Grid2,
+    Stack,
+    Typography,
+} from '@mui/material';
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
-
-import { CategoryColors } from '@/style/ThemeProvider';
 import { useAuth } from '../../auth/Auth';
 import { formatTime } from '../../database/requirement';
 import {
@@ -46,12 +52,18 @@ const TimeSection: React.FC<SectionProps> = ({ review }) => {
             >
                 Now let's see how long it took to earn all those Dojo points!
             </Typography>
-
             <Card variant='outlined' sx={{ width: 1, mt: 4 }}>
                 <CardHeader title='Time Spent' />
                 <CardContent>
                     <Grid2 container alignItems='center' rowSpacing={2}>
-                        <Grid2 xs={12} sm={4} display='flex' justifyContent='center'>
+                        <Grid2
+                            display='flex'
+                            justifyContent='center'
+                            size={{
+                                xs: 12,
+                                sm: 4,
+                            }}
+                        >
                             <Stack alignItems='end'>
                                 <Typography variant='caption' color='text.secondary'>
                                     Total Time

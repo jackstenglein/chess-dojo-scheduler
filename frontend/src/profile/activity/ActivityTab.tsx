@@ -1,8 +1,8 @@
 import { Grid } from '@mui/material';
 
 import { User } from '../../database/user';
-import ActivityTimeline from './ActivityTimeline';
 import ActivityPieChart from './ActivityPieChart';
+import ActivityTimeline from './ActivityTimeline';
 import { useTimeline } from './useTimeline';
 
 interface ActivityTabProps {

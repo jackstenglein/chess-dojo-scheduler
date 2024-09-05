@@ -5,13 +5,13 @@ import {
     CardContent,
     CircularProgress,
     Dialog,
+    Grid2,
     Stack,
     SvgIconProps,
     SvgIconTypeMap,
     Typography,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
 import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
 import BoardIcon from '../../style/BoardIcon';
@@ -146,7 +146,12 @@ const ImportSourceCard = ({
 }: ImportSourceCardProps) => {
     const Icon = icon;
     return (
-        <Grid2 xs={12} sm={6}>
+        <Grid2
+            size={{
+                xs: 12,
+                sm: 6,
+            }}
+        >
             <Card sx={{ height: 1 }}>
                 <CardActionArea
                     sx={{ height: 1 }}

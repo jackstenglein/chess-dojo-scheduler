@@ -1,11 +1,8 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { useSearchParams } from '@/hooks/useSearchParams';
 import {
     Directory,
     DirectoryItem,
-    DirectoryItemGame,
-    DirectoryItemSubdirectory,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { LoadingButton } from '@mui/lab';
@@ -24,56 +21,74 @@ import { useDirectoryCache } from './DirectoryCache';
 
 export const DeleteDialog = ({
     directory,
-    item,
+    items,
     onCancel,
 }: {
     directory: Directory;
-    item: DirectoryItem;
-    onCancel: () => void;
-}) => {
-    if (item.type === DirectoryItemTypes.DIRECTORY) {
-        return <DeleteDirectoryDialog item={item} onCancel={onCancel} />;
-    }
-
-    return <RemoveGameDialog directory={directory} item={item} onCancel={onCancel} />;
-};
-
-const DeleteDirectoryDialog = ({
-    item,
-    onCancel,
-}: {
-    item: DirectoryItemSubdirectory;
+    items: DirectoryItem[];
     onCancel: () => void;
 }) => {
     const [value, setValue] = useState('');
     const request = useRequest();
-    const disableDelete = value.trim() !== 'delete';
     const api = useApi();
     const cache = useDirectoryCache();
-    const { updateSearchParams } = useSearchParams();
+
+    const requiresConfirmation = items.some(
+        (item) => item.type === DirectoryItemTypes.DIRECTORY,
+    );
+    const disableDelete = requiresConfirmation && value.trim() !== 'delete';
 
     const onDelete = () => {
-        if (disableDelete) {
+        if (disableDelete || request.isLoading()) {
             return;
         }
 
         request.onStart();
-        api.deleteDirectory(item.id)
-            .then((resp) => {
-                console.log('deleteDirectory: ', resp);
-                cache.remove(item.id);
-                onCancel();
-                if (resp.data.parent) {
-                    cache.put(resp.data.parent);
-                    updateSearchParams({ directory: resp.data.parent.id });
-                }
-            })
+
+        const gameItemIds = items
+            .filter((item) => item.type !== DirectoryItemTypes.DIRECTORY)
+            .map((item) => item.id);
+        const directoryItemIds = items
+            .filter((item) => item.type === DirectoryItemTypes.DIRECTORY)
+            .map((item) => item.id);
+
+        const promises: Promise<void>[] = [];
+
+        if (gameItemIds.length > 0) {
+            promises.push(
+                api
+                    .removeDirectoryItem({
+                        directoryId: directory.id,
+                        itemIds: gameItemIds,
+                    })
+                    .then((resp) => {
+                        console.log('removeDirectoryItem: ', resp);
+                        cache.put(resp.data.directory);
+                    }),
+            );
+        }
+        if (directoryItemIds.length > 0) {
+            promises.push(
+                api.deleteDirectories(directoryItemIds).then((resp) => {
+                    console.log('deleteDirectory: ', resp);
+
+                    for (const id of directoryItemIds) {
+                        cache.remove(id);
+                    }
+
+                    if (resp.data.parent) {
+                        cache.put(resp.data.parent);
+                    }
+                }),
+            );
+        }
+
+        Promise.all(promises)
+            .then(onCancel)
             .catch((err) => {
-                console.error('deleteDirectory: ', err);
+                console.log('deleteItems: ', err);
                 request.onFailure(err);
             });
-
-        return null;
     };
 
     return (
@@ -82,25 +97,30 @@ const DeleteDirectoryDialog = ({
             onClose={request.isLoading() ? undefined : onCancel}
             fullWidth
         >
-            <DialogTitle>Delete {item.metadata.name}?</DialogTitle>
+            <DialogTitle>{getDialogTitle(items)}</DialogTitle>
             <DialogContent data-cy='delete-directory-form'>
                 <Stack spacing={1}>
-                    <DialogContentText>
-                        This will permanently delete {item.metadata.name} and any folders
-                        it contains. Any games within these folders will not be deleted
-                        and will still be available in the Games tab.
-                    </DialogContentText>
+                    <DeleteDialogContentText directory={directory} items={items} />
 
-                    <DialogContentText>
-                        To confirm, type `delete` below:
-                    </DialogContentText>
-                    <TextField
-                        data-cy='delete-directory-confirm'
-                        placeholder='delete'
-                        value={value}
-                        onChange={(e) => setValue(e.target.value.toLowerCase())}
-                        fullWidth
-                    />
+                    {requiresConfirmation && (
+                        <>
+                            <DialogContentText>
+                                To confirm, type `delete` below:
+                            </DialogContentText>
+                            <TextField
+                                data-cy='delete-directory-confirm'
+                                placeholder='delete'
+                                value={value}
+                                onChange={(e) => setValue(e.target.value.toLowerCase())}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        onDelete();
+                                    }
+                                }}
+                                fullWidth
+                            />
+                        </>
+                    )}
                 </Stack>
             </DialogContent>
             <DialogActions>
@@ -114,7 +134,7 @@ const DeleteDirectoryDialog = ({
                     loading={request.isLoading()}
                     onClick={onDelete}
                 >
-                    Delete
+                    {requiresConfirmation ? 'Delete' : 'Remove'}
                 </LoadingButton>
             </DialogActions>
 
@@ -123,67 +143,115 @@ const DeleteDirectoryDialog = ({
     );
 };
 
-const RemoveGameDialog = ({
+function getDialogTitle(items: DirectoryItem[]) {
+    if (items.length === 1) {
+        if (items[0].type === DirectoryItemTypes.DIRECTORY) {
+            return `Delete ${items[0].metadata.name}?`;
+        }
+        return `Remove game?`;
+    }
+
+    let directoryCount = 0;
+    let gameCount = 0;
+
+    for (const item of items) {
+        if (item.type === DirectoryItemTypes.DIRECTORY) {
+            directoryCount++;
+        } else {
+            gameCount++;
+        }
+    }
+
+    let title = '';
+
+    if (directoryCount > 0) {
+        title += `Delete ${directoryCount} folder${directoryCount > 1 ? 's' : ''}`;
+        if (gameCount > 0) {
+            title += ' and ';
+        }
+    }
+    if (gameCount > 0) {
+        if (title === '') {
+            title += 'Remove ';
+        } else {
+            title += 'remove ';
+        }
+        title += `${gameCount} game${gameCount > 1 ? 's' : ''}`;
+    }
+
+    title += '?';
+    return title;
+}
+
+const DeleteDialogContentText = ({
     directory,
-    item,
-    onCancel,
+    items,
 }: {
     directory: Directory;
-    item: DirectoryItemGame;
-    onCancel: () => void;
+    items: DirectoryItem[];
 }) => {
-    const request = useRequest();
-    const api = useApi();
-    const cache = useDirectoryCache();
+    if (items.length === 1) {
+        if (items[0].type === DirectoryItemTypes.DIRECTORY) {
+            return (
+                <DialogContentText>
+                    This will <strong>permanently delete</strong> {items[0].metadata.name}{' '}
+                    and any folders it contains. Any of your games within these folders
+                    will not be deleted and will still be available in the Games tab.
+                </DialogContentText>
+            );
+        }
+        return (
+            <DialogContentText>
+                This will remove the game{' '}
+                <strong>
+                    {items[0].metadata.white} - {items[0].metadata.black}
+                </strong>{' '}
+                from the <strong>{directory.name}</strong> folder. The game will still be
+                accessible from the Games tab and from any other folders it is in.
+            </DialogContentText>
+        );
+    }
 
-    const onRemove = () => {
-        request.onStart();
-        api.removeDirectoryItem({ directoryId: directory.id, itemId: item.id })
-            .then((resp) => {
-                console.log('removeDirectoryItem: ', resp);
-                cache.put(resp.data.directory);
-                onCancel();
-            })
-            .catch((err) => {
-                console.error('removeDirectoryItem: ', err);
-                request.onFailure(err);
-            });
-    };
+    let directoryCount = 0;
+    let gameCount = 0;
+
+    for (const item of items) {
+        if (item.type === DirectoryItemTypes.DIRECTORY) {
+            directoryCount++;
+        } else {
+            gameCount++;
+        }
+    }
+
+    if (directoryCount > 0 && gameCount === 0) {
+        return (
+            <DialogContentText>
+                This will <strong>permanently delete</strong> {directoryCount} folders and
+                any subfolders. Any of your games within these folders will not be
+                permanently deleted and will still be available in the Games tab and from
+                any other folders they may be in.
+            </DialogContentText>
+        );
+    }
+
+    if (directoryCount === 0 && gameCount > 0) {
+        return (
+            <DialogContentText>
+                This will remove {gameCount} games from the{' '}
+                <strong>{directory.name}</strong> folder. The games will still be
+                accessible from the Games tab and from any other folders they may be in.
+            </DialogContentText>
+        );
+    }
 
     return (
-        <Dialog
-            open={true}
-            onClose={request.isLoading() ? undefined : onCancel}
-            fullWidth
-        >
-            <DialogTitle>Remove game?</DialogTitle>
-            <DialogContent>
-                <Stack spacing={1}>
-                    <DialogContentText>
-                        This will remove the game{' '}
-                        <strong>
-                            {item.metadata.white} - {item.metadata.black}
-                        </strong>{' '}
-                        from the <strong>{directory.name}</strong> folder. The game will
-                        still be accessible from the Games tab and from any other folders
-                        it is in.
-                    </DialogContentText>
-                </Stack>
-            </DialogContent>
-            <DialogActions>
-                <Button disabled={request.isLoading()} onClick={onCancel}>
-                    Cancel
-                </Button>
-                <LoadingButton
-                    color='error'
-                    loading={request.isLoading()}
-                    onClick={onRemove}
-                >
-                    Remove
-                </LoadingButton>
-            </DialogActions>
-
-            <RequestSnackbar request={request} />
-        </Dialog>
+        <DialogContentText>
+            This will delete {directoryCount} folder{directoryCount > 1 && 's'} and remove{' '}
+            {gameCount} game{gameCount > 1 && 's'} from the {directory.name} folder. The
+            game{gameCount > 1 && 's'} will still be available in the Games tab and from
+            any other folders they may be in. However, the folder
+            {directoryCount > 1 && 's'} will be <strong>permanently deleted</strong>,
+            along with any subfolders.
+        </DialogContentText>
     );
 };

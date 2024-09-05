@@ -1,19 +1,27 @@
-import { CreateDirectoryResponse } from '@/api/directoryApi';
+import { useApi } from '@/api/Api';
+import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { PawnIcon } from '@/style/ChessIcons';
-import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    Directory,
+    DirectoryVisibilityType,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Add, CreateNewFolder } from '@mui/icons-material';
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
+import Avatar from '../Avatar';
 import { AddCurrentGameMenuItem } from './AddCurrentGameMenuItem';
+import { AddExistingGamesDialog } from './AddExistingGamesDialog';
 import { useDirectoryCache } from './DirectoryCache';
-import { NewDirectoryDialog } from './NewDirectoryDialog';
+import { UpdateDirectoryDialog } from './UpdateDirectoryDialog';
 
 export const AddButton = ({ directory }: { directory: Directory }) => {
     const cache = useDirectoryCache();
     const [anchorEl, setAnchorEl] = useState<HTMLElement>();
     const [newDirectoryOpen, setNewDirectoryOpen] = useState(false);
+    const [existingGamesOpen, setExistingGamesOpen] = useState(false);
     const { user: viewer } = useAuth();
+    const api = useApi();
 
     if (viewer?.username !== directory.owner) {
         return null;
@@ -21,13 +29,37 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
 
     const handleClose = () => {
         setNewDirectoryOpen(false);
+        setExistingGamesOpen(false);
         setAnchorEl(undefined);
     };
 
-    const onNewDirectorySuccess = (resp: CreateDirectoryResponse) => {
-        cache.put(resp.parent);
-        cache.put(resp.directory);
-        handleClose();
+    const onNewDirectory = (
+        name: string,
+        visibility: DirectoryVisibilityType,
+        disabled: boolean,
+        request: Request,
+    ) => {
+        if (disabled || request.isLoading()) {
+            return;
+        }
+
+        request.onStart();
+        api.createDirectory({
+            id: '',
+            parent: directory.id,
+            name,
+            visibility,
+        })
+            .then((resp) => {
+                console.log('createDirectory: ', resp);
+                cache.put(resp.data.parent);
+                cache.put(resp.data.directory);
+                handleClose();
+            })
+            .catch((err) => {
+                console.error('createDirectory: ', err);
+                request.onFailure(err);
+            });
     };
 
     return (
@@ -56,14 +88,20 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
                     </ListItemIcon>
                     <ListItemText primary='New Game' />
                 </MenuItem>
+
+                <MenuItem onClick={() => setExistingGamesOpen(true)}>
+                    <ListItemIcon>
+                        <Avatar user={viewer} size={20} />
+                    </ListItemIcon>
+                    <ListItemText primary='My Existing Games' />
+                </MenuItem>
             </Menu>
 
             {newDirectoryOpen && (
-                <NewDirectoryDialog
-                    parent={directory.id}
-                    onSuccess={onNewDirectorySuccess}
-                    onCancel={handleClose}
-                />
+                <UpdateDirectoryDialog onSave={onNewDirectory} onCancel={handleClose} />
+            )}
+            {existingGamesOpen && (
+                <AddExistingGamesDialog directory={directory} onCancel={handleClose} />
             )}
         </>
     );

@@ -1,10 +1,10 @@
 import { Link, Paper, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
+import { useAuth } from '../../auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
 import { Comment } from '../../database/game';
 import Avatar from '../../profile/Avatar';
-import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
-import { useAuth } from '../../auth/Auth';
 
 interface CommentListProps {
     comments: Comment[] | null;

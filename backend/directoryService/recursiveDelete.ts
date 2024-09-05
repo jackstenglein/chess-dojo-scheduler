@@ -5,7 +5,7 @@ import {
     DirectorySchema,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
-import { deleteDirectory } from './delete';
+import { deleteDirectories } from './delete';
 
 /**
  * Handles DynamoDB stream events for items deleted from the directory table.
@@ -33,7 +33,7 @@ async function processRecord(record: DynamoDBRecord) {
         );
         for (const item of Object.values(directory.items)) {
             if (item.type === DirectoryItemTypes.DIRECTORY) {
-                await deleteDirectory(directory.owner, item.id);
+                await deleteDirectories(directory.owner, [item.id]);
                 console.log(`Deleted subdirectory ${item.id}`);
             }
         }

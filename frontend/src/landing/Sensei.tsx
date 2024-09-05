@@ -1,5 +1,4 @@
-import { Card, CardContent, CardMedia, Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { Card, CardContent, CardMedia, Grid2, Stack, Typography } from '@mui/material';
 
 const senseis = [
     {
@@ -37,7 +36,6 @@ const Sensei = () => {
             <Typography variant='h4' mb={3} textAlign='center'>
                 World-class teachers who have been in your shoes
             </Typography>
-
             <Grid2
                 container
                 sx={{ width: 1 }}
@@ -46,7 +44,14 @@ const Sensei = () => {
                 justifyContent='center'
             >
                 {senseis.map((sensei) => (
-                    <Grid2 key={sensei.name} xs={12} sm={4} lg={3}>
+                    <Grid2
+                        key={sensei.name}
+                        size={{
+                            xs: 12,
+                            sm: 4,
+                            lg: 3,
+                        }}
+                    >
                         <Card sx={{ height: 1 }}>
                             <CardMedia
                                 component='img'

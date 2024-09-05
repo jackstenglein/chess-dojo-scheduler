@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Checkbox,
@@ -8,14 +8,14 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { useState } from 'react';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { ProfileCreatorFormProps } from './ProfileCreatorPage';
-import { User } from '../../database/user';
 import { useFreeTier } from '../../auth/Auth';
+import { User } from '../../database/user';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
 const DiscordForm: React.FC<ProfileCreatorFormProps> = ({
     user,
@@ -29,7 +29,7 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({
 
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [disableBookingNotifications, setDisableBookingNotifications] = useState(
-        user.disableBookingNotifications
+        user.disableBookingNotifications,
     );
     const [disableCancellationNotifications, setDisableCancellationNotifications] =
         useState(user.disableCancellationNotifications);

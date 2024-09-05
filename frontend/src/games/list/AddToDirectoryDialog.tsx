@@ -14,6 +14,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Divider,
     List,
     Stack,
     Tooltip,
@@ -44,7 +45,7 @@ export const AddToDirectoryDialog = ({
         setDirectoryId(id);
     };
 
-    const alreadyExists = Boolean(directory?.items[`${game?.cohort}#${game?.id}`]);
+    const alreadyExists = Boolean(directory?.items[`${game?.cohort}/${game?.id}`]);
 
     const onAdd = () => {
         if (!game || alreadyExists) {
@@ -52,23 +53,25 @@ export const AddToDirectoryDialog = ({
         }
 
         request.onStart();
-        api.addDirectoryItem({
+        api.addDirectoryItems({
             id: directoryId,
-            game: {
-                owner: game.owner,
-                ownerDisplayName: game.ownerDisplayName,
-                createdAt:
-                    game.createdAt ||
-                    game.date.replaceAll('.', '-') ||
-                    new Date().toISOString(),
-                id: game.id,
-                cohort: game.cohort,
-                white: game.headers.White,
-                black: game.headers.Black,
-                whiteElo: game.headers.WhiteElo,
-                blackElo: game.headers.BlackElo,
-                result: game.headers.Result,
-            },
+            games: [
+                {
+                    owner: game.owner,
+                    ownerDisplayName: game.ownerDisplayName,
+                    createdAt:
+                        game.createdAt ||
+                        game.date.replaceAll('.', '-') ||
+                        new Date().toISOString(),
+                    id: game.id,
+                    cohort: game.cohort,
+                    white: game.headers.White,
+                    black: game.headers.Black,
+                    whiteElo: game.headers.WhiteElo,
+                    blackElo: game.headers.BlackElo,
+                    result: game.headers.Result,
+                },
+            ],
         })
             .then((resp) => {
                 console.log('addDirectoryItem: ', resp);
@@ -89,7 +92,7 @@ export const AddToDirectoryDialog = ({
                 onClose={request.isLoading() ? undefined : onClose}
                 fullWidth
             >
-                <DialogTitle>Add Game to Folder?</DialogTitle>
+                <DialogTitle>Add Game to {directory?.name ?? 'Folder'}?</DialogTitle>
                 <DialogContent>
                     {directory ? (
                         <Stack spacing={1}>
@@ -97,7 +100,10 @@ export const AddToDirectoryDialog = ({
                                 owner={user.username}
                                 id={directoryId}
                                 onClick={onNavigate}
+                                variant='h6'
                             />
+
+                            <Divider>Current Contents</Divider>
 
                             <List>
                                 {Object.values(directory.items)

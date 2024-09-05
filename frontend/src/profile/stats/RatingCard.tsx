@@ -195,6 +195,10 @@ const RatingCard: React.FC<RatingCardProps> = ({
         return getChartData(ratingHistory, currentRating);
     }, [ratingHistory, currentRating]);
 
+    if (!system || (!currentRating && !startRating)) {
+        return null;
+    }
+
     return (
         <Card variant='outlined'>
             <CardContent>

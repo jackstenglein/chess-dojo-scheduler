@@ -29,7 +29,7 @@ export const AddCurrentGameMenuItem = ({
         return null;
     }
 
-    const disabled = Boolean(directory.items[`${game.cohort}#${game.id}`]);
+    const disabled = Boolean(directory.items[`${game.cohort}/${game.id}`]);
 
     const onAdd = () => {
         if (disabled) {
@@ -37,32 +37,34 @@ export const AddCurrentGameMenuItem = ({
         }
 
         request.onStart();
-        api.addDirectoryItem({
+        api.addDirectoryItems({
             id: directory.id,
-            game: {
-                owner: game.owner,
-                ownerDisplayName: game.ownerDisplayName,
-                createdAt:
-                    game.createdAt ||
-                    game.date.replaceAll('.', '-') ||
-                    new Date().toISOString(),
-                id: game.id,
-                cohort: game.cohort,
-                white: game.headers.White,
-                black: game.headers.Black,
-                whiteElo: game.headers.WhiteElo,
-                blackElo: game.headers.BlackElo,
-                result: game.headers.Result,
-            },
+            games: [
+                {
+                    owner: game.owner,
+                    ownerDisplayName: game.ownerDisplayName,
+                    createdAt:
+                        game.createdAt ||
+                        game.date.replaceAll('.', '-') ||
+                        new Date().toISOString(),
+                    id: game.id,
+                    cohort: game.cohort,
+                    white: game.headers.White,
+                    black: game.headers.Black,
+                    whiteElo: game.headers.WhiteElo,
+                    blackElo: game.headers.BlackElo,
+                    result: game.headers.Result,
+                },
+            ],
         })
             .then((resp) => {
-                console.log('addDirectoryItem: ', resp);
+                console.log('addDirectoryItems: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess();
                 onSuccess();
             })
             .catch((err) => {
-                console.error('addDirectoryItem: ', err);
+                console.error('addDirectoryItems: ', err);
                 request.onFailure(err);
             });
     };

@@ -23,12 +23,14 @@ export default function Blog() {
                 {items.map((item, i) => (
                     <Card key={item.title}>
                         <CardActionArea LinkComponent={Link} href={item.href}>
-                            <Image
-                                src={item.image.src}
-                                alt={item.image.alt}
-                                style={{ width: '100%', height: 'auto' }}
-                                priority={i === 0}
-                            />
+                            {item.image && (
+                                <Image
+                                    src={item.image.src}
+                                    alt={item.image.alt}
+                                    style={{ width: '100%', height: 'auto' }}
+                                    priority={i === 0}
+                                />
+                            )}
                             <CardHeader title={item.title} subheader={item.subtitle} />
 
                             <CardContent>

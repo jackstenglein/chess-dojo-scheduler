@@ -1,6 +1,5 @@
 import { LoadingButton } from '@mui/lab';
-import { Button, Card, CardContent, Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
+import { Button, Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
 import { Request } from '../api/Request';
 import SellingPoint, { SellingPointStatus } from './SellingPoint';
 
@@ -25,7 +24,12 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
     return (
         <>
             {(onFreeTier || freeTierLink) && (
-                <Grid2 xs={12} sm={4}>
+                <Grid2
+                    size={{
+                        xs: 12,
+                        sm: 4,
+                    }}
+                >
                     <Card variant='outlined' sx={{ height: 1 }}>
                         <CardContent sx={{ height: 1 }}>
                             <Stack alignItems='center' spacing={3} height={1}>
@@ -80,8 +84,12 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                     </Card>
                 </Grid2>
             )}
-
-            <Grid2 xs={12} sm={onFreeTier || freeTierLink ? 4 : 6}>
+            <Grid2
+                size={{
+                    xs: 12,
+                    sm: onFreeTier || freeTierLink ? 4 : 6,
+                }}
+            >
                 <Card variant='outlined' sx={{ height: 1 }}>
                     <CardContent sx={{ height: 1 }}>
                         <Stack alignItems='center' spacing={3} height={1}>
@@ -134,8 +142,12 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                     </CardContent>
                 </Card>
             </Grid2>
-
-            <Grid2 xs={12} sm={onFreeTier || freeTierLink ? 4 : 6}>
+            <Grid2
+                size={{
+                    xs: 12,
+                    sm: onFreeTier || freeTierLink ? 4 : 6,
+                }}
+            >
                 <Card variant='outlined' sx={{ height: 1 }}>
                     <CardContent sx={{ height: 1 }}>
                         <Stack alignItems='center' spacing={3} height={1}>

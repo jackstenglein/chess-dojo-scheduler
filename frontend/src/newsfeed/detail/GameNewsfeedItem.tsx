@@ -19,7 +19,7 @@ const GameNewsfeedItem: React.FC<GameNewsfeedItemProps> = ({ entry }) => {
                     component={RouterLink}
                     to={`/games/${entry.cohort.replaceAll(
                         '+',
-                        '%2B'
+                        '%2B',
                     )}/${gameInfo?.id.replaceAll('?', '%3F')}`}
                 >
                     new game analysis

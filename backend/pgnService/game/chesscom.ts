@@ -136,10 +136,8 @@ export async function getChesscomGame(gameURL?: string) {
     // Convert to milliseconds
     const moveTimestamps = gameData.moveTimestamps.split(',').map((n) => Number(n) * 100);
 
-    const game = new Chess();
-
     const startingPosition = gameData.pgnHeaders['FEN']?.toString();
-    game.load(startingPosition);
+    const game = new Chess({ fen: startingPosition });
 
     encodedMoves.forEach((encodedMove, idx) => {
         const timestamp = moveTimestamps[idx];

@@ -1,8 +1,7 @@
 import { useChess } from '@/board/pgn/PgnBoard';
 import { Chess, Move } from '@jackstenglein/chess';
 import { Edit } from '@mui/icons-material';
-import { IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
+import { Grid2, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { DateTime } from 'luxon';
 import ClockTextField from './ClockTextField';
 import { formatTime } from './ClockUsage';
@@ -48,7 +47,7 @@ const ClockEditor = ({
     const grid = [];
     for (let i = 0; i < moves.length; i += 2) {
         grid.push(
-            <Grid2 key={`${i}-white`} xs={6}>
+            <Grid2 key={`${i}-white`} size={6}>
                 <ClockTextField
                     label={`${i / 2 + 1}. ${moves[i].san}`}
                     move={moves[i]}
@@ -58,7 +57,7 @@ const ClockEditor = ({
         );
         if (moves[i + 1]) {
             grid.push(
-                <Grid2 key={`${i}-black`} xs={6}>
+                <Grid2 key={`${i}-black`} size={6}>
                     <ClockTextField
                         label={`${i / 2 + 1}... ${moves[i + 1].san}`}
                         move={moves[i + 1]}
@@ -71,7 +70,7 @@ const ClockEditor = ({
 
     return (
         <Grid2 container columnSpacing={1} rowGap={3} alignItems='center' pb={2}>
-            <Grid2 xs={12}>
+            <Grid2 size={12}>
                 <Stack direction='row' alignItems='center' spacing={0.5}>
                     <Typography variant='subtitle1'>Time Control</Typography>
 
@@ -89,15 +88,13 @@ const ClockEditor = ({
                     timeControls={chess.header().tags.TimeControl?.items || []}
                 />
             </Grid2>
-
-            <Grid2 xs={12} pb={1}>
+            <Grid2 pb={1} size={12}>
                 <Typography component='p' variant='caption' textAlign='center'>
                     Set remaining clock time after each move below.
                     <br />
                     Moves left blank will use the last-set clock time.
                 </Typography>
             </Grid2>
-
             {grid}
         </Grid2>
     );

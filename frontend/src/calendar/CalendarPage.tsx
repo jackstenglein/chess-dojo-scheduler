@@ -27,11 +27,11 @@ import EventEditor from './eventEditor/EventEditor';
 import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
 import {
     CalendarFilters,
-    DefaultTimezone,
     Filters,
     getHours,
     useFilters,
 } from './filters/CalendarFilters';
+import { DefaultTimezone } from './filters/TimezoneSelector';
 
 function processAvailability(
     user: User | undefined,

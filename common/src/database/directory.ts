@@ -37,6 +37,8 @@ const directoryVisibility = z.enum(['PUBLIC', 'PRIVATE']);
 /** The visibility of a directory. */
 export const DirectoryVisibility = directoryVisibility.enum;
 
+export type DirectoryVisibilityType = z.infer<typeof directoryVisibility>;
+
 const directoryItemType = z.enum(['DIRECTORY', 'OWNED_GAME', 'MASTER_GAME', 'DOJO_GAME']);
 
 export type DirectoryItemType = z.infer<typeof directoryItemType>;
@@ -72,7 +74,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /** The type of the directory item. */
         type: z.literal(DirectoryItemTypes.OWNED_GAME),
 
-        /** The id of the directory item. For a game, this is the value cohort#id. */
+        /** The id of the directory item. For a game, this is the value cohort/id. */
         id: z.string(),
 
         /** The metadata of the directory item. */
@@ -137,6 +139,9 @@ export const DirectorySchema = z.object({
     /** The items in the directory, mapped by their ids. */
     items: z.record(z.string(), DirectoryItemSchema),
 
+    /** The ids of the items in the directory in their default order. */
+    itemIds: z.string().array(),
+
     /** The datetime the directory was created, in ISO format. */
     createdAt: z.string().datetime(),
 
@@ -173,27 +178,37 @@ export const CreateDirectorySchema = DirectorySchema.pick({
 /** A request to create a directory. */
 export type CreateDirectoryRequest = z.infer<typeof CreateDirectorySchema>;
 
+/** Verifies a request to update a directory. */
 export const UpdateDirectorySchema = DirectorySchema.pick({
+    /** The id of the directory to update. */
     id: true,
+
+    /** The new name to set on the directory. */
     name: true,
+
+    /** The new visibility to set on the directory. */
     visibility: true,
-}).partial({ name: true, visibility: true });
+
+    /** The new order of the items to set on the directory. */
+    itemIds: true,
+}).partial({ name: true, visibility: true, itemIds: true });
 
 /** A request to update a directory. */
 export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;
 
-/** Verifies a request to delete a directory. */
-export const DeleteDirectorySchema = DirectorySchema.pick({
-    id: true,
+/** Verifies a request to delete directories. */
+export const DeleteDirectoriesSchema = z.object({
+    ids: z.string().array(),
 });
 
-/** A request to delete a directory. */
-export type DeleteDirectoryRequest = z.infer<typeof DeleteDirectorySchema>;
+/** A request to delete directories. All directories in the request must have the same parent. */
+export type DeleteDirectoriesRequest = z.infer<typeof DeleteDirectoriesSchema>;
 
 /**
  * Verifies a request to add an item to a directory. Currently, only
  * games are handled by this request. Subdirectories can be added using
  * the create directory request.
+ * @deprecated Use AddDirectoryItemsSchema instead.
  */
 export const AddDirectoryItemSchema = DirectorySchema.pick({
     id: true,
@@ -203,23 +218,44 @@ export const AddDirectoryItemSchema = DirectorySchema.pick({
     }),
 );
 
-/** A request to add an item to a directory. */
+/**
+ * A request to add an item to a directory.
+ * @deprecated Use AddDirectoryItemsRequest instead.
+ */
 export type AddDirectoryItemRequest = z.infer<typeof AddDirectoryItemSchema>;
 
 /**
- * Verifies a request to remove an item from a directory. Currently, only
+ * Verifies a request to add items to a directory. Currently, only
+ * games are handled by this request. Subdirectories can be added using
+ * the create directory request.
+ */
+export const AddDirectoryItemsSchema = DirectorySchema.pick({
+    /** The id of the directory to add items to. */
+    id: true,
+}).merge(
+    z.object({
+        /** The games to add to the directory. */
+        games: gameMetadataSchema.array(),
+    }),
+);
+
+/** A request to add items to a directory. */
+export type AddDirectoryItemsRequest = z.infer<typeof AddDirectoryItemsSchema>;
+
+/**
+ * Verifies a request to remove items from a directory. Currently, only
  * games are handled by this request. Subdirectories can be removed using
  * the delete directory request. */
-export const RemoveDirectoryItemSchema = z.object({
+export const RemoveDirectoryItemsSchema = z.object({
     /** The id of the directory to remove the item from. */
     directoryId: DirectorySchema.shape.id,
 
-    /** The id of the item to remove. */
-    itemId: z.string(),
+    /** The ids of the item to remove. */
+    itemIds: z.string().array(),
 });
 
-/** A request to remove an item from a directory. */
-export type RemoveDirectoryItemRequest = z.infer<typeof RemoveDirectoryItemSchema>;
+/** A request to remove game items from a directory. */
+export type RemoveDirectoryItemsRequest = z.infer<typeof RemoveDirectoryItemsSchema>;
 
 /**
  * Verifies a request to move items between directories.
@@ -233,7 +269,7 @@ export const MoveDirectoryItemsSchema = z
         target: DirectorySchema.shape.id,
 
         /** The ids of the items to move. */
-        items: z.string().array().nonempty(),
+        items: z.string().array(),
     })
     .refine((val) => val.source !== val.target, {
         message: 'source/target directories must be different',
