@@ -1,5 +1,8 @@
 import { useApi } from '@/api/Api';
-import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
+import {
+    DataGridContextMenu,
+    useDataGridContextMenu,
+} from '@/hooks/useDataGridContextMenu';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import {
     Badge,
@@ -38,7 +41,7 @@ import { RenderPlayersCell, RenderResult } from './GameListItem';
 import ListGamesTutorial from './ListGamesTutorial';
 import { ListItemContextMenu } from './ListItemContextMenu';
 import SearchFilters from './SearchFilters';
-import { usePagination } from './pagination';
+import { PaginationResult, usePagination } from './pagination';
 
 export const MastersCohort = 'masters';
 export const MastersOwnerDisplayName = 'Masters DB';
@@ -166,32 +169,8 @@ const ListGamesPage = () => {
             });
     }, [setReviewQueueLabel, api]);
 
-    const columns = useMemo(() => {
-        let columns = gameTableColumns;
-        if (type === 'owner') {
-            columns = columns.filter((c) => c.field !== 'owner');
-        }
-        if (isFreeTier) {
-            columns = columns.map((col) => ({
-                ...col,
-                filterable: false,
-                sortable: false,
-            }));
-        }
-        return columns;
-    }, [type, isFreeTier]);
-
-    const {
-        request,
-        data,
-        rowCount,
-        page,
-        pageSize,
-        hasMore,
-        setPage,
-        setPageSize,
-        onSearch,
-    } = usePagination(null, 0, 10);
+    const pagination = usePagination(null, 0, 10);
+    const { pageSize, setPageSize, request, data, onSearch } = pagination;
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
         navigate(
@@ -257,51 +236,13 @@ const ListGamesPage = () => {
 
             <Grid2 container spacing={5} wrap='wrap-reverse'>
                 <Grid2 size={{ xs: 12, md: 8, lg: 8 }}>
-                    <DataGridPro
-                        data-cy='games-table'
-                        columns={columns}
-                        rows={data}
-                        pageSizeOptions={isFreeTier ? [10] : [5, 10, 25]}
-                        paginationModel={
-                            isFreeTier
-                                ? { page: 0, pageSize: 10 }
-                                : { page: data.length > 0 ? page : 0, pageSize }
-                        }
+                    <GamesTable
+                        pagination={pagination}
+                        onClickRow={onClickRow}
                         onPaginationModelChange={onPaginationModelChange}
-                        loading={request.isLoading()}
-                        autoHeight
-                        rowHeight={70}
-                        onRowClick={onClickRow}
-                        initialState={{
-                            sorting: {
-                                sortModel: [
-                                    {
-                                        field: 'publishedAt',
-                                        sort: 'desc',
-                                    },
-                                ],
-                            },
-                        }}
-                        slots={{
-                            pagination: () => (
-                                <CustomPagination
-                                    page={page}
-                                    pageSize={pageSize}
-                                    count={rowCount}
-                                    hasMore={hasMore}
-                                    onPrevPage={() => setPage(page - 1)}
-                                    onNextPage={() => setPage(page + 1)}
-                                />
-                            ),
-                        }}
-                        slotProps={{
-                            row: {
-                                onContextMenu: contextMenu.open,
-                            },
-                        }}
-                        pagination
+                        contextMenu={contextMenu}
+                        type={type}
                     />
-
                     <ListItemContextMenu
                         game={
                             contextMenu.rowIds
@@ -474,5 +415,86 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
         />
     );
 };
+
+interface GamesTableProps {
+    pagination: PaginationResult;
+    type: string;
+    onPaginationModelChange: (model: GridPaginationModel) => void;
+    onClickRow: (params: GridRowParams<GameInfo>) => void;
+    contextMenu: DataGridContextMenu;
+}
+
+function GamesTable({
+    pagination,
+    type,
+    onPaginationModelChange,
+    onClickRow,
+    contextMenu,
+}: GamesTableProps) {
+    const isFreeTier = useFreeTier();
+    const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
+
+    const columns = useMemo(() => {
+        let columns = gameTableColumns;
+        if (type === 'owner') {
+            columns = columns.filter((c) => c.field !== 'owner');
+        }
+        if (isFreeTier) {
+            columns = columns.map((col) => ({
+                ...col,
+                filterable: false,
+                sortable: false,
+            }));
+        }
+        return columns;
+    }, [type, isFreeTier]);
+
+    return (
+        <DataGridPro
+            data-cy='games-table'
+            columns={columns}
+            rows={data}
+            pageSizeOptions={isFreeTier ? [10] : [5, 10, 25]}
+            paginationModel={
+                isFreeTier
+                    ? { page: 0, pageSize: 10 }
+                    : { page: data.length > 0 ? page : 0, pageSize }
+            }
+            onPaginationModelChange={onPaginationModelChange}
+            loading={request.isLoading()}
+            autoHeight
+            rowHeight={70}
+            onRowClick={onClickRow}
+            initialState={{
+                sorting: {
+                    sortModel: [
+                        {
+                            field: 'publishedAt',
+                            sort: 'desc',
+                        },
+                    ],
+                },
+            }}
+            slots={{
+                pagination: () => (
+                    <CustomPagination
+                        page={page}
+                        pageSize={pageSize}
+                        count={rowCount}
+                        hasMore={hasMore}
+                        onPrevPage={() => setPage(page - 1)}
+                        onNextPage={() => setPage(page + 1)}
+                    />
+                ),
+            }}
+            slotProps={{
+                row: {
+                    onContextMenu: contextMenu.open,
+                },
+            }}
+            pagination
+        />
+    );
+}
 
 export default ListGamesPage;
