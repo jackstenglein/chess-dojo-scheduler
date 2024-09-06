@@ -1,5 +1,16 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar } from '@/api/Request';
+import { useAuth, useFreeTier } from '@/auth/Auth';
+import { gameTableColumns } from '@/components/games/list/GameTable';
+import { CustomPagination } from '@/components/ui/CustomPagination';
+import { GameInfo } from '@/database/game';
+import { RequirementCategory } from '@/database/requirement';
+import { User } from '@/database/user';
 import { ListItemContextMenu } from '@/games/list/ListItemContextMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
+import { usePagination } from '@/hooks/usePagination';
+import Icon from '@/style/Icon';
+import UpsellAlert from '@/upsell/UpsellAlert';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Button, Stack, Tooltip } from '@mui/material';
 import {
@@ -10,16 +21,6 @@ import {
 } from '@mui/x-data-grid-pro';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { RequestSnackbar } from '../api/Request';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import { GameInfo } from '../database/game';
-import { RequirementCategory } from '../database/requirement';
-import { User } from '../database/user';
-import { CustomPagination, gameTableColumns } from '../games/list/ListGamesPage';
-import { usePagination } from '../games/list/pagination';
-import Icon from '../style/Icon';
-import UpsellAlert from '../upsell/UpsellAlert';
 
 interface GamesTabProps {
     user: User;

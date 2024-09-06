@@ -1,149 +1,31 @@
 import { useApi } from '@/api/Api';
-import {
-    DataGridContextMenu,
-    useDataGridContextMenu,
-} from '@/hooks/useDataGridContextMenu';
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
+import GamesTable from '@/components/games/list/GameTable';
+import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
+import { usePagination } from '@/hooks/usePagination';
 import {
     Badge,
     Button,
     Container,
     Divider,
     Grid2,
-    IconButton,
     Link,
     Stack,
-    Tooltip,
     Typography,
 } from '@mui/material';
-import {
-    DataGridPro,
-    GridColDef,
-    GridPagination,
-    GridPaginationModel,
-    GridRenderCellParams,
-    GridRowParams,
-} from '@mui/x-data-grid-pro';
-import React, { useEffect, useMemo, useState } from 'react';
+import { GridPaginationModel, GridRowParams } from '@mui/x-data-grid-pro';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar } from '../../api/Request';
 import { useFreeTier } from '../../auth/Auth';
 import { GameInfo } from '../../database/game';
 import { RequirementCategory } from '../../database/requirement';
-import { dojoCohorts } from '../../database/user';
-import Avatar from '../../profile/Avatar';
-import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellPage from '../../upsell/UpsellPage';
-import { RenderPlayersCell, RenderResult } from './GameListItem';
 import ListGamesTutorial from './ListGamesTutorial';
 import { ListItemContextMenu } from './ListItemContextMenu';
 import SearchFilters from './SearchFilters';
-import { PaginationResult, usePagination } from './pagination';
-
-export const MastersCohort = 'masters';
-export const MastersOwnerDisplayName = 'Masters DB';
-
-export const gameTableColumns: GridColDef<GameInfo>[] = [
-    {
-        field: 'cohort',
-        headerName: 'Cohort',
-        width: 65,
-        renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
-            let value = params.value;
-            if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
-                value = value.replace('00', '');
-            }
-
-            return (
-                <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
-                    <CohortIcon cohort={params.value} tooltip={params.value} size={30} />
-                    <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
-                        {value === MastersCohort ? 'masters' : value}
-                    </Typography>
-                </Stack>
-            );
-        },
-    },
-    {
-        field: 'owner',
-        headerName: 'Uploaded By',
-        minWidth: 150,
-        renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
-            if (
-                params.row.ownerDisplayName === '' ||
-                params.row.ownerDisplayName === MastersOwnerDisplayName
-            ) {
-                return '';
-            }
-
-            return (
-                <Stack
-                    direction='row'
-                    spacing={1}
-                    alignItems='center'
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <Avatar
-                        username={params.row.owner}
-                        displayName={params.row.ownerDisplayName}
-                        size={32}
-                    />
-                    <Link component={RouterLink} to={`/profile/${params.row.owner}`}>
-                        {params.row.ownerDisplayName}
-                    </Link>
-                </Stack>
-            );
-        },
-    },
-    {
-        field: 'players',
-        headerName: 'Players',
-        valueGetter: (_value, row) =>
-            `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
-        renderCell: RenderPlayersCell,
-        flex: 1,
-        minWidth: 150,
-    },
-    {
-        field: 'result',
-        headerName: 'Result',
-        valueGetter: (_value, row) => row.headers?.Result,
-        renderCell: RenderResult,
-        align: 'center',
-        headerAlign: 'center',
-        width: 75,
-    },
-    {
-        field: 'moves',
-        headerName: 'Moves',
-        valueGetter: (_value, row) =>
-            row.headers?.PlyCount ? Math.ceil(parseInt(row.headers.PlyCount) / 2) : '?',
-        align: 'center',
-        headerAlign: 'center',
-        width: 75,
-    },
-    {
-        field: 'publishedAt',
-        headerName: 'Publish Date',
-        valueGetter: (_value, row) => {
-            return row.publishedAt || row.createdAt || row.id.split('_')[0];
-        },
-        valueFormatter: (value: string) => value.split('T')[0].replaceAll('-', '.'),
-        width: 120,
-        align: 'right',
-        headerAlign: 'right',
-    },
-    {
-        field: 'date',
-        headerName: 'Date Played',
-        width: 110,
-        align: 'right',
-        headerAlign: 'right',
-    },
-];
 
 const ListGamesPage = () => {
     const navigate = useNavigate();
@@ -346,155 +228,5 @@ const ListGamesPage = () => {
         </Container>
     );
 };
-
-interface CustomPaginationProps {
-    page: number;
-    pageSize: number;
-    count: number;
-    hasMore: boolean;
-    onPrevPage: () => void;
-    onNextPage: () => void;
-}
-
-export const CustomPagination: React.FC<CustomPaginationProps> = ({
-    page,
-    pageSize,
-    count,
-    hasMore,
-    onPrevPage,
-    onNextPage,
-}) => {
-    const isFreeTier = useFreeTier();
-
-    return (
-        <GridPagination
-            labelDisplayedRows={({ from, to, count }) => {
-                return `${from}–${to} of ${count}${hasMore ? '+' : ''}`;
-            }}
-            slots={{
-                actions: {
-                    previousButton: () => {
-                        return (
-                            <IconButton
-                                aria-label='Go to previous page'
-                                title='Go to previous page'
-                                onClick={onPrevPage}
-                                disabled={page === 0}
-                            >
-                                <KeyboardArrowLeft />
-                            </IconButton>
-                        );
-                    },
-                    nextButton: () => {
-                        return (
-                            <Tooltip
-                                title={
-                                    isFreeTier
-                                        ? 'Free-tier users can only access the first page of results'
-                                        : ''
-                                }
-                            >
-                                <span>
-                                    <IconButton
-                                        aria-label='Go to next page'
-                                        title='Go to next page'
-                                        onClick={onNextPage}
-                                        disabled={
-                                            isFreeTier ||
-                                            ((page + 1) * pageSize >= count && !hasMore)
-                                        }
-                                    >
-                                        <KeyboardArrowRight />
-                                    </IconButton>
-                                </span>
-                            </Tooltip>
-                        );
-                    },
-                },
-            }}
-        />
-    );
-};
-
-interface GamesTableProps {
-    pagination: PaginationResult;
-    type: string;
-    onPaginationModelChange: (model: GridPaginationModel) => void;
-    onClickRow: (params: GridRowParams<GameInfo>) => void;
-    contextMenu: DataGridContextMenu;
-}
-
-function GamesTable({
-    pagination,
-    type,
-    onPaginationModelChange,
-    onClickRow,
-    contextMenu,
-}: GamesTableProps) {
-    const isFreeTier = useFreeTier();
-    const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
-
-    const columns = useMemo(() => {
-        let columns = gameTableColumns;
-        if (type === 'owner') {
-            columns = columns.filter((c) => c.field !== 'owner');
-        }
-        if (isFreeTier) {
-            columns = columns.map((col) => ({
-                ...col,
-                filterable: false,
-                sortable: false,
-            }));
-        }
-        return columns;
-    }, [type, isFreeTier]);
-
-    return (
-        <DataGridPro
-            data-cy='games-table'
-            columns={columns}
-            rows={data}
-            pageSizeOptions={isFreeTier ? [10] : [5, 10, 25]}
-            paginationModel={
-                isFreeTier
-                    ? { page: 0, pageSize: 10 }
-                    : { page: data.length > 0 ? page : 0, pageSize }
-            }
-            onPaginationModelChange={onPaginationModelChange}
-            loading={request.isLoading()}
-            autoHeight
-            rowHeight={70}
-            onRowClick={onClickRow}
-            initialState={{
-                sorting: {
-                    sortModel: [
-                        {
-                            field: 'publishedAt',
-                            sort: 'desc',
-                        },
-                    ],
-                },
-            }}
-            slots={{
-                pagination: () => (
-                    <CustomPagination
-                        page={page}
-                        pageSize={pageSize}
-                        count={rowCount}
-                        hasMore={hasMore}
-                        onPrevPage={() => setPage(page - 1)}
-                        onNextPage={() => setPage(page + 1)}
-                    />
-                ),
-            }}
-            slotProps={{
-                row: {
-                    onContextMenu: contextMenu.open,
-                },
-            }}
-            pagination
-        />
-    );
-}
 
 export default ListGamesPage;

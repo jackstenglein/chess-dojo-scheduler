@@ -1,9 +1,9 @@
+import { Request, RequestStatus, useRequest } from '@/api/Request';
+import { ListGamesResponse } from '@/api/gameApi';
+import { GameInfo } from '@/database/game';
 import { AxiosResponse } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Request, RequestStatus, useRequest } from '../../api/Request';
-import { ListGamesResponse } from '../../api/gameApi';
-import { GameInfo } from '../../database/game';
 
 export type SearchFunc = (startKey: string) => Promise<AxiosResponse<ListGamesResponse>>;
 
@@ -13,7 +13,7 @@ export interface PaginationResult {
     page: number;
     pageSize: number;
     data: GameInfo[];
-    request: Request<undefined>;
+    request: Request;
     rowCount: number;
     hasMore: boolean;
     setPage: (newPage: number) => void;
