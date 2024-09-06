@@ -124,7 +124,6 @@
         "@types/command-line-usage": "^5.0.4",
         "@types/lodash.debounce": "^4.0.9",
         "@types/luxon": "^3.4.2",
-        "@types/node": "^22.4.0",
         "@types/proper-lockfile": "^4.1.4",
         "@types/react-copy-to-clipboard": "^5.0.7",
         "@types/react-grid-layout": "^1.3.5",
