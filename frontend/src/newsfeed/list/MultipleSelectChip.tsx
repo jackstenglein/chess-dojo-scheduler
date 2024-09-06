@@ -21,10 +21,9 @@ const MenuProps = {
 
 function getStyles(value: string, selected: readonly string[], theme: Theme) {
     return {
-        fontWeight:
-            !selected.includes(value)
-                ? theme.typography.fontWeightRegular
-                : theme.typography.fontWeightMedium,
+        fontWeight: !selected.includes(value)
+            ? theme.typography.fontWeightRegular
+            : theme.typography.fontWeightMedium,
     };
 }
 

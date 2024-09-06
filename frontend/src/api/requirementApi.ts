@@ -22,7 +22,7 @@ export interface RequirementApiContextType {
     listRequirements: (
         cohort: string,
         scoreboardOnly: boolean,
-        startKey?: string
+        startKey?: string,
     ) => Promise<Requirement[]>;
 
     /**
@@ -30,9 +30,7 @@ export interface RequirementApiContextType {
      * @param requirement The requirement to save.
      * @returns An AxiosResponse containing the updated Requirement.
      */
-    setRequirement: (
-        requirement: Requirement
-    ) => Promise<AxiosResponse<Requirement>>;
+    setRequirement: (requirement: Requirement) => Promise<AxiosResponse<Requirement>>;
 }
 
 /**
@@ -66,7 +64,7 @@ export async function listRequirements(
     idToken: string,
     cohort: string,
     scoreboardOnly: boolean,
-    startKey?: string
+    startKey?: string,
 ) {
     const params = { scoreboardOnly, startKey };
     const result: Requirement[] = [];
@@ -79,7 +77,7 @@ export async function listRequirements(
                 headers: {
                     Authorization: 'Bearer ' + idToken,
                 },
-            }
+            },
         );
 
         result.push(...resp.data.requirements);

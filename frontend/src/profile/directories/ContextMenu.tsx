@@ -1,6 +1,5 @@
 import {
     Directory,
-    DirectoryItem,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
@@ -9,61 +8,44 @@ import {
     DriveFileRenameOutline,
     FolderOff,
 } from '@mui/icons-material';
-import { Divider, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
-import { useState } from 'react';
-import { DeleteDialog } from './DeleteDialog';
-import { MoveDialog } from './MoveDialog';
-import { RenameDialog } from './RenameDialog';
+import {
+    Divider,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+    PopoverPosition,
+} from '@mui/material';
+import { ItemEditorDialogs, useDirectoryEditor } from './BulkItemEditor';
 
 export const ContextMenu = ({
     directory,
-    selectedItem,
+    itemIds,
     position,
     onClose,
 }: {
     directory: Directory;
-    selectedItem?: DirectoryItem;
-    position?: { mouseX: number; mouseY: number };
+    itemIds: string[];
+    position?: PopoverPosition;
     onClose: () => void;
 }) => {
-    const [renameOpen, setRenameOpen] = useState(false);
-    const [moveOpen, setMoveOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
+    const editor = useDirectoryEditor(directory, itemIds, onClose);
 
-    if (!selectedItem) {
+    if (editor.items.length === 0) {
         return null;
     }
 
-    const isDirectory = selectedItem.type === DirectoryItemTypes.DIRECTORY;
-
-    const onRename = () => {
-        setRenameOpen(true);
-    };
-
-    const onMove = () => {
-        setMoveOpen(true);
-    };
-
-    const onDelete = () => {
-        setDeleteOpen(true);
-    };
-
-    const handleClose = () => {
-        onClose();
-        setRenameOpen(false);
-        setMoveOpen(false);
-        setDeleteOpen(false);
-    };
+    const isDirectory =
+        editor.items.length === 1 &&
+        editor.items[0].type === DirectoryItemTypes.DIRECTORY;
 
     return (
         <>
             <Menu
-                open={!!selectedItem && !renameOpen}
+                open={true}
                 onClose={onClose}
                 anchorReference='anchorPosition'
-                anchorPosition={
-                    position ? { top: position.mouseY, left: position.mouseX } : undefined
-                }
+                anchorPosition={position}
                 slotProps={{
                     root: {
                         onContextMenu: (e) => {
@@ -74,21 +56,21 @@ export const ContextMenu = ({
                 }}
             >
                 {isDirectory && (
-                    <MenuItem onClick={onRename}>
+                    <MenuItem onClick={editor.onRename}>
                         <ListItemIcon>
                             <DriveFileRenameOutline />
                         </ListItemIcon>
-                        <ListItemText primary='Rename' />
+                        <ListItemText primary='Edit Name/Visibility' />
                     </MenuItem>
                 )}
-                <MenuItem onClick={onMove}>
+                <MenuItem onClick={editor.onMove}>
                     <ListItemIcon>
                         <DriveFileMoveOutlined />
                     </ListItemIcon>
                     <ListItemText primary='Move' />
                 </MenuItem>
                 <Divider />
-                <MenuItem onClick={onDelete}>
+                <MenuItem onClick={editor.onDelete}>
                     <ListItemIcon>
                         {isDirectory ? <Delete /> : <FolderOff />}
                     </ListItemIcon>
@@ -98,23 +80,7 @@ export const ContextMenu = ({
                 </MenuItem>
             </Menu>
 
-            {renameOpen && selectedItem.type === DirectoryItemTypes.DIRECTORY && (
-                <RenameDialog item={selectedItem} onCancel={handleClose} />
-            )}
-            {moveOpen && (
-                <MoveDialog
-                    item={selectedItem}
-                    onCancel={handleClose}
-                    parent={directory}
-                />
-            )}
-            {deleteOpen && (
-                <DeleteDialog
-                    directory={directory}
-                    item={selectedItem}
-                    onCancel={handleClose}
-                />
-            )}
+            <ItemEditorDialogs editor={editor} />
         </>
     );
 };

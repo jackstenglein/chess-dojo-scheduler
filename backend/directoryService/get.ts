@@ -4,6 +4,7 @@ import { GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     Directory,
+    DirectoryItemTypes,
     DirectorySchema,
     DirectoryVisibility,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -33,15 +34,26 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const request = parsePathParameters(event, getDirectorySchema);
         const directory = await fetchDirectory(request.owner, request.id);
 
-        if (
-            !directory ||
-            (directory.visibility === DirectoryVisibility.PRIVATE &&
-                directory.owner !== userInfo.username)
-        ) {
+        if (!directory) {
             throw new ApiError({
                 statusCode: 404,
-                publicMessage: 'Directory not found or is private',
+                publicMessage: 'Directory not found',
             });
+        }
+
+        if (
+            directory.visibility === DirectoryVisibility.PRIVATE &&
+            directory.owner !== userInfo.username
+        ) {
+            throw new ApiError({
+                statusCode: 403,
+                publicMessage:
+                    'This directory is private. Ask the owner to make it public.',
+            });
+        }
+
+        if (directory.owner !== userInfo.username) {
+            filterPrivateItems(directory);
         }
 
         return success(directory);
@@ -75,4 +87,28 @@ export async function fetchDirectory(
 
     const directory = unmarshall(getItemOutput.Item);
     return DirectorySchema.parse(directory);
+}
+
+/**
+ * Removes private subdirectories from the itemIds and items field
+ * of the provided directory. The directory is updated in place.
+ * @param directory The directory to remove private subdirectories from.
+ */
+function filterPrivateItems(directory: Directory) {
+    let i = 0;
+    let j = 0;
+
+    while (i < directory.itemIds.length) {
+        const id = directory.itemIds[i];
+        if (
+            directory.items[id]?.type !== DirectoryItemTypes.DIRECTORY ||
+            directory.items[id].metadata.visibility === DirectoryVisibility.PUBLIC
+        ) {
+            directory.itemIds[j++] = id;
+        } else if (directory.items[id]) {
+            delete directory.items[id];
+        }
+        i++;
+    }
+    directory.itemIds.length = j;
 }

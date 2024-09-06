@@ -92,7 +92,7 @@ const GamePage = () => {
             headers,
             unlisted: true,
             orientation,
-            type: GameSubmissionType.Manual,
+            type: GameSubmissionType.Editor,
             pgnText: chess.renderPgn(),
         };
 
@@ -142,7 +142,7 @@ const GamePage = () => {
                         pgn={request.data?.pgn}
                         startOrientation={request.data?.orientation}
                         underboardTabs={[
-                            // DefaultUnderboardTab.Directories,
+                            DefaultUnderboardTab.Directories,
                             DefaultUnderboardTab.Tags,
                             ...(isOwner ? [DefaultUnderboardTab.Editor] : []),
                             DefaultUnderboardTab.Comments,

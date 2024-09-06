@@ -129,6 +129,12 @@ type Rating struct {
 	// The user's current rating
 	CurrentRating int `dynamodbav:"currentRating" json:"currentRating"`
 
+	// The user's current rating deviation, if known
+	Deviation int `dynamodbav:"deviation,omitempty" json:"-"`
+
+	// The number of games played, if known
+	NumGames int `dynamodbav:"numGames,omitempty" json:"-"`
+
 	// The name of the rating system. Only present if this is a custom rating.
 	Name string `dynamodbav:"name,omitempty" json:"name,omitempty"`
 }

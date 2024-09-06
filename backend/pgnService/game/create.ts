@@ -7,6 +7,10 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import {
+    DirectoryItem,
+    DirectoryItemTypes,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     clockToSeconds,
@@ -17,10 +21,11 @@ import {
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
+import { addDirectoryItems } from 'chess-dojo-directory-service/addItem';
 import { v4 as uuidv4 } from 'uuid';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
-import { getLichessChapter, getLichessGame, getLichessStudy } from './lichess';
+import { getLichessChapter, getLichessGame, getLichessStudy, splitPgns } from './lichess';
 import {
     CreateGameRequest,
     Game,
@@ -35,6 +40,7 @@ export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const usersTable = process.env.stage + '-users';
 export const gamesTable = process.env.stage + '-games';
 export const timelineTable = process.env.stage + '-timeline';
+const MAX_GAMES_PER_IMPORT = 100;
 
 export function success(value: any): APIGatewayProxyResultV2 {
     if (process.env.stage !== 'prod') {
@@ -54,9 +60,16 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const request = getRequest(event);
 
         const pgnTexts = await getPgnTexts(request);
+        if (pgnTexts.length > MAX_GAMES_PER_IMPORT) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `Invalid request: number of games in PGN (${pgnTexts.length}) is greater than limit of ${MAX_GAMES_PER_IMPORT} games at a time`,
+            });
+        }
+
         console.log('PGN texts length: ', pgnTexts.length);
 
-        const games = getGames(user, pgnTexts);
+        const games = getGames(user, pgnTexts, request.directory);
         if (games.length === 0) {
             throw new ApiError({
                 statusCode: 400,
@@ -65,6 +78,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         }
 
         const updated = await batchPutGames(games);
+
+        if (request.directory) {
+            await addGamesToDirectory(request.directory, games);
+        }
+
         if (games.length === 1) {
             return success(games[0]);
         }
@@ -154,7 +172,7 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
         case GameImportType.ChesscomAnalysis:
             return [await getChesscomAnalysis(request.url)];
 
-        case GameImportType.Manual:
+        case GameImportType.Editor:
         case GameImportType.StartingPosition:
         case GameImportType.Fen:
             if (request.pgnText === undefined) {
@@ -164,7 +182,17 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
                         'Invalid request: pgnText is required for this import method',
                 });
             }
-            return [cleanupChessbasePgn(request.pgnText)];
+            return [request.pgnText];
+
+        case GameImportType.Manual:
+            if (request.pgnText === undefined) {
+                throw new ApiError({
+                    statusCode: 400,
+                    publicMessage:
+                        'Invalid request: pgnText is required for this import method',
+                });
+            }
+            return splitPgns(request.pgnText).map(cleanupChessbasePgn);
     }
 
     throw new ApiError({
@@ -250,13 +278,15 @@ function convertEmt(pgn: string): string {
             oddPlayerClock =
                 oddPlayerClock -
                 timeUsed +
-                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0);
+                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0) +
+                additionalTime;
             newTime = oddPlayerClock;
         } else {
             evenPlayerClock =
                 evenPlayerClock -
                 timeUsed +
-                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0);
+                Math.max(0, timeControl.increment ?? timeControl.delay ?? 0) +
+                additionalTime;
             newTime = evenPlayerClock;
         }
 
@@ -271,11 +301,18 @@ function convertEmt(pgn: string): string {
     return chess.renderPgn();
 }
 
-function getGames(user: User, pgnTexts: string[]): Game[] {
+/**
+ * Converts the list of PGNs into a list of Games.
+ * @param user The user owning the new Games.
+ * @param pgnTexts The PGNs to convert.
+ * @param directory The directory to place the Games into.
+ * @returns A list of new Games.
+ */
+function getGames(user: User, pgnTexts: string[], directory?: string): Game[] {
     const games: Game[] = [];
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
-        games.push(getGame(user, pgnTexts[i]));
+        games.push(getGame(user, pgnTexts[i], undefined, directory));
     }
     return games;
 }
@@ -294,10 +331,19 @@ export function isFairyChess(pgnText: string) {
     );
 }
 
+/**
+ * Converts the given PGN into a Game.
+ * @param user The user owning the new Game.
+ * @param pgnText The PGN to convert.
+ * @param headers The import headers which will be applied to the Game's headers.
+ * @param directory The directory to place the Game into.
+ * @returns A new Game object.
+ */
 export function getGame(
     user: User | undefined,
     pgnText: string,
     headers?: GameImportHeaders,
+    directory?: string,
 ): Game {
     // We do not support variants due to current limitations with
     // @JackStenglein/pgn-parser
@@ -356,6 +402,7 @@ export function getGame(
             comments: [],
             positionComments: {},
             unlisted: true,
+            directories: directory ? [directory] : undefined,
         };
     } catch (err) {
         throw new ApiError({
@@ -400,7 +447,13 @@ async function batchPutGames(games: Game[]): Promise<number> {
     const writeRequests = games.map((g) => {
         return {
             PutRequest: {
-                Item: marshall(g),
+                Item: marshall(
+                    {
+                        ...g,
+                        directories: g.directories ? new Set(g.directories) : undefined,
+                    },
+                    { removeUndefinedValues: true },
+                ),
             },
         };
     });
@@ -431,4 +484,35 @@ async function batchPutGames(games: Game[]): Promise<number> {
     }
 
     return updated;
+}
+
+/**
+ * Adds the given games to the given directory.
+ * @param directoryId The id of the directory. Must be owned by the owner of the games.
+ * @param games The games to add. Must all have the same owner.
+ */
+async function addGamesToDirectory(directoryId: string, games: Game[]) {
+    try {
+        console.log('Adding %d games to directory %s', games.length, directoryId);
+        const directoryItems: DirectoryItem[] = games.map((g) => ({
+            type: DirectoryItemTypes.OWNED_GAME,
+            id: `${g.cohort}/${g.id}`,
+            metadata: {
+                cohort: g.cohort,
+                id: g.id,
+                owner: g.owner,
+                ownerDisplayName: g.ownerDisplayName || '',
+                createdAt: g.createdAt,
+                white: g.headers.White,
+                black: g.headers.Black,
+                whiteElo: g.headers.WhiteElo,
+                blackElo: g.headers.BlackElo,
+                result: g.headers.Result,
+            },
+        }));
+
+        await addDirectoryItems(games[0].owner, directoryId, directoryItems);
+    } catch (err) {
+        console.error('Failed to add games to directory: ', err);
+    }
 }

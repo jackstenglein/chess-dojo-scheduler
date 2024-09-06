@@ -6,12 +6,12 @@ import {
     CardContent,
     DialogContent,
     DialogTitle,
+    Grid2,
     Link,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { Link as RouterLink } from 'react-router-dom';
@@ -156,7 +156,13 @@ const RecentGameGrid = ({
     return (
         <Grid2 container spacing={{ xs: 1, sm: 2 }}>
             {games.map((game) => (
-                <Grid2 xs={12} sm={6} key={game.id}>
+                <Grid2
+                    key={game.id}
+                    size={{
+                        xs: 12,
+                        sm: 6,
+                    }}
+                >
                     <RecentGameCell onClick={onClickGame} game={game} />
                 </Grid2>
             ))}

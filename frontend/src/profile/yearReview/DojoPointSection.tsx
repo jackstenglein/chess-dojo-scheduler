@@ -1,14 +1,21 @@
-import { Box, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { CategoryColors } from '@/style/ThemeProvider';
+import {
+    Box,
+    Card,
+    CardContent,
+    CardHeader,
+    Grid2,
+    Stack,
+    Typography,
+} from '@mui/material';
 import { useMemo } from 'react';
-
 import { AxisOptions, Chart } from 'react-charts';
 import { useAuth } from '../../auth/Auth';
+import { RequirementCategory } from '../../database/requirement';
 import { YearReviewDataSection } from '../../database/yearReview';
-import { CategoryColors, ScoreCategories } from '../activity/activity';
+import { ScoreCategories } from '../activity/activity';
 import Percentiles from './Percentiles';
 import { SectionProps } from './YearReviewPage';
-import { RequirementCategory } from '../../database/requirement';
 
 export interface Datum {
     primary: string;
@@ -122,12 +129,18 @@ const DojoPointSection: React.FC<SectionProps> = ({ review }) => {
                 The Dojo is all about sweat work! Let's take a look at the work you've
                 done this year!
             </Typography>
-
             <Card variant='outlined' sx={{ width: 1, mt: 4 }}>
                 <CardHeader title='Dojo Score' />
                 <CardContent>
                     <Grid2 container alignItems='center' rowSpacing={2}>
-                        <Grid2 xs={12} sm={4} display='flex' justifyContent='center'>
+                        <Grid2
+                            display='flex'
+                            justifyContent='center'
+                            size={{
+                                xs: 12,
+                                sm: 4,
+                            }}
+                        >
                             <Stack alignItems='end'>
                                 <Typography variant='caption' color='text.secondary'>
                                     Total Points

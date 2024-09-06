@@ -1,3 +1,4 @@
+import { useFreeTier } from '@/auth/Auth';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
     Button,
@@ -12,7 +13,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { RequestSnackbar } from '../../api/Request';
 import { useRequirements } from '../../api/cache/requirements';
-import { RequirementCategory, isComplete } from '../../database/requirement';
+import {
+    Requirement,
+    RequirementCategory,
+    isBlocked,
+    isComplete,
+} from '../../database/requirement';
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
@@ -48,14 +54,16 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         Endgame: false,
         Opening: false,
         'Non-Dojo': false,
+        [RequirementCategory.SuggestedTasks]: true,
     });
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
+    const isFreeTier = useFreeTier();
 
     useEffect(() => {
         setCohort(user.dojoCohort);
     }, [user.dojoCohort]);
 
-    const categories = useMemo(() => {
+    const categories: Category[] = useMemo(() => {
         const categories: Category[] = [];
         requirements.forEach((r) => {
             const c = categories.find((c) => c.name === r.category);
@@ -98,6 +106,81 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         return categories;
     }, [requirements, user, cohort, hideCompleted]);
 
+    const suggestedTasks: Category = useMemo(() => {
+        const suggestedTasks: Category = {
+            name: RequirementCategory.SuggestedTasks,
+            requirements: [],
+            totalComplete: 0,
+            totalRequirements: 0,
+        };
+
+        const desiredTaskCount = 3;
+
+        const requirementsById = Object.fromEntries(requirements.map((r) => [r.id, r]));
+
+        const recentRequirements = Object.values(user.progress)
+            .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+            .map((progress) => requirementsById[progress.requirementId])
+            .filter(
+                (r) =>
+                    !!r &&
+                    !isComplete(cohort, r, user.progress[r.id]) &&
+                    r.category !== RequirementCategory.NonDojo,
+            );
+
+        suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
+
+        const now = new Date();
+        const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
+        const categoryOffset = daysSinceEpoch % categories.length;
+
+        const categoriesOfInterest: RequirementCategory[] = [
+            ...categories.slice(categoryOffset),
+            ...categories.slice(0, categoryOffset),
+        ]
+            .map((c) => c.name)
+            .filter((c) => c !== RequirementCategory.NonDojo);
+
+        const tasksOfInterest = requirements.filter(
+            (r) =>
+                ((isFreeTier && r.isFree) || !isFreeTier) &&
+                !isComplete(cohort, r, user.progress[r.id]) &&
+                categoriesOfInterest.includes(r.category) &&
+                !isBlocked(cohort, user, r, requirements).isBlocked &&
+                suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
+        );
+
+        const tasksByCategory = tasksOfInterest.reduce<Record<string, Requirement[]>>(
+            (acc, req) => {
+                acc[req.category] ??= [];
+                acc[req.category].push(req);
+
+                return acc;
+            },
+            {},
+        );
+
+        // Once per task we need, get one task of each category
+        const moreTasks = [
+            ...Array(desiredTaskCount - suggestedTasks.requirements.length).keys(),
+        ].flatMap((n) =>
+            categoriesOfInterest
+                .map((c) => tasksByCategory[c] ?? [])
+                .filter((tasks) => tasks.length > 0)
+                .flatMap((tasks) => tasks[(daysSinceEpoch + n) % tasks.length]),
+        );
+
+        // Fill the remaining suggest tasks slots with tasks that rotate day by day.
+        suggestedTasks.requirements = [
+            ...suggestedTasks.requirements,
+            ...moreTasks,
+        ].slice(0, desiredTaskCount);
+
+        suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
+
+        return suggestedTasks;
+    }, [categories, isFreeTier, user, cohort, requirements]);
+
     if (requirementRequest.isLoading() || categories.length === 0) {
         return <LoadingPage />;
     }
@@ -122,6 +205,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             Endgame: true,
             Opening: true,
             'Non-Dojo': true,
+            [RequirementCategory.SuggestedTasks]: true,
         });
     };
 
@@ -134,6 +218,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             Endgame: false,
             Opening: false,
             'Non-Dojo': false,
+            [RequirementCategory.SuggestedTasks]: false,
         });
     };
 
@@ -196,6 +281,20 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     </Button>
                 </Stack>
             </Stack>
+
+            {suggestedTasks.requirements.length > 0 && (
+                <ProgressCategory
+                    color='dojoOrange'
+                    key={suggestedTasks.name}
+                    c={suggestedTasks}
+                    expanded={expanded[suggestedTasks.name]}
+                    toggleExpand={toggleExpand}
+                    user={user}
+                    isCurrentUser={isCurrentUser}
+                    cohort={cohort}
+                    setShowCustomTaskEditor={setShowCustomTaskEditor}
+                />
+            )}
 
             {categories.map((c) => (
                 <ProgressCategory

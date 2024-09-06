@@ -150,6 +150,7 @@ services:
       TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
       ExamsTableArn: ${examService.ExamsTableArn}
       ExamsTableStreamArn: ${examService.ExamsTableStreamArn}
+      DirectoriesTableArn: ${directoryService.DirectoriesTableArn}
 
   twicService:
     path: twicService
@@ -161,3 +162,4 @@ services:
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}

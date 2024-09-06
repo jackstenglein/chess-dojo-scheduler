@@ -11,6 +11,7 @@ import {
     FormGroup,
     FormHelperText,
     FormLabel,
+    Grid2,
     IconButton,
     InputAdornment,
     MenuItem,
@@ -21,7 +22,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApi } from '../../../api/Api';
@@ -419,13 +419,11 @@ const CourseEditorPage = () => {
             }}
         >
             <RequestSnackbar request={saveRequest} showSuccess />
-
             {Object.values(errors).length > 0 && (
                 <Alert severity='error' variant='filled' sx={{ mb: 3 }}>
                     Unable to save. Please fix the errors below and try again.
                 </Alert>
             )}
-
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
                 <Typography variant='h4'>Edit Course</Typography>
                 <Stack direction='row' spacing={2}>
@@ -447,7 +445,6 @@ const CourseEditorPage = () => {
                 </Stack>
             </Stack>
             <Divider />
-
             <Stack spacing={4} mt={3}>
                 <TextField
                     disabled
@@ -577,7 +574,7 @@ const CourseEditorPage = () => {
                 <FormGroup>
                     <FormLabel>Cohort Range</FormLabel>
                     <Grid2 container columnSpacing={1} rowSpacing={3} mt={0.5}>
-                        <Grid2 xs={6}>
+                        <Grid2 size={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -602,7 +599,7 @@ const CourseEditorPage = () => {
                                 ))}
                             </TextField>
                         </Grid2>
-                        <Grid2 xs={6}>
+                        <Grid2 size={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -624,7 +621,7 @@ const CourseEditorPage = () => {
                                 ))}
                             </TextField>
                         </Grid2>
-                        <Grid2 xs={12}>
+                        <Grid2 size={12}>
                             <TextField
                                 fullWidth
                                 label='Cohort Range Description'

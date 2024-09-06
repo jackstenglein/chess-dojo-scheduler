@@ -1,25 +1,10 @@
+import { DefaultTimezone, TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
 import { LoadingButton } from '@mui/lab';
-import { MenuItem, Stack, TextField } from '@mui/material';
+import { Stack, TextField } from '@mui/material';
 import { useState } from 'react';
-
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { DefaultTimezone } from '../../calendar/filters/CalendarFilters';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
-
-function getTimezoneOptions() {
-    const options = [];
-    for (let i = -12; i <= 14; i++) {
-        const displayLabel = i < 0 ? `UTC${i}` : `UTC+${i}`;
-        const value = i <= 0 ? `Etc/GMT+${Math.abs(i)}` : `Etc/GMT-${i}`;
-        options.push(
-            <MenuItem key={i} value={value}>
-                {displayLabel}
-            </MenuItem>,
-        );
-    }
-    return options;
-}
 
 const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep }) => {
     const api = useApi();
@@ -49,10 +34,6 @@ const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep 
             });
     };
 
-    const timezoneOffset = new Date().getTimezoneOffset() / 60;
-    const browserDefaultLabel =
-        timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
-
     return (
         <Stack spacing={4}>
             <TextField
@@ -72,17 +53,11 @@ const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep 
                 onChange={(event) => setBio(event.target.value)}
             />
 
-            <TextField
-                select
+            <TimezoneSelector
                 label='Timezone (Optional)'
                 value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
-            >
-                <MenuItem value={DefaultTimezone}>
-                    Browser Default ({browserDefaultLabel})
-                </MenuItem>
-                {getTimezoneOptions()}
-            </TextField>
+                onChange={setTimezone}
+            />
 
             <LoadingButton
                 disabled={!canSave}

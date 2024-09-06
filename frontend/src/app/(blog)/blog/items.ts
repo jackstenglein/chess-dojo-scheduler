@@ -1,5 +1,8 @@
 import mastersImage from './dojo-digest/vol-10/masters.png';
+import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
+import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
+import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
 import tacticsTestImage from './tactics-test/image.png';
 
@@ -8,13 +11,39 @@ export interface BlogItem {
     subtitle?: string;
     body: string;
     href: string;
-    image: {
+    image?: {
         src: string;
         alt: string;
     };
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Will LifeCanBeSoNice Reach 2000?',
+        subtitle: 'Dojo Player Spotlight • September 2, 2024',
+        body: `Jan, aka LifeCanBeSoNice, is going for it. Since joining the Dojo last year, he has gained 279 points and has started his own chess improvement channel with his coach IM Jurica Srbis. His goal is 2000 Lichess. It’s a magical number! Will he be able to make it?`,
+        href: '/blog/player-spotlight/lifecanbesonice',
+    },
+    {
+        title: 'Introducing the Dojo File System',
+        subtitle: 'Dojo Digest Vol 12 • September 1, 2024',
+        body: `The Dojo has a new file system to help you organize and manage your games! A new files tab has been added to your profile. You'll start out with an empty Home folder, where you can add games or nested folders...`,
+        href: '/blog/dojo-digest/vol-12',
+        image: {
+            src: dojoDigestVol12Image,
+            alt: '',
+        },
+    },
+    {
+        title: 'Jesse Kraai Scores Clear Second at the US Senior',
+        subtitle: 'Dojo Digest Vol 11 • August 1, 2024',
+        body: `Sensei Kraai trusted the program and the results finally came. In a field of legends, 9 GMs and one IM, the sensei won his last four games and scored his fifth GM norm...`,
+        href: '/blog/dojo-digest/vol-11',
+        image: {
+            src: dojoDigestVol11Image,
+            alt: '',
+        },
+    },
     {
         title: 'Introducing the Dojo Masters Database',
         subtitle: 'Dojo Digest Vol 10 • July 1, 2024',
@@ -32,6 +61,16 @@ const items: BlogItem[] = [
         href: '/blog/dojo-talks/top-10-2025',
         image: {
             src: talkstop2025,
+            alt: '',
+        },
+    },
+    {
+        title: 'Rolling out Additional Tactics Tests',
+        subtitle: 'Dojo Digest Vol 9 • June 1, 2024',
+        body: 'May has been all about the development of our three trainers: tactics, endgame, and positional. On May 1st we posted our tests for 1500-2000 and 2000+. June 1st will see the rollout of tests for all cohorts...',
+        href: '/blog/dojo-digest/vol-9',
+        image: {
+            src: dojoDigestVol9Image,
             alt: '',
         },
     },

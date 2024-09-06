@@ -1,4 +1,4 @@
-import { Move } from '@jackstenglein/chess';
+import { EventType, Move } from '@jackstenglein/chess';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useReconcile } from '../Board';
@@ -31,6 +31,25 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
     );
     const [variationDialogMove, setVariationDialogMove] = useState<Move | null>(null);
     const [keyBindings] = useLocalStorage(BoardKeyBindingsKey, defaultKeyBindings);
+
+    useEffect(() => {
+        if (variationBehavior !== VariationBehavior.Dialog) {
+            return;
+        }
+
+        const observer = {
+            types: [
+                EventType.LegalMove,
+                EventType.NewVariation,
+                EventType.Initialized,
+                EventType.DeleteMove,
+                EventType.PromoteVariation,
+            ],
+            handler: () => setVariationDialogMove(null),
+        };
+        chess?.addObserver(observer);
+        return () => chess?.removeObserver(observer);
+    }, [chess, variationBehavior, setVariationDialogMove]);
 
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {

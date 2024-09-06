@@ -251,7 +251,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                         ['White', 'Date', 'Black'].includes(name) &&
                         stripTagValue(value) === ''
                     ) {
-                        setError(`${name} tag is required`);
+                        setError(`${name} tag is required to publish`);
                         return oldRow;
                     }
 
@@ -260,7 +260,19 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                         return oldRow;
                     }
 
+                    if (!value) {
+                        return oldRow;
+                    }
+
                     chess.setHeader(newRow.name, newRow.value as string);
+
+                    if (defaultTags.includes(name)) {
+                        return {
+                            ...newRow,
+                            value: chess.header().getRawValue(name),
+                        };
+                    }
+
                     return {
                         ...newRow,
                         value: chess.header().getValue(newRow.name),

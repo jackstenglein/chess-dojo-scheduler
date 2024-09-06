@@ -1,10 +1,17 @@
+import { CategoryColors } from '@/style/ThemeProvider';
+import {
+    Box,
+    Card,
+    CardContent,
+    CardHeader,
+    Grid2,
+    Stack,
+    Typography,
+} from '@mui/material';
 import { useMemo } from 'react';
-import { Stack, Typography, Card, CardHeader, CardContent, Box } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
 import { AxisOptions, Chart } from 'react-charts';
-
 import { useAuth } from '../../auth/Auth';
-import { SectionProps } from './YearReviewPage';
+import { formatTime } from '../../database/requirement';
 import {
     Datum,
     getCategoryData,
@@ -12,9 +19,8 @@ import {
     getTaskData,
     primaryAxis,
 } from './DojoPointSection';
-import { formatTime } from '../../database/requirement';
-import { CategoryColors } from '../activity/activity';
 import Percentiles from './Percentiles';
+import { SectionProps } from './YearReviewPage';
 
 const secondaryAxes: AxisOptions<Datum>[] = [
     {
@@ -46,12 +52,18 @@ const TimeSection: React.FC<SectionProps> = ({ review }) => {
             >
                 Now let's see how long it took to earn all those Dojo points!
             </Typography>
-
             <Card variant='outlined' sx={{ width: 1, mt: 4 }}>
                 <CardHeader title='Time Spent' />
                 <CardContent>
                     <Grid2 container alignItems='center' rowSpacing={2}>
-                        <Grid2 xs={12} sm={4} display='flex' justifyContent='center'>
+                        <Grid2
+                            display='flex'
+                            justifyContent='center'
+                            size={{
+                                xs: 12,
+                                sm: 4,
+                            }}
+                        >
                             <Stack alignItems='end'>
                                 <Typography variant='caption' color='text.secondary'>
                                     Total Time

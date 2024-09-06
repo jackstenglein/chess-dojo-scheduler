@@ -1,4 +1,4 @@
-describe.skip('Directories', () => {
+describe('Directories', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
             'profile',
@@ -13,18 +13,44 @@ describe.skip('Directories', () => {
         cy.contains('No rows');
     });
 
+    it('links to game import page', () => {
+        cy.contains('Add').click();
+        cy.contains('New Game').should(
+            'have.attr',
+            'href',
+            '/games/import?directory=home',
+        );
+    });
+
     it('displays new directory dialog', () => {
+        cy.contains('Add').click();
         cy.contains('New Folder').click();
 
-        cy.getBySel('new-directory-form').should('be.visible');
+        cy.getBySel('update-directory-form').should('be.visible');
     });
 
     it('requires name to create new directory', () => {
+        cy.contains('Add').click();
         cy.contains('New Folder').click();
-        cy.getBySel('new-directory-create-button').should('be.disabled');
+        cy.getBySel('update-directory-save-button').should('be.disabled');
 
-        cy.getBySel('new-directory-name').type('Test');
-        cy.getBySel('new-directory-create-button').should('be.enabled');
+        cy.getBySel('update-directory-name').type('Test');
+        cy.getBySel('update-directory-save-button').should('be.enabled');
+    });
+
+    it('requires name to be <= 100 characters', () => {
+        cy.contains('Add').click();
+        cy.contains('New Folder').click();
+        cy.getBySel('update-directory-save-button').should('be.disabled');
+
+        cy.getBySel('update-directory-name').type('A');
+        cy.getBySel('update-directory-save-button').should('be.enabled');
+
+        for (let i = 0; i < 10; i++) {
+            cy.getBySel('update-directory-name').type('AAAAAAAAAA');
+        }
+        cy.getBySel('update-directory-save-button').should('be.disabled');
+        cy.contains('101 / 100 characters');
     });
 
     it('requires confirmation to delete directory', () => {
@@ -32,7 +58,9 @@ describe.skip('Directories', () => {
             fixture: 'profile/directories/basic.json',
         });
 
-        cy.getBySel('directories-data-grid').contains('Test').rightclick();
+        cy.getBySel('directories-data-grid')
+            .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
+            .rightclick();
         cy.contains('Delete').click();
         cy.getBySel('delete-directory-form').should('be.visible');
 
@@ -42,12 +70,15 @@ describe.skip('Directories', () => {
     });
 
     it('creates and deletes directory', () => {
+        cy.contains('Add').click();
         cy.contains('New Folder').click();
-        cy.getBySel('new-directory-name').type('Test');
-        cy.getBySel('new-directory-create-button').click();
-        cy.getBySel('new-directory-form').should('not.exist');
+        cy.getBySel('update-directory-name').type('Test');
+        cy.getBySel('update-directory-save-button').click();
+        cy.getBySel('update-directory-form').should('not.exist');
 
-        cy.getBySel('directories-data-grid').contains('Test').rightclick();
+        cy.getBySel('directories-data-grid')
+            .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
+            .rightclick();
         cy.contains('Delete').click();
         cy.getBySel('delete-directory-form').should('be.visible');
 
@@ -63,7 +94,9 @@ describe.skip('Directories', () => {
             fixture: 'profile/directories/basic.json',
         });
 
-        cy.getBySel('directories-data-grid').contains('Test').rightclick();
+        cy.getBySel('directories-data-grid')
+            .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
+            .rightclick();
         cy.contains('Move').click();
 
         cy.getBySel('move-directory-form').should('be.visible');
@@ -74,15 +107,17 @@ describe.skip('Directories', () => {
             fixture: 'profile/directories/basic.json',
         });
 
-        cy.getBySel('directories-data-grid').contains('Test').rightclick();
-        cy.contains('Rename').click();
+        cy.getBySel('directories-data-grid')
+            .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
+            .rightclick();
+        cy.contains('Edit Name/Visibility').click();
 
-        cy.getBySel('directory-rename-new-name').clear();
-        cy.getBySel('directory-rename-save-button').should('be.disabled');
-        cy.getBySel('directory-rename-new-name').type('Test');
-        cy.getBySel('directory-rename-save-button').should('be.disabled');
-        cy.getBySel('directory-rename-new-name').type('2');
+        cy.getBySel('update-directory-name').clear();
+        cy.getBySel('update-directory-save-button').should('be.disabled');
+        cy.getBySel('update-directory-name').type('Test');
+        cy.getBySel('update-directory-save-button').should('be.disabled');
+        cy.getBySel('update-directory-name').type('2');
 
-        cy.getBySel('directory-rename-save-button').should('be.enabled');
+        cy.getBySel('update-directory-save-button').should('be.enabled');
     });
 });

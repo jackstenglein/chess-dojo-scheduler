@@ -48,7 +48,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
                 return params.value;
             }
             return (
-                <Stack direction='row' alignItems='center' spacing={1}>
+                <Stack direction='row' alignItems='center' spacing={1} height={1}>
                     <div>{params.value}</div>
                     <Tooltip title='This result has not been verified and may be changed later by the TD'>
                         <Warning color='warning' fontSize='small' />
@@ -70,9 +70,11 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
                     params.value.startsWith('https://www.chess.com/'))
             ) {
                 return (
-                    <a target='_blank' rel='noopener noreferrer' href={params.value}>
-                        <OpenInNew color='primary' fontSize='small' />
-                    </a>
+                    <Stack height={1} alignItems='center' justifyContent='center'>
+                        <a target='_blank' rel='noopener noreferrer' href={params.value}>
+                            <OpenInNew color='primary' fontSize='small' />
+                        </a>
+                    </Stack>
                 );
             }
             return null;

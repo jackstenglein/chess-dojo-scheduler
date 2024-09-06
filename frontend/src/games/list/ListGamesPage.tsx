@@ -1,9 +1,12 @@
+import { useApi } from '@/api/Api';
+import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import {
+    Badge,
     Button,
     Container,
     Divider,
-    Grid,
+    Grid2,
     IconButton,
     Link,
     Stack,
@@ -18,7 +21,7 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar } from '../../api/Request';
 import { useFreeTier } from '../../auth/Auth';
@@ -33,6 +36,7 @@ import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellPage from '../../upsell/UpsellPage';
 import { RenderPlayersCell, RenderResult } from './GameListItem';
 import ListGamesTutorial from './ListGamesTutorial';
+import { ListItemContextMenu } from './ListItemContextMenu';
 import SearchFilters from './SearchFilters';
 import { usePagination } from './pagination';
 
@@ -43,7 +47,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
-        width: 120,
+        width: 65,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
             let value = params.value;
             if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
@@ -51,16 +55,10 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
             }
 
             return (
-                <Stack
-                    direction='row'
-                    spacing={1}
-                    alignItems='center'
-                    onClick={(e) => e.stopPropagation()}
-                    height={1}
-                >
-                    <CohortIcon cohort={params.value} size={25} tooltip='' />
-                    <Typography variant='body2'>
-                        {value === MastersCohort ? 'Masters DB' : value}
+                <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
+                    <CohortIcon cohort={params.value} tooltip={params.value} size={30} />
+                    <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
+                        {value === MastersCohort ? 'masters' : value}
                     </Typography>
                 </Stack>
             );
@@ -100,6 +98,8 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'players',
         headerName: 'Players',
+        valueGetter: (_value, row) =>
+            `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
         renderCell: RenderPlayersCell,
         flex: 1,
         minWidth: 150,
@@ -148,6 +148,23 @@ const ListGamesPage = () => {
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [upsellAction, setUpsellAction] = useState('');
     const type = useSearchParams()[0].get('type') || '';
+    const api = useApi();
+    const [reviewQueueLabel, setReviewQueueLabel] = useState('');
+    const contextMenu = useDataGridContextMenu();
+
+    useEffect(() => {
+        api.listGamesForReview()
+            .then((resp) => {
+                if (resp.data.games.length > 0) {
+                    setReviewQueueLabel(
+                        `${resp.data.games.length}${resp.data.lastEvaluatedKey ? '+' : ''}`,
+                    );
+                }
+            })
+            .catch((err) => {
+                console.error('listGamesForReview: ', err);
+            });
+    }, [setReviewQueueLabel, api]);
 
     const columns = useMemo(() => {
         let columns = gameTableColumns;
@@ -238,8 +255,8 @@ const ListGamesPage = () => {
                 </>
             )}
 
-            <Grid container spacing={5} wrap='wrap-reverse'>
-                <Grid item xs={12} md={9} lg={8}>
+            <Grid2 container spacing={5} wrap='wrap-reverse'>
+                <Grid2 size={{ xs: 12, md: 8, lg: 8 }}>
                     <DataGridPro
                         data-cy='games-table'
                         columns={columns}
@@ -277,11 +294,26 @@ const ListGamesPage = () => {
                                 />
                             ),
                         }}
+                        slotProps={{
+                            row: {
+                                onContextMenu: contextMenu.open,
+                            },
+                        }}
                         pagination
                     />
-                </Grid>
 
-                <Grid item xs={12} md={3} lg={4} pr={2}>
+                    <ListItemContextMenu
+                        game={
+                            contextMenu.rowIds
+                                ? data.find((g) => g.id === contextMenu.rowIds[0])
+                                : undefined
+                        }
+                        onClose={contextMenu.close}
+                        position={contextMenu.position}
+                    />
+                </Grid2>
+
+                <Grid2 size={{ xs: 12, md: 4, lg: 4 }}>
                     <Stack spacing={4}>
                         <Button
                             data-cy='import-game-button'
@@ -308,19 +340,34 @@ const ListGamesPage = () => {
                         />
 
                         <Stack spacing={0.5}>
-                            <Typography variant='body2' alignSelf='start'>
-                                <Link component={RouterLink} to='/games/review-queue'>
-                                    <Icon
-                                        name='line'
-                                        color='primary'
+                            <Stack direction='row' spacing={1}>
+                                <Typography variant='body2' alignSelf='start'>
+                                    <Link component={RouterLink} to='/games/review-queue'>
+                                        <Icon
+                                            name='line'
+                                            color='primary'
+                                            sx={{
+                                                marginRight: '0.5rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                        />
+                                        Sensei Game Review Queue
+                                    </Link>
+                                </Typography>
+
+                                {reviewQueueLabel && (
+                                    <Badge
+                                        badgeContent={reviewQueueLabel}
+                                        color='secondary'
                                         sx={{
-                                            marginRight: '0.5rem',
-                                            verticalAlign: 'middle',
+                                            '& .MuiBadge-badge': {
+                                                transform: 'none',
+                                                position: 'relative',
+                                            },
                                         }}
-                                    />
-                                    Sensei Game Review Queue
-                                </Link>
-                            </Typography>
+                                    ></Badge>
+                                )}
+                            </Stack>
 
                             <Typography
                                 data-cy='download-database-button'
@@ -346,13 +393,13 @@ const ListGamesPage = () => {
                                             verticalAlign: 'middle',
                                         }}
                                     />
-                                    Download full database (updated every 24 hours)
+                                    Download full database (updated daily)
                                 </Link>
                             </Typography>
                         </Stack>
                     </Stack>
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
 
             <ListGamesTutorial />
         </Container>

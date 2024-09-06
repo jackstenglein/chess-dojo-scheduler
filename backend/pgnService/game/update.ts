@@ -1,6 +1,9 @@
 'use strict';
 
 import {
+    AttributeValue,
+    BatchExecuteStatementCommand,
+    BatchStatementRequest,
     ConditionalCheckFailedException,
     DeleteItemCommand,
     PutItemCommand,
@@ -12,6 +15,7 @@ import {
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
+import { directoryTable } from 'chess-dojo-directory-service/database';
 import { v4 as uuidv4 } from 'uuid';
 import {
     dynamo,
@@ -56,14 +60,23 @@ async function updateGame(
     const request = getRequest(event);
     const update = await getGameUpdate(request);
 
-    const game = await applyUpdate(userInfo.username, request.cohort, request.id, update);
+    const result = await applyUpdate(
+        userInfo.username,
+        request.cohort,
+        request.id,
+        update,
+    );
     if (update.timelineId) {
-        await createTimelineEntry(game);
+        await createTimelineEntry(result.new);
     } else if (update.unlisted && request.timelineId) {
-        await deleteTimelineEntry(game, request.timelineId);
+        await deleteTimelineEntry(result.new, request.timelineId);
     }
 
-    return success(game);
+    if (update.headers) {
+        await updateDirectories(result.new, result.old);
+    }
+
+    return success(result.new);
 }
 
 /**
@@ -138,7 +151,7 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
         update.unlisted = request.unlisted;
 
         if (request.unlisted) {
-            update.publishedAt = null;
+            update.publishedAt = '';
             update.timelineId = '';
         } else {
             update.publishedAt = new Date().toISOString();
@@ -224,7 +237,7 @@ async function applyUpdate(
     cohort: string,
     id: string,
     update: GameUpdate,
-): Promise<Game> {
+): Promise<{ old: Game; new: Game }> {
     const updateParams = getUpdateParams(update);
     updateParams.ExpressionAttributeNames['#owner'] = 'owner';
     updateParams.ExpressionAttributeValues[':owner'] = { S: owner };
@@ -237,13 +250,16 @@ async function applyUpdate(
         },
         TableName: gamesTable,
         ...updateParams,
-        ReturnValues: 'ALL_NEW',
+        ReturnValues: 'ALL_OLD',
     });
 
     try {
         const response = await dynamo.send(input);
         if (response.Attributes) {
-            return unmarshall(response.Attributes) as Game;
+            const oldGame = unmarshall(response.Attributes) as Game;
+            oldGame.directories = [...(oldGame.directories ?? [])];
+            const newGame = { ...oldGame, ...update };
+            return { old: oldGame, new: newGame };
         } else {
             throw new ApiError({
                 statusCode: 500,
@@ -340,5 +356,69 @@ async function deleteTimelineEntry(game: Game, id: string) {
         );
     } catch (err) {
         console.error('Failed to delete timeline entry: ', err);
+    }
+}
+
+async function updateDirectories(newGame: Game, oldGame: Game) {
+    if (!newGame.directories?.length) {
+        console.log('No directories to update.');
+        return;
+    }
+
+    if (
+        newGame.headers.White === oldGame.headers.White &&
+        newGame.headers.Black === oldGame.headers.Black &&
+        newGame.headers.WhiteElo === oldGame.headers.WhiteElo &&
+        newGame.headers.BlackElo === oldGame.headers.BlackElo &&
+        newGame.headers.Result === oldGame.headers.Result
+    ) {
+        console.log(
+            'No changes to game directory information, skipping update of directories.',
+        );
+        return;
+    }
+
+    console.log('Updating %d directories', newGame.directories.length);
+
+    const gameId = `${newGame.cohort}/${newGame.id}`;
+    const gameInfo = {
+        owner: newGame.owner,
+        ownerDisplayName: newGame.ownerDisplayName,
+        createdAt: newGame.createdAt || newGame.date.replaceAll('.', '-'),
+        id: newGame.id,
+        cohort: newGame.cohort,
+        white: newGame.headers.White,
+        black: newGame.headers.Black,
+        whiteElo: newGame.headers.WhiteElo,
+        blackElo: newGame.headers.BlackElo,
+        result: newGame.headers.Result,
+    };
+
+    for (let i = 0; i < newGame.directories.length; i += 25) {
+        const statements: BatchStatementRequest[] = [];
+
+        for (let j = i; j < newGame.directories.length && j < i + 25; j++) {
+            const item = newGame.directories[j];
+
+            const tokens = item.split('/');
+            const owner = tokens[0];
+            const id = tokens[1];
+            if (!owner || !id) {
+                continue;
+            }
+
+            const params = marshall([gameInfo, owner, id]) as unknown as AttributeValue[];
+            statements.push({
+                Statement: `UPDATE "${directoryTable}" SET items."${gameId}".metadata=? WHERE owner=? AND id=?`,
+                Parameters: params,
+            });
+        }
+
+        if (statements.length > 0) {
+            console.log('Sending BatchExecuteStatements: %j', statements);
+            const input = new BatchExecuteStatementCommand({ Statements: statements });
+            const result = await dynamo.send(input);
+            console.log('BatchExecuteResult: %j', result);
+        }
     }
 }

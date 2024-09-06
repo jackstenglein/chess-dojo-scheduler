@@ -3,7 +3,7 @@ describe('Info Tab', () => {
         cy.loginByCognitoApi(
             'tournaments',
             cy.dojo.env('cognito_username'),
-            cy.dojo.env('cognito_password')
+            cy.dojo.env('cognito_password'),
         );
         cy.visit('/tournaments?type=info');
     });
@@ -20,7 +20,7 @@ describe('Info Tab', () => {
         cy.get('[data-cy="lichess-team-link"]', { timeout: 10000 }).should(
             'have.attr',
             'href',
-            'https://lichess.org/team/chessdojo'
+            'https://lichess.org/team/chessdojo',
         );
     });
 

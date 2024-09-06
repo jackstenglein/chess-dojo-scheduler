@@ -10,8 +10,12 @@ import { ApiError } from './api';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 export const directoryTable = process.env.stage + '-directories';
+export const gameTable = process.env.stage + '-games';
 
 type updateReturnType = 'NONE' | 'ALL_OLD' | 'UPDATED_OLD' | 'ALL_NEW' | 'UPDATED_NEW';
+
+type AttributePathTokens = (string | number)[];
+export type AttributePath = string | AttributePathTokens;
 
 export class UpdateItemBuilder {
     private keys: Record<string, AttributeValue> = {};
@@ -66,7 +70,7 @@ export class UpdateItemBuilder {
      * @param value The value to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    set(path: string | string[], value: any): UpdateItemBuilder {
+    set(path: AttributePath, value: any): UpdateItemBuilder {
         if (value === undefined) {
             return this;
         }
@@ -84,7 +88,7 @@ export class UpdateItemBuilder {
      * @param value The value to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    private setPath(path: string[], value: any): UpdateItemBuilder {
+    private setPath(path: AttributePathTokens, value: any): UpdateItemBuilder {
         if (value === undefined) {
             return this;
         }
@@ -103,6 +107,34 @@ export class UpdateItemBuilder {
     }
 
     /**
+     * Adds a command to append the given values to the list specified by the given attribute path.
+     * If path is a string, it will be split around the period character, and each component will be
+     * converted to a DynamoDB expression attribute name. If path is an array, each item will be
+     * converted to a DynamoDB expression attribute name.
+     * @param path The attribute path to set.
+     * @param values The values to append to the end of the list.
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    appendToList(path: AttributePath, values: any[]): UpdateItemBuilder {
+        if (this.setExpression.length > 0) {
+            this.setExpression += ', ';
+        }
+
+        if (typeof path === 'string') {
+            path = path.split('.');
+        }
+
+        const pathExpr = this.addExpressionPath(path);
+        this.setExpression += `${pathExpr} = list_append(${pathExpr}, :n${this.attrIndex})`;
+        this.exprAttrValues[`:n${this.attrIndex}`] = marshall(values, {
+            removeUndefinedValues: true,
+            convertTopLevelContainer: true,
+        });
+        this.attrIndex++;
+        return this;
+    }
+
+    /**
      * Adds a command to remove the given attribute path. If path is a string,
      * it will be split around the period character and each component converted
      * to a DynamoDB expression name attribute. If path is an array, each item
@@ -110,7 +142,7 @@ export class UpdateItemBuilder {
      * @param path The attribute path to remove.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    remove(path: string | string[]): UpdateItemBuilder {
+    remove(path: AttributePath): UpdateItemBuilder {
         if (typeof path === 'string') {
             return this.removePath(path.split('.'));
         }
@@ -122,7 +154,7 @@ export class UpdateItemBuilder {
      * @param path The attribute path to remove.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    private removePath(path: string[]): UpdateItemBuilder {
+    private removePath(path: AttributePathTokens): UpdateItemBuilder {
         if (this.removeExpression.length > 0) {
             this.removeExpression += ', ';
         }
@@ -194,16 +226,20 @@ export class UpdateItemBuilder {
      * @param path The path to convert.
      * @returns The converted path.
      */
-    private addExpressionPath(path: string[]) {
+    private addExpressionPath(path: AttributePathTokens) {
         let result = '';
 
         for (const token of path) {
-            result += `#n${this.attrIndex}.`;
-            this.exprAttrNames[`#n${this.attrIndex}`] = token;
-            this.attrIndex++;
+            if (typeof token === 'number') {
+                result = result.slice(0, -1) + `[${token}].`;
+            } else {
+                result += `#n${this.attrIndex}.`;
+                this.exprAttrNames[`#n${this.attrIndex}`] = token;
+                this.attrIndex++;
+            }
         }
 
-        return result.slice(0, result.length - 1);
+        return result.slice(0, -1);
     }
 }
 
@@ -223,19 +259,23 @@ class Condition {
     }
 
     protected addExpressionPath(
-        path: string[],
+        path: AttributePathTokens,
         exprAttrNames: Record<string, string>,
         parentAttrIndex: string,
     ) {
         let result = '';
 
         for (const token of path) {
-            result += `#c${parentAttrIndex}${this.attrIndex}.`;
-            exprAttrNames[`#c${parentAttrIndex}${this.attrIndex}`] = token;
-            this.attrIndex++;
+            if (typeof token === 'number') {
+                result = result.slice(0, -1) + `[${token}].`;
+            } else {
+                result += `#c${parentAttrIndex}${this.attrIndex}.`;
+                exprAttrNames[`#c${parentAttrIndex}${this.attrIndex}`] = token;
+                this.attrIndex++;
+            }
         }
 
-        return result.slice(0, result.length - 1);
+        return result.slice(0, -1);
     }
 }
 
@@ -266,9 +306,9 @@ class AndCondition extends Condition {
 }
 
 class AttributeExistsCondition extends Condition {
-    private path: string[];
+    private path: AttributePathTokens;
 
-    constructor(path: string | string[]) {
+    constructor(path: AttributePath) {
         super();
         if (typeof path === 'string') {
             this.path = path.split('.');
@@ -286,11 +326,37 @@ class AttributeExistsCondition extends Condition {
     }
 }
 
-class NotEqualCondition extends Condition {
-    private path: string[];
-    private value: any;
+class AttributeNotExistsCondition extends Condition {
+    private path: AttributePathTokens;
 
-    constructor(path: string | string[], value: any) {
+    constructor(path: AttributePath) {
+        super();
+        if (typeof path === 'string') {
+            this.path = path.split('.');
+        } else {
+            this.path = path;
+        }
+    }
+
+    build(
+        exprAttrNames: Record<string, string>,
+        _exprAttrValues: Record<string, AttributeValue>,
+        parentAttrIndex = '',
+    ) {
+        return `attribute_not_exists (${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)})`;
+    }
+}
+
+class EqualityCondition extends Condition {
+    private path: AttributePathTokens;
+    private value: any;
+    private comparator: '=' | '<>' | '<' | '<=' | '>' | '>=';
+
+    constructor(
+        path: AttributePath,
+        value: any,
+        comparator: '=' | '<>' | '<' | '<=' | '>' | '>=',
+    ) {
         super();
 
         if (typeof path === 'string') {
@@ -300,6 +366,7 @@ class NotEqualCondition extends Condition {
         }
 
         this.value = value;
+        this.comparator = comparator;
     }
 
     build(
@@ -311,7 +378,7 @@ class NotEqualCondition extends Condition {
         this.attrIndex++;
         exprAttrValues[valueName] = marshall(this.value, { removeUndefinedValues: true });
 
-        return `${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)} <> ${valueName}`;
+        return `${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)} ${this.comparator} ${valueName}`;
     }
 }
 
@@ -326,11 +393,30 @@ export function and(...conditions: Condition[]): Condition {
 
 /**
  * Returns a condition which verifies that the given attribute path
+ * exists on the DynamoDB item.
+ * @param path The path to check.
+ */
+export function attributeExists(path: AttributePath): Condition {
+    return new AttributeExistsCondition(path);
+}
+
+/**
+ * Returns a condition which verifies that the given attribute path
  * does not exist on the DynamoDB item.
  * @param path The path to check.
  */
-export function attributeExists(path: string | string[]): Condition {
-    return new AttributeExistsCondition(path);
+export function attributeNotExists(path: AttributePath): Condition {
+    return new AttributeNotExistsCondition(path);
+}
+
+/**
+ * Returns a condition which verifies that the given attribute path
+ * equals the given value.
+ * @param path The path to check.
+ * @param value The value to compare against.
+ */
+export function equal(path: AttributePath, value: any): Condition {
+    return new EqualityCondition(path, value, '=');
 }
 
 /**
@@ -339,6 +425,6 @@ export function attributeExists(path: string | string[]): Condition {
  * @param path The path to check.
  * @param value The value to compare against.
  */
-export function notEqual(path: string | string[], value: any): Condition {
-    return new NotEqualCondition(path, value);
+export function notEqual(path: AttributePath, value: any): Condition {
+    return new EqualityCondition(path, value, '<>');
 }

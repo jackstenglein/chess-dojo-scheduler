@@ -1,4 +1,5 @@
-import { Lock, Loop, Edit } from '@mui/icons-material';
+import ModalTitle from '@/components/ui/ModalTitle';
+import { Edit, Lock, Loop } from '@mui/icons-material';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import CheckIcon from '@mui/icons-material/Check';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
@@ -260,42 +261,36 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
     return (
         <>
             <Stack spacing={3}>
-                <Stack
-                    direction='row'
-                    justifyContent='space-between'
-                    alignItems='center'
-                    flexWrap='wrap'
-                    rowGap={1}
-                >
+                <ModalTitle onClose={onClose}>
                     <Stack>
                         <Typography variant='h4'>{requirementName}</Typography>
                         <Typography variant='h5' color='text.secondary'>
                             {requirement.category}
                         </Typography>
                     </Stack>
-                    <Stack direction='row' spacing={2} alignItems='center'>
-                        {blocker.isBlocked ? (
-                            <Tooltip title={blocker.reason}>
-                                <Chip icon={<Lock />} label='Locked' color='error' />
-                            </Tooltip>
-                        ) : isCompleted ? (
-                            <Chip
-                                icon={<CheckIcon />}
-                                label='Completed'
-                                color='success'
-                                onClick={() => setShowUpdateDialog(true)}
-                            />
-                        ) : (
-                            <Button
-                                variant='contained'
-                                onClick={() => setShowUpdateDialog(true)}
-                                color='success'
-                                startIcon={<Edit />}
-                            >
-                                Update Progress
-                            </Button>
-                        )}
-                    </Stack>
+                </ModalTitle>
+                <Stack direction='row' spacing={2} alignItems='center'>
+                    {blocker.isBlocked ? (
+                        <Tooltip title={blocker.reason}>
+                            <Chip icon={<Lock />} label='Locked' color='error' />
+                        </Tooltip>
+                    ) : isCompleted ? (
+                        <Chip
+                            icon={<CheckIcon />}
+                            label='Completed'
+                            color='success'
+                            onClick={() => setShowUpdateDialog(true)}
+                        />
+                    ) : (
+                        <Button
+                            variant='contained'
+                            onClick={() => setShowUpdateDialog(true)}
+                            color='success'
+                            startIcon={<Edit />}
+                        >
+                            Update Progress
+                        </Button>
+                    )}
                 </Stack>
 
                 <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
@@ -312,9 +307,9 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                 />
 
                 {requirement.positions && (
-                    <Grid container spacing={2}>
+                    <Grid container gap={2}>
                         {requirement.positions.map((p) => (
-                            <Grid key={p.fen} item xs='auto'>
+                            <Grid key={p.fen} item md='auto'>
                                 <Position position={p} />
                             </Grid>
                         ))}

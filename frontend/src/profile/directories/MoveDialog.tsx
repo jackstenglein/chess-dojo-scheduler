@@ -9,7 +9,7 @@ import {
     DirectoryItem,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { Folder } from '@mui/icons-material';
+import { ChevronRight, Folder } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -30,11 +30,11 @@ import { useDirectory } from './DirectoryCache';
 
 export const MoveDialog = ({
     parent,
-    item,
+    items,
     onCancel,
 }: {
     parent: Directory;
-    item: DirectoryItem;
+    items: DirectoryItem[];
     onCancel: () => void;
 }) => {
     const { user } = useRequiredAuth();
@@ -64,7 +64,7 @@ export const MoveDialog = ({
         api.moveDirectoryItems({
             source: parent.id,
             target: newDirectoryId,
-            items: [item.id],
+            items: items.map((item) => item.id),
         })
             .then((resp) => {
                 console.log('moveDirectoryItems: ', resp);
@@ -72,13 +72,16 @@ export const MoveDialog = ({
                 onCancel();
                 putDirectory(resp.data.source);
                 putDirectory(resp.data.target);
-                if (item.type === DirectoryItemTypes.DIRECTORY) {
-                    updateDirectory({
-                        owner: user.username,
-                        id: item.id,
-                        parent: newDirectoryId,
-                        name: item.metadata.name,
-                    });
+
+                for (const item of items) {
+                    if (item.type === DirectoryItemTypes.DIRECTORY) {
+                        updateDirectory({
+                            owner: user.username,
+                            id: item.id,
+                            parent: newDirectoryId,
+                            name: item.metadata.name,
+                        });
+                    }
                 }
             })
             .catch((err) => {
@@ -93,31 +96,27 @@ export const MoveDialog = ({
             onClose={moveRequest.isLoading() ? undefined : onCancel}
             fullWidth
         >
-            <DialogTitle>
-                Move{' '}
-                {item.type === DirectoryItemTypes.DIRECTORY ? item.metadata.name : 'game'}
-                ?
-            </DialogTitle>
+            <DialogTitle>{getDialogTitle(items)}</DialogTitle>
             <DialogContent data-cy='move-directory-form'>
                 {newDirectory ? (
                     <Stack>
-                        <Stack direction='row' spacing={1.5}>
-                            <Typography color='text.secondary'>
-                                Current Location:
-                            </Typography>
+                        <Stack alignItems='center' direction='row' spacing={1.5}>
+                            <Typography color='text.secondary'>From:</Typography>
                             <DirectoryBreadcrumbs
                                 owner={user.username}
                                 id={parent.id}
                                 onClick={onNavigate}
+                                variant='body1'
                             />
                         </Stack>
 
-                        <Stack direction='row' spacing={1.5} mb={1}>
-                            <Typography color='text.secondary'>New Location:</Typography>
+                        <Stack alignItems='center' direction='row' spacing={1.5} mb={1}>
+                            <Typography color='text.secondary'>To:</Typography>
                             <DirectoryBreadcrumbs
                                 owner={user.username}
                                 id={newDirectoryId}
                                 onClick={onNavigate}
+                                variant='body1'
                             />
                         </Stack>
 
@@ -129,7 +128,9 @@ export const MoveDialog = ({
                                         key={newItem.id}
                                         item={newItem}
                                         onNavigate={onNavigate}
-                                        disabled={item.id === newItem.id}
+                                        disabled={items.some(
+                                            (item) => item.id === newItem.id,
+                                        )}
                                     />
                                 ))}
                         </List>
@@ -161,14 +162,14 @@ export const MoveDialog = ({
     );
 };
 
-function MoveListItem({
+export function MoveListItem({
     item,
     onNavigate,
     disabled,
 }: {
     item: DirectoryItem;
     onNavigate: (id: string) => void;
-    disabled: boolean;
+    disabled?: boolean;
 }) {
     if (item.type === DirectoryItemTypes.DIRECTORY) {
         return (
@@ -177,6 +178,7 @@ function MoveListItem({
                     <Folder />
                 </ListItemIcon>
                 <ListItemText primary={item.metadata.name} />
+                <ChevronRight />
             </ListItemButton>
         );
     }
@@ -193,4 +195,39 @@ function MoveListItem({
             <ListItemText primary={RenderPlayers(item.metadata)} />
         </ListItemButton>
     );
+}
+
+function getDialogTitle(items: DirectoryItem[]) {
+    if (items.length === 1) {
+        const item = items[0];
+        if (item.type === DirectoryItemTypes.DIRECTORY) {
+            return `Move ${item.metadata.name}?`;
+        }
+        return `Move game?`;
+    }
+
+    let directoryCount = 0;
+    let gameCount = 0;
+
+    for (const item of items) {
+        if (item.type === DirectoryItemTypes.DIRECTORY) {
+            directoryCount++;
+        } else {
+            gameCount++;
+        }
+    }
+
+    let title = 'Move ';
+    if (directoryCount > 0) {
+        title += `${directoryCount} folder${directoryCount > 1 ? 's' : ''}`;
+        if (gameCount > 0) {
+            title += ' and ';
+        }
+    }
+    if (gameCount > 0) {
+        title += `${gameCount} game${gameCount > 1 ? 's' : ''}`;
+    }
+
+    title += '?';
+    return title;
 }

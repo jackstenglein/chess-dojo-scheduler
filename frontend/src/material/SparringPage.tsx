@@ -4,11 +4,11 @@ import {
     Collapse,
     Container,
     Divider,
+    Grid2,
     IconButton,
     Stack,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, { useMemo, useState } from 'react';
 import { RequestSnackbar } from '../api/Request';
 import { useRequirements } from '../api/cache/requirements';
@@ -61,7 +61,6 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                         {requirement.shortName || requirement.name}
                     </Typography>
                 </Stack>
-
                 <Collapse in={open} timeout='auto' unmountOnExit>
                     <Grid2
                         container
@@ -69,7 +68,12 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                         justifyContent={{ xs: 'center', sm: 'start' }}
                     >
                         {requirement.positions.map((p) => (
-                            <Grid2 xs='auto' key={p.fen}>
+                            <Grid2
+                                key={p.fen}
+                                size={{
+                                    md: 'auto',
+                                }}
+                            >
                                 <Position position={p} />
                             </Grid2>
                         ))}
@@ -83,7 +87,12 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
         return (
             <Grid2 container spacing={2} justifyContent={{ xs: 'center', sm: 'start' }}>
                 {requirement.positions.map((p) => (
-                    <Grid2 xs='auto' key={p.fen}>
+                    <Grid2
+                        key={p.fen}
+                        size={{
+                            md: 'auto',
+                        }}
+                    >
                         <Position position={p} />
                     </Grid2>
                 ))}
@@ -94,7 +103,12 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
     return (
         <>
             {requirement.positions.map((p) => (
-                <Grid2 xs='auto' key={p.fen}>
+                <Grid2
+                    key={p.fen}
+                    size={{
+                        md: 'auto',
+                    }}
+                >
                     <Position position={p} />
                 </Grid2>
             ))}
@@ -151,7 +165,6 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                     </>
                 </Typography>
             </Stack>
-
             <Collapse in={open} timeout='auto' unmountOnExit>
                 {subsection.stacked ? (
                     <Stack pl={{ xs: 0, sm: 2 }} spacing={1}>
@@ -170,7 +183,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                         ))}
 
                         {subsection.hidden > 0 && (
-                            <Grid2 xs='auto'>
+                            <Grid2 size='auto'>
                                 <Stack
                                     data-cy='upsell-message'
                                     px={1}

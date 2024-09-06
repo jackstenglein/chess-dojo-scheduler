@@ -27,6 +27,7 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
 import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
 
+
 const InfoTab = () => {
     return (
         <Stack spacing={2}>

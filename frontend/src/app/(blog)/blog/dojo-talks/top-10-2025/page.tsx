@@ -153,7 +153,7 @@ export default function DojoTalksTop2025() {
                 </a>
             </Stack>
 
-            <Footer />
+            <Footer utmCampaign='dojotalks_top-10-2025' />
         </Container>
     );
 }

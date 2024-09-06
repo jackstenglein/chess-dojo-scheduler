@@ -29,6 +29,7 @@ export const EnvSchema = z.object({
         .string()
         .url()
         .transform((v) => new URL(v)),
+    isBeta: z.boolean(),
 });
 
 export type Config = z.infer<typeof EnvSchema>;
@@ -58,5 +59,6 @@ export function getConfig(): Config {
             publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
         },
         baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+        isBeta: process.env.NEXT_PUBLIC_IS_BETA === 'true',
     });
 }

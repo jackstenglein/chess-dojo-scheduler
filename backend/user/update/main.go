@@ -52,7 +52,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
 	}
 
-	autopickCohort, _ := event.QueryStringParameters["autopickCohort"]
+	autopickCohort := event.QueryStringParameters["autopickCohort"]
 	if autopickCohort == "true" {
 		return handleAutopickCohort(user, update), nil
 	}
@@ -131,12 +131,18 @@ func fetchCurrentRating(rating *database.Rating, fetcher ratings.RatingFetchFunc
 		return nil
 	}
 
-	currentRating, err := fetcher(rating.Username)
-	rating.CurrentRating = currentRating
-	if rating.StartRating == 0 {
-		rating.StartRating = currentRating
+	data, err := fetcher(rating.Username)
+	if err != nil {
+		return err
 	}
-	return err
+
+	rating.CurrentRating = data.CurrentRating
+	rating.Deviation = data.Deviation
+	rating.NumGames = data.NumGames
+	if rating.StartRating == 0 {
+		rating.StartRating = data.CurrentRating
+	}
+	return nil
 }
 
 func fetchRatings(user *database.User, update *database.UserUpdate) error {

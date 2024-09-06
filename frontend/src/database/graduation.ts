@@ -1,6 +1,6 @@
 import { RequirementProgress } from './requirement';
 import { isObject } from './scoreboard';
-import { RatingSystem } from './user';
+import { RatingHistory, RatingSystem } from './user';
 
 export interface Graduation {
     username: string;
@@ -11,6 +11,7 @@ export interface Graduation {
     ratingSystem: RatingSystem;
     startRating: number;
     currentRating: number;
+    ratingHistories?: Record<RatingSystem, RatingHistory[]>;
     comments: string;
     progress: Record<string, RequirementProgress>;
     graduationCohorts: string[];

@@ -59,6 +59,9 @@ export interface Game {
 
     /** The ID of the timeline entry associated with this game's publishing. */
     timelineId?: string;
+
+    /** A set of directories containing this game, in the form `owner/id`. */
+    directories?: string[];
 }
 
 /** The default orientation of the game when it is first opened. */
@@ -77,6 +80,9 @@ export interface CreateGameRequest {
 
     /** The raw PGN text of the Game, if supported by type. */
     pgnText?: string;
+
+    /** The id of the directory to add the game to. */
+    directory?: string;
 }
 
 /** A request to update an existing Game. */
@@ -126,7 +132,7 @@ export interface GameUpdate {
     unlisted?: boolean;
 
     /** The datetime the game was last changed from unlisted to public, in ISO format. */
-    publishedAt?: string | null;
+    publishedAt?: string;
 
     /** The ID of the timeline entry associated with this game's publishing. */
     timelineId?: string;
@@ -138,6 +144,7 @@ export enum GameImportType {
     LichessGame = 'lichessGame',
     ChesscomGame = 'chesscomGame',
     ChesscomAnalysis = 'chesscomAnalysis',
+    Editor = 'editor',
     Manual = 'manual',
     StartingPosition = 'startingPosition',
     Fen = 'fen',

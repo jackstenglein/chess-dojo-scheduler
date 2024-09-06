@@ -1,7 +1,7 @@
 import { Step } from 'react-joyride';
 
-import { TutorialName } from '../tutorial/tutorialNames';
 import Tutorial from '../tutorial/Tutorial';
+import { TutorialName } from '../tutorial/tutorialNames';
 
 const steps: Step[] = [
     {

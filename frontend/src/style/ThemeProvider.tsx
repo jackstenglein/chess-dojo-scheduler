@@ -1,14 +1,26 @@
 'use client';
 
+import { RequirementCategory } from '@/database/requirement';
 import { CssBaseline } from '@mui/material';
-import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { blue, deepPurple } from '@mui/material/colors';
 import {
-    Experimental_CssVarsProvider,
+    ThemeProvider as MuiThemeProvider,
     createTheme,
-    experimental_extendTheme,
+    useColorScheme,
 } from '@mui/material/styles';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
+
+export const CategoryColors: Record<RequirementCategory, string> = {
+    [RequirementCategory.SuggestedTasks]: '#c27ba0', // light magenta 1
+    [RequirementCategory.Welcome]: '#c27ba0', // light magenta 1
+    [RequirementCategory.Games]: '#ff9900', // orange
+    [RequirementCategory.Tactics]: '#38761d', // dark green 2
+    [RequirementCategory.Middlegames]: '#0000ff', // blue
+    [RequirementCategory.Endgame]: '#674ea7', // dark purple 1
+    [RequirementCategory.Opening]: '#cc0000', // dark red 1
+    [RequirementCategory.Graduation]: '#f44336', // red
+    [RequirementCategory.NonDojo]: '#cccccc', // gray
+};
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -153,7 +165,11 @@ const defaultPalette = {
     })
 };
 
-const theme = experimental_extendTheme({
+const theme = createTheme({
+    cssVariables: {
+        colorSchemeSelector: 'class',
+    },
+    defaultColorScheme: 'dark',
     colorSchemes: {
         light: {
             palette: {
@@ -174,12 +190,21 @@ const theme = experimental_extendTheme({
 
 const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return (
-        <Experimental_CssVarsProvider defaultMode='dark' theme={theme}>
+        <MuiThemeProvider theme={theme}>
             <CssBaseline enableColorScheme />
-            <InitColorSchemeScript />
-            {children}
-        </Experimental_CssVarsProvider>
+            <DefaultDarkModeSetter>{children}</DefaultDarkModeSetter>
+        </MuiThemeProvider>
     );
+};
+
+const DefaultDarkModeSetter = ({ children }: { children: ReactNode }) => {
+    const { mode, setMode } = useColorScheme();
+    useEffect(() => {
+        if (mode === 'system') {
+            setMode('dark');
+        }
+    }, [mode, setMode]);
+    return children;
 };
 
 export default ThemeProvider;

@@ -47,7 +47,7 @@ functions:
         Resource: !If
           - IsProd
           - - !GetAtt ExplorerTable.Arn
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
           - !GetAtt ExplorerTable.Arn
 
   notifyFollowers:
@@ -89,7 +89,7 @@ functions:
         Resource: !If
           - IsProd
           - - !GetAtt ExplorerTable.Arn
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
           - !GetAtt ExplorerTable.Arn
 
   listGamesByPosition:
@@ -108,7 +108,7 @@ functions:
         Resource: !If
           - IsProd
           - - !GetAtt ExplorerTable.Arn
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/masters-explorer
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
           - !GetAtt ExplorerTable.Arn
 
   followPosition:
@@ -154,6 +154,10 @@ functions:
           - dynamodb:PutItem
         Resource:
           - ${param:TimelineTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:DirectoriesTableArn}
 
   updateGame:
     handler: game/update.handler
@@ -168,13 +172,19 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: ${param:GamesTableArn}
+        Resource:
+          - ${param:GamesTableArn}
       - Effect: Allow
         Action:
           - dynamodb:PutItem
           - dynamodb:DeleteItem
         Resource:
           - ${param:TimelineTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource:
+          - ${param:DirectoriesTableArn}
 
   recalculateExamScores:
     handler: exam/recalculateScores.handler

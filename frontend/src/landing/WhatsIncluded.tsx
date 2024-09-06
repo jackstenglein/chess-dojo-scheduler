@@ -7,12 +7,12 @@ import {
     Card,
     CardContent,
     Divider,
+    Grid2,
     Stack,
     Tab,
     Tabs,
     Typography,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
 
 interface TabData {
@@ -122,7 +122,6 @@ const WhatsIncluded = () => {
             <Typography variant='h2' textAlign='center' mb={5}>
                 See what's included
             </Typography>
-
             <Box width='100%'>
                 <TabContext value={value}>
                     <Box
@@ -157,14 +156,25 @@ const WhatsIncluded = () => {
                                         columnSpacing={{ xs: 1, md: 2, xl: 3 }}
                                         rowGap={2}
                                     >
-                                        <Grid2 xs={12} md={6}>
+                                        <Grid2
+                                            size={{
+                                                xs: 12,
+                                                md: 6,
+                                            }}
+                                        >
                                             {data.title}
 
                                             <Divider sx={{ mt: 1, mb: 3 }} />
 
                                             <BulletPoints points={data.points} />
                                         </Grid2>
-                                        <Grid2 xs={12} md={6} alignSelf='center'>
+                                        <Grid2
+                                            alignSelf='center'
+                                            size={{
+                                                xs: 12,
+                                                md: 6,
+                                            }}
+                                        >
                                             <Stack>
                                                 {data.images.map((image) => (
                                                     <img

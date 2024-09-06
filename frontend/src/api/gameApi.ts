@@ -202,6 +202,7 @@ export enum GameSubmissionType {
     LichessGame = 'lichessGame',
     ChesscomGame = 'chesscomGame',
     ChesscomAnalysis = 'chesscomAnalysis',
+    Editor = 'editor',
     Manual = 'manual',
     StartingPosition = 'startingPosition',
     Fen = 'fen',
@@ -211,6 +212,9 @@ export interface CreateGameRequest {
     url?: string;
     pgnText?: string;
     type: GameSubmissionType;
+
+    /** The id of the directory to add the game to. */
+    directory?: string;
 }
 
 /** The orientation of the board. */
