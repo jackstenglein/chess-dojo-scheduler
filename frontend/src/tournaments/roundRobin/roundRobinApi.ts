@@ -1,5 +1,4 @@
-
-import axios from "axios";
+import axios from 'axios';
 
 /**
  * The Round Robin Info API response
@@ -24,13 +23,11 @@ export interface TournamentData {
  */
 interface TournamentId {
     ids: string[]; // list of tournament ids in string
-    message: string; // success/error message 
+    message: string; // success/error message
 }
 
-
-
 export const cohorts = [
-    { label: '0-300', value: 0},
+    { label: '0-300', value: 0 },
     { label: '300-400', value: 300 },
     { label: '400-500', value: 400 },
     { label: '500-600', value: 500 },
@@ -54,9 +51,8 @@ export const cohorts = [
     { label: '2300-2400', value: 2300 },
 ];
 
-const authToken = process.env.ROUND_ROBIN_AUTH_TOKEN; 
+const authToken = process.env.ROUND_ROBIN_AUTH_TOKEN;
 const endpoint = process.env.ROUND_ROBIN_API_ENDPOINT;
-
 
 /**
  * method to fetch tournament ids for given cohort start value
@@ -72,9 +68,8 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
                 Authorization: authToken,
             },
             params: {
-                'cohort-start': cohortValue
-            }
-            
+                'cohort-start': cohortValue,
+            },
         });
 
         const ids: string[] = response.data.ids;
@@ -85,7 +80,6 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
         throw error;
     }
 };
-
 
 /**
  * method to fetch round robin tournament data from given tournament id
@@ -100,8 +94,8 @@ export const fetchTournamentData = async (id: string): Promise<TournamentData> =
                 Authorization: authToken,
             },
             params: {
-                'tournamentid': id
-            }
+                tournamentid: id,
+            },
         });
 
         return response.data;

@@ -9,14 +9,12 @@ describe('Info Tab', () => {
     });
 
     it('has correct content', () => {
-    
         cy.contains('Welcome to the DojoLiga', { timeout: 10000 });
         cy.contains('Registration Info', { timeout: 10000 });
         cy.contains('Leaderboard Info', { timeout: 10000 });
     });
 
     it('links to Lichess team', () => {
-        
         cy.get('[data-cy="lichess-team-link"]', { timeout: 10000 }).should(
             'have.attr',
             'href',
@@ -25,11 +23,10 @@ describe('Info Tab', () => {
     });
 
     it('links to Chess.com team', () => {
-        
         cy.get('[data-cy="chesscom-team-link"]', { timeout: 10000 }).should(
             'have.attr',
             'href',
-            'https://www.chess.com/club/chessdojo'
+            'https://www.chess.com/club/chessdojo',
         );
     });
 
@@ -38,8 +35,7 @@ describe('Info Tab', () => {
         cy.get('[data-cy="discord-invite-link"]', { timeout: 10000 }).should(
             'have.attr',
             'href',
-            'https://discord.gg/AEeHwBWqAX'
+            'https://discord.gg/AEeHwBWqAX',
         );
     });
 });
-

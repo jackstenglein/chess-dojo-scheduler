@@ -79,9 +79,9 @@ import ListPage from './tournaments/openClassical/ListPage';
 import RegistrationPage from './tournaments/openClassical/RegistrationPage';
 import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
 import AdminPage from './tournaments/openClassical/admin/AdminPage';
+import TournamentViewer from './tournaments/roundRobin/robinPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 import PricingPage from './upsell/PricingPage';
-import TournamentViewer from './tournaments/roundRobin/robinPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',

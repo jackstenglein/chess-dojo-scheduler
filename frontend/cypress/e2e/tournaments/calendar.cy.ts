@@ -16,11 +16,9 @@ describe('Calendar Tab', () => {
 
     it('has tab selector', () => {
         cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
-        
 
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/tournaments');
-            
         });
     });
 
