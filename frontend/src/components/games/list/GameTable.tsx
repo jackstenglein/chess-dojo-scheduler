@@ -1,12 +1,8 @@
 import { useFreeTier } from '@/auth/Auth';
 import { CustomPagination } from '@/components/ui/CustomPagination';
 import { GameInfo } from '@/database/game';
-import { dojoCohorts } from '@/database/user';
 import { DataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { PaginationResult } from '@/hooks/usePagination';
-import Avatar from '@/profile/Avatar';
-import CohortIcon from '@/scoreboard/CohortIcon';
-import { Link, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -15,63 +11,30 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { RenderPlayersCell, RenderResult } from './GameListItem';
-
-export const MastersCohort = 'masters';
-export const MastersOwnerDisplayName = 'Masters DB';
+import {
+    formatMoves,
+    formatPublishedAt,
+    getPublishedAt,
+    RenderCohort,
+    RenderOwner,
+    RenderPlayersCell,
+    RenderResult,
+} from './GameListItem';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
         width: 65,
-        renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
-            let value = params.value;
-            if (value && value !== dojoCohorts[0] && value !== dojoCohorts.slice(-1)[0]) {
-                value = value.replace('00', '');
-            }
-
-            return (
-                <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
-                    <CohortIcon cohort={params.value} tooltip={params.value} size={30} />
-                    <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
-                        {value === MastersCohort ? 'masters' : value}
-                    </Typography>
-                </Stack>
-            );
-        },
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
+            RenderCohort(params.row),
     },
     {
         field: 'owner',
         headerName: 'Uploaded By',
         minWidth: 150,
-        renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
-            if (
-                params.row.ownerDisplayName === '' ||
-                params.row.ownerDisplayName === MastersOwnerDisplayName
-            ) {
-                return '';
-            }
-
-            return (
-                <Stack
-                    direction='row'
-                    spacing={1}
-                    alignItems='center'
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <Avatar
-                        username={params.row.owner}
-                        displayName={params.row.ownerDisplayName}
-                        size={32}
-                    />
-                    <Link component={RouterLink} to={`/profile/${params.row.owner}`}>
-                        {params.row.ownerDisplayName}
-                    </Link>
-                </Stack>
-            );
-        },
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
+            RenderOwner(params.row),
     },
     {
         field: 'players',
@@ -94,8 +57,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'moves',
         headerName: 'Moves',
-        valueGetter: (_value, row) =>
-            row.headers?.PlyCount ? Math.ceil(parseInt(row.headers.PlyCount) / 2) : '?',
+        valueGetter: (_value, row) => formatMoves(row.headers?.PlyCount),
         align: 'center',
         headerAlign: 'center',
         width: 75,
@@ -103,10 +65,8 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'publishedAt',
         headerName: 'Publish Date',
-        valueGetter: (_value, row) => {
-            return row.publishedAt || row.createdAt || row.id.split('_')[0];
-        },
-        valueFormatter: (value: string) => value.split('T')[0].replaceAll('-', '.'),
+        valueGetter: (_value, row) => getPublishedAt(row),
+        valueFormatter: formatPublishedAt,
         width: 120,
         align: 'right',
         headerAlign: 'right',

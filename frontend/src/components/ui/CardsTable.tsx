@@ -1,18 +1,20 @@
 import { Card, CardActionArea, CardContent, Grid2 } from '@mui/material';
-import { ReactNode } from 'react';
 
-interface CardProps<T> {
+interface HasId {
     id: string | number;
-    data: T;
 }
 
-interface CardsTableProps<T> {
-    card: (props: CardProps<T>) => ReactNode;
-    childProps: CardProps<T>[];
-    onClick: (props: CardProps<T>) => void;
+interface CardsTableProps<T extends HasId> {
+    card: (props: T) => React.ReactNode;
+    childProps: T[];
+    onClick: (props: T) => void;
 }
 
-export default function CardsTable<T>({ card, childProps, onClick }: CardsTableProps<T>) {
+export default function CardsTable<T extends HasId>({
+    card,
+    childProps,
+    onClick,
+}: CardsTableProps<T>) {
     return (
         <Grid2>
             {childProps.map((props) => (

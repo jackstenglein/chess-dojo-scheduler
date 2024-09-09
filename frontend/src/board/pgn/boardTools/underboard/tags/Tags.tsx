@@ -1,5 +1,5 @@
 import { isValidDate, stripTagValue } from '@/api/gameApi';
-import { MastersCohort } from '@/components/games/list/GameTable';
+import { MastersCohort } from '@/components/games/list/GameListItem';
 import { Game } from '@/database/game';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';

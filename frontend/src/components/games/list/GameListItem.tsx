@@ -1,10 +1,16 @@
 import { GameInfo, GameResult } from '@/database/game';
+import { dojoCohorts } from '@/database/user';
+import Avatar from '@/profile/Avatar';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { useLightMode } from '@/style/useLightMode';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { Stack, Typography } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
+
+export const MastersCohort = 'masters';
+export const MastersOwnerDisplayName = 'Masters DB';
 
 interface RenderPlayersProps {
     white: string;
@@ -84,6 +90,42 @@ export function RenderPlayers({
     );
 }
 
+export function RenderCohort({ cohort }: { cohort: string }) {
+    let display = cohort;
+    if (cohort && cohort !== dojoCohorts[0] && cohort !== dojoCohorts.slice(-1)[0]) {
+        display = cohort.replace('00', '');
+    }
+
+    return (
+        <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
+            <CohortIcon cohort={cohort} tooltip={cohort} size={30} />
+            <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
+                {display === MastersCohort ? 'masters' : display}
+            </Typography>
+        </Stack>
+    );
+}
+
+export function RenderOwner({ ownerDisplayName, owner }: GameInfo) {
+    if (ownerDisplayName === '' || ownerDisplayName === MastersOwnerDisplayName) {
+        return '';
+    }
+
+    return (
+        <Stack
+            direction='row'
+            spacing={1}
+            alignItems='center'
+            onClick={(e) => e.stopPropagation()}
+        >
+            <Avatar username={owner} displayName={ownerDisplayName} size={32} />
+            <Link component={RouterLink} to={`/profile/${owner}`}>
+                {ownerDisplayName}
+            </Link>
+        </Stack>
+    );
+}
+
 export function RenderResult(params: GridRenderCellParams) {
     if (!params.value) {
         return '?';
@@ -102,6 +144,18 @@ export function RenderResult(params: GridRenderCellParams) {
             </Typography>
         </Stack>
     );
+}
+
+export function formatPublishedAt(value: string) {
+    return value.split('T')[0].replaceAll('-', '.');
+}
+
+export function formatMoves(ply?: string) {
+    return ply ? Math.ceil(parseInt(ply) / 2) : '?';
+}
+
+export function getPublishedAt(game: GameInfo) {
+    return game.publishedAt || game.createdAt || game.id.split('_')[0];
 }
 
 function getPlayerName(

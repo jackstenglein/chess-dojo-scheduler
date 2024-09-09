@@ -1,4 +1,4 @@
-import { MastersCohort } from '@/components/games/list/GameTable';
+import { MastersCohort } from '@/components/games/list/GameListItem';
 import { AllInclusive } from '@mui/icons-material';
 import {
     Tooltip as MuiTooltip,
