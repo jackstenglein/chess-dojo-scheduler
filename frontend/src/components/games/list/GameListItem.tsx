@@ -106,7 +106,13 @@ export function RenderCohort({ cohort }: { cohort: string }) {
     );
 }
 
-export function RenderOwner({ ownerDisplayName, owner }: GameInfo) {
+export function RenderOwner({
+    ownerDisplayName,
+    owner,
+}: {
+    ownerDisplayName: GameInfo['ownerDisplayName'];
+    owner: GameInfo['owner'];
+}) {
     if (ownerDisplayName === '' || ownerDisplayName === MastersOwnerDisplayName) {
         return '';
     }
@@ -130,6 +136,7 @@ export function RenderResult(params: GridRenderCellParams) {
     if (!params.value) {
         return '?';
     }
+
     return (
         <Stack height={1} justifyContent='center' alignItems='center'>
             <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>

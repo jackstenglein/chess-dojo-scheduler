@@ -13,7 +13,9 @@ export interface DataGridContextMenu {
  * A hook that simplifies working with context menu's for the MUI Data Grid.
  * @returns The selected row id, the position of the menu and functions to open/close the menu.
  */
-export function useDataGridContextMenu(rowSelectionModel?: GridRowSelectionModel) {
+export function useDataGridContextMenu(
+    rowSelectionModel?: GridRowSelectionModel,
+): DataGridContextMenu {
     const [rowIds, setRowIds] = useState<GridRowSelectionModel>([]);
     const [position, setPosition] = useState<PopoverPosition>();
 

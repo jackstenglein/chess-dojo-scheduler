@@ -1,6 +1,5 @@
 import { useApi } from '@/api/Api';
 import GameTable from '@/components/games/list/GameTable';
-import CardsTable from '@/components/ui/CardsTable';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
 import {
@@ -13,7 +12,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { GridPaginationModel, GridRowParams } from '@mui/x-data-grid-pro';
+import { GridPaginationModel } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar } from '../../api/Request';
@@ -24,7 +23,6 @@ import Icon from '../../style/Icon';
 import UpsellAlert from '../../upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import UpsellPage from '../../upsell/UpsellPage';
-import GameCard from './GameCard';
 import ListGamesTutorial from './ListGamesTutorial';
 import { ListItemContextMenu } from './ListItemContextMenu';
 import SearchFilters from './SearchFilters';
@@ -58,10 +56,6 @@ const ListGamesPage = () => {
 
     const onClick = ({ cohort, id }: GameInfo) => {
         navigate(`${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`);
-    };
-
-    const onClickRow = (params: GridRowParams<GameInfo>) => {
-        onClick(params.row);
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
@@ -121,15 +115,10 @@ const ListGamesPage = () => {
                 <Grid2 size={{ xs: 12, md: 8, lg: 8 }}>
                     <GameTable
                         pagination={pagination}
-                        onClickRow={onClickRow}
+                        onClickRow={(params) => onClick(params.row)}
                         onPaginationModelChange={onPaginationModelChange}
                         contextMenu={contextMenu}
                         type={type}
-                    />
-                    <CardsTable
-                        onClick={() => {}}
-                        card={GameCard}
-                        childProps={pagination.data}
                     />
                     <ListItemContextMenu
                         game={
