@@ -1,3 +1,5 @@
+import { MastersCohort } from '@/components/games/list/GameListItem';
+import { SearchFunc } from '@/hooks/usePagination';
 import { Folder } from '@mui/icons-material';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { LoadingButton } from '@mui/lab';
@@ -33,8 +35,6 @@ import { RequirementCategory } from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
-import { MastersCohort } from './ListGamesPage';
-import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />

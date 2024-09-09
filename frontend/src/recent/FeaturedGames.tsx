@@ -2,11 +2,11 @@ import { Divider, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { gameTableColumns } from '@/components/games/list/GameTable';
 import { DataGridPro, GridRowParams } from '@mui/x-data-grid-pro';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { GameInfo } from '../database/game';
-import { gameTableColumns } from '../games/list/ListGamesPage';
 import LoadingPage from '../loading/LoadingPage';
 
 const FeaturedGames = () => {

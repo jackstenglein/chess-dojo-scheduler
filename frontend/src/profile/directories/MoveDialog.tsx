@@ -1,7 +1,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
-import { RenderPlayers } from '@/games/list/GameListItem';
+import { RenderPlayers } from '@/components/games/list/GameListItem';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
