@@ -1,3 +1,4 @@
+import { useRequiredAuth } from '@/auth/Auth';
 import { Container } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import { useNavigate } from 'react-router-dom';
@@ -12,11 +13,12 @@ const ImportGamePage = () => {
     const request = useRequest<string>();
     const navigate = useNavigate();
     const searchParams = useSearchParams();
+    const { user } = useRequiredAuth();
 
     const onCreate = (req: CreateGameRequest) => {
-        req.directory = searchParams.get('directory') || '';
-
-        console.log('Req.directory: ', req.directory);
+        if (searchParams.has('directory')) {
+            req.directory = `${user.username}/${searchParams.get('directory')}`;
+        }
 
         request.onStart();
         api.createGame(req)
