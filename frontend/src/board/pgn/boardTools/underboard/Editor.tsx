@@ -152,8 +152,13 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const nullMoveStatus = getNullMoveStatus(chess);
 
     return (
-        <CardContent>
-            <Stack spacing={3} mt={move ? 2 : undefined}>
+        <CardContent sx={{ height: { md: 1 } }}>
+            <Stack
+                spacing={3}
+                mt={move ? 2 : undefined}
+                pb={2}
+                sx={{ height: { md: 1 } }}
+            >
                 {move && isMainline ? (
                     <ClockTextField label='Clock (hh:mm:ss)' move={move} />
                 ) : (
@@ -196,10 +201,20 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     id={BlockBoardKeyboardShortcuts}
                     multiline
                     minRows={isMainline ? 3 : 7}
-                    maxRows={9}
                     value={comment}
                     onChange={(event) => chess.setComment(event.target.value)}
                     fullWidth
+                    sx={{
+                        flexGrow: { md: 1 },
+                        '& .MuiInputBase-root': {
+                            md: {
+                                height: 1,
+                                '& .MuiInputBase-input': {
+                                    height: '100% !important',
+                                },
+                            },
+                        },
+                    }}
                 />
 
                 <Stack spacing={1}>
