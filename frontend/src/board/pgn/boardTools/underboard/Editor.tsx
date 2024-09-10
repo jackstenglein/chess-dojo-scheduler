@@ -208,7 +208,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         flexGrow: { md: 1 },
                         '& .MuiInputBase-root': {
                             md: {
-                                height: 1,
+                                height: '100%',
                                 '& .MuiInputBase-input': {
                                     height: '100% !important',
                                 },
