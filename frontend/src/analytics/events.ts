@@ -44,6 +44,14 @@ export enum EventType {
     // Error events
     ErrorBoundary = 'error_boundary',
     PgnErrorBoundary = 'pgn_error_boundary',
+
+    // Directory actions
+    CreateDirectory = 'create_directory',
+    UpdateDirectory = 'update_directory',
+    DeleteDirectory = 'delete_directory',
+    AddDirectoryItems = 'add_directory_items',
+    RemoveDirectoryItems = 'remove_directory_items',
+    MoveDirectoryItems = 'move_directory_items',
 }
 
 export function trackEvent(type: EventType, params?: unknown) {

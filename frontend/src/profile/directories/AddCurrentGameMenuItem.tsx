@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useGame } from '@/games/view/GamePage';
@@ -61,6 +62,10 @@ export const AddCurrentGameMenuItem = ({
                 console.log('addDirectoryItems: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess();
+                trackEvent(EventType.AddDirectoryItems, {
+                    count: 1,
+                    method: 'add_current_game',
+                });
                 onSuccess();
             })
             .catch((err) => {

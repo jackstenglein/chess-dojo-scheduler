@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
@@ -72,6 +73,7 @@ export const MoveDialog = ({
                 onCancel();
                 putDirectory(resp.data.source);
                 putDirectory(resp.data.target);
+                trackEvent(EventType.MoveDirectoryItems, { count: items.length });
 
                 for (const item of items) {
                     if (item.type === DirectoryItemTypes.DIRECTORY) {
