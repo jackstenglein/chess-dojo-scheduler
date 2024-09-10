@@ -80,7 +80,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             disableInteractive
                             title={
                                 view === 'points'
-                                    ? `${Math.round(10 * activity.count) / 10} Dojo points on ${activity.date}`
+                                    ? `${Math.round(10 * activity.count) / 10} Dojo point${activity.count !== 1 ? 's' : ''} on ${activity.date}`
                                     : `${formatTime(activity.count)} on ${activity.date}`
                             }
                         >
