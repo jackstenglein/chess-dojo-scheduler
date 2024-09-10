@@ -1,6 +1,7 @@
-import { Button, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { useAuth } from '@/auth/Auth';
+import { Button, Grid2, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
-
+import { useLocalStorage } from 'usehooks-ts';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, compareCohorts, User } from '../../database/user';
 import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
@@ -53,18 +54,25 @@ function getTimeDisplay(value: number) {
     return `${hours}h ${minutes}m`;
 }
 
+const LAST_SELECTED_COHORTS_KEY = 'lastSelectedCohorts';
+
 interface ActivityPieChartProps {
     user: User;
     timeline: UseTimelineResponse;
 }
 
 const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) => {
-    const [cohorts, setCohorts] = useState([ALL_COHORTS]);
     const [timeframe, setTimeframe] = useState(Timeframe.AllTime);
     const { requirements } = useRequirements(ALL_COHORTS, false);
+    const { user: viewer } = useAuth();
 
     const [scoreChartCategory, setScoreChartCategory] = useState('');
     const [timeChartCategory, setTimeChartCategory] = useState('');
+
+    const [lastSelectedCohorts, setLastSelectedCohorts] = useLocalStorage(
+        LAST_SELECTED_COHORTS_KEY,
+        [ALL_COHORTS],
+    );
 
     const cohortOptions = useMemo(() => {
         let cohortOptions = [ALL_COHORTS, user.dojoCohort];
@@ -93,6 +101,13 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
             ),
         }));
     }, [user.progress, user.dojoCohort]);
+
+    const [cohorts, setCohorts] = useState(
+        viewer?.username === user.username &&
+            lastSelectedCohorts.every((c) => cohortOptions.some((opt) => opt.value === c))
+            ? lastSelectedCohorts
+            : [ALL_COHORTS],
+    );
 
     const scoreChartData = useMemo(() => {
         return getScoreChartData(
@@ -128,6 +143,10 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
             finalCohorts = newCohorts.filter((c) => c !== ALL_COHORTS);
         }
 
+        if (viewer?.username === user.username) {
+            setLastSelectedCohorts(finalCohorts);
+        }
+
         setCohorts(finalCohorts);
     };
 
@@ -150,8 +169,8 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
     };
 
     return (
-        <Grid container columnSpacing={1} justifyContent='center'>
-            <Grid item xs={12} sm={6}>
+        <Grid2 container columnSpacing={1} justifyContent='center'>
+            <Grid2 size={{ xs: 12, sm: 6 }}>
                 <MultipleSelectChip
                     selected={cohorts}
                     setSelected={onChangeCohort}
@@ -161,9 +180,9 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
                     size='small'
                     error={cohorts.length === 0}
                 />
-            </Grid>
+            </Grid2>
 
-            <Grid item xs={12} sm={6}>
+            <Grid2 size={{ xs: 12, sm: 6 }}>
                 <TextField
                     select
                     label='Timeframe'
@@ -180,15 +199,15 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
                         </MenuItem>
                     ))}
                 </TextField>
-            </Grid>
+            </Grid2>
 
-            <Grid item xs={12}>
+            <Grid2 size={12}>
                 <Typography variant='body2' color='text.secondary' textAlign='center'>
                     Click on a segment of the pie chart to see more details
                 </Typography>
-            </Grid>
+            </Grid2>
 
-            <Grid item xs={12} sm={6} md={6} mt={4}>
+            <Grid2 size={{ xs: 12, sm: 6 }} mt={4}>
                 <PieChart
                     id='score-chart'
                     title={`Score Breakdown${
@@ -211,9 +230,9 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
                     getTooltip={getScoreChartTooltip}
                     onClick={onClickScoreChart}
                 />
-            </Grid>
+            </Grid2>
 
-            <Grid item xs={12} sm={6} md={6} mt={4}>
+            <Grid2 size={{ xs: 12, sm: 6 }} mt={4}>
                 <PieChart
                     id='time-chart'
                     title={`Time Breakdown${
@@ -236,8 +255,8 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
                     getTooltip={getTimeChartTooltip}
                     onClick={onClickTimeChart}
                 />
-            </Grid>
-        </Grid>
+            </Grid2>
+        </Grid2>
     );
 };
 
