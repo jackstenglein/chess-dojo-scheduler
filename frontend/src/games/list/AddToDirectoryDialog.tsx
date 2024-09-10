@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
@@ -77,6 +78,10 @@ export const AddToDirectoryDialog = ({
                 console.log('addDirectoryItem: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess(`Game added to ${resp.data.directory.name}`);
+                trackEvent(EventType.AddDirectoryItems, {
+                    count: 1,
+                    method: 'add_to_directory_dialog',
+                });
                 onClose();
             })
             .catch((err) => {

@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { ApiContextType } from '@/api/Api';
 import { Request, RequestSnackbar, useRequest } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';
@@ -179,6 +180,7 @@ export const onUpdateDirectory =
                 if (resp.data.parent) {
                     cache.put(resp.data.parent);
                 }
+                trackEvent(EventType.UpdateDirectory, { visibility });
                 handleClose();
             })
             .catch((err) => {

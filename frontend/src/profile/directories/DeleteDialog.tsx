@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import {
@@ -64,6 +65,9 @@ export const DeleteDialog = ({
                     .then((resp) => {
                         console.log('removeDirectoryItem: ', resp);
                         cache.put(resp.data.directory);
+                        trackEvent(EventType.RemoveDirectoryItems, {
+                            count: gameItemIds.length,
+                        });
                     }),
             );
         }
@@ -72,6 +76,9 @@ export const DeleteDialog = ({
                 api.deleteDirectories(directoryItemIds).then((resp) => {
                     console.log('deleteDirectory: ', resp);
 
+                    trackEvent(EventType.DeleteDirectory, {
+                        count: directoryItemIds.length,
+                    });
                     for (const id of directoryItemIds) {
                         cache.remove(id);
                     }

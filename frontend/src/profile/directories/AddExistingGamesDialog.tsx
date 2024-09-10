@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
@@ -126,6 +127,10 @@ export const AddExistingGamesDialog = ({
                 console.log('addDirectoryItems: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess();
+                trackEvent(EventType.AddDirectoryItems, {
+                    count: games.length,
+                    method: 'add_existing_games_dialog',
+                });
                 onCancel();
             })
             .catch((err) => {

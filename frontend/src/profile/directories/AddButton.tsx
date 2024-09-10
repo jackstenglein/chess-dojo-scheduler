@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
@@ -54,6 +55,7 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
                 console.log('createDirectory: ', resp);
                 cache.put(resp.data.parent);
                 cache.put(resp.data.directory);
+                trackEvent(EventType.CreateDirectory, { visibility });
                 handleClose();
             })
             .catch((err) => {
