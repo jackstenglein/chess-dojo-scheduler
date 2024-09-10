@@ -205,26 +205,6 @@ export const DeleteDirectoriesSchema = z.object({
 export type DeleteDirectoriesRequest = z.infer<typeof DeleteDirectoriesSchema>;
 
 /**
- * Verifies a request to add an item to a directory. Currently, only
- * games are handled by this request. Subdirectories can be added using
- * the create directory request.
- * @deprecated Use AddDirectoryItemsSchema instead.
- */
-export const AddDirectoryItemSchema = DirectorySchema.pick({
-    id: true,
-}).merge(
-    z.object({
-        game: gameMetadataSchema,
-    }),
-);
-
-/**
- * A request to add an item to a directory.
- * @deprecated Use AddDirectoryItemsRequest instead.
- */
-export type AddDirectoryItemRequest = z.infer<typeof AddDirectoryItemSchema>;
-
-/**
  * Verifies a request to add items to a directory. Currently, only
  * games are handled by this request. Subdirectories can be added using
  * the create directory request.
