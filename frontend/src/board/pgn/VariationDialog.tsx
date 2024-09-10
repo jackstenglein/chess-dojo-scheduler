@@ -70,7 +70,12 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
                 } else if (index - 2 >= 0 && index - 2 < move.variations.length) {
                     selectMove(move.variations[index - 2][0]);
                 }
+            } else {
+                return;
             }
+
+            event.preventDefault();
+            event.stopPropagation();
         };
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
