@@ -105,6 +105,18 @@ const defaultPalette = {
         },
         name: 'meet',
     }),
+    youtube: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#FF0000',
+        },
+        name: 'youtube',
+    }),
+    twitch: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#6441a5',
+        },
+        name: 'twitch',
+    }),
     book: defaultTheme.palette.augmentColor({
         color: {
             main: '#d95dc6',
