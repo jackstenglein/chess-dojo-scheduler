@@ -68,6 +68,7 @@ import {
     TournamentType,
 } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
+import { ChessDojoIcon } from './ChessDojoIcon';
 import { RookIcon } from './ChessIcons';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from './SocialMediaIcons';
 
@@ -155,7 +156,7 @@ export const icons = {
     info: Info,
     [EventType.Availability]: Event,
     [EventType.Coaching]: RocketLaunch,
-    [EventType.Dojo]: LiveTv,
+    [EventType.Dojo]: ChessDojoIcon,
     [EventType.LigaTournament]: MilitaryTech,
     [CalendarSessionType.AllSessions]: AllInclusiveRounded,
     [CalendarSessionType.Availabilities]: Event,
