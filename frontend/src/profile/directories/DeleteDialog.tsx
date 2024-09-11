@@ -125,6 +125,7 @@ export const DeleteDialog = ({
                                     }
                                 }}
                                 fullWidth
+                                autoFocus
                             />
                         </>
                     )}
