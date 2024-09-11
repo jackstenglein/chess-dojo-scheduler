@@ -83,6 +83,7 @@ export const UpdateDirectoryDialog = ({
                     sx={{ mt: 0.75, mb: 3 }}
                     helperText={`${name.trim().length} / 100 characters`}
                     error={name.trim().length > 100}
+                    autoFocus
                 />
 
                 <FormControl>
