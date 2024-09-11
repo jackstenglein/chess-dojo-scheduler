@@ -13,7 +13,7 @@ const publicPaths = [
     /^\/courses$/,
     /^\/material\/books$/,
     /^\/material\/ratings$/,
-    /^\/blog$/,
+    /^\/blog\/?.*$/,
     /^\/coaching$/,
     /^\/dojodigest\/unsubscribe$/,
     /^\/prices$/,
