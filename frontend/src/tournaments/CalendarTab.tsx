@@ -164,6 +164,7 @@ const CalendarTab = () => {
                 <Button
                     onClick={toggleFilters}
                     startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
+                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
                 >
                     {showFilters ? 'Hide Filters' : 'Show Filters'}
                 </Button>

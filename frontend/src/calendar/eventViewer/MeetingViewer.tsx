@@ -24,11 +24,7 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
             <Field
                 title='Location'
                 body={event.location || 'Discord'}
-                iconName={
-                    event.location.toLocaleLowerCase().includes('discord')
-                        ? 'discord'
-                        : 'location'
-                }
+                iconName='location'
             />
 
             {event.bookedType ? (

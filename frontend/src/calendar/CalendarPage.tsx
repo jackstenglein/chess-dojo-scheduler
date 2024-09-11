@@ -172,12 +172,20 @@ function processDojoEvent(
         return null;
     }
 
+    const location = event.location.toLowerCase();
+    let color = 'dojoOrange.main';
+    if (location.includes('twitch')) {
+        color = 'twitch.main';
+    } else if (location.includes('youtube')) {
+        color = 'youtube.main';
+    }
+
     return {
         event_id: event.id,
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'dojoOrange.main',
+        color,
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
         draggable: user?.isAdmin || user?.isCalendarAdmin,
@@ -492,6 +500,7 @@ export default function CalendarPage() {
                     <Button
                         onClick={toggleFilters}
                         startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
+                        sx={{ display: { xs: 'none', md: 'inline-flex' } }}
                     >
                         {showFilters ? 'Hide Filters' : 'Show Filters'}
                     </Button>
@@ -576,33 +585,38 @@ interface CustomEventRendererProps extends EventRendererProps {
     timeFormat: TimeFormat | undefined;
 }
 
-export function getLocationIcon(location: string | undefined) {
-    if (location == undefined) {
-        return 'meet';
+/**
+ * Returns the location icon for the given event.
+ * @param dojoEvent The event to get the location icon for.
+ * @returns The location icon name or undefined if the event is undefined.
+ */
+function getLocationIcon(dojoEvent: Event | undefined): keyof typeof icons | undefined {
+    if (!dojoEvent) {
+        return undefined;
     }
 
-    if (location.toLocaleLowerCase().includes('discord')) {
+    if (dojoEvent.ligaTournament?.timeControlType) {
+        return dojoEvent.ligaTournament.timeControlType;
+    }
+
+    if (dojoEvent.type !== EventType.Dojo) {
+        return dojoEvent.type;
+    }
+
+    const location = dojoEvent.location;
+    if (!location) {
+        return dojoEvent.type;
+    }
+
+    if (location.toLowerCase().includes('discord')) {
         return 'discord';
-    } else if (location.toLocaleLowerCase().includes('twitch')) {
+    } else if (location.toLowerCase().includes('twitch')) {
         return 'twitch';
-    } else if (location.toLocaleLowerCase().includes('youtube')) {
+    } else if (location.toLowerCase().includes('youtube')) {
         return 'youtube';
     }
-}
 
-export function getStreamColor(
-    location: string | undefined,
-    normalColor: string | undefined,
-) {
-    const color = getLocationIcon(location);
-    switch (color) {
-        case 'twitch':
-            return '#6441a5';
-        case 'youtube':
-            return '#FF0000';
-        default:
-            return normalColor;
-    }
+    return dojoEvent.type;
 }
 
 export function CustomEventRenderer({
@@ -627,13 +641,12 @@ export function CustomEventRenderer({
     const quarterHours = Math.abs(event.start.getTime() - event.end.getTime()) / 900000;
     const maxLines = 2 + Math.max(0, quarterHours - 4);
     const dojoEvent = event.event as Event | undefined;
-    const location = dojoEvent?.location;
 
     return (
         <Stack
             sx={{
                 height: '100%',
-                backgroundColor: getStreamColor(location, event.color),
+                backgroundColor: event.color,
                 color: textColor,
                 fontSize: '0.775em',
                 pl: 0.25,
@@ -643,10 +656,7 @@ export function CustomEventRenderer({
         >
             <Stack direction='row' alignItems='start' spacing={0.5}>
                 <Icon
-                    name={
-                        (dojoEvent?.ligaTournament?.timeControlType ||
-                            getLocationIcon(location)) as keyof typeof icons
-                    }
+                    name={getLocationIcon(dojoEvent)}
                     color='inherit'
                     fontSize='inherit'
                     sx={{
