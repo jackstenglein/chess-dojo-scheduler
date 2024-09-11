@@ -83,6 +83,21 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt DirectoriesTable.Arn
 
+  share:
+    handler: share.handler
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/share
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatement:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
   delete:
     handler: delete.handler
     events:

@@ -6,6 +6,7 @@ import {
     Directory,
     MoveDirectoryItemsRequest,
     RemoveDirectoryItemsRequest,
+    ShareDirectoryRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import axios, { AxiosResponse } from 'axios';
@@ -27,6 +28,13 @@ export interface DirectoryApiContextType {
     updateDirectory: (
         request: UpdateDirectoryRequest,
     ) => Promise<AxiosResponse<UpdateDirectoryResponse>>;
+
+    /**
+     * Shares the directory with the users in the given request.
+     * @param request The request to share the directory.
+     * @returns An empty AxiosResponse.
+     */
+    shareDirectory: (request: ShareDirectoryRequest) => Promise<AxiosResponse<null>>;
 
     deleteDirectories: (ids: string[]) => Promise<AxiosResponse<{ parent?: Directory }>>;
 
@@ -89,6 +97,16 @@ export function updateDirectory(idToken: string, request: UpdateDirectoryRequest
     return axios.put<UpdateDirectoryResponse>(`${BASE_URL}/directory`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
     });
+}
+
+export function shareDirectory(idToken: string, request: ShareDirectoryRequest) {
+    return axios.put<null>(
+        `${BASE_URL}/directory/${request.owner}/${request.id}`,
+        { access: request.access },
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
+    );
 }
 
 /**
