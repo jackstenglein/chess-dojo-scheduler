@@ -26,6 +26,7 @@ import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { ownerColumns, publicColumns } from './DirectoryGridColumns';
+import { ShareButton } from './ShareButton';
 
 const pageSizeOptions = [10, 25, 50, 100];
 
@@ -118,6 +119,7 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
                     sx={{ minHeight: '42px' }}
                 >
                     <AddButton directory={directory} />
+                    <ShareButton directory={directory} />
 
                     <BulkItemEditor
                         directory={directory}

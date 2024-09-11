@@ -55,6 +55,12 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
          * The id of the directory item. For a subdirectory, this is the id of the directory. */
         id: z.string().uuid(),
 
+        /**
+         * The username of the person who added the item to the directory. If
+         * not included, the directory owner is the adder.
+         */
+        addedBy: z.string().optional(),
+
         /** The metadata of the directory item. */
         metadata: z.object({
             /** The datetime the directory was created, in ISO format. */
@@ -68,6 +74,9 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 
             /** The name of the directory. */
             name: z.string().trim().max(100),
+
+            /** Whether the directory has been shared. */
+            shared: z.boolean().optional(),
         }),
     }),
     z.object({
@@ -116,6 +125,23 @@ export function isDefaultDirectory(id: string): boolean {
     return DEFAULT_DIRECTORIES.includes(id);
 }
 
+/**
+ * Access roles a user can have on a shared directory.
+ *
+ * NEVER change the order of or remove roles. Appending new
+ * roles to the end of the list is OK.
+ */
+export enum DirectoryAccessRole {
+    /** Viewers can see all games and sub directories. */
+    Viewer,
+
+    /** Editors can add games and remove games they added. */
+    Editor,
+
+    /** Admins can perform all directory actions except deleting the directory. */
+    Admin,
+}
+
 export const DirectorySchema = z.object({
     /** The username of the owner of the directory. */
     owner: z.string(),
@@ -147,6 +173,9 @@ export const DirectorySchema = z.object({
 
     /** The datetime the directory was updated, in ISO format. */
     updatedAt: z.string().datetime(),
+
+    /** A map from username to the user's access role in the directory. */
+    access: z.record(z.string(), z.nativeEnum(DirectoryAccessRole)).optional(),
 });
 
 /** A directory owned by a user. */
@@ -257,3 +286,13 @@ export const MoveDirectoryItemsSchema = z
 
 /** A request to move items between directories. */
 export type MoveDirectoryItemsRequest = z.infer<typeof MoveDirectoryItemsSchema>;
+
+/** Verifies the type of a request to share a directory. */
+export const ShareDirectorySchema = DirectorySchema.pick({
+    owner: true,
+    id: true,
+    access: true,
+}).required();
+
+/** A request to share a directory. */
+export type ShareDirectoryRequest = z.infer<typeof ShareDirectorySchema>;
