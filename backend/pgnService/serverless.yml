@@ -160,6 +160,7 @@ functions:
         Resource: ${param:DirectoriesTableArn}
 
   updateGame:
+    timeout: 28
     handler: game/update.handler
     events:
       - httpApi:
