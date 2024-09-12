@@ -19,6 +19,12 @@ export interface BlogItem {
 
 const items: BlogItem[] = [
     {
+        title: 'Dojo at the Olympiad',
+        subtitle: 'September 2, 2024',
+        body: `Jan, known in the Dojo as LifeCanBeSoNice got the party started with this amazing AI driven hype video. And Sensei David did a vid about German #1 Vincent Keymer.`,
+        href: '/blog/player-spotlight/dojo-at-olympiad',
+    },
+    {
         title: 'Will LifeCanBeSoNice Reach 2000?',
         subtitle: 'Dojo Player Spotlight • September 2, 2024',
         body: `Jan, aka LifeCanBeSoNice, is going for it. Since joining the Dojo last year, he has gained 279 points and has started his own chess improvement channel with his coach IM Jurica Srbis. His goal is 2000 Lichess. It’s a magical number! Will he be able to make it?`,
