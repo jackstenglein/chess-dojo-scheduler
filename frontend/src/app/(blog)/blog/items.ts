@@ -4,6 +4,7 @@ import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
+import olympiadImage from './olympiad-2024/olympiad.jpg';
 import tacticsTestImage from './tactics-test/image.png';
 
 export interface BlogItem {
@@ -20,9 +21,13 @@ export interface BlogItem {
 const items: BlogItem[] = [
     {
         title: 'Dojo at the Olympiad',
-        subtitle: 'September 2, 2024',
-        body: `Jan, known in the Dojo as LifeCanBeSoNice got the party started with this amazing AI driven hype video. And Sensei David did a vid about German #1 Vincent Keymer.`,
-        href: '/blog/player-spotlight/dojo-at-olympiad',
+        subtitle: 'September 12, 2024',
+        body: `Jan (LifeCanBeSoNice) got the party started with an amazing AI driven hype video, and Sensei David covers German #1 Vincent Keymer's streak in the 2024 Akiba Rubinstein Memorial.`,
+        href: '/blog/olympiad-2024',
+        image: {
+            src: olympiadImage,
+            alt: '',
+        },
     },
     {
         title: 'Will LifeCanBeSoNice Reach 2000?',

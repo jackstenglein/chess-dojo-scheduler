@@ -1,11 +1,11 @@
 import { Container, Divider, Link, Typography } from '@mui/material';
 import { Metadata } from 'next';
-import { Footer } from '../../common/Footer';
-import { Header } from '../../common/Header';
+import { Footer } from '../common/Footer';
+import { Header } from '../common/Header';
 
 export const metadata: Metadata = {
     title: 'Dojo at the Olympiad!',
-    description: `Jan, known in the Dojo as LifeCanBeSoNice got the party started with this amazing AI driven hype video. And Sensei David did a vid about German #1 Vincent Keymer.`,
+    description: `Jan (LifeCanBeSoNice) got the party started with an amazing AI driven hype video, and Sensei David covers German #1 Vincent Keymer's streak in the 2024 Akiba Rubinstein Memorial.`,
 };
 
 export default function DojoTalksTop2025() {
@@ -53,16 +53,16 @@ export default function DojoTalksTop2025() {
             <br />
             <br />
             <Typography>
-                Dojo hopes to do several rounds of{' '}
-                <Link href='https://www.twitch.tv/chessdojo'>Twitch coverage </Link>
-                of the event after sensei Kostya finishes his luxurious Italian norm
-                event, which we are also covering. After Kostya has eaten all the pasta he
-                can eat he’s heading over to Budapest with a fancy press pass. We will
-                have our own reporter on the ground!
+                The Dojo will cover several rounds of the Olympiad on{' '}
+                <Link href='https://www.twitch.tv/chessdojo'>Twitch</Link> after sensei
+                Kostya finishes his luxurious Italian norm event, which we are also
+                covering. After Kostya has had all the pasta he can eat, he's heading over
+                to Budapest with a fancy press pass. We will have our own reporter on the
+                ground!
             </Typography>
             <Divider sx={{ my: 6 }} />
 
-            <Footer utmSource='playerspotlight' utmCampaign='lifecanbesonice' />
+            <Footer utmSource='olympiad' utmCampaign='olympiad' />
         </Container>
     );
 }
