@@ -407,7 +407,9 @@ async function updateDirectories(newGame: Game, oldGame: Game) {
                 continue;
             }
 
-            const params = marshall([gameInfo, owner, id]) as unknown as AttributeValue[];
+            const params = marshall([gameInfo, owner, id], {
+                removeUndefinedValues: true,
+            }) as unknown as AttributeValue[];
             statements.push({
                 Statement: `UPDATE "${directoryTable}" SET items."${gameId}".metadata=? WHERE owner=? AND id=?`,
                 Parameters: params,
