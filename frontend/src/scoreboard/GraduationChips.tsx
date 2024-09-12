@@ -1,5 +1,4 @@
 import { Chip, Stack } from '@mui/material';
-
 import {
     formatRatingSystem,
     getMinRatingBoundary,
@@ -14,7 +13,7 @@ interface GraduationChipsProps {
 const { Custom, ...ratingSystems } = RatingSystem;
 
 const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
-    const ratingBoundary = getRatingBoundary(cohort, RatingSystem.Fide);
+    const ratingBoundary = getRatingBoundary(cohort, RatingSystem.Chesscom);
 
     if (!ratingBoundary) {
         return null;
@@ -29,12 +28,23 @@ const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
             mb={2}
             flexWrap='wrap'
         >
-            {Object.values(ratingSystems).map((rs) => (
-                <Chip
-                    key={rs}
-                    label={`${getMinRatingBoundary(cohort, rs)}-${getRatingBoundary(cohort, rs)} ${formatRatingSystem(rs)}`}
-                />
-            ))}
+            {Object.values(ratingSystems).map((rs) => {
+                let minRating = getMinRatingBoundary(cohort, rs);
+                const maxRating = getRatingBoundary(cohort, rs);
+                if (!maxRating) {
+                    return null;
+                }
+                if (minRating === 0 && rs === RatingSystem.Fide) {
+                    minRating = 1400;
+                }
+
+                return (
+                    <Chip
+                        key={rs}
+                        label={`${minRating}-${maxRating} ${formatRatingSystem(rs)}`}
+                    />
+                );
+            })}
         </Stack>
     );
 };
