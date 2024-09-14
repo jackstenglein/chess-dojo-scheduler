@@ -112,7 +112,7 @@ describe('Directories', () => {
             .rightclick();
         cy.contains('Edit Name/Visibility').click();
 
-        cy.getBySel('update-directory-name').clear();
+        cy.getBySel('update-directory-name').type('{selectall}{del}');
         cy.getBySel('update-directory-save-button').should('be.disabled');
         cy.getBySel('update-directory-name').type('Test');
         cy.getBySel('update-directory-save-button').should('be.disabled');
