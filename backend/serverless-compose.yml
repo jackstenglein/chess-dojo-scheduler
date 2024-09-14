@@ -1,4 +1,7 @@
 services:
+  auth:
+    path: auth
+
   chess-dojo-scheduler:
     path: root
 

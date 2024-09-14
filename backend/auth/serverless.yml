@@ -1,0 +1,45 @@
+service: chess-dojo-auth
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  deploymentMethod: direct
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
+  Resources:
+    ######### Cognito Resources ###############
+
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      DeletionPolicy: Retain
+      Properties:
+        AliasAttributes:
+          - email
+          - phone_number
+        AutoVerifiedAttributes:
+          - email
+        DeletionProtection: ACTIVE
+        MfaConfiguration: OFF
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+        UsernameConfiguration:
+          CaseSensitive: false
+        UserPoolName: ${sls:stage}-chess-dojo-auth-pool
+        Schema:
+          - Name: email
+            Mutable: true
+            Required: false
+          - Name: phone_number
+            Mutable: true
+            Required: false
+          - Name: subscription
+            Mutable: true
+            Required: false
+            AttributeDataType: String
