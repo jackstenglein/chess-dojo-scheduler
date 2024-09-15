@@ -20,6 +20,12 @@ export interface BlogItem {
 
 const items: BlogItem[] = [
     {
+        title: 'The New Dojo Rating Translator',
+        subtitle: 'Jesse Kraai • September 15, 2024',
+        body: `One of the first and essential building stones of the Dojo Training Program was the creation of a universal rating system...`,
+        href: '/blog/new-ratings',
+    },
+    {
         title: 'Dojo at the Olympiad',
         subtitle: 'September 12, 2024',
         body: `Jan (LifeCanBeSoNice) got the party started with an amazing AI driven hype video, and Sensei David covers German #1 Vincent Keymer's streak in the 2024 Akiba Rubinstein Memorial.`,
