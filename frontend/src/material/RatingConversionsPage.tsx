@@ -24,8 +24,19 @@ const RatingConversionsPage = () => {
     const ratingSystems = Object.values(others);
 
     return (
-        <Container maxWidth={false} sx={{ py: 5 }}>
-            <TableContainer component={Paper}>
+        <Container
+            maxWidth={false}
+            sx={{
+                py: 5,
+                overflow: 'hidden',
+            }}
+        >
+            <TableContainer
+                component={Paper}
+                sx={{
+                    height: 'calc(100vh - var(--navbar-height) - 80px)',
+                }}
+            >
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>
