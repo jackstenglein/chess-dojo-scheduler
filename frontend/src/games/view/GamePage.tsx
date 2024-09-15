@@ -1,5 +1,8 @@
+import { boardAtom, gameAtom } from '@/stockfish/engine/EngineState';
+import { useAtomLocalStorage } from '@/stockfish/hooks/useAtomLocalStorage';
 import { Chess } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
+import { Chess as Chessjs } from 'chess.js';
 import { createContext, useContext, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
@@ -74,7 +77,16 @@ const GamePage = () => {
         updateRequest.onStart();
 
         const chess = new Chess();
+        const [engineGame, setEngineGame] = useAtomLocalStorage('engine-game', gameAtom);
+        const [boardGame, setEngineBoardGame] = useAtomLocalStorage(
+            'engine-board-game',
+            boardAtom,
+        );
         chess.loadPgn(game.pgn);
+        const chessjs = new Chessjs();
+        chessjs.loadPgn(game.pgn);
+        setEngineGame(chessjs);
+        setEngineBoardGame(chessjs);
         const headerMap = {
             White: headers.white,
             Black: headers.black,
@@ -149,6 +161,7 @@ const GamePage = () => {
                             DefaultUnderboardTab.Explorer,
                             DefaultUnderboardTab.Clocks,
                             DefaultUnderboardTab.Settings,
+                            DefaultUnderboardTab.Engine,
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
                     />
