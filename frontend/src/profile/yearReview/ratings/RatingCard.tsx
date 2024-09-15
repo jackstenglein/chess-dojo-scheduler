@@ -200,7 +200,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                         >
                                             Normalized
                                         </Typography>
-                                        <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
+                                        <Tooltip title='Normalized Dojo rating using the table on Material > Rating Conversions'>
                                             <Help
                                                 fontSize='inherit'
                                                 sx={{
