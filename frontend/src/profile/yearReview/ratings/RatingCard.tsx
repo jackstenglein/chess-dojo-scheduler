@@ -14,7 +14,7 @@ import { Chart } from 'react-charts';
 import {
     RatingSystem,
     formatRatingSystem,
-    normalizeToFide,
+    getNormalizedRating,
 } from '../../../database/user';
 import { YearReviewRatingData } from '../../../database/yearReview';
 import {
@@ -218,7 +218,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                         }}
                                     >
                                         {Math.round(
-                                            normalizeToFide(
+                                            getNormalizedRating(
                                                 data.currentRating.value,
                                                 system,
                                             ),

@@ -44,7 +44,7 @@ import PgnBoard, {
 import { useDebounce } from '../../board/pgn/boardTools/boardButtons/StatusIcon';
 import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from '../../board/pgn/pgnText/MoveButton';
-import { getCurrentRating, normalizeToFide } from '../../database/user';
+import { getCurrentRating, getNormalizedRating } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import Instructions from '../instructions/Instructions';
 import CompletedExamPgnSelector from './CompletedExamPgnSelector';
@@ -227,7 +227,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                 pgn: selectedProblem === i ? pgnApi.current?.getPgn() || '' : pgn,
             })),
             cohort: user.dojoCohort,
-            rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
+            rating: getNormalizedRating(getCurrentRating(user), user.ratingSystem),
             timeUsedSeconds: Math.round(countdown.elapsedTime),
             createdAt: '',
             inProgress,
@@ -326,7 +326,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                 pgn,
             })),
             cohort: user.dojoCohort,
-            rating: normalizeToFide(getCurrentRating(user), user.ratingSystem),
+            rating: getNormalizedRating(getCurrentRating(user), user.ratingSystem),
             timeUsedSeconds: Math.round(countdown.elapsedTime),
             createdAt: new Date().toISOString(),
         };

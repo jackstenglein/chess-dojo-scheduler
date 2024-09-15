@@ -28,7 +28,7 @@ import {
     getColumnDefinition,
     getCurrentRating,
     getMinutesSpent,
-    getNormalizedRating,
+    getNormalizedRatingRow,
     getPercentComplete,
     getRatingChange,
     getRatingSystem,
@@ -200,7 +200,7 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
         field: 'normalizedRating',
         headerName: 'Normalized FIDE Rating',
         minWidth: 200,
-        valueGetter: (_value, row) => getNormalizedRating(row),
+        valueGetter: (_value, row) => getNormalizedRatingRow(row),
         renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) =>
             (params.value ?? -1) >= 0 ? (
                 params.value

@@ -10,13 +10,16 @@ describe('Rating Conversions Tab', () => {
 
     it('should have correct content', () => {
         [
-            'FIDE (Dojo Cohort)',
+            'Dojo Cohort',
             'Chess.com Rapid',
             'Lichess Classical',
+            'FIDE',
             'USCF',
             'ECF',
             'CFC',
             'DWZ',
+            'ACF',
+            'KNSB',
         ].forEach((item) => {
             cy.contains(item);
         });
