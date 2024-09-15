@@ -339,7 +339,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                             getNormalizedRating(currentRating, system),
                                         )}
                                     </Typography>
-                                    <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
+                                    <Tooltip title='Normalized Dojo rating using the table on Material > Rating Conversions'>
                                         <HelpIcon
                                             sx={{
                                                 mb: '5px',
