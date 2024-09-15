@@ -143,8 +143,15 @@ export function SwitchCohortPrompt() {
                             sparring partners more similar in strength and give you
                             training material better suited to your level.
                             <br />
-                            You can find more information in the FAQs on our{' '}
-                            <Link href='/help'>help page</Link>.
+                            You can find more information on our{' '}
+                            <Link href='/blog/new-ratings' target='_blank'>
+                                blog
+                            </Link>{' '}
+                            or in the FAQs on our{' '}
+                            <Link href='/help' target='_blank'>
+                                help page
+                            </Link>
+                            .
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
