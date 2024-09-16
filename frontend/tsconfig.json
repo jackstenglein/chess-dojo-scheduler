@@ -33,6 +33,6 @@
         "./*.mjs",
         "./next-env.d.ts",
         ".next/types/**/*.ts"
-, "public/engine/stockfish-wasm/stockfish-16.1.js"    ],
+    ],
     "exclude": ["node_modules"]
 }

@@ -1,55 +1,72 @@
+import { useChess } from '@/board/pgn/PgnBoard';
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect } from 'react';
+import { EngineName } from '../engine/engineEnum';
+import { PositionEval } from '../engine/engineEval';
 import {
-    boardAtom,
     currentPositionAtom,
     engineDepthAtom,
     engineMultiPvAtom,
-    gameAtom,
-  } from "../engine/EngineState";
-  import { CurrentPosition, PositionEval } from "../engine/EngineEval";
-  import { useAtom, useAtomValue } from "jotai";
-  import { useEffect } from "react";
-  import { useEngine } from "./useEngine";
-  import { EngineName } from "../engine/EngineEnum";
-  
-  export const useCurrentPosition = (engineName?: EngineName) => {
+    savedEvalsAtom,
+} from '../engine/engineState';
+import { useEngine } from './useEngine';
+
+export const useCurrentPosition = (engineName?: EngineName) => {
     const [currentPosition, setCurrentPosition] = useAtom(currentPositionAtom);
+    const { chess } = useChess();
+
     const engine = useEngine(engineName);
-    const game = useAtomValue(gameAtom);
-    const board = useAtomValue(boardAtom);
     const depth = useAtomValue(engineDepthAtom);
     const multiPv = useAtomValue(engineMultiPvAtom);
-  
+    const [savedEvals, setSavedEvals] = useAtom(savedEvalsAtom);
+
     useEffect(() => {
-      const position: CurrentPosition = {
-        lastMove: board.history({ verbose: true }).at(-1),
-      };
-  
-      const boardHistory = board.history();
-      const gameHistory = game.history();
-  
-      if (
-        boardHistory.length <= gameHistory.length &&
-        gameHistory.slice(0, boardHistory.length).join() === boardHistory.join()
-      ) {
-        position.currentMoveIdx = boardHistory.length;
-  
-      }
-  
-      if (!position.eval && engine?.isReady()) {
-        const setPartialEval = (positionEval: PositionEval) => {
-          setCurrentPosition({ ...position, eval: positionEval });
+        if (!chess) {
+            return;
+        }
+        if (!engine?.isReady() || !engineName) {
+            console.error(`Engine ${engineName} not ready`);
+            return;
+        }
+
+        const evaluate = async () => {
+            const fen = chess.fen();
+            const savedEval = savedEvals[fen];
+
+            if (savedEval?.engine === engineName && savedEval.lines[0].depth >= depth) {
+                setCurrentPosition({ eval: savedEval });
+                return;
+            }
+
+            const rawPositionEval = await engine.evaluatePositionWithUpdate({
+                fen,
+                depth,
+                multiPv,
+                setPartialEval: (positionEval: PositionEval) => {
+                    setCurrentPosition({ eval: positionEval });
+                },
+            });
+
+            setSavedEvals((prev) => ({
+                ...prev,
+                [fen]: { ...rawPositionEval, engine: engineName },
+            }));
         };
-  
-        engine.evaluatePositionWithUpdate({
-          fen: board.fen(),
-          depth,
-          multiPv,
-          setPartialEval,
-        });
-      }
-  
-      setCurrentPosition(position);
-    }, [board, game, engine, depth, multiPv, setCurrentPosition]);
-  
+
+        void evaluate();
+        return () => {
+            void engine?.stopSearch();
+        };
+    }, [
+        chess,
+        depth,
+        engine,
+        engineName,
+        multiPv,
+        savedEvals,
+        setCurrentPosition,
+        setSavedEvals,
+    ]);
+
     return currentPosition;
-  };
+};

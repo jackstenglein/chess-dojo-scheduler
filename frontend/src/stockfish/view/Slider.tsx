@@ -1,4 +1,4 @@
-import { Grid, Slider as MuiSlider, Typography } from '@mui/material';
+import { Grid2, Slider as MuiSlider, Typography } from '@mui/material';
 
 interface Props {
     value: number;
@@ -10,6 +10,16 @@ interface Props {
     marksFilter?: number;
 }
 
+/**
+ * Renders a MUI Slider with a label and marks at specified steps.
+ * @param min The min value of the slider.
+ * @param max The max value of the slider.
+ * @param label The label displayed to the left of the slider.
+ * @param value The current value of the slider.
+ * @param setValue A callback invoked with the new value of the slider on changes.
+ * @param xs The size of the grid container on xs breakpoint.
+ * @param marksFilter The mod of the slider marks.
+ */
 export default function Slider({
     min,
     max,
@@ -20,7 +30,7 @@ export default function Slider({
     marksFilter = 1,
 }: Props) {
     return (
-        <Grid item container xs={xs ?? 11} justifyContent='center' alignItems='center'>
+        <Grid2 container size={xs ?? 11} justifyContent='center' alignItems='center'>
             <Typography id={`input-${label}`} textAlign='left' width='100%'>
                 {label}
             </Typography>
@@ -38,6 +48,6 @@ export default function Slider({
                 onChange={(_, value) => setValue(value as number)}
                 aria-labelledby={`input-${label}`}
             />
-        </Grid>
+        </Grid2>
     );
 }

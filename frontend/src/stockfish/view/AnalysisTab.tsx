@@ -1,12 +1,12 @@
-import { Grid, Grid2Props, List, Typography } from '@mui/material';
+import { Grid2, Grid2Props, List, Typography } from '@mui/material';
 import { useAtomValue } from 'jotai';
-import { LineEval } from '../engine/EngineEval';
+import { LineEval } from '../engine/engineEval';
 import {
     boardAtom,
     engineMultiPvAtom,
     engineNameAtom,
     gameAtom,
-} from '../engine/EngineState';
+} from '../engine/engineState';
 import { useCurrentPosition } from '../hooks/useCurrentPosition';
 import EngineSettingsButton from './EngineSettingsButton';
 import LineEvaluation from './LineEval';
@@ -22,24 +22,25 @@ export default function AnalysisTab(props: Grid2Props) {
     const gameHistory = game.history();
 
     const isGameOver =
-    boardHistory.length > 0 &&
-    (board.isCheckmate() ||
-      board.isDraw() ||
-      boardHistory.join() === gameHistory.join());
+        boardHistory.length > 0 &&
+        (board.isCheckmate() ||
+            board.isDraw() ||
+            boardHistory.join() === gameHistory.join());
 
-  const linesSkeleton: LineEval[] = Array.from({ length: linesNumber }).map(
-    (_, i) => ({ pv: [`${i}`], depth: 0, multiPv: i + 1 })
-  );
+    const linesSkeleton: LineEval[] = Array.from({ length: linesNumber }).map((_, i) => ({
+        pv: [`${i}`],
+        depth: 0,
+        multiPv: i + 1,
+    }));
 
     const engineLines = position?.eval?.lines?.length
         ? position.eval.lines
         : linesSkeleton;
 
     return (
-        <Grid
-            item
+        <Grid2
             container
-            xs={12}
+            size={12}
             justifyContent='center'
             alignItems='start'
             height='100%'
@@ -52,22 +53,23 @@ export default function AnalysisTab(props: Grid2Props) {
             }
         >
             {isGameOver && (
-                <Grid item xs={12}>
+                <Grid2 size={12}>
                     <Typography align='center' fontSize='0.9rem'>
                         Game is over
                     </Typography>
-                </Grid>
+                </Grid2>
             )}
 
-            <Grid item container xs={12} justifyContent='center' alignItems='center'>
+            <Grid2 container size={12} justifyContent='center' alignItems='center'>
                 <List sx={{ maxWidth: '95%', padding: 0 }}>
                     <EngineSettingsButton />
+
                     {!board.isCheckmate() &&
                         engineLines.map((line) => (
                             <LineEvaluation key={line.multiPv} line={line} />
                         ))}
                 </List>
-            </Grid>
-        </Grid>
+            </Grid2>
+        </Grid2>
     );
 }

@@ -4,20 +4,19 @@ import {
     CardContent,
     CardHeader,
     FormControl,
-    Grid,
+    Grid2,
     InputLabel,
     MenuItem,
     OutlinedInput,
     Select,
     Typography,
 } from '@mui/material';
-import { EngineName } from '../engine/EngineEnum';
+import { EngineName } from '../engine/engineEnum';
 import {
     engineDepthAtom,
     engineMultiPvAtom,
     engineNameAtom,
-} from '../engine/EngineState';
-import { Stockfish16 } from '../engine/Stockfish16';
+} from '../engine/engineState';
 import { useAtomLocalStorage } from '../hooks/useAtomLocalStorage';
 import Slider from './Slider';
 
@@ -49,16 +48,15 @@ export default function EngineSettingsCard({ onClose }: Props) {
                     balance between speed and strength. Stockfish 16 is the strongest
                     engine available, note that it requires a one-time download of 40MB.
                 </Typography>
-                <Grid
+                <Grid2
                     marginTop={4}
-                    item
                     container
                     justifyContent='center'
                     alignItems='center'
-                    xs={12}
+                    size={12}
                     rowGap={3}
                 >
-                    <Grid item container xs={12} justifyContent='center'>
+                    <Grid2 container size={12} justifyContent='center'>
                         <FormControl variant='outlined'>
                             <InputLabel id='card-select-label'>Engine</InputLabel>
                             <Select
@@ -76,18 +74,18 @@ export default function EngineSettingsCard({ onClose }: Props) {
                                     <MenuItem
                                         key={engine}
                                         value={engine}
-                                        disabled={
-                                            engine.includes('stockfish_16')
-                                                ? !Stockfish16.isSupported()
-                                                : false
-                                        }
+                                        // disabled={
+                                        //     engine.includes('stockfish_16')
+                                        //         ? !Stockfish16.isSupported()
+                                        //         : false
+                                        // }
                                     >
                                         {engineLabel[engine]}
                                     </MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
-                    </Grid>
+                    </Grid2>
 
                     <Slider
                         label='Maximum depth'
@@ -106,7 +104,7 @@ export default function EngineSettingsCard({ onClose }: Props) {
                         max={6}
                         xs={6}
                     />
-                </Grid>
+                </Grid2>
             </CardContent>
             <Button variant='contained' onClick={onClose} sx={{ m: 2 }}>
                 Done

@@ -1,8 +1,8 @@
 import { ListItem, Skeleton, Typography } from '@mui/material';
 import { useAtomValue } from 'jotai';
-import { getLineEvalLabel, moveLineUciToSan } from '../engine/ChessHelper';
-import { LineEval } from '../engine/EngineEval';
-import { boardAtom } from '../engine/EngineState';
+import { getLineEvalLabel, moveLineUciToSan } from '../engine/chessHelper';
+import { LineEval } from '../engine/engineEval';
+import { boardAtom } from '../engine/engineState';
 
 interface Props {
     line: LineEval;
