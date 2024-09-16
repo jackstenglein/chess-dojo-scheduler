@@ -1,7 +1,8 @@
 
   export enum EngineName {
-    Stockfish16point1 = "stockfish_16.1",
-    Stockfish16point1NNUE = "stockfish_16.1_nnue",
+    Stockfish16 = "stockfish_16",
+    Stockfish16NNUE = "stockfish_16_nnue",
+    Stockfish11 = "stockfish_11",
   }
   
 

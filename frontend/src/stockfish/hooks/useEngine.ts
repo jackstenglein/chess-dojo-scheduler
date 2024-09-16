@@ -1,8 +1,9 @@
 
-import { Stockfish16 } from "../engine/Stockfish";
+import { Stockfish16 } from "../engine/Stockfish16";
 import { UciEngine } from "../engine/UciEngine";
 import { EngineName } from "../engine/EngineEnum";
 import { useEffect, useState } from "react";
+import { Stockfish11 } from "../engine/Stockfish11";
 
 export const useEngine = (engineName: EngineName | undefined) => {
   const [engine, setEngine] = useState<UciEngine | null>(null);
@@ -29,10 +30,12 @@ export const useEngine = (engineName: EngineName | undefined) => {
 
 const pickEngine = (engine: EngineName): UciEngine => {
   switch (engine) {
-    case EngineName.Stockfish16point1:
+    case EngineName.Stockfish16:
       return new Stockfish16(false);
-    case EngineName.Stockfish16point1NNUE:
+    case EngineName.Stockfish16NNUE:
       return new Stockfish16(true);
+    case EngineName.Stockfish11:
+      return new Stockfish11();
     default:
       throw new Error(`Engine ${engine} does not exist ?!`);
   }

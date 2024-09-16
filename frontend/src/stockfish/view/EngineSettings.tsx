@@ -17,7 +17,7 @@ import {
     engineMultiPvAtom,
     engineNameAtom,
 } from '../engine/EngineState';
-import { Stockfish16 } from '../engine/Stockfish';
+import { Stockfish16 } from '../engine/Stockfish16';
 import { useAtomLocalStorage } from '../hooks/useAtomLocalStorage';
 import Slider from './Slider';
 
@@ -116,6 +116,7 @@ export default function EngineSettingsCard({ onClose }: Props) {
 }
 
 const engineLabel: Record<EngineName, string> = {
-    [EngineName.Stockfish16point1]: 'Stockfish 16.1 Lite (HCE)',
-    [EngineName.Stockfish16point1NNUE]: 'Stockfish 16.1 (40MB download)',
+    [EngineName.Stockfish16]: 'Stockfish 16.1 Lite (HCE)',
+    [EngineName.Stockfish16NNUE]: 'Stockfish 16.1 (40MB download)',
+    [EngineName.Stockfish11]: 'Stockfish 11 Lite',
 };

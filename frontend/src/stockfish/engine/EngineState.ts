@@ -13,7 +13,7 @@ export const currentPositionAtom = atom<CurrentPosition>({});
 // export const showBestMoveArrowAtom = atom(true);
 // export const showPlayerMoveIconAtom = atom(true);
 
-export const engineNameAtom = atom<EngineName>(EngineName.Stockfish16point1);
+export const engineNameAtom = atom<EngineName>(EngineName.Stockfish11);
 export const engineDepthAtom = atom(16);
 export const engineMultiPvAtom = atom(3);
 export const evaluationProgressAtom = atom(0);

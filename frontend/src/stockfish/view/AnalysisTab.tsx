@@ -22,16 +22,14 @@ export default function AnalysisTab(props: Grid2Props) {
     const gameHistory = game.history();
 
     const isGameOver =
-        boardHistory.length > 0 &&
-        (board.isCheckmate() ||
-            board.isDraw() ||
-            boardHistory.join() === gameHistory.join());
+    boardHistory.length > 0 &&
+    (board.isCheckmate() ||
+      board.isDraw() ||
+      boardHistory.join() === gameHistory.join());
 
-    const linesSkeleton: LineEval[] = Array.from({ length: linesNumber }).map((_, i) => ({
-        pv: [`${i}`],
-        depth: 0,
-        multiPv: i + 1,
-    }));
+  const linesSkeleton: LineEval[] = Array.from({ length: linesNumber }).map(
+    (_, i) => ({ pv: [`${i}`], depth: 0, multiPv: i + 1 })
+  );
 
     const engineLines = position?.eval?.lines?.length
         ? position.eval.lines
