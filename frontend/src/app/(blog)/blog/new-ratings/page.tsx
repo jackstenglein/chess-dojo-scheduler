@@ -18,7 +18,18 @@ export default function NewRatings() {
             />
 
             <Stack mt={3}>
-                <Typography>
+                <iframe
+                    width='560'
+                    height='315'
+                    src='https://www.youtube.com/embed/WUlLQ7MiFrw'
+                    title='YouTube video player'
+                    frameborder='0'
+                    allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+                    referrerpolicy='strict-origin-when-cross-origin'
+                    allowfullscreen
+                ></iframe>
+
+                <Typography mt={3}>
                     One of the first and essential building stones of the Dojo Training
                     Program was the creation of a universal rating system. It was a bit
                     like creating a universal currency from about eight national
