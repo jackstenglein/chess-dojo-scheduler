@@ -30,7 +30,7 @@ import Editor from './Editor';
 import ClockUsage from './clock/ClockUsage';
 import Comments from './comments/Comments';
 import { Directories } from './directories/Directories';
-import { EngineView } from './engine/Engineview';
+import AnalysisTab from './engine/AnalysisTab';
 import Settings from './settings/Settings';
 import Tags from './tags/Tags';
 
@@ -256,7 +256,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 setFocusEditor={setFocusEditor}
                             />
                         )}
-                        {underboard === DefaultUnderboardTab.Engine && <EngineView />}
+                        {underboard === DefaultUnderboardTab.Engine && <AnalysisTab />}
                         {underboard === DefaultUnderboardTab.Explorer && <Explorer />}
                         {underboard === DefaultUnderboardTab.Settings && (
                             <Settings showEditor={isOwner} />

@@ -12,7 +12,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
-import { EngineName } from '../engine/eval';
+import { EngineName } from '../../../../../stockfish/engine/eval';
 import Slider from './Slider';
 
 interface Props {
