@@ -1,6 +1,14 @@
 import { LineEval, PositionEval } from './engineEval';
 
+/**
+ * Returns a PositionEval object parsed from the given engine results.
+ * @param fen The FEN of the evaluated position.
+ * @param results The result messages from the engine.
+ * @param whiteToPlay Whether white is to play.
+ * @returns A PositionEval object from the given engine results.
+ */
 export const parseEvaluationResults = (
+    fen: string,
     results: string[],
     whiteToPlay: boolean,
 ): PositionEval => {
@@ -31,6 +39,7 @@ export const parseEvaluationResults = (
             const mate = getResultProperty(result, 'mate');
 
             tempResults[multiPv] = {
+                fen,
                 pv,
                 cp: cp ? parseInt(cp) : undefined,
                 mate: mate ? parseInt(mate) : undefined,
@@ -53,6 +62,12 @@ export const parseEvaluationResults = (
     return parsedResults;
 };
 
+/**
+ * Sorts the given lines so that the best eval is first.
+ * @param a The first line to compare.
+ * @param b The second line to compare.
+ * @returns A number indicating which line should be sorted first.
+ */
 export const sortLines = (a: LineEval, b: LineEval): number => {
     if (a.mate !== undefined && b.mate !== undefined) {
         return a.mate - b.mate;

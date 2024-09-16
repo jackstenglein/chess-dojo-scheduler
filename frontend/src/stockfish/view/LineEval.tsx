@@ -1,15 +1,12 @@
 import { ListItem, Skeleton, Typography } from '@mui/material';
-import { useAtomValue } from 'jotai';
 import { getLineEvalLabel, moveLineUciToSan } from '../engine/chessHelper';
 import { LineEval } from '../engine/engineEval';
-import { boardAtom } from '../engine/engineState';
 
 interface Props {
     line: LineEval;
 }
 
 export default function LineEvaluation({ line }: Props) {
-    const board = useAtomValue(boardAtom);
     const lineLabel = getLineEvalLabel(line);
 
     const isBlackCp =
@@ -58,7 +55,7 @@ export default function LineEvaluation({ line }: Props) {
                 {showSkeleton ? (
                     <Skeleton variant='rounded' animation='wave' width='15em' />
                 ) : (
-                    line.pv.map(moveLineUciToSan(board.fen())).join(', ')
+                    line.pv.map(moveLineUciToSan(line.fen)).join(', ')
                 )}
             </Typography>
         </ListItem>

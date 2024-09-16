@@ -167,7 +167,7 @@ export abstract class UciEngine {
         const whiteToPlay = fen.split(' ')[1] === 'w';
 
         const onNewMessage = (messages: string[]) => {
-            const parsedResults = parseEvaluationResults(messages, whiteToPlay);
+            const parsedResults = parseEvaluationResults(fen, messages, whiteToPlay);
             setPartialEval?.(parsedResults);
         };
 
@@ -178,7 +178,7 @@ export abstract class UciEngine {
             'bestmove',
             onNewMessage,
         );
-        return parseEvaluationResults(results, whiteToPlay);
+        return parseEvaluationResults(fen, results, whiteToPlay);
     }
 
     /**

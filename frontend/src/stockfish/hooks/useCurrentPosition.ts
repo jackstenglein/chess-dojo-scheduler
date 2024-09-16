@@ -1,13 +1,13 @@
 import { useChess } from '@/board/pgn/PgnBoard';
+import { EventType } from '@jackstenglein/chess';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { EngineName } from '../engine/engineEnum';
-import { PositionEval } from '../engine/engineEval';
+import { PositionEval, SavedEvals } from '../engine/engineEval';
 import {
     currentPositionAtom,
     engineDepthAtom,
     engineMultiPvAtom,
-    savedEvalsAtom,
 } from '../engine/engineState';
 import { useEngine } from './useEngine';
 
@@ -18,9 +18,11 @@ export const useCurrentPosition = (engineName?: EngineName) => {
     const engine = useEngine(engineName);
     const depth = useAtomValue(engineDepthAtom);
     const multiPv = useAtomValue(engineMultiPvAtom);
-    const [savedEvals, setSavedEvals] = useAtom(savedEvalsAtom);
+    const savedEvals = useRef<SavedEvals>({});
 
     useEffect(() => {
+        console.log('useCurrentPosition: useEffect');
+
         if (!chess) {
             return;
         }
@@ -31,13 +33,19 @@ export const useCurrentPosition = (engineName?: EngineName) => {
 
         const evaluate = async () => {
             const fen = chess.fen();
-            const savedEval = savedEvals[fen];
+            const savedEval = savedEvals.current[fen];
 
-            if (savedEval?.engine === engineName && savedEval.lines[0].depth >= depth) {
+            if (
+                savedEval?.engine === engineName &&
+                savedEval.lines.length >= multiPv &&
+                savedEval.lines[0].depth >= depth
+            ) {
+                console.log('useCurrentPosition: Using saved position');
                 setCurrentPosition({ eval: savedEval });
                 return;
             }
 
+            console.log('useCurrentPosition: Evaluating fen ', fen);
             const rawPositionEval = await engine.evaluatePositionWithUpdate({
                 fen,
                 depth,
@@ -47,26 +55,31 @@ export const useCurrentPosition = (engineName?: EngineName) => {
                 },
             });
 
-            setSavedEvals((prev) => ({
-                ...prev,
+            savedEvals.current = {
+                ...savedEvals.current,
                 [fen]: { ...rawPositionEval, engine: engineName },
-            }));
+            };
+        };
+
+        const observer = {
+            types: [
+                EventType.Initialized,
+                EventType.DeleteMove,
+                EventType.LegalMove,
+                EventType.NewVariation,
+                EventType.PromoteVariation,
+            ],
+            handler: evaluate,
         };
 
         void evaluate();
+        chess.addObserver(observer);
         return () => {
+            console.log('useCurrentPosition: Shutting down useEffect');
             void engine?.stopSearch();
+            chess.removeObserver(observer);
         };
-    }, [
-        chess,
-        depth,
-        engine,
-        engineName,
-        multiPv,
-        savedEvals,
-        setCurrentPosition,
-        setSavedEvals,
-    ]);
+    }, [chess, depth, engine, engineName, multiPv, setCurrentPosition]);
 
     return currentPosition;
 };

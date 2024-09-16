@@ -1,25 +1,11 @@
-import { Chess, PieceSymbol, Square } from 'chess.js';
-import { Color } from './engineEnum';
-import { EvaluateGameParams, LineEval } from './engineEval';
+import { Chess, Square } from 'chess.js';
+import { LineEval } from './engineEval';
 
-export const getEvaluateGameParams = (game: Chess): EvaluateGameParams => {
-    const history = game.history({ verbose: true });
-
-    const fens = history.map((move) => move.before);
-    fens.push(history[history.length - 1].after);
-
-    const uciMoves = history.map((move) => move.from + move.to + (move.promotion || ''));
-
-    return { fens, uciMoves };
-};
-
-export const getGameFromPgn = (pgn: string): Chess => {
-    const game = new Chess();
-    game.loadPgn(pgn);
-
-    return game;
-};
-
+/**
+ * Gets the evaluation label (Ex: +2.3, -1, M5) for the given line.
+ * @param line The line to get the evaluation label for.
+ * @returns The evaluation label.
+ */
 export const getLineEvalLabel = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
     if (line.cp !== undefined) {
         return `${line.cp > 0 ? '+' : ''}${(line.cp / 100).toFixed(2)}`;
@@ -32,6 +18,12 @@ export const getLineEvalLabel = (line: Pick<LineEval, 'cp' | 'mate'>): string =>
     return '?';
 };
 
+/**
+ * Returns a function that converts a move's UCI to SAN. The function
+ * must be called in order on each move.
+ * @param fen The starting position FEN.
+ * @returns A function that converts a move's UCI to SAN.
+ */
 export const moveLineUciToSan = (fen: string): ((moveUci: string) => string) => {
     const game = new Chess(fen);
 
@@ -45,12 +37,11 @@ export const moveLineUciToSan = (fen: string): ((moveUci: string) => string) => 
     };
 };
 
-export const getWhoIsCheckmated = (fen: string): 'w' | 'b' | null => {
-    const game = new Chess(fen);
-    if (!game.isCheckmate()) return null;
-    return game.turn();
-};
-
+/**
+ * Converts a UCI move string into a Chess.js move object.
+ * @param uciMove The UCI move to convert.
+ * @returns The Chess.js move object.
+ */
 export const uciMoveParams = (
     uciMove: string,
 ): {
@@ -62,132 +53,3 @@ export const uciMoveParams = (
     to: uciMove.slice(2, 4) as Square,
     promotion: uciMove.slice(4, 5) || undefined,
 });
-
-export const isSimplePieceRecapture = (
-    fen: string,
-    uciMoves: [string, string],
-): boolean => {
-    const game = new Chess(fen);
-    const moves = uciMoves.map((uciMove) => uciMoveParams(uciMove));
-
-    if (moves[0].to !== moves[1].to) return false;
-
-    const piece = game.get(moves[0].to);
-    if (piece) return true;
-
-    return false;
-};
-
-export const getIsPieceSacrifice = (
-    fen: string,
-    playedMove: string,
-    bestLinePvToPlay: string[],
-): boolean => {
-    if (
-        !bestLinePvToPlay.length ||
-        bestLinePvToPlay[0].slice(2, 4) !== playedMove.slice(2, 4)
-    )
-        return false;
-
-    const game = new Chess(fen);
-    const whiteToPlay = game.turn() === 'w';
-    const startingMaterialDifference = getMaterialDifference(fen);
-
-    let moves = [playedMove, ...bestLinePvToPlay];
-    if (moves.length % 2 === 1) {
-        moves = moves.slice(0, -1);
-    }
-    let nonCapturingMovesTemp = 1;
-
-    for (const move of moves) {
-        const fullMove = game.move(uciMoveParams(move));
-        if (fullMove.captured) {
-            nonCapturingMovesTemp = 1;
-        } else {
-            nonCapturingMovesTemp--;
-            if (nonCapturingMovesTemp < 0) break;
-        }
-    }
-
-    const endingMaterialDifference = getMaterialDifference(game.fen());
-
-    const materialDiff = endingMaterialDifference - startingMaterialDifference;
-    const materialDiffPlayerRelative = whiteToPlay ? materialDiff : -materialDiff;
-
-    return materialDiffPlayerRelative < -1;
-};
-
-export const getMaterialDifference = (fen: string): number => {
-    const game = new Chess(fen);
-    const board = game.board().flat();
-
-    return board.reduce((acc, square) => {
-        if (!square) return acc;
-        const piece = square.type;
-
-        if (square.color === 'w') {
-            return acc + getPieceValue(piece);
-        }
-
-        return acc - getPieceValue(piece);
-    }, 0);
-};
-
-const getPieceValue = (piece: PieceSymbol): number => {
-    switch (piece) {
-        case 'p':
-            return 1;
-        case 'n':
-            return 3;
-        case 'b':
-            return 3;
-        case 'r':
-            return 5;
-        case 'q':
-            return 9;
-        default:
-            return 0;
-    }
-};
-
-export const getStartingFen = (params: { pgn: string } | { game: Chess }): string => {
-    const game = 'game' in params ? params.game : getGameFromPgn(params.pgn);
-
-    const history = game.history({ verbose: true });
-    if (!history.length) return game.fen();
-
-    return history[0].before;
-};
-
-export const isCheck = (fen: string): boolean => {
-    const game = new Chess(fen);
-    return game.inCheck();
-};
-
-export const getCapturedPieces = (
-    fen: string,
-    color: Color,
-): Record<string, number | undefined> => {
-    const capturedPieces: Record<string, number | undefined> = {};
-    if (color === Color.White) {
-        capturedPieces.p = 8;
-        capturedPieces.r = 2;
-        capturedPieces.n = 2;
-        capturedPieces.b = 2;
-        capturedPieces.q = 1;
-    } else {
-        capturedPieces.P = 8;
-        capturedPieces.R = 2;
-        capturedPieces.N = 2;
-        capturedPieces.B = 2;
-        capturedPieces.Q = 1;
-    }
-
-    const fenPiecePlacement = fen.split(' ')[0];
-    for (const piece of Object.keys(capturedPieces)) {
-        const count = fenPiecePlacement.match(new RegExp(piece, 'g'))?.length;
-        if (count) capturedPieces[piece] = (capturedPieces[piece] ?? 0) - count;
-    }
-
-    return capturedPieces;
-};

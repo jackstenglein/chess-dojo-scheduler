@@ -16,29 +16,12 @@ export interface PositionEval {
 }
 
 export interface LineEval {
+    fen: string;
     pv: string[];
     cp?: number;
     mate?: number;
     depth: number;
     multiPv: number;
-}
-
-export interface Accuracy {
-    white: number;
-    black: number;
-}
-
-export interface EngineSettings {
-    engine: EngineName;
-    depth: number;
-    multiPv: number;
-    date: string;
-}
-
-export interface GameEval {
-    positions: PositionEval[];
-    accuracy: Accuracy;
-    settings: EngineSettings;
 }
 
 /** Evaluates the given position, updating the eval as the engine runs. */
@@ -58,12 +41,4 @@ export interface CurrentPosition {
     eval?: PositionEval;
     lastEval?: PositionEval;
     currentMoveIdx?: number;
-}
-
-export interface EvaluateGameParams {
-    fens: string[];
-    uciMoves: string[];
-    depth?: number;
-    multiPv?: number;
-    setEvaluationProgress?: (value: number) => void;
 }

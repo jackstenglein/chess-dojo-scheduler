@@ -1,12 +1,8 @@
+import { useChess } from '@/board/pgn/PgnBoard';
 import { Grid2, Grid2Props, List, Typography } from '@mui/material';
 import { useAtomValue } from 'jotai';
 import { LineEval } from '../engine/engineEval';
-import {
-    boardAtom,
-    engineMultiPvAtom,
-    engineNameAtom,
-    gameAtom,
-} from '../engine/engineState';
+import { engineMultiPvAtom, engineNameAtom } from '../engine/engineState';
 import { useCurrentPosition } from '../hooks/useCurrentPosition';
 import EngineSettingsButton from './EngineSettingsButton';
 import LineEvaluation from './LineEval';
@@ -15,19 +11,12 @@ export default function AnalysisTab(props: Grid2Props) {
     const linesNumber = useAtomValue(engineMultiPvAtom);
     const engineName = useAtomValue(engineNameAtom);
     const position = useCurrentPosition(engineName);
-    const game = useAtomValue(gameAtom);
-    const board = useAtomValue(boardAtom);
 
-    const boardHistory = board.history();
-    const gameHistory = game.history();
-
-    const isGameOver =
-        boardHistory.length > 0 &&
-        (board.isCheckmate() ||
-            board.isDraw() ||
-            boardHistory.join() === gameHistory.join());
+    const { chess } = useChess();
+    const isGameOver = chess?.isGameOver();
 
     const linesSkeleton: LineEval[] = Array.from({ length: linesNumber }).map((_, i) => ({
+        fen: '',
         pv: [`${i}`],
         depth: 0,
         multiPv: i + 1,
@@ -64,10 +53,12 @@ export default function AnalysisTab(props: Grid2Props) {
                 <List sx={{ maxWidth: '95%', padding: 0 }}>
                     <EngineSettingsButton />
 
-                    {!board.isCheckmate() &&
-                        engineLines.map((line) => (
-                            <LineEvaluation key={line.multiPv} line={line} />
-                        ))}
+                    {!isGameOver &&
+                        engineLines
+                            .slice(0, linesNumber)
+                            .map((line) => (
+                                <LineEvaluation key={line.multiPv} line={line} />
+                            ))}
                 </List>
             </Grid2>
         </Grid2>
