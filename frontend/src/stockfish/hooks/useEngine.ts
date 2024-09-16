@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { EngineName } from '../engine/engineEnum';
+import { EngineName } from '../engine/eval';
 import { Stockfish11 } from '../engine/stockfish11';
 import { UciEngine } from '../engine/uciEngine';
 

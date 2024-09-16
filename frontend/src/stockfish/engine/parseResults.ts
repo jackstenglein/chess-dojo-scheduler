@@ -1,4 +1,4 @@
-import { LineEval, PositionEval } from './engineEval';
+import { LineEval, PositionEval } from './eval';
 
 /**
  * Returns a PositionEval object parsed from the given engine results.

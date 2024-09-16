@@ -1,15 +1,14 @@
 import { useChess } from '@/board/pgn/PgnBoard';
 import { Grid2, Grid2Props, List, Typography } from '@mui/material';
-import { useAtomValue } from 'jotai';
-import { LineEval } from '../engine/engineEval';
-import { engineMultiPvAtom, engineNameAtom } from '../engine/engineState';
+import { useLocalStorage } from 'usehooks-ts';
+import { EngineName, LineEval } from '../engine/eval';
 import { useCurrentPosition } from '../hooks/useCurrentPosition';
 import EngineSettingsButton from './EngineSettingsButton';
 import LineEvaluation from './LineEval';
 
 export default function AnalysisTab(props: Grid2Props) {
-    const linesNumber = useAtomValue(engineMultiPvAtom);
-    const engineName = useAtomValue(engineNameAtom);
+    const [linesNumber] = useLocalStorage('engine-multi-pv', 3);
+    const [engineName] = useLocalStorage('engine-name', EngineName.Stockfish11);
     const position = useCurrentPosition(engineName);
 
     const { chess } = useChess();
@@ -22,9 +21,7 @@ export default function AnalysisTab(props: Grid2Props) {
         multiPv: i + 1,
     }));
 
-    const engineLines = position?.eval?.lines?.length
-        ? position.eval.lines
-        : linesSkeleton;
+    const engineLines = position?.lines?.length ? position.lines : linesSkeleton;
 
     return (
         <Grid2

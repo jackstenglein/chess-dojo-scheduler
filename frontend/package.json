@@ -35,7 +35,6 @@
         "chessground": "^9.1.1",
         "copy-to-clipboard": "^3.3.3",
         "date-fns": "^3.6.0",
-        "jotai": "^2.9.3",
         "lodash.debounce": "^4.0.8",
         "luxon": "^3.4.4",
         "ml-regression-simple-linear": "^3.0.0",

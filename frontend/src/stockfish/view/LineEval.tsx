@@ -1,6 +1,6 @@
 import { ListItem, Skeleton, Typography } from '@mui/material';
 import { getLineEvalLabel, moveLineUciToSan } from '../engine/chessHelper';
-import { LineEval } from '../engine/engineEval';
+import { LineEval } from '../engine/eval';
 
 interface Props {
     line: LineEval;

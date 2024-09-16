@@ -11,13 +11,8 @@ import {
     Select,
     Typography,
 } from '@mui/material';
-import { EngineName } from '../engine/engineEnum';
-import {
-    engineDepthAtom,
-    engineMultiPvAtom,
-    engineNameAtom,
-} from '../engine/engineState';
-import { useAtomLocalStorage } from '../hooks/useAtomLocalStorage';
+import { useLocalStorage } from 'usehooks-ts';
+import { EngineName } from '../engine/eval';
 import Slider from './Slider';
 
 interface Props {
@@ -26,14 +21,11 @@ interface Props {
 }
 
 export default function EngineSettingsCard({ onClose }: Props) {
-    const [depth, setDepth] = useAtomLocalStorage('engine-depth', engineDepthAtom);
-    const [multiPv, setMultiPv] = useAtomLocalStorage(
-        'engine-multi-pv',
-        engineMultiPvAtom,
-    );
-    const [engineName, setEngineName] = useAtomLocalStorage(
+    const [depth, setDepth] = useLocalStorage('engine-depth', 16);
+    const [multiPv, setMultiPv] = useLocalStorage('engine-multi-pv', 3);
+    const [engineName, setEngineName] = useLocalStorage(
         'engine-name',
-        engineNameAtom,
+        EngineName.Stockfish11,
     );
 
     return (

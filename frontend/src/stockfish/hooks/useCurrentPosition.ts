@@ -1,23 +1,16 @@
 import { useChess } from '@/board/pgn/PgnBoard';
 import { EventType } from '@jackstenglein/chess';
-import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useRef } from 'react';
-import { EngineName } from '../engine/engineEnum';
-import { PositionEval, SavedEvals } from '../engine/engineEval';
-import {
-    currentPositionAtom,
-    engineDepthAtom,
-    engineMultiPvAtom,
-} from '../engine/engineState';
+import { useEffect, useRef, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
+import { EngineName, PositionEval, SavedEvals } from '../engine/eval';
 import { useEngine } from './useEngine';
 
 export const useCurrentPosition = (engineName?: EngineName) => {
-    const [currentPosition, setCurrentPosition] = useAtom(currentPositionAtom);
+    const [currentPosition, setCurrentPosition] = useState<PositionEval>();
     const { chess } = useChess();
-
     const engine = useEngine(engineName);
-    const depth = useAtomValue(engineDepthAtom);
-    const multiPv = useAtomValue(engineMultiPvAtom);
+    const [depth] = useLocalStorage('engine-depth', 16);
+    const [multiPv] = useLocalStorage('engine-multi-pv', 3);
     const savedEvals = useRef<SavedEvals>({});
 
     useEffect(() => {
@@ -41,7 +34,7 @@ export const useCurrentPosition = (engineName?: EngineName) => {
                 savedEval.lines[0].depth >= depth
             ) {
                 console.log('useCurrentPosition: Using saved position');
-                setCurrentPosition({ eval: savedEval });
+                setCurrentPosition(savedEval);
                 return;
             }
 
@@ -51,7 +44,7 @@ export const useCurrentPosition = (engineName?: EngineName) => {
                 depth,
                 multiPv,
                 setPartialEval: (positionEval: PositionEval) => {
-                    setCurrentPosition({ eval: positionEval });
+                    setCurrentPosition(positionEval);
                 },
             });
 

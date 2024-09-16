@@ -1,5 +1,4 @@
-import { EngineName } from './engineEnum';
-import { EvaluatePositionWithUpdateParams, PositionEval } from './engineEval';
+import { EngineName, EvaluatePositionWithUpdateParams, PositionEval } from './eval';
 import { getResultProperty, parseEvaluationResults } from './parseResults';
 
 export abstract class UciEngine {

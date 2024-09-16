@@ -1,4 +1,4 @@
-import { EngineName } from './engineEnum';
+import { EngineName } from './eval';
 import { UciEngine } from './uciEngine';
 
 export class Stockfish11 extends UciEngine {
