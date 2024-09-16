@@ -1,4 +1,7 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { LoadingButton } from '@mui/lab';
 import {
     Alert,
     Button,
@@ -12,10 +15,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-
-import { useApi } from '@/api/Api';
-import { RequestSnackbar, useRequest } from '@/api/Request';
-import { LoadingButton } from '@mui/lab';
+import { useLocalStorage } from 'usehooks-ts';
 import { useAuth } from '../auth/Auth';
 import {
     getCurrentRating,
@@ -33,6 +33,10 @@ export function SwitchCohortPrompt() {
     const location = useLocation().pathname;
 
     const [oldCohort, newCohort] = getSuggestedCohorts(user);
+    const [hideSwitchCohorts, setHideSwitchCohorts] = useLocalStorage<string>(
+        'HIDE_SWITCH_COHORT_PROMPT_UNTIL',
+        '',
+    );
     const [showSwitchCohorts, setShowSwitchCohorts] = useState(false);
 
     const [showGraduation, setShowGraduation] = useState(false);
@@ -41,9 +45,12 @@ export function SwitchCohortPrompt() {
     const [hideGraduation, setHideGraduation] = useState(false);
     const [hideDemotion, setHideDemotion] = useState(false);
 
+    console.log('Hide switch cohorts: ', hideSwitchCohorts);
     useEffect(() => {
         if (oldCohort !== newCohort && user && user.dojoCohort !== newCohort) {
-            setShowSwitchCohorts(location === '/profile');
+            if (!hideSwitchCohorts || new Date().toISOString() > hideSwitchCohorts) {
+                setShowSwitchCohorts(location === '/profile');
+            }
         } else {
             setShowGraduation(shouldPromptGraduation(user));
             setShowDemotion(shouldPromptDemotion(user));
@@ -53,6 +60,7 @@ export function SwitchCohortPrompt() {
         oldCohort,
         newCohort,
         location,
+        hideSwitchCohorts,
         setShowSwitchCohorts,
         setShowGraduation,
         setShowDemotion,
@@ -69,6 +77,12 @@ export function SwitchCohortPrompt() {
                 console.error('updateUser: ', err);
                 request.onFailure(err);
             });
+    };
+
+    const onHideSwitchCohorts = () => {
+        const now = new Date();
+        now.setDate(now.getDate() + 7);
+        setHideSwitchCohorts(now.toISOString());
     };
 
     return (
@@ -138,7 +152,7 @@ export function SwitchCohortPrompt() {
                         <DialogContentText>
                             The Dojo has recalculated the cohort ranges for all rating
                             systems. As a result, we strongly suggest changing your cohort
-                            from <strong>{oldCohort}</strong> to{' '}
+                            from <strong>{user?.dojoCohort}</strong> to{' '}
                             <strong>{newCohort}</strong>. This will place you with
                             sparring partners more similar in strength and give you
                             training material better suited to your level.
@@ -155,6 +169,7 @@ export function SwitchCohortPrompt() {
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
+                        <Button onClick={onHideSwitchCohorts}>Remind Me Later</Button>
                         <LoadingButton
                             loading={request.isLoading()}
                             onClick={onSwitchCohorts}
