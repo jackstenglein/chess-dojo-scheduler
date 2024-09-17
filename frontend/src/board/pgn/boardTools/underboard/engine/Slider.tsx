@@ -47,6 +47,7 @@ export default function Slider({
                 value={value}
                 onChange={(_, value) => setValue(value as number)}
                 aria-labelledby={`input-${label}`}
+                color='success'
             />
         </Grid2>
     );

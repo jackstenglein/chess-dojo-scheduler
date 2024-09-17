@@ -48,8 +48,12 @@ export default function AnalysisTab(props: Grid2Props) {
                 )}
 
                 <Grid2 container size={12} justifyContent='center' alignItems='center'>
-                    <List sx={{ maxWidth: '95%', padding: 0 }}>
+                    <Grid2 container size={12} justifyContent={'right'} alignItems={'right'}>
                         <EngineSettingsButton />
+                    </Grid2>
+                    
+                    <List sx={{ maxWidth: '95%', padding: 0 }}>
+                        
 
                         {!isGameOver &&
                             engineLines
@@ -58,7 +62,9 @@ export default function AnalysisTab(props: Grid2Props) {
                                     <LineEvaluation key={line.multiPv} line={line} />
                                 ))}
                     </List>
+                    
                 </Grid2>
+                
             </Grid2>
         </CardContent>
     );

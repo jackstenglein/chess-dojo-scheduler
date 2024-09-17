@@ -1,8 +1,9 @@
-import { ListItem, Skeleton, Typography } from '@mui/material';
+import { ListItem, Skeleton, Typography, LinearProgress } from '@mui/material';
+import { useEffect, useState } from 'react';
 import {
     getLineEvalLabel,
     moveLineUciToSan,
-} from '../../../../../stockfish/engine/chessHelper';
+} from '../../../../../stockfish/engine/ChessHelper';
 import { LineEval } from '../../../../../stockfish/engine/eval';
 
 interface Props {
@@ -17,6 +18,21 @@ export default function LineEvaluation({ line }: Props) {
         (line.mate !== undefined && line.mate < 0);
 
     const showSkeleton = line.depth < 6;
+
+    // State to control progress bar visibility
+    const [showProgress, setShowProgress] = useState(false);
+
+    useEffect(() => {
+        // Trigger progress bar when label changes
+        setShowProgress(true);
+
+        // Hide progress bar after 1 second
+        const timer = setTimeout(() => {
+            setShowProgress(false);
+        }, 1000);
+
+        return () => clearTimeout(timer); // Cleanup the timer
+    }, [lineLabel]); // Dependency on lineLabel
 
     return (
         <ListItem disablePadding>
@@ -61,6 +77,20 @@ export default function LineEvaluation({ line }: Props) {
                     line.pv.map(moveLineUciToSan(line.fen)).join(', ')
                 )}
             </Typography>
+
+            {/* Show LinearProgress for 1 second when label changes */}
+            {showProgress && (
+                <LinearProgress
+                    sx={{
+                        width: '100%',
+                        marginTop: 1,
+                        backgroundColor: 'lightgray',
+                        '& .MuiLinearProgress-bar': {
+                            backgroundColor: 'green',
+                        },
+                    }}
+                />
+            )}
         </ListItem>
     );
 }

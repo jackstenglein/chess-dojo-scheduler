@@ -1,8 +1,8 @@
 import {
     Button,
-    Card,
-    CardContent,
-    CardHeader,
+    Dialog,
+    DialogContent,
+    DialogTitle,
     FormControl,
     Grid2,
     InputLabel,
@@ -20,7 +20,7 @@ interface Props {
     onClose: () => void;
 }
 
-export default function EngineSettingsCard({ onClose }: Props) {
+export default function EngineSettingsDialog({ open, onClose }: Props) {
     const [depth, setDepth] = useLocalStorage('engine-depth', 16);
     const [multiPv, setMultiPv] = useLocalStorage('engine-multi-pv', 3);
     const [engineName, setEngineName] = useLocalStorage(
@@ -29,12 +29,11 @@ export default function EngineSettingsCard({ onClose }: Props) {
     );
 
     return (
-        <Card sx={{ maxWidth: 600, margin: 'auto' }}>
-            <CardHeader
-                title='Set engine parameters'
-                titleTypographyProps={{ variant: 'h5', marginY: 1 }}
-            />
-            <CardContent>
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+            <DialogTitle>
+                Set engine parameters
+            </DialogTitle>
+            <DialogContent>
                 <Typography>
                     Stockfish 16 Lite (HCE) is the default engine. It offers the best
                     balance between speed and strength. Stockfish 16 is the strongest
@@ -50,10 +49,10 @@ export default function EngineSettingsCard({ onClose }: Props) {
                 >
                     <Grid2 container size={12} justifyContent='center'>
                         <FormControl variant='outlined'>
-                            <InputLabel id='card-select-label'>Engine</InputLabel>
+                            <InputLabel id='dialog-select-label'>Engine</InputLabel>
                             <Select
-                                labelId='card-select-label'
-                                id='card-select'
+                                labelId='dialog-select-label'
+                                id='dialog-select'
                                 displayEmpty
                                 input={<OutlinedInput label='Engine' />}
                                 value={engineName}
@@ -66,11 +65,6 @@ export default function EngineSettingsCard({ onClose }: Props) {
                                     <MenuItem
                                         key={engine}
                                         value={engine}
-                                        // disabled={
-                                        //     engine.includes('stockfish_16')
-                                        //         ? !Stockfish16.isSupported()
-                                        //         : false
-                                        // }
                                     >
                                         {engineLabel[engine]}
                                     </MenuItem>
@@ -97,11 +91,11 @@ export default function EngineSettingsCard({ onClose }: Props) {
                         xs={6}
                     />
                 </Grid2>
-            </CardContent>
-            <Button variant='contained' onClick={onClose} sx={{ m: 2 }}>
+            </DialogContent>
+            <Button variant='contained' color='success' onClick={onClose} sx={{ m: 2 }}>
                 Done
             </Button>
-        </Card>
+        </Dialog>
     );
 }
 
