@@ -4,7 +4,6 @@ import {
     Chat,
     Edit,
     Folder,
-    Lightbulb,
     Sell,
     Settings as SettingsIcon,
     Storage,
@@ -30,7 +29,6 @@ import Editor from './Editor';
 import ClockUsage from './clock/ClockUsage';
 import Comments from './comments/Comments';
 import { Directories } from './directories/Directories';
-import AnalysisTab from './engine/AnalysisTab';
 import Settings from './settings/Settings';
 import Tags from './tags/Tags';
 
@@ -42,7 +40,6 @@ export enum DefaultUnderboardTab {
     Explorer = 'explorer',
     Clocks = 'clocks',
     Settings = 'settings',
-    Engine = 'engine',
 }
 
 export interface DefaultUnderboardTabInfo {
@@ -72,11 +69,6 @@ const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
         name: DefaultUnderboardTab.Editor,
         tooltip: 'Edit PGN',
         icon: <Edit />,
-    },
-    [DefaultUnderboardTab.Engine]: {
-        name: DefaultUnderboardTab.Engine,
-        tooltip: 'Engine Analysis',
-        icon: <Lightbulb />,
     },
     [DefaultUnderboardTab.Comments]: {
         name: DefaultUnderboardTab.Comments,
@@ -256,7 +248,6 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 setFocusEditor={setFocusEditor}
                             />
                         )}
-                        {underboard === DefaultUnderboardTab.Engine && <AnalysisTab />}
                         {underboard === DefaultUnderboardTab.Explorer && <Explorer />}
                         {underboard === DefaultUnderboardTab.Settings && (
                             <Settings showEditor={isOwner} />

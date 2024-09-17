@@ -149,7 +149,6 @@ const GamePage = () => {
                             DefaultUnderboardTab.Explorer,
                             DefaultUnderboardTab.Clocks,
                             DefaultUnderboardTab.Settings,
-                            DefaultUnderboardTab.Engine,
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
                     />

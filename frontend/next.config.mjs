@@ -22,18 +22,31 @@ const nextConfig = {
     async headers() {
         return [
           {
-            source: '/(.*)', // Apply headers to all routes
+            source: "/",
             headers: [
               {
-                key: 'Cross-Origin-Opener-Policy',
-                value: 'same-origin',
+                key: "Cross-Origin-Embedder-Policy",
+                value: "require-corp",
               },
               {
-                key: 'Cross-Origin-Embedder-Policy',
-                value: 'require-corp',
+                key: "Cross-Origin-Opener-Policy",
+                value: "same-origin",
               },
             ],
           },
+          // {
+          //   source: "/games/:path*", // enable this comment to see the cors issue
+          //   headers: [
+          //     {
+          //       key: "Cross-Origin-Embedder-Policy",
+          //       value: "require-corp",
+          //     },
+          //     {
+          //       key: "Cross-Origin-Opener-Policy",
+          //       value: "same-origin",
+          //     },
+          //   ],
+          // },
         ];
       },
 };
