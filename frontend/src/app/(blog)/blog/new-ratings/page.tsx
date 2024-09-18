@@ -23,10 +23,10 @@ export default function NewRatings() {
                     height='315'
                     src='https://www.youtube.com/embed/WUlLQ7MiFrw'
                     title='YouTube video player'
-                    frameborder='0'
+                    frameBorder='0'
                     allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-                    referrerpolicy='strict-origin-when-cross-origin'
-                    allowfullscreen
+                    referrerPolicy='strict-origin-when-cross-origin'
+                    allowFullScreen
                 ></iframe>
 
                 <Typography mt={3}>
