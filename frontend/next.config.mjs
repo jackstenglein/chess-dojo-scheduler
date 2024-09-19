@@ -22,7 +22,7 @@ const nextConfig = {
     async headers() {
         return [
             {
-              source: '/(.*)',
+              source: "/games/:path*",
                 headers: [
                     {
                         key: 'Cross-Origin-Embedder-Policy',
