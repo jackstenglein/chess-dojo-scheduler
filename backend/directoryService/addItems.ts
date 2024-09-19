@@ -22,14 +22,15 @@ import {
     UserInfo,
 } from './api';
 import {
-    and,
     attributeExists,
-    attributeNotExists,
     directoryTable,
     dynamo,
     gameTable,
     UpdateItemBuilder,
 } from './database';
+
+const ADD_ITEMS_BATCH_SIZE = 200;
+const MAX_BATCHES = 5;
 
 /**
  * Handles requests to the add directory items API. Returns the updated directory.
@@ -46,6 +47,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage: 'Invalid request: at least one item is required',
+            });
+        }
+        if (items.length > ADD_ITEMS_BATCH_SIZE * MAX_BATCHES) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `Invalid request: number of items (${items.length}) is greater than max batch size ${ADD_ITEMS_BATCH_SIZE * MAX_BATCHES}`,
             });
         }
 
@@ -101,32 +108,41 @@ export async function addDirectoryItems(
     items: DirectoryItem[],
 ): Promise<Directory> {
     try {
-        const conditions = [attributeExists('id')];
-        const builder = new UpdateItemBuilder()
-            .key('owner', owner)
-            .key('id', id)
-            .set('updatedAt', new Date().toISOString())
-            .table(directoryTable)
-            .return('ALL_NEW');
+        let directory: Directory | undefined = undefined;
 
-        for (const item of items) {
-            builder.set(['items', item.id], item);
-            conditions.push(attributeNotExists(['items', item.id]));
+        for (let i = 0; i < items.length; i += ADD_ITEMS_BATCH_SIZE) {
+            const builder = new UpdateItemBuilder()
+                .key('owner', owner)
+                .key('id', id)
+                .set('updatedAt', new Date().toISOString())
+                .condition(attributeExists('id'))
+                .table(directoryTable)
+                .return('ALL_NEW');
+
+            const currentItems = items.slice(i, i + ADD_ITEMS_BATCH_SIZE);
+
+            for (const item of currentItems) {
+                builder.set(['items', item.id], item);
+            }
+
+            builder.appendToList(
+                'itemIds',
+                currentItems.map((item) => item.id),
+            );
+
+            const input = builder.build();
+            console.log('Input: %j', input);
+            const result = await dynamo.send(input);
+            directory = unmarshall(result.Attributes!) as Directory;
+            await addDirectoryToGames(owner, id, items);
         }
 
-        builder.condition(and(...conditions));
-        builder.appendToList(
-            'itemIds',
-            items.map((item) => item.id),
-        );
-
-        const input = builder.build();
-        console.log('Input: %j', input);
-        const result = await dynamo.send(input);
-        const directory = unmarshall(result.Attributes!) as Directory;
-
-        await addDirectoryToGames(owner, id, items);
-
+        if (!directory) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Invalid request: at least one item is required',
+            });
+        }
         return directory;
     } catch (err) {
         if (err instanceof ConditionalCheckFailedException) {
