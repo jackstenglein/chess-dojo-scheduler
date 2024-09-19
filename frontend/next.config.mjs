@@ -19,10 +19,10 @@ const nextConfig = {
             },
         ],
     },
-    headers() {
+    async headers() {
         return [
             {
-                source: '/games/:path*',
+              source: '/(.*)',
                 headers: [
                     {
                         key: 'Cross-Origin-Embedder-Policy',

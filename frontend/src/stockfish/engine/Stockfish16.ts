@@ -6,7 +6,7 @@ export class Stockfish16 extends UciEngine {
     if (!Stockfish16.isSupported()) {
       throw new Error("Stockfish 16 is not supported");
     }
-    const enginepath = nnue ? '/engine/stockfish-16/stockfish-nnue-16.js' : '/engine/stockfish-16/stockfish-nnue-16-single.js';
+    const enginepath = nnue ? '/engine/stockfish-nnue-16.js' : '/engine/stockfish-nnue-16-single.js';
 
     super(EngineName.Stockfish16, enginepath );
   }
