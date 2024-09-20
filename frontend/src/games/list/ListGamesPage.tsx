@@ -1,5 +1,6 @@
 import { useApi } from '@/api/Api';
-import GameTable from '@/components/games/list/GameTable';
+import GameCard from '@/components/games/list/GameCard';
+import CardsTable from '@/components/ui/CardsTable';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
 import {
@@ -113,13 +114,12 @@ const ListGamesPage = () => {
 
             <Grid2 container spacing={5} wrap='wrap-reverse'>
                 <Grid2 size={{ xs: 12, md: 8, lg: 8 }}>
-                    <GameTable
-                        pagination={pagination}
-                        onClickRow={(params) => onClick(params.row)}
-                        onPaginationModelChange={onPaginationModelChange}
-                        contextMenu={contextMenu}
-                        type={type}
+                    <CardsTable
+                        card={GameCard}
+                        childProps={pagination.data}
+                        onClick={onClick}
                     />
+
                     <ListItemContextMenu
                         game={
                             contextMenu.rowIds

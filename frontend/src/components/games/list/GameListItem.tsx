@@ -7,6 +7,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
+import { FaEquals, FaMinusSquare, FaPlusSquare } from 'react-icons/fa';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 export const MastersCohort = 'masters';
@@ -20,6 +21,7 @@ interface RenderPlayersProps {
     blackElo?: string | number;
     blackProvisional?: boolean;
     fullHeight?: boolean;
+    result?: GameResult;
 }
 
 export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
@@ -32,8 +34,29 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
             black={headers.Black}
             whiteElo={headers.WhiteElo}
             blackElo={headers.BlackElo}
+            result={headers.Result}
         />
     );
+}
+
+export function WinIcon() {
+    return (
+        <Typography color='success'>
+            <FaPlusSquare fontSize='0.875rem' />
+        </Typography>
+    );
+}
+
+export function LoseIcon() {
+    return (
+        <Typography color='error'>
+            <FaMinusSquare fontSize='0.875rem' />
+        </Typography>
+    );
+}
+
+export function DrawIcon() {
+    return <FaEquals fontSize='0.875rem' />;
 }
 
 export function RenderPlayers({
@@ -44,6 +67,7 @@ export function RenderPlayers({
     blackElo,
     blackProvisional,
     fullHeight,
+    result,
 }: RenderPlayersProps) {
     const light = useLightMode();
     const location = useLocation();
@@ -57,7 +81,11 @@ export function RenderPlayers({
 
     return (
         <Stack height={fullHeight ? 1 : undefined} justifyContent='center'>
-            <Stack direction='row' spacing={1} alignItems='center'>
+            <Stack direction='row' flexWrap='nowrap' spacing={1} alignItems='center'>
+                {result === GameResult.White && <WinIcon />}
+                {result === GameResult.Black && <LoseIcon />}
+                {result === GameResult.Draw && <DrawIcon />}
+
                 {light ? (
                     <CircleOutlinedIcon
                         sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }}
@@ -70,12 +98,13 @@ export function RenderPlayers({
                         }}
                     />
                 )}
-                <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
-                    {whiteStr}
-                </Typography>
+                <Typography>{whiteStr}</Typography>
             </Stack>
 
-            <Stack direction='row' spacing={1} alignItems='center'>
+            <Stack direction='row' flexWrap='nowrap' spacing={1} alignItems='center'>
+                {result === GameResult.White && <LoseIcon />}
+                {result === GameResult.Black && <WinIcon />}
+                {result === GameResult.Draw && <DrawIcon />}
                 <CircleIcon
                     sx={{
                         fontSize: { xs: '0.75rem', sm: 'initial' },

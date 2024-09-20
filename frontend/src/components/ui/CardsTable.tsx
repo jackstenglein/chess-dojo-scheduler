@@ -16,9 +16,9 @@ export default function CardsTable<T extends HasId>({
     onClick,
 }: CardsTableProps<T>) {
     return (
-        <Grid2 container spacing={1}>
+        <Grid2 container spacing={{ xs: 1, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
             {childProps.map((props) => (
-                <Grid2 item minWidth='250px' key={props.id}>
+                <Grid2 key={props.id} size={{ xs: 1, sm: 4, md: 4 }}>
                     <Card>
                         <CardActionArea
                             sx={{ height: 1 }}
