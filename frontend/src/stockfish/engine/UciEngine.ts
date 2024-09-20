@@ -7,24 +7,27 @@ export abstract class UciEngine {
     private engineName: EngineName;
     private multiPv = 3;
     private skillLevel: number | undefined = undefined;
-    private customEngineInit?: () => Promise<void>;
+   
 
     constructor(
         engineName: EngineName,
         enginePath: string,
-        customEngineInit?: () => Promise<void>,
+        
     ) {
         this.engineName = engineName;
         this.worker = new Worker(enginePath);
-        this.customEngineInit = customEngineInit;
+        
 
         console.log(`${engineName} created`);
     }
 
     public async init(): Promise<void> {
+        await this.sendCommands(
+            [`setoption name EvalFile nn-b1a57edbea57.nnue`, "isready"],
+            "readyok"
+          );
         await this.sendCommands(['uci'], 'uciok');
-        await this.setMultiPv(this.multiPv, true);
-        await this.customEngineInit?.();
+        await this.setMultiPv(this.multiPv, true);  
         this.ready = true;
         console.log(`${this.engineName} initialized`);
     }
