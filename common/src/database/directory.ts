@@ -11,7 +11,7 @@ const gameMetadataSchema = z.object({
     owner: z.string(),
 
     /** The display name of the owner of the game. */
-    ownerDisplayName: z.string(),
+    ownerDisplayName: z.string().optional(),
 
     /** The datetime the game was uploaded to the database, in ISO format. */
     createdAt: z.string(),
@@ -29,7 +29,7 @@ const gameMetadataSchema = z.object({
     blackElo: z.string().optional(),
 
     /** The result of the game. */
-    result: z.string(),
+    result: z.string().optional(),
 });
 
 const directoryVisibility = z.enum(['PUBLIC', 'PRIVATE']);

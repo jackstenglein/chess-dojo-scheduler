@@ -77,7 +77,7 @@ describe('Scoreboard Page', () => {
             'Rating System',
             'Start Rating',
             'Current Rating',
-            'Normalized FIDE Rating',
+            'Normalized Dojo Rating',
             'Dojo Score',
             'Percent Complete',
             'Cohort Tasks',

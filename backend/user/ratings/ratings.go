@@ -366,9 +366,25 @@ func FetchKnsbRating(knsbId string) (*database.Rating, error) {
 	}
 
 	var r map[string]int
+	if err := json.NewDecoder(resp.Body).Decode(&r); err == nil {
+		var keys = make([]string, 0, len(r))
+		for key := range r {
+			keys = append(keys, key)
+		}
+		slices.Sort(keys)
+		return &database.Rating{CurrentRating: r[keys[len(keys)-1]]}, nil
+	}
+
+	resp, err = http.Get(fmt.Sprintf("https://ratingviewer.nl/metrics/getByName/%s/Rating-J.json", knsbId))
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed call to KNSB API", err)
+	}
+	if resp.StatusCode != 200 {
+		return nil, errors.New(400, fmt.Sprintf("Invalid request: KNSB API returned status `%d`", resp.StatusCode), "")
+	}
+
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		err = errors.Wrap(500, "Temporary server error", "Failed to parse KNSB API response", err)
-		return nil, err
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal KNSB API response", err)
 	}
 
 	var keys = make([]string, 0, len(r))
@@ -376,6 +392,5 @@ func FetchKnsbRating(knsbId string) (*database.Rating, error) {
 		keys = append(keys, key)
 	}
 	slices.Sort(keys)
-
 	return &database.Rating{CurrentRating: r[keys[len(keys)-1]]}, nil
 }
