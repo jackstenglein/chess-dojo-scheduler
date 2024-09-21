@@ -4,19 +4,19 @@ interface HasId {
     id: string | number;
 }
 
-interface CardsTableProps<T extends HasId> {
+interface CardGridProps<T extends HasId> {
     card: (props: T) => React.ReactNode;
     childProps: T[];
     onClick: (props: T) => void;
 }
 
-export default function CardsTable<T extends HasId>({
+export default function CardGrid<T extends HasId>({
     card,
     childProps,
     onClick,
-}: CardsTableProps<T>) {
+}: CardGridProps<T>) {
     return (
-        <Grid2 container spacing={{ xs: 1, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+        <Grid2 container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, sm: 8, md: 12 }}>
             {childProps.map((props) => (
                 <Grid2 key={props.id} size={{ xs: 1, sm: 4, md: 4 }}>
                     <Card>
