@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString } from '@/calendar/displayDate';
 import { RenderPlayers, RenderTimeControl } from '@/components/games/list/GameListItem';
 import { GameInfo } from '@/database/game';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -8,20 +8,18 @@ import { Stack, Typography } from '@mui/material';
 
 export default function GameCard({
     headers,
-    updatedAt,
     unlisted,
     ownerDisplayName,
+    date: datePlayed,
     cohort,
 }: GameInfo) {
     const { user } = useAuth();
 
     let dateStr = '';
-    let timeStr = '';
 
-    if (updatedAt) {
-        const date = new Date(updatedAt);
+    if (datePlayed) {
+        const date = new Date(datePlayed);
         dateStr = toDojoDateString(date, user?.timezoneOverride);
-        timeStr = toDojoTimeString(date, user?.timezoneOverride, user?.timeFormat);
     }
 
     return (
@@ -35,9 +33,7 @@ export default function GameCard({
             >
                 <Stack direction='row' alignItems='center' spacing={1}>
                     {unlisted ? <VisibilityOff /> : <Visibility />}
-                    <Typography variant='body2'>
-                        {dateStr} {timeStr}
-                    </Typography>
+                    <Typography variant='body2'>{dateStr}</Typography>
                 </Stack>
                 <Typography variant='body2'>
                     <RenderTimeControl timeControl={headers.TimeControl} />
