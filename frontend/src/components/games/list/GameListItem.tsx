@@ -182,6 +182,34 @@ export function RenderResult(params: GridRenderCellParams) {
     );
 }
 
+function parseTimeControl(
+    tc: string | undefined,
+): [number | undefined, number | undefined] {
+    if (!tc) {
+        return [undefined, undefined];
+    }
+
+    const [gameTime, increment] = tc
+        .split(/[+|\s]+/)
+        .flatMap((v) => (v ? Number(v) : []));
+
+    if (!gameTime) {
+        return [undefined, undefineed];
+    }
+
+    return [Math.round(gameTime / 60), increment];
+}
+
+export function RenderTimeControl({ timeControl }: { timeControl?: string }) {
+    const [gameTime, increment] = parseTimeControl(timeControl);
+
+    return (
+        <Typography variant='body2'>
+            {gameTime ? `${gameTime}+${increment ?? 0}` : ''}
+        </Typography>
+    );
+}
+
 export function formatPublishedAt(value: string) {
     return value.split('T')[0].replaceAll('-', '.');
 }

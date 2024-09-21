@@ -1,6 +1,6 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
-import { RenderPlayers } from '@/components/games/list/GameListItem';
+import { RenderPlayers, RenderTimeControl } from '@/components/games/list/GameListItem';
 import { GameInfo } from '@/database/game';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -14,8 +14,6 @@ export default function GameCard({
     cohort,
 }: GameInfo) {
     const { user } = useAuth();
-
-    const timeControl = headers.TimeControl;
 
     let dateStr = '';
     let timeStr = '';
@@ -41,7 +39,9 @@ export default function GameCard({
                         {dateStr} {timeStr}
                     </Typography>
                 </Stack>
-                <Typography variant='body2'>{timeControl}</Typography>
+                <Typography variant='body2'>
+                    <RenderTimeControl timeControl={headers.TimeControl} />
+                </Typography>
             </Stack>
             <Stack>
                 <RenderPlayers
@@ -54,7 +54,7 @@ export default function GameCard({
             </Stack>
             <Stack direction='row' alignItems='center' spacing={1.125}>
                 <CohortIcon sx={{ height: '0.875rem', width: 'auto' }} cohort={cohort} />
-                <Typography variant='body2'>{ownerDisplayName}</Typography>
+                <Typography variant='body2'>{ownerDisplayName || cohort}</Typography>
             </Stack>
         </Stack>
     );
