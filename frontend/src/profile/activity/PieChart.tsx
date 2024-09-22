@@ -1,8 +1,8 @@
-import { Box, Container, Stack, Typography } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
+import { Box, Container, Stack, Typography } from '@mui/material';
+import { useMemo, useState } from 'react';
 import { PieChart as ReactPieChart } from 'react-minimal-pie-chart';
 import Tooltip from 'react-tooltip';
-import { useMemo, useState } from 'react';
 
 const defaultLabelStyle = {
     fontSize: '5px',

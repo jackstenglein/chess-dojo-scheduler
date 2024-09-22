@@ -1,20 +1,17 @@
+import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import { Scheduler } from '@aldabil/react-scheduler';
 import {
     EventRendererProps,
     ProcessedEvent,
     SchedulerRef,
 } from '@aldabil/react-scheduler/types';
-import { Grid } from '@mui/material';
-import { useEffect, useMemo, useRef } from 'react';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Button, Grid } from '@mui/material';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useEvents } from '../api/cache/Cache';
 import { CustomEventRenderer } from '../calendar/CalendarPage';
 import ProcessedEventViewer from '../calendar/eventViewer/ProcessedEventViewer';
-import {
-    DefaultTimezone,
-    Filters,
-    getHours,
-    useFilters,
-} from '../calendar/filters/CalendarFilters';
+import { Filters, getHours, useFilters } from '../calendar/filters/CalendarFilters';
 import {
     Event,
     EventType,
@@ -93,6 +90,11 @@ const CalendarTab = () => {
     const calendarRef = useRef<SchedulerRef>(null);
     const { events } = useEvents();
     const filters = useFilters();
+    const [showFilters, setShowFilters] = useState(true);
+
+    const toggleFilters = () => {
+        setShowFilters(!showFilters);
+    };
 
     const processedEvents = useMemo(() => {
         return getProcessedEvents(filters, events);
@@ -159,10 +161,17 @@ const CalendarTab = () => {
     return (
         <Grid container spacing={2}>
             <Grid item xs={12} md={2.5}>
-                <TournamentCalendarFilters filters={filters} />
+                <Button
+                    onClick={toggleFilters}
+                    startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
+                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                >
+                    {showFilters ? 'Hide Filters' : 'Show Filters'}
+                </Button>
+                {showFilters && <TournamentCalendarFilters filters={filters} />}
             </Grid>
 
-            <Grid item xs={12} md={9.5}>
+            <Grid item xs={12} md={showFilters ? 9.5 : 12}>
                 <Scheduler
                     ref={calendarRef}
                     agenda={false}

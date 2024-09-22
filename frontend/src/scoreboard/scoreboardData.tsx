@@ -14,9 +14,9 @@ import {
     RatingSystem,
     User,
     formatRatingSystem,
+    getNormalizedRating,
     getCurrentRating as getUserCurrentRating,
     getStartRating as getUserStartRating,
-    normalizeToFide,
 } from '../database/user';
 import RequirementModal from '../requirements/RequirementModal';
 import ScoreboardCheck from './ScoreboardCheck';
@@ -84,6 +84,7 @@ export function getColumnDefinition(
             case ScoreboardDisplay.Checkbox:
                 return (
                     <ScoreboardCheck
+                        fullHeight
                         value={score}
                         total={totalCount}
                         username={params.row.username}
@@ -243,8 +244,8 @@ export function getRatingChange(row: ScoreboardRow) {
     return currentRating - startRating;
 }
 
-export function getNormalizedRating(row: ScoreboardRow): number {
-    return normalizeToFide(getCurrentRating(row), row.ratingSystem);
+export function getNormalizedRatingRow(row: ScoreboardRow): number {
+    return getNormalizedRating(getCurrentRating(row), row.ratingSystem);
 }
 
 export function getMinutesSpent(row: ScoreboardRow, key: MinutesSpentKey): number {

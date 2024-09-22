@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
@@ -9,7 +10,9 @@ import {
 import { Add, CreateNewFolder } from '@mui/icons-material';
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
+import Avatar from '../Avatar';
 import { AddCurrentGameMenuItem } from './AddCurrentGameMenuItem';
+import { AddExistingGamesDialog } from './AddExistingGamesDialog';
 import { useDirectoryCache } from './DirectoryCache';
 import { UpdateDirectoryDialog } from './UpdateDirectoryDialog';
 
@@ -17,6 +20,7 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
     const cache = useDirectoryCache();
     const [anchorEl, setAnchorEl] = useState<HTMLElement>();
     const [newDirectoryOpen, setNewDirectoryOpen] = useState(false);
+    const [existingGamesOpen, setExistingGamesOpen] = useState(false);
     const { user: viewer } = useAuth();
     const api = useApi();
 
@@ -26,6 +30,7 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
 
     const handleClose = () => {
         setNewDirectoryOpen(false);
+        setExistingGamesOpen(false);
         setAnchorEl(undefined);
     };
 
@@ -50,6 +55,7 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
                 console.log('createDirectory: ', resp);
                 cache.put(resp.data.parent);
                 cache.put(resp.data.directory);
+                trackEvent(EventType.CreateDirectory, { visibility });
                 handleClose();
             })
             .catch((err) => {
@@ -84,10 +90,20 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
                     </ListItemIcon>
                     <ListItemText primary='New Game' />
                 </MenuItem>
+
+                <MenuItem onClick={() => setExistingGamesOpen(true)}>
+                    <ListItemIcon>
+                        <Avatar user={viewer} size={20} />
+                    </ListItemIcon>
+                    <ListItemText primary='My Existing Games' />
+                </MenuItem>
             </Menu>
 
             {newDirectoryOpen && (
                 <UpdateDirectoryDialog onSave={onNewDirectory} onCancel={handleClose} />
+            )}
+            {existingGamesOpen && (
+                <AddExistingGamesDialog directory={directory} onCancel={handleClose} />
             )}
         </>
     );

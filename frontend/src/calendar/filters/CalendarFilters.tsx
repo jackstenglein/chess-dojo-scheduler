@@ -43,8 +43,7 @@ import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
 import TimezoneFilter from './TimezoneFilter';
-
-export const DefaultTimezone = 'DEFAULT';
+import { DefaultTimezone } from './TimezoneSelector';
 
 export const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />

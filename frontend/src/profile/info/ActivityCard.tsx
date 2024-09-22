@@ -1,3 +1,5 @@
+import { useAuth } from '@/auth/Auth';
+import { getTimeZonedDate } from '@/calendar/displayDate';
 import { formatTime } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
@@ -10,7 +12,7 @@ import {
     TextField,
     Tooltip,
 } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ActivityCalendar, { Activity } from 'react-activity-calendar';
 import { useTimeline } from '../activity/useTimeline';
 
@@ -23,13 +25,24 @@ export const ActivityCard = ({ user }: { user: User }) => {
     const [view, setView] = useState('time');
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
+    const { user: viewer } = useAuth();
+    const [, setCalendarRef] = useState<HTMLElement | null>(null);
 
     const [activities, totalCount] = useMemo(() => {
         if (view === 'points') {
-            return getDojoPointsActivity(entries);
+            return getDojoPointsActivity(entries, viewer);
         }
-        return getTimeSpentActivity(entries);
-    }, [view, entries]);
+        return getTimeSpentActivity(entries, viewer);
+    }, [view, entries, viewer]);
+
+    useEffect(() => {
+        const scroller = document.getElementsByClassName(
+            'react-activity-calendar__scroll-container',
+        )[0];
+        if (scroller) {
+            scroller.scrollLeft = scroller.scrollWidth;
+        }
+    });
 
     return (
         <Card>
@@ -48,10 +61,14 @@ export const ActivityCard = ({ user }: { user: User }) => {
             />
             <CardContent
                 sx={{
-                    '& .react-activity-calendar__scroll-container': { paddingTop: '1px' },
+                    '& .react-activity-calendar__scroll-container': {
+                        paddingTop: '1px',
+                        paddingBottom: '10px',
+                    },
                 }}
             >
                 <ActivityCalendar
+                    ref={setCalendarRef}
                     colorScheme={isLight ? 'light' : 'dark'}
                     theme={{
                         dark: ['#393939', '#F7941F'],
@@ -63,7 +80,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             disableInteractive
                             title={
                                 view === 'points'
-                                    ? `${Math.round(10 * activity.count) / 10} Dojo points on ${activity.date}`
+                                    ? `${Math.round(10 * activity.count) / 10} Dojo point${activity.count !== 1 ? 's' : ''} on ${activity.date}`
                                     : `${formatTime(activity.count)} on ${activity.date}`
                             }
                         >
@@ -78,6 +95,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     }}
                     totalCount={Math.round(10 * totalCount) / 10}
                     maxLevel={MAX_LEVEL}
+                    showWeekdayLabels
                 />
             </CardContent>
         </Card>
@@ -87,7 +105,8 @@ export const ActivityCard = ({ user }: { user: User }) => {
 function getActivity(
     entries: TimelineEntry[],
     field: 'dojoPoints' | 'minutesSpent',
-    clamp?: number,
+    clamp: number,
+    viewer?: User,
 ): [Activity[], number] {
     const activities: Record<string, Activity> = {};
     let totalCount = 0;
@@ -98,13 +117,17 @@ function getActivity(
             continue;
         }
 
-        const date = entry.date?.split('T')[0] || entry.createdAt.split('T')[0];
-        if (date < MIN_DATE) {
+        if ((entry.date || entry.createdAt) < MIN_DATE) {
             break;
         }
 
-        const activity = activities[date] || {
-            date,
+        let date = new Date(entry.date || entry.createdAt);
+        date = getTimeZonedDate(date, viewer?.timezoneOverride);
+
+        const dateStr = `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
+
+        const activity = activities[dateStr] || {
+            date: dateStr,
             count: 0,
             level: 0,
         };
@@ -115,7 +138,7 @@ function getActivity(
         }
 
         totalCount += entry[field];
-        activities[date] = activity;
+        activities[dateStr] = activity;
     }
 
     if (!activities[MIN_DATE]) {
@@ -145,10 +168,16 @@ function getActivity(
     ];
 }
 
-function getDojoPointsActivity(entries: TimelineEntry[]): [Activity[], number] {
-    return getActivity(entries, 'dojoPoints', MAX_POINTS_COUNT);
+function getDojoPointsActivity(
+    entries: TimelineEntry[],
+    viewer?: User,
+): [Activity[], number] {
+    return getActivity(entries, 'dojoPoints', MAX_POINTS_COUNT, viewer);
 }
 
-function getTimeSpentActivity(entries: TimelineEntry[]): [Activity[], number] {
-    return getActivity(entries, 'minutesSpent', MAX_HOURS_COUNT);
+function getTimeSpentActivity(
+    entries: TimelineEntry[],
+    viewer?: User,
+): [Activity[], number] {
+    return getActivity(entries, 'minutesSpent', MAX_HOURS_COUNT, viewer);
 }

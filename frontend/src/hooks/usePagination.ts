@@ -1,17 +1,32 @@
+import { Request, RequestStatus, useRequest } from '@/api/Request';
+import { ListGamesResponse } from '@/api/gameApi';
+import { GameInfo } from '@/database/game';
 import { AxiosResponse } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { RequestStatus, useRequest } from '../../api/Request';
-import { ListGamesResponse } from '../../api/gameApi';
-import { GameInfo } from '../../database/game';
 
 export type SearchFunc = (startKey: string) => Promise<AxiosResponse<ListGamesResponse>>;
+
+type FilterFunc = (game: GameInfo) => boolean;
+
+export interface PaginationResult {
+    page: number;
+    pageSize: number;
+    data: GameInfo[];
+    request: Request;
+    rowCount: number;
+    hasMore: boolean;
+    setPage: (newPage: number) => void;
+    setPageSize: (newPageSize: number) => void;
+    onSearch: (searchFunc: SearchFunc) => void;
+}
 
 export function usePagination(
     initialSearchFunc: SearchFunc | null,
     initialPage: number,
     initialPageSize: number,
-) {
+    filterFunc?: FilterFunc,
+): PaginationResult {
     const request = useRequest();
     const reset = request.reset;
 
@@ -95,14 +110,17 @@ export function usePagination(
             .then((response) => {
                 console.log('ListGames: ', response);
                 request.onSuccess();
-                setGames(games.concat(response.data.games));
+                const newGames = filterFunc
+                    ? response.data.games.filter(filterFunc)
+                    : response.data.games;
+                setGames(games.concat(newGames));
                 setStartKey(response.data.lastEvaluatedKey);
             })
             .catch((err) => {
                 console.error('ListGames: ', err);
                 request.onFailure(err);
             });
-    }, [page, pageSize, games, startKey, searchFunc, request]);
+    }, [page, pageSize, games, startKey, searchFunc, filterFunc, request]);
 
     const rowCount = games.length;
 

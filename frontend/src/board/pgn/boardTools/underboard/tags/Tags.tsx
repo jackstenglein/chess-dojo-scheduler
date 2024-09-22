@@ -1,3 +1,8 @@
+import { isValidDate, stripTagValue } from '@/api/gameApi';
+import { MastersCohort } from '@/components/games/list/GameListItem';
+import { Game } from '@/database/game';
+import Avatar from '@/profile/Avatar';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { EventType, PgnDate, PgnTime, TimeControl } from '@jackstenglein/chess';
 import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
 import {
@@ -11,11 +16,6 @@ import {
 } from '@mui/x-data-grid-pro';
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { isValidDate, stripTagValue } from '../../../../../api/gameApi';
-import { Game } from '../../../../../database/game';
-import { MastersCohort } from '../../../../../games/list/ListGamesPage';
-import Avatar from '../../../../../profile/Avatar';
-import CohortIcon from '../../../../../scoreboard/CohortIcon';
 import { useChess } from '../../../PgnBoard';
 import { EditDateCell } from './DateEditor';
 import { TimeControlGridEditor } from './TimeControlEditor';
@@ -265,6 +265,14 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     }
 
                     chess.setHeader(newRow.name, newRow.value as string);
+
+                    if (defaultTags.includes(name)) {
+                        return {
+                            ...newRow,
+                            value: chess.header().getRawValue(name),
+                        };
+                    }
+
                     return {
                         ...newRow,
                         value: chess.header().getValue(newRow.name),

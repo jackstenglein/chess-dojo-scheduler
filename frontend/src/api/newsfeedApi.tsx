@@ -12,10 +12,7 @@ export interface NewsfeedApiContextType {
      * @param id The id of the timeline entry.
      * @returns An AxiosResponse containing the timeline entry.
      */
-    getNewsfeedItem: (
-        owner: string,
-        id: string
-    ) => Promise<AxiosResponse<TimelineEntry>>;
+    getNewsfeedItem: (owner: string, id: string) => Promise<AxiosResponse<TimelineEntry>>;
 
     /**
      * Fetches a page of the provided newsfeed.
@@ -27,7 +24,7 @@ export interface NewsfeedApiContextType {
     listNewsfeed: (
         newsfeedIds: string[],
         skipLastFetch?: boolean,
-        startKey?: string
+        startKey?: string,
     ) => Promise<AxiosResponse<ListNewsfeedResponse>>;
 
     /**
@@ -38,7 +35,7 @@ export interface NewsfeedApiContextType {
      */
     createNewsfeedComment: (
         props: { owner: string; id: string },
-        content: string
+        content: string,
     ) => Promise<AxiosResponse<TimelineEntry>>;
 
     /**
@@ -51,7 +48,7 @@ export interface NewsfeedApiContextType {
     setNewsfeedReaction: (
         owner: string,
         id: string,
-        types: string[]
+        types: string[],
     ) => Promise<AxiosResponse<TimelineEntry>>;
 }
 
@@ -90,7 +87,7 @@ export function listNewsfeed(
     idToken: string,
     newsfeedIds: string[],
     skipLastFetch?: boolean,
-    startKey?: string
+    startKey?: string,
 ) {
     return axios.get<ListNewsfeedResponse>(`${BASE_URL}/newsfeed`, {
         params: {
@@ -114,7 +111,7 @@ export function listNewsfeed(
 export function createNewsfeedComment(
     idToken: string,
     props: { owner: string; id: string },
-    content: string
+    content: string,
 ) {
     return axios.post<TimelineEntry>(
         `${BASE_URL}/newsfeed/${props.owner}/${props.id}/comments`,
@@ -123,7 +120,7 @@ export function createNewsfeedComment(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
-        }
+        },
     );
 }
 
@@ -139,11 +136,11 @@ export function setNewsfeedReaction(
     idToken: string,
     owner: string,
     id: string,
-    types: string[]
+    types: string[],
 ) {
     return axios.put<TimelineEntry>(
         `${BASE_URL}/newsfeed/${owner}/${id}/reactions`,
         { types },
-        { headers: { Authorization: 'Bearer ' + idToken } }
+        { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }

@@ -1,8 +1,12 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import {
+    MastersCohort,
+    MastersOwnerDisplayName,
+    RenderPlayers,
+    RenderResult,
+} from '@/components/games/list/GameListItem';
 import { dojoCohorts } from '@/database/user';
-import { RenderPlayers, RenderResult } from '@/games/list/GameListItem';
-import { MastersCohort, MastersOwnerDisplayName } from '@/games/list/ListGamesPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     DirectoryItem,
@@ -73,7 +77,11 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
         renderCell: (params: GridRenderCellParams<DirectoryItem, string>) => {
             const item = params.row;
             if (item.type === DirectoryItemTypes.DIRECTORY) {
-                return params.value;
+                return (
+                    <Link color='inherit' sx={{ cursor: 'pointer' }}>
+                        {params.value}
+                    </Link>
+                );
             }
 
             return RenderPlayers({ ...item.metadata, fullHeight: true });

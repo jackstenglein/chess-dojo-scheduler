@@ -1,10 +1,14 @@
+import { MastersCohort } from '@/components/games/list/GameListItem';
+import { SearchFunc } from '@/hooks/usePagination';
+import { Folder } from '@mui/icons-material';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { LoadingButton } from '@mui/lab';
 import {
     AccordionProps,
     AccordionSummaryProps,
+    Button,
     FormControl,
-    Grid,
+    Grid2,
     InputLabel,
     MenuItem,
     Accordion as MuiAccordion,
@@ -31,8 +35,6 @@ import { RequirementCategory } from '../../database/requirement';
 import { dojoCohorts } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
-import { MastersCohort } from './ListGamesPage';
-import { SearchFunc } from './pagination';
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -117,8 +119,8 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                 </Select>
             </FormControl>
 
-            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                <Grid item xs={12} md={12} lg>
+            <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid2 size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='Start Date'
                         value={startDate}
@@ -129,9 +131,9 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                             textField: { id: 'cohort-start-date', fullWidth: true },
                         }}
                     />
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} md={12} lg>
+                <Grid2 size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='End Date'
                         value={endDate}
@@ -142,8 +144,8 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                             textField: { id: 'cohort-end-date', fullWidth: true },
                         }}
                     />
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
 
             <LoadingButton
                 data-cy='cohort-search-button'
@@ -173,8 +175,8 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                 uploaded previously through Dojo 1.0's Google Form submission will not be
                 matched.
             </Typography>
-            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                <Grid item xs={12} md={12} lg>
+            <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid2 size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='Start Date'
                         value={startDate}
@@ -185,9 +187,9 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                             textField: { id: 'owner-start-date', fullWidth: true },
                         }}
                     />
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} md={12} lg>
+                <Grid2 size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='End Date'
                         value={endDate}
@@ -198,8 +200,8 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                             textField: { id: 'owner-end-date', fullWidth: true },
                         }}
                     />
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
 
             <LoadingButton
                 data-cy='owner-search-button'
@@ -276,8 +278,8 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                 <MenuItem value='black'>Black</MenuItem>
             </Select>
 
-            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                <Grid item xs={12} md={12} lg>
+            <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid2 size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='Start Date'
                         value={startDate}
@@ -288,9 +290,9 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                             textField: { id: 'player-start-date', fullWidth: true },
                         }}
                     />
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} md={12} lg>
+                <Grid2 size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='End Date'
                         value={endDate}
@@ -301,8 +303,8 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                             textField: { id: 'player-end-date', fullWidth: true },
                         }}
                     />
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
 
             <LoadingButton
                 data-cy='player-search-button'
@@ -374,8 +376,8 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                 />
             </FormControl>
 
-            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                <Grid item xs={12} md={12} lg>
+            <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid2 size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='Start Date'
                         value={startDate}
@@ -386,9 +388,9 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                             textField: { id: 'opening-start-date', fullWidth: true },
                         }}
                     />
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} md={12} lg>
+                <Grid2 size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='End Date'
                         value={endDate}
@@ -399,8 +401,8 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                             textField: { id: 'opening-end-date', fullWidth: true },
                         }}
                     />
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
 
             <LoadingButton
                 data-cy='opening-search-button'
@@ -490,12 +492,23 @@ const SearchByPosition: React.FC<SearchByPositionProps> = ({
     );
 };
 
+const SearchFiles = () => {
+    return (
+        <Stack data-cy='search-files' spacing={2}>
+            <Button href='/profile?view=files' variant='outlined'>
+                Go to My Files
+            </Button>
+        </Stack>
+    );
+};
+
 enum SearchType {
     Cohort = 'cohort',
     Player = 'player',
     Owner = 'owner',
     Opening = 'opening',
     Position = 'position',
+    Files = 'files',
 }
 
 function isValid(d: Date | null): boolean {
@@ -808,6 +821,18 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
                         isLoading={isLoading}
                         onSearch={onSearchByOwner}
                     />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion
+                expanded={expanded === SearchType.Files}
+                onChange={onChangePanel(SearchType.Files)}
+            >
+                <AccordionSummary>
+                    <Folder color='primary' sx={{ mr: '0.6rem' }} />
+                    <Typography>My Files</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <SearchFiles />
                 </AccordionDetails>
             </Accordion>
         </Stack>

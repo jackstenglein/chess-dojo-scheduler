@@ -1,4 +1,5 @@
-import { DefaultTimezone, useFilters } from '@/calendar/filters/CalendarFilters';
+import { useFilters } from '@/calendar/filters/CalendarFilters';
+import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import { RequirementCategory } from '@/database/requirement';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Scheduler } from '@aldabil/react-scheduler';

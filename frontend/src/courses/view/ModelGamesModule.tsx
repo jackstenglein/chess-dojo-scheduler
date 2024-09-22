@@ -1,14 +1,11 @@
 import { Box, Container, Stack } from '@mui/material';
 import { useState } from 'react';
-import useMeasure from 'react-use-measure';
-import { ModuleProps } from './Module';
-
 import PgnBoard from '../../board/pgn/PgnBoard';
 import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
+import { ModuleProps } from './Module';
 import PgnSelector from './PgnSelector';
 
 const ModelGamesModule: React.FC<ModuleProps> = ({ module }) => {
-    const [ref, bounds] = useMeasure();
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     if (!module.pgns || module.pgns.length < 1) {
@@ -19,22 +16,20 @@ const ModelGamesModule: React.FC<ModuleProps> = ({ module }) => {
         <Stack>
             <Container
                 maxWidth={false}
-                ref={ref}
                 sx={{
                     pt: 4,
                     pb: 4,
                     px: '0 !important',
-                    '--container-width': `${bounds.width}px`,
                     '--gap': '16px',
                     '--site-header-height': '80px',
-                    '--site-header-margin': '100px',
+                    '--site-header-margin': '60px',
                     '--player-header-height': '28px',
                     '--toc-width': '21vw',
                     '--underboard-width': '400px',
                     '--coach-width': '400px',
                     '--tools-height': '40px',
                     '--board-width':
-                        'calc(var(--container-width) - var(--coach-width) - 60px)',
+                        'calc(100vw - var(--coach-width) - 60px - var(--toc-width))',
                     '--board-height':
                         'calc(100vh - var(--site-header-height) - var(--site-header-margin) - var(--tools-height) - 8px - 2 * var(--player-header-height))',
                     '--board-size': 'calc(min(var(--board-width), var(--board-height)))',

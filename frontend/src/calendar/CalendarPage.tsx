@@ -1,7 +1,8 @@
 import { Scheduler } from '@aldabil/react-scheduler';
 import type { EventRendererProps, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Container, Grid, Snackbar, Stack, Typography } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Button, Container, Grid, Snackbar, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useApi } from '../api/Api';
@@ -26,11 +27,11 @@ import EventEditor from './eventEditor/EventEditor';
 import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
 import {
     CalendarFilters,
-    DefaultTimezone,
     Filters,
     getHours,
     useFilters,
 } from './filters/CalendarFilters';
+import { DefaultTimezone } from './filters/TimezoneSelector';
 
 function processAvailability(
     user: User | undefined,
@@ -171,12 +172,20 @@ function processDojoEvent(
         return null;
     }
 
+    const location = event.location.toLowerCase();
+    let color = 'dojoOrange.main';
+    if (location.includes('twitch')) {
+        color = 'twitch.main';
+    } else if (location.includes('youtube')) {
+        color = 'youtube.main';
+    }
+
     return {
         event_id: event.id,
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'dojoOrange.main',
+        color,
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
         draggable: user?.isAdmin || user?.isCalendarAdmin,
@@ -321,6 +330,12 @@ export default function CalendarPage() {
 
     const copyRequest = useRequest();
     const deleteRequest = useRequest<string>();
+
+    const [showFilters, setShowFilters] = useState(true);
+
+    const toggleFilters = () => {
+        setShowFilters(!showFilters);
+    };
 
     const deleteAvailability = useCallback(
         async (id: string) => {
@@ -482,9 +497,16 @@ export default function CalendarPage() {
 
             <Grid container spacing={2}>
                 <Grid item xs={12} md={2.5}>
-                    <CalendarFilters filters={filters} />
+                    <Button
+                        onClick={toggleFilters}
+                        startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
+                        sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                    >
+                        {showFilters ? 'Hide Filters' : 'Show Filters'}
+                    </Button>
+                    {showFilters && <CalendarFilters filters={filters} />}
                 </Grid>
-                <Grid item xs={12} md={9.5}>
+                <Grid item xs={12} md={showFilters ? 9.5 : 12}>
                     <Stack spacing={3}>
                         {isFreeTier && (
                             <UpsellAlert>
@@ -563,6 +585,40 @@ interface CustomEventRendererProps extends EventRendererProps {
     timeFormat: TimeFormat | undefined;
 }
 
+/**
+ * Returns the location icon for the given event.
+ * @param dojoEvent The event to get the location icon for.
+ * @returns The location icon name or undefined if the event is undefined.
+ */
+function getLocationIcon(dojoEvent: Event | undefined): keyof typeof icons | undefined {
+    if (!dojoEvent) {
+        return undefined;
+    }
+
+    if (dojoEvent.ligaTournament?.timeControlType) {
+        return dojoEvent.ligaTournament.timeControlType;
+    }
+
+    if (dojoEvent.type !== EventType.Dojo) {
+        return dojoEvent.type;
+    }
+
+    const location = dojoEvent.location;
+    if (!location) {
+        return dojoEvent.type;
+    }
+
+    if (location.toLowerCase().includes('discord')) {
+        return 'discord';
+    } else if (location.toLowerCase().includes('twitch')) {
+        return 'twitch';
+    } else if (location.toLowerCase().includes('youtube')) {
+        return 'youtube';
+    }
+
+    return dojoEvent.type;
+}
+
 export function CustomEventRenderer({
     event,
     timeFormat,
@@ -600,10 +656,7 @@ export function CustomEventRenderer({
         >
             <Stack direction='row' alignItems='start' spacing={0.5}>
                 <Icon
-                    name={
-                        (dojoEvent?.ligaTournament?.timeControlType ||
-                            dojoEvent?.type) as keyof typeof icons
-                    }
+                    name={getLocationIcon(dojoEvent)}
                     color='inherit'
                     fontSize='inherit'
                     sx={{

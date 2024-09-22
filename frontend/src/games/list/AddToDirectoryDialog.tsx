@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
@@ -53,28 +54,34 @@ export const AddToDirectoryDialog = ({
         }
 
         request.onStart();
-        api.addDirectoryItem({
+        api.addDirectoryItems({
             id: directoryId,
-            game: {
-                owner: game.owner,
-                ownerDisplayName: game.ownerDisplayName,
-                createdAt:
-                    game.createdAt ||
-                    game.date.replaceAll('.', '-') ||
-                    new Date().toISOString(),
-                id: game.id,
-                cohort: game.cohort,
-                white: game.headers.White,
-                black: game.headers.Black,
-                whiteElo: game.headers.WhiteElo,
-                blackElo: game.headers.BlackElo,
-                result: game.headers.Result,
-            },
+            games: [
+                {
+                    owner: game.owner,
+                    ownerDisplayName: game.ownerDisplayName,
+                    createdAt:
+                        game.createdAt ||
+                        game.date.replaceAll('.', '-') ||
+                        new Date().toISOString(),
+                    id: game.id,
+                    cohort: game.cohort,
+                    white: game.headers.White,
+                    black: game.headers.Black,
+                    whiteElo: game.headers.WhiteElo,
+                    blackElo: game.headers.BlackElo,
+                    result: game.headers.Result,
+                },
+            ],
         })
             .then((resp) => {
                 console.log('addDirectoryItem: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess(`Game added to ${resp.data.directory.name}`);
+                trackEvent(EventType.AddDirectoryItems, {
+                    count: 1,
+                    method: 'add_to_directory_dialog',
+                });
                 onClose();
             })
             .catch((err) => {

@@ -21,7 +21,7 @@ import {
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
-import { addDirectoryItems } from 'chess-dojo-directory-service/addItem';
+import { addDirectoryItems } from 'chess-dojo-directory-service/addItems';
 import { v4 as uuidv4 } from 'uuid';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
@@ -68,6 +68,13 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         }
 
         console.log('PGN texts length: ', pgnTexts.length);
+
+        if (request.directory && request.directory.split('/').length !== 2) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `Invalid request: directory ${request.directory} should have owner and id components separated by a slash`,
+            });
+        }
 
         const games = getGames(user, pgnTexts, request.directory);
         if (games.length === 0) {

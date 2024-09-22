@@ -125,11 +125,11 @@ functions:
           - dynamodb:PartiQLUpdate
         Resource: ${param:GamesTableArn}
 
-  addItem:
-    handler: addItem.handler
+  addItems:
+    handler: addItems.handler
     events:
       - httpApi:
-          path: /directory/{id}/item
+          path: /directory/{id}/items
           method: put
           authorizer:
             type: jwt

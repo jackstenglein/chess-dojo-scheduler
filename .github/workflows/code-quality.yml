@@ -1,10 +1,10 @@
-name: Lint
+name: Code Quality
 
 on: push
 
 jobs:
-  run-linter-and-build:
-    name: Lint and perform test build
+  run-quality-check:
+    name: Lint, check formatting and build
     runs-on: ubuntu-latest
 
     steps:
@@ -18,6 +18,10 @@ jobs:
       - name: Run linters for frontend
         working-directory: frontend
         run: npm run lint
+      
+      - name: Run format check for frontend
+        working-directory: frontend
+        run: npm run format:check
 
       - name: Build frontend
         working-directory: frontend

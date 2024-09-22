@@ -132,13 +132,17 @@ func fetchCurrentRating(rating *database.Rating, fetcher ratings.RatingFetchFunc
 	}
 
 	data, err := fetcher(rating.Username)
+	if err != nil {
+		return err
+	}
+
 	rating.CurrentRating = data.CurrentRating
 	rating.Deviation = data.Deviation
 	rating.NumGames = data.NumGames
 	if rating.StartRating == 0 {
 		rating.StartRating = data.CurrentRating
 	}
-	return err
+	return nil
 }
 
 func fetchRatings(user *database.User, update *database.UserUpdate) error {

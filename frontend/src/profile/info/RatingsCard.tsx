@@ -5,8 +5,7 @@ import {
     User,
 } from '@/database/user';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
-import { Card, CardContent, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import { Card, CardContent, Grid2, Typography } from '@mui/material';
 
 export const RatingsCard = ({ user }: { user: User }) => {
     const systems = Object.values(RatingSystem)
@@ -57,17 +56,16 @@ const RatingRow = ({
 }) => {
     return (
         <>
-            <Grid2 xs={2} display='flex' alignItems='center' justifyContent='center'>
+            <Grid2 display='flex' alignItems='center' justifyContent='center' size={2}>
                 <RatingSystemIcon system={system} size='small' />
             </Grid2>
-            <Grid2 xs={8}>
+            <Grid2 size={8}>
                 <Typography>
                     {formatRatingSystem(system)}{' '}
                     {system === RatingSystem.Custom && name && ` (${name})`}
                 </Typography>
             </Grid2>
-
-            <Grid2 xs={2}>
+            <Grid2 size={2}>
                 <Typography fontWeight='bold'>{currentRating}</Typography>
             </Grid2>
         </>

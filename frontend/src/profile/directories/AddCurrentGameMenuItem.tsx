@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useGame } from '@/games/view/GamePage';
@@ -37,32 +38,38 @@ export const AddCurrentGameMenuItem = ({
         }
 
         request.onStart();
-        api.addDirectoryItem({
+        api.addDirectoryItems({
             id: directory.id,
-            game: {
-                owner: game.owner,
-                ownerDisplayName: game.ownerDisplayName,
-                createdAt:
-                    game.createdAt ||
-                    game.date.replaceAll('.', '-') ||
-                    new Date().toISOString(),
-                id: game.id,
-                cohort: game.cohort,
-                white: game.headers.White,
-                black: game.headers.Black,
-                whiteElo: game.headers.WhiteElo,
-                blackElo: game.headers.BlackElo,
-                result: game.headers.Result,
-            },
+            games: [
+                {
+                    owner: game.owner,
+                    ownerDisplayName: game.ownerDisplayName,
+                    createdAt:
+                        game.createdAt ||
+                        game.date.replaceAll('.', '-') ||
+                        new Date().toISOString(),
+                    id: game.id,
+                    cohort: game.cohort,
+                    white: game.headers.White,
+                    black: game.headers.Black,
+                    whiteElo: game.headers.WhiteElo,
+                    blackElo: game.headers.BlackElo,
+                    result: game.headers.Result,
+                },
+            ],
         })
             .then((resp) => {
-                console.log('addDirectoryItem: ', resp);
+                console.log('addDirectoryItems: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess();
+                trackEvent(EventType.AddDirectoryItems, {
+                    count: 1,
+                    method: 'add_current_game',
+                });
                 onSuccess();
             })
             .catch((err) => {
-                console.error('addDirectoryItem: ', err);
+                console.error('addDirectoryItems: ', err);
                 request.onFailure(err);
             });
     };

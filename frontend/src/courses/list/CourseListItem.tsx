@@ -1,3 +1,6 @@
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import { LoadingButton } from '@mui/lab';
 import {
     Card,
     CardActionArea,
@@ -8,16 +11,13 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import React from 'react';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useApi } from '../../api/Api';
+import { RequestSnackbar, useRequest } from '../../api/Request';
 import { Course, CoursePurchaseOption } from '../../database/course';
 import { getCohortRange } from '../../database/user';
 import { CourseFilters } from './CourseFilters';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
 
 interface CourseListItemProps {
     course: Course;
@@ -73,7 +73,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
         percentOff = Math.round(
             ((purchaseOption.fullPrice - purchaseOption.currentPrice) /
                 purchaseOption.fullPrice) *
-                100
+                100,
         );
     }
 
@@ -85,7 +85,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
             course.type,
             course.id,
             purchaseOption?.name,
-            window.location.href
+            window.location.href,
         )
             .then((resp) => {
                 console.log('purchaseCourse: ', resp);
@@ -190,7 +190,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                         loading={request.isLoading()}
                         onClick={preview ? undefined : onBuy}
                         color='success'
-                        startIcon={<RocketLaunchIcon/>}
+                        startIcon={<RocketLaunchIcon />}
                     >
                         Buy
                     </LoadingButton>

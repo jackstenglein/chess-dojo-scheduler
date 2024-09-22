@@ -1,17 +1,18 @@
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
+import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
+import olympiadImage from './olympiad-2024/olympiad.jpg';
 import tacticsTestImage from './tactics-test/image.png';
-import chessjourneys from './player-spotlight/lifecanbesonice/Chess-Journeys.jpg'
 
 export interface BlogItem {
     title: string;
     subtitle?: string;
     body: string;
     href: string;
-    image: {
+    image?: {
         src: string;
         alt: string;
     };
@@ -19,12 +20,34 @@ export interface BlogItem {
 
 const items: BlogItem[] = [
     {
-        title: 'LifeCanBeSoNice',
-        subtitle: 'Dojo Player Spotlight • September 2, 2024',
-        body: `Jan, aka Lifecanbesonice, is going for it. Since joining the Dojo last year he has gained 279 points and has started his own chess improvement channel with his coach IM Jurica Srbis. His goal is 2000 lichess. It’s a magical number! Will he be able to make it?`,
-        href: '/blog/player-spotlight/lifecanbesonice',
+        title: 'The New Dojo Rating Translator',
+        subtitle: 'Jesse Kraai • September 15, 2024',
+        body: `One of the first and essential building stones of the Dojo Training Program was the creation of a universal rating system...`,
+        href: '/blog/new-ratings',
+    },
+    {
+        title: 'Dojo at the Olympiad',
+        subtitle: 'September 12, 2024',
+        body: `Jan (LifeCanBeSoNice) got the party started with an amazing AI driven hype video, and Sensei David covers German #1 Vincent Keymer's streak in the 2024 Akiba Rubinstein Memorial.`,
+        href: '/blog/olympiad-2024',
         image: {
-            src: chessjourneys,
+            src: olympiadImage,
+            alt: '',
+        },
+    },
+    {
+        title: 'Will LifeCanBeSoNice Reach 2000?',
+        subtitle: 'Dojo Player Spotlight • September 2, 2024',
+        body: `Jan, aka LifeCanBeSoNice, is going for it. Since joining the Dojo last year, he has gained 279 points and has started his own chess improvement channel with his coach IM Jurica Srbis. His goal is 2000 Lichess. It’s a magical number! Will he be able to make it?`,
+        href: '/blog/player-spotlight/lifecanbesonice',
+    },
+    {
+        title: 'Introducing the Dojo File System',
+        subtitle: 'Dojo Digest Vol 12 • September 1, 2024',
+        body: `The Dojo has a new file system to help you organize and manage your games! A new files tab has been added to your profile. You'll start out with an empty Home folder, where you can add games or nested folders...`,
+        href: '/blog/dojo-digest/vol-12',
+        image: {
+            src: dojoDigestVol12Image,
             alt: '',
         },
     },

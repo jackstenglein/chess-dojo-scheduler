@@ -1,3 +1,4 @@
+import { Block, Check } from '@mui/icons-material';
 import {
     CircularProgress,
     Divider,
@@ -8,15 +9,14 @@ import {
     Typography,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { Block, Check } from '@mui/icons-material';
 
-import { useAuth } from '../auth/Auth';
-import { ClubDetails, ClubJoinRequest, ClubJoinRequestStatus } from '../database/club';
-import Avatar from '../profile/Avatar';
-import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { GetClubResponse } from '../api/clubApi';
+import { useAuth } from '../auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
+import { ClubDetails, ClubJoinRequest, ClubJoinRequestStatus } from '../database/club';
+import Avatar from '../profile/Avatar';
 
 interface JoinRequestsTabProps {
     club: ClubDetails;
@@ -103,7 +103,7 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                 if (status === ClubJoinRequestStatus.Approved) {
                     onProcessRequest(
                         resp.data,
-                        `${joinRequest.displayName} added as a club member`
+                        `${joinRequest.displayName} added as a club member`,
                     );
                 } else if (status === ClubJoinRequestStatus.Rejected) {
                     onProcessRequest(resp.data, 'Join request rejected');
@@ -172,7 +172,7 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                                             color='error'
                                             onClick={() =>
                                                 handleRequest(
-                                                    ClubJoinRequestStatus.Rejected
+                                                    ClubJoinRequestStatus.Rejected,
                                                 )
                                             }
                                         />

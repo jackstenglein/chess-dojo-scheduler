@@ -12,7 +12,7 @@ import {
     MoveDirectoryItemsSchema,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { addDirectoryItems } from './addItem';
+import { addDirectoryItems } from './addItems';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,

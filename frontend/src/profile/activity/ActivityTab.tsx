@@ -1,8 +1,7 @@
-import { Grid } from '@mui/material';
-
+import { Grid2 } from '@mui/material';
 import { User } from '../../database/user';
-import ActivityTimeline from './ActivityTimeline';
 import ActivityPieChart from './ActivityPieChart';
+import ActivityTimeline from './ActivityTimeline';
 import { useTimeline } from './useTimeline';
 
 interface ActivityTabProps {
@@ -13,14 +12,14 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ user }) => {
     const timeline = useTimeline(user.username);
 
     return (
-        <Grid container justifyContent='space-between' rowSpacing={5}>
-            <Grid item xs={12}>
+        <Grid2 container justifyContent='space-between' rowSpacing={5}>
+            <Grid2 size={12}>
                 <ActivityPieChart user={user} timeline={timeline} />
-            </Grid>
-            <Grid item xs={12}>
+            </Grid2>
+            <Grid2 size={12}>
                 <ActivityTimeline user={user} timeline={timeline} />
-            </Grid>
-        </Grid>
+            </Grid2>
+        </Grid2>
     );
 };
 

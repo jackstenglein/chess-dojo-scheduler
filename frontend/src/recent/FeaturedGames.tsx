@@ -2,12 +2,12 @@ import { Divider, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { gameTableColumns } from '@/components/games/list/GameTable';
+import { DataGridPro, GridRowParams } from '@mui/x-data-grid-pro';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { GameInfo } from '../database/game';
 import LoadingPage from '../loading/LoadingPage';
-import { DataGridPro, GridRowParams } from '@mui/x-data-grid-pro';
-import { gameTableColumns } from '../games/list/ListGamesPage';
 
 const FeaturedGames = () => {
     const api = useApi();
@@ -34,8 +34,8 @@ const FeaturedGames = () => {
         navigate(
             `/games/${params.row.cohort.replaceAll(
                 '+',
-                '%2B'
-            )}/${params.row.id.replaceAll('?', '%3F')}`
+                '%2B',
+            )}/${params.row.id.replaceAll('?', '%3F')}`,
         );
     };
 

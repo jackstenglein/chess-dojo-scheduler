@@ -91,9 +91,9 @@ interface LinesProps {
 }
 
 const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll }) => {
-    const [expanded, setExpanded] = useState(true);
+    depth = depth ?? 0;
+    const [expanded, setExpanded] = useState(depth < 3 || depth % 2 === 0);
     const expandRef = useRef<HTMLHRElement>(null);
-    const d = depth || 0;
 
     const onCollapse = () => {
         setExpanded(false);
@@ -107,72 +107,69 @@ const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll }) => {
 
     return (
         <Box
+            ref={expandRef}
             display='block'
             position='relative'
             sx={{
-                pl: d > 0 ? `${2 * borderWidth}px` : 0,
+                pl: depth > -1 ? `${2 * borderWidth}px` : 0,
             }}
         >
-            {d > 0 && (
-                <Stack direction='row' alignItems={expanded ? undefined : 'center'}>
-                    {/* Horizontal line when we go down another level */}
-                    <Divider
-                        ref={expandRef}
-                        sx={{
-                            borderWidth: `${borderWidth}px`,
-                            width: `${lineInset}px`,
-                            display: 'inline-block',
-                            position: 'absolute',
-                            left: `${-lineInset}px`,
-                        }}
-                    />
-
-                    {expanded ? (
-                        <Tooltip key='collapse' title='Collapse variations' followCursor>
-                            <Divider
-                                component='div'
-                                orientation='vertical'
-                                onClick={onCollapse}
-                                sx={{
-                                    position: 'absolute',
-                                    borderWidth: `${borderWidth}px`,
-                                    height: 1,
-                                    left: 0,
-                                    cursor: 'pointer',
-                                    ':hover': {
-                                        borderColor: 'primary.main',
-                                    },
-                                }}
-                            />
-                        </Tooltip>
-                    ) : (
-                        <Tooltip key='expand' title='Expand variations'>
-                            <Box
-                                bgcolor='text.disabled'
-                                borderRadius='50%'
-                                sx={{
-                                    width: '20px',
-                                    height: '20px',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    mb: '2px',
-                                    cursor: 'pointer',
-                                }}
-                                onClick={() => setExpanded(true)}
+            <Stack direction='row' alignItems={expanded ? undefined : 'center'}>
+                {expanded ? (
+                    <Tooltip key='collapse' title='Collapse variations' followCursor>
+                        <Divider
+                            component='div'
+                            orientation='vertical'
+                            onClick={onCollapse}
+                            sx={{
+                                position: 'absolute',
+                                borderWidth: `${borderWidth}px`,
+                                height: 1,
+                                left: 0,
+                                cursor: 'pointer',
+                                ':hover': {
+                                    borderColor: 'primary.main',
+                                },
+                            }}
+                        />
+                    </Tooltip>
+                ) : (
+                    <Tooltip key='expand' title='Expand variations'>
+                        <Box
+                            bgcolor='text.disabled'
+                            borderRadius='50%'
+                            sx={{
+                                minWidth: '20px',
+                                minHeight: '20px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                mb: '2px',
+                                cursor: 'pointer',
+                                aspectRatio: '1',
+                                ...(depth === 0
+                                    ? {
+                                          mt: '2px',
+                                      }
+                                    : {}),
+                            }}
+                            onClick={() => setExpanded(true)}
+                        >
+                            <Typography
+                                variant='caption'
+                                color='background.paper'
+                                sx={{ mx: '2px' }}
                             >
-                                <Typography variant='caption' color='background.paper'>
-                                    +{lines.length}
-                                </Typography>
-                            </Box>
-                        </Tooltip>
-                    )}
-                </Stack>
-            )}
+                                +{lines.length}
+                            </Typography>
+                        </Box>
+                    </Tooltip>
+                )}
+            </Stack>
 
-            <Collapse in={expanded}>
+            <Collapse in={expanded} unmountOnExit={true}>
                 {lines.map((l, idx) => (
-                    <Line key={idx} line={l} depth={d} handleScroll={handleScroll} />
+                    <Line key={idx} line={l} depth={depth} handleScroll={handleScroll} />
                 ))}
             </Collapse>
         </Box>

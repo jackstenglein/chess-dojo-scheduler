@@ -5,11 +5,11 @@ import {
     CardHeader,
     Container,
     Divider,
+    Grid2 as Grid,
     Link,
     Stack,
     Typography,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
 import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useFreeTier } from '../auth/Auth';
@@ -330,6 +330,83 @@ const helpSections = [
             },
         ],
     },
+    {
+        title: 'New Cohorts',
+        items: [
+            {
+                title: 'Why did my cohort change?',
+                content: <>A new Dojo rating scale went into effect 9/15/2024.</>,
+            },
+            {
+                title: 'Why are the ratings being changed at all?',
+                content: (
+                    <>
+                        The FIDE and DWZ systems modified their ratings in April this
+                        year. Moreover, we have noticed a discrepancy among the Lichess
+                        and Chess.com ratings of users within the Dojo. This change in the
+                        rating system will better reflect users' skill across all the
+                        rating systems.
+                    </>
+                ),
+            },
+            {
+                title: `I went down a cohort. Does this mean I'm a worse player?`,
+                content: (
+                    <>
+                        No. You still have the same skill level you had before. All that's
+                        different is that the Dojo material of this cohort is more
+                        appropriate for your level. And you're more likely to face better
+                        sparring partners within your cohort!
+                    </>
+                ),
+            },
+            {
+                title: `I went up a coort. Do I still change my cohort if I feel like I didn't deserve it?`,
+                content: (
+                    <>
+                        Yes. Please join the appropriate cohort. Your cohort is now more
+                        accurately reflective of your rating in line with other members
+                        who have a different preferred rating system.
+                    </>
+                ),
+            },
+            {
+                title: `If I graduate, will I still get my games reviewed on stream?`,
+                content: (
+                    <>
+                        This is not a graduation or demotion, simply an adjustment of the
+                        rating system itself. Please change your cohort through your
+                        ChessDojo profile, not by clicking the graduation button. Future
+                        graduations after you switch cohorts will still be reviewed on
+                        stream.
+                    </>
+                ),
+            },
+            {
+                title: `I'm now in a cohort I already graduated from in the old system. Do I go through material I've already finished?`,
+                content: (
+                    <>
+                        Yes and no. Yes, you are welcome to repeat any material you've
+                        already done, such as books or sparring positions. But no, you are
+                        not starting from scratch. All of your previous progress has been
+                        saved, and you can focus on the other material you have not yet
+                        completed.
+                    </>
+                ),
+            },
+            {
+                title: `Does this new rating scale change the ChessDojo philosophy?`,
+                content: (
+                    <>
+                        Not at all. The core tenets remain the same. Playing and analyzing
+                        classical games, sparring with members of your cohort, and the
+                        +/-/= system. The only difference is that now you can find more
+                        appropriate Dojo members to learn from/teach/spar with.
+                    </>
+                ),
+            },
+        ],
+    },
 ];
 
 const AuthenticatedHelp = () => {
@@ -366,9 +443,13 @@ const AuthenticatedHelp = () => {
                     currentAction={RestrictedAction.JoinDiscord}
                 />
             )}
-
             <Grid container columnSpacing={4}>
-                <Grid md={3} sx={{ display: { xs: 'none', md: 'initial' } }}>
+                <Grid
+                    sx={{ display: { xs: 'none', md: 'initial' } }}
+                    size={{
+                        md: 3,
+                    }}
+                >
                     <Card
                         variant='outlined'
                         sx={{
@@ -417,7 +498,12 @@ const AuthenticatedHelp = () => {
                     </Card>
                 </Grid>
 
-                <Grid id='scroll-parent' md={9}>
+                <Grid
+                    id='scroll-parent'
+                    size={{
+                        md: 9,
+                    }}
+                >
                     <Stack spacing={5}>
                         <Stack>
                             <Typography variant='h4'>Help/FAQs</Typography>

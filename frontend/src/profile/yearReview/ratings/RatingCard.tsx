@@ -1,13 +1,20 @@
-import { Box, Card, CardContent, Chip, Stack, Tooltip, Typography } from '@mui/material';
+import { ArrowDownward, ArrowUpward, Help, OpenInNew } from '@mui/icons-material';
+import {
+    Box,
+    Card,
+    CardContent,
+    Chip,
+    Grid2,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { useMemo } from 'react';
 import { Chart } from 'react-charts';
-import { ArrowDownward, ArrowUpward, Help, OpenInNew } from '@mui/icons-material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-
 import {
     RatingSystem,
     formatRatingSystem,
-    normalizeToFide,
+    getNormalizedRating,
 } from '../../../database/user';
 import { YearReviewRatingData } from '../../../database/yearReview';
 import {
@@ -27,7 +34,7 @@ interface RatingCardProps {
 const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) => {
     const historyData = useMemo(
         () => getChartData(data.history, data.currentRating.value),
-        [data]
+        [data],
     );
 
     return (
@@ -67,11 +74,13 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
 
                 <Grid2 container alignItems='center' rowSpacing={2}>
                     <Grid2
-                        xs={6}
-                        sm={4}
-                        md
                         display='flex'
                         justifyContent={{ xs: 'start', sm: 'center' }}
+                        size={{
+                            xs: 6,
+                            sm: 4,
+                            md: 'grow',
+                        }}
                     >
                         <Stack alignItems={{ xs: 'start', sm: 'end' }}>
                             <Typography variant='caption' color='text.secondary'>
@@ -91,11 +100,13 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                     </Grid2>
 
                     <Grid2
-                        xs={6}
-                        sm={4}
-                        md
                         display='flex'
                         justifyContent={{ xs: 'end', sm: 'center' }}
+                        size={{
+                            xs: 6,
+                            sm: 4,
+                            md: 'grow',
+                        }}
                     >
                         <Stack alignItems='end'>
                             <Typography variant='caption' color='text.secondary'>
@@ -114,11 +125,13 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                     </Grid2>
 
                     <Grid2
-                        xs={6}
-                        sm={4}
-                        md
                         display='flex'
                         justifyContent={{ xs: 'start', sm: 'center' }}
+                        size={{
+                            xs: 6,
+                            sm: 4,
+                            md: 'grow',
+                        }}
                     >
                         <Stack alignItems={{ xs: 'start', sm: 'end' }}>
                             <Typography variant='caption' color='text.secondary'>
@@ -167,11 +180,13 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                     {system !== RatingSystem.Custom && (
                         <>
                             <Grid2
-                                xs={6}
-                                sm={4}
-                                md
                                 display='flex'
                                 justifyContent={{ xs: 'end', sm: 'center' }}
+                                size={{
+                                    xs: 6,
+                                    sm: 4,
+                                    md: 'grow',
+                                }}
                             >
                                 <Stack alignItems='end'>
                                     <Stack
@@ -185,7 +200,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                         >
                                             Normalized
                                         </Typography>
-                                        <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
+                                        <Tooltip title='Normalized Dojo rating using the table on Material > Rating Conversions'>
                                             <Help
                                                 fontSize='inherit'
                                                 sx={{
@@ -203,21 +218,23 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                         }}
                                     >
                                         {Math.round(
-                                            normalizeToFide(
+                                            getNormalizedRating(
                                                 data.currentRating.value,
-                                                system
-                                            )
+                                                system,
+                                            ),
                                         )}
                                     </Typography>
                                 </Stack>
                             </Grid2>
 
                             <Grid2
-                                xs={6}
-                                sm={4}
-                                md
                                 display='flex'
                                 justifyContent={{ xs: 'start', sm: 'center' }}
+                                size={{
+                                    xs: 6,
+                                    sm: 4,
+                                    md: 'grow',
+                                }}
                             >
                                 <Stack alignItems={{ xs: 'start', sm: 'end' }}>
                                     <Stack
@@ -236,7 +253,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                                 data.isPreferred
                                                     ? 'The percent of Dojo members whose normalized preferred rating is below yours'
                                                     : `The percent of Dojo members whose ${formatRatingSystem(
-                                                          system
+                                                          system,
                                                       )} rating is below yours`
                                             }
                                         >
@@ -264,11 +281,13 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                             </Grid2>
 
                             <Grid2
-                                xs={6}
-                                sm={4}
-                                md
                                 display='flex'
                                 justifyContent={{ xs: 'end', sm: 'center' }}
+                                size={{
+                                    xs: 6,
+                                    sm: 4,
+                                    md: 'grow',
+                                }}
                             >
                                 <Stack alignItems='end'>
                                     <Stack
@@ -287,7 +306,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                                 data.isPreferred
                                                     ? `The percent of members in the ${cohort} cohort whose normalized preferred rating is below yours`
                                                     : `The percent of members in the ${cohort} cohort whose ${formatRatingSystem(
-                                                          system
+                                                          system,
                                                       )} rating is below yours`
                                             }
                                         >
@@ -308,7 +327,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                         }}
                                     >
                                         {Math.round(
-                                            10 * data.currentRating.cohortPercentile
+                                            10 * data.currentRating.cohortPercentile,
                                         ) / 10}
                                         %
                                     </Typography>
