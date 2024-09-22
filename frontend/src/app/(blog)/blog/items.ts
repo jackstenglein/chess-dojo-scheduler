@@ -6,6 +6,8 @@ import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
 import olympiadImage from './olympiad-2024/olympiad.jpg';
 import tacticsTestImage from './tactics-test/image.png';
+import ratingConverter from './NoseKnowsAll/20241020_Rating-Converter/ratings-image05.png';
+
 
 export interface BlogItem {
     title: string;
@@ -19,6 +21,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Universal Rating Converter for 2024',
+        subtitle: 'NoseKnowsAll • September 20, 2024',
+        body: `Introducing a universal rating converter for 2024`,
+        href: '/blog/NoseKnowsAll/20241020_Rating-Converter',
+        image: {
+            src: ratingConverter,
+            alt: '',
+        },
+    },
     {
         title: 'The New Dojo Rating Translator',
         subtitle: 'Jesse Kraai • September 15, 2024',
