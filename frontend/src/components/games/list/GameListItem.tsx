@@ -41,7 +41,12 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
 
 export function WinIcon() {
     return (
-        <Typography color='success'>
+        <Typography
+            color='success'
+            display='flex'
+            justifyContent='center'
+            alignItems='center'
+        >
             <FaPlusSquare fontSize='0.875rem' />
         </Typography>
     );
@@ -49,7 +54,12 @@ export function WinIcon() {
 
 export function LoseIcon() {
     return (
-        <Typography color='error'>
+        <Typography
+            color='error'
+            display='flex'
+            justifyContent='center'
+            alignItems='center'
+        >
             <FaMinusSquare fontSize='0.875rem' />
         </Typography>
     );

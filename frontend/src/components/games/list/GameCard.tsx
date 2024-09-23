@@ -32,7 +32,6 @@ export default function GameCard({
                 justifyContent='space-between'
             >
                 <Stack direction='row' alignItems='center' spacing={1}>
-                    {unlisted ? <VisibilityOff /> : <Visibility />}
                     <Typography variant='body2'>{dateStr}</Typography>
                 </Stack>
                 <Typography variant='body2'>
@@ -48,9 +47,20 @@ export default function GameCard({
                     result={headers.Result}
                 />
             </Stack>
-            <Stack direction='row' alignItems='center' spacing={1.125}>
-                <CohortIcon sx={{ height: '0.875rem', width: 'auto' }} cohort={cohort} />
-                <Typography variant='body2'>{ownerDisplayName || cohort}</Typography>
+            <Stack
+                direction='row'
+                alignItems='center'
+                justifyContent='space-between'
+                spacing={1.125}
+            >
+                <Stack direction='row' alignItems='center' spacing={1}>
+                    <CohortIcon
+                        sx={{ height: '0.875rem', width: 'auto' }}
+                        cohort={cohort}
+                    />
+                    <Typography variant='body2'>{ownerDisplayName || cohort}</Typography>
+                </Stack>
+                {unlisted ? <VisibilityOff /> : <Visibility />}
             </Stack>
         </Stack>
     );
