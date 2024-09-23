@@ -5,7 +5,7 @@ import CohortIcon from '@/scoreboard/CohortIcon';
 import { useLightMode } from '@/style/useLightMode';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { Link, Stack, Typography } from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
 import { FaEquals, FaMinusSquare, FaPlusSquare } from 'react-icons/fa';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
@@ -81,8 +81,6 @@ export function RenderPlayers({
 }: RenderPlayersProps) {
     const light = useLightMode();
     const location = useLocation();
-    const whiteStr = getPlayerName(white, whiteElo, whiteProvisional);
-    const blackStr = getPlayerName(black, blackElo, blackProvisional);
 
     let blackIconColor = 'grey.800';
     if (!light && location.pathname.match(/games\/.+/)) {
@@ -91,11 +89,10 @@ export function RenderPlayers({
 
     return (
         <Stack height={fullHeight ? 1 : undefined} justifyContent='center'>
-            <Stack direction='row' flexWrap='nowrap' spacing={1} alignItems='center'>
+            <Stack direction='row' alignItems='center' spacing={0.25}>
                 {result === GameResult.White && <WinIcon />}
                 {result === GameResult.Black && <LoseIcon />}
                 {result === GameResult.Draw && <DrawIcon />}
-
                 {light ? (
                     <CircleOutlinedIcon
                         sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }}
@@ -108,10 +105,11 @@ export function RenderPlayers({
                         }}
                     />
                 )}
-                <Typography>{whiteStr}</Typography>
+                <Typography>
+                    {getPlayerName(white, whiteElo, whiteProvisional)}
+                </Typography>
             </Stack>
-
-            <Stack direction='row' flexWrap='nowrap' spacing={1} alignItems='center'>
+            <Stack direction='row' alignItems='center' spacing={0.25}>
                 {result === GameResult.White && <LoseIcon />}
                 {result === GameResult.Black && <WinIcon />}
                 {result === GameResult.Draw && <DrawIcon />}
@@ -121,8 +119,8 @@ export function RenderPlayers({
                         color: blackIconColor,
                     }}
                 />
-                <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
-                    {blackStr}
+                <Typography>
+                    {getPlayerName(black, blackElo, blackProvisional)}
                 </Typography>
             </Stack>
         </Stack>
@@ -163,7 +161,7 @@ export function RenderOwner({
             alignItems='center'
             onClick={(e) => e.stopPropagation()}
         >
-            <Avatar username={owner} displayName={ownerDisplayName} size={32} />
+            <Avatar username={owner} displayName={ownerDisplayName} size={30} />
             <Link component={RouterLink} to={`/profile/${owner}`}>
                 {ownerDisplayName}
             </Link>
@@ -204,19 +202,23 @@ function parseTimeControl(
         .flatMap((v) => (v ? Number(v) : []));
 
     if (!gameTime) {
-        return [undefined, undefineed];
+        return [undefined, undefined];
     }
 
     return [Math.round(gameTime / 60), increment];
 }
 
-export function RenderTimeControl({ timeControl }: { timeControl?: string }) {
+export function getTimeControl({ timeControl }: { timeControl?: string }) {
     const [gameTime, increment] = parseTimeControl(timeControl);
 
+    return gameTime ? `${gameTime}+${increment ?? 0}` : '';
+}
+
+export function RenderTimeControl({ timeControl }: { timeControl?: string }) {
     return (
-        <Typography variant='body2'>
-            {gameTime ? `${gameTime}+${increment ?? 0}` : ''}
-        </Typography>
+        <Box height='100%' display='flex' alignItems='center'>
+            <Typography variant='body2'>{getTimeControl({ timeControl })}</Typography>
+        </Box>
     );
 }
 
@@ -232,20 +234,24 @@ export function getPublishedAt(game: GameInfo) {
     return game.publishedAt || game.createdAt || game.id.split('_')[0];
 }
 
+function getPlayerRating(rating?: string | number, provisional?: boolean) {
+    if (!rating) {
+        return '(??)';
+    }
+
+    let str = `(${rating}`;
+    if (provisional) {
+        str += '?';
+    }
+    str += ')';
+
+    return str;
+}
+
 function getPlayerName(
     username: string,
     rating?: string | number,
     provisional?: boolean,
 ): string {
-    let str = username;
-    if (rating === undefined) {
-        str += ' (??)';
-    } else if (rating) {
-        str += ` (${rating}`;
-        if (provisional) {
-            str += `?`;
-        }
-        str += ')';
-    }
-    return str;
+    return username + ' ' + getPlayerRating(rating, provisional);
 }

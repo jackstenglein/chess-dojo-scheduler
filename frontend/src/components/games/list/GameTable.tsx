@@ -18,23 +18,23 @@ import {
     RenderCohort,
     RenderOwner,
     RenderPlayersCell,
-    RenderResult,
+    RenderTimeControl,
 } from './GameListItem';
 
 export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
-        width: 65,
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderCohort(params.row),
+        width: 1,
     },
     {
-        field: 'owner',
-        headerName: 'Uploaded By',
-        minWidth: 150,
+        field: 'timeControl',
+        headerName: 'Time',
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
-            RenderOwner(params.row),
+            RenderTimeControl({ timeControl: params.row.headers.TimeControl }),
+        width: 1,
     },
     {
         field: 'players',
@@ -42,17 +42,28 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         valueGetter: (_value, row) =>
             `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
         renderCell: RenderPlayersCell,
+        minWidth: 200,
         flex: 1,
-        minWidth: 150,
     },
     {
-        field: 'result',
-        headerName: 'Result',
-        valueGetter: (_value, row) => row.headers?.Result,
-        renderCell: RenderResult,
-        align: 'center',
-        headerAlign: 'center',
-        width: 75,
+        field: 'date',
+        headerName: 'Played',
+        align: 'right',
+        headerAlign: 'right',
+    },
+    {
+        field: 'publishedAt',
+        headerName: 'Published',
+        valueGetter: (_value, row) => getPublishedAt(row),
+        valueFormatter: formatPublishedAt,
+        align: 'right',
+        headerAlign: 'right',
+    },
+    {
+        field: 'owner',
+        headerName: 'Uploaded By',
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
+            RenderOwner(params.row),
     },
     {
         field: 'moves',
@@ -60,23 +71,6 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         valueGetter: (_value, row) => formatMoves(row.headers?.PlyCount),
         align: 'center',
         headerAlign: 'center',
-        width: 75,
-    },
-    {
-        field: 'publishedAt',
-        headerName: 'Publish Date',
-        valueGetter: (_value, row) => getPublishedAt(row),
-        valueFormatter: formatPublishedAt,
-        width: 120,
-        align: 'right',
-        headerAlign: 'right',
-    },
-    {
-        field: 'date',
-        headerName: 'Date Played',
-        width: 110,
-        align: 'right',
-        headerAlign: 'right',
     },
 ];
 
@@ -157,6 +151,7 @@ export default function GameTable({
                 },
             }}
             pagination
+            autosizeOnMount
         />
     );
 }
