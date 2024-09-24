@@ -13,17 +13,6 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 export const MastersCohort = 'masters';
 export const MastersOwnerDisplayName = 'Masters DB';
 
-interface RenderPlayersProps {
-    white: string;
-    whiteElo?: string | number;
-    whiteProvisional?: boolean;
-    black: string;
-    blackElo?: string | number;
-    blackProvisional?: boolean;
-    fullHeight?: boolean;
-    result?: GameResult;
-}
-
 export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
     const headers = params.row.headers;
 
@@ -43,7 +32,7 @@ export function GameResultIcon({
     result,
     asWhite,
 }: {
-    result?: GameResult;
+    result?: string;
     asWhite: boolean;
 }) {
     if (result === GameResult.White) {
@@ -115,6 +104,17 @@ export function DrawIcon() {
             <FaEquals fontSize='0.875rem' />
         </Typography>
     );
+}
+
+interface RenderPlayersProps {
+    white: string;
+    whiteElo?: string | number;
+    whiteProvisional?: boolean;
+    black: string;
+    blackElo?: string | number;
+    blackProvisional?: boolean;
+    fullHeight?: boolean;
+    result?: GameResult | string;
 }
 
 export function RenderPlayers({
@@ -291,12 +291,4 @@ function getPlayerRating(rating?: string | number, provisional?: boolean) {
     str += ')';
 
     return str;
-}
-
-function getPlayerName(
-    username: string,
-    rating?: string | number,
-    provisional?: boolean,
-): string {
-    return username + ' ' + getPlayerRating(rating, provisional);
 }
