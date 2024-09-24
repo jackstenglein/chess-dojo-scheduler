@@ -1,6 +1,5 @@
 import { GameInfo, GameResult } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
-import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { useLightMode } from '@/style/useLightMode';
 import CircleIcon from '@mui/icons-material/Circle';
@@ -161,7 +160,6 @@ export function RenderOwner({
             alignItems='center'
             onClick={(e) => e.stopPropagation()}
         >
-            <Avatar username={owner} displayName={ownerDisplayName} size={30} />
             <Link component={RouterLink} to={`/profile/${owner}`}>
                 {ownerDisplayName}
             </Link>

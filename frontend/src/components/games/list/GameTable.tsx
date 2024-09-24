@@ -34,13 +34,14 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         valueGetter: (_value, row) =>
             `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
         renderCell: RenderPlayersCell,
-        flex: 1,
+        flex: 2,
     },
     {
         field: 'timeControl',
         headerName: 'Time',
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderTimeControl({ timeControl: params.row.headers.TimeControl }),
+        maxWidth: 50,
     },
     {
         field: 'date',
@@ -61,6 +62,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerName: 'Uploaded By',
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderOwner(params.row),
+        flex: 1,
     },
     {
         field: 'moves',
