@@ -86,6 +86,7 @@ interface GameTableProps {
     onPaginationModelChange: (model: GridPaginationModel) => void;
     onClickRow: (params: GridRowParams<GameInfo>) => void;
     contextMenu: DataGridContextMenu;
+    limitFreeTier?: boolean;
 }
 
 export default function GameTable({
@@ -94,8 +95,9 @@ export default function GameTable({
     onPaginationModelChange,
     onClickRow,
     contextMenu,
+    limitFreeTier,
 }: GameTableProps) {
-    const isFreeTier = useFreeTier();
+    const freeTierLimited = useFreeTier() && limitFreeTier;
     const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
 
     const columns = useMemo(() => {
@@ -103,7 +105,7 @@ export default function GameTable({
         if (type === 'owner') {
             columns = columns.filter((c) => c.field !== 'owner');
         }
-        if (isFreeTier) {
+        if (freeTierLimited) {
             columns = columns.map((col) => ({
                 ...col,
                 filterable: false,
@@ -111,16 +113,16 @@ export default function GameTable({
             }));
         }
         return columns;
-    }, [type, isFreeTier]);
+    }, [type, freeTierLimited]);
 
     return (
         <DataGridPro
             data-cy='games-table'
             columns={columns}
             rows={data}
-            pageSizeOptions={isFreeTier ? [10] : [5, 10, 25]}
+            pageSizeOptions={freeTierLimited ? [10] : [5, 10, 25]}
             paginationModel={
-                isFreeTier
+                freeTierLimited
                     ? { page: 0, pageSize: 10 }
                     : { page: data.length > 0 ? page : 0, pageSize }
             }
