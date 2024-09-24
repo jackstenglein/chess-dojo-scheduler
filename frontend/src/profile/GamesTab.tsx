@@ -33,7 +33,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
 
     const columns = useMemo(() => {
         const columns = gameTableColumns.filter(
-            (c) => !['owner', 'cohort'].includes(c.field),
+            (c) => !['owner', 'cohort', 'publishedAt'].includes(c.field),
         );
         if (currentUser?.username === user.username) {
             columns.push({

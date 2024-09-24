@@ -34,6 +34,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         valueGetter: (_value, row) =>
             `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
         renderCell: RenderPlayersCell,
+        minWidth: 200,
         flex: 2,
     },
     {
@@ -63,6 +64,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderOwner(params.row),
         flex: 1,
+        minWidth: 150,
     },
     {
         field: 'moves',

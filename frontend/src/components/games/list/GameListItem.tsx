@@ -7,6 +7,7 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
 import { FaEquals, FaMinusSquare, FaPlusSquare } from 'react-icons/fa';
+import { SiAsterisk } from 'react-icons/si';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 export const MastersCohort = 'masters';
@@ -38,6 +39,45 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
     );
 }
 
+export function GameResultIcon({
+    result,
+    asWhite,
+}: {
+    result?: GameResult;
+    asWhite: boolean;
+}) {
+    if (result === GameResult.White) {
+        return asWhite ? <WinIcon /> : <LoseIcon />;
+    }
+
+    if (result === GameResult.Black) {
+        return asWhite ? <LoseIcon /> : <WinIcon />;
+    }
+
+    if (result === GameResult.Draw) {
+        return <DrawIcon />;
+    }
+
+    if (result === GameResult.Incomplete) {
+        return <IncompleteIcon />;
+    }
+
+    return <IncompleteIcon />;
+}
+
+export function IncompleteIcon() {
+    return (
+        <Typography
+            color='text.secondary'
+            display='flex'
+            justifyContent='center'
+            alignItems='center'
+        >
+            <SiAsterisk fontSize='0.875rem' />
+        </Typography>
+    );
+}
+
 export function WinIcon() {
     return (
         <Typography
@@ -65,7 +105,16 @@ export function LoseIcon() {
 }
 
 export function DrawIcon() {
-    return <FaEquals fontSize='0.875rem' />;
+    return (
+        <Typography
+            color='text.secondary'
+            display='flex'
+            justifyContent='center'
+            alignItems='center'
+        >
+            <FaEquals fontSize='0.875rem' />
+        </Typography>
+    );
 }
 
 export function RenderPlayers({
@@ -89,9 +138,7 @@ export function RenderPlayers({
     return (
         <Stack height={fullHeight ? 1 : undefined} justifyContent='center'>
             <Stack direction='row' alignItems='center' spacing={0.25}>
-                {result === GameResult.White && <WinIcon />}
-                {result === GameResult.Black && <LoseIcon />}
-                {result === GameResult.Draw && <DrawIcon />}
+                <GameResultIcon result={result} asWhite />
                 {light ? (
                     <CircleOutlinedIcon
                         sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }}
@@ -104,22 +151,22 @@ export function RenderPlayers({
                         }}
                     />
                 )}
-                <Typography>
-                    {getPlayerName(white, whiteElo, whiteProvisional)}
+                <Typography variant='body2'>{white}</Typography>
+                <Typography variant='body2' overflow='hidden'>
+                    {getPlayerRating(whiteElo, whiteProvisional)}
                 </Typography>
             </Stack>
             <Stack direction='row' alignItems='center' spacing={0.25}>
-                {result === GameResult.White && <LoseIcon />}
-                {result === GameResult.Black && <WinIcon />}
-                {result === GameResult.Draw && <DrawIcon />}
+                <GameResultIcon result={result} asWhite={false} />
                 <CircleIcon
                     sx={{
                         fontSize: { xs: '0.75rem', sm: 'initial' },
                         color: blackIconColor,
                     }}
                 />
-                <Typography>
-                    {getPlayerName(black, blackElo, blackProvisional)}
+                <Typography variant='body2'>{black}</Typography>
+                <Typography variant='body2' whiteSpace='nowrap' overflow='hidden'>
+                    {getPlayerRating(blackElo, blackProvisional)}
                 </Typography>
             </Stack>
         </Stack>
@@ -136,7 +183,7 @@ export function RenderCohort({ cohort }: { cohort: string }) {
         <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
             <CohortIcon cohort={cohort} tooltip={cohort} size={30} />
             <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
-                {display === MastersCohort ? 'masters' : display}
+                {display === MastersCohort ? 'Masters DB' : display}
             </Typography>
         </Stack>
     );
@@ -234,7 +281,7 @@ export function getPublishedAt(game: GameInfo) {
 
 function getPlayerRating(rating?: string | number, provisional?: boolean) {
     if (!rating) {
-        return '(??)';
+        return '';
     }
 
     let str = `(${rating}`;
