@@ -27,14 +27,6 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerName: 'Cohort',
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderCohort(params.row),
-        width: 1,
-    },
-    {
-        field: 'timeControl',
-        headerName: 'Time',
-        renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
-            RenderTimeControl({ timeControl: params.row.headers.TimeControl }),
-        width: 1,
     },
     {
         field: 'players',
@@ -42,8 +34,13 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         valueGetter: (_value, row) =>
             `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
         renderCell: RenderPlayersCell,
-        minWidth: 200,
         flex: 1,
+    },
+    {
+        field: 'timeControl',
+        headerName: 'Time',
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
+            RenderTimeControl({ timeControl: params.row.headers.TimeControl }),
     },
     {
         field: 'date',
@@ -76,43 +73,40 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
 
 interface GameTableProps {
     pagination: PaginationResult;
-    type: string;
     onPaginationModelChange: (model: GridPaginationModel) => void;
     onClickRow: (params: GridRowParams<GameInfo>) => void;
     contextMenu: DataGridContextMenu;
     limitFreeTier?: boolean;
+    columns?: GridColDef<GameInfo>[];
 }
 
 export default function GameTable({
     pagination,
-    type,
     onPaginationModelChange,
     onClickRow,
     contextMenu,
     limitFreeTier,
+    columns,
 }: GameTableProps) {
     const freeTierLimited = useFreeTier() && limitFreeTier;
     const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
 
-    const columns = useMemo(() => {
-        let columns = gameTableColumns;
-        if (type === 'owner') {
-            columns = columns.filter((c) => c.field !== 'owner');
-        }
+    const transformedColumns = useMemo(() => {
+        let transformedColumns = columns ?? gameTableColumns;
         if (freeTierLimited) {
-            columns = columns.map((col) => ({
+            transformedColumns = transformedColumns.map((col) => ({
                 ...col,
                 filterable: false,
                 sortable: false,
             }));
         }
-        return columns;
-    }, [type, freeTierLimited]);
+        return transformedColumns;
+    }, [freeTierLimited, columns]);
 
     return (
         <DataGridPro
             data-cy='games-table'
-            columns={columns}
+            columns={transformedColumns}
             rows={data}
             pageSizeOptions={freeTierLimited ? [10] : [5, 10, 25]}
             paginationModel={
@@ -123,6 +117,7 @@ export default function GameTable({
             onPaginationModelChange={onPaginationModelChange}
             loading={request.isLoading()}
             autoHeight
+            sx={{ width: 1 }}
             rowHeight={70}
             onRowClick={onClickRow}
             initialState={{
@@ -153,7 +148,6 @@ export default function GameTable({
                 },
             }}
             pagination
-            autosizeOnMount
         />
     );
 }

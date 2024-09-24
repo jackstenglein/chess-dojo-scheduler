@@ -1,8 +1,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth, useFreeTier } from '@/auth/Auth';
-import { gameTableColumns } from '@/components/games/list/GameTable';
-import { CustomPagination } from '@/components/ui/CustomPagination';
+import GameTable, { gameTableColumns } from '@/components/games/list/GameTable';
 import { GameInfo } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
 import { User } from '@/database/user';
@@ -14,7 +13,6 @@ import UpsellAlert from '@/upsell/UpsellAlert';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Button, Stack, Tooltip } from '@mui/material';
 import {
-    DataGridPro,
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
@@ -34,7 +32,9 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const contextMenu = useDataGridContextMenu();
 
     const columns = useMemo(() => {
-        const columns = gameTableColumns.filter((c) => c.field !== 'owner');
+        const columns = gameTableColumns.filter(
+            (c) => !['owner', 'cohort'].includes(c.field),
+        );
         if (currentUser?.username === user.username) {
             columns.push({
                 field: 'unlisted',
@@ -69,8 +69,8 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         [api, user.username],
     );
 
-    const { request, data, rowCount, page, pageSize, hasMore, setPage, setPageSize } =
-        usePagination(searchByOwner, 0, 10);
+    const pagination = usePagination(searchByOwner, 0, 10);
+    const { request, data, pageSize, setPageSize } = pagination;
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
         navigate(
@@ -116,45 +116,12 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
             )}
 
             {(!isFreeTier || currentUser?.username === user.username) && (
-                <DataGridPro
+                <GameTable
                     columns={columns}
-                    rows={data}
-                    pageSizeOptions={[5, 10, 25]}
-                    paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
+                    pagination={pagination}
                     onPaginationModelChange={onPaginationModelChange}
-                    loading={request.isLoading()}
-                    autoHeight
-                    rowHeight={70}
-                    onRowClick={onClickRow}
-                    sx={{ width: 1 }}
-                    initialState={{
-                        sorting: {
-                            sortModel: [
-                                {
-                                    field: 'publishedAt',
-                                    sort: 'desc',
-                                },
-                            ],
-                        },
-                    }}
-                    pagination
-                    slots={{
-                        pagination: () => (
-                            <CustomPagination
-                                page={page}
-                                pageSize={pageSize}
-                                count={rowCount}
-                                hasMore={hasMore}
-                                onPrevPage={() => setPage(page - 1)}
-                                onNextPage={() => setPage(page + 1)}
-                            />
-                        ),
-                    }}
-                    slotProps={{
-                        row: {
-                            onContextMenu: contextMenu.open,
-                        },
-                    }}
+                    onClickRow={onClickRow}
+                    contextMenu={contextMenu}
                 />
             )}
 

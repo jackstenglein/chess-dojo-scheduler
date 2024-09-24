@@ -114,11 +114,11 @@ const ListGamesPage = () => {
             <Grid2 container spacing={5} wrap='wrap-reverse'>
                 <Grid2 size={{ xs: 12, md: 8, lg: 8 }}>
                     <GameTable
+                        limitFreeTier
                         pagination={pagination}
                         onClickRow={(params) => onClick(params.row)}
                         onPaginationModelChange={onPaginationModelChange}
                         contextMenu={contextMenu}
-                        type={type}
                     />
                     <ListItemContextMenu
                         game={
