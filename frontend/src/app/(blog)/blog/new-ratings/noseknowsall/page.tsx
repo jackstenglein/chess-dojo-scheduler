@@ -15,15 +15,15 @@ import ratingsImage08 from './ratings-image08.png';
 
 export const metadata: Metadata = {
     title: 'Universal Rating Converter for 2024 | NoseKnowsAll',
-    description: `Jan, aka LifeCanBeSoNice, is going for it. Since joining the Dojo last year he has gained 279 points and has started his own chess improvement channel with his coach IM Jurica Srbis. His goal is 2000 Lichess. It's a magical number! Will he be able to make it?`,
+    description: `NoseKnowsAll explains the math behind ChessDojo's new universal rating calculator.`,
 };
 
 export default function DojoTalksTop2025() {
     return (
         <Container maxWidth='sm' sx={{ py: 5 }}>
             <Header
-                title='Introducing a Universal Rating Converter for 2024'
-                subtitle='NoseKnowsAll • September 20, 2024'
+                title='Universal Rating Converter for 2024'
+                subtitle='NoseKnowsAll • September 24, 2024'
             />
             <Typography mb={3}>
                 <strong>
@@ -43,10 +43,10 @@ export default function DojoTalksTop2025() {
                 should be largely ignored.
             </Typography>
             <br />
-            <Typography mb={3} variant='h5'>
+            <Typography mt={3} variant='h5'>
                 <strong>The Universal Rating Converter</strong>
             </Typography>
-            <Divider sx={{ my: 1 }} />
+            <Divider sx={{ mb: 2 }} />
             <Typography>
                 Without further ado, here is the universal rating converter, updated in
                 September 2024. If you have a classical chess rating either online or OTB,
@@ -65,8 +65,8 @@ export default function DojoTalksTop2025() {
                 }}
             />
             <Typography>
-                * The above ratings refer to your classical lichess rating or rapid
-                chesscom rating. Blitz ratings do not apply.
+                * The above ratings refer to your classical Lichess rating or rapid
+                Chess.com rating. Blitz ratings do not apply.
                 <br />
                 <br />
                 ** My CFC data sources are a bit lacking, so please take those numbers
@@ -77,10 +77,10 @@ export default function DojoTalksTop2025() {
                 converter, but hopefully I have covered the majority of them.
             </Typography>
             <br />
-            <Typography mb={3} variant='h5'>
+            <Typography mt={3} variant='h5'>
                 <strong>Determining The Converted Ratings</strong>
             </Typography>
-            <Divider sx={{ my: 1 }} />
+            <Divider sx={{ mb: 2 }} />
             <Typography>
                 The ultimate goal of this converter is to be able to accurately compare a
                 player's strength across all the rating systems even if they only have
@@ -92,27 +92,27 @@ export default function DojoTalksTop2025() {
                 rating deviation) when available.
                 <br />
                 <br />I took data from many sources: thousands of ChessDojo training
-                program members who had low rating deviations in their classical lichess
-                ratings and/or rapid chesscom ratings but also had an OTB rating, the FIDE
-                player list, the ACF player list, the DWZ player list, and the ECF player
-                list, all from September 1st 2024. I tried to only consider data that was
-                reliable by basing the ratings mostly on online:OTB ratings for the lower
-                rated cohorts and OTB:OTB ratings for the higher rated cohorts. Since the
-                pool of online players thins out dramatically near the very top, I can
-                only truly compare their OTB ratings to each other.
+                program members who had low rating deviations in their classical Lichess
+                ratings and/or rapid Chess.com ratings but also had an OTB rating, the
+                FIDE player list, the ACF player list, the DWZ player list, and the ECF
+                player list, all from September 1st 2024. I tried to only consider data
+                that was reliable by basing the ratings mostly on online:OTB ratings for
+                the lower rated cohorts and OTB:OTB ratings for the higher rated cohorts.
+                Since the pool of online players thins out dramatically near the very top,
+                I can only truly compare their OTB ratings to each other.
                 <br />
                 <br />
-                As an example, consider someone who has a 1550 lichess classical rating,
-                1050 chesscom rapid rating, and 1430 FIDE rating. They are much more
+                As an example, consider someone who has a 1550 Lichess classical rating,
+                1050 Chess.com rapid rating, and 1430 FIDE rating. They are much more
                 likely to have accurate online ratings rather than OTB. In contrast,
-                someone who has a 2300 lichess classical rating and 1850 chesscom rapid
+                someone who has a 2300 Lichess classical rating and 1850 Chess.com rapid
                 rating, but is 2100 FIDE and 2300 USCF is much more likely to have
                 accurate OTB ratings. There are a variety of reasons why someone of that
-                strength has a low chesscom rating (they prefer lichess, they use chesscom
-                just to try random openings, they don't care about that rating and so are
-                happy to abort the occasional game, they don't like running into cheaters
-                and so don't play often). Therefore, my model won't weigh them heavily
-                when determining the FIDE:lichess mapping, for instance.
+                strength has a low Chess.com rating (they prefer Lichess, they use
+                Chess.com just to try random openings, they don't care about that rating
+                and so are happy to abort the occasional game, they don't like running
+                into cheaters and so don't play often). Therefore, my model won't weigh
+                them heavily when determining the FIDE:Lichess mapping, for instance.
                 <br />
                 <br /> Now let's play with the underlying data and create some interesting
                 plots!
@@ -131,8 +131,8 @@ export default function DojoTalksTop2025() {
                 }}
             />
             <Typography>
-                The above plot only includes accurate lichess classical and accurate
-                chesscom rapid ratings of ChessDojo training program members.
+                The above plot only includes accurate Lichess classical and accurate
+                Chess.com rapid ratings of ChessDojo training program members.
             </Typography>
             <br />
             <Image
@@ -147,7 +147,7 @@ export default function DojoTalksTop2025() {
                 }}
             />
             <Typography>
-                The above plot only includes accurate chesscom rapid ratings and FIDE
+                The above plot only includes accurate Chess.com rapid ratings and FIDE
                 standard ratings of ChessDojo training program members.
             </Typography>
             <br />
@@ -164,7 +164,7 @@ export default function DojoTalksTop2025() {
                 }}
             />
             <Typography>
-                The above plot only includes accurate lichess classical and accurate USCF
+                The above plot only includes accurate Lichess classical and accurate USCF
                 regular ratings of ChessDojo training program members.
             </Typography>
             <br />
@@ -215,7 +215,7 @@ export default function DojoTalksTop2025() {
                 }}
             />
             <Typography>
-                The above plot only includes ECF ratings and accurate chesscom rapid
+                The above plot only includes ECF ratings and accurate Chess.com rapid
                 ratings of ChessDojo training program members.
             </Typography>
             <br />
@@ -255,10 +255,10 @@ export default function DojoTalksTop2025() {
             </Typography>
 
             <br />
-            <Typography mb={3} variant='h5'>
+            <Typography mt={3} variant='h5'>
                 Interesting Conclusions
             </Typography>
-            <Divider sx={{ my: 1 }} />
+            <Divider sx={{ mb: 2 }} />
             <Typography>
                 Based on my input data and the above plots (among others I generated - I
                 did not want to burden readers with infinite plots!), we are able to draw
@@ -269,10 +269,10 @@ export default function DojoTalksTop2025() {
             <ol>
                 <li>
                     Even the absolute lowest OTB ratings don't correspond well to online
-                    ratings. Anyone rated under 1250 lichess classical or 550 chesscom
+                    ratings. Anyone rated under 1250 Lichess classical or 550 Chess.com
                     rapid is characterized as a complete beginner according to most OTB
-                    ratings shown above. That's practically 20% of all lichess classical
-                    players and 42% of all chesscom rapid players. That gives you an idea
+                    ratings shown above. That's practically 20% of all Lichess classical
+                    players and 42% of all Chess.com rapid players. That gives you an idea
                     of how much tougher OTB is compared to online. You should be stronger
                     than a decent amount of online players before it makes any sense to
                     even try for an OTB rating.
@@ -281,12 +281,12 @@ export default function DojoTalksTop2025() {
                 <li>
                     The absolute top of the online rating pools do not provide reasonable
                     estimates for OTB ratings. I would personally draw the line at 2275
-                    chesscom rapid and 2310 lichess classical ratings --- those are
+                    Chess.com rapid and 2310 Lichess classical ratings --- those are
                     probably the highest online ratings to provide an accurate estimate
                     for OTB strength. Above that, you simply don't have a player base on
-                    either website. These ratings corresponds to the 99.5% percentile on
-                    lichess and the 99.9% percentile on chesscom. According to my
-                    estimator, gaining a measly 160 lichess classical rating points takes
+                    either website. These ratings corresponds to the 99.5 percentile on
+                    Lichess and the 99.9 percentile on Chess.com. According to my
+                    estimator, gaining a measly 160 Lichess classical rating points takes
                     you from a good club player at 2000 FIDE to GM strength. That
                     shouldn't make sense to you because it doesn't make sense! There just
                     aren't many titled players playing classical time controls online for
@@ -320,14 +320,14 @@ export default function DojoTalksTop2025() {
                 </li>
                 <br />
                 <li>
-                    The sad necessity to use chesscom rapid rapid ratings rather than a
-                    classical rating is annoying. If chesscom had a classical time
+                    The sad necessity to use Chess.com rapid ratings rather than a
+                    classical rating is annoying. If Chess.com had a classical time
                     control, then we would truly be able to compare apples to apples.
                     Unfortunately, they do not have a classical time control. Therefore,
                     this converter unfortunately is unevenly influenced by comparing 10+0
-                    games on chesscom to 90+30 games OTB and on lichess. There's no way
+                    games on Chess.com to 90+30 games OTB and on Lichess. There's no way
                     around that, and it makes for a less satisfying comparison with what
-                    is the biggest player base: chesscom users.
+                    is the biggest player base: Chess.com users.
                 </li>
                 <br />
                 <li>
@@ -338,10 +338,10 @@ export default function DojoTalksTop2025() {
                 </li>
             </ol>
 
-            <Typography mb={3} variant='h5'>
+            <Typography mt={3} variant='h5'>
                 Final Thoughts
             </Typography>
-            <Divider sx={{ my: 1 }} />
+            <Divider sx={{ mb: 2 }} />
 
             <Typography>
                 I hope you have gotten something useful out of this universal rating
@@ -353,16 +353,16 @@ export default function DojoTalksTop2025() {
                 0-2500 along with an active and supportive community, please check out{' '}
                 <Link href='https://www.chessdojo.club/'>
                     the ChessDojo training program
-                </Link>{' '}
-                the ChessDojo training program, for whom I was originally tasked with
-                creating this converter. There is a free version if you're just looking
-                for what training plan they suggest for each of the cohorts. Personally,
-                I've been a paying member for more than 2 years now and couldn't be
-                happier with the community and material they recommend.
+                </Link>
+                , for whom I was originally tasked with creating this converter. There is
+                a free version if you're just looking for what training plan they suggest
+                for each of the cohorts. Personally, I've been a paying member for more
+                than 2 years now and couldn't be happier with the community and material
+                they recommend.
             </Typography>
 
             <Divider sx={{ my: 6 }} />
-            <Footer utmSource='playerspotlight' utmCampaign='lifecanbesonice' />
+            <Footer utmSource='new-ratings' utmCampaign='noseknowsall' />
         </Container>
     );
 }

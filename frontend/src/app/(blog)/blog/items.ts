@@ -4,10 +4,9 @@ import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
+import ratingConverter from './new-ratings/noseknowsall/ratings-image05.png';
 import olympiadImage from './olympiad-2024/olympiad.jpg';
 import tacticsTestImage from './tactics-test/image.png';
-import ratingConverter from './NoseKnowsAll/20241020_Rating-Converter/ratings-image05.png';
-
 
 export interface BlogItem {
     title: string;
@@ -23,9 +22,9 @@ export interface BlogItem {
 const items: BlogItem[] = [
     {
         title: 'Universal Rating Converter for 2024',
-        subtitle: 'NoseKnowsAll • September 20, 2024',
-        body: `Introducing a universal rating converter for 2024`,
-        href: '/blog/NoseKnowsAll/20241020_Rating-Converter',
+        subtitle: 'NoseKnowsAll • September 24, 2024',
+        body: `Explaining the math behind ChessDojo's new universal rating converter.`,
+        href: '/blog/new-ratings/noseknowsall',
         image: {
             src: ratingConverter,
             alt: '',
