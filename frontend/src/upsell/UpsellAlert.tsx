@@ -1,19 +1,11 @@
 import { Alert, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 
 interface UpsellAlertProps {
     children: string;
 }
 
 const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
-    const navigate = useNavigate();
-
-    const onViewPrices = (event: React.MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const currentPage = encodeURIComponent(window.location.href);
-        navigate(`/prices?redirect=${currentPage}`);
-    };
+    const currentPage = encodeURIComponent(window.location.href);
 
     return (
         <Alert
@@ -23,9 +15,8 @@ const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
             action={
                 <Button
                     color='inherit'
-                    href='/prices'
+                    href={`/prices?redirect=${currentPage}`}
                     size='small'
-                    onClick={onViewPrices}
                     sx={{ textAlign: 'center' }}
                 >
                     View Prices
