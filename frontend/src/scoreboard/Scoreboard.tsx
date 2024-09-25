@@ -28,7 +28,7 @@ import {
     getColumnDefinition,
     getCurrentRating,
     getMinutesSpent,
-    getNormalizedRating,
+    getNormalizedRatingRow,
     getPercentComplete,
     getRatingChange,
     getRatingSystem,
@@ -198,14 +198,14 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
     },
     {
         field: 'normalizedRating',
-        headerName: 'Normalized FIDE Rating',
+        headerName: 'Normalized Dojo Rating',
         minWidth: 200,
-        valueGetter: (_value, row) => getNormalizedRating(row),
+        valueGetter: (_value, row) => getNormalizedRatingRow(row),
         renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) =>
             (params.value ?? -1) >= 0 ? (
                 params.value
             ) : (
-                <Tooltip title='Custom ratings cannot be converted to FIDE'>
+                <Tooltip title='Custom ratings cannot be normalized'>
                     <HelpIcon sx={{ ml: 1, color: 'text.secondary', height: 1 }} />
                 </Tooltip>
             ),

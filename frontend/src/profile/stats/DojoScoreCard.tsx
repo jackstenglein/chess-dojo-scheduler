@@ -1,5 +1,6 @@
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
-import { Card, CardContent, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, Grid2, Stack, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import {
@@ -8,14 +9,7 @@ import {
     getTotalCategoryScore,
     getTotalScore,
 } from '../../database/requirement';
-import {
-    RatingSystem,
-    User,
-    getCurrentRating,
-    getMinRatingBoundary,
-    getRatingBoundary,
-    normalizeToFide,
-} from '../../database/user';
+import { User, getCurrentRating, getNormalizedRating } from '../../database/user';
 import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
 
 const categories = [
@@ -42,11 +36,8 @@ const DojoScoreCardProgressBar: React.FC<DojoScoreCardProgressBarProps> = ({
     label,
 }) => {
     return (
-        <Grid
-            item
-            xs={12}
-            sm={4}
-            md={3}
+        <Grid2
+            size={{ xs: 12, sm: 4, md: 3 }}
             display='flex'
             justifyContent={{
                 xs: 'start',
@@ -59,7 +50,7 @@ const DojoScoreCardProgressBar: React.FC<DojoScoreCardProgressBarProps> = ({
                 </Typography>
                 <ScoreboardProgress value={value} min={min} max={max} label={label} />
             </Stack>
-        </Grid>
+        </Grid2>
     );
 };
 
@@ -75,21 +66,24 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     const cohortScore = getCohortScore(user, cohort, requirements);
     const percentComplete = Math.round((100 * cohortScore) / totalScore);
 
-    const graduationBoundary = getRatingBoundary(cohort, RatingSystem.Fide);
-    const minRatingBoundary = getMinRatingBoundary(cohort, RatingSystem.Fide);
-    const normalizedRating = normalizeToFide(getCurrentRating(user), user.ratingSystem);
+    const [minRatingBoundary, graduationBoundary] = getCohortRangeInt(cohort);
 
-    const showRatingProgress = graduationBoundary && normalizedRating > 0;
+    const normalizedRating = Math.round(
+        getNormalizedRating(getCurrentRating(user), user.ratingSystem),
+    );
+
+    const showRatingProgress = graduationBoundary < Infinity && normalizedRating > 0;
 
     return (
         <Card variant='outlined' id='cohort-score-card'>
             <CardContent>
-                <Grid container rowGap={2} columnSpacing={3} alignItems='center'>
-                    <Grid
-                        item
-                        xs={12}
-                        sm={showRatingProgress ? 5 : 12}
-                        md={showRatingProgress ? 3 : 12}
+                <Grid2 container rowGap={2} columnSpacing={3} alignItems='center'>
+                    <Grid2
+                        size={{
+                            xs: 12,
+                            sm: showRatingProgress ? 5 : 12,
+                            md: showRatingProgress ? 3 : 12,
+                        }}
                         mb={{ xs: 0, sm: 3 }}
                     >
                         <Stack direction='row' spacing={0.5} alignItems='center'>
@@ -99,11 +93,11 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                             />
                             <Typography variant='h6'>Cohort&nbsp;Progress</Typography>
                         </Stack>
-                    </Grid>
+                    </Grid2>
 
                     {showRatingProgress && (
                         <Tooltip title='The normalized Dojo rating, compared to the graduation rating for this cohort'>
-                            <Grid item xs={12} sm={7} md={9} mb={{ xs: 3, sm: 3 }}>
+                            <Grid2 size={{ xs: 12, sm: 7, md: 9 }} mb={{ xs: 3, sm: 3 }}>
                                 <ScoreboardProgress
                                     value={normalizedRating}
                                     min={minRatingBoundary}
@@ -112,7 +106,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                                     sx={{ height: '8px', borderRadius: '2px' }}
                                     label={`${normalizedRating} / ${graduationBoundary}`}
                                 />
-                            </Grid>
+                            </Grid2>
                         </Tooltip>
                     )}
 
@@ -144,7 +138,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                             )}
                         />
                     ))}
-                </Grid>
+                </Grid2>
             </CardContent>
         </Card>
     );

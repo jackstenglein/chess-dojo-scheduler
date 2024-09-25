@@ -21,8 +21,8 @@ import {
     RatingHistory,
     RatingSystem,
     formatRatingSystem,
+    getNormalizedRating,
     getRatingBoundary,
-    normalizeToFide,
 } from '../../database/user';
 
 export function getMemberLink(ratingSystem: RatingSystem, username: string): string {
@@ -336,10 +336,10 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                         }}
                                     >
                                         {Math.round(
-                                            normalizeToFide(currentRating, system),
+                                            getNormalizedRating(currentRating, system),
                                         )}
                                     </Typography>
-                                    <Tooltip title='Normalized to FIDE using the table on Material > Rating Conversions'>
+                                    <Tooltip title='Normalized Dojo rating using the table on Material > Rating Conversions'>
                                         <HelpIcon
                                             sx={{
                                                 mb: '5px',

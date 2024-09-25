@@ -23,6 +23,7 @@ export class UpdateItemBuilder {
 
     private attrIndex = 0;
     private exprAttrNames: Record<string, string> = {};
+    private reversedExprAttrNames: Record<string, string> = {};
     private exprAttrValues: Record<string, AttributeValue> = {};
     private setExpression = '';
     private removeExpression = '';
@@ -41,6 +42,7 @@ export class UpdateItemBuilder {
 
         this.attrIndex = 0;
         this.exprAttrNames = {};
+        this.reversedExprAttrNames = {};
         this.exprAttrValues = {};
         this.setExpression = '';
         this.removeExpression = '';
@@ -233,9 +235,14 @@ export class UpdateItemBuilder {
             if (typeof token === 'number') {
                 result = result.slice(0, -1) + `[${token}].`;
             } else {
-                result += `#n${this.attrIndex}.`;
-                this.exprAttrNames[`#n${this.attrIndex}`] = token;
-                this.attrIndex++;
+                if (this.reversedExprAttrNames[token]) {
+                    result += `${this.reversedExprAttrNames[token]}.`;
+                } else {
+                    result += `#n${this.attrIndex}.`;
+                    this.exprAttrNames[`#n${this.attrIndex}`] = token;
+                    this.reversedExprAttrNames[token] = `#n${this.attrIndex}`;
+                    this.attrIndex++;
+                }
             }
         }
 

@@ -18,20 +18,29 @@ import {
 } from '../database/user';
 import CohortIcon from '../scoreboard/CohortIcon';
 
-const { Fide, Custom, ...others } = RatingSystem;
+const { Custom, ...others } = RatingSystem;
 
 const RatingConversionsPage = () => {
     const ratingSystems = Object.values(others);
 
     return (
-        <Container maxWidth={false} sx={{ py: 5 }}>
-            <TableContainer component={Paper}>
+        <Container
+            maxWidth={false}
+            sx={{
+                py: 5,
+                overflow: 'hidden',
+            }}
+        >
+            <TableContainer
+                component={Paper}
+                sx={{
+                    height: 'calc(100vh - var(--navbar-height) - 80px)',
+                }}
+            >
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ fontWeight: 'bold' }}>
-                                {formatRatingSystem(Fide)} (Dojo Cohort)
-                            </TableCell>
+                            <TableCell sx={{ fontWeight: 'bold' }}>Dojo Cohort</TableCell>
                             {ratingSystems.map((rs) => (
                                 <TableCell key={rs} sx={{ fontWeight: 'bold' }}>
                                     {formatRatingSystem(rs)}
@@ -42,7 +51,7 @@ const RatingConversionsPage = () => {
                     <TableBody>
                         {dojoCohorts.slice(0, dojoCohorts.length - 1).map((c, i) => (
                             <TableRow key={c}>
-                                <TableCell key='Fide'>
+                                <TableCell>
                                     <Stack
                                         direction='row'
                                         spacing={2}
@@ -53,11 +62,16 @@ const RatingConversionsPage = () => {
                                     </Stack>
                                 </TableCell>
                                 {ratingSystems.map((rs) => {
-                                    const minRating =
+                                    let minRating =
                                         i === 0
                                             ? '0'
                                             : getRatingBoundary(dojoCohorts[i - 1], rs) ||
                                               0;
+
+                                    if (minRating === 0 && rs === RatingSystem.Fide) {
+                                        minRating = 1400;
+                                    }
+
                                     const maxRating = getRatingBoundary(c, rs) || 0;
 
                                     if (!maxRating) {
