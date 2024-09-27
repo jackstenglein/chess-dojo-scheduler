@@ -335,7 +335,7 @@ var Sf1779Web = (() => {
                 }
                 return f;
             }
-            return 'http://localhost:3000/engine/sf17-79.wasm';
+            return 'http://localhost:3000/static/engine/sf17-79.wasm';
         }
         var wasmBinaryFile;
         function getBinarySync(file) {

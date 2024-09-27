@@ -6,7 +6,7 @@ import { UciEngine } from './UciEngine';
  */
 export class Stockfish11 extends UciEngine {
     constructor() {
-        const worker = UciEngine.workerFromPath('/engine/stockfish-11.js');
+        const worker = UciEngine.workerFromPath('/static/engine/stockfish-11.js');
         super(EngineName.Stockfish11, worker);
     }
 }

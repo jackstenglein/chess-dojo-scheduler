@@ -35,43 +35,43 @@ export function getBoardSx(style: BoardStyle): BoardSx {
     switch (style) {
         case BoardStyle.Standard:
             return {
-                '--board-background': `url('/board/backgrounds/standard.png')`,
+                '--board-background': `url('/static/board/backgrounds/standard.png')`,
                 '--light-square-coord-color': '#7296ac',
                 '--dark-square-coord-color': '#fff',
             };
         case BoardStyle.Ocean:
             return {
-                '--board-background': `url('/board/backgrounds/ocean.png')`,
+                '--board-background': `url('/static/board/backgrounds/ocean.png')`,
                 '--dark-square-coord-color': '#bbcfff',
                 '--light-square-coord-color': '#5477ca',
             };
         case BoardStyle.CherryBlossom:
             return {
-                '--board-background': `url('/board/backgrounds/cherry-blossom.png')`,
+                '--board-background': `url('/static/board/backgrounds/cherry-blossom.png')`,
                 '--dark-square-coord-color': '#f1f1c9',
                 '--light-square-coord-color': '#f37a7a',
             };
         case BoardStyle.Moon:
             return {
-                '--board-background': `url('/board/backgrounds/moon.jpg')`,
+                '--board-background': `url('/static/board/backgrounds/moon.jpg')`,
                 '--dark-square-coord-color': grey['300'],
                 '--light-square-coord-color': grey['800'],
             };
         case BoardStyle.Summer:
             return {
-                '--board-background': `url('/board/backgrounds/summer.png')`,
+                '--board-background': `url('/static/board/backgrounds/summer.png')`,
                 '--dark-square-coord-color': '#f1f6b2',
                 '--light-square-coord-color': '#59935d',
             };
         case BoardStyle.Walnut:
             return {
-                '--board-background': `url('/board/backgrounds/walnut.jpg')`,
+                '--board-background': `url('/static/board/backgrounds/walnut.jpg')`,
                 '--dark-square-coord-color': '#e0c498',
                 '--light-square-coord-color': '#9f6853',
             };
         case BoardStyle.Wood:
             return {
-                '--board-background': `url('/board/backgrounds/wood.jpg')`,
+                '--board-background': `url('/static/board/backgrounds/wood.jpg')`,
                 '--dark-square-coord-color': '#d9a55a',
                 '--light-square-coord-color': '#88471d',
             };
@@ -87,21 +87,21 @@ export function getBoardSx(style: BoardStyle): BoardSx {
 export function getPieceSx(style: PieceStyle): PieceSx {
     switch (style) {
         case PieceStyle.Standard:
-            return getStandardPieceBackgrounds('/board/pieces/standard/', '.png');
+            return getStandardPieceBackgrounds('/static/board/pieces/standard/', '.png');
         case PieceStyle.Pixel:
-            return getStandardPieceBackgrounds('/board/pieces/pixel/', '.svg');
+            return getStandardPieceBackgrounds('/static/board/pieces/pixel/', '.svg');
         case PieceStyle.Spatial:
-            return getStandardPieceBackgrounds('/board/pieces/spatial/', '.svg');
+            return getStandardPieceBackgrounds('/static/board/pieces/spatial/', '.svg');
         case PieceStyle.Celtic:
-            return getStandardPieceBackgrounds('/board/pieces/celtic/', '.svg');
+            return getStandardPieceBackgrounds('/static/board/pieces/celtic/', '.svg');
         case PieceStyle.Fantasy:
-            return getStandardPieceBackgrounds('/board/pieces/fantasy/', '.svg');
+            return getStandardPieceBackgrounds('/static/board/pieces/fantasy/', '.svg');
         case PieceStyle.Chessnut:
-            return getStandardPieceBackgrounds('/board/pieces/chessnut/', '.svg');
+            return getStandardPieceBackgrounds('/static/board/pieces/chessnut/', '.svg');
         case PieceStyle.Cburnett:
-            return getStandardPieceBackgrounds('/board/pieces/cburnett/', '.svg');
+            return getStandardPieceBackgrounds('/static/board/pieces/cburnett/', '.svg');
         case PieceStyle.ThreeD:
-            return getStandardPieceBackgrounds('/board/pieces/three-d/', '.png');
+            return getStandardPieceBackgrounds('/static/board/pieces/three-d/', '.png');
     }
 }
 
