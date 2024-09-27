@@ -6,10 +6,11 @@ import {
     LineEval,
 } from '@/stockfish/engine/engine';
 import { useEval } from '@/stockfish/hooks/useEval';
-import { List, Paper, Stack, Switch, Tooltip, Typography } from '@mui/material';
+import { Paper, Stack, Switch, Tooltip, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import LineEvaluation from './LineEval';
+import { EvaluationSection } from './EvaluationSection';
+import { getLineEvalLabel } from './LineEval';
 import Settings from './Settings';
 
 export default function EngineSection() {
@@ -50,7 +51,7 @@ export default function EngineSection() {
             }}
         >
             <Stack sx={{ p: 1 }}>
-                <Stack gap={1} direction='row' alignItems='center'>
+                <Stack direction='row' alignItems='center'>
                     <Tooltip title='Toggle Engine'>
                         <Switch
                             checked={enabled}
@@ -58,6 +59,12 @@ export default function EngineSection() {
                             color='success'
                         />
                     </Tooltip>
+
+                    {enabled && !isGameOver && (
+                        <Typography variant='h5' sx={{ mr: 2, ml: 1 }}>
+                            {getLineEvalLabel(engineLines[0])}
+                        </Typography>
+                    )}
 
                     <Stack sx={{ flexGrow: 1 }}>
                         <Typography
@@ -113,11 +120,10 @@ export default function EngineSection() {
                                 Game is over
                             </Typography>
                         ) : (
-                            <List sx={{ pb: 0 }}>
-                                {engineLines.slice(0, linesNumber).map((line) => (
-                                    <LineEvaluation key={line.multiPv} line={line} />
-                                ))}
-                            </List>
+                            <EvaluationSection
+                                allLines={engineLines}
+                                maxLines={linesNumber}
+                            />
                         )}
                     </Stack>
                 )}

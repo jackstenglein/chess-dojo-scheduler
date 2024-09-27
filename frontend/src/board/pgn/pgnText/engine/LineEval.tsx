@@ -1,5 +1,5 @@
 import { LineEval } from '@/stockfish/engine/engine';
-import { Chess, Color, Square } from '@jackstenglein/chess';
+import { Chess, Color, Move, Square } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
 
 interface Props {
@@ -14,8 +14,6 @@ export default function LineEvaluation({ line }: Props) {
         (line.mate !== undefined && line.mate < 0);
 
     const showSkeleton = line.depth < 6;
-
-    console.log('Line: ', line);
 
     return (
         <ListItem disablePadding sx={{ overflowX: 'clip', alignItems: 'center' }}>
@@ -64,9 +62,23 @@ export default function LineEvaluation({ line }: Props) {
                 {showSkeleton ? (
                     <Skeleton variant='rounded' animation='wave' />
                 ) : (
-                    line.pv
-                        .map(moveLineUciToSan(line.fen))
-                        .map((label, idx) => <MoveLabel key={idx}>{label}</MoveLabel>)
+                    line.pv.map(moveLineUciToMove(line.fen)).map((move, idx) => {
+                        if (!move) {
+                            return null;
+                        }
+
+                        return (
+                            <MoveLabel
+                                key={idx}
+                                data-index={idx}
+                                data-fen={move.after}
+                                data-from={move.from}
+                                data-to={move.to}
+                            >
+                                {moveToLabel(move)}
+                            </MoveLabel>
+                        );
+                    })
                 )}
             </Box>
         </ListItem>
@@ -84,7 +96,7 @@ const MoveLabel = styled('span')({
  * @param line The line to get the evaluation label for.
  * @returns The evaluation label.
  */
-const getLineEvalLabel = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
+export const getLineEvalLabel = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
     if (line.cp !== undefined) {
         return `${line.cp > 0 ? '+' : ''}${(line.cp / 100).toFixed(2)}`;
     }
@@ -97,37 +109,42 @@ const getLineEvalLabel = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
 };
 
 /**
- * Returns a function that converts a move's UCI to SAN. The function
- * must be called in order on each move.
+ * Returns a function that converts a UCI to a Move object. The function
+ * must be called in order on each UCI.
  * @param fen The starting position FEN.
- * @returns A function that converts a move's UCI to SAN.
+ * @returns A function that converts a UCI to a Move.
  */
-const moveLineUciToSan = (fen: string): ((moveUci: string) => string) => {
+function moveLineUciToMove(fen: string): (moveUci: string) => Move | null {
     const game = new Chess({ fen });
 
-    return (moveUci: string): string => {
+    return (moveUci: string) => {
         try {
             const move = game.move(uciMoveParams(moveUci));
-            if (!move) {
-                return moveUci;
-            }
-
-            let label = '';
-            if (!move.previous || move.color === Color.white) {
-                label = `${Math.ceil(move.ply / 2)}.`;
-                if (move.color === Color.black) {
-                    label += '..';
-                }
-                label += ' ';
-            }
-
-            label += move.san;
-            return label;
+            return move;
         } catch (e) {
-            return moveUci;
+            return null;
         }
     };
-};
+}
+
+/**
+ * Gets the user-facing display label from the given Move.
+ * @param move The Move to get the label for.
+ * @returns The label for the Move.
+ */
+function moveToLabel(move: Move): string {
+    let label = '';
+    if (!move.previous || move.color === Color.white) {
+        label = `${Math.ceil(move.ply / 2)}.`;
+        if (move.color === Color.black) {
+            label += '..';
+        }
+        label += ' ';
+    }
+
+    label += move.san;
+    return label;
+}
 
 /**
  * Converts a UCI move string into a Chess.js move object.

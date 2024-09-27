@@ -193,13 +193,13 @@ export abstract class UciEngine {
             setPartialEval?.(parsedResults);
         };
 
-        console.log(`Evaluating position: ${fen}`);
-
+        console.log(`Started evaluating ${fen}`);
         const results = await this.sendCommands(
             [`position fen ${fen}`, `go depth ${depth}`],
             'bestmove',
             onNewMessage,
         );
+        console.log(`Stopped evaluating ${fen}`);
         return parseEvaluationResults(fen, results, whiteToPlay);
     }
 }
