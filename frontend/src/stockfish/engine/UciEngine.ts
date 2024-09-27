@@ -1,13 +1,17 @@
 import { EngineWorker } from './EngineWorker';
-import { EngineName, EvaluatePositionWithUpdateParams, PositionEval } from './engine';
-import { getResultProperty, parseEvaluationResults } from './parseResults';
+import {
+    ENGINE_LINE_COUNT,
+    EngineName,
+    EvaluatePositionWithUpdateParams,
+    PositionEval,
+} from './engine';
+import { parseEvaluationResults } from './parseResults';
 
 export abstract class UciEngine {
     protected worker: EngineWorker | undefined;
     private ready = false;
     private engineName: EngineName;
     private multiPv = 3;
-    private skillLevel: number | undefined = undefined;
 
     /**
      * Gets an EngineWorker from the given stockfish.js path.
@@ -103,7 +107,7 @@ export abstract class UciEngine {
 
     /**
      * Sets the multiPv (number of lines) option. See https://disservin.github.io/stockfish-docs/stockfish-wiki/Terminology.html#multiple-pvs.
-     * @param multiPv The number of lines to set. Must be in the range [2, 6].
+     * @param multiPv The number of lines to set.
      * @param forceInit If true, the option is set even if multiPv is equal to this.multiPv. If false, an error is thrown if the engine is not ready.
      * @returns A Promise that resolves once the engine is ready.
      */
@@ -114,8 +118,11 @@ export abstract class UciEngine {
             this.throwErrorIfNotReady();
         }
 
-        if (multiPv < 2 || multiPv > 6) {
+        if (multiPv > ENGINE_LINE_COUNT.Max) {
             throw new Error(`Invalid MultiPV value : ${multiPv}`);
+        }
+        if (multiPv < 1) {
+            multiPv = 1;
         }
 
         await this.sendCommands(
@@ -124,31 +131,6 @@ export abstract class UciEngine {
         );
 
         this.multiPv = multiPv;
-    }
-
-    /**
-     * Sets the skill level of the engine.
-     * @param skillLevel The skill level of the engine. Must be in the range [0, 20].
-     * @param forceInit Whether to force initialization if skillLevel is equal to this.skillLevel. If false, an error is thrown if the engine is not ready.
-     * @returns A Promise that resolves once the engine is ready.
-     */
-    private async setSkillLevel(skillLevel: number, forceInit = false) {
-        if (!forceInit) {
-            if (skillLevel === this.skillLevel) return;
-
-            this.throwErrorIfNotReady();
-        }
-
-        if (skillLevel < 0 || skillLevel > 20) {
-            throw new Error(`Invalid SkillLevel value : ${skillLevel}`);
-        }
-
-        await this.sendCommands(
-            [`setoption name Skill Level value ${skillLevel}`, 'isready'],
-            'readyok',
-        );
-
-        this.skillLevel = skillLevel;
     }
 
     /**
@@ -219,36 +201,5 @@ export abstract class UciEngine {
             onNewMessage,
         );
         return parseEvaluationResults(fen, results, whiteToPlay);
-    }
-
-    /**
-     * Returns the engine's best move or undefined if no moves are found.
-     * @param fen The FEN to get the move from.
-     * @param skillLevel The skill level of the engine.
-     * @param depth The depth to evaluate.
-     * @returns The engine's best move or undefined if no moves are found.
-     */
-    public async getEngineNextMove(
-        fen: string,
-        skillLevel: number,
-        depth = 16,
-    ): Promise<string | undefined> {
-        this.throwErrorIfNotReady();
-        await this.setSkillLevel(skillLevel);
-
-        console.log(`Evaluating position: ${fen}`);
-
-        const results = await this.sendCommands(
-            [`position fen ${fen}`, `go depth ${depth}`],
-            'bestmove',
-        );
-
-        const moveResult = results.find((result) => result.startsWith('bestmove'));
-        const move = getResultProperty(moveResult ?? '', 'bestmove');
-        if (!move) {
-            throw new Error('No move found');
-        }
-
-        return move === '(none)' ? undefined : move;
     }
 }

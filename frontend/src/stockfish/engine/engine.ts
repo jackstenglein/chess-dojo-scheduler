@@ -53,14 +53,37 @@ export const engines: EngineInfo[] = [
     },
 ];
 
-/** Local storage key for the name of the engine. */
-export const ENGINE_NAME_KEY = 'engine-name';
+/** Settings for the engine name. */
+export const ENGINE_NAME = {
+    /** Local storage key for the engine name. */
+    Key: 'engine-name',
+    /** The default engine name. */
+    Default: EngineName.Stockfish17,
+} as const;
 
-/** Local storage key for the number of lines calculated by the engine. */
-export const ENGINE_LINE_COUNT_KEY = 'engine-multi-pv';
+/** Settings for the number of lines calculated/displayed by the engine. */
+export const ENGINE_LINE_COUNT = {
+    /** Local storage key for the number of lines. */
+    Key: 'engine-multi-pv',
+    /** The default number of lines. */
+    Default: 3,
+    /** The minimum number of lines. */
+    Min: 0,
+    /** The maximum number of lines. */
+    Max: 5,
+} as const;
 
-/** Local storage key for the depth of the engine, in plies. */
-export const ENGINE_DEPTH_KEY = 'engine-depth';
+/** Settings for the depth of the engine. */
+export const ENGINE_DEPTH = {
+    /** Local storage key for the depth. */
+    Key: 'engine-depth',
+    /** The default depth. */
+    Default: 30,
+    /** The minimum depth. */
+    Min: 25,
+    /** The maximum depth. */
+    Max: 99,
+} as const;
 
 /** The evaluation of a specific position. */
 export interface PositionEval {
@@ -84,6 +107,8 @@ export interface LineEval {
     mate?: number;
     /** The depth of the line. */
     depth: number;
+    /** The seldepth of the line. */
+    seldepth: number;
     /** The Multi PV value of the engine while calculating the line. */
     multiPv: number;
     /** The number of nodes per second evaluated by the engine. */

@@ -1,7 +1,6 @@
-import { getLineEvalLabel, moveLineUciToSan } from '@/stockfish/engine/ChessHelper';
 import { LineEval } from '@/stockfish/engine/engine';
-import { LinearProgress, ListItem, Skeleton, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Chess, Color, Square } from '@jackstenglein/chess';
+import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
 
 interface Props {
     line: LineEval;
@@ -16,39 +15,27 @@ export default function LineEvaluation({ line }: Props) {
 
     const showSkeleton = line.depth < 6;
 
-    // State to control progress bar visibility
-    const [showProgress, setShowProgress] = useState(false);
-
-    useEffect(() => {
-        // Trigger progress bar when label changes
-        setShowProgress(true);
-
-        // Hide progress bar after 1 second
-        const timer = setTimeout(() => {
-            setShowProgress(false);
-        }, 1000);
-
-        return () => clearTimeout(timer); // Cleanup the timer
-    }, [lineLabel]); // Dependency on lineLabel
+    console.log('Line: ', line);
 
     return (
-        <ListItem disablePadding>
-            <Typography
-                marginRight={1.5}
-                marginY={0.5}
-                paddingY={0.2}
-                noWrap
-                overflow='visible'
-                width='3.5em'
-                textAlign='center'
-                fontSize='0.8rem'
+        <ListItem disablePadding sx={{ overflowX: 'clip', alignItems: 'center' }}>
+            <Box
                 sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    mr: 0.5,
+                    my: 0.5,
+                    py: '1px',
                     backgroundColor: isBlackCp ? 'black' : 'white',
-                    color: isBlackCp ? 'white' : 'black',
+                    borderRadius: '5px',
+                    border: '1px solid',
+                    borderColor: '#424242',
+                    width: '45px',
+                    minWidth: '45px',
+                    height: '23px',
+                    minHeight: '23px',
                 }}
-                borderRadius='5px'
-                border='1px solid #424242'
-                fontWeight='bold'
             >
                 {showSkeleton ? (
                     <Skeleton
@@ -59,35 +46,102 @@ export default function LineEvaluation({ line }: Props) {
                         placeholder
                     </Skeleton>
                 ) : (
-                    lineLabel
+                    <Typography
+                        component='span'
+                        sx={{
+                            pt: '2px',
+                            fontSize: '0.8rem',
+                            fontWeight: 'bold',
+                            color: isBlackCp ? 'white' : 'black',
+                        }}
+                    >
+                        {lineLabel}
+                    </Typography>
                 )}
-            </Typography>
+            </Box>
 
-            <Typography
-                noWrap
-                maxWidth={{ xs: '12em', sm: '25em', md: '30em', lg: '25em' }}
-                fontSize='0.9rem'
-            >
+            <Box sx={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {showSkeleton ? (
-                    <Skeleton variant='rounded' animation='wave' width='15em' />
+                    <Skeleton variant='rounded' animation='wave' />
                 ) : (
-                    line.pv.map(moveLineUciToSan(line.fen)).join(', ')
+                    line.pv
+                        .map(moveLineUciToSan(line.fen))
+                        .map((label, idx) => <MoveLabel key={idx}>{label}</MoveLabel>)
                 )}
-            </Typography>
-
-            {/* Show LinearProgress for 1 second when label changes */}
-            {showProgress && (
-                <LinearProgress
-                    sx={{
-                        width: '100%',
-                        marginTop: 1,
-                        backgroundColor: 'lightgray',
-                        '& .MuiLinearProgress-bar': {
-                            backgroundColor: 'green',
-                        },
-                    }}
-                />
-            )}
+            </Box>
         </ListItem>
     );
 }
+
+const MoveLabel = styled('span')({
+    textWrap: 'nowrap',
+    marginLeft: '6px',
+    fontSize: '0.9rem',
+});
+
+/**
+ * Gets the evaluation label (Ex: +2.3, -1, M5) for the given line.
+ * @param line The line to get the evaluation label for.
+ * @returns The evaluation label.
+ */
+const getLineEvalLabel = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
+    if (line.cp !== undefined) {
+        return `${line.cp > 0 ? '+' : ''}${(line.cp / 100).toFixed(2)}`;
+    }
+
+    if (line.mate) {
+        return `${line.mate > 0 ? '+' : '-'}M${Math.abs(line.mate)}`;
+    }
+
+    return '?';
+};
+
+/**
+ * Returns a function that converts a move's UCI to SAN. The function
+ * must be called in order on each move.
+ * @param fen The starting position FEN.
+ * @returns A function that converts a move's UCI to SAN.
+ */
+const moveLineUciToSan = (fen: string): ((moveUci: string) => string) => {
+    const game = new Chess({ fen });
+
+    return (moveUci: string): string => {
+        try {
+            const move = game.move(uciMoveParams(moveUci));
+            if (!move) {
+                return moveUci;
+            }
+
+            let label = '';
+            if (!move.previous || move.color === Color.white) {
+                label = `${Math.ceil(move.ply / 2)}.`;
+                if (move.color === Color.black) {
+                    label += '..';
+                }
+                label += ' ';
+            }
+
+            label += move.san;
+            return label;
+        } catch (e) {
+            return moveUci;
+        }
+    };
+};
+
+/**
+ * Converts a UCI move string into a Chess.js move object.
+ * @param uciMove The UCI move to convert.
+ * @returns The Chess.js move object.
+ */
+const uciMoveParams = (
+    uciMove: string,
+): {
+    from: Square;
+    to: Square;
+    promotion?: string | undefined;
+} => ({
+    from: uciMove.slice(0, 2) as Square,
+    to: uciMove.slice(2, 4) as Square,
+    promotion: uciMove.slice(4, 5) || undefined,
+});

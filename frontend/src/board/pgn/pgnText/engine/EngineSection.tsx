@@ -1,31 +1,23 @@
 import { useChess } from '@/board/pgn/PgnBoard';
 import {
-    ENGINE_LINE_COUNT_KEY,
-    ENGINE_NAME_KEY,
-    EngineName,
+    ENGINE_LINE_COUNT,
+    ENGINE_NAME,
     engines,
     LineEval,
 } from '@/stockfish/engine/engine';
 import { useEval } from '@/stockfish/hooks/useEval';
-import {
-    CardContent,
-    Grid2,
-    Grid2Props,
-    List,
-    Paper,
-    Stack,
-    Switch,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { List, Paper, Stack, Switch, Tooltip, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import LineEvaluation from './LineEval';
 import Settings from './Settings';
 
-export default function EngineSection(props: Grid2Props) {
-    const [linesNumber] = useLocalStorage(ENGINE_LINE_COUNT_KEY, 3);
-    const [engineName] = useLocalStorage(ENGINE_NAME_KEY, EngineName.Stockfish17);
+export default function EngineSection() {
+    const [linesNumber] = useLocalStorage(
+        ENGINE_LINE_COUNT.Key,
+        ENGINE_LINE_COUNT.Default,
+    );
+    const [engineName] = useLocalStorage(ENGINE_NAME.Key, ENGINE_NAME.Default);
 
     let engineInfo = engines.find((e) => e.name === engineName);
     if (!engineInfo) {
@@ -91,8 +83,14 @@ export default function EngineSection(props: Grid2Props) {
                                 sx={{ lineHeight: '1.2' }}
                                 color='text.secondary'
                             >
-                                Depth {engineLines[0].depth}
-                                <NodesPerSecond nps={engineLines[0].nps} />
+                                {isGameOver ? (
+                                    'Game Over'
+                                ) : (
+                                    <>
+                                        Depth {engineLines[0].depth}
+                                        <NodesPerSecond nps={engineLines[0].nps} />
+                                    </>
+                                )}
                             </Typography>
                         ) : (
                             <Typography
@@ -108,61 +106,20 @@ export default function EngineSection(props: Grid2Props) {
                     <Settings />
                 </Stack>
 
-                {enabled && (
-                    <CardContent>
-                        <Grid2
-                            container
-                            size={12}
-                            justifyContent='center'
-                            alignItems='start'
-                            height='100%'
-                            rowGap={1.2}
-                            {...props}
-                            sx={
-                                props.hidden
-                                    ? { display: 'none' }
-                                    : {
-                                          overflow: 'hidden',
-                                          overflowY: 'auto',
-                                          ...props.sx,
-                                      }
-                            }
-                        >
-                            {isGameOver && (
-                                <Grid2 size={12}>
-                                    <Typography align='center' fontSize='0.9rem'>
-                                        Game is over
-                                    </Typography>
-                                </Grid2>
-                            )}
-
-                            <Grid2
-                                container
-                                size={12}
-                                justifyContent='center'
-                                alignItems='center'
-                            >
-                                <Grid2
-                                    container
-                                    size={12}
-                                    justifyContent={'right'}
-                                    alignItems={'right'}
-                                ></Grid2>
-
-                                <List sx={{ maxWidth: '95%', padding: 0 }}>
-                                    {!isGameOver &&
-                                        engineLines
-                                            .slice(0, linesNumber)
-                                            .map((line) => (
-                                                <LineEvaluation
-                                                    key={line.multiPv}
-                                                    line={line}
-                                                />
-                                            ))}
-                                </List>
-                            </Grid2>
-                        </Grid2>
-                    </CardContent>
+                {enabled && !isGameOver && (
+                    <Stack>
+                        {isGameOver ? (
+                            <Typography align='center' fontSize='0.9rem'>
+                                Game is over
+                            </Typography>
+                        ) : (
+                            <List sx={{ pb: 0 }}>
+                                {engineLines.slice(0, linesNumber).map((line) => (
+                                    <LineEvaluation key={line.multiPv} line={line} />
+                                ))}
+                            </List>
+                        )}
+                    </Stack>
                 )}
             </Stack>
         </Paper>

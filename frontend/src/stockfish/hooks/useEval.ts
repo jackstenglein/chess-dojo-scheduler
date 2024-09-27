@@ -3,8 +3,8 @@ import { EventType } from '@jackstenglein/chess';
 import { useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import {
-    ENGINE_DEPTH_KEY,
-    ENGINE_LINE_COUNT_KEY,
+    ENGINE_DEPTH,
+    ENGINE_LINE_COUNT,
     EngineName,
     PositionEval,
     SavedEvals,
@@ -18,8 +18,8 @@ export function useEval(
     const [currentPosition, setCurrentPosition] = useState<PositionEval>();
     const { chess } = useChess();
     const engine = useEngine(enabled, engineName);
-    const [depth] = useLocalStorage(ENGINE_DEPTH_KEY, 16);
-    const [multiPv] = useLocalStorage(ENGINE_LINE_COUNT_KEY, 3);
+    const [depth] = useLocalStorage(ENGINE_DEPTH.Key, ENGINE_DEPTH.Default);
+    const [multiPv] = useLocalStorage(ENGINE_LINE_COUNT.Key, ENGINE_LINE_COUNT.Default);
     const savedEvals = useRef<SavedEvals>({});
 
     useEffect(() => {
