@@ -55,7 +55,12 @@ const Markdown: React.FC<MarkdownProps> = ({ text, inline }) => {
                         ),
                         pre: (props) => <>{props.children}</>,
                         a: (props) => (
-                            <Link href={props.href} target='_blank' rel='noreferrer'>
+                            <Link
+                                href={props.href}
+                                target='_blank'
+                                rel='noreferrer'
+                                sx={{ wordBreak: 'break-all' }}
+                            >
                                 {props.children}
                             </Link>
                         ),
@@ -128,7 +133,12 @@ const Markdown: React.FC<MarkdownProps> = ({ text, inline }) => {
                 p: (props) => <Text inline={inline}>{props.children}</Text>,
                 pre: (props) => <>{props.children}</>,
                 a: (props) => (
-                    <Link href={props.href} target='_blank' rel='noreferrer'>
+                    <Link
+                        href={props.href}
+                        target='_blank'
+                        rel='noreferrer'
+                        sx={{ wordBreak: 'break-all' }}
+                    >
                         {props.children}
                     </Link>
                 ),
@@ -210,7 +220,7 @@ function Text(props: {
             whiteSpace='pre-line'
             fontSize={props.fontSize}
             component='p'
-            sx={sx}
+            sx={{ ...sx, wordBreak: 'break-word' }}
         >
             {props.children}
         </Typography>

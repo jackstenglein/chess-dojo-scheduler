@@ -36,7 +36,7 @@ const PgnText = () => {
             sx={{ display: 'flex', flexDirection: 'column' }}
         >
             <EngineSection />
-            <Stack sx={{ overflowY: 'scroll', flexGrow: 1, width: 1 }}>
+            <Stack sx={{ overflowY: 'scroll', overflowX: 'clip', flexGrow: 1, width: 1 }}>
                 <GameComment />
                 <Variation handleScroll={handleScroll} />
                 <Result />
