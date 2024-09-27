@@ -86,6 +86,8 @@ export interface LineEval {
     depth: number;
     /** The Multi PV value of the engine while calculating the line. */
     multiPv: number;
+    /** The number of nodes per second evaluated by the engine. */
+    nps?: number;
 }
 
 /** A cached evaluation of a specific position. */

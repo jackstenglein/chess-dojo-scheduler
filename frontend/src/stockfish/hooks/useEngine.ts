@@ -6,7 +6,7 @@ import { Stockfish17 } from '../engine/Stockfish17';
 import { UciEngine } from '../engine/UciEngine';
 
 export const useEngine = (enabled: boolean, engineName: EngineName | undefined) => {
-    const [engine, setEngine] = useState<UciEngine | null>(null);
+    const [engine, setEngine] = useState<UciEngine>();
 
     useEffect(() => {
         if (!enabled || !engineName) return;
@@ -20,6 +20,7 @@ export const useEngine = (enabled: boolean, engineName: EngineName | undefined) 
 
         return () => {
             engine.shutdown();
+            setEngine(undefined);
         };
     }, [enabled, engineName]);
 

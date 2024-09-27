@@ -2,15 +2,24 @@ import { useChess } from '@/board/pgn/PgnBoard';
 import { EventType } from '@jackstenglein/chess';
 import { useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { EngineName, PositionEval, SavedEvals } from '../engine/engine';
+import {
+    ENGINE_DEPTH_KEY,
+    ENGINE_LINE_COUNT_KEY,
+    EngineName,
+    PositionEval,
+    SavedEvals,
+} from '../engine/engine';
 import { useEngine } from './useEngine';
 
-export const useCurrentPosition = (enabled: boolean, engineName?: EngineName) => {
+export function useEval(
+    enabled: boolean,
+    engineName?: EngineName,
+): PositionEval | undefined {
     const [currentPosition, setCurrentPosition] = useState<PositionEval>();
     const { chess } = useChess();
     const engine = useEngine(enabled, engineName);
-    const [depth] = useLocalStorage('engine-depth', 16);
-    const [multiPv] = useLocalStorage('engine-multi-pv', 3);
+    const [depth] = useLocalStorage(ENGINE_DEPTH_KEY, 16);
+    const [multiPv] = useLocalStorage(ENGINE_LINE_COUNT_KEY, 3);
     const savedEvals = useRef<SavedEvals>({});
 
     useEffect(() => {
@@ -76,4 +85,4 @@ export const useCurrentPosition = (enabled: boolean, engineName?: EngineName) =>
     }, [enabled, chess, depth, engine, engineName, multiPv, setCurrentPosition]);
 
     return currentPosition;
-};
+}

@@ -37,6 +37,7 @@ export const parseEvaluationResults = (
 
             const cp = getResultProperty(result, 'cp');
             const mate = getResultProperty(result, 'mate');
+            const nps = getResultProperty(result, 'nps');
 
             tempResults[multiPv] = {
                 fen,
@@ -45,6 +46,7 @@ export const parseEvaluationResults = (
                 mate: mate ? parseInt(mate) : undefined,
                 depth: parseInt(depth),
                 multiPv: parseInt(multiPv),
+                nps: nps ? parseInt(nps) : undefined,
             };
         }
     }

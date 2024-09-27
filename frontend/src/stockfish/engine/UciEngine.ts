@@ -199,8 +199,6 @@ export abstract class UciEngine {
         multiPv = this.multiPv,
         setPartialEval,
     }: EvaluatePositionWithUpdateParams): Promise<PositionEval> {
-        depth = 95;
-
         this.throwErrorIfNotReady();
 
         await this.stopSearch();

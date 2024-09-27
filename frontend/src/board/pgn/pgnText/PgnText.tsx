@@ -33,12 +33,14 @@ const PgnText = () => {
             data-cy='pgn-text'
             ref={ref}
             variant={light ? 'outlined' : 'elevation'}
-            sx={{ overflowY: 'scroll' }}
+            sx={{ display: 'flex', flexDirection: 'column' }}
         >
             <EngineSection />
-            <GameComment />
-            <Variation handleScroll={handleScroll} />
-            <Result />
+            <Stack sx={{ overflowY: 'scroll', flexGrow: 1, width: 1 }}>
+                <GameComment />
+                <Variation handleScroll={handleScroll} />
+                <Result />
+            </Stack>
         </Card>
     );
 };
