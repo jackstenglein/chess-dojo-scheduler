@@ -138,16 +138,18 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                     )}
                 </Stack>
 
-                {time && (
-                    <Typography
-                        variant='caption'
-                        color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
-                    >
-                        {time}
-                    </Typography>
-                )}
+                <Stack direction='row' alignItems='center' gap={1}>
+                    {time && (
+                        <Typography
+                            variant='caption'
+                            color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
+                        >
+                            {time}
+                        </Typography>
+                    )}
 
-                {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
+                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
+                </Stack>
             </Stack>
         </MuiButton>
     );

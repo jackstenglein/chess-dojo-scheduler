@@ -1,5 +1,5 @@
+import { StockfishIcon } from '@/style/ChessIcons';
 import { Chess, Move } from '@jackstenglein/chess';
-import { Computer } from '@mui/icons-material';
 import { Box, Tooltip } from '@mui/material';
 import { createContext, useContext, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -181,7 +181,7 @@ const EngineMoveButtonExtras = ({ move }: { move: Move }) => {
     if (move.commentDiag?.dojoEngine) {
         return (
             <Tooltip title='This move was found with the engine.'>
-                <Computer fontSize='small' sx={{ ml: 0.5 }} color='error' />
+                <StockfishIcon fontSize='small' sx={{ ml: 0.5 }} color='error' />
             </Tooltip>
         );
     }
