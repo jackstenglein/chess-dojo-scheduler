@@ -35,7 +35,7 @@ const nextConfig = {
                 ],
             },
             {
-                source: '/engine/:path*',
+                source: '/static/:path*',
                 headers: [
                     {
                         key: 'Cross-Origin-Embedder-Policy',
@@ -48,6 +48,24 @@ const nextConfig = {
                     {
                         key: 'Cache-Control',
                         value: 'public, max-age=2592000, immutable',
+                    },
+                ],
+            },
+            {
+                source: '/courses/:path*',
+                headers: [
+                    {
+                        key: 'Cross-Origin-Embedder-Policy',
+                        value: 'unsafe-none',
+                    },
+                ],
+            },
+            {
+                source: '/profile/:path*',
+                headers: [
+                    {
+                        key: 'Cross-Origin-Embedder-Policy',
+                        value: 'unsafe-none',
                     },
                 ],
             },

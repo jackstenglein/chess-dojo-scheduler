@@ -13,6 +13,7 @@ import EngineSection from './engine/EngineSection';
 const PgnText = () => {
     const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
+    const { config } = useChess();
 
     const handleScroll = (child: HTMLElement | null) => {
         const scrollParent = ref.current;
@@ -35,7 +36,7 @@ const PgnText = () => {
             variant={light ? 'outlined' : 'elevation'}
             sx={{ display: 'flex', flexDirection: 'column' }}
         >
-            <EngineSection />
+            {!config?.disableEngine && <EngineSection />}
             <Stack sx={{ overflowY: 'scroll', overflowX: 'clip', flexGrow: 1, width: 1 }}>
                 <GameComment />
                 <Variation handleScroll={handleScroll} />
