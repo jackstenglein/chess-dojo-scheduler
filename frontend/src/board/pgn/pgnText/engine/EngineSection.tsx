@@ -57,11 +57,12 @@ export default function EngineSection() {
                             checked={enabled}
                             onChange={() => setEnabled((prev) => !prev)}
                             color='success'
+                            sx={{ mr: 1 }}
                         />
                     </Tooltip>
 
                     {enabled && !isGameOver && (
-                        <Typography variant='h5' sx={{ mr: 2, ml: 1 }}>
+                        <Typography variant='h5' sx={{ mr: 2 }}>
                             {getLineEvalLabel(engineLines[0])}
                         </Typography>
                     )}

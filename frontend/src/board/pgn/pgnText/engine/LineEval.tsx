@@ -1,6 +1,8 @@
+import { useReconcile } from '@/board/Board';
 import { LineEval } from '@/stockfish/engine/engine';
-import { Chess, Color, Move, Square } from '@jackstenglein/chess';
+import { Chess, Color, Move } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
+import { useChess } from '../../PgnBoard';
 
 interface Props {
     line: LineEval;
@@ -8,12 +10,32 @@ interface Props {
 
 export default function LineEvaluation({ line }: Props) {
     const lineLabel = getLineEvalLabel(line);
+    const { chess } = useChess();
+    const reconcile = useReconcile();
 
     const isBlackCp =
         (line.cp !== undefined && line.cp < 0) ||
         (line.mate !== undefined && line.mate < 0);
 
     const showSkeleton = line.depth < 6;
+
+    const onClick = (index: number) => {
+        if (chess?.fen() !== line.fen || index >= line.pv.length) {
+            return;
+        }
+
+        let existingOnly = true;
+        for (let i = 0; i <= index; i++) {
+            const move = chess.move(line.pv[i], { existingOnly });
+            if (move === null) {
+                existingOnly = false;
+                i--;
+            } else if (!existingOnly) {
+                chess.setCommand('dojoEngine', 'true', move);
+            }
+        }
+        reconcile();
+    };
 
     return (
         <ListItem disablePadding sx={{ overflowX: 'clip', alignItems: 'center' }}>
@@ -74,6 +96,7 @@ export default function LineEvaluation({ line }: Props) {
                                 data-fen={move.after}
                                 data-from={move.from}
                                 data-to={move.to}
+                                onClick={() => onClick(idx)}
                             >
                                 {moveToLabel(move)}
                             </MoveLabel>
@@ -85,11 +108,15 @@ export default function LineEvaluation({ line }: Props) {
     );
 }
 
-const MoveLabel = styled('span')({
+const MoveLabel = styled('span')(({ theme }) => ({
     textWrap: 'nowrap',
     marginLeft: '6px',
     fontSize: '0.9rem',
-});
+    '&:hover': {
+        color: theme.palette.primary.main,
+        cursor: 'pointer',
+    },
+}));
 
 /**
  * Gets the evaluation label (Ex: +2.3, -1, M5) for the given line.
@@ -119,9 +146,10 @@ function moveLineUciToMove(fen: string): (moveUci: string) => Move | null {
 
     return (moveUci: string) => {
         try {
-            const move = game.move(uciMoveParams(moveUci));
+            const move = game.move(moveUci);
             return move;
         } catch (e) {
+            console.error(`Failed to convert UCI ${moveUci}: `, e);
             return null;
         }
     };
@@ -145,20 +173,3 @@ function moveToLabel(move: Move): string {
     label += move.san;
     return label;
 }
-
-/**
- * Converts a UCI move string into a Chess.js move object.
- * @param uciMove The UCI move to convert.
- * @returns The Chess.js move object.
- */
-const uciMoveParams = (
-    uciMove: string,
-): {
-    from: Square;
-    to: Square;
-    promotion?: string | undefined;
-} => ({
-    from: uciMove.slice(0, 2) as Square,
-    to: uciMove.slice(2, 4) as Square,
-    promotion: uciMove.slice(4, 5) || undefined,
-});
