@@ -1,25 +1,27 @@
-import { EngineName } from "./eval";
-import { UciEngine } from "./UciEngine";
+import { EngineName } from './engine';
+import { UciEngine } from './UciEngine';
 
+/**
+ * Runs Stockfish 16.1 NNUE (6 MB mobile version).
+ */
 export class Stockfish16 extends UciEngine {
-  constructor(nnue?: boolean) {
-    if (!Stockfish16.isSupported()) {
-      throw new Error("Stockfish 16 is not supported");
+    constructor() {
+        if (!Stockfish16.isSupported()) {
+            throw new Error('Stockfish 16 is not supported');
+        }
+
+        const enginePath =
+            '/engine/stockfish-16.1-lite.js#/engine/stockfish-16.1-lite.wasm';
+        const worker = UciEngine.workerFromPath(enginePath);
+        super(EngineName.Stockfish16, worker);
     }
-    const enginepath = nnue ? '/engine/stockfish-16.1.js' : '/engine/stockfish-16.1-single.js';
 
-    super(EngineName.Stockfish16, enginepath);
-  }
-
-
-  public static isSupported() {
-    return (
-      typeof WebAssembly === "object" &&
-      WebAssembly.validate(
-        Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00)
-      )
-    );
-  }
-
-  
+    public static isSupported() {
+        return (
+            typeof WebAssembly === 'object' &&
+            WebAssembly.validate(
+                Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00),
+            )
+        );
+    }
 }

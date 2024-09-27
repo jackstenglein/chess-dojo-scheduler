@@ -8,6 +8,7 @@ import { ResizableData } from '../resize';
 import GameComment from './GameComment';
 import Result from './Result';
 import Variation from './Variation';
+import EngineSection from './engine/EngineSection';
 
 const PgnText = () => {
     const light = useLightMode();
@@ -34,6 +35,7 @@ const PgnText = () => {
             variant={light ? 'outlined' : 'elevation'}
             sx={{ overflowY: 'scroll' }}
         >
+            <EngineSection />
             <GameComment />
             <Variation handleScroll={handleScroll} />
             <Result />

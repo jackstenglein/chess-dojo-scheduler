@@ -14,6 +14,12 @@ module.exports = {
             version: 'detect',
         },
     },
-    ignorePatterns: ['build/**', 'node_modules/**', 'coverage/**', 'public/**'],
+    ignorePatterns: [
+        'build/**',
+        'node_modules/**',
+        'coverage/**',
+        'public/**',
+        'src/stockfish/engine/sf17-79.js',
+    ],
     root: true,
 };

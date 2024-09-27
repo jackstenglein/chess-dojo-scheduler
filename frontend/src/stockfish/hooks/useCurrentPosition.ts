@@ -2,13 +2,13 @@ import { useChess } from '@/board/pgn/PgnBoard';
 import { EventType } from '@jackstenglein/chess';
 import { useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { EngineName, PositionEval, SavedEvals } from '../engine/eval';
+import { EngineName, PositionEval, SavedEvals } from '../engine/engine';
 import { useEngine } from './useEngine';
 
-export const useCurrentPosition = (engineName?: EngineName) => {
+export const useCurrentPosition = (enabled: boolean, engineName?: EngineName) => {
     const [currentPosition, setCurrentPosition] = useState<PositionEval>();
     const { chess } = useChess();
-    const engine = useEngine(engineName);
+    const engine = useEngine(enabled, engineName);
     const [depth] = useLocalStorage('engine-depth', 16);
     const [multiPv] = useLocalStorage('engine-multi-pv', 3);
     const savedEvals = useRef<SavedEvals>({});
@@ -16,12 +16,13 @@ export const useCurrentPosition = (engineName?: EngineName) => {
     useEffect(() => {
         console.log('useCurrentPosition: useEffect');
 
-        if (!chess) {
+        if (!enabled || !chess || !engine || !engineName) {
             return;
         }
-        if (!engine?.isReady() || !engineName) {
+
+        if (!engine?.isReady()) {
             console.error(`Engine ${engineName} not ready`);
-            return;
+            // return;
         }
 
         const evaluate = async () => {
@@ -72,7 +73,7 @@ export const useCurrentPosition = (engineName?: EngineName) => {
             void engine?.stopSearch();
             chess.removeObserver(observer);
         };
-    }, [chess, depth, engine, engineName, multiPv, setCurrentPosition]);
+    }, [enabled, chess, depth, engine, engineName, multiPv, setCurrentPosition]);
 
     return currentPosition;
 };

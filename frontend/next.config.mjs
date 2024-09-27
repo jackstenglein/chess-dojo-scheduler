@@ -19,10 +19,10 @@ const nextConfig = {
             },
         ],
     },
-    async headers() {
+    headers() {
         return [
             {
-              source: "/games/:path*",
+                source: '/:path*',
                 headers: [
                     {
                         key: 'Cross-Origin-Embedder-Policy',
@@ -31,6 +31,23 @@ const nextConfig = {
                     {
                         key: 'Cross-Origin-Opener-Policy',
                         value: 'same-origin',
+                    },
+                ],
+            },
+            {
+                source: '/engine/:path*',
+                headers: [
+                    {
+                        key: 'Cross-Origin-Embedder-Policy',
+                        value: 'require-corp',
+                    },
+                    {
+                        key: 'Cross-Origin-Opener-Policy',
+                        value: 'same-origin',
+                    },
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=2592000, immutable',
                     },
                 ],
             },

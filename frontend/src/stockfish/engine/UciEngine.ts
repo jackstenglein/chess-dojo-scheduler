@@ -1,35 +1,68 @@
-import { EngineName, EvaluatePositionWithUpdateParams, PositionEval } from './eval';
+import { EngineWorker } from './EngineWorker';
+import { EngineName, EvaluatePositionWithUpdateParams, PositionEval } from './engine';
 import { getResultProperty, parseEvaluationResults } from './parseResults';
 
 export abstract class UciEngine {
-    private worker: Worker;
+    protected worker: EngineWorker | undefined;
     private ready = false;
     private engineName: EngineName;
     private multiPv = 3;
     private skillLevel: number | undefined = undefined;
-   
 
-    constructor(
-        engineName: EngineName,
-        enginePath: string,
-        
-    ) {
+    /**
+     * Gets an EngineWorker from the given stockfish.js path.
+     * @param path The stockfish.js path to create an EngineWorker from.
+     * @returns An EngineWorker using the given stockfish.js path.
+     */
+    public static workerFromPath(path: string): EngineWorker {
+        const worker = new Worker(path);
+
+        const engineWorker: EngineWorker = {
+            uci(command) {
+                worker.postMessage(command);
+            },
+            listen(data) {
+                console.log(data);
+            },
+            onError(msg) {
+                console.error(msg);
+            },
+            terminate() {
+                worker.terminate();
+            },
+        };
+
+        worker.onmessage = (event) => {
+            engineWorker.listen(event.data as string);
+        };
+        worker.onerror = (err) => {
+            engineWorker.onError(err);
+        };
+
+        return engineWorker;
+    }
+
+    /**
+     * Constructs a new UciEngine instance.
+     * @param engineName The name of the engine.
+     * @param worker The engine worker.
+     */
+    constructor(engineName: EngineName, worker?: EngineWorker) {
         this.engineName = engineName;
-        this.worker = new Worker(enginePath);
-        
-
+        this.worker = worker;
         console.log(`${engineName} created`);
     }
 
+    /**
+     * Initializes the engine. This must be called before evaluating any positions.
+     */
     public async init(): Promise<void> {
-        await this.sendCommands(
-            [`setoption name EvalFile nn-b1a57edbea57.nnue`, "isready"],
-            "readyok"
-          );
-        await this.sendCommands(['uci'], 'uciok');
-        await this.setMultiPv(this.multiPv, true);  
-        this.ready = true;
-        console.log(`${this.engineName} initialized`);
+        if (this.worker) {
+            await this.sendCommands(['uci'], 'uciok');
+            await this.setMultiPv(this.multiPv, true);
+            this.ready = true;
+            console.log(`${this.engineName} initialized`);
+        }
     }
 
     /**
@@ -45,10 +78,14 @@ export abstract class UciEngine {
         onNewMessage?: (messages: string[]) => void,
     ): Promise<string[]> {
         return new Promise((resolve) => {
+            if (!this.worker) {
+                return [];
+            }
+
             const messages: string[] = [];
 
-            this.worker.onmessage = (event) => {
-                const messageData = event.data as string;
+            this.worker.listen = (messageData) => {
+                console.log('UCI message: ', messageData);
                 messages.push(messageData);
                 onNewMessage?.(messages);
 
@@ -58,7 +95,8 @@ export abstract class UciEngine {
             };
 
             for (const command of commands) {
-                this.worker.postMessage(command);
+                console.log('Posting message: ', command);
+                this.worker.uci(command);
             }
         });
     }
@@ -127,8 +165,8 @@ export abstract class UciEngine {
      */
     public shutdown(): void {
         this.ready = false;
-        this.worker.postMessage('quit');
-        this.worker.terminate();
+        this.worker?.uci('quit');
+        this.worker?.terminate?.();
         console.log(`${this.engineName} shutdown`);
     }
 
@@ -161,6 +199,8 @@ export abstract class UciEngine {
         multiPv = this.multiPv,
         setPartialEval,
     }: EvaluatePositionWithUpdateParams): Promise<PositionEval> {
+        depth = 95;
+
         this.throwErrorIfNotReady();
 
         await this.stopSearch();

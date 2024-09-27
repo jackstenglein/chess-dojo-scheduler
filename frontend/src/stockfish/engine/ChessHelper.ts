@@ -1,5 +1,5 @@
 import { Chess, Square } from 'chess.js';
-import { LineEval } from './eval';
+import { LineEval } from './engine';
 
 /**
  * Gets the evaluation label (Ex: +2.3, -1, M5) for the given line.
