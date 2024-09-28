@@ -277,11 +277,13 @@ export const ExtraSmallMenuUnauthenticated = () => {
                 onClose={handleClose}
             >
                 <MenuItem component='a' href='/signin'>
-                    <LoginIcon sx={{verticalAlign: "middle", marginRight: 1}}/>
+                    <LoginIcon sx={{ verticalAlign: 'middle', marginRight: 1 }} />
                     <Typography textAlign='center'>Sign In</Typography>
                 </MenuItem>
                 <MenuItem component='a' href='/signup'>
-                   <SensorOccupiedIcon sx={{verticalAlign: "middle", marginRight: 1}}/>
+                    <SensorOccupiedIcon
+                        sx={{ verticalAlign: 'middle', marginRight: 1 }}
+                    />
                     <Typography textAlign='center'>Sign Up</Typography>
                 </MenuItem>
 
