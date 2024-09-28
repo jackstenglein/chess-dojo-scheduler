@@ -214,7 +214,7 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                         window.open('https://www.twitch.tv/chessdojo/videos', '_blank'),
                 },
                 {
-                    name: 'YoutTube',
+                    name: 'YouTube',
                     icon: <YoutubeIcon sx={{ color: 'red' }} />,
                     onClick: () =>
                         window.open('https://www.youtube.com/@ChessDojo', '_blank'),

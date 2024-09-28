@@ -169,16 +169,11 @@ const VerifyEmailPage = () => {
                                     fontWeight: 'bold',
                                     fontSize: '18px',
                                     padding: '12px 16px',
-
-                                    '&:hover': {
-                                        backgroundColor: '#115293',
-                                    },
                                     boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
-                                    transition: 'all 0.3s ease',
                                 }}
                                 onClick={onSubmit}
                                 data-cy='verify-button'
-                                color='dojoOrange'
+                                color='primary'
                             >
                                 Verify Email
                             </LoadingButton>
@@ -190,15 +185,10 @@ const VerifyEmailPage = () => {
                                     fontWeight: 'bold',
                                     fontSize: '18px',
                                     padding: '12px 16px',
-
-                                    '&:hover': {
-                                        backgroundColor: '#115293',
-                                    },
                                     boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
-                                    transition: 'all 0.3s ease',
                                 }}
                                 startIcon={<MarkEmailUnreadIcon />}
-                                color='dojoOrange'
+                                color='primary'
                                 onClick={onResendCode}
                                 loading={codeRequest.isLoading()}
                                 data-cy='resend-button'

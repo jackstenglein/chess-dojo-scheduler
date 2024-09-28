@@ -201,19 +201,14 @@ const StartStep: React.FC<StartStepProps> = ({
                 variant='contained'
                 onClick={onSubmit}
                 fullWidth
-                color='dojoOrange'
+                color='primary'
                 startIcon={<MarkEmailUnreadIcon />}
                 sx={{
                     textTransform: 'none',
                     fontWeight: 'bold',
                     fontSize: '18px',
                     padding: '12px 16px',
-
-                    '&:hover': {
-                        backgroundColor: '#115293',
-                    },
                     boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
-                    transition: 'all 0.3s ease',
                 }}
                 loading={loading}
             >

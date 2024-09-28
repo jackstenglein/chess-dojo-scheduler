@@ -6,7 +6,7 @@ import { DiscordIcon, FontAwesomeSvgIcon } from '../profile/info/DiscordChip';
 const icons = [
     <Tooltip key='twitch' title='Twitch'>
         <IconButton href='http://twitch.tv/chessdojo' target='_blank' rel='noopener'>
-            <FontAwesomeSvgIcon icon={faTwitch} sx={{ color: '#6441a5' }} />
+            <FontAwesomeSvgIcon icon={faTwitch} sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -16,13 +16,13 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <YouTube sx={{ color: 'red' }} />
+            <YouTube sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='discord' title='Discord'>
         <IconButton href='https://discord.gg/GnmmegXAsa' target='_blank' rel='noopener'>
-            <DiscordIcon sx={{ color: '#7289da' }} />
+            <DiscordIcon sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -38,7 +38,7 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <FontAwesomeSvgIcon icon={faSpotify} sx={{ color: '#1db954' }} />
+            <FontAwesomeSvgIcon icon={faSpotify} sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -48,7 +48,7 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: '#F96854' }} />
+            <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -58,13 +58,13 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <Instagram sx={{ color: '#c13584' }} />
+            <Instagram sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='facebook' title='Facebook'>
         <IconButton href='http://facebook.com/chessdojo' target='_blank' rel='noopener'>
-            <FacebookOutlined sx={{ color: '#3b5998' }} />
+            <FacebookOutlined sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 ];

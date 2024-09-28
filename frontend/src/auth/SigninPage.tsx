@@ -83,18 +83,18 @@ const SigninPage = () => {
     };
 
     return (
-        <Container maxWidth='sm' sx={{ pt: 10, pb: 4 }}>
+        <Container maxWidth='sm' sx={{ pt: 10 }}>
             {/* Card for the login form */}
-            <Card>
+            <Card sx={{ width: 1 }}>
                 <CardContent>
-                    <Stack justifyContent='center' alignItems='center' spacing={4}>
+                    <Stack justifyContent='center' alignItems='center' spacing={2}>
                         <RequestSnackbar request={request} />
 
                         {/* ChessDojoIcon above the title */}
                         <ChessDojoIcon
                             fontSize='large'
                             sx={{
-                                mb: 2,
+                                mb: 3,
                                 width: '80px',
                                 height: '80px',
                             }}
@@ -106,7 +106,7 @@ const SigninPage = () => {
                         </Typography>
 
                         {/* Form Section */}
-                        <Stack width={1} spacing={4} alignItems='center'>
+                        <Stack width={0.85} spacing={3} alignItems='center'>
                             <TextField
                                 fullWidth
                                 id='email'
@@ -147,18 +147,12 @@ const SigninPage = () => {
                                 data-cy='signin-button'
                                 variant='contained'
                                 fullWidth
-                                color='dojoOrange'
+                                color='primary'
                                 sx={{
                                     textTransform: 'none',
                                     fontWeight: 'bold',
                                     fontSize: '18px',
                                     padding: '12px 16px',
-
-                                    '&:hover': {
-                                        backgroundColor: '#115293',
-                                    },
-                                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
-                                    transition: 'all 0.3s ease',
                                 }}
                                 onClick={onSignin}
                                 loading={request.isLoading()}
@@ -176,7 +170,7 @@ const SigninPage = () => {
                                     variant='text'
                                     sx={{ textTransform: 'none' }}
                                     onClick={() => navigate('/signup')}
-                                    color='dojoOrange'
+                                    color='primary'
                                 >
                                     No account? Sign Up
                                 </Button>
@@ -185,13 +179,20 @@ const SigninPage = () => {
                                     variant='text'
                                     sx={{ textTransform: 'none', alignSelf: 'end' }}
                                     onClick={() => navigate('/forgot-password')}
-                                    color='dojoOrange'
+                                    color='primary'
                                 >
                                     Forgot password?
                                 </Button>
                             </Stack>
 
-                            <GoogleButton onClick={onGoogleSignIn} />
+                            <GoogleButton
+                                onClick={onGoogleSignIn}
+                                style={{
+                                    transform: 'scale(1.1)',
+                                    transformOrigin: 'center',
+                                    margin: '20px',
+                                }}
+                            />
                         </Stack>
                     </Stack>
                 </CardContent>

@@ -98,7 +98,7 @@ const SignupPage = () => {
 
                 <Card sx={{ width: 1 }}>
                     <CardContent>
-                        <Stack alignItems='center' spacing={2}>
+                        <Stack justifyContent='center' alignItems='center' spacing={2}>
                             {/* ChessDojoIcon above the title */}
                             <ChessDojoIcon
                                 fontSize='large'
@@ -172,17 +172,13 @@ const SignupPage = () => {
                                     data-cy='submit-button'
                                     variant='contained'
                                     fullWidth
-                                    color='dojoOrange'
+                                    color='primary'
                                     sx={{
                                         textTransform: 'none',
                                         fontWeight: 'bold',
                                         fontSize: '18px',
                                         padding: '12px 16px',
-                                        '&:hover': {
-                                            backgroundColor: '#115293',
-                                        },
                                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
-                                        transition: 'all 0.3s ease',
                                     }}
                                     onClick={onSignup}
                                     loading={request.isLoading()}
@@ -193,6 +189,11 @@ const SignupPage = () => {
                                 <GoogleButton
                                     onClick={onGoogleSignIn}
                                     label='Sign up with Google'
+                                    style={{
+                                        transform: 'scale(1.1)',
+                                        transformOrigin: 'center',
+                                        margin: '20px',
+                                    }}
                                 />
                                 <Typography variant='body2' component='div' gutterBottom>
                                     Already have an account?{' '}
