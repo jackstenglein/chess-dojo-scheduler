@@ -1,18 +1,22 @@
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
+import { AccountCircle } from '@mui/icons-material';
+import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Card,
+    CardContent,
     CircularProgress,
     Container,
+    InputAdornment,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-
-import { LoadingButton } from '@mui/lab';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
-
 const googleSigninMessage =
     'Your email is not verified. Note that if you previously signed in with Google, you must continue to use that option. You will not be able to reset your password in that case.';
 
@@ -80,47 +84,60 @@ const ForgotPasswordPage = () => {
     };
 
     return (
-        <Container maxWidth='md' sx={{ pt: 10 }}>
-            <Stack justifyContent='center' alignItems='center' spacing={6}>
-                <RequestSnackbar request={request} />
-
-                <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Training Program
-                    </Typography>
-                    <Typography variant='h6' data-cy='subtitle'>
-                        Forgot Password
-                    </Typography>
-                </Stack>
-                <Stack
-                    direction='column'
-                    justifyContent='center'
-                    alignItems='center'
-                    spacing={3}
-                    paddingTop={1.5}
-                >
-                    {step === ForgotPasswordStep.Start && (
-                        <StartStep
-                            email={email}
-                            setEmail={setEmail}
-                            emailError={emailError}
-                            onSubmit={onSubmit}
-                            onCancel={onCancel}
-                            loading={request.isLoading()}
+        <Container maxWidth='sm' sx={{ pt: 10, pb: 4 }}>
+            <Card>
+                <CardContent>
+                    <Stack justifyContent='center' alignItems='center' spacing={4}>
+                        <RequestSnackbar request={request} />
+                        {/* ChessDojoIcon above the title */}
+                        <ChessDojoIcon
+                            fontSize='large'
+                            sx={{
+                                mb: 2,
+                                width: '80px',
+                                height: '80px',
+                            }}
                         />
-                    )}
 
-                    {step === ForgotPasswordStep.Confirm && (
-                        <ConfirmStep
-                            email={email}
-                            onSuccess={() => setStep(ForgotPasswordStep.Success)}
-                            onCancel={onCancel}
-                        />
-                    )}
+                        <Stack alignItems='center'>
+                            <Typography variant='h4' textAlign='center' data-cy='title'>
+                                ChessDojo Training Program
+                            </Typography>
+                            <Typography variant='h6' data-cy='subtitle'>
+                                Forgot Password
+                            </Typography>
+                        </Stack>
+                        <Stack
+                            direction='column'
+                            justifyContent='center'
+                            alignItems='center'
+                            spacing={3}
+                            paddingTop={1.5}
+                        >
+                            {step === ForgotPasswordStep.Start && (
+                                <StartStep
+                                    email={email}
+                                    setEmail={setEmail}
+                                    emailError={emailError}
+                                    onSubmit={onSubmit}
+                                    onCancel={onCancel}
+                                    loading={request.isLoading()}
+                                />
+                            )}
 
-                    {step === ForgotPasswordStep.Success && <SuccessStep />}
-                </Stack>
-            </Stack>
+                            {step === ForgotPasswordStep.Confirm && (
+                                <ConfirmStep
+                                    email={email}
+                                    onSuccess={() => setStep(ForgotPasswordStep.Success)}
+                                    onCancel={onCancel}
+                                />
+                            )}
+
+                            {step === ForgotPasswordStep.Success && <SuccessStep />}
+                        </Stack>
+                    </Stack>
+                </CardContent>
+            </Card>
         </Container>
     );
 };
@@ -170,6 +187,13 @@ const StartStep: React.FC<StartStepProps> = ({
                 error={!!emailError}
                 helperText={emailError}
                 onKeyDown={onKeyDown}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position='start'>
+                            <AccountCircle color='dojoOrange' />
+                        </InputAdornment>
+                    ),
+                }}
             />
 
             <LoadingButton
@@ -177,7 +201,20 @@ const StartStep: React.FC<StartStepProps> = ({
                 variant='contained'
                 onClick={onSubmit}
                 fullWidth
-                sx={{ textTransform: 'none' }}
+                color='dojoOrange'
+                startIcon={<MarkEmailUnreadIcon />}
+                sx={{
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    padding: '12px 16px',
+
+                    '&:hover': {
+                        backgroundColor: '#115293',
+                    },
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                    transition: 'all 0.3s ease',
+                }}
                 loading={loading}
             >
                 Send Email

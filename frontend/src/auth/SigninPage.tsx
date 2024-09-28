@@ -1,9 +1,13 @@
+import { ChessDojoIcon } from '@/style/ChessDojoIcon'; // Assuming ChessDojoIcon is an SVG or MUI component
+import { AccountCircle, Lock } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Card,
+    CardContent,
     CircularProgress,
     Container,
-    Divider,
+    InputAdornment,
     Stack,
     TextField,
     Typography,
@@ -79,77 +83,119 @@ const SigninPage = () => {
     };
 
     return (
-        <Container maxWidth='md' sx={{ pt: 10, pb: 4 }}>
-            <Stack justifyContent='center' alignItems='center' spacing={6}>
-                <RequestSnackbar request={request} />
-                <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Training Program
-                    </Typography>
-                    <Typography variant='h6' data-cy='subtitle'>
-                        Sign In
-                    </Typography>
-                </Stack>
+        <Container maxWidth='sm' sx={{ pt: 10, pb: 4 }}>
+            {/* Card for the login form */}
+            <Card>
+                <CardContent>
+                    <Stack justifyContent='center' alignItems='center' spacing={4}>
+                        <RequestSnackbar request={request} />
 
-                <Stack width={0.75} spacing={4} alignItems='center'>
-                    <TextField
-                        fullWidth
-                        id='email'
-                        label='Email'
-                        variant='outlined'
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        error={!!errors.email}
-                        helperText={errors.email}
-                    />
-                    <TextField
-                        fullWidth
-                        id='password'
-                        label='Password'
-                        type='password'
-                        variant='outlined'
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        onKeyDown={onKeyDown}
-                        error={!!errors.password}
-                        helperText={errors.password}
-                    />
-                    <LoadingButton
-                        data-cy='signin-button'
-                        variant='contained'
-                        fullWidth
-                        sx={{ textTransform: 'none' }}
-                        onClick={onSignin}
-                        loading={request.isLoading()}
-                    >
-                        Sign In
-                    </LoadingButton>
-                    <Stack
-                        direction='row'
-                        justifyContent='space-between'
-                        sx={{ width: 1 }}
-                    >
-                        <Button
-                            data-cy='signup-button'
-                            variant='text'
-                            sx={{ textTransform: 'none' }}
-                            onClick={() => navigate('/signup')}
-                        >
-                            No account? Sign Up
-                        </Button>
-                        <Button
-                            data-cy='forgot-password-button'
-                            variant='text'
-                            sx={{ textTransform: 'none', alignSelf: 'end' }}
-                            onClick={() => navigate('/forgot-password')}
-                        >
-                            Forgot password?
-                        </Button>
+                        {/* ChessDojoIcon above the title */}
+                        <ChessDojoIcon
+                            fontSize='large'
+                            sx={{
+                                mb: 2,
+                                width: '80px',
+                                height: '80px',
+                            }}
+                        />
+
+                        {/* Title Section */}
+                        <Typography variant='h4' textAlign='center' data-cy='title'>
+                            ChessDojo Training Program
+                        </Typography>
+
+                        {/* Form Section */}
+                        <Stack width={1} spacing={4} alignItems='center'>
+                            <TextField
+                                fullWidth
+                                id='email'
+                                label='Email'
+                                variant='outlined'
+                                value={email}
+                                onChange={(event) => setEmail(event.target.value)}
+                                error={!!errors.email}
+                                helperText={errors.email}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position='start'>
+                                            <AccountCircle color='dojoOrange' />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <TextField
+                                fullWidth
+                                id='password'
+                                label='Password'
+                                type='password'
+                                variant='outlined'
+                                value={password}
+                                onChange={(event) => setPassword(event.target.value)}
+                                onKeyDown={onKeyDown}
+                                error={!!errors.password}
+                                helperText={errors.password}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position='start'>
+                                            <Lock color='dojoOrange' />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <LoadingButton
+                                data-cy='signin-button'
+                                variant='contained'
+                                fullWidth
+                                color='dojoOrange'
+                                sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 'bold',
+                                    fontSize: '18px',
+                                    padding: '12px 16px',
+
+                                    '&:hover': {
+                                        backgroundColor: '#115293',
+                                    },
+                                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                                    transition: 'all 0.3s ease',
+                                }}
+                                onClick={onSignin}
+                                loading={request.isLoading()}
+                            >
+                                Sign In
+                            </LoadingButton>
+
+                            <Stack
+                                direction='row'
+                                justifyContent='space-between'
+                                sx={{ width: 1 }}
+                            >
+                                <Button
+                                    data-cy='signup-button'
+                                    variant='text'
+                                    sx={{ textTransform: 'none' }}
+                                    onClick={() => navigate('/signup')}
+                                    color='dojoOrange'
+                                >
+                                    No account? Sign Up
+                                </Button>
+                                <Button
+                                    data-cy='forgot-password-button'
+                                    variant='text'
+                                    sx={{ textTransform: 'none', alignSelf: 'end' }}
+                                    onClick={() => navigate('/forgot-password')}
+                                    color='dojoOrange'
+                                >
+                                    Forgot password?
+                                </Button>
+                            </Stack>
+
+                            <GoogleButton onClick={onGoogleSignIn} />
+                        </Stack>
                     </Stack>
-                    <Divider sx={{ width: 1 }}>Or</Divider>
-                    <GoogleButton onClick={onGoogleSignIn} />
-                </Stack>
-            </Stack>
+                </CardContent>
+            </Card>
         </Container>
     );
 };

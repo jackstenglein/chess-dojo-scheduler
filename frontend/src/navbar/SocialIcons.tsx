@@ -1,12 +1,12 @@
 import { faPatreon, faSpotify, faTwitch } from '@fortawesome/free-brands-svg-icons';
-import { FacebookOutlined, Instagram, Twitter, YouTube } from '@mui/icons-material';
+import { FacebookOutlined, Instagram, X, YouTube } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip, useMediaQuery } from '@mui/material';
 import { DiscordIcon, FontAwesomeSvgIcon } from '../profile/info/DiscordChip';
 
 const icons = [
     <Tooltip key='twitch' title='Twitch'>
         <IconButton href='http://twitch.tv/chessdojo' target='_blank' rel='noopener'>
-            <FontAwesomeSvgIcon icon={faTwitch} sx={{ color: 'white' }} />
+            <FontAwesomeSvgIcon icon={faTwitch} sx={{ color: '#6441a5' }} />
         </IconButton>
     </Tooltip>,
 
@@ -16,19 +16,19 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <YouTube sx={{ color: 'white' }} />
+            <YouTube sx={{ color: 'red' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='discord' title='Discord'>
         <IconButton href='https://discord.gg/GnmmegXAsa' target='_blank' rel='noopener'>
-            <DiscordIcon sx={{ color: 'white' }} />
+            <DiscordIcon sx={{ color: '#7289da' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='twitter' title='Twitter'>
         <IconButton href='https://twitter.com/chessdojo' target='_blank' rel='noopener'>
-            <Twitter sx={{ color: 'white' }} />
+            <X sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
@@ -38,7 +38,7 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <FontAwesomeSvgIcon icon={faSpotify} sx={{ color: 'white' }} />
+            <FontAwesomeSvgIcon icon={faSpotify} sx={{ color: '#1db954' }} />
         </IconButton>
     </Tooltip>,
 
@@ -48,7 +48,7 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: 'white' }} />
+            <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: '#F96854' }} />
         </IconButton>
     </Tooltip>,
 
@@ -58,13 +58,13 @@ const icons = [
             target='_blank'
             rel='noopener'
         >
-            <Instagram sx={{ color: 'white' }} />
+            <Instagram sx={{ color: '#c13584' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='facebook' title='Facebook'>
         <IconButton href='http://facebook.com/chessdojo' target='_blank' rel='noopener'>
-            <FacebookOutlined sx={{ color: 'white' }} />
+            <FacebookOutlined sx={{ color: '#3b5998' }} />
         </IconButton>
     </Tooltip>,
 ];

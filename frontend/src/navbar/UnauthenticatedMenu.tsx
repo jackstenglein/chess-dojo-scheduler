@@ -14,6 +14,8 @@ import {
     SignalCellularAlt,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
+import LoginIcon from '@mui/icons-material/Login';
+import SensorOccupiedIcon from '@mui/icons-material/SensorOccupied';
 import {
     Button,
     Collapse,
@@ -30,7 +32,6 @@ import {
 import React, { useState } from 'react';
 import { Logo, NavMenuItem, NavbarItem, StartItem } from './NavbarMenu';
 import SocialIcons from './SocialIcons';
-
 const UnauthenticatedMenu = () => {
     const largeMenu = useMediaQuery('(min-width:450px)');
     if (largeMenu) {
@@ -211,10 +212,14 @@ export const LargeMenuUnauthenticated = () => {
             </Stack>
 
             <Stack spacing={1} direction='row'>
-                <Button href='/signin' sx={{ color: 'white' }}>
+                <Button href='/signin' sx={{ color: 'white' }} startIcon={<LoginIcon />}>
                     Sign In
                 </Button>
-                <Button href='/signup' sx={{ color: 'white' }}>
+                <Button
+                    href='/signup'
+                    sx={{ color: 'white' }}
+                    startIcon={<SensorOccupiedIcon />}
+                >
                     Sign Up
                 </Button>
             </Stack>
@@ -272,9 +277,11 @@ export const ExtraSmallMenuUnauthenticated = () => {
                 onClose={handleClose}
             >
                 <MenuItem component='a' href='/signin'>
+                    <LoginIcon sx={{verticalAlign: "middle", marginRight: 1}}/>
                     <Typography textAlign='center'>Sign In</Typography>
                 </MenuItem>
                 <MenuItem component='a' href='/signup'>
+                   <SensorOccupiedIcon sx={{verticalAlign: "middle", marginRight: 1}}/>
                     <Typography textAlign='center'>Sign Up</Typography>
                 </MenuItem>
 
