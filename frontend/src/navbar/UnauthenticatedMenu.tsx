@@ -32,6 +32,7 @@ import {
 import React, { useState } from 'react';
 import { Logo, NavMenuItem, NavbarItem, StartItem } from './NavbarMenu';
 import SocialIcons from './SocialIcons';
+
 const UnauthenticatedMenu = () => {
     const largeMenu = useMediaQuery('(min-width:450px)');
     if (largeMenu) {
@@ -212,14 +213,10 @@ export const LargeMenuUnauthenticated = () => {
             </Stack>
 
             <Stack spacing={1} direction='row'>
-                <Button href='/signin' sx={{ color: 'white' }} startIcon={<LoginIcon />}>
+                <Button href='/signin' sx={{ color: 'white' }}>
                     Sign In
                 </Button>
-                <Button
-                    href='/signup'
-                    sx={{ color: 'white' }}
-                    startIcon={<SensorOccupiedIcon />}
-                >
+                <Button href='/signup' sx={{ color: 'white' }}>
                     Sign Up
                 </Button>
             </Stack>
@@ -277,13 +274,15 @@ export const ExtraSmallMenuUnauthenticated = () => {
                 onClose={handleClose}
             >
                 <MenuItem component='a' href='/signin'>
-                    <LoginIcon sx={{ verticalAlign: 'middle', marginRight: 1 }} />
+                    <ListItemIcon>
+                        <LoginIcon />
+                    </ListItemIcon>
                     <Typography textAlign='center'>Sign In</Typography>
                 </MenuItem>
                 <MenuItem component='a' href='/signup'>
-                    <SensorOccupiedIcon
-                        sx={{ verticalAlign: 'middle', marginRight: 1 }}
-                    />
+                    <ListItemIcon>
+                        <SensorOccupiedIcon />
+                    </ListItemIcon>
                     <Typography textAlign='center'>Sign Up</Typography>
                 </MenuItem>
 

@@ -93,6 +93,8 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        youtube: true;
+        twitch: true;
     }
 }
 

@@ -103,43 +103,52 @@ const VerifyEmailPage = () => {
     };
 
     return (
-        <Container maxWidth='md' sx={{ pt: 10 }}>
-            <Card>
+        <Container maxWidth='sm' sx={{ pt: { xs: 4, sm: 10 }, pb: 4 }}>
+            <Card
+                sx={{
+                    backgroundImage: { xs: 'none', sm: 'var(--Paper-overlay)' },
+                    boxShadow: { xs: 'none', sm: 'var(--Paper-shadow)' },
+                }}
+            >
                 <CardContent>
                     <RequestSnackbar request={submitRequest} />
                     <RequestSnackbar request={codeRequest} showSuccess />
 
-                    <ChessDojoIcon
-                        fontSize='large'
-                        sx={{
-                            mb: 2,
-                            width: '80px',
-                            height: '80px',
-                        }}
-                    />
-
-                    <Stack justifyContent='center' alignItems='center' spacing={6}>
-                        <Stack alignItems='center'>
-                            <Typography variant='h4' textAlign='center' data-cy='title'>
-                                ChessDojo Training Program
-                            </Typography>
-                            <Typography variant='h6' data-cy='subtitle'>
-                                Verify Email
-                            </Typography>
-                        </Stack>
+                    <Stack justifyContent='center' alignItems='center'>
+                        <ChessDojoIcon
+                            fontSize='large'
+                            sx={{
+                                mb: 2,
+                                width: '80px',
+                                height: '80px',
+                            }}
+                        />
 
                         <Typography
-                            variant='body1'
-                            component='div'
-                            gutterBottom
+                            variant='h4'
                             textAlign='center'
-                            data-cy='description'
+                            data-cy='title'
+                            mb={4}
                         >
-                            In order to complete your account creation, please enter the
-                            verification code sent to {email}.
+                            ChessDojo
                         </Typography>
 
-                        <Stack width={0.75} spacing={4} alignItems='center'>
+                        <Stack
+                            width={{ xs: 1, sm: 0.85 }}
+                            spacing={4}
+                            alignItems='center'
+                        >
+                            <Typography
+                                variant='body1'
+                                component='div'
+                                gutterBottom
+                                textAlign='center'
+                                data-cy='description'
+                            >
+                                In order to complete your account creation, please enter
+                                the verification code sent to {email}.
+                            </Typography>
+
                             <TextField
                                 fullWidth
                                 id='code'
@@ -150,12 +159,14 @@ const VerifyEmailPage = () => {
                                 onKeyDown={onKeyDown}
                                 error={!!codeError}
                                 helperText={codeError}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position='start'>
-                                            <Lock color='dojoOrange' />
-                                        </InputAdornment>
-                                    ),
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <Lock color='dojoOrange' />
+                                            </InputAdornment>
+                                        ),
+                                    },
                                 }}
                             />
 
@@ -173,7 +184,6 @@ const VerifyEmailPage = () => {
                                 }}
                                 onClick={onSubmit}
                                 data-cy='verify-button'
-                                color='primary'
                             >
                                 Verify Email
                             </LoadingButton>
@@ -185,10 +195,8 @@ const VerifyEmailPage = () => {
                                     fontWeight: 'bold',
                                     fontSize: '18px',
                                     padding: '12px 16px',
-                                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
                                 }}
                                 startIcon={<MarkEmailUnreadIcon />}
-                                color='primary'
                                 onClick={onResendCode}
                                 loading={codeRequest.isLoading()}
                                 data-cy='resend-button'

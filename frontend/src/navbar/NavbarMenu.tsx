@@ -209,13 +209,13 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                 },
                 {
                     name: 'Twitch',
-                    icon: <TwitchIcon sx={{ color: '#9146FF' }} />,
+                    icon: <TwitchIcon color='twitch' />,
                     onClick: () =>
                         window.open('https://www.twitch.tv/chessdojo/videos', '_blank'),
                 },
                 {
                     name: 'YouTube',
-                    icon: <YoutubeIcon sx={{ color: 'red' }} />,
+                    icon: <YoutubeIcon color='youtube' />,
                     onClick: () =>
                         window.open('https://www.youtube.com/@ChessDojo', '_blank'),
                 },

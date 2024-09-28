@@ -1,4 +1,4 @@
-import { ChessDojoIcon } from '@/style/ChessDojoIcon'; // Assuming ChessDojoIcon is an SVG or MUI component
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle, Lock } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -83,30 +83,36 @@ const SigninPage = () => {
     };
 
     return (
-        <Container maxWidth='sm' sx={{ pt: 10 }}>
-            {/* Card for the login form */}
-            <Card sx={{ width: 1 }}>
-                <CardContent>
-                    <Stack justifyContent='center' alignItems='center' spacing={2}>
-                        <RequestSnackbar request={request} />
+        <Container maxWidth='sm' sx={{ pt: { xs: 4, sm: 10 }, pb: 4 }}>
+            <RequestSnackbar request={request} />
 
-                        {/* ChessDojoIcon above the title */}
+            <Card
+                sx={{
+                    backgroundImage: { xs: 'none', sm: 'var(--Paper-overlay)' },
+                    boxShadow: { xs: 'none', sm: 'var(--Paper-shadow)' },
+                }}
+            >
+                <CardContent>
+                    <Stack justifyContent='center' alignItems='center'>
                         <ChessDojoIcon
                             fontSize='large'
                             sx={{
-                                mb: 3,
+                                mb: 2,
                                 width: '80px',
                                 height: '80px',
                             }}
                         />
 
-                        {/* Title Section */}
-                        <Typography variant='h4' textAlign='center' data-cy='title'>
-                            ChessDojo Training Program
+                        <Typography
+                            variant='h4'
+                            textAlign='center'
+                            data-cy='title'
+                            mb={4}
+                        >
+                            ChessDojo
                         </Typography>
 
-                        {/* Form Section */}
-                        <Stack width={0.85} spacing={3} alignItems='center'>
+                        <Stack width={{ xs: 1, sm: 0.85 }} rowGap={3} alignItems='center'>
                             <TextField
                                 fullWidth
                                 id='email'
@@ -116,12 +122,14 @@ const SigninPage = () => {
                                 onChange={(event) => setEmail(event.target.value)}
                                 error={!!errors.email}
                                 helperText={errors.email}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position='start'>
-                                            <AccountCircle color='dojoOrange' />
-                                        </InputAdornment>
-                                    ),
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <AccountCircle color='dojoOrange' />
+                                            </InputAdornment>
+                                        ),
+                                    },
                                 }}
                             />
                             <TextField
@@ -135,19 +143,20 @@ const SigninPage = () => {
                                 onKeyDown={onKeyDown}
                                 error={!!errors.password}
                                 helperText={errors.password}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position='start'>
-                                            <Lock color='dojoOrange' />
-                                        </InputAdornment>
-                                    ),
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <Lock color='dojoOrange' />
+                                            </InputAdornment>
+                                        ),
+                                    },
                                 }}
                             />
                             <LoadingButton
                                 data-cy='signin-button'
                                 variant='contained'
                                 fullWidth
-                                color='primary'
                                 sx={{
                                     textTransform: 'none',
                                     fontWeight: 'bold',
@@ -163,25 +172,23 @@ const SigninPage = () => {
                             <Stack
                                 direction='row'
                                 justifyContent='space-between'
-                                sx={{ width: 1 }}
+                                sx={{ width: 1, mt: -2 }}
                             >
                                 <Button
                                     data-cy='signup-button'
                                     variant='text'
                                     sx={{ textTransform: 'none' }}
                                     onClick={() => navigate('/signup')}
-                                    color='primary'
                                 >
-                                    No account? Sign Up
+                                    Sign Up
                                 </Button>
                                 <Button
                                     data-cy='forgot-password-button'
                                     variant='text'
                                     sx={{ textTransform: 'none', alignSelf: 'end' }}
                                     onClick={() => navigate('/forgot-password')}
-                                    color='primary'
                                 >
-                                    Forgot password?
+                                    Reset Password
                                 </Button>
                             </Stack>
 

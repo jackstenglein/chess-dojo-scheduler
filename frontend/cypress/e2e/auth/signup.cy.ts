@@ -4,8 +4,7 @@ describe('Signup Page', () => {
     });
 
     it('has correct content', () => {
-        cy.getBySel('title').should('have.text', 'ChessDojo Training Program');
-        cy.getBySel('subtitle').should('have.text', 'Create Account');
+        cy.getBySel('title').should('have.text', 'ChessDojo');
     });
 
     it('should link to signin', () => {

@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
+
 const googleSigninMessage =
     'Your email is not verified. Note that if you previously signed in with Google, you must continue to use that option. You will not be able to reset your password in that case.';
 
@@ -84,12 +85,17 @@ const ForgotPasswordPage = () => {
     };
 
     return (
-        <Container maxWidth='sm' sx={{ pt: 10, pb: 4 }}>
-            <Card>
+        <Container maxWidth='sm' sx={{ pt: { xs: 4, sm: 10 }, pb: 4 }}>
+            <Card
+                sx={{
+                    backgroundImage: { xs: 'none', sm: 'var(--Paper-overlay)' },
+                    boxShadow: { xs: 'none', sm: 'var(--Paper-shadow)' },
+                }}
+            >
                 <CardContent>
-                    <Stack justifyContent='center' alignItems='center' spacing={4}>
+                    <Stack justifyContent='center' alignItems='center'>
                         <RequestSnackbar request={request} />
-                        {/* ChessDojoIcon above the title */}
+
                         <ChessDojoIcon
                             fontSize='large'
                             sx={{
@@ -99,14 +105,15 @@ const ForgotPasswordPage = () => {
                             }}
                         />
 
-                        <Stack alignItems='center'>
-                            <Typography variant='h4' textAlign='center' data-cy='title'>
-                                ChessDojo Training Program
-                            </Typography>
-                            <Typography variant='h6' data-cy='subtitle'>
-                                Forgot Password
-                            </Typography>
-                        </Stack>
+                        <Typography
+                            variant='h4'
+                            textAlign='center'
+                            data-cy='title'
+                            mb={4}
+                        >
+                            ChessDojo
+                        </Typography>
+
                         <Stack
                             direction='column'
                             justifyContent='center'
@@ -187,12 +194,14 @@ const StartStep: React.FC<StartStepProps> = ({
                 error={!!emailError}
                 helperText={emailError}
                 onKeyDown={onKeyDown}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position='start'>
-                            <AccountCircle color='dojoOrange' />
-                        </InputAdornment>
-                    ),
+                slotProps={{
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position='start'>
+                                <AccountCircle color='dojoOrange' />
+                            </InputAdornment>
+                        ),
+                    },
                 }}
             />
 
@@ -201,7 +210,6 @@ const StartStep: React.FC<StartStepProps> = ({
                 variant='contained'
                 onClick={onSubmit}
                 fullWidth
-                color='primary'
                 startIcon={<MarkEmailUnreadIcon />}
                 sx={{
                     textTransform: 'none',
@@ -343,7 +351,13 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
                 variant='contained'
                 onClick={onConfirm}
                 fullWidth
-                sx={{ textTransform: 'none' }}
+                sx={{
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    padding: '12px 16px',
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                }}
                 loading={request.isLoading()}
                 data-cy='submit-button'
             >
@@ -380,7 +394,13 @@ const SuccessStep = () => {
                 variant='contained'
                 onClick={onSignin}
                 fullWidth
-                sx={{ textTransform: 'none' }}
+                sx={{
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    padding: '12px 16px',
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                }}
                 data-cy='signin-button'
             >
                 Sign In
