@@ -1,6 +1,5 @@
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Box, Link, Stack, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
 import { RequirementCategory } from '../../database/requirement';
@@ -51,7 +50,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
 
                 <Stack>
                     <Typography>
-                        <Link component={RouterLink} to={`/profile/${entry.owner}`}>
+                        <Link href={`/profile/${entry.owner}`}>
                             {entry.ownerDisplayName}
                         </Link>
                         <CohortIcon

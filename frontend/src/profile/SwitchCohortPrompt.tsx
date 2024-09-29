@@ -14,7 +14,7 @@ import {
     Snackbar,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useLocalStorage } from 'usehooks-ts';
 import { useAuth } from '../auth/Auth';
 import {
@@ -26,7 +26,6 @@ import {
 
 export function SwitchCohortPrompt() {
     const user = useAuth().user;
-    const navigate = useNavigate();
     const api = useApi();
     const request = useRequest();
 
@@ -110,7 +109,7 @@ export function SwitchCohortPrompt() {
                                 <Button
                                     color='inherit'
                                     size='small'
-                                    onClick={() => navigate('/profile')}
+                                    href='/profile'
                                     endIcon={<NavigateNextIcon />}
                                 >
                                     Profile
@@ -119,7 +118,7 @@ export function SwitchCohortPrompt() {
                                 <Button
                                     color='inherit'
                                     size='small'
-                                    onClick={() => navigate('/profile/edit')}
+                                    href='/profile/edit'
                                     endIcon={<NavigateNextIcon />}
                                 >
                                     Settings

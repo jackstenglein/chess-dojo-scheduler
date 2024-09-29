@@ -1,5 +1,4 @@
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 
 import { Warning } from '@mui/icons-material';
 import { useAuth } from '../../auth/Auth';
@@ -31,7 +30,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                         displayName={event.ownerDisplayName}
                         size={25}
                     />
-                    <Link component={RouterLink} to={`/profile/${event.owner}`}>
+                    <Link href={`/profile/${event.owner}`}>
                         <Typography variant='body1'>
                             {event.ownerDisplayName} ({event.ownerCohort})
                         </Typography>
@@ -54,7 +53,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                             displayName={p.displayName}
                             size={25}
                         />
-                        <Link component={RouterLink} to={`/profile/${p.username}`}>
+                        <Link href={`/profile/${p.username}`}>
                             <Typography variant='body1'>
                                 {p.displayName} ({p.cohort})
                             </Typography>

@@ -7,7 +7,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { LoadingButton } from '@mui/lab';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -41,7 +41,8 @@ const ForgotPasswordPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/profile' />;
+        window.location.href = '/profile';
+        return;
     }
 
     const onSubmit = () => {

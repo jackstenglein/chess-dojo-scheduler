@@ -53,10 +53,7 @@ const columns: GridColDef<TagRow>[] = [
                             displayName={params.row.value.displayName}
                             size={28}
                         />
-                        <Link
-                            component={RouterLink}
-                            to={`/profile/${params.row.value.username}`}
-                        >
+                        <Link href={`/profile/${params.row.value.username}`}>
                             <Typography variant='body2'>
                                 {params.row.value.displayName}
                             </Typography>

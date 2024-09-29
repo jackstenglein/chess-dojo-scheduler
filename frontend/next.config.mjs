@@ -32,34 +32,14 @@ const nextConfig = {
                     value: 'public, max-age=2592000, immutable',
                 }),
             },
-            {
-                source: '/courses/:path*',
-                headers: [
-                    {
-                        key: 'Cross-Origin-Embedder-Policy',
-                        value: 'unsafe-none',
-                    },
-                ],
-            },
-            {
-                source: '/profile/:path*',
-                headers: [
-                    {
-                        key: 'Cross-Origin-Embedder-Policy',
-                        value: 'unsafe-none',
-                    },
-                ],
-            },
-            {
-                source: '/video-embed',
-                headers: [
-                    {
-                        key: 'Cross-Origin-Embedder-Policy',
-                        value: 'credentialless',
-                    },
-                ],
-            },
         ];
+
+        headers.push(
+            ...pagesWithVideos.map((page) => ({
+                source: page,
+                headers: VIDEO_EMBED_HEADERS,
+            })),
+        );
 
         for (const page of coursePagesWithEngine) {
             for (const h of page.has ?? []) {
@@ -96,6 +76,15 @@ const ENGINE_HEADERS = [
         value: 'same-origin',
     },
 ];
+
+const VIDEO_EMBED_HEADERS = [
+    {
+        key: 'Cross-Origin-Embedder-Policy',
+        value: 'unsafe-none',
+    },
+];
+
+const pagesWithVideos = ['/profile', '/scoreboard/:path*', '/courses/:path*'];
 
 const coursePagesWithEngine = [
     {

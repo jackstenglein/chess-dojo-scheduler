@@ -1,6 +1,6 @@
 import { Link, Stack, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
-import { Link as RouterLink, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 import { LoadingButton } from '@mui/lab';
 import { useApi } from '../../api/Api';
@@ -124,10 +124,7 @@ const FollowerListItem: React.FC<FollowerListItemProps> = ({
                     fontSize={{ xs: '0.76rem', sm: '0.98rem' }}
                 />
 
-                <Link
-                    component={RouterLink}
-                    to={`/profile/${isFollowing ? entry.poster : entry.follower}`}
-                >
+                <Link href={`/profile/${isFollowing ? entry.poster : entry.follower}`}>
                     {isFollowing ? entry.posterDisplayName : entry.followerDisplayName}
                 </Link>
             </Stack>
