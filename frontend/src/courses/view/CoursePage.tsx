@@ -30,7 +30,7 @@ const CoursePage = () => {
     const api = useApi();
     const params = useParams();
     const request = useRequest<GetCourseResponse>();
-    const [searchParams, setSearchParams] = useSearchParams({
+    const [searchParams] = useSearchParams({
         chapter: '0',
         module: '0',
     });
@@ -137,12 +137,7 @@ const CoursePage = () => {
                         {prevModule && (
                             <Button
                                 variant='contained'
-                                onClick={() =>
-                                    setSearchParams({
-                                        chapter: prevModule.chapterIndex,
-                                        module: prevModule.moduleIndex,
-                                    })
-                                }
+                                href={`/courses/${params.type}/${params.id}?chapter=${prevModule.chapterIndex}&module=${prevModule.moduleIndex}`}
                             >
                                 Previous: {prevModule.name}
                             </Button>
@@ -151,12 +146,7 @@ const CoursePage = () => {
                         {nextModule && (
                             <Button
                                 variant='contained'
-                                onClick={() =>
-                                    setSearchParams({
-                                        chapter: nextModule.chapterIndex,
-                                        module: nextModule.moduleIndex,
-                                    })
-                                }
+                                href={`/courses/${params.type}/${params.id}?chapter=${nextModule.chapterIndex}&module=${nextModule.moduleIndex}`}
                             >
                                 Next: {nextModule.name}
                             </Button>
