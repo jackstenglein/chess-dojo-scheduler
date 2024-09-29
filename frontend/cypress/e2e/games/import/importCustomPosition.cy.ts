@@ -3,7 +3,7 @@ import { cancelPreflight, clickImport, deleteCurrentGame, gameUrlRegex } from '.
 describe('Import Games Page - Custom Position', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'games',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

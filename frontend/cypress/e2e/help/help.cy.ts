@@ -1,7 +1,7 @@
 describe('Help Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'help',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

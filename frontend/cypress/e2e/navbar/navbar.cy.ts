@@ -56,10 +56,11 @@ describe('Navbar', () => {
         it(`shows correct authenticated items with ${width}px width`, () => {
             cy.viewport(width, 660);
             cy.loginByCognitoApi(
-                'navbar',
+                'test',
                 cy.dojo.env('cognito_username'),
                 cy.dojo.env('cognito_password'),
             );
+            cy.visit('/profile');
 
             navbarStartItems
                 .slice(0, navbarStartItems.length - hidden)

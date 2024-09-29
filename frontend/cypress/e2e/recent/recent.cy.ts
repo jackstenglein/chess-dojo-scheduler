@@ -3,7 +3,7 @@ const now = new Date(2023, 8, 6); // month is 0-indexed
 describe('Graduations', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'recent',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
@@ -68,7 +68,7 @@ describe('Graduations', () => {
 describe('Featured Games', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'recent',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

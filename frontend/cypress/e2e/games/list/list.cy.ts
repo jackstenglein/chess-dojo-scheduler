@@ -1,7 +1,7 @@
 describe('List Games Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'games',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

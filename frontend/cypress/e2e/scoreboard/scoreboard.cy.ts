@@ -1,7 +1,7 @@
 describe('Scoreboard Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'scoreboard',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

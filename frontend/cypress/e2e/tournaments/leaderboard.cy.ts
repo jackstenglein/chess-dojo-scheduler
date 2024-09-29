@@ -17,7 +17,7 @@ describe('Leaderboard Tab', () => {
             },
         );
         cy.loginByCognitoApi(
-            'tournaments',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

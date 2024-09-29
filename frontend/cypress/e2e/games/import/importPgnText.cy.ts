@@ -15,7 +15,7 @@ function importPgnText(pgn: string) {
 describe('Import Games Page - PGN Text', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'games',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
