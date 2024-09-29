@@ -1,6 +1,6 @@
-import { StockfishIcon } from '@/style/ChessIcons';
-import { Chess, Move } from '@jackstenglein/chess';
-import { Box, Tooltip } from '@mui/material';
+import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
+import { Chess } from '@jackstenglein/chess';
+import { Box } from '@mui/material';
 import { createContext, useContext, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
@@ -176,15 +176,3 @@ const GamePage = () => {
 };
 
 export default GamePage;
-
-const EngineMoveButtonExtras = ({ move }: { move: Move }) => {
-    if (move.commentDiag?.dojoEngine) {
-        return (
-            <Tooltip title='This move was found with the engine.'>
-                <StockfishIcon fontSize='small' sx={{ ml: 0.5 }} color='error' />
-            </Tooltip>
-        );
-    }
-
-    return null;
-};
