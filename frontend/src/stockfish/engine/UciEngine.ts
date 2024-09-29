@@ -277,7 +277,7 @@ export abstract class UciEngine {
      * @param message The message to pass to console.debug.
      * @param optionalParams The optionalParams to pass to console.debug.
      */
-    private debug(message?: any, ...optionalParams: any[]) {
+    private debug(message?: unknown, ...optionalParams: unknown[]) {
         if (this._debug) {
             console.debug(message, optionalParams);
         }

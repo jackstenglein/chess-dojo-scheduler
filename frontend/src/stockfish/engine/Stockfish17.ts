@@ -26,7 +26,7 @@ export class Stockfish17 extends UciEngine {
         });
 
         (await this.getModels(['nn-1111cefa1111.nnue', 'nn-37f18f62d772.nnue'])).forEach(
-            (nnueBuffer, i) => worker.setNnueBuffer?.(nnueBuffer!, i),
+            (nnueBuffer, i) => worker.setNnueBuffer?.(nnueBuffer, i),
         );
 
         this.worker = worker;
@@ -42,7 +42,7 @@ export class Stockfish17 extends UciEngine {
         );
     }
 
-    private getModels(nnueFilenames: string[]): Promise<(Uint8Array | undefined)[]> {
+    private getModels(nnueFilenames: string[]): Promise<Uint8Array[]> {
         return Promise.all(
             nnueFilenames.map(async (nnueFilename) => {
                 const req = new XMLHttpRequest();
@@ -55,7 +55,8 @@ export class Stockfish17 extends UciEngine {
                     req.onerror = () =>
                         reject(new Error(`NNUE download failed: ${req.status}`));
                     req.onload = () => {
-                        if (req.status / 100 === 2) resolve(new Uint8Array(req.response));
+                        if (req.status / 100 === 2)
+                            resolve(new Uint8Array(req.response as Iterable<number>));
                         else reject(new Error(`NNUE download failed: ${req.status}`));
                     };
                     req.send();
