@@ -1,17 +1,26 @@
+import { getConfig } from '@/config';
 import { EngineWorker } from './EngineWorker';
 import {
+    ENGINE_DEPTH,
+    ENGINE_HASH,
     ENGINE_LINE_COUNT,
+    ENGINE_THREADS,
     EngineName,
     EvaluatePositionWithUpdateParams,
     PositionEval,
 } from './engine';
 import { parseEvaluationResults } from './parseResults';
 
+const config = getConfig();
+
 export abstract class UciEngine {
     protected worker: EngineWorker | undefined;
     private ready = false;
     private engineName: EngineName;
-    private multiPv = 3;
+    private multiPv: number = ENGINE_LINE_COUNT.Default;
+    private threads: number = ENGINE_THREADS.Default;
+    private hash: number = Math.pow(2, ENGINE_HASH.Default);
+    private _debug: boolean;
 
     /**
      * Gets an EngineWorker from the given stockfish.js path.
@@ -50,11 +59,13 @@ export abstract class UciEngine {
      * Constructs a new UciEngine instance.
      * @param engineName The name of the engine.
      * @param worker The engine worker.
+     * @param debug Whether to print debug logs to the console. Defaults to true on non-prod and false on prod.
      */
-    constructor(engineName: EngineName, worker?: EngineWorker) {
+    constructor(engineName: EngineName, worker?: EngineWorker, debug = config.isBeta) {
         this.engineName = engineName;
         this.worker = worker;
-        console.log(`${engineName} created`);
+        this._debug = debug;
+        this.debug(`${engineName} created`);
     }
 
     /**
@@ -64,8 +75,10 @@ export abstract class UciEngine {
         if (this.worker) {
             await this.sendCommands(['uci'], 'uciok');
             await this.setMultiPv(this.multiPv, true);
+            await this.setThreads(this.threads, true);
+            await this.setHash(this.hash, true);
             this.ready = true;
-            console.log(`${this.engineName} initialized`);
+            this.debug(`${this.engineName} initialized`);
         }
     }
 
@@ -89,7 +102,7 @@ export abstract class UciEngine {
             const messages: string[] = [];
 
             this.worker.listen = (messageData) => {
-                console.log('UCI message: ', messageData);
+                this.debug('UCI message: ', messageData);
                 messages.push(messageData);
                 onNewMessage?.(messages);
 
@@ -99,7 +112,7 @@ export abstract class UciEngine {
             };
 
             for (const command of commands) {
-                console.log('Posting message: ', command);
+                this.debug('Posting message: ', command);
                 this.worker.uci(command);
             }
         });
@@ -134,6 +147,58 @@ export abstract class UciEngine {
     }
 
     /**
+     * Sets the thread count for the engine.
+     * @param threads The number of threads to use.
+     * @param forceInit If true, the option is set even if threads is equal to this.threads.
+     * @returns A Promise that resolves once the engine is ready.
+     */
+    private async setThreads(threads: number, forceInit = false) {
+        if (!forceInit) {
+            if (threads === this.threads) {
+                return;
+            }
+            this.throwErrorIfNotReady();
+        }
+
+        if (threads < ENGINE_THREADS.Min || threads > ENGINE_THREADS.Max) {
+            throw new Error(
+                `Invalid threads value (${threads}) is not in range [${ENGINE_THREADS.Min}, ${ENGINE_THREADS.Max}]`,
+            );
+        }
+        await this.sendCommands(
+            [`setoption name Threads value ${threads}`, 'isready'],
+            'readyok',
+        );
+        this.threads = threads;
+    }
+
+    /**
+     * Sets the hash size in MB for the engine.
+     * @param hash The hash size in MB.
+     * @param forceInit If true, the option is set even if hash is equal to this.hash.
+     * @returns A Promise that resolves once the engine is ready.
+     */
+    private async setHash(hash: number, forceInit = false) {
+        if (!forceInit) {
+            if (hash === this.hash) {
+                return;
+            }
+            this.throwErrorIfNotReady();
+        }
+
+        if (hash < Math.pow(2, ENGINE_HASH.Min) || hash > Math.pow(2, ENGINE_HASH.Max)) {
+            throw new Error(
+                `Invalid threads value (${hash}) is not in range [${Math.pow(2, ENGINE_HASH.Min)}, ${Math.pow(2, ENGINE_HASH.Max)}]`,
+            );
+        }
+        await this.sendCommands(
+            [`setoption name Hash value ${hash}`, 'isready'],
+            'readyok',
+        );
+        this.hash = hash;
+    }
+
+    /**
      * Throws an error if the engine is not ready.
      */
     private throwErrorIfNotReady() {
@@ -149,7 +214,7 @@ export abstract class UciEngine {
         this.ready = false;
         this.worker?.uci('quit');
         this.worker?.terminate?.();
-        console.log(`${this.engineName} shutdown`);
+        this.debug(`${this.engineName} shutdown`);
     }
 
     /**
@@ -177,14 +242,18 @@ export abstract class UciEngine {
      */
     public async evaluatePositionWithUpdate({
         fen,
-        depth = 16,
+        depth = ENGINE_DEPTH.Default,
         multiPv = this.multiPv,
+        threads = ENGINE_THREADS.Default,
+        hash = Math.pow(2, ENGINE_HASH.Default),
         setPartialEval,
     }: EvaluatePositionWithUpdateParams): Promise<PositionEval> {
         this.throwErrorIfNotReady();
 
         await this.stopSearch();
         await this.setMultiPv(multiPv);
+        await this.setThreads(threads);
+        await this.setHash(hash);
 
         const whiteToPlay = fen.split(' ')[1] === 'w';
 
@@ -193,13 +262,24 @@ export abstract class UciEngine {
             setPartialEval?.(parsedResults);
         };
 
-        console.log(`Started evaluating ${fen}`);
+        this.debug(`Started evaluating ${fen}`);
         const results = await this.sendCommands(
             [`position fen ${fen}`, `go depth ${depth}`],
             'bestmove',
             onNewMessage,
         );
-        console.log(`Stopped evaluating ${fen}`);
+        this.debug(`Stopped evaluating ${fen}`);
         return parseEvaluationResults(fen, results, whiteToPlay);
+    }
+
+    /**
+     * Passes the given message and params to console.debug if this._debug is true.
+     * @param message The message to pass to console.debug.
+     * @param optionalParams The optionalParams to pass to console.debug.
+     */
+    private debug(message?: any, ...optionalParams: any[]) {
+        if (this._debug) {
+            console.debug(message, optionalParams);
+        }
     }
 }

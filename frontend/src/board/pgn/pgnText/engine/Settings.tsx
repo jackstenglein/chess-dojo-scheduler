@@ -1,7 +1,9 @@
 import {
     ENGINE_DEPTH,
+    ENGINE_HASH,
     ENGINE_LINE_COUNT,
     ENGINE_NAME,
+    ENGINE_THREADS,
     EngineName,
     engines,
 } from '@/stockfish/engine/engine';
@@ -35,6 +37,11 @@ export default function Settings() {
         ENGINE_NAME.Key,
         ENGINE_NAME.Default,
     );
+    const [threads, setThreads] = useLocalStorage<number>(
+        ENGINE_THREADS.Key,
+        ENGINE_THREADS.Default,
+    );
+    const [hash, setHash] = useLocalStorage<number>(ENGINE_HASH.Key, ENGINE_HASH.Default);
 
     return (
         <>
@@ -79,6 +86,23 @@ export default function Settings() {
                             setValue={setMultiPv}
                             min={ENGINE_LINE_COUNT.Min}
                             max={ENGINE_LINE_COUNT.Max}
+                        />
+
+                        <Slider
+                            label='Threads'
+                            value={threads}
+                            setValue={setThreads}
+                            min={ENGINE_THREADS.Min}
+                            max={ENGINE_THREADS.Max}
+                        />
+
+                        <Slider
+                            label='Memory'
+                            value={hash}
+                            setValue={setHash}
+                            min={ENGINE_HASH.Min}
+                            max={ENGINE_HASH.Max}
+                            valueLabel={(v) => `${Math.pow(2, v)} MB`}
                         />
                     </Stack>
                 </DialogContent>

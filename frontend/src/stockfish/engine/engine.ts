@@ -85,6 +85,31 @@ export const ENGINE_DEPTH = {
     Max: 99,
 } as const;
 
+export const ENGINE_THREADS = {
+    /** Local storage key for the threads. */
+    Key: 'engine-threads',
+    /** The default number of threads. */
+    Default: (navigator.hardwareConcurrency || 4) - 1,
+    /** The minium number of threads. */
+    Min: 2,
+    /** The maximum number of threads. */
+    Max: navigator.hardwareConcurrency || 4,
+} as const;
+
+/** Settings for the hash memory of the engine. */
+export const ENGINE_HASH = {
+    /** Local storage key for the hash memory. */
+    Key: 'engine-hash',
+    /**
+     * The default hash size as a power of 2, in MB.
+     * Ex: a value of 4 means 2^4 = 16 MB. */
+    Default: 4,
+    /** The minimum hash size as a power of 2, in MB. */
+    Min: 4,
+    /** The maximum hash size as a power of 2, in MB. */
+    Max: 9,
+} as const;
+
 /** The evaluation of a specific position. */
 export interface PositionEval {
     /** The best move chosen by the engine. */
@@ -107,8 +132,6 @@ export interface LineEval {
     mate?: number;
     /** The depth of the line. */
     depth: number;
-    /** The seldepth of the line. */
-    seldepth: number;
     /** The Multi PV value of the engine while calculating the line. */
     multiPv: number;
     /** The number of nodes per second evaluated by the engine. */
@@ -132,6 +155,10 @@ export interface EvaluatePositionWithUpdateParams {
     depth?: number;
     /** The number of lines to analyze. */
     multiPv?: number;
+    /** The number of threads to use when analyzing. */
+    threads?: number;
+    /** The hash size in MB. */
+    hash?: number;
     /** The callback function that is sent eval updates. */
     setPartialEval?: (positionEval: PositionEval) => void;
 }

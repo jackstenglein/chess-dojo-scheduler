@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import {
     ENGINE_DEPTH,
+    ENGINE_HASH,
     ENGINE_LINE_COUNT,
+    ENGINE_THREADS,
     EngineName,
     PositionEval,
     SavedEvals,
@@ -20,11 +22,11 @@ export function useEval(
     const engine = useEngine(enabled, engineName);
     const [depth] = useLocalStorage(ENGINE_DEPTH.Key, ENGINE_DEPTH.Default);
     const [multiPv] = useLocalStorage(ENGINE_LINE_COUNT.Key, ENGINE_LINE_COUNT.Default);
+    const [threads] = useLocalStorage(ENGINE_THREADS.Key, ENGINE_THREADS.Default);
+    const [hash] = useLocalStorage(ENGINE_HASH.Key, ENGINE_HASH.Default);
     const savedEvals = useRef<SavedEvals>({});
 
     useEffect(() => {
-        console.log('useCurrentPosition: useEffect');
-
         if (!enabled || !chess || !engine || !engineName) {
             return;
         }
@@ -43,16 +45,16 @@ export function useEval(
                 savedEval.lines.length >= multiPv &&
                 savedEval.lines[0].depth >= depth
             ) {
-                console.log('useCurrentPosition: Using saved position');
                 setCurrentPosition(savedEval);
                 return;
             }
 
-            console.log('useCurrentPosition: Evaluating fen ', fen);
             const rawPositionEval = await engine.evaluatePositionWithUpdate({
                 fen,
                 depth,
                 multiPv,
+                threads,
+                hash: Math.pow(2, hash),
                 setPartialEval: (positionEval: PositionEval) => {
                     setCurrentPosition(positionEval);
                 },
@@ -78,11 +80,20 @@ export function useEval(
         void evaluate();
         chess.addObserver(observer);
         return () => {
-            console.log('useCurrentPosition: Shutting down useEffect');
             void engine?.stopSearch();
             chess.removeObserver(observer);
         };
-    }, [enabled, chess, depth, engine, engineName, multiPv, setCurrentPosition]);
+    }, [
+        enabled,
+        chess,
+        depth,
+        engine,
+        engineName,
+        multiPv,
+        threads,
+        hash,
+        setCurrentPosition,
+    ]);
 
     return currentPosition;
 }

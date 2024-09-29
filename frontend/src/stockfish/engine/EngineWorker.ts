@@ -13,9 +13,9 @@ export interface EngineWorker {
 
     // index arguments are used for dual net sf builds, 0 for big, 1 for small, otherwise ignore
 
-    // setNnueBuffer(data: Uint8Array, index?: number): void; // load nnue as buffer
+    setNnueBuffer?: (data: Uint8Array, index?: number) => void;
 
-    // getRecommendedNnue(index?: number): string; // returns a bare filename
+    getRecommendedNnue?: (index?: number) => string; // returns a bare filename
 
     /**
      * Receives error messages from the worker.

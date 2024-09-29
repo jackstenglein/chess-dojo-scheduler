@@ -24,6 +24,11 @@ export class Stockfish17 extends UciEngine {
                 .then(resolve)
                 .catch(reject);
         });
+
+        (await this.getModels(['nn-1111cefa1111.nnue', 'nn-37f18f62d772.nnue'])).forEach(
+            (nnueBuffer, i) => worker.setNnueBuffer?.(nnueBuffer!, i),
+        );
+
         this.worker = worker;
         await super.init();
     }
@@ -34,6 +39,29 @@ export class Stockfish17 extends UciEngine {
             WebAssembly.validate(
                 Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00),
             )
+        );
+    }
+
+    private getModels(nnueFilenames: string[]): Promise<(Uint8Array | undefined)[]> {
+        return Promise.all(
+            nnueFilenames.map(async (nnueFilename) => {
+                const req = new XMLHttpRequest();
+
+                req.open('get', `/static/engine/nnue/${nnueFilename}`, true);
+                req.responseType = 'arraybuffer';
+                req.onprogress = (e) => console.log(e);
+
+                const nnueBuffer = await new Promise<Uint8Array>((resolve, reject) => {
+                    req.onerror = () =>
+                        reject(new Error(`NNUE download failed: ${req.status}`));
+                    req.onload = () => {
+                        if (req.status / 100 === 2) resolve(new Uint8Array(req.response));
+                        else reject(new Error(`NNUE download failed: ${req.status}`));
+                    };
+                    req.send();
+                });
+                return nnueBuffer;
+            }),
         );
     }
 }

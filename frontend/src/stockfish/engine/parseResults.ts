@@ -29,15 +29,10 @@ export const parseEvaluationResults = (
             const pv = getResultPv(result);
             const multiPv = getResultProperty(result, 'multipv');
             const depth = getResultProperty(result, 'depth');
-            const seldepth = getResultProperty(result, 'seldepth');
 
-            if (!pv || !multiPv || !depth || !seldepth) continue;
+            if (!pv || !multiPv || !depth) continue;
 
-            if (
-                tempResults[multiPv] &&
-                (parseInt(depth) < tempResults[multiPv].depth ||
-                    parseInt(seldepth) < tempResults[multiPv].seldepth)
-            ) {
+            if (tempResults[multiPv] && parseInt(depth) < tempResults[multiPv].depth) {
                 continue;
             }
 
@@ -51,7 +46,6 @@ export const parseEvaluationResults = (
                 cp: cp ? parseInt(cp) : undefined,
                 mate: mate ? parseInt(mate) : undefined,
                 depth: parseInt(depth),
-                seldepth: parseInt(seldepth),
                 multiPv: parseInt(multiPv),
                 nps: nps ? parseInt(nps) : undefined,
             };

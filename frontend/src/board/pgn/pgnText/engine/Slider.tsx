@@ -6,6 +6,7 @@ interface Props {
     min: number;
     max: number;
     label: string;
+    valueLabel?: (value: number) => string;
 }
 
 /**
@@ -15,8 +16,9 @@ interface Props {
  * @param label The label displayed to the left of the slider.
  * @param value The current value of the slider.
  * @param setValue A callback invoked with the new value of the slider on changes.
+ * @param valueLabel Overrides the value label displayed to the right of the slider.
  */
-export default function Slider({ min, max, label, value, setValue }: Props) {
+export default function Slider({ min, max, label, value, setValue, valueLabel }: Props) {
     return (
         <Stack direction='row' alignItems='center' width={1}>
             <Typography sx={{ mr: 1 }}>{label}</Typography>
@@ -26,6 +28,7 @@ export default function Slider({ min, max, label, value, setValue }: Props) {
                 max={max}
                 step={1}
                 valueLabelDisplay='auto'
+                valueLabelFormat={valueLabel}
                 value={value}
                 onChange={(_, value) => setValue(value as number)}
                 aria-labelledby={`input-${label}`}
@@ -33,7 +36,7 @@ export default function Slider({ min, max, label, value, setValue }: Props) {
             />
 
             <Typography sx={{ textWrap: 'nowrap' }}>
-                {value} / {max}
+                {valueLabel ? valueLabel(value) : `${value} / ${max}`}
             </Typography>
         </Stack>
     );

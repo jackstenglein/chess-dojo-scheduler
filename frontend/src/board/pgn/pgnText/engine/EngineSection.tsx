@@ -14,16 +14,16 @@ import { getLineEvalLabel } from './LineEval';
 import Settings from './Settings';
 
 export default function EngineSection() {
-    const [linesNumber] = useLocalStorage(
-        ENGINE_LINE_COUNT.Key,
-        ENGINE_LINE_COUNT.Default,
-    );
     const [engineName] = useLocalStorage(ENGINE_NAME.Key, ENGINE_NAME.Default);
-
     let engineInfo = engines.find((e) => e.name === engineName);
     if (!engineInfo) {
         engineInfo = engines[0];
     }
+
+    const [linesNumber] = useLocalStorage(
+        ENGINE_LINE_COUNT.Key,
+        ENGINE_LINE_COUNT.Default,
+    );
 
     const [enabled, setEnabled] = useState(false);
     const evaluation = useEval(enabled, engineInfo.name);
