@@ -18,6 +18,8 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({
     const { user } = useAuth();
     const event = processedEvent.event as Event | undefined;
 
+    console.log('Processed Event: ', processedEvent);
+
     if (!event) {
         return null;
     }

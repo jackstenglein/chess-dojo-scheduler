@@ -158,6 +158,8 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
         setAllCohorts,
         cohorts,
         setCohort,
+        rruleOptions,
+        setRRuleOptions,
         errors,
     } = editor;
 
@@ -214,6 +216,8 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                 setEnd={setEnd}
                 endError={errors.end}
                 minEnd={minEnd}
+                rruleOptions={rruleOptions}
+                setRRuleOptions={setRRuleOptions}
             />
 
             <LocationFormSection

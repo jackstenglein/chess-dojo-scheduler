@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
+import { Frequency, RRule } from 'rrule';
 import { useAuth } from '../../auth/Auth';
 import { AvailabilityType, Event, EventType } from '../../database/event';
 import { dojoCohorts } from '../../database/user';
@@ -174,6 +175,14 @@ export interface UseEventEditorResponse {
      */
     setHideFromPublicDiscord: (value: boolean) => void;
 
+    /** The recurrence rule options of the event. */
+    rruleOptions: RRuleOptions;
+
+    /**
+     * Sets the recurrence rule options.
+     */
+    setRRuleOptions: (value: RRuleOptions) => void;
+
     /** A map of errors in the form. */
     errors: Record<string, string>;
 
@@ -182,6 +191,41 @@ export interface UseEventEditorResponse {
      * @param errors The new errors value.
      */
     setErrors: (errors: Record<string, string>) => void;
+}
+
+export enum RRuleEnds {
+    Never = 'NEVER',
+    Until = 'UNTIL',
+    Count = 'COUNT',
+}
+
+export interface RRuleOptions {
+    /** If undefined, the event does not recur. */
+    freq?: Frequency;
+    /** The type of criteria used to end the event. */
+    ends: RRuleEnds;
+    /** The date that is a limit of the event. */
+    until: DateTime | null;
+    /** The number of occurrences generated before the event ends. */
+    count?: number;
+}
+
+/**
+ * Gets the default number of occurrences for an RRule based on its frequency.
+ * @param freq The frequency of the RRule.
+ * @returns The default number of occurrences.
+ */
+export function getDefaultRRuleCount(freq: Frequency): number {
+    switch (freq) {
+        case Frequency.MONTHLY:
+            return 12;
+        case Frequency.WEEKLY:
+            return 4;
+        case Frequency.DAILY:
+            return 30;
+        default:
+            return 2;
+    }
 }
 
 /**
@@ -273,6 +317,18 @@ export default function useEventEditor(
     const [hideFromPublicDiscord, setHideFromPublicDiscord] = useState(
         initialEvent?.hideFromPublicDiscord || false,
     );
+
+    const options = initialEvent?.rrule ? RRule.parseString(initialEvent.rrule) : {};
+    const [rruleOptions, setRRuleOptions] = useState<RRuleOptions>({
+        freq: options.freq,
+        ends: options.count
+            ? RRuleEnds.Count
+            : options.until
+              ? RRuleEnds.Until
+              : RRuleEnds.Never,
+        until: options.until ? DateTime.fromJSDate(options.until) : null,
+        count: options.count || undefined,
+    });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -400,6 +456,9 @@ export default function useEventEditor(
 
         hideFromPublicDiscord,
         setHideFromPublicDiscord,
+
+        rruleOptions,
+        setRRuleOptions,
 
         errors,
         setErrors,
