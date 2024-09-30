@@ -1,9 +1,9 @@
+import { Request } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString } from '@/calendar/displayDate';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { LoadingButton } from '@mui/lab';
 import { Button, Stack, Typography } from '@mui/material';
-import { Request } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { toDojoDateString } from '../../calendar/displayDate';
 
 interface LoadMoreButtonProps<T> {
     request: Request<T>;
@@ -20,7 +20,7 @@ function LoadMoreButton<T>({
     startKey,
     onLoadMore,
 }: LoadMoreButtonProps<T>) {
-    const user = useAuth().user;
+    const { user } = useAuth();
 
     if (hasMore || Object.values(startKey || {}).length > 0) {
         return (

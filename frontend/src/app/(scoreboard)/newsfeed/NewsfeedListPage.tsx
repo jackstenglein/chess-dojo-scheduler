@@ -1,3 +1,11 @@
+'use client';
+
+import { useClubs } from '@/api/cache/clubs';
+import { useAuth } from '@/auth/Auth';
+import NewsfeedList from '@/components/newsfeed/NewsfeedList';
+import LoadingPage from '@/loading/LoadingPage';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import Icon from '@/style/Icon';
 import {
     Container,
     Divider,
@@ -7,19 +15,13 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { useClubs } from '../../api/cache/clubs';
-import { useRequiredAuth } from '../../auth/Auth';
-import CohortIcon from '../../scoreboard/CohortIcon';
-import Icon from '../../style/Icon';
-import NewsfeedList from './NewsfeedList';
 
-const NewsfeedListPage = () => {
-    const { user } = useRequiredAuth();
-    const { clubs } = useClubs(user.clubs || []);
+export function NewsfeedListPage() {
+    const { user } = useAuth();
+    const { clubs, request: clubRequest } = useClubs(user?.clubs || []);
 
     const [newsfeedIds, newsfeedIdOptions] = useMemo(() => {
-        let newsfeedIds = ['following', user.dojoCohort];
+        let newsfeedIds = ['following', user?.dojoCohort || ''];
         newsfeedIds = newsfeedIds.concat(clubs.map((c) => c.id));
 
         const newsfeedIdOptions = [
@@ -29,9 +31,9 @@ const NewsfeedListPage = () => {
                 icon: <Icon name='followers' color='primary' />,
             },
             {
-                value: user.dojoCohort,
+                value: user?.dojoCohort || '',
                 label: 'My Cohort',
-                icon: <CohortIcon cohort={user.dojoCohort} size={25} tooltip='' />,
+                icon: <CohortIcon cohort={user?.dojoCohort} size={25} tooltip='' />,
             },
         ].concat(
             clubs.map((club) => ({
@@ -42,7 +44,7 @@ const NewsfeedListPage = () => {
         );
 
         return [newsfeedIds, newsfeedIdOptions];
-    }, [clubs, user.dojoCohort]);
+    }, [clubs, user?.dojoCohort]);
 
     return (
         <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
@@ -56,11 +58,15 @@ const NewsfeedListPage = () => {
                     <Stack spacing={3}>
                         <Typography variant='h6'>Newsfeed</Typography>
 
-                        <NewsfeedList
-                            initialNewsfeedIds={newsfeedIds}
-                            newsfeedIdOptions={newsfeedIdOptions}
-                            showAdditionalFilters={true}
-                        />
+                        {clubRequest.isLoading() || !clubRequest.isSent() ? (
+                            <LoadingPage />
+                        ) : (
+                            <NewsfeedList
+                                initialNewsfeedIds={newsfeedIds}
+                                newsfeedIdOptions={newsfeedIdOptions}
+                                showAdditionalFilters={true}
+                            />
+                        )}
                     </Stack>
                 </Grid>
 
@@ -81,9 +87,7 @@ const NewsfeedListPage = () => {
                             >
                                 <Typography variant='h6'>Graduations</Typography>
 
-                                <Link component={RouterLink} to='/recent'>
-                                    View All
-                                </Link>
+                                <Link href='/recent'>View All</Link>
                             </Stack>
 
                             <NewsfeedList initialNewsfeedIds={['GRADUATIONS']} />
@@ -93,6 +97,4 @@ const NewsfeedListPage = () => {
             </Grid>
         </Container>
     );
-};
-
-export default NewsfeedListPage;
+}

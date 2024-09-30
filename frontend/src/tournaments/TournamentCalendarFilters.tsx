@@ -1,3 +1,4 @@
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { Stack, Theme, Typography, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import {
@@ -16,7 +17,6 @@ import {
     displayTournamentType,
 } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
-import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
 import Icon from '../style/Icon';
 
 function getColor(timeControlType: TimeControlType) {

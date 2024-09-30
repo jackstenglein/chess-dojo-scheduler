@@ -1,15 +1,19 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
+import { ListNewsfeedResponse } from '@/api/newsfeedApi';
+import LoadMoreButton from '@/components/newsfeed/LoadMoreButton';
+import NewsfeedItem from '@/components/newsfeed/NewsfeedItem';
+import MultipleSelectChip, {
+    MultipleSelectChipOption,
+} from '@/components/ui/MultipleSelectChip';
+import { RequirementCategory } from '@/database/requirement';
+import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
+import LoadingPage from '@/loading/LoadingPage';
+import Icon, { icons } from '@/style/Icon';
 import { Stack } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
-import { ListNewsfeedResponse } from '../../api/newsfeedApi';
-import { RequirementCategory } from '../../database/requirement';
-import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
-import LoadingPage from '../../loading/LoadingPage';
-import Icon, { icons } from '../../style/Icon';
-import NewsfeedItem from '../detail/NewsfeedItem';
-import LoadMoreButton from './LoadMoreButton';
-import MultipleSelectChip, { MultipleSelectChipOption } from './MultipleSelectChip';
 
 type FilterMap = Record<string, (entry: TimelineEntry) => boolean>;
 
@@ -54,14 +58,18 @@ const FilterOptions = Object.keys(Filters).map((opt) => {
 });
 
 function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) => void] {
-    let startingIds = initialNewsfeedIds.filter(
-        (id) => (localStorage.getItem(`newsfeedId_${id}`) || 'true') === 'true',
-    );
-    if (startingIds.length === 0) {
-        startingIds = initialNewsfeedIds;
-    }
+    const [newsfeedIds, setNewsfeedIds] = useState(initialNewsfeedIds);
 
-    const [newsfeedIds, setNewsfeedIds] = useState(startingIds);
+    useEffect(() => {
+        let startingIds = initialNewsfeedIds.filter(
+            (id) => (localStorage.getItem(`newsfeedId_${id}`) || 'true') === 'true',
+        );
+        if (startingIds.length === 0) {
+            startingIds = initialNewsfeedIds;
+        }
+
+        setNewsfeedIds(startingIds);
+    }, [initialNewsfeedIds, setNewsfeedIds]);
 
     const onChange = useCallback(
         (newValue: string[]) => {

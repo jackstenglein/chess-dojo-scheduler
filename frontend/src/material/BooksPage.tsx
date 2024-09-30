@@ -1,3 +1,4 @@
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
     Card,
     CardContent,
@@ -11,7 +12,6 @@ import {
 import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
-import MultipleSelectChip from '../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../scoreboard/CohortIcon';
 import { Book as BookModel, BookSection, sections } from './books';
 

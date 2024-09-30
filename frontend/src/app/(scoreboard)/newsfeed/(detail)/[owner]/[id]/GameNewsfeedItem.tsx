@@ -1,7 +1,6 @@
+import { TimelineEntry } from '@/database/timeline';
 import { Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-
-import { TimelineEntry } from '../../database/timeline';
 
 interface GameNewsfeedItemProps {
     entry: TimelineEntry;

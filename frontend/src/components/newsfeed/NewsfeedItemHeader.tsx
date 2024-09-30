@@ -1,19 +1,18 @@
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { RequirementCategory } from '@/database/requirement';
+import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
+import Avatar from '@/profile/Avatar';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Box, Link, Stack, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '../../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
-import { RequirementCategory } from '../../database/requirement';
-import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
-import Avatar from '../../profile/Avatar';
-import CohortIcon from '../../scoreboard/CohortIcon';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;
 }
 
 const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
-    const user = useAuth().user;
+    const { user } = useAuth();
 
     const timezone = user?.timezoneOverride;
     const timeFormat = user?.timeFormat;
@@ -51,7 +50,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
 
                 <Stack>
                     <Typography>
-                        <Link component={RouterLink} to={`/profile/${entry.owner}`}>
+                        <Link href={`/profile/${entry.owner}`}>
                             {entry.ownerDisplayName}
                         </Link>
                         <CohortIcon

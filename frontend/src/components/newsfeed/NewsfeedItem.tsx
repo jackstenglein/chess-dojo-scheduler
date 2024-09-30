@@ -1,13 +1,13 @@
+import { useApi } from '@/api/Api';
+import { ScoreboardDisplay, formatTime } from '@/database/requirement';
+import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
+import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { useApi } from '../../api/Api';
-import { ScoreboardDisplay, formatTime } from '../../database/requirement';
-import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
-import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
-import CommentEditor from './CommentEditor';
-import CommentList from './CommentList';
-import GameNewsfeedItem from './GameNewsfeedItem';
-import GraduationNewsfeedItem from './GraduationNewsfeedItem';
+import GameNewsfeedItem from '../../app/(scoreboard)/newsfeed/(detail)/[owner]/[id]/GameNewsfeedItem';
+import GraduationNewsfeedItem from '../../app/(scoreboard)/newsfeed/(detail)/[owner]/[id]/GraduationNewsfeedItem';
+import CommentEditor from '../comments/CommentEditor';
+import CommentList from '../comments/CommentList';
 import NewsfeedItemHeader from './NewsfeedItemHeader';
 import ReactionList from './ReactionList';
 

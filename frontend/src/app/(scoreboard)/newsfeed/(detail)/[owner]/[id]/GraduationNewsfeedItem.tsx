@@ -1,6 +1,6 @@
+import { formatTime } from '@/database/requirement';
+import { TimelineEntry } from '@/database/timeline';
 import { Stack, Typography } from '@mui/material';
-import { formatTime } from '../../database/requirement';
-import { TimelineEntry } from '../../database/timeline';
 
 interface GraduationNewsfeedItemProps {
     entry: TimelineEntry;

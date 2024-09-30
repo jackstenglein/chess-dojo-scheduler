@@ -1,3 +1,4 @@
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { useLightMode } from '@/style/useLightMode';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { Exam } from '@jackstenglein/chess-dojo-common/src/database/exam';
@@ -33,7 +34,6 @@ import {
     isCohortInRange,
     normalizedRatingToCohort,
 } from '../../database/user';
-import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import { getBestFitCohortRange } from './exam';
 

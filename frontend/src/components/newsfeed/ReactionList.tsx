@@ -1,3 +1,8 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { Reaction, TimelineEntry } from '@/database/timeline';
+import { User } from '@/database/user';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import {
     Button,
@@ -10,11 +15,6 @@ import {
     useTheme,
 } from '@mui/material';
 import { CSSProperties, useMemo, useState } from 'react';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { Reaction, TimelineEntry } from '../../database/timeline';
-import { User } from '../../database/user';
 
 const ReactionTypes = [
     ':WhiteLogoText:',

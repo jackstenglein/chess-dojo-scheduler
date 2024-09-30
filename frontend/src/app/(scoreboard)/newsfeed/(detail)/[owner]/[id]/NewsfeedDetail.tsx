@@ -1,20 +1,15 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import NewsfeedItem from '@/components/newsfeed/NewsfeedItem';
+import { TimelineEntry } from '@/database/timeline';
+import LoadingPage from '@/loading/LoadingPage';
+import NotFoundPage from '@/NotFoundPage';
 import { Container } from '@mui/material';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import NotFoundPage from '../../NotFoundPage';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { TimelineEntry } from '../../database/timeline';
-import LoadingPage from '../../loading/LoadingPage';
-import NewsfeedItem from './NewsfeedItem';
 
-interface NewsfeedDetailPageParams {
-    owner: string;
-    id: string;
-}
-
-const NewsfeedDetailPage = () => {
-    const { owner, id } = useParams<Partial<NewsfeedDetailPageParams>>();
+export function NewsfeedDetail({ owner, id }: { owner: string; id: string }) {
     const api = useApi();
     const request = useRequest<TimelineEntry>();
 
@@ -53,6 +48,4 @@ const NewsfeedDetailPage = () => {
             <NewsfeedItem entry={request.data} onEdit={request.onSuccess} />
         </Container>
     );
-};
-
-export default NewsfeedDetailPage;
+}

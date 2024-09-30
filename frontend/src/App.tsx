@@ -57,8 +57,6 @@ import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
 import MerchPage from './merch/MerchPage';
-import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
-import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
 import NotificationPage from './notifications/NotificationPage';
 import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
@@ -207,11 +205,6 @@ const router = createBrowserRouter(
                     </Route>
 
                     <Route path='notifications' element={<NotificationPage />} />
-
-                    <Route path='newsfeed'>
-                        <Route index element={<NewsfeedListPage />} />
-                        <Route path=':owner/:id' element={<NewsfeedDetailPage />} />
-                    </Route>
 
                     <Route path='coach'>
                         <Route index element={<CoachPortalPage />} />

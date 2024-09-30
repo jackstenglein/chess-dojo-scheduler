@@ -1,10 +1,10 @@
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import Avatar from '@/profile/Avatar';
 import SendIcon from '@mui/icons-material/Send';
 import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/material';
 import { AxiosResponse } from 'axios';
 import { useState } from 'react';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import Avatar from '../../profile/Avatar';
 
 interface CommentEditorProps<T, CreateFunctionProps> {
     createFunctionProps: CreateFunctionProps;
