@@ -4,7 +4,7 @@
     "private": true,
     "type": "module",
     "dependencies": {
-        "@aldabil/react-scheduler": "^2.9.2",
+        "@aldabil/react-scheduler": "^2.9.5",
         "@aws-amplify/adapter-nextjs": "^1.2.12",
         "@dotenvx/dotenvx": "^1.12.1",
         "@emotion/cache": "^11.13.1",
@@ -57,6 +57,7 @@
         "react-router-dom": "^6.26.1",
         "react-tooltip": "^4.4.3",
         "remark-gfm": "^4.0.0",
+        "rrule": "^2.8.1",
         "sharp": "^0.33.5",
         "use-long-press": "^3.2.0",
         "usehooks-ts": "^3.1.0",

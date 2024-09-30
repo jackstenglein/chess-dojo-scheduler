@@ -51,6 +51,9 @@ export interface Event {
 
     /** Messages on the meeting. */
     messages?: Comment[];
+
+    /** The recurrence rule of the event, as a string. */
+    rrule?: string;
 }
 
 export enum TournamentType {
