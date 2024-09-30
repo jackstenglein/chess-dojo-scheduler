@@ -109,7 +109,7 @@ export default function Page() {
             />
 
             <Container maxWidth='sm' sx={{ mt: 8 }}>
-                <Typography>
+                <Typography textAlign='center'>
                     Interested in being featured on the blog? Fill out{' '}
                     <Link
                         target='_blank'
