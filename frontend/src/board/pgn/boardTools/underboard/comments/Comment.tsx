@@ -17,7 +17,6 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { UpdateCommentRequest } from '../../../../../api/gameApi';
@@ -348,8 +347,7 @@ const CommentInfo: React.FC<CommentProps> = ({ comment }) => {
             />
             <Stack direction='row' spacing={1} alignItems='center'>
                 <Link
-                    component={RouterLink}
-                    to={`/profile/${comment.owner.username}`}
+                    href={`/profile/${comment.owner.username}`}
                     sx={{ textDecoration: 'none' }}
                 >
                     <Typography variant='subtitle1' sx={{ color: 'text.primary' }}>

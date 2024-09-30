@@ -25,7 +25,7 @@ interface GameContextType {
     isOwner?: boolean;
 }
 
-const GameContext = createContext<GameContextType>({});
+export const GameContext = createContext<GameContextType>({});
 
 export function useGame() {
     return useContext(GameContext);
