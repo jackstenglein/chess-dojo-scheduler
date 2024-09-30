@@ -7,6 +7,7 @@ import {
     EngineName,
     engines,
 } from '@/stockfish/engine/engine';
+import Icon from '@/style/Icon';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
     Button,
@@ -18,6 +19,7 @@ import {
     MenuItem,
     Stack,
     TextField,
+    Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -67,10 +69,26 @@ export default function Settings() {
                         >
                             {engines.map((engine) => (
                                 <MenuItem key={engine.name} value={engine.name}>
+                                    <Icon
+                                        name={engine.name}
+                                        sx={{ verticalAlign: 'middle', mr: 1 }}
+                                        color='dojoOrange'
+                                    />
                                     {engine.fullName}
                                 </MenuItem>
                             ))}
                         </TextField>
+
+                        <Typography>
+                            <Icon
+                                name='info'
+                                color='dojoOrange'
+                                sx={{ mr: 0.3, verticalAlign: 'middle' }}
+                            />
+                            SF 17 NNUE best suited in desktop browsers, SF 16.1 NNUE best
+                            for both mobile and desktop, SF 11 HCE (Hard Coded Eval) fast,
+                            but not always accurate.
+                        </Typography>
 
                         <Slider
                             label='Depth'
@@ -78,6 +96,7 @@ export default function Settings() {
                             setValue={setDepth}
                             min={ENGINE_DEPTH.Min}
                             max={ENGINE_DEPTH.Max}
+                            icon='depth'
                         />
 
                         <Slider
@@ -86,6 +105,7 @@ export default function Settings() {
                             setValue={setMultiPv}
                             min={ENGINE_LINE_COUNT.Min}
                             max={ENGINE_LINE_COUNT.Max}
+                            icon='lines'
                         />
 
                         <Slider
@@ -94,6 +114,7 @@ export default function Settings() {
                             setValue={setThreads}
                             min={ENGINE_THREADS.Min}
                             max={ENGINE_THREADS.Max}
+                            icon='thread'
                         />
 
                         <Slider
@@ -103,6 +124,7 @@ export default function Settings() {
                             min={ENGINE_HASH.Min}
                             max={ENGINE_HASH.Max}
                             valueLabel={(v) => `${Math.pow(2, v)} MB`}
+                            icon='memory'
                         />
                     </Stack>
                 </DialogContent>

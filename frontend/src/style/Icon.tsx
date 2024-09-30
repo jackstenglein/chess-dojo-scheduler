@@ -1,3 +1,4 @@
+import { EngineName } from '@/stockfish/engine/engine';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import {
     Alarm,
@@ -11,15 +12,20 @@ import {
     Create,
     CrisisAlert,
     DashboardCustomize,
+    DensityMedium,
     DoDisturb,
     Download,
+    Dvr,
     EditCalendar,
+    ElectricalServices,
+    ElectricBolt,
     EmojiObjects,
     Event,
     EventAvailable,
     EventAvailableOutlined,
     Explore,
     FlashOn,
+    ForkRight,
     GridView,
     Group,
     Groups,
@@ -40,6 +46,8 @@ import {
     PeopleOutline,
     Person,
     PersonOutline,
+    PhoneAndroid,
+    Power,
     PunchClock,
     QueryBuilder,
     RestartAlt,
@@ -169,6 +177,13 @@ export const icons = {
     innerMenuUp: KeyboardArrowUp,
     innerMenuDown: KeyboardArrowDown,
     spar: Link,
+    depth: ForkRight,
+    lines: DensityMedium,
+    thread: ElectricalServices,
+    memory: Power,
+    [EngineName.Stockfish11]: ElectricBolt,
+    [EngineName.Stockfish16]: PhoneAndroid,
+    [EngineName.Stockfish17]: Dvr,
 };
 
 export type IconName = keyof typeof icons;

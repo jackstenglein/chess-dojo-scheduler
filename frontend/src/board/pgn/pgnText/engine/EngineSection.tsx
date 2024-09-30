@@ -6,6 +6,7 @@ import {
     LineEval,
 } from '@/stockfish/engine/engine';
 import { useEval } from '@/stockfish/hooks/useEval';
+import Icon from '@/style/Icon';
 import { Paper, Stack, Switch, Tooltip, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -77,9 +78,17 @@ export default function EngineSection() {
                             <Tooltip title={engineInfo.techDescription}>
                                 <Typography
                                     component='span'
-                                    color='success'
+                                    color='dojoOrange'
                                     variant='caption'
                                 >
+                                    <Icon
+                                        name={engineInfo.name}
+                                        sx={{
+                                            verticalAlign: 'middle',
+                                            mr: 0.5,
+                                            fontSize: 15,
+                                        }}
+                                    />
                                     {engineInfo.tech}
                                 </Typography>
                             </Tooltip>
