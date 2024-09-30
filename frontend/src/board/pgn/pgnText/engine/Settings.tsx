@@ -96,7 +96,7 @@ export default function Settings() {
                             setValue={setDepth}
                             min={ENGINE_DEPTH.Min}
                             max={ENGINE_DEPTH.Max}
-                            icon='depth'
+                           
                         />
 
                         <Slider
@@ -105,7 +105,7 @@ export default function Settings() {
                             setValue={setMultiPv}
                             min={ENGINE_LINE_COUNT.Min}
                             max={ENGINE_LINE_COUNT.Max}
-                            icon='lines'
+                            
                         />
 
                         <Slider
@@ -114,7 +114,7 @@ export default function Settings() {
                             setValue={setThreads}
                             min={ENGINE_THREADS.Min}
                             max={ENGINE_THREADS.Max}
-                            icon='thread'
+                            
                         />
 
                         <Slider
@@ -124,7 +124,7 @@ export default function Settings() {
                             min={ENGINE_HASH.Min}
                             max={ENGINE_HASH.Max}
                             valueLabel={(v) => `${Math.pow(2, v)} MB`}
-                            icon='memory'
+                            
                         />
                     </Stack>
                 </DialogContent>

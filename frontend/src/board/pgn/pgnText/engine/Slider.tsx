@@ -7,7 +7,6 @@ interface Props {
     min: number;
     max: number;
     label: string;
-    icon: keyof typeof icons;
     valueLabel?: (value: number) => string;
 }
 
@@ -27,15 +26,10 @@ export default function Slider({
     value,
     setValue,
     valueLabel,
-    icon,
+    
 }: Props) {
     return (
         <Stack direction='row' alignItems='center' width={1}>
-            <Icon
-                name={icon}
-                sx={{ verticalAlign: 'middle', mr: 1 }}
-                color='dojoOrange'
-            />
             <Typography sx={{ mr: 2 }}>{label}</Typography>
 
             <MuiSlider
