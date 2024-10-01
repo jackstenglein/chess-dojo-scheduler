@@ -5,7 +5,7 @@ describe('Submit Results Page', () => {
 
     it('hides email for logged in users', () => {
         cy.loginByCognitoApi(
-            'tournaments',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

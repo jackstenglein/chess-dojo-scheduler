@@ -1,6 +1,7 @@
 import { useNotifications } from '@/api/cache/Cache';
 import NotificationButton from '@/notifications/NotificationButton';
 import { PawnIcon } from '@/style/ChessIcons';
+import { TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
 import {
     AutoStories,
     BorderColor,
@@ -205,6 +206,18 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     name: 'Rating Conversions',
                     icon: <SignalCellularAlt />,
                     href: '/material/ratings',
+                },
+                {
+                    name: 'Twitch',
+                    icon: <TwitchIcon color='twitch' />,
+                    onClick: () =>
+                        window.open('https://www.twitch.tv/chessdojo/videos', '_blank'),
+                },
+                {
+                    name: 'YouTube',
+                    icon: <YoutubeIcon color='youtube' />,
+                    onClick: () =>
+                        window.open('https://www.youtube.com/@ChessDojo', '_blank'),
                 },
             ],
         },

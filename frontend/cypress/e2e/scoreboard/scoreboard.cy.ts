@@ -1,7 +1,7 @@
 describe('Scoreboard Page', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'scoreboard',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
@@ -42,7 +42,11 @@ describe('Scoreboard Page', () => {
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
-            .should('have.attr', 'href', '/prices');
+            .should(
+                'have.attr',
+                'href',
+                '/prices?redirect=http%3A%2F%2Flocalhost%3A3000%2Fscoreboard%2F1500-1600',
+            );
         cy.getBySel('current-members-scoreboard').contains('No rows');
     });
 

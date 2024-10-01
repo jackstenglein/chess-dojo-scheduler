@@ -1,5 +1,5 @@
 import { faPatreon, faSpotify, faTwitch } from '@fortawesome/free-brands-svg-icons';
-import { FacebookOutlined, Instagram, Twitter, YouTube } from '@mui/icons-material';
+import { FacebookOutlined, Instagram, X, YouTube } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip, useMediaQuery } from '@mui/material';
 import { DiscordIcon, FontAwesomeSvgIcon } from '../profile/info/DiscordChip';
 
@@ -28,7 +28,7 @@ const icons = [
 
     <Tooltip key='twitter' title='Twitter'>
         <IconButton href='https://twitter.com/chessdojo' target='_blank' rel='noopener'>
-            <Twitter sx={{ color: 'white' }} />
+            <X sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 

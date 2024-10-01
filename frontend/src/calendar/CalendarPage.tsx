@@ -2,9 +2,10 @@ import { Scheduler } from '@aldabil/react-scheduler';
 import type { EventRendererProps, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Button, Container, Grid, Snackbar, Stack, Typography } from '@mui/material';
+import { Button, Container, Grid2, Snackbar, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { RRule } from 'rrule';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useEvents } from '../api/cache/Cache';
@@ -191,6 +192,7 @@ function processDojoEvent(
         draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
+        recurring: event.rrule ? RRule.fromString(event.rrule) : undefined,
     };
 }
 
@@ -399,6 +401,13 @@ export default function CalendarPage() {
                     publicDiscordEventId = undefined;
                 }
 
+                let rrule = '';
+                if (dojoEvent?.rrule) {
+                    const options = RRule.parseString(dojoEvent.rrule);
+                    options.dtstart = new Date(startIso);
+                    rrule = RRule.optionsToString(options);
+                }
+
                 const response = await api.setEvent({
                     ...dojoEvent,
                     startTime: startIso,
@@ -407,6 +416,7 @@ export default function CalendarPage() {
                     discordMessageId,
                     privateDiscordEventId,
                     publicDiscordEventId,
+                    rrule,
                 });
                 const availability = response.data;
 
@@ -483,7 +493,7 @@ export default function CalendarPage() {
     }, [calendarRef, weekStartOn, minHour, maxHour]);
 
     return (
-        <Container sx={{ py: 3 }} maxWidth='xl'>
+        <Container sx={{ py: 3 }} maxWidth={false}>
             <RequestSnackbar request={request} />
             <RequestSnackbar request={deleteRequest} showSuccess />
             <RequestSnackbar request={copyRequest} />
@@ -495,8 +505,8 @@ export default function CalendarPage() {
                 message='Meeting canceled'
             />
 
-            <Grid container spacing={2}>
-                <Grid item xs={12} md={2.5}>
+            <Grid2 container spacing={2}>
+                <Grid2 size={{ xs: 12, md: 2.5, xl: 2 }}>
                     <Button
                         onClick={toggleFilters}
                         startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
@@ -505,8 +515,14 @@ export default function CalendarPage() {
                         {showFilters ? 'Hide Filters' : 'Show Filters'}
                     </Button>
                     {showFilters && <CalendarFilters filters={filters} />}
-                </Grid>
-                <Grid item xs={12} md={showFilters ? 9.5 : 12}>
+                </Grid2>
+                <Grid2
+                    size={{
+                        xs: 12,
+                        md: showFilters ? 9.5 : 12,
+                        xl: showFilters ? 10 : 12,
+                    }}
+                >
                     <Stack spacing={3}>
                         {isFreeTier && (
                             <UpsellAlert>
@@ -571,8 +587,8 @@ export default function CalendarPage() {
                             }
                         />
                     </Stack>
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
 
             <CalendarTutorial />
 

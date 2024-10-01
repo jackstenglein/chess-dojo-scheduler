@@ -199,6 +199,9 @@ type Event struct {
 
 	// Messages sent on the event.
 	Messages []Comment `dynamodbav:"messages,omitempty" json:"messages,omitempty"`
+
+	// The recurrence rule of the event, if set.
+	RRule string `dynamodbav:"rrule,omitempty" json:"rrule,omitempty"`
 }
 
 type TimeControlType string
