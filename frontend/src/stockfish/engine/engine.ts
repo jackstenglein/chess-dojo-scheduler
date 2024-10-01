@@ -97,13 +97,19 @@ export const ENGINE_DEPTH = {
 export const ENGINE_THREADS = {
     /** Local storage key for the threads. */
     Key: 'engine-threads',
-    /** The default number of threads. */
-    Default: (navigator.hardwareConcurrency || 4) - 1,
+    /**
+     * The default number of threads. Set to 0 here and then dynamically updated to
+     * navigator.hardwareConcurrency on the client side. This avoids NextJS render
+     * errors.
+     */
+    Default: 0,
     /** The minium number of threads. */
     Min: 2,
-    /** The maximum number of threads. */
-    Max: navigator.hardwareConcurrency || 4,
-} as const;
+    /** The maximum number of threads.Set to 0 here and then dynamically updated to
+     * navigator.hardwareConcurrency on the client side. This avoids NextJS render
+     * errors. */
+    Max: 0,
+};
 
 /** Settings for the hash memory of the engine. */
 export const ENGINE_HASH = {

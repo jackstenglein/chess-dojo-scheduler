@@ -22,11 +22,18 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import Slider from './Slider';
 
 export default function Settings() {
+    useEffect(() => {
+        if (!ENGINE_THREADS.Default) {
+            ENGINE_THREADS.Default = navigator.hardwareConcurrency;
+            ENGINE_THREADS.Max = navigator.hardwareConcurrency;
+        }
+    }, []);
+
     const [open, setOpen] = useState(false);
     const [depth, setDepth] = useLocalStorage<number>(
         ENGINE_DEPTH.Key,
@@ -112,7 +119,7 @@ export default function Settings() {
                             value={threads}
                             setValue={setThreads}
                             min={ENGINE_THREADS.Min}
-                            max={ENGINE_THREADS.Max}
+                            max={ENGINE_THREADS.Max || 4}
                         />
 
                         <Slider

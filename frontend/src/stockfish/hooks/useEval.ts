@@ -17,6 +17,13 @@ export function useEval(
     enabled: boolean,
     engineName?: EngineName,
 ): PositionEval | undefined {
+    useEffect(() => {
+        if (!ENGINE_THREADS.Default) {
+            ENGINE_THREADS.Default = navigator.hardwareConcurrency;
+            ENGINE_THREADS.Max = navigator.hardwareConcurrency;
+        }
+    }, []);
+
     const [currentPosition, setCurrentPosition] = useState<PositionEval>();
     const { chess } = useChess();
     const engine = useEngine(enabled, engineName);
@@ -53,7 +60,7 @@ export function useEval(
                 fen,
                 depth,
                 multiPv,
-                threads,
+                threads: threads || 4,
                 hash: Math.pow(2, hash),
                 setPartialEval: (positionEval: PositionEval) => {
                     setCurrentPosition(positionEval);
