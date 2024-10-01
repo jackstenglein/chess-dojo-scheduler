@@ -15,6 +15,12 @@ export interface EngineInfo {
     /** The short user-facing name of the engine. */
     shortName: string;
 
+    /**
+     * The user-facing description of the engine, displayed when
+     * selecting between engines.
+     */
+    description: string;
+
     /** The technology used by the engine. */
     tech: string;
 
@@ -29,16 +35,18 @@ export interface EngineInfo {
 export const engines: EngineInfo[] = [
     {
         name: EngineName.Stockfish17,
-        fullName: 'Stockfish 17 NNUE • Desktop • 79 MB',
+        fullName: 'Stockfish 17 NNUE • 79 MB',
         shortName: 'SF 17 • 79 MB',
+        description: 'Best for desktop',
         tech: 'NNUE',
         techDescription: `Evaluation is performed by Stockfish's neural network.`,
         location: 'in local browser',
     },
     {
         name: EngineName.Stockfish16,
-        fullName: 'Stockfish 16.1 NNUE • Mobile • 6 MB',
+        fullName: 'Stockfish 16.1 NNUE • 6 MB',
         shortName: 'SF 16 • 6 MB',
+        description: 'Best for mobile and weaker desktops',
         tech: 'NNUE',
         techDescription: `Evaluation is performed by Stockfish's neural network.`,
         location: 'in local browser',
@@ -47,6 +55,7 @@ export const engines: EngineInfo[] = [
         name: EngineName.Stockfish11,
         fullName: 'Stockfish 11 HCE',
         shortName: 'SF 11',
+        description: 'Faster than NNUE but less accurate',
         tech: 'HCE',
         techDescription: `Evaluation is performed using various heuristics and rules. Faster, but much less accurate than NNUE.`,
         location: 'in local browser',

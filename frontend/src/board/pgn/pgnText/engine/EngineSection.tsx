@@ -57,7 +57,6 @@ export default function EngineSection() {
                         <Switch
                             checked={enabled}
                             onChange={() => setEnabled((prev) => !prev)}
-                            color='success'
                             sx={{ mr: 1 }}
                         />
                     </Tooltip>
@@ -85,6 +84,7 @@ export default function EngineSection() {
                                         name={engineInfo.name}
                                         sx={{
                                             verticalAlign: 'middle',
+                                            ml: 0.5,
                                             mr: 0.5,
                                             fontSize: 15,
                                         }}

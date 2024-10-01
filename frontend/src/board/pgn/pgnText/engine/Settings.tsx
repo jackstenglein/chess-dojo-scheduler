@@ -16,10 +16,11 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
+    ListItemIcon,
+    ListItemText,
     MenuItem,
     Stack,
     TextField,
-    Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -66,29 +67,29 @@ export default function Settings() {
                             label='Engine'
                             value={engineName}
                             onChange={(e) => setEngineName(e.target.value as EngineName)}
+                            slotProps={{
+                                select: {
+                                    renderValue: (value) =>
+                                        engines.find((e) => e.name === value)?.fullName,
+                                },
+                            }}
                         >
                             {engines.map((engine) => (
                                 <MenuItem key={engine.name} value={engine.name}>
-                                    <Icon
-                                        name={engine.name}
-                                        sx={{ verticalAlign: 'middle', mr: 1 }}
-                                        color='dojoOrange'
+                                    <ListItemIcon>
+                                        <Icon
+                                            name={engine.name}
+                                            sx={{ verticalAlign: 'middle', mr: 1 }}
+                                            color='dojoOrange'
+                                        />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={engine.fullName}
+                                        secondary={engine.description}
                                     />
-                                    {engine.fullName}
                                 </MenuItem>
                             ))}
                         </TextField>
-
-                        <Typography>
-                            <Icon
-                                name='info'
-                                color='dojoOrange'
-                                sx={{ mr: 0.3, verticalAlign: 'middle' }}
-                            />
-                            SF 17 NNUE best suited in desktop browsers, SF 16.1 NNUE best
-                            for both mobile and desktop, SF 11 HCE (Hard Coded Eval) fast,
-                            but not always accurate.
-                        </Typography>
 
                         <Slider
                             label='Depth'
@@ -96,7 +97,6 @@ export default function Settings() {
                             setValue={setDepth}
                             min={ENGINE_DEPTH.Min}
                             max={ENGINE_DEPTH.Max}
-                           
                         />
 
                         <Slider
@@ -105,7 +105,6 @@ export default function Settings() {
                             setValue={setMultiPv}
                             min={ENGINE_LINE_COUNT.Min}
                             max={ENGINE_LINE_COUNT.Max}
-                            
                         />
 
                         <Slider
@@ -114,7 +113,6 @@ export default function Settings() {
                             setValue={setThreads}
                             min={ENGINE_THREADS.Min}
                             max={ENGINE_THREADS.Max}
-                            
                         />
 
                         <Slider
@@ -124,7 +122,6 @@ export default function Settings() {
                             min={ENGINE_HASH.Min}
                             max={ENGINE_HASH.Max}
                             valueLabel={(v) => `${Math.pow(2, v)} MB`}
-                            
                         />
                     </Stack>
                 </DialogContent>
