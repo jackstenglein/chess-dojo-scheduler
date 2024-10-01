@@ -1,6 +1,7 @@
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
 import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
+import stockfishImage from './dojo-digest/vol-13/stockfish.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
@@ -21,6 +22,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Stockfish Now Available in Game Annotator',
+        subtitle: 'Dojo Digest Vol 13 • October 1, 2024',
+        body: 'Stockfish 17 (desktop version) and Stockfish 16 (mobile version) are now both available in our game annotator. Both engines run locally in your browser, although...',
+        href: '/blog/dojo-digest/vol-13',
+        image: {
+            src: stockfishImage,
+            alt: '',
+        },
+    },
     {
         title: 'Dandeer',
         subtitle: 'Dojo Player Spotlight • September 30, 2024',
