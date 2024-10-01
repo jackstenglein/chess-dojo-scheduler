@@ -4,7 +4,7 @@ describe('Calendar Page', () => {
     beforeEach(() => {
         cy.interceptApi('GET', '/calendar', { fixture: 'calendar/events.json' });
         cy.loginByCognitoApi(
-            'calendar',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

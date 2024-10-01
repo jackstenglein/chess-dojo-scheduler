@@ -1,11 +1,13 @@
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
 import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
+import stockfishImage from './dojo-digest/vol-13/stockfish.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
 import ratingConverter from './new-ratings/noseknowsall/ratings-image05.png';
 import olympiadImage from './olympiad-2024/olympiad.jpg';
+import dandeerImage from './player-spotlight/dandeer/opengraph-image.jpg';
 import tacticsTestImage from './tactics-test/image.png';
 
 export interface BlogItem {
@@ -20,6 +22,26 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Stockfish Now Available in Game Annotator',
+        subtitle: 'Dojo Digest Vol 13 • October 1, 2024',
+        body: 'Stockfish 17 (desktop version) and Stockfish 16 (mobile version) are now both available in our game annotator. Both engines run locally in your browser, although...',
+        href: '/blog/dojo-digest/vol-13',
+        image: {
+            src: stockfishImage,
+            alt: '',
+        },
+    },
+    {
+        title: 'Dandeer',
+        subtitle: 'Dojo Player Spotlight • September 30, 2024',
+        body: 'Dandeer is a member of the 1300-1400 cohort and plays classical OTB at his club in Hungary.',
+        href: '/blog/player-spotlight/dandeer',
+        image: {
+            src: dandeerImage,
+            alt: 'Dandeer (with the black pieces) playing a 90+30 tournament at his club in Hungary in April 2024',
+        },
+    },
     {
         title: 'Universal Rating Converter for 2024',
         subtitle: 'NoseKnowsAll • September 24, 2024',

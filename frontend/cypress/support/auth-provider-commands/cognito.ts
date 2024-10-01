@@ -52,5 +52,4 @@ Cypress.Commands.add('loginByCognitoApi', (sessionId, email, password) => {
             },
         },
     );
-    cy.visit('/profile');
 });

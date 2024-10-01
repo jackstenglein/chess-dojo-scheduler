@@ -211,6 +211,8 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
         setBookableByFreeUsers,
         hideParticipants,
         setHideParticipants,
+        rruleOptions,
+        setRRuleOptions,
         errors,
     } = editor;
 
@@ -229,6 +231,8 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                 setEnd={setEnd}
                 endError={errors.end}
                 minEnd={null}
+                rruleOptions={rruleOptions}
+                setRRuleOptions={setRRuleOptions}
             />
 
             <TitleFormSection title={title} setTitle={setTitle} error={errors.title} />

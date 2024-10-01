@@ -32,7 +32,7 @@ describe('Landing Page', () => {
 
     it('redirects authenticated user to profile', () => {
         cy.loginByCognitoApi(
-            'landingPage',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

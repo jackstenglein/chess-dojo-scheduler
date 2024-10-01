@@ -1,7 +1,7 @@
 describe('Directories', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'profile',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

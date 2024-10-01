@@ -1,10 +1,22 @@
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
+import { Lock } from '@mui/icons-material';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { CircularProgress, Container, Stack, TextField, Typography } from '@mui/material';
+import {
+    Card,
+    CardContent,
+    CircularProgress,
+    Container,
+    InputAdornment,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
 import { useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
-
 const VerifyEmailPage = () => {
     const auth = useAuth();
 
@@ -92,66 +104,110 @@ const VerifyEmailPage = () => {
     };
 
     return (
-        <Container maxWidth='md' sx={{ pt: 10 }}>
-            <RequestSnackbar request={submitRequest} />
-            <RequestSnackbar request={codeRequest} showSuccess />
+        <Container maxWidth='sm' sx={{ pt: { xs: 4, sm: 10 }, pb: 4 }}>
+            <Card
+                sx={{
+                    backgroundImage: { xs: 'none', sm: 'var(--Paper-overlay)' },
+                    boxShadow: { xs: 'none', sm: 'var(--Paper-shadow)' },
+                }}
+            >
+                <CardContent>
+                    <RequestSnackbar request={submitRequest} />
+                    <RequestSnackbar request={codeRequest} showSuccess />
 
-            <Stack justifyContent='center' alignItems='center' spacing={6}>
-                <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Training Program
-                    </Typography>
-                    <Typography variant='h6' data-cy='subtitle'>
-                        Verify Email
-                    </Typography>
-                </Stack>
+                    <Stack justifyContent='center' alignItems='center'>
+                        <ChessDojoIcon
+                            fontSize='large'
+                            sx={{
+                                mb: 2,
+                                width: '80px',
+                                height: '80px',
+                            }}
+                        />
 
-                <Typography
-                    variant='body1'
-                    component='div'
-                    gutterBottom
-                    textAlign='center'
-                    data-cy='description'
-                >
-                    In order to complete your account creation, please enter the
-                    verification code sent to {email}.
-                </Typography>
+                        <Typography
+                            variant='h4'
+                            textAlign='center'
+                            data-cy='title'
+                            mb={4}
+                        >
+                            ChessDojo
+                        </Typography>
 
-                <Stack width={0.75} spacing={4} alignItems='center'>
-                    <TextField
-                        fullWidth
-                        id='code'
-                        label='Verification Code'
-                        variant='outlined'
-                        value={code}
-                        onChange={(event) => setCode(event.target.value)}
-                        onKeyDown={onKeyDown}
-                        error={!!codeError}
-                        helperText={codeError}
-                    />
+                        <Stack
+                            width={{ xs: 1, sm: 0.85 }}
+                            spacing={4}
+                            alignItems='center'
+                        >
+                            <Typography
+                                variant='body1'
+                                component='div'
+                                gutterBottom
+                                textAlign='center'
+                                data-cy='description'
+                            >
+                                In order to complete your account creation, please enter
+                                the verification code sent to {email}.
+                            </Typography>
 
-                    <LoadingButton
-                        variant='contained'
-                        loading={submitRequest.isLoading()}
-                        fullWidth
-                        sx={{ textTransform: 'none' }}
-                        onClick={onSubmit}
-                        data-cy='verify-button'
-                    >
-                        Verify Email
-                    </LoadingButton>
+                            <TextField
+                                fullWidth
+                                id='code'
+                                label='Verification Code'
+                                variant='outlined'
+                                value={code}
+                                onChange={(event) => setCode(event.target.value)}
+                                onKeyDown={onKeyDown}
+                                error={!!codeError}
+                                helperText={codeError}
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <Lock color='dojoOrange' />
+                                            </InputAdornment>
+                                        ),
+                                    },
+                                }}
+                            />
 
-                    <LoadingButton
-                        variant='text'
-                        sx={{ textTransform: 'none' }}
-                        onClick={onResendCode}
-                        loading={codeRequest.isLoading()}
-                        data-cy='resend-button'
-                    >
-                        Send New Code
-                    </LoadingButton>
-                </Stack>
-            </Stack>
+                            <LoadingButton
+                                variant='contained'
+                                loading={submitRequest.isLoading()}
+                                fullWidth
+                                startIcon={<MarkEmailReadIcon />}
+                                sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 'bold',
+                                    fontSize: '18px',
+                                    padding: '12px 16px',
+                                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                                }}
+                                onClick={onSubmit}
+                                data-cy='verify-button'
+                            >
+                                Verify Email
+                            </LoadingButton>
+
+                            <LoadingButton
+                                variant='text'
+                                sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 'bold',
+                                    fontSize: '18px',
+                                    padding: '12px 16px',
+                                }}
+                                startIcon={<MarkEmailUnreadIcon />}
+                                onClick={onResendCode}
+                                loading={codeRequest.isLoading()}
+                                data-cy='resend-button'
+                            >
+                                Send New Code
+                            </LoadingButton>
+                        </Stack>
+                    </Stack>
+                </CardContent>
+            </Card>
         </Container>
     );
 };

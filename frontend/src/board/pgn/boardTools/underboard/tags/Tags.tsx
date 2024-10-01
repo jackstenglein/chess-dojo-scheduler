@@ -15,7 +15,6 @@ import {
     GridRenderEditCellParams,
 } from '@mui/x-data-grid-pro';
 import React, { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useChess } from '../../../PgnBoard';
 import { EditDateCell } from './DateEditor';
 import { TimeControlGridEditor } from './TimeControlEditor';
@@ -66,8 +65,7 @@ const columns: GridColDef<TagRow>[] = [
             if (params.row.name === 'Cohort' && typeof params.row.value === 'string') {
                 return (
                     <Link
-                        component={RouterLink}
-                        to={`/games/?type=cohort&cohort=${encodeURIComponent(
+                        href={`/games/?type=cohort&cohort=${encodeURIComponent(
                             params.row.value,
                         )}`}
                     >
