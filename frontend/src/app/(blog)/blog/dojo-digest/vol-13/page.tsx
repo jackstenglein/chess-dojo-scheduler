@@ -5,6 +5,7 @@ import { Footer } from '../../common/Footer';
 import { Header } from '../../common/Header';
 import { DojoAchievements } from '../components/DojoAchievements';
 import activityHeatmapImage from './activity-heatmap.png';
+import kostyaImage from './kostya-italy.jpg';
 import stockfishImage from './stockfish.png';
 
 export default function DojoDigestVol13() {
@@ -131,6 +132,43 @@ export default function DojoDigestVol13() {
 
                 <Typography mt={4} variant='h5'>
                     Achievements
+                </Typography>
+
+                <Typography mt={2}>
+                    Sensei Kostya continued his tour around Europe, playing in the 28th
+                    GHA International Chess Festival in Italy. He had his best tournament
+                    in a while and tied for first (second on tiebreaks) with a score of
+                    6.5/9 and a performance rating of 2463.
+                </Typography>
+
+                <Stack mt={2} alignItems='center'>
+                    <Image
+                        src={kostyaImage}
+                        alt=''
+                        style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                    />
+                    <Typography textAlign='center' color='text.secondary'>
+                        L-R: Kostya, GM Alsina Leal, FM Kalosha, Andrea Rebegianni
+                    </Typography>
+                </Stack>
+
+                <Typography mt={2}>
+                    From there, Kostya continued on to Budapest to watch the Olympiad. You
+                    can read his takeaways from the Olympiad on{' '}
+                    <Link
+                        target='_blank'
+                        href='https://hellokostya.substack.com/p/12-things-i-learned-from-the-budapest'
+                    >
+                        his blog
+                    </Link>
+                    , and make sure to check out his{' '}
+                    <Link
+                        target='_blank'
+                        href='https://www.youtube.com/watch?v=ihXw3q8UMdM'
+                    >
+                        interview with ChessBase India
+                    </Link>
+                    !
                 </Typography>
 
                 <Typography mt={2}>
