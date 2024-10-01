@@ -67,7 +67,7 @@
         "vitest": "^2.0.5",
         "web-vitals": "^4.2.2",
         "zod": "^3.23.8",
-        "zod-validation-error": "^3.3.1"
+        "zod-validation-error": "^3.4.0"
     },
     "scripts": {
         "start": "echo ERROR: behavior of 'npm run start' was non-standard and thus has been removed to force migration to 'npm run dev'. In the future, 'npm run start' will serve the production build via 'next start', per NextJS conventions.",
