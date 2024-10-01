@@ -1,7 +1,6 @@
 import { LoadingButton } from '@mui/lab';
 import { Container, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import { unsubscribeFromDojoDigest } from '../api/emailApi';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from '../auth/Auth';
@@ -34,7 +33,8 @@ const UnsubscribePage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/profile/edit#notifications-email' replace={true} />;
+        window.location.href = '/profile/edit#notifications-email';
+        return;
     }
 
     if (request.status === RequestStatus.Success) {

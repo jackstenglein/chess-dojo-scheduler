@@ -33,7 +33,10 @@ const GameComment = () => {
     }
 
     return (
-        <Paper elevation={3} sx={{ boxShadow: 'none', color: 'text.secondary' }}>
+        <Paper
+            elevation={3}
+            sx={{ boxShadow: 'none', color: 'text.secondary', borderRadius: 0 }}
+        >
             <Stack>
                 <Markdown text={chess.pgn.gameComment.comment.trim()} />
                 <Divider sx={{ width: 1 }} />

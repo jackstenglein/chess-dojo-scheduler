@@ -1,6 +1,5 @@
 import { LoadingButton } from '@mui/lab';
 import { Link, Stack, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { useAuth } from '../../../../../auth/Auth';
@@ -61,10 +60,7 @@ const GameReviewDetails: React.FC<AdminSettingsProps> = ({ game, onSaveGame }) =
                             username={review.reviewer?.username}
                             displayName={review.reviewer?.displayName}
                         />
-                        <Link
-                            component={RouterLink}
-                            to={`/profile/${review.reviewer?.username}`}
-                        >
+                        <Link href={`/profile/${review.reviewer?.username}`}>
                             {review.reviewer?.displayName} ({review.reviewer?.cohort})
                         </Link>
                     </Stack>

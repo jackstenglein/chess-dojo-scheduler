@@ -189,6 +189,7 @@ const WhatsIncluded = () => {
                                                         loading={
                                                             i === 0 ? 'eager' : 'lazy'
                                                         }
+                                                        crossOrigin='anonymous'
                                                     />
                                                 ))}
                                             </Stack>

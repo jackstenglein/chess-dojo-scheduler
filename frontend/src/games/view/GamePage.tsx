@@ -1,3 +1,4 @@
+import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
 import { Chess } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { createContext, useContext, useEffect } from 'react';
@@ -151,6 +152,9 @@ const GamePage = () => {
                             DefaultUnderboardTab.Settings,
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
+                        slots={{
+                            moveButtonExtras: EngineMoveButtonExtras,
+                        }}
                     />
                 </GameContext.Provider>
             </PgnErrorBoundary>

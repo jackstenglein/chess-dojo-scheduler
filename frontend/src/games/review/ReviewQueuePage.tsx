@@ -15,7 +15,7 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useCallback } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 
@@ -47,7 +47,7 @@ const columns: GridColDef<GameInfo>[] = [
                         displayName={params.row.ownerDisplayName}
                         size={32}
                     />
-                    <Link component={RouterLink} to={`/profile/${params.row.owner}`}>
+                    <Link href={`/profile/${params.row.owner}`}>
                         {params.row.ownerDisplayName}
                     </Link>
                 </Stack>

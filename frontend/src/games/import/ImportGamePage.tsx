@@ -42,7 +42,7 @@ const ImportGamePage = () => {
                         method: req.type,
                     });
                     request.onSuccess(`Created ${count} games`);
-                    navigate('/profile?view=games');
+                    window.location.href = '/profile?view=games';
                 }
             })
             .catch((err) => {

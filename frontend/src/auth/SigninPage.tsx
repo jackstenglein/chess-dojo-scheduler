@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import GoogleButton from 'react-google-button';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
 
@@ -38,9 +38,11 @@ const SigninPage = () => {
 
     if (auth.status === AuthStatus.Authenticated) {
         if (redirectUri) {
-            return <Navigate to={decodeURIComponent(redirectUri)} />;
+            window.location.href = decodeURIComponent(redirectUri);
+            return;
         }
-        return <Navigate to='/profile' />;
+        window.location.href = '/profile';
+        return;
     }
 
     const onSignin = () => {

@@ -19,7 +19,6 @@ import {
     GridRowSelectionModel,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { AddButton } from './AddButton';
 import { BulkItemEditor } from './BulkItemEditor';
 import { ContextMenu } from './ContextMenu';
@@ -32,7 +31,6 @@ const pageSizeOptions = [10, 25, 50, 100];
 export const DirectoriesTab = ({ username }: { username: string }) => {
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
-    const navigate = useNavigate();
     const { game } = useGame();
     const { user: viewer } = useAuth();
     const api = useApi();
@@ -76,12 +74,10 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
             updateSearchParams({ directory: params.row.id });
         } else {
-            navigate(
-                `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
-                    '?',
-                    '%3F',
-                )}?directory=${searchParams.get('directory')}&directoryOwner=${username}`,
-            );
+            window.location.href = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
+                '?',
+                '%3F',
+            )}?directory=${searchParams.get('directory')}&directoryOwner=${username}`;
         }
     };
 
