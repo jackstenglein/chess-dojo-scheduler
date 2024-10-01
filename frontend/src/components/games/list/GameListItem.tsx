@@ -117,6 +117,15 @@ interface RenderPlayersProps {
     result?: GameResult | string;
 }
 
+export function RenderGameResultStack({ result }: { result: string | undefined }) {
+    return (
+        <Stack justifyContent='center' height='100%' spacing={0.25}>
+            <GameResultIcon result={result} asWhite />
+            <GameResultIcon result={result} asWhite={false} />
+        </Stack>
+    );
+}
+
 export function RenderPlayers({
     white,
     whiteElo,
@@ -125,7 +134,6 @@ export function RenderPlayers({
     blackElo,
     blackProvisional,
     fullHeight,
-    result,
 }: RenderPlayersProps) {
     const light = useLightMode();
     const location = useLocation();
@@ -138,7 +146,6 @@ export function RenderPlayers({
     return (
         <Stack height={fullHeight ? 1 : undefined} justifyContent='center'>
             <Stack direction='row' alignItems='center' spacing={0.25}>
-                <GameResultIcon result={result} asWhite />
                 {light ? (
                     <CircleOutlinedIcon
                         sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }}
@@ -157,7 +164,6 @@ export function RenderPlayers({
                 </Typography>
             </Stack>
             <Stack direction='row' alignItems='center' spacing={0.25}>
-                <GameResultIcon result={result} asWhite={false} />
                 <CircleIcon
                     sx={{
                         fontSize: { xs: '0.75rem', sm: 'initial' },
@@ -256,7 +262,7 @@ function parseTimeControl(
 export function getTimeControl({ timeControl }: { timeControl?: string }) {
     const [gameTime, increment] = parseTimeControl(timeControl);
 
-    return gameTime ? `${gameTime}+${increment ?? 0}` : '';
+    return gameTime ? `${gameTime}+${increment ?? 0}` : null;
 }
 
 export function RenderTimeControl({ timeControl }: { timeControl?: string }) {

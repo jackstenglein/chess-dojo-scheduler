@@ -16,6 +16,7 @@ import {
     formatPublishedAt,
     getPublishedAt,
     RenderCohort,
+    RenderGameResultStack,
     RenderOwner,
     RenderPlayersCell,
     RenderTimeControl,
@@ -36,6 +37,17 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         renderCell: RenderPlayersCell,
         minWidth: 200,
         flex: 2,
+    },
+    {
+        field: 'result',
+        headerName: 'Result',
+        valueGetter: (_value, row) => row.headers?.Result,
+        align: 'center',
+        headerAlign: 'center',
+        renderCell: (params) => (
+            <RenderGameResultStack result={params.row.headers.Result} />
+        ),
+        minWidth: 75,
     },
     {
         field: 'timeControl',
