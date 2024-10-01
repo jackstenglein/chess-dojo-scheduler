@@ -84,7 +84,15 @@ const VIDEO_EMBED_HEADERS = [
     },
 ];
 
-const pagesWithVideos = ['/profile', '/scoreboard/:path*', '/courses/:path*'];
+const pagesWithVideos = [
+    '/',
+    '/profile',
+    '/scoreboard/:path*',
+    '/courses/:path*',
+    '/blog/olympiad-2024',
+    '/blog/new-ratings',
+    '/blog/dojo-talks/top-10-2025',
+];
 
 const coursePagesWithEngine = [
     {
