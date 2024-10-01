@@ -27,13 +27,6 @@ import { useLocalStorage } from 'usehooks-ts';
 import Slider from './Slider';
 
 export default function Settings() {
-    useEffect(() => {
-        if (!ENGINE_THREADS.Default) {
-            ENGINE_THREADS.Default = navigator.hardwareConcurrency;
-            ENGINE_THREADS.Max = navigator.hardwareConcurrency;
-        }
-    }, []);
-
     const [open, setOpen] = useState(false);
     const [depth, setDepth] = useLocalStorage<number>(
         ENGINE_DEPTH.Key,
@@ -52,6 +45,16 @@ export default function Settings() {
         ENGINE_THREADS.Default,
     );
     const [hash, setHash] = useLocalStorage<number>(ENGINE_HASH.Key, ENGINE_HASH.Default);
+
+    useEffect(() => {
+        if (!ENGINE_THREADS.Default) {
+            ENGINE_THREADS.Default = navigator.hardwareConcurrency;
+            ENGINE_THREADS.Max = navigator.hardwareConcurrency;
+        }
+        if (threads === 0) {
+            setThreads(navigator.hardwareConcurrency);
+        }
+    }, [threads, setThreads]);
 
     return (
         <>

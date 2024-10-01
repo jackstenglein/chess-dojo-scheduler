@@ -17,21 +17,27 @@ export function useEval(
     enabled: boolean,
     engineName?: EngineName,
 ): PositionEval | undefined {
-    useEffect(() => {
-        if (!ENGINE_THREADS.Default) {
-            ENGINE_THREADS.Default = navigator.hardwareConcurrency;
-            ENGINE_THREADS.Max = navigator.hardwareConcurrency;
-        }
-    }, []);
-
     const [currentPosition, setCurrentPosition] = useState<PositionEval>();
     const { chess } = useChess();
     const engine = useEngine(enabled, engineName);
     const [depth] = useLocalStorage(ENGINE_DEPTH.Key, ENGINE_DEPTH.Default);
     const [multiPv] = useLocalStorage(ENGINE_LINE_COUNT.Key, ENGINE_LINE_COUNT.Default);
-    const [threads] = useLocalStorage(ENGINE_THREADS.Key, ENGINE_THREADS.Default);
+    const [threads, setThreads] = useLocalStorage(
+        ENGINE_THREADS.Key,
+        ENGINE_THREADS.Default,
+    );
     const [hash] = useLocalStorage(ENGINE_HASH.Key, ENGINE_HASH.Default);
     const savedEvals = useRef<SavedEvals>({});
+
+    useEffect(() => {
+        if (!ENGINE_THREADS.Default) {
+            ENGINE_THREADS.Default = navigator.hardwareConcurrency;
+            ENGINE_THREADS.Max = navigator.hardwareConcurrency;
+        }
+        if (threads === 0) {
+            setThreads(navigator.hardwareConcurrency);
+        }
+    }, [threads, setThreads]);
 
     useEffect(() => {
         if (!enabled || !chess || !engine || !engineName) {
