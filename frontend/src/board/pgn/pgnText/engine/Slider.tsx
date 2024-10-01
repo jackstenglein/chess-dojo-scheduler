@@ -1,4 +1,3 @@
-import Icon, { icons } from '@/style/Icon';
 import { Slider as MuiSlider, Stack, Typography } from '@mui/material';
 
 interface Props {
@@ -19,15 +18,7 @@ interface Props {
  * @param setValue A callback invoked with the new value of the slider on changes.
  * @param valueLabel Overrides the value label displayed to the right of the slider.
  */
-export default function Slider({
-    min,
-    max,
-    label,
-    value,
-    setValue,
-    valueLabel,
-    
-}: Props) {
+export default function Slider({ min, max, label, value, setValue, valueLabel }: Props) {
     return (
         <Stack direction='row' alignItems='center' width={1}>
             <Typography sx={{ mr: 2 }}>{label}</Typography>
