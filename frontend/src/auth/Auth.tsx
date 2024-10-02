@@ -113,7 +113,7 @@ const defaultAuthContextFunction = () => {
 };
 
 const AuthContext = createContext<AuthContextType>({
-    status: AuthStatus.Unauthenticated,
+    status: AuthStatus.Loading,
     getCurrentUser: defaultAuthContextFunction,
     updateUser: defaultAuthContextFunction,
     socialSignin: defaultAuthContextFunction,

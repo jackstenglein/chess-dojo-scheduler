@@ -1,12 +1,14 @@
-import { AuthStatus, useAuth } from '../auth/Auth';
-import LoadingPage from '../loading/LoadingPage';
+'use client';
+
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import LoadingPage from '@/loading/LoadingPage';
 import AuthenticatedHelp from './AuthenticatedHelp';
 import UnauthenticatedHelp from './UnauthenticatedHelp';
 
-const HelpPage = () => {
-    const authStatus = useAuth().status;
+export default function HelpPage() {
+    const { status } = useAuth();
 
-    switch (authStatus) {
+    switch (status) {
         case AuthStatus.Loading:
             return <LoadingPage />;
         case AuthStatus.Authenticated:
@@ -14,6 +16,4 @@ const HelpPage = () => {
         case AuthStatus.Unauthenticated:
             return <UnauthenticatedHelp />;
     }
-};
-
-export default HelpPage;
+}

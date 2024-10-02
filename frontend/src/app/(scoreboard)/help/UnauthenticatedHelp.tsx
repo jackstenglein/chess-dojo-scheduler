@@ -1,3 +1,4 @@
+import { RatingSystem, formatRatingSystem } from '@/database/user';
 import {
     Card,
     CardContent,
@@ -10,8 +11,6 @@ import {
     Typography,
 } from '@mui/material';
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { RatingSystem, formatRatingSystem } from '../database/user';
 import HelpItem from './HelpItem';
 import SupportTicket from './SupportTicket';
 
@@ -122,8 +121,7 @@ const helpSections = [
                     <>
                         If you previously subscribed on the{' '}
                         <Link
-                            component={RouterLink}
-                            to='https://chessdojo.shop'
+                            href='https://chessdojo.shop'
                             target='_blank'
                             rel='noopener'
                         >

@@ -45,7 +45,6 @@ import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
-import HelpPage from './help/HelpPage';
 import BooksPage from './material/BooksPage';
 import MaterialPage from './material/MaterialPage';
 import MemorizeGamesPage from './material/MemorizeGamesPage';
@@ -93,7 +92,6 @@ const router = createBrowserRouter(
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
                 <Route path='forgot-password' element={<ForgotPasswordPage />} />
-                <Route path='help' element={<HelpPage />} />
                 <Route path='tournaments'>
                     <Route index element={<TournamentsPage />} />
                     <Route path='open-classical'>

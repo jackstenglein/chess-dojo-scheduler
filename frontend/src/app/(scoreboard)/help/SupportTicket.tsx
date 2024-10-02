@@ -1,8 +1,10 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import { LoadingButton } from '@mui/lab';
 import { Grid2, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
 
 const SupportTicket = () => {
     const [name, setName] = useState('');
