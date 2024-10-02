@@ -128,6 +128,7 @@ const ReactionEmoji: React.FC<{ type: string; icon?: boolean }> = ({ type, icon 
                     height={icon ? '100%' : '30px'}
                     style={styles}
                     src={ReactionTypesToImage[type]}
+                    crossOrigin='anonymous'
                 />
             );
         }
