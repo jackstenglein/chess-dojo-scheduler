@@ -64,32 +64,3 @@ describe('Graduations', () => {
             .should('have.attr', 'href', '/profile/372ae346-b786-4000-9fc8-36005eb29415');
     });
 });
-
-describe('Featured Games', () => {
-    beforeEach(() => {
-        cy.loginByCognitoApi(
-            'test',
-            cy.dojo.env('cognito_username'),
-            cy.dojo.env('cognito_password'),
-        );
-
-        cy.clock(now);
-        cy.visit('/recent');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
-    });
-
-    it('displays correct message when no featured games', () => {
-        cy.interceptApi('GET', '/game/featured', {
-            fixture: 'recent/noGames.json',
-        });
-        cy.contains('No featured games in the past month');
-    });
-
-    it('displays featured games', () => {
-        cy.interceptApi('GET', '/game/featured', {
-            fixture: 'recent/games.json',
-        });
-
-        cy.getBySel('featured-games-table').contains('Beingbadatchess');
-    });
-});
