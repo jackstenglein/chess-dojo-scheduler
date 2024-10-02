@@ -115,6 +115,10 @@ const GamePage = () => {
             });
     };
 
+    const onUpdateGame = (g: Game) => {
+        request.onSuccess({ ...g, pgn: request.data?.pgn ?? g.pgn });
+    };
+
     const isOwner = request.data?.owner === user?.username;
     const showPreflight =
         isOwner && firstLoad && request.data !== undefined && isMissingData(request.data);
@@ -135,7 +139,7 @@ const GamePage = () => {
                 <GameContext.Provider
                     value={{
                         game: request.data,
-                        onUpdateGame: request.onSuccess,
+                        onUpdateGame,
                         isOwner,
                     }}
                 >
