@@ -1,3 +1,11 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Graduation } from '@/database/graduation';
+import LoadingPage from '@/loading/LoadingPage';
+import Avatar from '@/profile/Avatar';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Divider,
     FormControl,
@@ -8,14 +16,12 @@ import {
     Typography,
 } from '@mui/material';
 import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
+import { LicenseInfo } from '@mui/x-license';
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { Graduation } from '../database/graduation';
-import LoadingPage from '../loading/LoadingPage';
-import Avatar from '../profile/Avatar';
-import CohortIcon from '../scoreboard/CohortIcon';
+
+LicenseInfo.setLicenseKey(
+    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
+);
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];
@@ -79,9 +85,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
                         displayName={params.value}
                         size={32}
                     />
-                    <Link component={RouterLink} to={`/profile/${params.row.username}`}>
-                        {params.value}
-                    </Link>
+                    <Link href={`/profile/${params.row.username}`}>{params.value}</Link>
                 </Stack>
             );
         },
@@ -107,7 +111,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
                     );
                 }
                 return (
-                    <Stack direction='row'>
+                    <Stack direction='row' justifyContent='center'>
                         {graduationCohorts.map((c) => (
                             <CohortIcon key={c} cohort={c} size={32} />
                         ))}
@@ -127,7 +131,11 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
             return parseInt(row.previousCohort.split('-')[0]);
         },
         renderCell: (params: GridRenderCellParams<Graduation>) => {
-            return params.row.previousCohort;
+            return (
+                <Stack height='30px' justifyContent='center'>
+                    {params.row.previousCohort}
+                </Stack>
+            );
         },
     },
     {
@@ -140,7 +148,11 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
             return parseInt(row.newCohort.replaceAll('+', '').split('-')[0]);
         },
         renderCell: (params: GridRenderCellParams<Graduation>) => {
-            return params.row.newCohort;
+            return (
+                <Stack height='30px' justifyContent='center'>
+                    {params.row.newCohort}
+                </Stack>
+            );
         },
     },
     {
@@ -149,6 +161,11 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         headerAlign: 'center',
         align: 'center',
         valueFormatter: (value) => Math.round(value * 100) / 100,
+        renderCell: (params) => (
+            <Stack height='30px' justifyContent='center'>
+                {params.formattedValue}
+            </Stack>
+        ),
     },
     {
         field: 'createdAt',
@@ -156,6 +173,11 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         headerAlign: 'center',
         align: 'center',
         valueFormatter: (value) => new Date(value).toLocaleDateString(),
+        renderCell: (params) => (
+            <Stack height='30px' justifyContent='center'>
+                {params.formattedValue}
+            </Stack>
+        ),
     },
     {
         field: 'comments',

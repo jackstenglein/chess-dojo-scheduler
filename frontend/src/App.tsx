@@ -63,7 +63,6 @@ import ProfileEditorPage from './profile/editor/ProfileEditorPage';
 import FollowersPage from './profile/followers/FollowersPage';
 import YearReviewPage from './profile/yearReview/YearReviewPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
-import RecentPage from './recent/RecentPage';
 import RequirementPage from './requirements/RequirementPage';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
@@ -157,7 +156,6 @@ const router = createBrowserRouter(
                         />
                     </Route>
 
-                    <Route path='recent' element={<RecentPage />} />
                     <Route path='calendar' element={<CalendarPage />}>
                         <Route path='availability/:id' element={<EventBooker />} />
                     </Route>
