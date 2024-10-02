@@ -19,6 +19,7 @@ import {
     RenderGameResultStack,
     RenderOwner,
     RenderPlayersCell,
+    RenderRatingHeader,
     RenderTimeControl,
 } from './GameListItem';
 
@@ -35,8 +36,8 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         valueGetter: (_value, row) =>
             `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
         renderCell: RenderPlayersCell,
-        minWidth: 200,
-        flex: 2,
+        minWidth: 150,
+        flex: 1,
     },
     {
         field: 'result',
@@ -47,14 +48,30 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         renderCell: (params) => (
             <RenderGameResultStack result={params.row.headers.Result} />
         ),
-        minWidth: 75,
+        width: 50,
+    },
+    {
+        field: 'whiteRating',
+        renderHeader: () => <RenderRatingHeader white={true} />,
+        valueGetter: (_value, row) => Number(row.headers?.WhiteElo),
+        headerAlign: 'center',
+        align: 'center',
+        width: 75,
+    },
+    {
+        field: 'blackRating',
+        renderHeader: () => <RenderRatingHeader white={false} />,
+        valueGetter: (_value, row) => Number(row.headers?.BlackElo),
+        headerAlign: 'center',
+        align: 'center',
+        width: 75,
     },
     {
         field: 'timeControl',
         headerName: 'Time',
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderTimeControl({ timeControl: params.row.headers.TimeControl }),
-        maxWidth: 50,
+        width: 75,
     },
     {
         field: 'date',
@@ -76,7 +93,6 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderOwner(params.row),
         flex: 1,
-        minWidth: 150,
     },
     {
         field: 'moves',
@@ -84,6 +100,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         valueGetter: (_value, row) => formatMoves(row.headers?.PlyCount),
         align: 'center',
         headerAlign: 'center',
+        width: 75,
     },
 ];
 

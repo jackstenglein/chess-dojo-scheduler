@@ -21,8 +21,6 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
             fullHeight
             white={headers.White}
             black={headers.Black}
-            whiteElo={headers.WhiteElo}
-            blackElo={headers.BlackElo}
             result={headers.Result}
         />
     );
@@ -126,15 +124,7 @@ export function RenderGameResultStack({ result }: { result: string | undefined }
     );
 }
 
-export function RenderPlayers({
-    white,
-    whiteElo,
-    whiteProvisional,
-    black,
-    blackElo,
-    blackProvisional,
-    fullHeight,
-}: RenderPlayersProps) {
+export function BlackIcon() {
     const light = useLightMode();
     const location = useLocation();
 
@@ -144,36 +134,66 @@ export function RenderPlayers({
     }
 
     return (
+        <CircleIcon
+            sx={{
+                fontSize: { xs: '0.75rem', sm: 'initial' },
+                color: blackIconColor,
+            }}
+        />
+    );
+}
+
+export function RenderRatingHeader({ white }: { white: boolean }) {
+    return (
+        <Stack direction='row' columnGap='0.125rem'>
+            {white ? <WhiteIcon /> : <BlackIcon />} Rating
+        </Stack>
+    );
+}
+
+export function WhiteIcon() {
+    const light = useLightMode();
+
+    return light ? (
+        <CircleOutlinedIcon sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }} />
+    ) : (
+        <CircleIcon
+            sx={{
+                fontSize: { xs: '0.75rem', sm: 'initial' },
+                color: 'white',
+            }}
+        />
+    );
+}
+
+export function RenderPlayers({
+    white,
+    whiteElo,
+    whiteProvisional,
+    black,
+    blackElo,
+    blackProvisional,
+    fullHeight,
+}: RenderPlayersProps) {
+    return (
         <Stack height={fullHeight ? 1 : undefined} justifyContent='center'>
-            <Stack direction='row' alignItems='center' spacing={0.25}>
-                {light ? (
-                    <CircleOutlinedIcon
-                        sx={{ fontSize: { xs: '0.75rem', sm: 'initial' } }}
-                    />
-                ) : (
-                    <CircleIcon
-                        sx={{
-                            fontSize: { xs: '0.75rem', sm: 'initial' },
-                            color: 'white',
-                        }}
-                    />
-                )}
+            <Stack direction='row' alignItems='center' columnGap='0.25rem'>
+                <WhiteIcon />
                 <Typography variant='body2'>{white}</Typography>
-                <Typography variant='body2' overflow='hidden'>
-                    {getPlayerRating(whiteElo, whiteProvisional)}
-                </Typography>
+                {whiteElo && (
+                    <Typography variant='body2' overflow='hidden'>
+                        {getPlayerRating(whiteElo, whiteProvisional)}
+                    </Typography>
+                )}
             </Stack>
-            <Stack direction='row' alignItems='center' spacing={0.25}>
-                <CircleIcon
-                    sx={{
-                        fontSize: { xs: '0.75rem', sm: 'initial' },
-                        color: blackIconColor,
-                    }}
-                />
+            <Stack direction='row' alignItems='center' columnGap='0.25rem'>
+                <BlackIcon />
                 <Typography variant='body2'>{black}</Typography>
-                <Typography variant='body2' whiteSpace='nowrap' overflow='hidden'>
-                    {getPlayerRating(blackElo, blackProvisional)}
-                </Typography>
+                {blackElo && (
+                    <Typography variant='body2' whiteSpace='nowrap' overflow='hidden'>
+                        {getPlayerRating(blackElo, blackProvisional)}
+                    </Typography>
+                )}
             </Stack>
         </Stack>
     );
