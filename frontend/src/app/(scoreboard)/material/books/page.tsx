@@ -1,4 +1,9 @@
+'use client';
+
+import { useAuth } from '@/auth/Auth';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
+import { ALL_COHORTS, compareCohorts, dojoCohorts } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Card,
     CardContent,
@@ -10,9 +15,6 @@ import {
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '../auth/Auth';
-import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
-import CohortIcon from '../scoreboard/CohortIcon';
 import { Book as BookModel, BookSection, sections } from './books';
 
 function getDisplayTitle(b: BookModel) {
@@ -61,8 +63,8 @@ const Section: React.FC<SectionProps> = ({ section, cohort }) => {
     );
 };
 
-const BooksPage = () => {
-    const user = useAuth().user;
+export default function BooksPage() {
+    const { user } = useAuth();
     const [cohorts, setCohorts] = useState([user?.dojoCohort || ALL_COHORTS]);
 
     const onChangeCohort = (newCohorts: string[]) => {
@@ -167,6 +169,4 @@ const BooksPage = () => {
             </Stack>
         </Container>
     );
-};
-
-export default BooksPage;
+}

@@ -180,3 +180,5 @@ export function displayGameReviewType(t: GameReviewType): string {
             return 'Deep Dive';
     }
 }
+export const MastersCohort = 'masters';
+export const MastersOwnerDisplayName = 'Masters DB';

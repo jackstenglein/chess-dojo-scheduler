@@ -1,4 +1,9 @@
-import { GameInfo, GameResult } from '@/database/game';
+import {
+    GameInfo,
+    GameResult,
+    MastersCohort,
+    MastersOwnerDisplayName,
+} from '@/database/game';
 import { dojoCohorts } from '@/database/user';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -8,9 +13,6 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-
-export const MastersCohort = 'masters';
-export const MastersOwnerDisplayName = 'Masters DB';
 
 interface RenderPlayersProps {
     white: string;

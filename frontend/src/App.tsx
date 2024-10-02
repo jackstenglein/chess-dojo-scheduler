@@ -45,11 +45,9 @@ import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
-import BooksPage from './material/BooksPage';
 import MaterialPage from './material/MaterialPage';
 import MemorizeGamesPage from './material/MemorizeGamesPage';
 import ModelGamesPage from './material/ModelGamesPage';
-import RatingConversionsPage from './material/RatingConversionsPage';
 import SparringPage from './material/SparringPage';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
@@ -217,15 +215,16 @@ const router = createBrowserRouter(
                 </Route>
             </Route>
 
-            <Route path='material'>
-                <Route path='books' element={<BooksPage />} />
-                <Route path='ratings' element={<RatingConversionsPage />} />
-            </Route>
-
             {/* Legacy routes from Wix */}
-            <Route path='books-by-rating' element={<BooksPage />} />
-            <Route path='books' element={<BooksPage />} />
-            <Route path='recommendations' element={<BooksPage />} />
+            <Route
+                path='books-by-rating'
+                element={<Navigate to='/material/books' replace />}
+            />
+            <Route path='books' element={<Navigate to='/material/books' replace />} />
+            <Route
+                path='recommendations'
+                element={<Navigate to='/material/books' replace />}
+            />
             <Route path='training' element={<Navigate to='/profile' replace />} />
             <Route path='home' element={<Navigate to='/profile' replace />} />
             <Route path='plans-pricing' element={<PricingPage />} />

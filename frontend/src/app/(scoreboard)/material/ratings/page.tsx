@@ -1,4 +1,11 @@
 import {
+    RatingSystem,
+    dojoCohorts,
+    formatRatingSystem,
+    getRatingBoundary,
+} from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import {
     Container,
     Paper,
     Stack,
@@ -10,17 +17,10 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-import {
-    RatingSystem,
-    dojoCohorts,
-    formatRatingSystem,
-    getRatingBoundary,
-} from '../database/user';
-import CohortIcon from '../scoreboard/CohortIcon';
 
 const { Custom, ...others } = RatingSystem;
 
-const RatingConversionsPage = () => {
+export default function RatingConversionsPage() {
     const ratingSystems = Object.values(others);
 
     return (
@@ -113,6 +113,4 @@ const RatingConversionsPage = () => {
             </TableContainer>
         </Container>
     );
-};
-
-export default RatingConversionsPage;
+}
