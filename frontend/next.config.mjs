@@ -92,6 +92,7 @@ const pagesWithVideos = [
     '/blog/olympiad-2024',
     '/blog/new-ratings',
     '/blog/dojo-talks/top-10-2025',
+    '/newsfeed'
 ];
 
 const coursePagesWithEngine = [
