@@ -96,12 +96,8 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
-<<<<<<< HEAD
-        dullGrey: true;
-=======
         youtube: true;
         twitch: true;
->>>>>>> origin/dev
     }
 }
 
