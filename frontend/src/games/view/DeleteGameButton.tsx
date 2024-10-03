@@ -10,8 +10,6 @@ import {
     Tooltip,
 } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -27,7 +25,6 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
     variant = 'icon',
 }) => {
     const api = useApi();
-    const navigate = useNavigate();
     const request = useRequest();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -39,7 +36,7 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
                     dojo_cohort: game.cohort,
                 });
                 request.onSuccess();
-                navigate('/profile?view=games');
+                window.location.href = '/profile?view=games';
             })
             .catch((err) => {
                 console.error(err);

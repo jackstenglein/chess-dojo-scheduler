@@ -1,15 +1,20 @@
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
+import { AccountCircle } from '@mui/icons-material';
+import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Card,
+    CardContent,
     CircularProgress,
     Container,
+    InputAdornment,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-
-import { LoadingButton } from '@mui/lab';
+import { useNavigate } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
 
@@ -41,7 +46,8 @@ const ForgotPasswordPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/profile' />;
+        window.location.href = '/profile';
+        return;
     }
 
     const onSubmit = () => {
@@ -80,47 +86,66 @@ const ForgotPasswordPage = () => {
     };
 
     return (
-        <Container maxWidth='md' sx={{ pt: 10 }}>
-            <Stack justifyContent='center' alignItems='center' spacing={6}>
-                <RequestSnackbar request={request} />
+        <Container maxWidth='sm' sx={{ pt: { xs: 4, sm: 10 }, pb: 4 }}>
+            <Card
+                sx={{
+                    backgroundImage: { xs: 'none', sm: 'var(--Paper-overlay)' },
+                    boxShadow: { xs: 'none', sm: 'var(--Paper-shadow)' },
+                }}
+            >
+                <CardContent>
+                    <Stack justifyContent='center' alignItems='center'>
+                        <RequestSnackbar request={request} />
 
-                <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Training Program
-                    </Typography>
-                    <Typography variant='h6' data-cy='subtitle'>
-                        Forgot Password
-                    </Typography>
-                </Stack>
-                <Stack
-                    direction='column'
-                    justifyContent='center'
-                    alignItems='center'
-                    spacing={3}
-                    paddingTop={1.5}
-                >
-                    {step === ForgotPasswordStep.Start && (
-                        <StartStep
-                            email={email}
-                            setEmail={setEmail}
-                            emailError={emailError}
-                            onSubmit={onSubmit}
-                            onCancel={onCancel}
-                            loading={request.isLoading()}
+                        <ChessDojoIcon
+                            fontSize='large'
+                            sx={{
+                                mb: 2,
+                                width: '80px',
+                                height: '80px',
+                            }}
                         />
-                    )}
 
-                    {step === ForgotPasswordStep.Confirm && (
-                        <ConfirmStep
-                            email={email}
-                            onSuccess={() => setStep(ForgotPasswordStep.Success)}
-                            onCancel={onCancel}
-                        />
-                    )}
+                        <Typography
+                            variant='h4'
+                            textAlign='center'
+                            data-cy='title'
+                            mb={4}
+                        >
+                            ChessDojo
+                        </Typography>
 
-                    {step === ForgotPasswordStep.Success && <SuccessStep />}
-                </Stack>
-            </Stack>
+                        <Stack
+                            direction='column'
+                            justifyContent='center'
+                            alignItems='center'
+                            spacing={3}
+                            paddingTop={1.5}
+                        >
+                            {step === ForgotPasswordStep.Start && (
+                                <StartStep
+                                    email={email}
+                                    setEmail={setEmail}
+                                    emailError={emailError}
+                                    onSubmit={onSubmit}
+                                    onCancel={onCancel}
+                                    loading={request.isLoading()}
+                                />
+                            )}
+
+                            {step === ForgotPasswordStep.Confirm && (
+                                <ConfirmStep
+                                    email={email}
+                                    onSuccess={() => setStep(ForgotPasswordStep.Success)}
+                                    onCancel={onCancel}
+                                />
+                            )}
+
+                            {step === ForgotPasswordStep.Success && <SuccessStep />}
+                        </Stack>
+                    </Stack>
+                </CardContent>
+            </Card>
         </Container>
     );
 };
@@ -170,6 +195,15 @@ const StartStep: React.FC<StartStepProps> = ({
                 error={!!emailError}
                 helperText={emailError}
                 onKeyDown={onKeyDown}
+                slotProps={{
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position='start'>
+                                <AccountCircle color='dojoOrange' />
+                            </InputAdornment>
+                        ),
+                    },
+                }}
             />
 
             <LoadingButton
@@ -177,7 +211,14 @@ const StartStep: React.FC<StartStepProps> = ({
                 variant='contained'
                 onClick={onSubmit}
                 fullWidth
-                sx={{ textTransform: 'none' }}
+                startIcon={<MarkEmailUnreadIcon />}
+                sx={{
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    padding: '12px 16px',
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                }}
                 loading={loading}
             >
                 Send Email
@@ -311,7 +352,13 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
                 variant='contained'
                 onClick={onConfirm}
                 fullWidth
-                sx={{ textTransform: 'none' }}
+                sx={{
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    padding: '12px 16px',
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                }}
                 loading={request.isLoading()}
                 data-cy='submit-button'
             >
@@ -348,7 +395,13 @@ const SuccessStep = () => {
                 variant='contained'
                 onClick={onSignin}
                 fullWidth
-                sx={{ textTransform: 'none' }}
+                sx={{
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    padding: '12px 16px',
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                }}
                 data-cy='signin-button'
             >
                 Sign In

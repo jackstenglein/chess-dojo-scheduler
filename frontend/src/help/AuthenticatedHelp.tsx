@@ -41,10 +41,7 @@ const helpSections = [
                 content: (
                     <>
                         You can cancel at the bottom of the{' '}
-                        <Link component={RouterLink} to='/profile/edit'>
-                            profile editor
-                        </Link>
-                        .
+                        <Link href='/profile/edit'>profile editor</Link>.
                     </>
                 ),
             },
@@ -52,13 +49,10 @@ const helpSections = [
                 title: 'How do I graduate?',
                 content: (
                     <>
-                        At the top of the{' '}
-                        <Link component={RouterLink} to='/profile'>
-                            Profile page
-                        </Link>
-                        , click the <strong>Graduate</strong> button. This will move you
-                        to the graduates section on the scoreboard for your current
-                        cohort, as well as add you to the list of recent graduates on the{' '}
+                        At the top of the <Link href='/profile'>Profile page</Link>, click
+                        the <strong>Graduate</strong> button. This will move you to the
+                        graduates section on the scoreboard for your current cohort, as
+                        well as add you to the list of recent graduates on the{' '}
                         <Link component={RouterLink} to='/newsfeed'>
                             Newsfeed
                         </Link>
@@ -70,14 +64,11 @@ const helpSections = [
                 title: 'How do I switch cohorts without graduating?',
                 content: (
                     <>
-                        In the{' '}
-                        <Link component={RouterLink} to='/profile/edit'>
-                            profile editor
-                        </Link>
-                        , choose a new cohort from the dropdown and then click save. This
-                        will move you to the scoreboard for the new cohort, but will not
-                        add you to the graduates section for the previous cohort nor add
-                        you to the recent graduates on the{' '}
+                        In the <Link href='/profile/edit'>profile editor</Link>, choose a
+                        new cohort from the dropdown and then click save. This will move
+                        you to the scoreboard for the new cohort, but will not add you to
+                        the graduates section for the previous cohort nor add you to the
+                        recent graduates on the{' '}
                         <Link component={RouterLink} to='/newsfeed'>
                             Newsfeed
                         </Link>
@@ -104,12 +95,9 @@ const helpSections = [
                 title: 'How do I update my progress in the training plan?',
                 content: (
                     <>
-                        At the bottom of the{' '}
-                        <Link component={RouterLink} to='/profile'>
-                            Profile page
-                        </Link>
-                        , select the <strong>Training Plan</strong> tab. From here, you
-                        can see the training program requirements for each cohort. On the
+                        At the bottom of the <Link href='/profile'>Profile page</Link>,
+                        select the <strong>Training Plan</strong> tab. From here, you can
+                        see the training program requirements for each cohort. On the
                         requirement you'd like to complete, click the checkbox or pencil
                         icon in order to update your progress.
                     </>
@@ -119,12 +107,9 @@ const helpSections = [
                 title: 'How do I see the details of a requirement in the training plan?',
                 content: (
                     <>
-                        At the bottom of the{' '}
-                        <Link component={RouterLink} to='/profile'>
-                            Profile page
-                        </Link>
-                        , select the <strong>Training Plan</strong> tab. From here, you
-                        can see the training program requirements for each cohort. On the
+                        At the bottom of the <Link href='/profile'>Profile page</Link>,
+                        select the <strong>Training Plan</strong> tab. From here, you can
+                        see the training program requirements for each cohort. On the
                         requirement you'd like to learn more about, click{' '}
                         <strong>View More</strong>.
                     </>
@@ -137,11 +122,9 @@ const helpSections = [
                         Current ratings are updated automatically every 24 hours. If your
                         ratings are not updating, make sure that you have correctly set
                         your usernames/IDs in the{' '}
-                        <Link component={RouterLink} to='/profile/edit'>
-                            profile editor
-                        </Link>
-                        . If your usernames are correct and your ratings are still not
-                        updating, please send a Discord message to @JackStenglein.
+                        <Link href='/profile/edit'>profile editor</Link>. If your
+                        usernames are correct and your ratings are still not updating,
+                        please send a Discord message to @JackStenglein.
                     </>
                 ),
             },
@@ -149,14 +132,10 @@ const helpSections = [
                 title: 'How do I switch to a different rating system?',
                 content: (
                     <>
-                        In the{' '}
-                        <Link component={RouterLink} to='/profile/edit'>
-                            profile editor
-                        </Link>
-                        , choose a new rating system from the dropdown and then click
-                        save. This will update your rating system on the scoreboard for
-                        your current cohort, but not for any that you have previously
-                        graduated from.
+                        In the <Link href='/profile/edit'>profile editor</Link>, choose a
+                        new rating system from the dropdown and then click save. This will
+                        update your rating system on the scoreboard for your current
+                        cohort, but not for any that you have previously graduated from.
                     </>
                 ),
             },
@@ -325,6 +304,83 @@ const helpSections = [
                             Games page
                         </Link>{' '}
                         for a month after being featured.
+                    </>
+                ),
+            },
+        ],
+    },
+    {
+        title: 'New Cohorts',
+        items: [
+            {
+                title: 'Why did my cohort change?',
+                content: <>A new Dojo rating scale went into effect 9/15/2024.</>,
+            },
+            {
+                title: 'Why are the ratings being changed at all?',
+                content: (
+                    <>
+                        The FIDE and DWZ systems modified their ratings in April this
+                        year. Moreover, we have noticed a discrepancy among the Lichess
+                        and Chess.com ratings of users within the Dojo. This change in the
+                        rating system will better reflect users' skill across all the
+                        rating systems.
+                    </>
+                ),
+            },
+            {
+                title: `I went down a cohort. Does this mean I'm a worse player?`,
+                content: (
+                    <>
+                        No. You still have the same skill level you had before. All that's
+                        different is that the Dojo material of this cohort is more
+                        appropriate for your level. And you're more likely to face better
+                        sparring partners within your cohort!
+                    </>
+                ),
+            },
+            {
+                title: `I went up a coort. Do I still change my cohort if I feel like I didn't deserve it?`,
+                content: (
+                    <>
+                        Yes. Please join the appropriate cohort. Your cohort is now more
+                        accurately reflective of your rating in line with other members
+                        who have a different preferred rating system.
+                    </>
+                ),
+            },
+            {
+                title: `If I graduate, will I still get my games reviewed on stream?`,
+                content: (
+                    <>
+                        This is not a graduation or demotion, simply an adjustment of the
+                        rating system itself. Please change your cohort through your
+                        ChessDojo profile, not by clicking the graduation button. Future
+                        graduations after you switch cohorts will still be reviewed on
+                        stream.
+                    </>
+                ),
+            },
+            {
+                title: `I'm now in a cohort I already graduated from in the old system. Do I go through material I've already finished?`,
+                content: (
+                    <>
+                        Yes and no. Yes, you are welcome to repeat any material you've
+                        already done, such as books or sparring positions. But no, you are
+                        not starting from scratch. All of your previous progress has been
+                        saved, and you can focus on the other material you have not yet
+                        completed.
+                    </>
+                ),
+            },
+            {
+                title: `Does this new rating scale change the ChessDojo philosophy?`,
+                content: (
+                    <>
+                        Not at all. The core tenets remain the same. Playing and analyzing
+                        classical games, sparring with members of your cohort, and the
+                        +/-/= system. The only difference is that now you can find more
+                        appropriate Dojo members to learn from/teach/spar with.
                     </>
                 ),
             },

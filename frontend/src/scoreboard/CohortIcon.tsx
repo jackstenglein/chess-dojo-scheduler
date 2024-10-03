@@ -1,3 +1,4 @@
+import { MastersCohort } from '@/components/games/list/GameListItem';
 import { AllInclusive } from '@mui/icons-material';
 import {
     Tooltip as MuiTooltip,
@@ -9,7 +10,6 @@ import { SxProps, styled } from '@mui/material/styles';
 import Image from 'next/image';
 import { CSSProperties } from 'react';
 import { ALL_COHORTS } from '../database/user';
-import { MastersCohort } from '../games/list/ListGamesPage';
 
 export const cohortIcons: Record<string, string> = {
     '0-300': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/0-300.png',

@@ -27,6 +27,7 @@ interface ChessConfig {
     allowMoveDeletion?: boolean;
     disableTakebacks?: Color | 'both';
     disableNullMoves?: boolean;
+    disableEngine?: boolean;
 }
 
 interface ChessContextType {
@@ -79,6 +80,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             allowMoveDeletion,
             disableTakebacks,
             disableNullMoves: disableNullMovesProp,
+            disableEngine,
             slots,
         },
         ref,
@@ -106,6 +108,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                     initKey,
                     allowMoveDeletion,
                     disableTakebacks,
+                    disableEngine,
                 },
                 toggleOrientation,
                 keydownMap,
@@ -119,6 +122,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 keydownMap,
                 slots,
                 disableTakebacks,
+                disableEngine,
                 initKey,
             ],
         );

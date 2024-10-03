@@ -1,6 +1,6 @@
 import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { Box, Collapse, Divider, Stack, Tooltip, Typography } from '@mui/material';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useChess } from '../PgnBoard';
 import Comment from './Comment';
 import MoveButton from './MoveButton';
@@ -12,9 +12,10 @@ interface LineProps {
     line: Move[];
     depth: number;
     handleScroll: (child: HTMLElement | null) => void;
+    onExpand: () => void;
 }
 
-const Line: React.FC<LineProps> = ({ line, depth, handleScroll }) => {
+const Line: React.FC<LineProps> = ({ line, depth, handleScroll, onExpand }) => {
     const chess = useChess().chess;
     const [, setForceRender] = useState(0);
 
@@ -45,6 +46,7 @@ const Line: React.FC<LineProps> = ({ line, depth, handleScroll }) => {
                     lines={[line.slice(i), ...move.variations]}
                     depth={depth + 1}
                     handleScroll={handleScroll}
+                    expandParent={onExpand}
                 />,
             );
             break;
@@ -88,12 +90,59 @@ interface LinesProps {
     lines: Move[][];
     depth?: number;
     handleScroll: (child: HTMLElement | null) => void;
+    expandParent?: () => void;
 }
 
-const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll }) => {
-    const [expanded, setExpanded] = useState(true);
+const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll, expandParent }) => {
+    const { chess } = useChess();
+
+    const forceExpansion = useMemo(() => {
+        const variation = chess?.currentMove()?.variation;
+        for (const m of variation ?? []) {
+            for (const line of lines) {
+                if (m === line[0]) {
+                    return true;
+                }
+            }
+            if (m === chess?.currentMove()) {
+                return false;
+            }
+        }
+        return false;
+    }, [chess, lines]);
+
+    depth = depth ?? 0;
+    const [expanded, setExpanded] = useState(
+        forceExpansion || depth < 3 || depth % 2 === 0,
+    );
     const expandRef = useRef<HTMLHRElement>(null);
-    const d = depth || 0;
+
+    useEffect(() => {
+        if (chess) {
+            const observer = {
+                types: [EventType.NewVariation, EventType.LegalMove],
+                handler: (event: Event) => {
+                    for (const m of event.move?.variation ?? []) {
+                        for (const line of lines) {
+                            if (m === line[0]) {
+                                setExpanded(true);
+                                expandParent?.();
+                                return;
+                            }
+                        }
+                        if (m === event.move) {
+                            // We found the move that triggered the event, and it comes before
+                            // all of the lines, so we don't need to expand anything.
+                            return;
+                        }
+                    }
+                },
+            };
+
+            chess.addObserver(observer);
+            return () => chess.removeObserver(observer);
+        }
+    }, [chess, lines, setExpanded, expandParent]);
 
     const onCollapse = () => {
         setExpanded(false);
@@ -107,72 +156,78 @@ const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll }) => {
 
     return (
         <Box
+            ref={expandRef}
             display='block'
             position='relative'
             sx={{
-                pl: d > 0 ? `${2 * borderWidth}px` : 0,
+                pl: depth > -1 ? `${2 * borderWidth}px` : 0,
             }}
         >
-            {d > 0 && (
-                <Stack direction='row' alignItems={expanded ? undefined : 'center'}>
-                    {/* Horizontal line when we go down another level */}
-                    <Divider
-                        ref={expandRef}
-                        sx={{
-                            borderWidth: `${borderWidth}px`,
-                            width: `${lineInset}px`,
-                            display: 'inline-block',
-                            position: 'absolute',
-                            left: `${-lineInset}px`,
+            <Stack direction='row' alignItems={expanded ? undefined : 'center'}>
+                {expanded ? (
+                    <Tooltip key='collapse' title='Collapse variations' followCursor>
+                        <Divider
+                            component='div'
+                            orientation='vertical'
+                            onClick={onCollapse}
+                            sx={{
+                                position: 'absolute',
+                                borderWidth: `${borderWidth}px`,
+                                height: 1,
+                                left: 0,
+                                cursor: 'pointer',
+                                ':hover': {
+                                    borderColor: 'primary.main',
+                                },
+                            }}
+                        />
+                    </Tooltip>
+                ) : (
+                    <Tooltip key='expand' title='Expand variations'>
+                        <Box
+                            bgcolor='text.disabled'
+                            borderRadius='50%'
+                            sx={{
+                                minWidth: '20px',
+                                minHeight: '20px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                mb: '2px',
+                                cursor: 'pointer',
+                                aspectRatio: '1',
+                                ...(depth === 0
+                                    ? {
+                                          mt: '2px',
+                                      }
+                                    : {}),
+                            }}
+                            onClick={() => setExpanded(true)}
+                        >
+                            <Typography
+                                variant='caption'
+                                color='background.paper'
+                                sx={{ mx: '2px' }}
+                            >
+                                +{lines.length}
+                            </Typography>
+                        </Box>
+                    </Tooltip>
+                )}
+            </Stack>
+
+            <Collapse in={expanded} unmountOnExit={true}>
+                {lines.map((l, idx) => (
+                    <Line
+                        key={idx}
+                        line={l}
+                        depth={depth}
+                        handleScroll={handleScroll}
+                        onExpand={() => {
+                            setExpanded(true);
+                            expandParent?.();
                         }}
                     />
-
-                    {expanded ? (
-                        <Tooltip key='collapse' title='Collapse variations' followCursor>
-                            <Divider
-                                component='div'
-                                orientation='vertical'
-                                onClick={onCollapse}
-                                sx={{
-                                    position: 'absolute',
-                                    borderWidth: `${borderWidth}px`,
-                                    height: 1,
-                                    left: 0,
-                                    cursor: 'pointer',
-                                    ':hover': {
-                                        borderColor: 'primary.main',
-                                    },
-                                }}
-                            />
-                        </Tooltip>
-                    ) : (
-                        <Tooltip key='expand' title='Expand variations'>
-                            <Box
-                                bgcolor='text.disabled'
-                                borderRadius='50%'
-                                sx={{
-                                    width: '20px',
-                                    height: '20px',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    mb: '2px',
-                                    cursor: 'pointer',
-                                }}
-                                onClick={() => setExpanded(true)}
-                            >
-                                <Typography variant='caption' color='background.paper'>
-                                    +{lines.length}
-                                </Typography>
-                            </Box>
-                        </Tooltip>
-                    )}
-                </Stack>
-            )}
-
-            <Collapse in={expanded}>
-                {lines.map((l, idx) => (
-                    <Line key={idx} line={l} depth={d} handleScroll={handleScroll} />
                 ))}
             </Collapse>
         </Box>

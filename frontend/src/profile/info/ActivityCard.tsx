@@ -4,6 +4,7 @@ import { formatTime } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
 import { useLightMode } from '@/style/useLightMode';
+import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import {
     Card,
     CardContent,
@@ -14,6 +15,7 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import ActivityCalendar, { Activity } from 'react-activity-calendar';
+import { useLocalStorage } from 'usehooks-ts';
 import { useTimeline } from '../activity/useTimeline';
 
 const MAX_LEVEL = 4;
@@ -27,6 +29,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
     const [, setCalendarRef] = useState<HTMLElement | null>(null);
+    const [weekStartOn] = useLocalStorage<WeekDays>('calendarFilters.weekStartOn', 0);
 
     const [activities, totalCount] = useMemo(() => {
         if (view === 'points') {
@@ -80,7 +83,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             disableInteractive
                             title={
                                 view === 'points'
-                                    ? `${Math.round(10 * activity.count) / 10} Dojo points on ${activity.date}`
+                                    ? `${Math.round(10 * activity.count) / 10} Dojo point${activity.count !== 1 ? 's' : ''} on ${activity.date}`
                                     : `${formatTime(activity.count)} on ${activity.date}`
                             }
                         >
@@ -96,6 +99,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     totalCount={Math.round(10 * totalCount) / 10}
                     maxLevel={MAX_LEVEL}
                     showWeekdayLabels
+                    weekStart={weekStartOn}
                 />
             </CardContent>
         </Card>

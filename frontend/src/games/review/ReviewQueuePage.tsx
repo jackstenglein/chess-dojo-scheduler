@@ -1,3 +1,11 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar } from '@/api/Request';
+import { isValidDate } from '@/calendar/eventEditor/useEventEditor';
+import { RenderPlayersCell, RenderResult } from '@/components/games/list/GameListItem';
+import { CustomPagination } from '@/components/ui/CustomPagination';
+import { GameInfo, GameReviewType } from '@/database/game';
+import { usePagination } from '@/hooks/usePagination';
+import Avatar from '@/profile/Avatar';
 import { Container, Link, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
@@ -7,15 +15,7 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useCallback } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar } from '../../api/Request';
-import { isValidDate } from '../../calendar/eventEditor/useEventEditor';
-import { GameInfo, GameReviewType } from '../../database/game';
-import Avatar from '../../profile/Avatar';
-import { RenderPlayersCell, RenderResult } from '../list/GameListItem';
-import { CustomPagination } from '../list/ListGamesPage';
-import { usePagination } from '../list/pagination';
+import { useNavigate } from 'react-router-dom';
 
 export const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 
@@ -47,7 +47,7 @@ const columns: GridColDef<GameInfo>[] = [
                         displayName={params.row.ownerDisplayName}
                         size={32}
                     />
-                    <Link component={RouterLink} to={`/profile/${params.row.owner}`}>
+                    <Link href={`/profile/${params.row.owner}`}>
                         {params.row.ownerDisplayName}
                     </Link>
                 </Stack>

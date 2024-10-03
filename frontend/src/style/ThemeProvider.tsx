@@ -96,7 +96,12 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+<<<<<<< HEAD
         dullGrey: true;
+=======
+        youtube: true;
+        twitch: true;
+>>>>>>> origin/dev
     }
 }
 
@@ -108,6 +113,18 @@ const defaultPalette = {
             main: '#93a84f',
         },
         name: 'meet',
+    }),
+    youtube: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#FF0000',
+        },
+        name: 'youtube',
+    }),
+    twitch: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#6441a5',
+        },
+        name: 'twitch',
     }),
     book: defaultTheme.palette.augmentColor({
         color: {

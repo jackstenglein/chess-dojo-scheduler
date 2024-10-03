@@ -20,6 +20,7 @@ const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, iconName }) =
                     name={iconName}
                     color='primary'
                     sx={{ marginRight: '0.3rem', verticalAlign: 'middle' }}
+                    fontSize='small'
                 />
                 {title}
             </Typography>

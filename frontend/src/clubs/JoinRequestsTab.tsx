@@ -8,7 +8,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
@@ -134,10 +133,7 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                     />
 
                     <Stack>
-                        <Link
-                            component={RouterLink}
-                            to={`/profile/${joinRequest.username}`}
-                        >
+                        <Link href={`/profile/${joinRequest.username}`}>
                             {joinRequest.displayName}
                         </Link>
                         <Typography color='text.secondary'>

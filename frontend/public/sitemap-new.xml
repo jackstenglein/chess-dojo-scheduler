@@ -117,11 +117,13 @@
         <lastmod>2024-05-08</lastmod>
     </url>
 
+    <!-- Blog -->
     <url>
         <loc>https://www.chessdojo.club/blog</loc>
-        <lastmod>2024-05-15</lastmod>
+        <lastmod>2024-09-24</lastmod>
     </url>
 
+    <!-- Dojo Digest -->
     <url>
         <loc>https://www.chessdojo.club/blog/dojo-digest/vol-8</loc>
         <lastmod>2024-05-15</lastmod>
@@ -148,13 +150,40 @@
     </url>
 
     <url>
+        <loc>https://www.chessdojo.club/blog/dojo-digest/vol-13</loc>
+        <lastmod>2024-10-01</lastmod>
+    </url>
+
+    <!-- Player Spotlight -->
+    <url>
         <loc>https://www.chessdojo.club/blog/player-spotlight/lifecanbesonice</loc>
         <lastmod>2024-09-02</lastmod>
     </url>
 
     <url>
+        <loc>https://www.chessdojo.club/blog/player-spotlight/dandeer</loc>
+        <lastmod>2024-09-30</lastmod>
+    </url>
+
+    <!-- Miscellaneous -->
+    <url>
+        <loc>https://www.chessdojo.club/blog/olympiad-2024</loc>
+        <lastmod>2024-09-12</lastmod>
+    </url>
+
+    <url>
         <loc>https://www.chessdojo.club/blog/tactics-test</loc>
         <lastmod>2024-05-15</lastmod>
+    </url>
+
+    <url>
+        <loc>https://www.chessdojo.club/blog/new-ratings</loc>
+        <lastmod>2024-09-15</lastmod>
+    </url>
+
+    <url>
+        <loc>https://www.chessdojo.club/blog/new-ratings/noseknowsall</loc>
+        <lastmod>2024-09-24</lastmod>
     </url>
 
     <url>

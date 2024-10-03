@@ -13,7 +13,6 @@ import {
 } from '@mui/x-data-grid-pro';
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useFreeTier } from '../auth/Auth';
 import { isGraduation } from '../database/graduation';
 import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
@@ -28,7 +27,7 @@ import {
     getColumnDefinition,
     getCurrentRating,
     getMinutesSpent,
-    getNormalizedRating,
+    getNormalizedRatingRow,
     getPercentComplete,
     getRatingChange,
     getRatingSystem,
@@ -80,10 +79,7 @@ const displayNameColumn: GridColDef<ScoreboardRow> = {
                     displayName={params.value}
                     size={32}
                 />
-                <Link
-                    component={RouterLink}
-                    to={`/profile/${params.row.username.replace('#pinned', '')}`}
-                >
+                <Link href={`/profile/${params.row.username.replace('#pinned', '')}`}>
                     {params.value}
                 </Link>
             </Stack>
@@ -198,14 +194,14 @@ const ratingsColumns: GridColDef<ScoreboardRow>[] = [
     },
     {
         field: 'normalizedRating',
-        headerName: 'Normalized FIDE Rating',
+        headerName: 'Normalized Dojo Rating',
         minWidth: 200,
-        valueGetter: (_value, row) => getNormalizedRating(row),
+        valueGetter: (_value, row) => getNormalizedRatingRow(row),
         renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) =>
             (params.value ?? -1) >= 0 ? (
                 params.value
             ) : (
-                <Tooltip title='Custom ratings cannot be converted to FIDE'>
+                <Tooltip title='Custom ratings cannot be normalized'>
                     <HelpIcon sx={{ ml: 1, color: 'text.secondary', height: 1 }} />
                 </Tooltip>
             ),

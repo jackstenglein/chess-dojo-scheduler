@@ -1,4 +1,24 @@
 import {
+    OnlineGame,
+    OnlineGameResultReason,
+    OnlineGameTimeClass,
+    OnlineGameTimeControl,
+    useOnlineGames,
+} from '@/api/external/onlineGame';
+import {
+    GameSubmissionType,
+    isChesscomAnalysisURL,
+    isChesscomGameURL,
+    isLichessChapterURL,
+    isLichessGameURL,
+    isLichessStudyURL,
+} from '@/api/gameApi';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { RenderPlayers } from '@/components/games/list/GameListItem';
+import { RatingSystem, isCohortInRange } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import {
     Backdrop,
     Button,
     Card,
@@ -14,27 +34,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
-import { Link as RouterLink } from 'react-router-dom';
-import {
-    OnlineGame,
-    OnlineGameResultReason,
-    OnlineGameTimeClass,
-    OnlineGameTimeControl,
-    useOnlineGames,
-} from '../../api/external/onlineGame';
-import {
-    GameSubmissionType,
-    isChesscomAnalysisURL,
-    isChesscomGameURL,
-    isLichessChapterURL,
-    isLichessGameURL,
-    isLichessStudyURL,
-} from '../../api/gameApi';
-import { useAuth } from '../../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
-import { RatingSystem, isCohortInRange } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
-import { RenderPlayers } from '../list/GameListItem';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 import { OrDivider } from './OrDivider';
@@ -274,11 +273,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                     ) : (
                         <Typography variant='body2'>
                             To list recent games, add your Chess.com or Lichess username
-                            to your{' '}
-                            <Link component={RouterLink} to='/profile/edit#ratings'>
-                                profile
-                            </Link>
-                            .
+                            to your <Link href='/profile/edit#ratings'>profile</Link>.
                         </Typography>
                     )}
                 </Stack>

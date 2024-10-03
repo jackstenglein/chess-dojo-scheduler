@@ -1,7 +1,6 @@
 import { LoadingButton } from '@mui/lab';
 import { Card, CardActionArea, CardContent, Stack } from '@mui/material';
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
@@ -55,7 +54,6 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
     const currentUser = auth.user;
     const followRequest = useRequest<FollowerEntry>();
     const api = useApi();
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (
@@ -104,7 +102,7 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
 
     return (
         <Card key={coach.username}>
-            <CardActionArea onClick={() => navigate(`/profile/${coach.username}`)}>
+            <CardActionArea href={`/profile/${coach.username}`}>
                 <CardContent>
                     <Stack spacing={4}>
                         <Stack

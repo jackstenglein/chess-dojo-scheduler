@@ -1,8 +1,12 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import {
+    MastersCohort,
+    MastersOwnerDisplayName,
+    RenderPlayers,
+    RenderResult,
+} from '@/components/games/list/GameListItem';
 import { dojoCohorts } from '@/database/user';
-import { RenderPlayers, RenderResult } from '@/games/list/GameListItem';
-import { MastersCohort, MastersOwnerDisplayName } from '@/games/list/ListGamesPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     DirectoryItem,
@@ -13,7 +17,6 @@ import {
 import { Folder, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { Link as RouterLink } from 'react-router-dom';
 import Avatar from '../Avatar';
 
 export const publicColumns: GridColDef<DirectoryItem>[] = [
@@ -142,7 +145,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
                         displayName={item.metadata.ownerDisplayName}
                         size={32}
                     />
-                    <Link component={RouterLink} to={`/profile/${item.metadata.owner}`}>
+                    <Link href={`/profile/${item.metadata.owner}`}>
                         {item.metadata.ownerDisplayName}
                     </Link>
                 </Stack>

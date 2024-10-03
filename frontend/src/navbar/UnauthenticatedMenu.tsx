@@ -14,6 +14,8 @@ import {
     SignalCellularAlt,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
+import LoginIcon from '@mui/icons-material/Login';
+import SensorOccupiedIcon from '@mui/icons-material/SensorOccupied';
 import {
     Button,
     Collapse,
@@ -272,9 +274,15 @@ export const ExtraSmallMenuUnauthenticated = () => {
                 onClose={handleClose}
             >
                 <MenuItem component='a' href='/signin'>
+                    <ListItemIcon>
+                        <LoginIcon />
+                    </ListItemIcon>
                     <Typography textAlign='center'>Sign In</Typography>
                 </MenuItem>
                 <MenuItem component='a' href='/signup'>
+                    <ListItemIcon>
+                        <SensorOccupiedIcon />
+                    </ListItemIcon>
                     <Typography textAlign='center'>Sign Up</Typography>
                 </MenuItem>
 

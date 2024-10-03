@@ -16,7 +16,6 @@ import {
     GridRowModel,
 } from '@mui/x-data-grid-pro';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { RatingSystem, User } from '../../database/user';
@@ -42,9 +41,7 @@ const AllColumns: GridColDef<User>[] = [
                         displayName={params.value}
                         size={32}
                     />
-                    <Link component={RouterLink} to={`/profile/${params.row.username}`}>
-                        {params.value}
-                    </Link>
+                    <Link href={`/profile/${params.row.username}`}>{params.value}</Link>
                 </Stack>
             );
         },

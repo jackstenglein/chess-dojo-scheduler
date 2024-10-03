@@ -1,9 +1,11 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
+import { gameTableColumns } from '@/components/games/list/GameTable';
+import { CustomPagination } from '@/components/ui/CustomPagination';
 import { GameInfo } from '@/database/game';
-import { CustomPagination, gameTableColumns } from '@/games/list/ListGamesPage';
-import { usePagination } from '@/games/list/pagination';
+import { usePagination } from '@/hooks/usePagination';
 import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -125,6 +127,10 @@ export const AddExistingGamesDialog = ({
                 console.log('addDirectoryItems: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess();
+                trackEvent(EventType.AddDirectoryItems, {
+                    count: games.length,
+                    method: 'add_existing_games_dialog',
+                });
                 onCancel();
             })
             .catch((err) => {

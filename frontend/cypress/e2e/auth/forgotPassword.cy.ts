@@ -11,8 +11,7 @@ describe('Forgot Password Page', () => {
     });
 
     it('has correct content', () => {
-        cy.getBySel('title').should('have.text', 'ChessDojo Training Program');
-        cy.getBySel('subtitle').should('have.text', 'Forgot Password');
+        cy.getBySel('title').should('have.text', 'ChessDojo');
         cy.getBySel('description').should('contain', 'Enter your email');
     });
 

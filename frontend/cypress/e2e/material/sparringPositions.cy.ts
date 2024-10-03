@@ -1,7 +1,7 @@
 describe('Sparring Positions Tab', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'material',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

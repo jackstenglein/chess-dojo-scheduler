@@ -3,6 +3,7 @@ import { fetchAuthSession } from 'aws-amplify/auth/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 const publicPaths = [
+    /^\/static\/.*$/,
     /^\/help$/,
     /^\/tournaments$/,
     /^\/tournaments\/open-classical$/,
@@ -13,7 +14,7 @@ const publicPaths = [
     /^\/courses$/,
     /^\/material\/books$/,
     /^\/material\/ratings$/,
-    /^\/blog$/,
+    /^\/blog\/?.*$/,
     /^\/coaching$/,
     /^\/dojodigest\/unsubscribe$/,
     /^\/prices$/,

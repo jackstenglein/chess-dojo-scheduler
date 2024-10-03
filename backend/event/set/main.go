@@ -317,7 +317,9 @@ func checkTimes(event *database.Event) error {
 		return errors.Wrap(400, "Invalid request: endTime must be RFC3339 format", "", err)
 	}
 
-	expirationTime := endTime.Add(48 * time.Hour)
-	event.ExpirationTime = expirationTime.Unix()
+	if event.RRule == "" {
+		expirationTime := endTime.Add(48 * time.Hour)
+		event.ExpirationTime = expirationTime.Unix()
+	}
 	return nil
 }

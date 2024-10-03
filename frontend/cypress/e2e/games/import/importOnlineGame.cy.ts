@@ -30,7 +30,7 @@ function importUrl(url: string) {
 describe('Import Games Page - Import Online Games', () => {
     beforeEach(() => {
         cy.loginByCognitoApi(
-            'games',
+            'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );

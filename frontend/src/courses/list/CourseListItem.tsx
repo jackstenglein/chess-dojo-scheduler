@@ -12,7 +12,7 @@ import {
     Typography,
 } from '@mui/material';
 import React from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { Course, CoursePurchaseOption } from '../../database/course';
@@ -113,8 +113,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                     <Typography variant='body2'>
                         By{' '}
                         <Link
-                            component={RouterLink}
-                            to={`/profile/${course.owner}`}
+                            href={`/profile/${course.owner}`}
                             onClick={(e) => e.stopPropagation()}
                         >
                             {course.ownerDisplayName}

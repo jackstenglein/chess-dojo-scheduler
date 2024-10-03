@@ -1,16 +1,20 @@
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
+import { AccountCircle, Lock } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Card,
+    CardContent,
     CircularProgress,
     Container,
-    Divider,
+    InputAdornment,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import GoogleButton from 'react-google-button';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
 
@@ -34,9 +38,11 @@ const SigninPage = () => {
 
     if (auth.status === AuthStatus.Authenticated) {
         if (redirectUri) {
-            return <Navigate to={decodeURIComponent(redirectUri)} />;
+            window.location.href = decodeURIComponent(redirectUri);
+            return;
         }
-        return <Navigate to='/profile' />;
+        window.location.href = '/profile';
+        return;
     }
 
     const onSignin = () => {
@@ -79,77 +85,127 @@ const SigninPage = () => {
     };
 
     return (
-        <Container maxWidth='md' sx={{ pt: 10, pb: 4 }}>
-            <Stack justifyContent='center' alignItems='center' spacing={6}>
-                <RequestSnackbar request={request} />
-                <Stack alignItems='center'>
-                    <Typography variant='h4' textAlign='center' data-cy='title'>
-                        ChessDojo Training Program
-                    </Typography>
-                    <Typography variant='h6' data-cy='subtitle'>
-                        Sign In
-                    </Typography>
-                </Stack>
+        <Container maxWidth='sm' sx={{ pt: { xs: 4, sm: 10 }, pb: 4 }}>
+            <RequestSnackbar request={request} />
 
-                <Stack width={0.75} spacing={4} alignItems='center'>
-                    <TextField
-                        fullWidth
-                        id='email'
-                        label='Email'
-                        variant='outlined'
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        error={!!errors.email}
-                        helperText={errors.email}
-                    />
-                    <TextField
-                        fullWidth
-                        id='password'
-                        label='Password'
-                        type='password'
-                        variant='outlined'
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        onKeyDown={onKeyDown}
-                        error={!!errors.password}
-                        helperText={errors.password}
-                    />
-                    <LoadingButton
-                        data-cy='signin-button'
-                        variant='contained'
-                        fullWidth
-                        sx={{ textTransform: 'none' }}
-                        onClick={onSignin}
-                        loading={request.isLoading()}
-                    >
-                        Sign In
-                    </LoadingButton>
-                    <Stack
-                        direction='row'
-                        justifyContent='space-between'
-                        sx={{ width: 1 }}
-                    >
-                        <Button
-                            data-cy='signup-button'
-                            variant='text'
-                            sx={{ textTransform: 'none' }}
-                            onClick={() => navigate('/signup')}
+            <Card
+                sx={{
+                    backgroundImage: { xs: 'none', sm: 'var(--Paper-overlay)' },
+                    boxShadow: { xs: 'none', sm: 'var(--Paper-shadow)' },
+                }}
+            >
+                <CardContent>
+                    <Stack justifyContent='center' alignItems='center'>
+                        <ChessDojoIcon
+                            fontSize='large'
+                            sx={{
+                                mb: 2,
+                                width: '80px',
+                                height: '80px',
+                            }}
+                        />
+
+                        <Typography
+                            variant='h4'
+                            textAlign='center'
+                            data-cy='title'
+                            mb={4}
                         >
-                            No account? Sign Up
-                        </Button>
-                        <Button
-                            data-cy='forgot-password-button'
-                            variant='text'
-                            sx={{ textTransform: 'none', alignSelf: 'end' }}
-                            onClick={() => navigate('/forgot-password')}
-                        >
-                            Forgot password?
-                        </Button>
+                            ChessDojo
+                        </Typography>
+
+                        <Stack width={{ xs: 1, sm: 0.85 }} rowGap={3} alignItems='center'>
+                            <TextField
+                                fullWidth
+                                id='email'
+                                label='Email'
+                                variant='outlined'
+                                value={email}
+                                onChange={(event) => setEmail(event.target.value)}
+                                error={!!errors.email}
+                                helperText={errors.email}
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <AccountCircle color='dojoOrange' />
+                                            </InputAdornment>
+                                        ),
+                                    },
+                                }}
+                            />
+                            <TextField
+                                fullWidth
+                                id='password'
+                                label='Password'
+                                type='password'
+                                variant='outlined'
+                                value={password}
+                                onChange={(event) => setPassword(event.target.value)}
+                                onKeyDown={onKeyDown}
+                                error={!!errors.password}
+                                helperText={errors.password}
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <Lock color='dojoOrange' />
+                                            </InputAdornment>
+                                        ),
+                                    },
+                                }}
+                            />
+                            <LoadingButton
+                                data-cy='signin-button'
+                                variant='contained'
+                                fullWidth
+                                sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 'bold',
+                                    fontSize: '18px',
+                                    padding: '12px 16px',
+                                }}
+                                onClick={onSignin}
+                                loading={request.isLoading()}
+                            >
+                                Sign In
+                            </LoadingButton>
+
+                            <Stack
+                                direction='row'
+                                justifyContent='space-between'
+                                sx={{ width: 1, mt: -2 }}
+                            >
+                                <Button
+                                    data-cy='signup-button'
+                                    variant='text'
+                                    sx={{ textTransform: 'none' }}
+                                    onClick={() => navigate('/signup')}
+                                >
+                                    Sign Up
+                                </Button>
+                                <Button
+                                    data-cy='forgot-password-button'
+                                    variant='text'
+                                    sx={{ textTransform: 'none', alignSelf: 'end' }}
+                                    onClick={() => navigate('/forgot-password')}
+                                >
+                                    Reset Password
+                                </Button>
+                            </Stack>
+
+                            <GoogleButton
+                                onClick={onGoogleSignIn}
+                                style={{
+                                    transform: 'scale(1.1)',
+                                    transformOrigin: 'center',
+                                    margin: '20px',
+                                }}
+                            />
+                        </Stack>
                     </Stack>
-                    <Divider sx={{ width: 1 }}>Or</Divider>
-                    <GoogleButton onClick={onGoogleSignIn} />
-                </Stack>
-            </Stack>
+                </CardContent>
+            </Card>
         </Container>
     );
 };
