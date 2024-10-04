@@ -1,5 +1,5 @@
 import { useApi } from '@/api/Api';
-import GameTable, { gameTableColumns } from '@/components/games/list/GameTable';
+import GameTable from '@/components/games/list/GameTable';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
 import {
@@ -26,8 +26,6 @@ import UpsellPage from '../../upsell/UpsellPage';
 import ListGamesTutorial from './ListGamesTutorial';
 import { ListItemContextMenu } from './ListItemContextMenu';
 import SearchFilters from './SearchFilters';
-
-const gamesPageTableColumns = gameTableColumns.filter((c) => c.field !== 'moves');
 
 const ListGamesPage = () => {
     const navigate = useNavigate();
@@ -121,7 +119,9 @@ const ListGamesPage = () => {
                         onClickRow={(params) => onClick(params.row)}
                         onPaginationModelChange={onPaginationModelChange}
                         contextMenu={contextMenu}
-                        columns={gamesPageTableColumns}
+                        defaultVisibility={{
+                            moves: false,
+                        }}
                     />
                     <ListItemContextMenu
                         game={

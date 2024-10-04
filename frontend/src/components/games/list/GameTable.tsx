@@ -139,7 +139,7 @@ interface GameTableProps {
     contextMenu: DataGridContextMenu;
     limitFreeTier?: boolean;
     columns?: GridColDef<GameInfo>[];
-    defaultVisibility: Record<string, boolean>;
+    defaultVisibility?: Record<string, boolean>;
 }
 
 export default function GameTable({
@@ -157,7 +157,7 @@ export default function GameTable({
         whiteRating: false,
         blackRating: false,
         unlisted: false,
-        ...defaultVisibility,
+        ...(defaultVisibility ?? {}),
     });
 
     const transformedColumns = useMemo(() => {
