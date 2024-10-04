@@ -3,14 +3,18 @@ import { CustomPagination } from '@/components/ui/CustomPagination';
 import { GameInfo } from '@/database/game';
 import { DataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { PaginationResult } from '@/hooks/usePagination';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Tooltip } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
+    GridColumnVisibilityModel,
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
+    GridToolbar,
 } from '@mui/x-data-grid-pro';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
     formatMoves,
     formatPublishedAt,
@@ -31,15 +35,6 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
             RenderCohort(params.row),
     },
     {
-        field: 'players',
-        headerName: 'Players',
-        valueGetter: (_value, row) =>
-            `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
-        renderCell: RenderPlayersCell,
-        minWidth: 150,
-        flex: 1,
-    },
-    {
         field: 'result',
         headerName: 'Result',
         valueGetter: (_value, row) => row.headers?.Result,
@@ -51,17 +46,28 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         width: 50,
     },
     {
+        field: 'players',
+        headerName: 'Players',
+        valueGetter: (_value, row) =>
+            `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
+        renderCell: RenderPlayersCell,
+        minWidth: 150,
+        flex: 1,
+    },
+    {
         field: 'whiteRating',
+        headerName: 'White Rating',
         renderHeader: () => <RenderRatingHeader white={true} />,
-        valueGetter: (_value, row) => Number(row.headers?.WhiteElo),
+        valueGetter: (_value, row) => Number(row.headers?.WhiteElo) || '',
         headerAlign: 'center',
         align: 'center',
         width: 75,
     },
     {
         field: 'blackRating',
+        headerName: 'Black Rating',
         renderHeader: () => <RenderRatingHeader white={false} />,
-        valueGetter: (_value, row) => Number(row.headers?.BlackElo),
+        valueGetter: (_value, row) => Number(row.headers?.BlackElo) || '',
         headerAlign: 'center',
         align: 'center',
         width: 75,
@@ -102,6 +108,28 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerAlign: 'center',
         width: 75,
     },
+    {
+        field: 'unlisted',
+        headerName: 'Visibility',
+        align: 'center',
+        headerAlign: 'center',
+        minWidth: 75,
+        width: 75,
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
+            if (params.row.unlisted) {
+                return (
+                    <Tooltip title='Unlisted'>
+                        <VisibilityOff sx={{ color: 'text.secondary', height: 1 }} />
+                    </Tooltip>
+                );
+            }
+            return (
+                <Tooltip title='Public'>
+                    <Visibility sx={{ color: 'text.secondary', height: 1 }} />
+                </Tooltip>
+            );
+        },
+    },
 ];
 
 interface GameTableProps {
@@ -111,6 +139,7 @@ interface GameTableProps {
     contextMenu: DataGridContextMenu;
     limitFreeTier?: boolean;
     columns?: GridColDef<GameInfo>[];
+    defaultVisibility: Record<string, boolean>;
 }
 
 export default function GameTable({
@@ -120,9 +149,16 @@ export default function GameTable({
     contextMenu,
     limitFreeTier,
     columns,
+    defaultVisibility,
 }: GameTableProps) {
     const freeTierLimited = useFreeTier() && limitFreeTier;
     const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
+    const [columnVisibility, setColumnVisibility] = useState<GridColumnVisibilityModel>({
+        whiteRating: false,
+        blackRating: false,
+        unlisted: false,
+        ...defaultVisibility,
+    });
 
     const transformedColumns = useMemo(() => {
         let transformedColumns = columns ?? gameTableColumns;
@@ -142,6 +178,8 @@ export default function GameTable({
             columns={transformedColumns}
             rows={data}
             pageSizeOptions={freeTierLimited ? [10] : [5, 10, 25]}
+            columnVisibilityModel={columnVisibility}
+            onColumnVisibilityModelChange={(model) => setColumnVisibility(model)}
             paginationModel={
                 freeTierLimited
                     ? { page: 0, pageSize: 10 }
@@ -150,6 +188,7 @@ export default function GameTable({
             onPaginationModelChange={onPaginationModelChange}
             loading={request.isLoading()}
             autoHeight
+            density='compact'
             sx={{ width: 1 }}
             rowHeight={70}
             onRowClick={onClickRow}
@@ -174,6 +213,7 @@ export default function GameTable({
                         onNextPage={() => setPage(page + 1)}
                     />
                 ),
+                toolbar: GridToolbar,
             }}
             slotProps={{
                 row: {
