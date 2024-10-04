@@ -188,11 +188,11 @@ export default function GameTable({
             onPaginationModelChange={onPaginationModelChange}
             loading={request.isLoading()}
             autoHeight
-            density='compact'
             sx={{ width: 1 }}
             rowHeight={70}
             onRowClick={onClickRow}
             initialState={{
+                density: 'compact',
                 sorting: {
                     sortModel: [
                         {
