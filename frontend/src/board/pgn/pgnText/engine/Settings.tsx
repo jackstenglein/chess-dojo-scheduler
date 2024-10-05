@@ -1,4 +1,6 @@
 import {
+    ENGINE_ADD_INFO_ON_EVAL_CLICK,
+    ENGINE_ADD_INFO_ON_MOVE_CLICK,
     ENGINE_DEPTH,
     ENGINE_HASH,
     ENGINE_LINE_COUNT,
@@ -11,10 +13,12 @@ import Icon from '@/style/Icon';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
     Button,
+    Checkbox,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControlLabel,
     IconButton,
     ListItemIcon,
     ListItemText,
@@ -45,6 +49,14 @@ export default function Settings() {
         ENGINE_THREADS.Default,
     );
     const [hash, setHash] = useLocalStorage<number>(ENGINE_HASH.Key, ENGINE_HASH.Default);
+    const [addEngineInfoOnEval, setAddEngineInfoOnEval] = useLocalStorage<boolean>(
+        ENGINE_ADD_INFO_ON_EVAL_CLICK.Key,
+        ENGINE_ADD_INFO_ON_EVAL_CLICK.Default,
+    );
+    const [addEngineInfoOnMove, setAddEngineInfoOnMove] = useLocalStorage<boolean>(
+        ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
+        ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
+    );
 
     useEffect(() => {
         if (!ENGINE_THREADS.Default) {
@@ -132,6 +144,30 @@ export default function Settings() {
                             min={ENGINE_HASH.Min}
                             max={ENGINE_HASH.Max}
                             valueLabel={(v) => `${Math.pow(2, v)} MB`}
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={addEngineInfoOnEval}
+                                    onChange={(e) =>
+                                        setAddEngineInfoOnEval(e.target.checked)
+                                    }
+                                />
+                            }
+                            label='Add engine info (name, depth, eval, WDL) as a comment when clicking eval'
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={addEngineInfoOnMove}
+                                    onChange={(e) =>
+                                        setAddEngineInfoOnMove(e.target.checked)
+                                    }
+                                />
+                            }
+                            label='Add engine info (name, depth, eval, WDL) as a comment when clicking move'
                         />
                     </Stack>
                 </DialogContent>

@@ -131,6 +131,16 @@ export const ENGINE_HASH = {
     Max: 9,
 } as const;
 
+export const ENGINE_ADD_INFO_ON_EVAL_CLICK = {
+    Key: 'engine-add-info-on-eval-click',
+    Default: true,
+} as const;
+
+export const ENGINE_ADD_INFO_ON_MOVE_CLICK = {
+    Key: 'engine-add-info-on-move-click',
+    Default: false,
+} as const;
+
 /** The evaluation of a specific position. */
 export interface PositionEval {
     /** The best move chosen by the engine. */

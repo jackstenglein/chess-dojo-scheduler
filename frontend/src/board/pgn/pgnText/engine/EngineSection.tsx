@@ -36,7 +36,7 @@ export default function EngineSection() {
         ? evaluation.lines
         : (Array.from({ length: linesNumber }).map((_, i) => ({
               fen: '',
-              pv: [`${i}`],
+              pv: [],
               depth: 0,
               multiPv: i + 1,
           })) as LineEval[]);
@@ -55,7 +55,7 @@ export default function EngineSection() {
         >
             <Stack sx={{ p: 1, containerType: 'inline-size' }}>
                 <Stack direction='row' alignItems='center'>
-                    <Tooltip title='Toggle Engine'>
+                    <Tooltip title='Toggle Engine' disableInteractive>
                         <Switch
                             checked={enabled}
                             onChange={() => setEnabled((prev) => !prev)}
@@ -69,7 +69,10 @@ export default function EngineSection() {
                                 {getLineEvalLabel(engineLines[0])}
                             </Typography>
                             {resultPercentages && (
-                                <Tooltip title="The engine's expected Win / Draw / Loss percentages">
+                                <Tooltip
+                                    title="The engine's expected Win / Draw / Loss percentages"
+                                    disableInteractive
+                                >
                                     <Typography
                                         variant='caption'
                                         sx={{ whiteSpace: 'nowrap' }}
@@ -99,7 +102,10 @@ export default function EngineSection() {
                                 {engineInfo.shortName}
                             </Typography>
 
-                            <Tooltip title={engineInfo.techDescription}>
+                            <Tooltip
+                                title={engineInfo.techDescription}
+                                disableInteractive
+                            >
                                 <Typography
                                     color='dojoOrange'
                                     variant='caption'
@@ -175,6 +181,7 @@ export default function EngineSection() {
                             </Typography>
                         ) : (
                             <EvaluationSection
+                                engineInfo={engineInfo}
                                 allLines={engineLines}
                                 maxLines={linesNumber}
                             />
@@ -198,5 +205,9 @@ function NodesPerSecond({ nps }: { nps?: number }) {
         text = `${Math.round(nps / 100) / 10} Kn/s`;
     }
 
-    return <Typography variant='caption'>{text}</Typography>;
+    return (
+        <Tooltip title='Nodes (positions searched) per second' disableInteractive>
+            <Typography variant='caption'>{text}</Typography>
+        </Tooltip>
+    );
 }

@@ -1,5 +1,5 @@
 import Board from '@/board/Board';
-import { LineEval } from '@/stockfish/engine/engine';
+import { EngineInfo, LineEval } from '@/stockfish/engine/engine';
 import { List, Paper, Popper } from '@mui/material';
 import { Key } from 'chessground/types';
 import { useRef, useState } from 'react';
@@ -13,9 +13,11 @@ interface HoverMove {
 }
 
 export const EvaluationSection = ({
+    engineInfo,
     allLines,
     maxLines,
 }: {
+    engineInfo: EngineInfo;
     allLines: LineEval[];
     maxLines: number;
 }) => {
@@ -48,7 +50,11 @@ export const EvaluationSection = ({
                 onMouseLeave={onMouseLeave}
             >
                 {allLines.slice(0, maxLines).map((line) => (
-                    <LineEvaluation key={line.multiPv} line={line} />
+                    <LineEvaluation
+                        engineInfo={engineInfo}
+                        key={line.multiPv}
+                        line={line}
+                    />
                 ))}
             </List>
             <Popper

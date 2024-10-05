@@ -1,29 +1,46 @@
 import { useReconcile } from '@/board/Board';
-import { LineEval } from '@/stockfish/engine/engine';
+import {
+    ENGINE_ADD_INFO_ON_EVAL_CLICK,
+    ENGINE_ADD_INFO_ON_MOVE_CLICK,
+    EngineInfo,
+    LineEval,
+} from '@/stockfish/engine/engine';
 import { Chess, Color, Move } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
+import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
 
 interface Props {
     line: LineEval;
+    engineInfo: EngineInfo;
 }
 
-export default function LineEvaluation({ line }: Props) {
+export default function LineEvaluation({ engineInfo, line }: Props) {
     const lineLabel = getLineEvalLabel(line);
     const { chess } = useChess();
     const reconcile = useReconcile();
+    const [addInfoOnEval] = useLocalStorage(
+        ENGINE_ADD_INFO_ON_EVAL_CLICK.Key,
+        ENGINE_ADD_INFO_ON_EVAL_CLICK.Default,
+    );
+    const [addInfoOnMove] = useLocalStorage(
+        ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
+        ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
+    );
 
     const isBlackCp =
         (line.cp !== undefined && line.cp < 0) ||
         (line.mate !== undefined && line.mate < 0);
 
     const showSkeleton = line.depth < 6;
+    const moves = line.pv.map(moveLineUciToMove(line.fen));
 
-    const onClick = (index: number) => {
+    const onClick = (index: number, addInfo: boolean = addInfoOnMove) => {
         if (chess?.fen() !== line.fen || index >= line.pv.length) {
             return;
         }
 
+        const startTurn = chess.turn();
         let existingOnly = true;
         for (let i = 0; i <= index; i++) {
             const move = chess.move(line.pv[i], { existingOnly });
@@ -34,12 +51,29 @@ export default function LineEvaluation({ line }: Props) {
                 chess.setCommand('dojoEngine', 'true', move);
             }
         }
+        if (addInfo) {
+            let comment = chess.getComment();
+            if (comment.trim().length > 0) {
+                comment += `\n\n`;
+            }
+            comment += `(${engineInfo.extraShortName} ${lineLabel}/${line.depth}`;
+            comment += formatResultPercentages(startTurn, chess.turn(), line);
+            comment += ')';
+            chess.setComment(comment);
+        }
         reconcile();
+    };
+
+    const onClickEval = () => {
+        if (line.pv.length > 0) {
+            onClick(line.pv.length - 1, addInfoOnEval);
+        }
     };
 
     return (
         <ListItem disablePadding sx={{ overflowX: 'clip', alignItems: 'center' }}>
             <Box
+                onClick={onClickEval}
                 sx={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -55,7 +89,14 @@ export default function LineEvaluation({ line }: Props) {
                     minWidth: '45px',
                     height: '23px',
                     minHeight: '23px',
+                    cursor: 'pointer',
+                    '&:hover': {
+                        opacity: 0.85,
+                    },
                 }}
+                data-fen={moves.at(-1)?.after}
+                data-from={moves.at(-1)?.from}
+                data-to={moves.at(-1)?.to}
             >
                 {showSkeleton ? (
                     <Skeleton
@@ -74,6 +115,9 @@ export default function LineEvaluation({ line }: Props) {
                             fontWeight: 'bold',
                             color: isBlackCp ? 'white' : 'black',
                         }}
+                        data-fen={moves.at(-1)?.after}
+                        data-from={moves.at(-1)?.from}
+                        data-to={moves.at(-1)?.to}
                     >
                         {lineLabel}
                     </Typography>
@@ -84,7 +128,7 @@ export default function LineEvaluation({ line }: Props) {
                 {showSkeleton ? (
                     <Skeleton variant='rounded' animation='wave' />
                 ) : (
-                    line.pv.map(moveLineUciToMove(line.fen)).map((move, idx) => {
+                    moves.map((move, idx) => {
                         if (!move) {
                             return null;
                         }
@@ -172,4 +216,18 @@ function moveToLabel(move: Move): string {
 
     label += move.san;
     return label;
+}
+
+function formatResultPercentages(
+    startTurn: Color,
+    currentTurn: Color,
+    line: LineEval,
+): string {
+    if (!line.resultPercentages) {
+        return '';
+    }
+    if (startTurn === currentTurn) {
+        return ` ${line.resultPercentages.win}/${line.resultPercentages.draw}/${line.resultPercentages.loss}`;
+    }
+    return ` ${line.resultPercentages.loss}/${line.resultPercentages.draw}/${line.resultPercentages.win}`;
 }
