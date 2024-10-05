@@ -15,6 +15,9 @@ export interface EngineInfo {
     /** The short user-facing name of the engine. */
     shortName: string;
 
+    /** The extra short user-facing name of the engine. */
+    extraShortName: string;
+
     /**
      * The user-facing description of the engine, displayed when
      * selecting between engines.
@@ -37,6 +40,7 @@ export const engines: EngineInfo[] = [
         name: EngineName.Stockfish17,
         fullName: 'Stockfish 17 NNUE • 79 MB',
         shortName: 'SF 17 • 79 MB',
+        extraShortName: 'SF 17',
         description: 'Best for desktop',
         tech: 'NNUE',
         techDescription: `Evaluation is performed by Stockfish's neural network.`,
@@ -46,6 +50,7 @@ export const engines: EngineInfo[] = [
         name: EngineName.Stockfish16,
         fullName: 'Stockfish 16.1 NNUE • 6 MB',
         shortName: 'SF 16 • 6 MB',
+        extraShortName: 'SF 16',
         description: 'Best for mobile and weaker desktops',
         tech: 'NNUE',
         techDescription: `Evaluation is performed by Stockfish's neural network.`,
@@ -55,6 +60,7 @@ export const engines: EngineInfo[] = [
         name: EngineName.Stockfish11,
         fullName: 'Stockfish 11 HCE',
         shortName: 'SF 11',
+        extraShortName: 'SF 11',
         description: 'Faster than NNUE but less accurate',
         tech: 'HCE',
         techDescription: `Evaluation is performed using various heuristics and rules. Faster, but much less accurate than NNUE.`,
@@ -151,6 +157,15 @@ export interface LineEval {
     multiPv: number;
     /** The number of nodes per second evaluated by the engine. */
     nps?: number;
+    /** The expected percentages of different results. */
+    resultPercentages?: {
+        /** The expected win percentage evaluated by the engine. */
+        win: number;
+        /** The expected draw percentage evaluated by the engine. */
+        draw: number;
+        /** The expected loss percentage evaluated by the engine. */
+        loss: number;
+    };
 }
 
 /** A cached evaluation of a specific position. */

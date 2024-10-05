@@ -27,6 +27,7 @@ export const parseEvaluationResults = (
 
         if (result.startsWith('info')) {
             const pv = getResultPv(result);
+            const resultPercentages = getResultPercentages(result);
             const multiPv = getResultProperty(result, 'multipv');
             const depth = getResultProperty(result, 'depth');
 
@@ -48,6 +49,7 @@ export const parseEvaluationResults = (
                 depth: parseInt(depth),
                 multiPv: parseInt(multiPv),
                 nps: nps ? parseInt(nps) : undefined,
+                resultPercentages,
             };
         }
     }
@@ -122,3 +124,39 @@ const getResultPv = (result: string): string[] | undefined => {
 
     return splitResult.slice(pvIndex + 1);
 };
+
+/**
+ * Extracts the Win/Draw/Loss percentages from the result message.
+ * @param result The result message from the engine.
+ * @returns The WDL percentages from the result message.
+ */
+function getResultPercentages(
+    result: string,
+): { win: number; draw: number; loss: number } | undefined {
+    const splitResult = result.split(' ');
+    const wdlIndex = splitResult.indexOf('wdl');
+    if (wdlIndex === -1 || wdlIndex + 3 >= splitResult.length) {
+        return undefined;
+    }
+
+    const win = parseInt(splitResult[wdlIndex + 1]);
+    if (isNaN(win)) {
+        return undefined;
+    }
+
+    const draw = parseInt(splitResult[wdlIndex + 2]);
+    if (isNaN(draw)) {
+        return undefined;
+    }
+
+    const loss = parseInt(splitResult[wdlIndex + 3]);
+    if (isNaN(loss)) {
+        return undefined;
+    }
+
+    return {
+        win: win / 10,
+        draw: draw / 10,
+        loss: loss / 10,
+    };
+}

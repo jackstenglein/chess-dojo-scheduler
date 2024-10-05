@@ -74,6 +74,10 @@ export abstract class UciEngine {
     public async init(): Promise<void> {
         if (this.worker) {
             await this.sendCommands(['uci'], 'uciok');
+            await this.sendCommands(
+                ['setoption name UCI_ShowWDL value true', 'isready'],
+                'readyok',
+            );
             await this.setMultiPv(this.multiPv, true);
             await this.setThreads(this.threads, true);
             await this.setHash(this.hash, true);
