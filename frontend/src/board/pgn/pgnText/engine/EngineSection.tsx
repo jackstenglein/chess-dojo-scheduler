@@ -34,7 +34,7 @@ export default function EngineSection() {
 
     const engineLines = evaluation?.lines?.length
         ? evaluation.lines
-        : (Array.from({ length: linesNumber }).map((_, i) => ({
+        : (Array.from({ length: Math.max(1, linesNumber) }).map((_, i) => ({
               fen: '',
               pv: [],
               depth: 0,
