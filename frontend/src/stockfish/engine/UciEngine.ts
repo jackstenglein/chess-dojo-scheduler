@@ -21,6 +21,8 @@ export abstract class UciEngine {
     private threads: number = ENGINE_THREADS.Default;
     private hash: number = Math.pow(2, ENGINE_HASH.Default);
     private _debug: boolean;
+    private observers = new Set<(message: string) => void>();
+    private evaluatingFen = '';
 
     /**
      * Gets an EngineWorker from the given stockfish.js path.
@@ -73,6 +75,7 @@ export abstract class UciEngine {
      */
     public async init(): Promise<void> {
         if (this.worker) {
+            this.worker.listen = this.publishMessage;
             await this.sendCommands(['uci'], 'uciok');
             await this.sendCommands(
                 ['setoption name UCI_ShowWDL value true', 'isready'],
@@ -85,6 +88,33 @@ export abstract class UciEngine {
             this.debug(`${this.engineName} initialized`);
         }
     }
+
+    /**
+     * Adds an observer to be notified of UCI messages.
+     * @param observer The observer to add.
+     */
+    private addObserver(observer: (message: string) => void) {
+        this.observers.add(observer);
+    }
+
+    /**
+     * Removes an observer from being notified of UCI messages.
+     * @param observer The observer to remove.
+     */
+    private removeObserver(observer: (message: string) => void) {
+        this.observers.delete(observer);
+    }
+
+    /**
+     * Publishes the given message to this UciEngine's observers.
+     * @param message The message to publish.
+     */
+    private publishMessage = (message: string) => {
+        this.debug('Posting message to observers: ', message);
+        for (const observer of this.observers) {
+            observer(message);
+        }
+    };
 
     /**
      * Sends the given UCI commands and resolves once the expected final message is returned.
@@ -105,15 +135,17 @@ export abstract class UciEngine {
 
             const messages: string[] = [];
 
-            this.worker.listen = (messageData) => {
-                this.debug('UCI message: ', messageData);
-                messages.push(messageData);
+            const observer = (message: string) => {
+                this.debug('UCI message: ', message);
+                messages.push(message);
                 onNewMessage?.(messages);
 
-                if (messageData.startsWith(finalMessage)) {
+                if (message.startsWith(finalMessage)) {
+                    this.removeObserver(observer);
                     resolve(messages);
                 }
             };
+            this.addObserver(observer);
 
             for (const command of commands) {
                 this.debug('Posting message: ', command);
@@ -216,6 +248,9 @@ export abstract class UciEngine {
      */
     public shutdown(): void {
         this.ready = false;
+        if (this.evaluatingFen) {
+            this.publishMessage('bestmove');
+        }
         this.worker?.uci('quit');
         this.worker?.terminate?.();
         this.debug(`${this.engineName} shutdown`);
@@ -233,7 +268,10 @@ export abstract class UciEngine {
      * @returns A Promise that resolves once the engine has stopped.
      */
     public async stopSearch(): Promise<void> {
-        await this.sendCommands(['stop', 'isready'], 'readyok');
+        if (this.evaluatingFen) {
+            await this.sendCommands(['stop'], 'bestmove');
+            this.evaluatingFen = '';
+        }
     }
 
     /**
@@ -267,11 +305,16 @@ export abstract class UciEngine {
         };
 
         this.debug(`Started evaluating ${fen}`);
+
+        this.evaluatingFen = fen;
         const results = await this.sendCommands(
             [`position fen ${fen}`, `go depth ${depth}`],
             'bestmove',
             onNewMessage,
         );
+        if (this.evaluatingFen === fen) {
+            this.evaluatingFen = '';
+        }
         this.debug(`Stopped evaluating ${fen}`);
         return parseEvaluationResults(fen, results, whiteToPlay);
     }

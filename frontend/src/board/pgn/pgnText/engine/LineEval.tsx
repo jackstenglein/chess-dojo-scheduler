@@ -32,7 +32,7 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         (line.cp !== undefined && line.cp < 0) ||
         (line.mate !== undefined && line.mate < 0);
 
-    const showSkeleton = line.depth < 6;
+    const showSkeleton = line.depth === 0;
     const moves = line.pv.map(moveLineUciToMove(line.fen));
 
     const onClick = (index: number, addInfo: boolean = addInfoOnMove) => {
