@@ -52,8 +52,8 @@ export async function objectStorage<V, K extends IDBValidKey = IDBValidKey>(
     function actionPromise<V>(f: () => IDBRequest) {
         return new Promise<V>((resolve, reject) => {
             const res = f();
-            res.onsuccess = (e: Event) => resolve((e.target as IDBRequest).result);
-            res.onerror = (e: Event) => reject((e.target as IDBRequest).result);
+            res.onsuccess = (e: Event) => resolve((e.target as IDBRequest).result as V);
+            res.onerror = (e: Event) => reject((e.target as IDBRequest).result as Error);
         });
     }
 
@@ -67,8 +67,8 @@ export async function objectStorage<V, K extends IDBValidKey = IDBValidKey>(
         count: (key?: K | IDBKeyRange) =>
             actionPromise<number>(() => objectStore('readonly').count(key)),
         remove: (key: K | IDBKeyRange) =>
-            actionPromise<void>(() => objectStore('readwrite').delete(key)),
-        clear: () => actionPromise<void>(() => objectStore('readwrite').clear()),
+            actionPromise(() => objectStore('readwrite').delete(key)),
+        clear: () => actionPromise(() => objectStore('readwrite').clear()),
         cursor: (keys?: IDBKeyRange, dir?: IDBCursorDirection) =>
             actionPromise<IDBCursorWithValue | undefined>(() =>
                 objectStore('readonly').openCursor(keys, dir),
@@ -85,12 +85,15 @@ export async function dbConnect(dbInfo: DbInfo): Promise<IDBDatabase> {
 
         result.onsuccess = (e: Event) => resolve((e.target as IDBOpenDBRequest).result);
         result.onerror = (e: Event) =>
-            reject((e.target as IDBOpenDBRequest).error ?? 'IndexedDB Unavailable');
+            reject(
+                ((e.target as IDBOpenDBRequest).error as Error) ??
+                    'IndexedDB Unavailable',
+            );
         result.onupgradeneeded = (e: IDBVersionChangeEvent) => {
             const db = (e.target as IDBOpenDBRequest).result;
             const txn = (e.target as IDBOpenDBRequest).transaction;
             const store = db.objectStoreNames.contains(dbInfo.store)
-                ? txn!.objectStore(dbInfo.store)
+                ? txn?.objectStore(dbInfo.store)
                 : db.createObjectStore(dbInfo.store);
 
             dbInfo.upgrade?.(e, store);
