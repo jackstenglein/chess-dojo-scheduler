@@ -100,6 +100,7 @@ export const ENGINE_DEPTH = {
     Max: 99,
 } as const;
 
+/** Settings for the number of threads used by the engine. */
 export const ENGINE_THREADS = {
     /** Local storage key for the threads. */
     Key: 'engine-threads',
@@ -131,13 +132,40 @@ export const ENGINE_HASH = {
     Max: 9,
 } as const;
 
+/** The primary evaluation types for an engine. */
+export enum PrimaryEvalType {
+    /** The numeric eval of the position. */
+    Eval = 'eval',
+    /** The engine's expected win/draw/loss percentages. */
+    WinDrawLoss = 'wdl',
+}
+
+/** Settings for the primary evaluation type of the engine. */
+export const ENGINE_PRIMARY_EVAL_TYPE = {
+    /** Local storage key for the primary evaluation type. */
+    Key: 'engine-primary-eval-type',
+    /** The default evaluation type. */
+    Default: 'eval',
+    /** The options for the primary evaluation type. */
+    Options: [
+        { value: PrimaryEvalType.Eval, label: 'Evaluation' },
+        { value: PrimaryEvalType.WinDrawLoss, label: 'Win / Draw / Loss' },
+    ],
+} as const;
+
+/** Settings for adding info on clicking the eval box. */
 export const ENGINE_ADD_INFO_ON_EVAL_CLICK = {
+    /** Local storage key for clicking the eval box behavior. */
     Key: 'engine-add-info-on-eval-click',
+    /** The default value. */
     Default: true,
 } as const;
 
+/** Settings for adding info on clicking a move in an engine line. */
 export const ENGINE_ADD_INFO_ON_MOVE_CLICK = {
+    /** Local storage key for clicking a move behavior. */
     Key: 'engine-add-info-on-move-click',
+    /** The default value. */
     Default: false,
 } as const;
 

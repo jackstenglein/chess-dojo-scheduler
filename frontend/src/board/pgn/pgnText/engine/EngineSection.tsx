@@ -11,7 +11,7 @@ import { Box, Paper, Stack, Switch, Tooltip, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { EvaluationSection } from './EvaluationSection';
-import { getLineEvalLabel } from './LineEval';
+import { formatLineEval } from './LineEval';
 import Settings from './Settings';
 
 export default function EngineSection() {
@@ -66,7 +66,7 @@ export default function EngineSection() {
                     {enabled && !isGameOver && (
                         <Stack sx={{ mr: 2 }} alignItems='center'>
                             <Typography variant='h5'>
-                                {getLineEvalLabel(engineLines[0])}
+                                {formatLineEval(engineLines[0])}
                             </Typography>
                             {resultPercentages && (
                                 <Tooltip

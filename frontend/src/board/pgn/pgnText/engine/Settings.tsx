@@ -5,6 +5,7 @@ import {
     ENGINE_HASH,
     ENGINE_LINE_COUNT,
     ENGINE_NAME,
+    ENGINE_PRIMARY_EVAL_TYPE,
     ENGINE_THREADS,
     EngineName,
     engines,
@@ -18,11 +19,15 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControl,
     FormControlLabel,
+    FormLabel,
     IconButton,
     ListItemIcon,
     ListItemText,
     MenuItem,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
 } from '@mui/material';
@@ -49,6 +54,11 @@ export default function Settings() {
         ENGINE_THREADS.Default,
     );
     const [hash, setHash] = useLocalStorage<number>(ENGINE_HASH.Key, ENGINE_HASH.Default);
+
+    const [primaryEvalType, setPrimaryEvalType] = useLocalStorage<string>(
+        ENGINE_PRIMARY_EVAL_TYPE.Key,
+        ENGINE_PRIMARY_EVAL_TYPE.Default,
+    );
     const [addEngineInfoOnEval, setAddEngineInfoOnEval] = useLocalStorage<boolean>(
         ENGINE_ADD_INFO_ON_EVAL_CLICK.Key,
         ENGINE_ADD_INFO_ON_EVAL_CLICK.Default,
@@ -82,7 +92,7 @@ export default function Settings() {
             <Dialog open={open} onClose={() => setOpen(false)} maxWidth='sm' fullWidth>
                 <DialogTitle>Engine Settings</DialogTitle>
                 <DialogContent>
-                    <Stack spacing={2} sx={{ pt: 1 }}>
+                    <Stack rowGap={2} sx={{ pt: 1 }}>
                         <TextField
                             select
                             fullWidth
@@ -145,6 +155,26 @@ export default function Settings() {
                             max={ENGINE_HASH.Max}
                             valueLabel={(v) => `${Math.pow(2, v)} MB`}
                         />
+                    </Stack>
+
+                    <Stack rowGap={2} sx={{ mt: 3 }}>
+                        <FormControl>
+                            <FormLabel>Primary Evaluation Type</FormLabel>
+                            <RadioGroup
+                                row
+                                value={primaryEvalType}
+                                onChange={(e) => setPrimaryEvalType(e.target.value)}
+                            >
+                                {ENGINE_PRIMARY_EVAL_TYPE.Options.map((opt) => (
+                                    <FormControlLabel
+                                        key={opt.value}
+                                        value={opt.value}
+                                        label={opt.label}
+                                        control={<Radio />}
+                                    />
+                                ))}
+                            </RadioGroup>
+                        </FormControl>
 
                         <FormControlLabel
                             control={
@@ -155,7 +185,7 @@ export default function Settings() {
                                     }
                                 />
                             }
-                            label='Add engine info (name, depth, eval, WDL) as a comment when clicking eval'
+                            label='Add engine info as a comment when clicking eval'
                         />
 
                         <FormControlLabel
@@ -167,7 +197,7 @@ export default function Settings() {
                                     }
                                 />
                             }
-                            label='Add engine info (name, depth, eval, WDL) as a comment when clicking move'
+                            label='Add engine info as a comment when clicking move'
                         />
                     </Stack>
                 </DialogContent>

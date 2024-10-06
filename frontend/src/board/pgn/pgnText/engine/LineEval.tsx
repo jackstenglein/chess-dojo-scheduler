@@ -2,8 +2,10 @@ import { useReconcile } from '@/board/Board';
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
+    ENGINE_PRIMARY_EVAL_TYPE,
     EngineInfo,
     LineEval,
+    PrimaryEvalType,
 } from '@/stockfish/engine/engine';
 import { Chess, Color, Move } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
@@ -16,9 +18,12 @@ interface Props {
 }
 
 export default function LineEvaluation({ engineInfo, line }: Props) {
-    const lineLabel = getLineEvalLabel(line);
     const { chess } = useChess();
     const reconcile = useReconcile();
+    const [primaryEvalType] = useLocalStorage<PrimaryEvalType>(
+        ENGINE_PRIMARY_EVAL_TYPE.Key,
+        ENGINE_PRIMARY_EVAL_TYPE.Default as PrimaryEvalType,
+    );
     const [addInfoOnEval] = useLocalStorage(
         ENGINE_ADD_INFO_ON_EVAL_CLICK.Key,
         ENGINE_ADD_INFO_ON_EVAL_CLICK.Default,
@@ -27,6 +32,9 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
     );
+
+    const evaluation = formatLineEval(line);
+    const wdl = formatResultPercentages(Color.white, Color.white, line, ' ');
 
     const isBlackCp =
         (line.cp !== undefined && line.cp < 0) ||
@@ -56,7 +64,7 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
             if (comment.trim().length > 0) {
                 comment += `\n\n`;
             }
-            comment += `(${engineInfo.extraShortName} ${lineLabel}/${line.depth}`;
+            comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
             comment += formatResultPercentages(startTurn, chess.turn(), line);
             comment += ')';
             chess.setComment(comment);
@@ -85,14 +93,21 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
                     borderRadius: '5px',
                     border: '1px solid',
                     borderColor: '#424242',
-                    width: '45px',
-                    minWidth: '45px',
                     height: '23px',
                     minHeight: '23px',
                     cursor: 'pointer',
                     '&:hover': {
                         opacity: 0.85,
                     },
+                    ...(primaryEvalType === PrimaryEvalType.Eval
+                        ? {
+                              width: '45px',
+                              minWidth: '45px',
+                          }
+                        : {
+                              px: 0.5,
+                              whiteSpace: 'nowrap',
+                          }),
                 }}
                 data-fen={moves.at(-1)?.after}
                 data-from={moves.at(-1)?.from}
@@ -119,7 +134,7 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
                         data-from={moves.at(-1)?.from}
                         data-to={moves.at(-1)?.to}
                     >
-                        {lineLabel}
+                        {primaryEvalType === PrimaryEvalType.Eval ? evaluation : wdl}
                     </Typography>
                 )}
             </Box>
@@ -167,7 +182,7 @@ const MoveLabel = styled('span')(({ theme }) => ({
  * @param line The line to get the evaluation label for.
  * @returns The evaluation label.
  */
-export const getLineEvalLabel = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
+export const formatLineEval = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
     if (line.cp !== undefined) {
         return `${line.cp > 0 ? '+' : ''}${(line.cp / 100).toFixed(2)}`;
     }
@@ -222,12 +237,13 @@ function formatResultPercentages(
     startTurn: Color,
     currentTurn: Color,
     line: LineEval,
+    separator = '',
 ): string {
     if (!line.resultPercentages) {
         return '';
     }
     if (startTurn === currentTurn) {
-        return ` ${line.resultPercentages.win}/${line.resultPercentages.draw}/${line.resultPercentages.loss}`;
+        return ` ${line.resultPercentages.win}${separator}/${separator}${line.resultPercentages.draw}${separator}/${separator}${line.resultPercentages.loss}`;
     }
-    return ` ${line.resultPercentages.loss}/${line.resultPercentages.draw}/${line.resultPercentages.win}`;
+    return ` ${line.resultPercentages.loss}${separator}/${separator}${line.resultPercentages.draw}${separator}/${separator}${line.resultPercentages.win}`;
 }
