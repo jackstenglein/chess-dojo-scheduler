@@ -1,3 +1,4 @@
+import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import {
     Checkbox,
     FormControlLabel,
@@ -95,6 +96,11 @@ const ViewerSettings = () => {
         );
     const [showLegalMoves, setShowLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
     const [showGlyphs, setShowGlyphs] = useLocalStorage(ShowGlyphsKey, false);
+
+    const [highlightEngineLines, setHighlightEngineLines] = useLocalStorage<boolean>(
+        HIGHLIGHT_ENGINE_LINES.Key,
+        HIGHLIGHT_ENGINE_LINES.Default,
+    );
 
     return (
         <Stack spacing={3}>
@@ -213,6 +219,16 @@ const ViewerSettings = () => {
                         />
                     }
                     label='Show elapsed time next to move'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={highlightEngineLines}
+                            onChange={(e) => setHighlightEngineLines(e.target.checked)}
+                        />
+                    }
+                    label='Highlight engine lines in PGN text'
                 />
             </Stack>
 

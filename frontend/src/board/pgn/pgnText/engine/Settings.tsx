@@ -9,6 +9,7 @@ import {
     ENGINE_THREADS,
     EngineName,
     engines,
+    HIGHLIGHT_ENGINE_LINES,
 } from '@/stockfish/engine/engine';
 import Icon from '@/style/Icon';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -66,6 +67,10 @@ export default function Settings() {
     const [addEngineInfoOnMove, setAddEngineInfoOnMove] = useLocalStorage<boolean>(
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
+    );
+    const [highlightEngineLines, setHighlightEngineLines] = useLocalStorage<boolean>(
+        HIGHLIGHT_ENGINE_LINES.Key,
+        HIGHLIGHT_ENGINE_LINES.Default,
     );
 
     useEffect(() => {
@@ -157,7 +162,7 @@ export default function Settings() {
                         />
                     </Stack>
 
-                    <Stack rowGap={2} sx={{ mt: 3 }}>
+                    <Stack rowGap={{ xs: 2, sm: 1 }} sx={{ mt: 3 }}>
                         <FormControl>
                             <FormLabel>Primary Evaluation Type</FormLabel>
                             <RadioGroup
@@ -198,6 +203,18 @@ export default function Settings() {
                                 />
                             }
                             label='Add engine info as a comment when clicking move'
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={highlightEngineLines}
+                                    onChange={(e) =>
+                                        setHighlightEngineLines(e.target.checked)
+                                    }
+                                />
+                            }
+                            label='Highlight engine lines in PGN text'
                         />
                     </Stack>
                 </DialogContent>

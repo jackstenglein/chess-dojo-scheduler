@@ -169,6 +169,14 @@ export const ENGINE_ADD_INFO_ON_MOVE_CLICK = {
     Default: false,
 } as const;
 
+/** Settings for highlighting engine lines. */
+export const HIGHLIGHT_ENGINE_LINES = {
+    /** Local storage key for highlighting engine lines. */
+    Key: 'highlight-engine-lines',
+    /** The default value. */
+    Default: true,
+} as const;
+
 /** The evaluation of a specific position. */
 export interface PositionEval {
     /** The best move chosen by the engine. */
