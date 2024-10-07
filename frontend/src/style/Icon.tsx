@@ -1,3 +1,5 @@
+import { EngineName } from '@/stockfish/engine/engine';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import {
     Alarm,
     AllInclusiveRounded,
@@ -12,7 +14,9 @@ import {
     DashboardCustomize,
     DoDisturb,
     Download,
+    Dvr,
     EditCalendar,
+    ElectricBolt,
     EmojiObjects,
     Event,
     EventAvailable,
@@ -39,6 +43,7 @@ import {
     PeopleOutline,
     Person,
     PersonOutline,
+    PhoneAndroid,
     PunchClock,
     QueryBuilder,
     RestartAlt,
@@ -57,8 +62,8 @@ import {
     Whatshot,
     ZoomOutMap,
 } from '@mui/icons-material';
-import { SvgIconProps } from '@mui/material';
-import React from 'react';
+import { SvgIcon, SvgIconProps } from '@mui/material';
+import React, { forwardRef } from 'react';
 import {
     AvailabilityType,
     CalendarSessionType,
@@ -168,6 +173,9 @@ export const icons = {
     innerMenuUp: KeyboardArrowUp,
     innerMenuDown: KeyboardArrowDown,
     spar: Link,
+    [EngineName.Stockfish11]: ElectricBolt,
+    [EngineName.Stockfish16]: PhoneAndroid,
+    [EngineName.Stockfish17]: Dvr,
 };
 
 export type IconName = keyof typeof icons;
@@ -186,3 +194,43 @@ export const Icon: React.FC<IconProps> = ({ name, ...props }) => {
 };
 
 export default Icon;
+
+type FontAwesomeSvgIconProps = SvgIconProps & {
+    icon: IconDefinition;
+};
+
+export const FontAwesomeSvgIcon = forwardRef<SVGSVGElement, FontAwesomeSvgIconProps>(
+    (props, ref) => {
+        const { icon, ...others } = props;
+
+        const {
+            icon: [width, height, , , svgPathData],
+        } = icon;
+
+        return (
+            <SvgIcon
+                ref={ref}
+                viewBox={`0 0 ${width} ${height}`}
+                fontSize='small'
+                className='MuiChip-icon'
+                {...others}
+            >
+                {typeof svgPathData === 'string' ? (
+                    <path d={svgPathData} />
+                ) : (
+                    /**
+                     * A multi-path Font Awesome icon seems to imply a duotune icon. The 0th path seems to
+                     * be the faded element (referred to as the "secondary" path in the Font Awesome docs)
+                     * of a duotone icon. 40% is the default opacity.
+                     *
+                     * @see https://fontawesome.com/how-to-use/on-the-web/styling/duotone-icons#changing-opacity
+                     */
+                    svgPathData.map((d: string, i: number) => (
+                        <path key={i} style={{ opacity: i === 0 ? 0.4 : 1 }} d={d} />
+                    ))
+                )}
+            </SvgIcon>
+        );
+    },
+);
+FontAwesomeSvgIcon.displayName = 'FontAwesomeSvgIcon';

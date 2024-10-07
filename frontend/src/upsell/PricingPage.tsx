@@ -1,6 +1,6 @@
 import { Alert, Container, Grid2, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from '../auth/Auth';
@@ -32,7 +32,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     }
 
     if (user?.subscriptionStatus === SubscriptionStatus.Subscribed) {
-        return <Navigate to='/profile' replace />;
+        window.location.href = '/profile';
+        return;
     }
 
     const onSubscribe = (interval: 'month' | 'year') => {

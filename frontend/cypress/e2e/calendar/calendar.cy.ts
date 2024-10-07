@@ -32,7 +32,11 @@ describe('Calendar Page', () => {
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
-            .should('have.attr', 'href', '/prices');
+            .should(
+                'have.attr',
+                'href',
+                '/prices?redirect=http%3A%2F%2Flocalhost%3A3000%2Fcalendar',
+            );
 
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 

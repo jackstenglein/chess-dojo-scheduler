@@ -12,7 +12,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 interface RenderPlayersProps {
     white: string;
@@ -127,9 +127,7 @@ export function RenderOwner({
             onClick={(e) => e.stopPropagation()}
         >
             <Avatar username={owner} displayName={ownerDisplayName} size={32} />
-            <Link component={RouterLink} to={`/profile/${owner}`}>
-                {ownerDisplayName}
-            </Link>
+            <Link href={`/profile/${owner}`}>{ownerDisplayName}</Link>
         </Stack>
     );
 }

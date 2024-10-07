@@ -1,6 +1,6 @@
 import { faDiscord, faTwitch, faYoutube } from '@fortawesome/free-brands-svg-icons';
 import { SvgIconProps } from '@mui/material';
-import { FontAwesomeSvgIcon } from '../profile/info/DiscordChip';
+import { FontAwesomeSvgIcon } from './Icon';
 
 export function DiscordIcon(props: SvgIconProps) {
     return <FontAwesomeSvgIcon icon={faDiscord} {...props} />;

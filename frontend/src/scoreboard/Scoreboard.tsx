@@ -13,7 +13,6 @@ import {
 } from '@mui/x-data-grid-pro';
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useFreeTier } from '../auth/Auth';
 import { isGraduation } from '../database/graduation';
 import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
@@ -80,10 +79,7 @@ const displayNameColumn: GridColDef<ScoreboardRow> = {
                     displayName={params.value}
                     size={32}
                 />
-                <Link
-                    component={RouterLink}
-                    to={`/profile/${params.row.username.replace('#pinned', '')}`}
-                >
+                <Link href={`/profile/${params.row.username.replace('#pinned', '')}`}>
                     {params.value}
                 </Link>
             </Stack>

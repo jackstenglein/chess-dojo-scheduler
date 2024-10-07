@@ -9,7 +9,7 @@ import {
     Typography,
 } from '@mui/material';
 import React from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useRequiredAuth } from '../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
 import { Event, EventStatus, getDisplayString } from '../database/event';
@@ -49,12 +49,6 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
         };
     }
 
-    const onClickOpponent = (event: React.MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-        navigate(`/profile/${opponent.username}`);
-    };
-
     return (
         <Card variant='outlined' sx={{ width: 1 }}>
             <CardActionArea onClick={onClick}>
@@ -86,11 +80,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
                                 displayName={opponent.displayName}
                                 size={25}
                             />
-                            <Link
-                                component={RouterLink}
-                                to={`/profile/${opponent.username}`}
-                                onClick={onClickOpponent}
-                            >
+                            <Link href={`/profile/${opponent.username}`}>
                                 <Typography variant='subtitle1'>
                                     {opponent.displayName} ({opponent.cohort})
                                 </Typography>

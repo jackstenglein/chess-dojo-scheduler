@@ -20,7 +20,7 @@ import { TransitionProps } from '@mui/material/transitions';
 import { TimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import React, { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
@@ -284,8 +284,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                         />
                                         <Link
                                             key={p.username}
-                                            component={RouterLink}
-                                            to={`/profile/${p.username}`}
+                                            href={`/profile/${p.username}`}
                                         >
                                             <Typography variant='body1'>
                                                 {p.displayName} ({p.cohort})

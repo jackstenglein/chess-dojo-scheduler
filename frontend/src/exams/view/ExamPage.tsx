@@ -366,6 +366,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                 pgn={answerPgns.current[selectedProblem]}
                 startOrientation={getOrientation(exam.pgns[selectedProblem])}
                 showPlayerHeaders={false}
+                disableEngine
                 underboardTabs={[
                     {
                         name: 'instructions',

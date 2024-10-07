@@ -13,7 +13,6 @@ import {
 import { Folder, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { Link as RouterLink } from 'react-router-dom';
 import Avatar from '../Avatar';
 
 export const publicColumns: GridColDef<DirectoryItem>[] = [
@@ -142,7 +141,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
                         displayName={item.metadata.ownerDisplayName}
                         size={32}
                     />
-                    <Link component={RouterLink} to={`/profile/${item.metadata.owner}`}>
+                    <Link href={`/profile/${item.metadata.owner}`}>
                         {item.metadata.ownerDisplayName}
                     </Link>
                 </Stack>

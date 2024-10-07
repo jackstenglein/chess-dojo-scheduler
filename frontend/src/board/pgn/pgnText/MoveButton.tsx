@@ -1,3 +1,4 @@
+import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Help } from '@mui/icons-material';
@@ -26,7 +27,14 @@ import { useChess } from '../PgnBoard';
 import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
 import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
 
-export function getTextColor(move: Move, inline?: boolean): string {
+export function getTextColor(
+    move: Move,
+    inline?: boolean,
+    highlightEngineLines?: boolean,
+): string {
+    if (highlightEngineLines && move.commentDiag?.dojoEngine) {
+        return 'error.main';
+    }
     for (const nag of move.nags || []) {
         const color = nags[getStandardNag(nag)]?.color;
         if (color) {
@@ -63,6 +71,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             event.preventDefault();
         },
     });
+    const [highlightEngineLines] = useLocalStorage<boolean>(
+        HIGHLIGHT_ENGINE_LINES.Key,
+        HIGHLIGHT_ENGINE_LINES.Default,
+    );
 
     const displayNags = move.nags?.sort(compareNags).map((nag) => {
         const n = nags[getStandardNag(nag)];
@@ -91,7 +103,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             sx={{
                 textTransform: 'none',
                 fontWeight: isCurrentMove ? 'bold' : 'inherit',
-                color: isCurrentMove ? undefined : getTextColor(move, inline),
+                color: isCurrentMove
+                    ? undefined
+                    : getTextColor(move, inline, highlightEngineLines),
                 backgroundColor: isCurrentMove ? 'primary' : 'initial',
                 paddingRight: inline ? undefined : 2,
 
@@ -138,16 +152,18 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                     )}
                 </Stack>
 
-                {time && (
-                    <Typography
-                        variant='caption'
-                        color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
-                    >
-                        {time}
-                    </Typography>
-                )}
+                <Stack direction='row' alignItems='center' gap={1}>
+                    {time && (
+                        <Typography
+                            variant='caption'
+                            color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
+                        >
+                            {time}
+                        </Typography>
+                    )}
 
-                {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
+                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
+                </Stack>
             </Stack>
         </MuiButton>
     );
