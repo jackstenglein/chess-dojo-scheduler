@@ -1,3 +1,5 @@
+import CommentEditor from '@/components/comments/CommentEditor';
+import CommentList from '@/components/comments/CommentList';
 import { Box, Card, CardContent, CardHeader, Stack } from '@mui/material';
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
@@ -6,8 +8,6 @@ import { useCache } from '../api/cache/Cache';
 import { useRequiredAuth } from '../auth/Auth';
 import { Event, EventType } from '../database/event';
 import LoadingPage from '../loading/LoadingPage';
-import CommentEditor from '../newsfeed/detail/CommentEditor';
-import CommentList from '../newsfeed/detail/CommentList';
 
 const MeetingMessages = () => {
     const { user } = useRequiredAuth();

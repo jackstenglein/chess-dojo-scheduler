@@ -17,8 +17,6 @@ import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
 import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
-import ForgotPasswordPage from './auth/ForgotPasswordPage';
-import SigninPage from './auth/SigninPage';
 import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import CalendarPage from './calendar/CalendarPage';
@@ -45,20 +43,15 @@ import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
-import HelpPage from './help/HelpPage';
-import BooksPage from './material/BooksPage';
 import MaterialPage from './material/MaterialPage';
 import MemorizeGamesPage from './material/MemorizeGamesPage';
 import ModelGamesPage from './material/ModelGamesPage';
-import RatingConversionsPage from './material/RatingConversionsPage';
 import SparringPage from './material/SparringPage';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
 import MerchPage from './merch/MerchPage';
-import NewsfeedDetailPage from './newsfeed/detail/NewsfeedDetailPage';
-import NewsfeedListPage from './newsfeed/list/NewsfeedListPage';
 import NotificationPage from './notifications/NotificationPage';
 import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
@@ -66,7 +59,6 @@ import ProfileEditorPage from './profile/editor/ProfileEditorPage';
 import FollowersPage from './profile/followers/FollowersPage';
 import YearReviewPage from './profile/yearReview/YearReviewPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
-import RecentPage from './recent/RecentPage';
 import RequirementPage from './requirements/RequirementPage';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
@@ -91,11 +83,8 @@ const router = createBrowserRouter(
         <Route path='/' element={<Root />}>
             <Route element={<SwitchCohortPrompt />}>
                 <Route index element={<LandingPage />} />
-                <Route path='signin' element={<SigninPage />} />
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
-                <Route path='forgot-password' element={<ForgotPasswordPage />} />
-                <Route path='help' element={<HelpPage />} />
                 <Route path='tournaments'>
                     <Route index element={<TournamentsPage />} />
                     <Route path='open-classical'>
@@ -161,7 +150,6 @@ const router = createBrowserRouter(
                         />
                     </Route>
 
-                    <Route path='recent' element={<RecentPage />} />
                     <Route path='calendar' element={<CalendarPage />}>
                         <Route path='availability/:id' element={<EventBooker />} />
                     </Route>
@@ -208,11 +196,6 @@ const router = createBrowserRouter(
 
                     <Route path='notifications' element={<NotificationPage />} />
 
-                    <Route path='newsfeed'>
-                        <Route index element={<NewsfeedListPage />} />
-                        <Route path=':owner/:id' element={<NewsfeedDetailPage />} />
-                    </Route>
-
                     <Route path='coach'>
                         <Route index element={<CoachPortalPage />} />
                         <Route path='courses/:type/:id' element={<CourseEditorPage />} />
@@ -228,15 +211,16 @@ const router = createBrowserRouter(
                 </Route>
             </Route>
 
-            <Route path='material'>
-                <Route path='books' element={<BooksPage />} />
-                <Route path='ratings' element={<RatingConversionsPage />} />
-            </Route>
-
             {/* Legacy routes from Wix */}
-            <Route path='books-by-rating' element={<BooksPage />} />
-            <Route path='books' element={<BooksPage />} />
-            <Route path='recommendations' element={<BooksPage />} />
+            <Route
+                path='books-by-rating'
+                element={<Navigate to='/material/books' replace />}
+            />
+            <Route path='books' element={<Navigate to='/material/books' replace />} />
+            <Route
+                path='recommendations'
+                element={<Navigate to='/material/books' replace />}
+            />
             <Route path='training' element={<Navigate to='/profile' replace />} />
             <Route path='home' element={<Navigate to='/profile' replace />} />
             <Route path='plans-pricing' element={<PricingPage />} />
