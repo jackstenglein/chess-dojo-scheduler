@@ -2,6 +2,7 @@ export enum GameResult {
     White = '1-0',
     Black = '0-1',
     Draw = '1/2-1/2',
+    Incomplete = '*',
 }
 
 /**

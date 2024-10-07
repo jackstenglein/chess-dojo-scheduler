@@ -1,8 +1,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth, useFreeTier } from '@/auth/Auth';
-import { gameTableColumns } from '@/components/games/list/GameTable';
-import { CustomPagination } from '@/components/ui/CustomPagination';
+import GameTable from '@/components/games/list/GameTable';
 import { GameInfo } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
 import { User } from '@/database/user';
@@ -11,70 +10,37 @@ import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Button, Stack, Tooltip } from '@mui/material';
-import {
-    DataGridPro,
-    GridPaginationModel,
-    GridRenderCellParams,
-    GridRowParams,
-} from '@mui/x-data-grid-pro';
-import { useCallback, useMemo } from 'react';
+import { Button, Stack } from '@mui/material';
+import { GridPaginationModel, GridRowParams } from '@mui/x-data-grid-pro';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface GamesTabProps {
     user: User;
 }
 
 const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
+    const navigate = useNavigate();
     const api = useApi();
     const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
     const contextMenu = useDataGridContextMenu();
-
-    const columns = useMemo(() => {
-        const columns = gameTableColumns.filter((c) => c.field !== 'owner');
-        if (currentUser?.username === user.username) {
-            columns.push({
-                field: 'unlisted',
-                headerName: 'Visibility',
-                align: 'center',
-                headerAlign: 'center',
-                minWidth: 75,
-                width: 75,
-                renderCell: (params: GridRenderCellParams<GameInfo, string>) => {
-                    if (params.row.unlisted) {
-                        return (
-                            <Tooltip title='Unlisted'>
-                                <VisibilityOff
-                                    sx={{ color: 'text.secondary', height: 1 }}
-                                />
-                            </Tooltip>
-                        );
-                    }
-                    return (
-                        <Tooltip title='Public'>
-                            <Visibility sx={{ color: 'text.secondary', height: 1 }} />
-                        </Tooltip>
-                    );
-                },
-            });
-        }
-        return columns;
-    }, [currentUser?.username, user.username]);
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user.username, startKey),
         [api, user.username],
     );
 
-    const { request, data, rowCount, page, pageSize, hasMore, setPage, setPageSize } =
-        usePagination(searchByOwner, 0, 10);
+    const pagination = usePagination(searchByOwner, 0, 10);
+    const { request, data, pageSize, setPageSize } = pagination;
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
-        window.location.href = `/games/${params.row.cohort.replaceAll(
-            '+',
-            '%2B',
-        )}/${params.row.id.replaceAll('?', '%3F')}`;
+        navigate(
+            `/games/${params.row.cohort.replaceAll(
+                '+',
+                '%2B',
+            )}/${params.row.id.replaceAll('?', '%3F')}`,
+        );
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
@@ -84,7 +50,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     };
 
     const onSubmit = () => {
-        window.location.href = '/games/import';
+        navigate('/games/import');
     };
 
     return (
@@ -112,44 +78,16 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
             )}
 
             {(!isFreeTier || currentUser?.username === user.username) && (
-                <DataGridPro
-                    columns={columns}
-                    rows={data}
-                    pageSizeOptions={[5, 10, 25]}
-                    paginationModel={{ page: data.length > 0 ? page : 0, pageSize }}
+                <GameTable
+                    pagination={pagination}
                     onPaginationModelChange={onPaginationModelChange}
-                    loading={request.isLoading()}
-                    autoHeight
-                    rowHeight={70}
-                    onRowClick={onClickRow}
-                    sx={{ width: 1 }}
-                    initialState={{
-                        sorting: {
-                            sortModel: [
-                                {
-                                    field: 'publishedAt',
-                                    sort: 'desc',
-                                },
-                            ],
-                        },
-                    }}
-                    pagination
-                    slots={{
-                        pagination: () => (
-                            <CustomPagination
-                                page={page}
-                                pageSize={pageSize}
-                                count={rowCount}
-                                hasMore={hasMore}
-                                onPrevPage={() => setPage(page - 1)}
-                                onNextPage={() => setPage(page + 1)}
-                            />
-                        ),
-                    }}
-                    slotProps={{
-                        row: {
-                            onContextMenu: contextMenu.open,
-                        },
+                    onClickRow={onClickRow}
+                    contextMenu={contextMenu}
+                    defaultVisibility={{
+                        publishedAt: false,
+                        cohort: false,
+                        owner: false,
+                        unlisted: currentUser?.username === user.username,
                     }}
                 />
             )}
