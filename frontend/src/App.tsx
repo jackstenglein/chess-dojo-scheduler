@@ -79,6 +79,7 @@ import ListPage from './tournaments/openClassical/ListPage';
 import RegistrationPage from './tournaments/openClassical/RegistrationPage';
 import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
 import AdminPage from './tournaments/openClassical/admin/AdminPage';
+import TournamentViewer from './tournaments/roundRobin/robinPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 import PricingPage from './upsell/PricingPage';
 
@@ -98,6 +99,7 @@ const router = createBrowserRouter(
                 <Route path='help' element={<HelpPage />} />
                 <Route path='tournaments'>
                     <Route index element={<TournamentsPage />} />
+                    <Route path='round-robin' element={<TournamentViewer />} />
                     <Route path='open-classical'>
                         <Route index element={<DetailsPage />} />
                         <Route path='info' element={<InfoPage />} />

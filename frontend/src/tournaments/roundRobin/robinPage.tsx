@@ -1,11 +1,23 @@
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import InfoIcon from '@mui/icons-material/Info';
-import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import { PawnIcon } from '@/style/ChessIcons';
+import {
+    Group as GroupIcon,
+    Info as InfoIcon,
+    TableChart as TableChartIcon,
+} from '@mui/icons-material';
 import { Box, Container, Tab, Tabs } from '@mui/material';
-import { useState } from 'react';
-import CalendarTab from './CalendarTab';
-import InfoTab from './InfoTab';
-import LeaderboardTab from './LeaderboardTab';
+import React, { useState } from 'react';
+import Crosstable from './CrosstablePage';
+import GameSubmission from './gameSubmission';
+import InfoPage from './InfoPage';
+import PairingsPage from './PairingPage';
+
+/**
+ * Preview tab of the pannel
+ * @param index the int index value
+ * @param value the int value
+ * @param children ReactNode children
+ * @returns
+ */
 
 const TabPanel: React.FC<{
     children?: React.ReactNode;
@@ -24,7 +36,12 @@ const TabPanel: React.FC<{
     );
 };
 
-const TournamentsPage: React.FC = () => {
+/**
+ * Handles the logic for tournament viewer
+ * @returns
+ */
+
+const TournamentViewer: React.FC = () => {
     const [tabValue, setTabValue] = useState(0);
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -38,24 +55,28 @@ const TournamentsPage: React.FC = () => {
                     value={tabValue}
                     onChange={handleTabChange}
                     variant='fullWidth'
-                    aria-label='Dojoliga viewer tabs'
+                    aria-label='tournament viewer tabs'
                 >
                     <Tab label='Info' icon={<InfoIcon />} />
-                    <Tab label='Leaderboard' icon={<LeaderboardIcon />} />
-                    <Tab label='Calendar' icon={<CalendarTodayIcon />} />
+                    <Tab label='Pairings' icon={<GroupIcon />} />
+                    <Tab label='Crosstable' icon={<TableChartIcon />} />
+                    <Tab label='Games' icon={<PawnIcon />} />
                 </Tabs>
             </Box>
             <TabPanel value={tabValue} index={0}>
-                <InfoTab />
+                <InfoPage />
             </TabPanel>
             <TabPanel value={tabValue} index={1}>
-                <LeaderboardTab />
+                <PairingsPage />
             </TabPanel>
             <TabPanel value={tabValue} index={2}>
-                <CalendarTab />
+                <Crosstable />
+            </TabPanel>
+            <TabPanel value={tabValue} index={3}>
+                <GameSubmission />
             </TabPanel>
         </Container>
     );
 };
 
-export default TournamentsPage;
+export default TournamentViewer;

@@ -59,6 +59,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        dullGrey: true;
     }
 
     interface CheckboxPropsColorOverrides {
@@ -71,6 +72,7 @@ declare module '@mui/material' {
         book: true;
         meet: true;
         trainingPlanTaskComplete: true;
+        dullGrey: true;
     }
 
     interface ButtonPropsColorOverrides {
@@ -82,6 +84,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        dullGrey: true;
     }
 
     interface SvgIconPropsColorOverrides {
@@ -166,6 +169,12 @@ const defaultPalette = {
             main: blue[800],
         },
         name: 'trainingPlanTaskComplete',
+    }),
+    dullGrey: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#E8E8E8',
+        },
+        name: 'dullGrey',
     }),
 };
 
