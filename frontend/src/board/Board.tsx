@@ -325,6 +325,9 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
 
             onInitialize?.(board, chess);
             setIsInitialized(true);
+        } else if (boardRef.current && board && !isInitialized) {
+            board.set({ ...config });
+            setIsInitialized(true);
         }
     }, [
         boardRef,

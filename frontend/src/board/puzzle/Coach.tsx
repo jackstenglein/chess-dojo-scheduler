@@ -14,6 +14,7 @@ const Coach: React.FC<CoachProps> = ({ src }) => {
                 marginLeft: '1em',
             }}
             alt='coach logo'
+            crossOrigin='anonymous'
         />
     );
 };

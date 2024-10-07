@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { ListGamesResponse } from '../../../../../api/gameApi';
@@ -318,10 +317,7 @@ const CompletedDialogContent: React.FC<{ game: Game }> = ({ game }) => {
                             username={review.reviewer?.username}
                             displayName={review.reviewer?.displayName}
                         />
-                        <Link
-                            component={RouterLink}
-                            to={`/profile/${review.reviewer?.username}`}
-                        >
+                        <Link href={`/profile/${review.reviewer?.username}`}>
                             {review.reviewer?.displayName} ({review.reviewer?.cohort})
                         </Link>
                     </Stack>

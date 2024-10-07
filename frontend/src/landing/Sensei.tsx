@@ -58,6 +58,7 @@ const Sensei = () => {
                                 image={sensei.image}
                                 sx={{ aspectRatio: 1 }}
                                 loading='lazy'
+                                crossOrigin='anonymous'
                             />
                             <CardContent>
                                 <Typography variant='h5'>{sensei.name}</Typography>

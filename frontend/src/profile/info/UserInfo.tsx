@@ -1,6 +1,5 @@
 import WarningIcon from '@mui/icons-material/Warning';
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 
 import { SubscriptionStatus, User } from '../../database/user';
 import CohortIcon from '../../scoreboard/CohortIcon';
@@ -26,7 +25,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, linkUsername }) => {
                 >
                     <Typography variant='h4'>
                         {linkUsername ? (
-                            <Link component={RouterLink} to={`/profile/${user.username}`}>
+                            <Link href={`/profile/${user.username}`}>
                                 {user.displayName}
                             </Link>
                         ) : (

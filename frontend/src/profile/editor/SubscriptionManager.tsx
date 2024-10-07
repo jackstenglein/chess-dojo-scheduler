@@ -2,7 +2,6 @@ import { OpenInNew } from '@mui/icons-material';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { LoadingButton } from '@mui/lab';
 import { Button, Divider, Stack, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { SubscriptionStatus, User } from '../../database/user';
@@ -14,7 +13,6 @@ interface SubscriptionManagerProps {
 const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
     const request = useRequest();
     const api = useApi();
-    const navigate = useNavigate();
 
     const onManageSubscription = () => {
         request.onStart();
@@ -54,7 +52,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
             {isFreeTier ? (
                 <>
                     <Typography>Subscription Status: Free Tier</Typography>
-                    <Button variant='contained' onClick={() => navigate('/prices')}>
+                    <Button variant='contained' href='/prices'>
                         View Prices
                     </Button>
                 </>

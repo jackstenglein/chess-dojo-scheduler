@@ -1,3 +1,4 @@
+import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
 import { Chess } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { createContext, useContext, useEffect } from 'react';
@@ -114,6 +115,10 @@ const GamePage = () => {
             });
     };
 
+    const onUpdateGame = (g: Game) => {
+        request.onSuccess({ ...g, pgn: request.data?.pgn ?? g.pgn });
+    };
+
     const isOwner = request.data?.owner === user?.username;
     const showPreflight =
         isOwner && firstLoad && request.data !== undefined && isMissingData(request.data);
@@ -134,7 +139,7 @@ const GamePage = () => {
                 <GameContext.Provider
                     value={{
                         game: request.data,
-                        onUpdateGame: request.onSuccess,
+                        onUpdateGame,
                         isOwner,
                     }}
                 >
@@ -151,6 +156,9 @@ const GamePage = () => {
                             DefaultUnderboardTab.Settings,
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
+                        slots={{
+                            moveButtonExtras: EngineMoveButtonExtras,
+                        }}
                     />
                 </GameContext.Provider>
             </PgnErrorBoundary>

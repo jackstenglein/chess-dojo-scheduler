@@ -1,7 +1,8 @@
+import { FontAwesomeSvgIcon } from '@/style/Icon';
 import { faPatreon, faSpotify, faTwitch } from '@fortawesome/free-brands-svg-icons';
 import { FacebookOutlined, Instagram, X, YouTube } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip, useMediaQuery } from '@mui/material';
-import { DiscordIcon, FontAwesomeSvgIcon } from '../profile/info/DiscordChip';
+import { DiscordIcon } from '../profile/info/DiscordChip';
 
 const icons = [
     <Tooltip key='twitch' title='Twitch'>

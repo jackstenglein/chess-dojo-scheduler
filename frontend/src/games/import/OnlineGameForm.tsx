@@ -34,7 +34,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
-import { Link as RouterLink } from 'react-router-dom';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 import { OrDivider } from './OrDivider';
@@ -274,11 +273,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                     ) : (
                         <Typography variant='body2'>
                             To list recent games, add your Chess.com or Lichess username
-                            to your{' '}
-                            <Link component={RouterLink} to='/profile/edit#ratings'>
-                                profile
-                            </Link>
-                            .
+                            to your <Link href='/profile/edit#ratings'>profile</Link>.
                         </Typography>
                     )}
                 </Stack>

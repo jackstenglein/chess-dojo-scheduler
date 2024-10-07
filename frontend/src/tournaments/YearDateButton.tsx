@@ -1,6 +1,5 @@
 import { Button, Popover, Stack } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers';
-import { getYear } from 'date-fns';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { LocaleArrow, MIN_DATE, MIN_YEAR } from './MonthDateButton';
@@ -69,7 +68,7 @@ const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
                 type='next'
                 onClick={handleNext}
                 aria-label='next year'
-                disabled={currentYear >= getYear(new Date())}
+                disabled={currentYear >= DateTime.now().year}
             />
         </Stack>
     );

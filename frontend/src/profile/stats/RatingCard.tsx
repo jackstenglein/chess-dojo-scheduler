@@ -8,7 +8,7 @@ import {
     Card,
     CardContent,
     Chip,
-    Grid,
+    Grid2,
     Link,
     Stack,
     Tooltip,
@@ -44,7 +44,7 @@ export function getMemberLink(ratingSystem: RatingSystem, username: string): str
         case RatingSystem.Acf:
             return `https://sachess.org.au/ratings/player?id=${username}`;
         case RatingSystem.Knsb:
-            return `https://ratingviewer.nl/list/117/players/${username}`;
+            return `https://ratingviewer.nl/lists/1/players/${username}`;
         case RatingSystem.Custom:
             return '';
     }
@@ -224,8 +224,12 @@ const RatingCard: React.FC<RatingCardProps> = ({
                     )}
                 </Stack>
 
-                <Grid container justifyContent='space-around' rowGap={2}>
-                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
+                <Grid2 container justifyContent='space-around' rowGap={2}>
+                    <Grid2
+                        size={{ xs: 6, sm: 3, md: 'grow' }}
+                        display='flex'
+                        justifyContent='center'
+                    >
                         <Stack alignItems='center'>
                             <Typography variant='subtitle2' color='text.secondary'>
                                 Current
@@ -251,9 +255,13 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 </Tooltip>
                             </Stack>
                         </Stack>
-                    </Grid>
+                    </Grid2>
 
-                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
+                    <Grid2
+                        size={{ xs: 6, sm: 3, md: 'grow' }}
+                        display='flex'
+                        justifyContent='center'
+                    >
                         <Stack alignItems='center'>
                             <Typography variant='subtitle2' color='text.secondary'>
                                 Start
@@ -269,9 +277,13 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 {startRating}
                             </Typography>
                         </Stack>
-                    </Grid>
+                    </Grid2>
 
-                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
+                    <Grid2
+                        size={{ xs: 6, sm: 3, md: 'grow' }}
+                        display='flex'
+                        justifyContent='center'
+                    >
                         <Stack alignItems='center'>
                             <Typography variant='subtitle2' color='text.secondary'>
                                 Change
@@ -312,14 +324,11 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 </Typography>
                             </Stack>
                         </Stack>
-                    </Grid>
+                    </Grid2>
 
                     {system !== RatingSystem.Custom && (
-                        <Grid
-                            item
-                            xs={6}
-                            sm={3}
-                            md
+                        <Grid2
+                            size={{ xs: 6, sm: 3, md: 'grow' }}
                             display='flex'
                             justifyContent='center'
                         >
@@ -350,10 +359,14 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                     </Tooltip>
                                 </Stack>
                             </Stack>
-                        </Grid>
+                        </Grid2>
                     )}
 
-                    <Grid item xs={6} sm={3} md display='flex' justifyContent='center'>
+                    <Grid2
+                        size={{ xs: 6, sm: 3, md: 'grow' }}
+                        display='flex'
+                        justifyContent='center'
+                    >
                         <Stack alignItems='center'>
                             <Typography
                                 variant='subtitle2'
@@ -373,8 +386,8 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 {graduation || 'N/A'}
                             </Typography>
                         </Stack>
-                    </Grid>
-                </Grid>
+                    </Grid2>
+                </Grid2>
 
                 {historyData.length > 0 && (
                     <Stack>

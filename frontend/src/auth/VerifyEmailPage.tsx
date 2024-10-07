@@ -43,7 +43,8 @@ const VerifyEmailPage = () => {
     }
 
     if (auth.status === AuthStatus.Authenticated) {
-        return <Navigate to='/profile' />;
+        window.location.href = '/profile';
+        return;
     }
 
     if (!username || !email || !password) {

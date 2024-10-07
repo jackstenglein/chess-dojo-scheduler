@@ -65,7 +65,7 @@ const CommentListItem: React.FC<CommentListItemProps> = ({ comment }) => {
             <Stack>
                 <Paper elevation={2} sx={{ px: '12px', py: '8px', borderRadius: '6px' }}>
                     <Stack>
-                        <Link component={RouterLink} to={`/profile/${comment.owner}`}>
+                        <Link href={`/profile/${comment.owner}`}>
                             <Typography variant='subtitle1' color='text.secondary'>
                                 {comment.ownerDisplayName} ({comment.ownerCohort})
                             </Typography>

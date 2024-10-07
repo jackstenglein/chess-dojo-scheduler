@@ -60,7 +60,13 @@ const Avatar: React.FC<AvatarProps> = ({
         }
     }
 
-    return <MuiAvatar src={url} {...avatarProps(displayName || '', size, fontSize)} />;
+    return (
+        <MuiAvatar
+            src={url}
+            {...avatarProps(displayName || '', size, fontSize)}
+            imgProps={{ crossOrigin: 'anonymous' }}
+        />
+    );
 };
 
 export default Avatar;

@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -62,6 +61,11 @@ type CfcResponse struct {
 	Player struct {
 		Rating int `json:"regular_rating"`
 	} `json:"player"`
+}
+
+type KnsbResponse struct {
+	Rating   int `json:"rating"`
+	NumGames int `json:"num_played"`
 }
 
 type RatingFetchFunc func(username string) (*database.Rating, error)
@@ -356,7 +360,7 @@ func FetchAcfRating(acfId string) (*database.Rating, error) {
 }
 
 func FetchKnsbRating(knsbId string) (*database.Rating, error) {
-	resp, err := client.Get(fmt.Sprintf("https://ratingviewer.nl/metrics/getByName/%s/Rating-S.json", knsbId))
+	resp, err := client.Get(fmt.Sprintf("https://ratingviewer.nl/metrics/ratingList/%s/1.json", knsbId))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed call to KNSB API", err)
 		return nil, err
@@ -367,32 +371,13 @@ func FetchKnsbRating(knsbId string) (*database.Rating, error) {
 		return nil, err
 	}
 
-	var r map[string]int
-	if err := json.NewDecoder(resp.Body).Decode(&r); err == nil {
-		var keys = make([]string, 0, len(r))
-		for key := range r {
-			keys = append(keys, key)
-		}
-		slices.Sort(keys)
-		return &database.Rating{CurrentRating: r[keys[len(keys)-1]]}, nil
-	}
-
-	resp, err = client.Get(fmt.Sprintf("https://ratingviewer.nl/metrics/getByName/%s/Rating-J.json", knsbId))
-	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed call to KNSB API", err)
-	}
-	if resp.StatusCode != 200 {
-		return nil, errors.New(400, fmt.Sprintf("Invalid request: KNSB API returned status `%d`", resp.StatusCode), "")
-	}
-
+	var r KnsbResponse
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal KNSB API response", err)
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal KNSB response", err)
 	}
 
-	var keys = make([]string, 0, len(r))
-	for key := range r {
-		keys = append(keys, key)
+	if r.Rating == 0 {
+		return nil, errors.New(400, "Invalid request: KNSB API returned no classical rating for your ID", "Nil KNSB response")
 	}
-	slices.Sort(keys)
-	return &database.Rating{CurrentRating: r[keys[len(keys)-1]]}, nil
+	return &database.Rating{CurrentRating: r.Rating, NumGames: r.NumGames}, nil
 }
