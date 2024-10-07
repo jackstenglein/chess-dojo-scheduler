@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import GoogleButton from 'react-google-button';
-import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { AuthStatus, useAuth } from './Auth';
 
@@ -207,11 +207,7 @@ const SignupPage = () => {
                             />
                             <Typography variant='body2' component='div' gutterBottom>
                                 Already have an account?{' '}
-                                <Link
-                                    component={RouterLink}
-                                    to='/signin'
-                                    data-cy='signin-button'
-                                >
+                                <Link href='/signin' data-cy='signin-button'>
                                     Sign In
                                 </Link>
                             </Typography>

@@ -9,14 +9,14 @@ describe('Graduations', () => {
         );
 
         cy.clock(now);
-        cy.visit('/recent');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('displays correct message when no graduations', () => {
         cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/noGraduations.json',
         });
+        cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
         cy.contains('No graduations in the selected timeframe');
     });
 
@@ -24,6 +24,8 @@ describe('Graduations', () => {
         cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
+        cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         const columns = [
             'Name',
@@ -44,6 +46,8 @@ describe('Graduations', () => {
         cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
+        cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('recent-graduates-table').contains('1–11 of 11');
         cy.getBySel('recent-graduates-table')
@@ -55,6 +59,8 @@ describe('Graduations', () => {
         cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
+        cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('graduates-timeframe-select').click();
         cy.getBySel('Graduation of 8/30/2023').click();

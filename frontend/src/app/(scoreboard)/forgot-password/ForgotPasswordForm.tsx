@@ -1,22 +1,13 @@
+'use client';
+
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle } from '@mui/icons-material';
 import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import { LoadingButton } from '@mui/lab';
-import {
-    Button,
-    Card,
-    CardContent,
-    CircularProgress,
-    Container,
-    InputAdornment,
-    Stack,
-    TextField,
-    Typography,
-} from '@mui/material';
+import { Button, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { AuthStatus, useAuth } from './Auth';
 
 const googleSigninMessage =
     'Your email is not verified. Note that if you previously signed in with Google, you must continue to use that option. You will not be able to reset your password in that case.';
@@ -27,28 +18,13 @@ enum ForgotPasswordStep {
     Success = 'SUCCESS',
 }
 
-const ForgotPasswordPage = () => {
+export const ForgotPasswordForm = () => {
     const auth = useAuth();
-
-    const navigate = useNavigate();
 
     const [step, setStep] = useState(ForgotPasswordStep.Start);
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState<string>();
     const request = useRequest();
-
-    if (auth.status === AuthStatus.Loading) {
-        return (
-            <Stack sx={{ pt: 6, pb: 4 }} justifyContent='center' alignItems='center'>
-                <CircularProgress />
-            </Stack>
-        );
-    }
-
-    if (auth.status === AuthStatus.Authenticated) {
-        window.location.href = '/profile';
-        return;
-    }
 
     const onSubmit = () => {
         if (email.length === 0) {
@@ -81,72 +57,50 @@ const ForgotPasswordPage = () => {
             });
     };
 
-    const onCancel = () => {
-        navigate('/signin');
-    };
-
     return (
-        <Container maxWidth='sm' sx={{ pt: { xs: 4, sm: 10 }, pb: 4 }}>
-            <Card
+        <Stack justifyContent='center' alignItems='center'>
+            <RequestSnackbar request={request} />
+
+            <ChessDojoIcon
+                fontSize='large'
                 sx={{
-                    backgroundImage: { xs: 'none', sm: 'var(--Paper-overlay)' },
-                    boxShadow: { xs: 'none', sm: 'var(--Paper-shadow)' },
+                    mb: 2,
+                    width: '80px',
+                    height: '80px',
                 }}
+            />
+
+            <Typography variant='h4' textAlign='center' data-cy='title' mb={4}>
+                ChessDojo
+            </Typography>
+
+            <Stack
+                direction='column'
+                justifyContent='center'
+                alignItems='center'
+                spacing={3}
+                paddingTop={1.5}
             >
-                <CardContent>
-                    <Stack justifyContent='center' alignItems='center'>
-                        <RequestSnackbar request={request} />
+                {step === ForgotPasswordStep.Start && (
+                    <StartStep
+                        email={email}
+                        setEmail={setEmail}
+                        emailError={emailError}
+                        onSubmit={onSubmit}
+                        loading={request.isLoading()}
+                    />
+                )}
 
-                        <ChessDojoIcon
-                            fontSize='large'
-                            sx={{
-                                mb: 2,
-                                width: '80px',
-                                height: '80px',
-                            }}
-                        />
+                {step === ForgotPasswordStep.Confirm && (
+                    <ConfirmStep
+                        email={email}
+                        onSuccess={() => setStep(ForgotPasswordStep.Success)}
+                    />
+                )}
 
-                        <Typography
-                            variant='h4'
-                            textAlign='center'
-                            data-cy='title'
-                            mb={4}
-                        >
-                            ChessDojo
-                        </Typography>
-
-                        <Stack
-                            direction='column'
-                            justifyContent='center'
-                            alignItems='center'
-                            spacing={3}
-                            paddingTop={1.5}
-                        >
-                            {step === ForgotPasswordStep.Start && (
-                                <StartStep
-                                    email={email}
-                                    setEmail={setEmail}
-                                    emailError={emailError}
-                                    onSubmit={onSubmit}
-                                    onCancel={onCancel}
-                                    loading={request.isLoading()}
-                                />
-                            )}
-
-                            {step === ForgotPasswordStep.Confirm && (
-                                <ConfirmStep
-                                    email={email}
-                                    onSuccess={() => setStep(ForgotPasswordStep.Success)}
-                                    onCancel={onCancel}
-                                />
-                            )}
-
-                            {step === ForgotPasswordStep.Success && <SuccessStep />}
-                        </Stack>
-                    </Stack>
-                </CardContent>
-            </Card>
-        </Container>
+                {step === ForgotPasswordStep.Success && <SuccessStep />}
+            </Stack>
+        </Stack>
     );
 };
 
@@ -155,7 +109,6 @@ interface StartStepProps {
     setEmail: (email: string) => void;
     emailError?: string;
     onSubmit: () => void;
-    onCancel: () => void;
     loading: boolean;
 }
 
@@ -164,7 +117,6 @@ const StartStep: React.FC<StartStepProps> = ({
     setEmail,
     emailError,
     onSubmit,
-    onCancel,
     loading,
 }) => {
     const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -228,7 +180,7 @@ const StartStep: React.FC<StartStepProps> = ({
                 data-cy='cancel-button'
                 variant='text'
                 sx={{ textTransform: 'none' }}
-                onClick={onCancel}
+                href='/signin'
             >
                 Cancel
             </Button>
@@ -239,10 +191,9 @@ const StartStep: React.FC<StartStepProps> = ({
 interface ConfirmStepProps {
     email: string;
     onSuccess: () => void;
-    onCancel: () => void;
 }
 
-const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel }) => {
+const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
     const auth = useAuth();
 
     const [code, setCode] = useState('');
@@ -365,7 +316,7 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
                 Reset Password
             </LoadingButton>
 
-            <Button variant='text' sx={{ textTransform: 'none' }} onClick={onCancel}>
+            <Button variant='text' sx={{ textTransform: 'none' }} href='/signin'>
                 Cancel
             </Button>
         </>
@@ -373,12 +324,6 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess, onCancel })
 };
 
 const SuccessStep = () => {
-    const navigate = useNavigate();
-
-    const onSignin = () => {
-        navigate('/signin');
-    };
-
     return (
         <>
             <Typography
@@ -393,7 +338,7 @@ const SuccessStep = () => {
 
             <Button
                 variant='contained'
-                onClick={onSignin}
+                href='/signin'
                 fullWidth
                 sx={{
                     textTransform: 'none',
@@ -409,5 +354,3 @@ const SuccessStep = () => {
         </>
     );
 };
-
-export default ForgotPasswordPage;

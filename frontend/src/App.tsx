@@ -17,8 +17,6 @@ import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
 import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
-import ForgotPasswordPage from './auth/ForgotPasswordPage';
-import SigninPage from './auth/SigninPage';
 import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import CalendarPage from './calendar/CalendarPage';
@@ -85,10 +83,8 @@ const router = createBrowserRouter(
         <Route path='/' element={<Root />}>
             <Route element={<SwitchCohortPrompt />}>
                 <Route index element={<LandingPage />} />
-                <Route path='signin' element={<SigninPage />} />
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
-                <Route path='forgot-password' element={<ForgotPasswordPage />} />
                 <Route path='tournaments'>
                     <Route index element={<TournamentsPage />} />
                     <Route path='open-classical'>

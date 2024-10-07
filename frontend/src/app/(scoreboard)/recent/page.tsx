@@ -1,5 +1,7 @@
 import { Container } from '@mui/material';
-import RecentGraduates from './RecentGraduates';
+import dynamic from 'next/dynamic';
+
+const RecentGraduates = dynamic(() => import('./RecentGraduates'), { ssr: false });
 
 export default function RecentPage() {
     return (
