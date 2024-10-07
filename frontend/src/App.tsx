@@ -63,7 +63,6 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
-import TournamentsPage from './tournaments/TournamentsPage';
 import DetailsPage from './tournaments/openClassical/DetailsPage';
 import InfoPage from './tournaments/openClassical/InfoPage';
 import ListPage from './tournaments/openClassical/ListPage';
@@ -85,7 +84,6 @@ const router = createBrowserRouter(
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
                 <Route path='tournaments'>
-                    <Route index element={<TournamentsPage />} />
                     <Route path='open-classical'>
                         <Route index element={<DetailsPage />} />
                         <Route path='info' element={<InfoPage />} />

@@ -6,8 +6,8 @@ import {
     AccordionDetails,
     AccordionSummary,
     Filters,
-} from '../calendar/filters/CalendarFilters';
-import TimezoneFilter from '../calendar/filters/TimezoneFilter';
+} from '../../../calendar/filters/CalendarFilters';
+import TimezoneFilter from '../../../calendar/filters/TimezoneFilter';
 import {
     PositionType,
     TimeControlType,
@@ -15,9 +15,9 @@ import {
     displayPositionType,
     displayTimeControlType,
     displayTournamentType,
-} from '../database/event';
-import { RequirementCategory } from '../database/requirement';
-import Icon from '../style/Icon';
+} from '../../../database/event';
+import { RequirementCategory } from '../../../database/requirement';
+import Icon from '../../../style/Icon';
 
 function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {

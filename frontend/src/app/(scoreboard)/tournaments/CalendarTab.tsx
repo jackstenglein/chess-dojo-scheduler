@@ -1,4 +1,18 @@
+'use client';
+
+import { useEvents } from '@/api/cache/Cache';
+import { CustomEventRenderer } from '@/calendar/CalendarPage';
+import ProcessedEventViewer from '@/calendar/eventViewer/ProcessedEventViewer';
+import { Filters, getHours, useFilters } from '@/calendar/filters/CalendarFilters';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import {
+    Event,
+    EventType,
+    PositionType,
+    TimeControlType,
+    TournamentType,
+} from '@/database/event';
+import { TimeFormat } from '@/database/user';
 import { Scheduler } from '@aldabil/react-scheduler';
 import {
     EventRendererProps,
@@ -6,20 +20,8 @@ import {
     SchedulerRef,
 } from '@aldabil/react-scheduler/types';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Button, Grid } from '@mui/material';
+import { Button, Grid2 } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useEvents } from '../api/cache/Cache';
-import { CustomEventRenderer } from '../calendar/CalendarPage';
-import ProcessedEventViewer from '../calendar/eventViewer/ProcessedEventViewer';
-import { Filters, getHours, useFilters } from '../calendar/filters/CalendarFilters';
-import {
-    Event,
-    EventType,
-    PositionType,
-    TimeControlType,
-    TournamentType,
-} from '../database/event';
-import { TimeFormat } from '../database/user';
 import TournamentCalendarFilters from './TournamentCalendarFilters';
 
 function getColor(timeControlType: TimeControlType) {
@@ -159,8 +161,8 @@ const CalendarTab = () => {
     }, [calendarRef, minHour, maxHour]);
 
     return (
-        <Grid container spacing={2}>
-            <Grid item xs={12} md={2.5}>
+        <Grid2 container spacing={2}>
+            <Grid2 size={{ xs: 12, md: 2.5 }}>
                 <Button
                     onClick={toggleFilters}
                     startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
@@ -169,9 +171,9 @@ const CalendarTab = () => {
                     {showFilters ? 'Hide Filters' : 'Show Filters'}
                 </Button>
                 {showFilters && <TournamentCalendarFilters filters={filters} />}
-            </Grid>
+            </Grid2>
 
-            <Grid item xs={12} md={showFilters ? 9.5 : 12}>
+            <Grid2 size={{ xs: 12, md: showFilters ? 9.5 : 12 }}>
                 <Scheduler
                     ref={calendarRef}
                     agenda={false}
@@ -213,8 +215,8 @@ const CalendarTab = () => {
                         CustomEventRenderer({ ...props, timeFormat: filters.timeFormat })
                     }
                 />
-            </Grid>
-        </Grid>
+            </Grid2>
+        </Grid2>
     );
 };
 

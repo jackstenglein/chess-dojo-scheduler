@@ -1,17 +1,19 @@
-import { Button, MenuItem, Stack, TextField } from '@mui/material';
-import { DataGridPro, GridColDef, GridRowModel } from '@mui/x-data-grid-pro';
-import { DateTime } from 'luxon';
-import { useEffect, useState } from 'react';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { TimeControl, TimePeriod } from '../api/tournamentApi';
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { TimeControl, TimePeriod } from '@/api/tournamentApi';
 import {
     Leaderboard,
     LeaderboardPlayer,
     LeaderboardSite,
     TournamentType,
-} from '../database/tournament';
-import LoadingPage from '../loading/LoadingPage';
+} from '@/database/tournament';
+import LoadingPage from '@/loading/LoadingPage';
+import { Button, MenuItem, Stack, TextField } from '@mui/material';
+import { DataGridPro, GridColDef, GridRowModel } from '@mui/x-data-grid-pro';
+import { DateTime } from 'luxon';
+import { useEffect, useState } from 'react';
 import MonthDateButton from './MonthDateButton';
 import YearDateButton from './YearDateButton';
 
