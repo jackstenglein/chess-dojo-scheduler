@@ -51,7 +51,6 @@ import GroupMeetingPage from './meeting/GroupMeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
-import MerchPage from './merch/MerchPage';
 import NotificationPage from './notifications/NotificationPage';
 import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
@@ -210,21 +209,6 @@ const router = createBrowserRouter(
                     <Route index element={<GamePage />} />
                 </Route>
             </Route>
-
-            {/* Legacy routes from Wix */}
-            <Route
-                path='books-by-rating'
-                element={<Navigate to='/material/books' replace />}
-            />
-            <Route path='books' element={<Navigate to='/material/books' replace />} />
-            <Route
-                path='recommendations'
-                element={<Navigate to='/material/books' replace />}
-            />
-            <Route path='training' element={<Navigate to='/profile' replace />} />
-            <Route path='home' element={<Navigate to='/profile' replace />} />
-            <Route path='plans-pricing' element={<PricingPage />} />
-            <Route path='shop' element={<MerchPage />} />
 
             <Route path='*' element={<NotFoundPage />} />
         </Route>,
