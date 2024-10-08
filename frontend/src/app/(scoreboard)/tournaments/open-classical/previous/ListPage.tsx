@@ -1,11 +1,11 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { OpenClassical } from '@/database/tournament';
+import LoadingPage from '@/loading/LoadingPage';
 import { Container, Link, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { OpenClassical } from '../../database/tournament';
-import LoadingPage from '../../loading/LoadingPage';
 
 const ListPage = () => {
     const api = useApi();
@@ -39,8 +39,7 @@ const ListPage = () => {
                 {request.data?.map((openClassical) => (
                     <Link
                         key={openClassical.startsAt}
-                        component={RouterLink}
-                        to={`/tournaments/open-classical?tournament=${openClassical.startsAt}`}
+                        href={`/tournaments/open-classical?tournament=${openClassical.startsAt}`}
                     >
                         {openClassical.name}
                     </Link>

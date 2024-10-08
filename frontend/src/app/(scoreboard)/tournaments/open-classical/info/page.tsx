@@ -1,7 +1,6 @@
 import { Container, Divider, Link, Stack, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 
-const InfoPage = () => {
+export default function InfoPage() {
     return (
         <Container sx={{ py: 5 }}>
             <Stack spacing={4}>
@@ -35,9 +34,7 @@ const InfoPage = () => {
                     <Divider sx={{ mb: 1 }} />
                     <Typography>
                         If the tournament is accepting registrations, then the{' '}
-                        <Link component={RouterLink} to='/tournaments/open-classical'>
-                            Tournament Page
-                        </Link>{' '}
+                        <Link href='/tournaments/open-classical'>Tournament Page</Link>{' '}
                         will contain a register button. Complete the form with all
                         relevant information. Please ensure your form has been submitted
                         successfully. We cannot accept late registrations. If you miss the
@@ -51,9 +48,7 @@ const InfoPage = () => {
                     <Divider sx={{ mb: 1 }} />
                     <Typography>
                         Once the tournament begins, pairings will be posted on the{' '}
-                        <Link component={RouterLink} to='/tournaments/open-classical'>
-                            Tournament Page
-                        </Link>{' '}
+                        <Link href='/tournaments/open-classical'>Tournament Page</Link>{' '}
                         every week, no later than Tuesday at 12:00am EST. The pairings
                         will include your and your partner's Lichess and Discord usernames
                         so that you can contact each other to schedule your game. It is up
@@ -114,10 +109,7 @@ const InfoPage = () => {
                         for submitting the game result. In the case of a draw, you'll have
                         to decide which one of you will submit the game. Please do not
                         submit the game twice. Navigate to the{' '}
-                        <Link
-                            component={RouterLink}
-                            to='/tournaments/open-classical/submit-results'
-                        >
+                        <Link href='/tournaments/open-classical/submit-results'>
                             Result Submission Page
                         </Link>{' '}
                         and fill in all relevant information. Please ensure your form
@@ -133,15 +125,11 @@ const InfoPage = () => {
                     <Divider sx={{ mb: 1 }} />
                     <Typography>
                         To view the standings for any round you can navigate to the{' '}
-                        <Link component={RouterLink} to='/tournaments/open-classical'>
-                            Tournament Page
-                        </Link>
-                        . At the end of the 7 rounds, winners will be announced.
+                        <Link href='/tournaments/open-classical'>Tournament Page</Link>.
+                        At the end of the 7 rounds, winners will be announced.
                     </Typography>
                 </Stack>
             </Stack>
         </Container>
     );
-};
-
-export default InfoPage;
+}

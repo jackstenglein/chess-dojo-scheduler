@@ -1,3 +1,9 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -18,18 +24,10 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
-import { AuthStatus, useAuth } from '../../auth/Auth';
-import LoadingPage from '../../loading/LoadingPage';
 
 const RegistrationPage = () => {
-    const auth = useAuth();
-    const user = auth.user;
+    const { user, status } = useAuth();
     const api = useApi();
-    const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
     const [lichessUsername, setLichessUsername] = useState(
@@ -57,7 +55,7 @@ const RegistrationPage = () => {
         setDiscordUsername(user?.discordUsername || '');
     }, [user]);
 
-    if (auth.status === AuthStatus.Loading) {
+    if (status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
 
@@ -280,11 +278,7 @@ const RegistrationPage = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        onClick={() =>
-                            navigate(
-                                `/tournaments/open-classical?region=${region}&ratingRange=${section}`,
-                            )
-                        }
+                        href={`/tournaments/open-classical?region=${region}&ratingRange=${section}`}
                     >
                         Done
                     </Button>

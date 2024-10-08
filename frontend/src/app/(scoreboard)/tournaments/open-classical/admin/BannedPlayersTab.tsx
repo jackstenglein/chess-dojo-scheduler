@@ -1,3 +1,6 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { OpenClassical } from '@/database/tournament';
 import { Check } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -13,9 +16,6 @@ import {
 } from '@mui/material';
 import { DataGridPro, GridActionsCellItem } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { OpenClassical } from '../../../database/tournament';
 import { defaultPlayerColumns } from './PlayersTab';
 
 interface BannedPlayersTabProps {

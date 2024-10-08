@@ -1,3 +1,7 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { OpenClassical, OpenClassicalPairing } from '@/database/tournament';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { Edit } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -14,10 +18,6 @@ import {
 } from '@mui/material';
 import { DataGridPro, GridActionsCellItem, GridColDef } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { OpenClassical, OpenClassicalPairing } from '../../../database/tournament';
 import { PairingsTableProps, pairingTableColumns } from '../PairingsTable';
 import Editor from './Editor';
 import EmailPairingsButton from './EmailPairingsButton';
@@ -28,16 +28,11 @@ interface PairingsTabProps {
 }
 
 const PairingsTab: React.FC<PairingsTabProps> = ({ openClassical, onUpdate }) => {
-    const [searchParams, setSearchParams] = useSearchParams({
+    const { searchParams, updateSearchParams } = useNextSearchParams({
         region: 'A',
         ratingRange: 'Open',
         view: '1',
     });
-    const updateSearchParams = (key: string, value: string) => {
-        const updatedParams = new URLSearchParams(searchParams.toString());
-        updatedParams.set(key, value);
-        setSearchParams(updatedParams);
-    };
 
     const region = searchParams.get('region') || 'A';
     const ratingRange = searchParams.get('ratingRange') || 'Open';
@@ -66,7 +61,7 @@ const PairingsTab: React.FC<PairingsTabProps> = ({ openClassical, onUpdate }) =>
                     label='Region'
                     select
                     value={region}
-                    onChange={(e) => updateSearchParams('region', e.target.value)}
+                    onChange={(e) => updateSearchParams({ region: e.target.value })}
                     sx={{
                         flexGrow: 1,
                     }}
@@ -80,7 +75,7 @@ const PairingsTab: React.FC<PairingsTabProps> = ({ openClassical, onUpdate }) =>
                     label='Section'
                     select
                     value={ratingRange}
-                    onChange={(e) => updateSearchParams('ratingRange', e.target.value)}
+                    onChange={(e) => updateSearchParams({ ratingRange: e.target.value })}
                     sx={{
                         flexGrow: 1,
                     }}
@@ -93,7 +88,7 @@ const PairingsTab: React.FC<PairingsTabProps> = ({ openClassical, onUpdate }) =>
                     label='Round'
                     select
                     value={view}
-                    onChange={(e) => updateSearchParams('view', e.target.value)}
+                    onChange={(e) => updateSearchParams({ view: e.target.value })}
                     sx={{
                         flexGrow: 1,
                     }}

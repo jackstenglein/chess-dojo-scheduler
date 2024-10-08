@@ -1,3 +1,8 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { OpenClassicalPutPairingsRequest } from '@/api/tournamentApi';
+import { useAuth } from '@/auth/Auth';
+import { OpenClassical } from '@/database/tournament';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -12,19 +17,13 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { OpenClassicalPutPairingsRequest } from '../../../api/tournamentApi';
-import { useAuth } from '../../../auth/Auth';
-import { OpenClassical } from '../../../database/tournament';
-
 interface EditorProps {
     openClassical?: OpenClassical;
     onSuccess: (openClassical: OpenClassical) => void;
 }
 
 const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
-    const user = useAuth().user;
+    const { user } = useAuth();
     const [open, setOpen] = useState(false);
 
     const maxRound =

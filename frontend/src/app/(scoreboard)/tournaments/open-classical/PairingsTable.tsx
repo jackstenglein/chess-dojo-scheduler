@@ -1,7 +1,7 @@
+import { OpenClassical, OpenClassicalPairing } from '@/database/tournament';
 import { OpenInNew, Warning } from '@mui/icons-material';
 import { Stack, Tooltip } from '@mui/material';
 import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { OpenClassical, OpenClassicalPairing } from '../../database/tournament';
 
 export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
     {

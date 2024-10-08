@@ -1,3 +1,12 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString } from '@/calendar/displayDate';
+import { OpenClassical } from '@/database/tournament';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import LoadingPage from '@/loading/LoadingPage';
 import {
     Button,
     Container,
@@ -7,15 +16,8 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import NextLink from 'next/link';
 import React, { useCallback, useEffect } from 'react';
-import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
-
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { toDojoDateString } from '../../calendar/displayDate';
-import { OpenClassical } from '../../database/tournament';
-import LoadingPage from '../../loading/LoadingPage';
 import EntrantsTable from './EntrantsTable';
 import PairingsTable from './PairingsTable';
 import StandingsTable from './StandingsTable';
@@ -23,10 +25,9 @@ import StandingsTable from './StandingsTable';
 const DetailsPage = () => {
     const api = useApi();
     const request = useRequest<OpenClassical>();
-    const user = useAuth().user;
-    const [searchParams] = useSearchParams({ tournament: 'CURRENT' });
+    const { user } = useAuth();
+    const { searchParams } = useNextSearchParams({ tournament: 'CURRENT' });
     const tournament = searchParams.get('tournament') || 'CURRENT';
-    const navigate = useNavigate();
 
     const onSuccess = request.onSuccess;
     const handleData = useCallback(
@@ -69,19 +70,23 @@ const DetailsPage = () => {
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
                 <Stack>
                     <Typography variant='h4'>Open Classical</Typography>
-                    <Link component={RouterLink} to='/tournaments/open-classical/info'>
+                    <Link component={NextLink} href='/tournaments/open-classical/info'>
                         Rules and Info
                     </Link>
                     <Link
-                        component={RouterLink}
-                        to='/tournaments/open-classical/previous'
+                        component={NextLink}
+                        href='/tournaments/open-classical/previous'
                     >
                         Previous Tournaments
                     </Link>
                 </Stack>
 
                 {(user?.isAdmin || user?.isTournamentAdmin) && (
-                    <Button variant='contained' onClick={() => navigate('./admin')}>
+                    <Button
+                        component={NextLink}
+                        variant='contained'
+                        href='/tournaments/open-classical/admin'
+                    >
                         Admin Portal
                     </Button>
                 )}
@@ -97,7 +102,7 @@ interface DetailsProps {
 }
 
 const Details: React.FC<DetailsProps> = ({ openClassical }) => {
-    const [searchParams, setSearchParams] = useSearchParams({
+    const { searchParams, updateSearchParams } = useNextSearchParams({
         region: 'A',
         ratingRange: 'Open',
         view: 'standings',
@@ -114,12 +119,6 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
 
     const maxRound =
         openClassical.sections[`${region}_${ratingRange}`]?.rounds.length || 0;
-
-    const updateSearchParams = (key: string, value: string) => {
-        const updatedParams = new URLSearchParams(searchParams.toString());
-        updatedParams.set(key, value);
-        setSearchParams(updatedParams);
-    };
 
     const registrationCloseDate = openClassical.registrationClose
         ? toDojoDateString(
@@ -143,6 +142,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     <Button
                         variant='contained'
                         href='/tournaments/open-classical/register'
+                        component={NextLink}
                     >
                         Register
                     </Button>
@@ -152,8 +152,8 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     Results for each round will be posted after the full round is
                     complete.{' '}
                     <Link
-                        component={RouterLink}
-                        to='/tournaments/open-classical/submit-results'
+                        href='/tournaments/open-classical/submit-results'
+                        component={NextLink}
                     >
                         Submit Results
                     </Link>
@@ -167,7 +167,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     label='Region'
                     select
                     value={region}
-                    onChange={(e) => updateSearchParams('region', e.target.value)}
+                    onChange={(e) => updateSearchParams({ region: e.target.value })}
                     sx={{
                         flexGrow: 1,
                     }}
@@ -181,7 +181,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     label='Section'
                     select
                     value={ratingRange}
-                    onChange={(e) => updateSearchParams('ratingRange', e.target.value)}
+                    onChange={(e) => updateSearchParams({ ratingRange: e.target.value })}
                     sx={{
                         flexGrow: 1,
                     }}
@@ -195,7 +195,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                         label='View'
                         select
                         value={view}
-                        onChange={(e) => updateSearchParams('view', e.target.value)}
+                        onChange={(e) => updateSearchParams({ view: e.target.value })}
                         sx={{
                             flexGrow: 1,
                         }}

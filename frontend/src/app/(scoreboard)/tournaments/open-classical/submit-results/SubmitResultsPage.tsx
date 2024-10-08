@@ -1,3 +1,9 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import {
     Checkbox,
@@ -9,12 +15,8 @@ import {
     Typography,
 } from '@mui/material';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { AuthStatus, useAuth } from '../../auth/Auth';
-import LoadingPage from '../../loading/LoadingPage';
 
 interface LichessGameResponse {
     players: {
@@ -37,7 +39,7 @@ const SubmitResultsPage = () => {
     const auth = useAuth();
     const user = auth.user;
     const api = useApi();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const [email, setEmail] = useState('');
     const [section, setSection] = useState('');
@@ -143,7 +145,7 @@ const SubmitResultsPage = () => {
                 const round =
                     resp.data.sections[`${region}_${section}`]?.rounds.length ||
                     'standings';
-                navigate(
+                router.push(
                     `/tournaments/open-classical?region=${region}&ratingRange=${section}&view=${round}`,
                 );
             })

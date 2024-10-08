@@ -1,3 +1,6 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { OpenClassical } from '@/database/tournament';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -8,9 +11,6 @@ import {
     DialogTitle,
 } from '@mui/material';
 import { useState } from 'react';
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { OpenClassical } from '../../../database/tournament';
 
 interface EmailPairingsButtonProps {
     maxRound: number;

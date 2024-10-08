@@ -1,3 +1,11 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import {
+    OpenClassical,
+    OpenClassicalPlayer,
+    OpenClassicalPlayerStatus,
+} from '@/database/tournament';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { Block, PersonRemove, SaveAlt } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -19,14 +27,6 @@ import {
     GridToolbarContainer,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import {
-    OpenClassical,
-    OpenClassicalPlayer,
-    OpenClassicalPlayerStatus,
-} from '../../../database/tournament';
 
 declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {
@@ -123,15 +123,10 @@ interface PlayersTabProps {
 }
 
 const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
-    const [searchParams, setSearchParams] = useSearchParams({
+    const { searchParams, updateSearchParams } = useNextSearchParams({
         region: 'A',
         ratingRange: 'Open',
     });
-    const updateSearchParams = (key: string, value: string) => {
-        const updatedParams = new URLSearchParams(searchParams.toString());
-        updatedParams.set(key, value);
-        setSearchParams(updatedParams);
-    };
 
     const [updatePlayer, setUpdatePlayer] = useState('');
     const [updateType, setUpdateType] = useState<'' | 'ban' | 'withdraw'>('');
@@ -208,7 +203,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                     label='Region'
                     select
                     value={region}
-                    onChange={(e) => updateSearchParams('region', e.target.value)}
+                    onChange={(e) => updateSearchParams({ region: e.target.value })}
                     sx={{
                         flexGrow: 1,
                     }}
@@ -222,7 +217,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                     label='Section'
                     select
                     value={ratingRange}
-                    onChange={(e) => updateSearchParams('ratingRange', e.target.value)}
+                    onChange={(e) => updateSearchParams({ ratingRange: e.target.value })}
                     sx={{
                         flexGrow: 1,
                     }}

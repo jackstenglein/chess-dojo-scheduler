@@ -63,12 +63,6 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
-import DetailsPage from './tournaments/openClassical/DetailsPage';
-import InfoPage from './tournaments/openClassical/InfoPage';
-import ListPage from './tournaments/openClassical/ListPage';
-import RegistrationPage from './tournaments/openClassical/RegistrationPage';
-import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
-import AdminPage from './tournaments/openClassical/admin/AdminPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 import PricingPage from './upsell/PricingPage';
 
@@ -83,16 +77,6 @@ const router = createBrowserRouter(
                 <Route index element={<LandingPage />} />
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
-                <Route path='tournaments'>
-                    <Route path='open-classical'>
-                        <Route index element={<DetailsPage />} />
-                        <Route path='info' element={<InfoPage />} />
-                        <Route path='register' element={<RegistrationPage />} />
-                        <Route path='submit-results' element={<SubmitResultsPage />} />
-                        <Route path='previous' element={<ListPage />} />
-                        <Route path='admin' element={<AdminPage />} />
-                    </Route>
-                </Route>
                 <Route path='dojodigest/unsubscribe' element={<UnsubscribePage />} />
 
                 <Route path='courses'>

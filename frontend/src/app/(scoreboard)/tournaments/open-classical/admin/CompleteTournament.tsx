@@ -1,3 +1,6 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { OpenClassical } from '@/database/tournament';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -11,9 +14,6 @@ import {
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { OpenClassical } from '../../../database/tournament';
 
 interface CompleteTournamentProps {
     openClassical?: OpenClassical;

@@ -1,13 +1,14 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import { OpenClassical } from '@/database/tournament';
+import LoadingPage from '@/loading/LoadingPage';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Container, Stack, Tab, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { AuthStatus, useAuth } from '../../../auth/Auth';
-import { OpenClassical } from '../../../database/tournament';
-import LoadingPage from '../../../loading/LoadingPage';
 import BannedPlayersTab from './BannedPlayersTab';
 import CompleteTournament from './CompleteTournament';
 import PairingsTab from './PairingsTab';
@@ -16,6 +17,7 @@ import PlayersTab from './PlayersTab';
 const AdminPage = () => {
     const auth = useAuth();
     const [tab, setTab] = useState('players');
+    const router = useRouter();
 
     const api = useApi();
     const request = useRequest<OpenClassical>();
@@ -35,12 +37,14 @@ const AdminPage = () => {
         }
     }, [api, request]);
 
+    useEffect(() => {
+        if (!auth.user?.isAdmin && !auth.user?.isTournamentAdmin) {
+            router.replace('/tournaments/open-classical');
+        }
+    }, [auth, router]);
+
     if (auth.status === AuthStatus.Loading) {
         return <LoadingPage />;
-    }
-
-    if (!auth.user?.isAdmin && !auth.user?.isTournamentAdmin) {
-        return <Navigate to='/tournaments/open-classical' replace />;
     }
 
     if (!request.isSent() || request.isLoading()) {
