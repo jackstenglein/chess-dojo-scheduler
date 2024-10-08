@@ -213,8 +213,8 @@ export function RenderCohort({ cohort }: { cohort: string }) {
 
     return (
         <Stack sx={{ height: 1 }} alignItems='center' justifyContent='center'>
-            <CohortIcon cohort={cohort} tooltip={cohort} size={30} />
-            <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
+            <CohortIcon cohort={cohort} tooltip={cohort} size={28} />
+            <Typography variant='caption' sx={{ fontSize: '0.6rem' }}>
                 {display === MastersCohort ? 'Masters DB' : display}
             </Typography>
         </Stack>
