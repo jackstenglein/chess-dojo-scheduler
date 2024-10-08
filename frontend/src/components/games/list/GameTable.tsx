@@ -14,7 +14,8 @@ import {
     GridRowParams,
     GridToolbar,
 } from '@mui/x-data-grid-pro';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import {
     formatMoves,
     formatPublishedAt,
@@ -133,6 +134,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
 ];
 
 interface GameTableProps {
+    namespace: string;
     pagination: PaginationResult;
     onPaginationModelChange: (model: GridPaginationModel) => void;
     onClickRow: (params: GridRowParams<GameInfo>) => void;
@@ -143,6 +145,7 @@ interface GameTableProps {
 }
 
 export default function GameTable({
+    namespace,
     pagination,
     onPaginationModelChange,
     onClickRow,
@@ -153,12 +156,13 @@ export default function GameTable({
 }: GameTableProps) {
     const freeTierLimited = useFreeTier() && limitFreeTier;
     const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
-    const [columnVisibility, setColumnVisibility] = useState<GridColumnVisibilityModel>({
-        whiteRating: false,
-        blackRating: false,
-        unlisted: false,
-        ...(defaultVisibility ?? {}),
-    });
+    const [columnVisibility, setColumnVisibility] =
+        useLocalStorage<GridColumnVisibilityModel>(`/GameTable/${namespace}/visibility`, {
+            whiteRating: false,
+            blackRating: false,
+            unlisted: false,
+            ...(defaultVisibility ?? {}),
+        });
 
     const transformedColumns = useMemo(() => {
         let transformedColumns = columns ?? gameTableColumns;

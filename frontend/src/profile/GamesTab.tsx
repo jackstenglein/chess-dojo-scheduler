@@ -79,6 +79,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
 
             {(!isFreeTier || currentUser?.username === user.username) && (
                 <GameTable
+                    namespace='games-profile-tab'
                     pagination={pagination}
                     onPaginationModelChange={onPaginationModelChange}
                     onClickRow={onClickRow}
