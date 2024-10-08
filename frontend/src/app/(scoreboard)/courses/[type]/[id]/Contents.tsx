@@ -1,5 +1,5 @@
+import { Chapter, Course } from '@/database/course';
 import { Card, CardContent, Link } from '@mui/material';
-import { Chapter, Course } from '../../database/course';
 
 interface ChapterContentsProps {
     chapter: Chapter;

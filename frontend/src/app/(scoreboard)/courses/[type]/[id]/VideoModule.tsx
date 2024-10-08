@@ -1,5 +1,4 @@
 import { Box, Stack } from '@mui/material';
-
 import { ModuleProps } from './Module';
 
 const VideoModule: React.FC<ModuleProps> = ({ module }) => {

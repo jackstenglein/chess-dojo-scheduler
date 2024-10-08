@@ -37,7 +37,7 @@ import { getUser } from '../api/userApi';
 import {
     clearCheckoutSessionIds,
     getAllCheckoutSessionIds,
-} from '../courses/localStorage';
+} from '../app/(scoreboard)/courses/localStorage';
 import {
     CognitoUser,
     hasCreatedProfile,

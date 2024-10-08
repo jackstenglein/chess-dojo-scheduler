@@ -1,6 +1,5 @@
+import { CourseModule, CourseModuleType } from '@/database/course';
 import { Stack, Typography } from '@mui/material';
-
-import { CourseModule, CourseModuleType } from '../../database/course';
 import ExercisesModule from './ExercisesModule';
 import ModelGamesModule from './ModelGamesModule';
 import PgnViewerModule from './PgnViewerModule';

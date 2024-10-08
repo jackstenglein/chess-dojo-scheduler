@@ -1,3 +1,4 @@
+import { PgnHeaders } from '@/database/game';
 import { Header } from '@jackstenglein/chess';
 import { type Tags as PgnParserTags } from '@jackstenglein/pgn-parser';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -11,8 +12,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-
-import { PgnHeaders } from '../../database/game';
 
 type PermissiveHeaders = PgnParserTags | Record<string, undefined> | PgnHeaders;
 

@@ -1,11 +1,13 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { Course } from '@/database/course';
+import { SubscriptionStatus } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import { Container, Grid2 } from '@mui/material';
 import { useEffect } from 'react';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { Course } from '../../database/course';
-import { SubscriptionStatus } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
 import { getCheckoutSessionId } from '../localStorage';
 import { CourseFilterEditor, useCourseFilters } from './CourseFilters';
 import CourseListItem from './CourseListItem';
@@ -14,7 +16,7 @@ const ListCoursesPage = () => {
     const courseFilters = useCourseFilters();
     const request = useRequest<Course[]>();
     const api = useApi();
-    const user = useAuth().user;
+    const { user } = useAuth();
 
     useEffect(() => {
         if (!request.isSent()) {

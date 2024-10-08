@@ -1,5 +1,5 @@
-import { Grid } from '@mui/material';
-import Position from '../../requirements/Position';
+import Position from '@/requirements/Position';
+import { Grid2 } from '@mui/material';
 
 import { ModuleProps } from './Module';
 
@@ -9,13 +9,13 @@ const SparringPositionsModule: React.FC<ModuleProps> = ({ module }) => {
     }
 
     return (
-        <Grid container spacing={2} mt={0.5}>
+        <Grid2 container spacing={2} mt={0.5}>
             {module.positions.map((p) => (
-                <Grid key={p.fen} item md='auto'>
+                <Grid2 key={p.fen} size={{ md: 'auto' }}>
                     <Position position={p} orientation={module.boardOrientation} />
-                </Grid>
+                </Grid2>
             ))}
-        </Grid>
+        </Grid2>
     );
 };
 

@@ -1,3 +1,7 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Course, CoursePurchaseOption } from '@/database/course';
+import { getCohortRange } from '@/database/user';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { LoadingButton } from '@mui/lab';
@@ -12,11 +16,6 @@ import {
     Typography,
 } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Course, CoursePurchaseOption } from '../../database/course';
-import { getCohortRange } from '../../database/user';
 import { CourseFilters } from './CourseFilters';
 
 interface CourseListItemProps {
@@ -36,7 +35,6 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
 }) => {
     const api = useApi();
     const request = useRequest();
-    const navigate = useNavigate();
     const isAccessible = isPurchased || (course.includedWithSubscription && !isFreeTier);
 
     if (!preview && filters) {
@@ -53,12 +51,6 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
             return null;
         }
     }
-
-    const onClick = (event: React.MouseEvent) => {
-        event.stopPropagation();
-        event.preventDefault();
-        navigate(`/courses/${course.type}/${course.id}`);
-    };
 
     let purchaseOption: CoursePurchaseOption | null = null;
 
@@ -101,7 +93,6 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
     const actionAreaProps = preview
         ? {}
         : {
-              onClick,
               href: `/courses/${course.type}/${course.id}`,
           };
 

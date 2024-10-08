@@ -1,41 +1,57 @@
+'use client';
+
+import NotFoundPage from '@/NotFoundPage';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { GetCourseResponse } from '@/api/courseApi';
+import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
+import { Course } from '@/database/course';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import LoadingPage from '@/loading/LoadingPage';
 import {
     Alert,
     Box,
     Button,
     Container,
     Divider,
-    Grid,
+    Grid2,
     Stack,
     Typography,
 } from '@mui/material';
-import { useEffect, useMemo } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import NotFoundPage from '../../NotFoundPage';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { GetCourseResponse } from '../../api/courseApi';
-import { AuthStatus, useAuth, useFreeTier } from '../../auth/Auth';
-import { Course } from '../../database/course';
-import LoadingPage from '../../loading/LoadingPage';
-import { getCheckoutSessionId, setCheckoutSessionId } from '../localStorage';
+import { useEffect, useMemo, useState } from 'react';
+import { getCheckoutSessionId, setCheckoutSessionId } from '../../localStorage';
 import Contents from './Contents';
 import Module from './Module';
 import PurchaseCoursePage from './PurchaseCoursePage';
 
-const CoursePage = () => {
-    const navigate = useNavigate();
+export function generateStaticParams() {
+    return [
+        { type: 'ENDGAME', id: '34241b4d-3a8f-4d5f-9a15-b26cf718a0d0' },
+        { type: 'OPENING', id: '0e144cc9-be12-48f2-a3b0-92596fa2559d' },
+        { type: 'OPENING', id: '12d020c6-6d03-4b1f-9c01-566bffa3b23b' },
+        { type: 'OPENING', id: '2402cb47-d65a-4914-bc11-8f60eb32e41a' },
+        { type: 'OPENING', id: '37dd0c09-7622-4e87-b0df-7d3e6b37e410' },
+        { type: 'OPENING', id: 'b042a392-e285-4466-9bc0-deeecc2ce16c' },
+        { type: 'OPENING', id: 'd30581c8-f2c4-4d1c-8a5e-f303a83cc193' },
+    ];
+}
+
+export const CoursePage = ({ params }: { params: { type: string; id: string } }) => {
     const auth = useAuth();
     const anonymousUser = auth.user === undefined;
     const isFreeTier = useFreeTier();
     const api = useApi();
-    const params = useParams();
     const request = useRequest<GetCourseResponse>();
-    const [searchParams] = useSearchParams({
+    const { searchParams } = useNextSearchParams({
         chapter: '0',
         module: '0',
     });
-    const checkoutSessionId =
-        searchParams.get('checkout') || getCheckoutSessionId(params.id);
+
+    const [checkoutId, setCheckoutId] = useState(searchParams.get('checkout') || '');
+
+    useEffect(() => {
+        setCheckoutId(getCheckoutSessionId(params.id));
+    }, [setCheckoutId, params.id]);
 
     useEffect(() => {
         if (
@@ -45,7 +61,7 @@ const CoursePage = () => {
             params.id
         ) {
             request.onStart();
-            api.getCourse(params.type, params.id, checkoutSessionId)
+            api.getCourse(params.type, params.id, checkoutId)
                 .then((resp) => {
                     request.onSuccess(resp.data);
                     console.log('getCourse: ', resp);
@@ -55,14 +71,14 @@ const CoursePage = () => {
                     console.error('getCourse: ', err);
                 });
         }
-    }, [request, api, params, checkoutSessionId, auth.status]);
+    }, [request, api, params, checkoutId, auth.status]);
 
     useEffect(() => {
         if (anonymousUser) {
             console.log('Set checkout session id');
-            setCheckoutSessionId(params.id, checkoutSessionId);
+            setCheckoutSessionId(params.id, checkoutId);
         }
-    }, [anonymousUser, params.id, checkoutSessionId]);
+    }, [anonymousUser, params.id, checkoutId]);
 
     const chapterIndex = parseInt(searchParams.get('chapter') || '0');
     const { course, isBlocked } = request.data || {};
@@ -100,11 +116,7 @@ const CoursePage = () => {
                     variant='filled'
                     sx={{ mb: 4 }}
                     action={
-                        <Button
-                            onClick={() => navigate('/signup')}
-                            size='small'
-                            color='inherit'
-                        >
+                        <Button href='/signup' size='small' color='inherit'>
                             Create Account
                         </Button>
                     }
@@ -114,8 +126,8 @@ const CoursePage = () => {
                     anywhere.
                 </Alert>
             )}
-            <Grid container rowGap={2}>
-                <Grid item xs={12} sm={12} md={9.5}>
+            <Grid2 container rowGap={2}>
+                <Grid2 size={{ xs: 12, md: 9.5 }}>
                     <Stack>
                         <Typography variant='h4'>{course.name}</Typography>
                         <Typography variant='h5' color='text.secondary'>
@@ -152,12 +164,12 @@ const CoursePage = () => {
                             </Button>
                         )}
                     </Stack>
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} sm={12} md={2.5}>
+                <Grid2 size={{ xs: 12, md: 2.5 }}>
                     <Contents course={course} />
-                </Grid>
-            </Grid>
+                </Grid2>
+            </Grid2>
             <RequestSnackbar request={request} />
         </Container>
     );
@@ -212,5 +224,3 @@ function getNextModule(chapterIndex: number, moduleIndex: number, course: Course
         name: course.chapters[chapterIndex].modules[moduleIndex + 1].name,
     };
 }
-
-export default CoursePage;

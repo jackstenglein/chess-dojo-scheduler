@@ -25,9 +25,6 @@ import ClubDetailsPage from './clubs/ClubDetailsPage';
 import CreateClubPage from './clubs/CreateClubPage';
 import ListClubsPage from './clubs/ListClubsPage';
 import CoachPortalPage from './coaching/coaches/CoachPortalPage';
-import CourseEditorPage from './coaching/coaches/courseEditor/CourseEditorPage';
-import ListCoursesPage from './courses/list/ListCoursesPage';
-import CoursePage from './courses/view/CoursePage';
 import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
@@ -74,11 +71,6 @@ const router = createBrowserRouter(
                 <Route index element={<LandingPage />} />
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
-
-                <Route path='courses'>
-                    <Route index element={<ListCoursesPage />} />
-                    <Route path=':type/:id' element={<CoursePage />} />
-                </Route>
 
                 <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
 
@@ -172,7 +164,6 @@ const router = createBrowserRouter(
 
                     <Route path='coach'>
                         <Route index element={<CoachPortalPage />} />
-                        <Route path='courses/:type/:id' element={<CourseEditorPage />} />
                     </Route>
                 </Route>
             </Route>

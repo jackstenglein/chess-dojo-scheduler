@@ -1,4 +1,12 @@
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+} from '@/calendar/filters/CalendarFilters';
+import { CourseType, displayCourseType } from '@/database/course';
+import { dojoCohorts } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import {
     Checkbox,
     FormControlLabel,
     MenuItem,
@@ -9,14 +17,6 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import { useState } from 'react';
-import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-} from '../../calendar/filters/CalendarFilters';
-import { CourseType, displayCourseType } from '../../database/course';
-import { dojoCohorts } from '../../database/user';
-import CohortIcon from '../../scoreboard/CohortIcon';
 import { getCategoryColor } from './CourseListItem';
 
 export interface CourseFilters {

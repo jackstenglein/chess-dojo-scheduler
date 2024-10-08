@@ -1,12 +1,12 @@
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
+import { Course, CoursePurchaseOption } from '@/database/course';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { LoadingButton } from '@mui/lab';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
-import { Course, CoursePurchaseOption } from '../../database/course';
-import { displayPrice } from '../list/CourseListItem';
+import { displayPrice } from '../../(list)/CourseListItem';
 
 interface PurchaseOptionProps {
     course: Course;

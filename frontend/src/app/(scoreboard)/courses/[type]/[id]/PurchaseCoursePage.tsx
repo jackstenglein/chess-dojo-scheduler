@@ -1,3 +1,5 @@
+import { Course } from '@/database/course';
+import UpsellAlert from '@/upsell/UpsellAlert';
 import {
     Alert,
     Button,
@@ -7,9 +9,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { Course } from '../../database/course';
-import UpsellAlert from '../../upsell/UpsellAlert';
+import { useRouter } from 'next/navigation';
 import PurchaseOption from './PurchaseOption';
 
 interface PurchaseCoursePageProps {
@@ -100,12 +100,13 @@ interface PurchaseMessageProps {
 }
 
 const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
+
     const onViewPrices = (event: React.MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
         const currentPage = encodeURIComponent(window.location.href);
-        navigate(`/prices?redirect=${currentPage}`);
+        router.push(`/prices?redirect=${currentPage}`);
     };
 
     let content = null;

@@ -1,7 +1,7 @@
+import PgnBoard from '@/board/pgn/PgnBoard';
+import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
 import { Box, Container, Stack } from '@mui/material';
 import { useState } from 'react';
-import PgnBoard from '../../board/pgn/PgnBoard';
-import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
 import { ModuleProps } from './Module';
 import PgnSelector from './PgnSelector';
 

@@ -1,6 +1,5 @@
+import PgnBoard from '@/board/pgn/PgnBoard';
 import { Box, Container } from '@mui/material';
-
-import PgnBoard from '../../board/pgn/PgnBoard';
 import { ModuleProps } from './Module';
 
 const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {

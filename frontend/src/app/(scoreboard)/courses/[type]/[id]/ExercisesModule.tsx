@@ -1,12 +1,12 @@
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import PuzzleBoard from '@/board/puzzle/PuzzleBoard';
+import { Coach, CourseModule, coachUrls } from '@/database/course';
+import { User } from '@/database/user';
+import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
 import { Box, Container, Stack, Typography } from '@mui/material';
 import { useCallback, useState } from 'react';
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import PuzzleBoard from '../../board/puzzle/PuzzleBoard';
-import { Coach, CourseModule, coachUrls } from '../../database/course';
-import { User } from '../../database/user';
-import PgnErrorBoundary from '../../games/view/PgnErrorBoundary';
 import { ModuleProps } from './Module';
 import PgnSelector from './PgnSelector';
 
@@ -27,7 +27,7 @@ function getCompleted(user: User | undefined, module: CourseModule): boolean[] {
 }
 
 const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
-    const user = useAuth().user;
+    const { user } = useAuth();
     const [completed, setCompleted] = useState(getCompleted(user, module));
     const [selectedIndex, setSelectedIndex] = useState(0);
     const request = useRequest();
