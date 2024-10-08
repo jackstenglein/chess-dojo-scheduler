@@ -1,3 +1,7 @@
+import {
+    getIncrement,
+    getInitialClock,
+} from '@/board/pgn/boardTools/underboard/clock/ClockUsage';
 import { GameInfo, GameResult } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -263,28 +267,15 @@ export function RenderResult(params: GridRenderCellParams) {
     );
 }
 
-function parseTimeControl(
-    tc: string | undefined,
-): [number | undefined, number | undefined] {
-    if (!tc) {
-        return [undefined, undefined];
-    }
-
-    const [gameTime, increment] = tc
-        .split(/[+|\s]+/)
-        .flatMap((v) => (v ? Number(v) : []));
-
-    if (!gameTime) {
-        return [undefined, undefined];
-    }
-
-    return [Math.round(gameTime / 60), increment];
-}
-
 export function getTimeControl({ timeControl }: { timeControl?: string }) {
-    const [gameTime, increment] = parseTimeControl(timeControl);
+    const initialClock = getInitialClock(timeControl);
+    if (!initialClock) {
+        return null;
+    }
 
-    return gameTime ? `${gameTime}+${increment ?? 0}` : null;
+    const increment = getIncrement(timeControl);
+
+    return `${Math.round(initialClock / 60)}+${increment ?? 0}`;
 }
 
 export function RenderTimeControl({ timeControl }: { timeControl?: string }) {
