@@ -34,6 +34,9 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerName: 'Cohort',
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderCohort(params.row),
+        align: 'center',
+        headerAlign: 'center',
+        width: 70,
     },
     {
         field: 'result',
