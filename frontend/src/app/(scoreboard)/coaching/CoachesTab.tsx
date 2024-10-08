@@ -1,16 +1,17 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { listCoaches } from '@/api/coachApi';
+import { useAuth } from '@/auth/Auth';
+import { FollowerEntry } from '@/database/follower';
+import { User, compareCohorts } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import Bio from '@/profile/info/Bio';
+import UserInfo from '@/profile/info/UserInfo';
 import { LoadingButton } from '@mui/lab';
 import { Card, CardActionArea, CardContent, Stack } from '@mui/material';
 import React, { useEffect } from 'react';
-
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { listCoaches } from '../../api/coachApi';
-import { useAuth } from '../../auth/Auth';
-import { FollowerEntry } from '../../database/follower';
-import { User, compareCohorts } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
-import Bio from '../../profile/info/Bio';
-import UserInfo from '../../profile/info/UserInfo';
 
 const CoachesTab = () => {
     const request = useRequest<User[]>();

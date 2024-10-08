@@ -1,3 +1,9 @@
+'use client';
+
+import { useEvents } from '@/api/cache/Cache';
+import { useAuth } from '@/auth/Auth';
+import { Event } from '@/database/event';
+import { User } from '@/database/user';
 import { CalendarToday, FormatListBulleted } from '@mui/icons-material';
 import {
     Stack,
@@ -7,11 +13,6 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
-
-import { useEvents } from '../../api/cache/Cache';
-import { useAuth } from '../../auth/Auth';
-import { Event } from '../../database/event';
-import { User } from '../../database/user';
 import CoachingCalendar from './CoachingCalendar';
 import CoachingList, { displayEvent } from './CoachingList';
 

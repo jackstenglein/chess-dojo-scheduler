@@ -1,11 +1,13 @@
+'use client';
+
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { TabContext, TabPanel } from '@mui/lab';
 import { Box, Container, Tab, Tabs } from '@mui/material';
-import { useSearchParams } from 'react-router-dom';
 import CoachesTab from './CoachesTab';
 import UpcomingSessions from './UpcomingSessions';
 
 const CoachingPage = () => {
-    const [searchParams, setSearchParams] = useSearchParams({ view: 'sessions' });
+    const { searchParams, setSearchParams } = useNextSearchParams({ view: 'sessions' });
 
     return (
         <Container>

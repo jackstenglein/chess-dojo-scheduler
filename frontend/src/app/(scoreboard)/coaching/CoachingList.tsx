@@ -1,18 +1,16 @@
+import { EventType as AnalyticsEventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { Request, RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import Field from '@/calendar/eventViewer/Field';
+import OwnerField from '@/calendar/eventViewer/OwnerField';
+import PriceField from '@/calendar/eventViewer/PriceField';
+import { Event, EventStatus, EventType } from '@/database/event';
+import { SubscriptionStatus, User, dojoCohorts } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-
-import { EventType as AnalyticsEventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { Request, RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../../calendar/displayDate';
-import Field from '../../calendar/eventViewer/Field';
-import OwnerField from '../../calendar/eventViewer/OwnerField';
-import PriceField from '../../calendar/eventViewer/PriceField';
-import { Event, EventStatus, EventType } from '../../database/event';
-import { SubscriptionStatus, User, dojoCohorts } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
 
 export function displayEvent(event: Event, viewer?: User): boolean {
     if (event.type !== EventType.Coaching) {
@@ -83,7 +81,6 @@ const CoachingList: React.FC<CoachingListProps> = ({ events, request }) => {
 
 const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
     const viewer = useAuth().user;
-    const navigate = useNavigate();
     const api = useApi();
     const request = useRequest();
 
@@ -96,7 +93,7 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
 
     const onBook = () => {
         if (!viewer) {
-            navigate('/signup');
+            window.location.href = '/signup';
             return;
         }
 
@@ -134,10 +131,7 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
                 sx={{ pb: 0 }}
                 action={
                     isOwner || isParticipant ? (
-                        <Button
-                            variant='contained'
-                            onClick={() => navigate(`/meeting/${event.id}`)}
-                        >
+                        <Button variant='contained' href={`/meeting/${event.id}`}>
                             View Details
                         </Button>
                     ) : (

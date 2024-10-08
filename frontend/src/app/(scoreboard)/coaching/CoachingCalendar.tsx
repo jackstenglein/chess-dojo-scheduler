@@ -1,18 +1,18 @@
+import { useApi } from '@/api/Api';
+import { Request, RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { getProcessedEvents } from '@/calendar/CalendarPage';
+import EventEditor from '@/calendar/eventEditor/EventEditor';
+import ProcessedEventViewer from '@/calendar/eventViewer/ProcessedEventViewer';
+import { getHours, useFilters } from '@/calendar/filters/CalendarFilters';
+import TimezoneFilter from '@/calendar/filters/TimezoneFilter';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import { Event } from '@/database/event';
+import { TimeFormat } from '@/database/user';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Grid2, Stack } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useApi } from '../../api/Api';
-import { Request, RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { getProcessedEvents } from '../../calendar/CalendarPage';
-import EventEditor from '../../calendar/eventEditor/EventEditor';
-import ProcessedEventViewer from '../../calendar/eventViewer/ProcessedEventViewer';
-import { getHours, useFilters } from '../../calendar/filters/CalendarFilters';
-import TimezoneFilter from '../../calendar/filters/TimezoneFilter';
-import { Event } from '../../database/event';
-import { TimeFormat } from '../../database/user';
 
 interface CoachingCalendarProps {
     events: Event[];
