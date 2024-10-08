@@ -29,7 +29,6 @@ import CourseEditorPage from './coaching/coaches/courseEditor/CourseEditorPage';
 import CoachingPage from './coaching/customers/CoachingPage';
 import ListCoursesPage from './courses/list/ListCoursesPage';
 import CoursePage from './courses/view/CoursePage';
-import UnsubscribePage from './dojoDigest/UnsubscribePage';
 import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
@@ -64,7 +63,6 @@ import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
-import PricingPage from './upsell/PricingPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
@@ -77,15 +75,12 @@ const router = createBrowserRouter(
                 <Route index element={<LandingPage />} />
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
-                <Route path='dojodigest/unsubscribe' element={<UnsubscribePage />} />
 
                 <Route path='courses'>
                     <Route index element={<ListCoursesPage />} />
                     <Route path=':type/:id' element={<CoursePage />} />
                 </Route>
                 <Route path='coaching' element={<CoachingPage />} />
-
-                <Route path='prices' element={<PricingPage />} />
 
                 <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
 

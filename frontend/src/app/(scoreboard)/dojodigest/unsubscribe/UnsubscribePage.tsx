@@ -1,10 +1,12 @@
+'use client';
+
+import { unsubscribeFromDojoDigest } from '@/api/emailApi';
+import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import { Container, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { unsubscribeFromDojoDigest } from '../api/emailApi';
-import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { AuthStatus, useAuth } from '../auth/Auth';
-import LoadingPage from '../loading/LoadingPage';
 
 const UnsubscribePage = () => {
     const [email, setEmail] = useState('');

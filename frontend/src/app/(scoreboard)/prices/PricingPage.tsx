@@ -1,33 +1,30 @@
-import { Alert, Container, Grid2, Typography } from '@mui/material';
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { AuthStatus, useAuth } from '../auth/Auth';
-import { SubscriptionStatus } from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
-import PriceMatrix from './PriceMatrix';
+'use client';
 
-const today = new Date();
-const promoEnd = new Date('2024-06-01');
-const showPromo = today.getTime() < promoEnd.getTime();
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import { SubscriptionStatus } from '@/database/user';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import LoadingPage from '@/loading/LoadingPage';
+import PriceMatrix from '@/upsell/PriceMatrix';
+import { Container, Grid2, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface PricingPageProps {
     onFreeTier?: () => void;
 }
 
 const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
-    const auth = useAuth();
-    const user = auth.user;
-    const navigate = useNavigate();
-
+    const { status, user } = useAuth();
     const api = useApi();
     const request = useRequest();
     const [interval, setInterval] = useState('');
-    const [searchParams] = useSearchParams();
+    const { searchParams } = useNextSearchParams();
     const redirect = searchParams.get('redirect') || '';
+    const router = useRouter();
 
-    if (auth.status === AuthStatus.Loading) {
+    if (status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
 
@@ -38,7 +35,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
 
     const onSubscribe = (interval: 'month' | 'year') => {
         if (!user) {
-            navigate('/signup');
+            router.push('/signup');
         }
 
         setInterval(interval);
@@ -59,13 +56,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         <Container sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
             <Grid2 container spacing={3} justifyContent='center'>
-                {showPromo && (
-                    <Grid2 mb={5} size='auto'>
-                        <Alert severity='info' variant='outlined'>
-                            Use code DOJO30 at checkout for 30% off your first month
-                        </Alert>
-                    </Grid2>
-                )}
                 <Grid2 textAlign='center' size={12}>
                     <Typography variant='subtitle1' color='text.secondary'>
                         Choose your pricing plan
