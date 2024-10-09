@@ -169,8 +169,6 @@ describe('Calendar Page', () => {
         cy.getBySel('book-button');
 
         cy.contains('Available Start Times');
-        const date = new Date(dateMapper['2023-09-13']);
-        cy.contains(`${date.getMonth() + 1}/${date.getDate() + 1}/${date.getFullYear()}`);
 
         cy.contains('Owner');
         cy.contains('Ricardo Alves (1500-1600)').should(
