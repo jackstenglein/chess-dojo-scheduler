@@ -8,6 +8,11 @@ jobs:
     runs-on: ubuntu-22.04
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
+      - name: Print Versions
+        run: |
+          node --version
+          npm --version
+
       - name: Checkout
         uses: actions/checkout@v4
 
