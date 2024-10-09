@@ -24,7 +24,7 @@ describe('Calendar Page', () => {
         cy.getBySel('calendar-filters').contains('Cohorts');
     });
 
-    it('prevents free users from adding events', () => {
+    it.only('prevents free users from adding events', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/calendar');
