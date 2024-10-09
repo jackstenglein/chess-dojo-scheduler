@@ -1,5 +1,3 @@
-import { tournamentsClock } from '../tournaments/util';
-
 describe('Calendar Page', () => {
     beforeEach(() => {
         cy.interceptApi('GET', '/calendar', { fixture: 'calendar/events.json' });
@@ -9,7 +7,7 @@ describe('Calendar Page', () => {
             cy.dojo.env('cognito_password'),
         );
 
-        cy.clock(tournamentsClock);
+        // cy.clock(tournamentsClock);
         cy.visit('/calendar');
         cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
