@@ -21,6 +21,18 @@ function addDays(d: Date, count: number): Date {
     return result;
 }
 
+const sunday = getSunday(new Date());
+
+const dateMapper: Record<string, string> = {
+    '2023-09-10': sunday.toISOString().slice(0, 10),
+    '2023-09-11': addDays(sunday, 1).toISOString().slice(0, 10),
+    '2023-09-12': addDays(sunday, 2).toISOString().slice(0, 10),
+    '2023-09-13': addDays(sunday, 3).toISOString().slice(0, 10),
+    '2023-09-14': addDays(sunday, 4).toISOString().slice(0, 10),
+    '2023-09-15': addDays(sunday, 5).toISOString().slice(0, 10),
+    '2023-09-16': addDays(sunday, 6).toISOString().slice(0, 10),
+};
+
 interface Event {
     startTime: string;
     endTime: string;
@@ -28,19 +40,7 @@ interface Event {
 
 describe('Calendar Page', () => {
     beforeEach(() => {
-        cy.fixture('calendar/events.json').then((events: Event[]) => {
-            const sunday = getSunday(new Date());
-
-            const dateMapper: Record<string, string> = {
-                '2023-09-10': sunday.toISOString().slice(0, 10),
-                '2023-09-11': addDays(sunday, 1).toISOString().slice(0, 10),
-                '2023-09-12': addDays(sunday, 2).toISOString().slice(0, 10),
-                '2023-09-13': addDays(sunday, 3).toISOString().slice(0, 10),
-                '2023-09-14': addDays(sunday, 4).toISOString().slice(0, 10),
-                '2023-09-15': addDays(sunday, 5).toISOString().slice(0, 10),
-                '2023-09-16': addDays(sunday, 6).toISOString().slice(0, 10),
-            };
-
+        cy.fixture('calendar/events.json').then(({ events }: { events: Event[] }) => {
             for (const event of events) {
                 const startDate = event.startTime.slice(0, 10);
                 const endDate = event.endTime.slice(0, 10);
@@ -52,7 +52,7 @@ describe('Calendar Page', () => {
                 event.endTime = event.endTime.replace(endDate, dateMapper[endDate]);
             }
 
-            cy.interceptApi('GET', '/calendar', events);
+            cy.interceptApi('GET', '/calendar', { events });
         });
 
         cy.loginByCognitoApi(
@@ -169,7 +169,8 @@ describe('Calendar Page', () => {
         cy.getBySel('book-button');
 
         cy.contains('Available Start Times');
-        cy.contains('9/13/2023');
+        const date = new Date(dateMapper['2023-09-13']);
+        cy.contains(`${date.getMonth() + 1}/${date.getDate() + 1}/${date.getFullYear()}`);
 
         cy.contains('Owner');
         cy.contains('Ricardo Alves (1500-1600)').should(
