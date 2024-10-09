@@ -1,5 +1,19 @@
+function getSunday(d: Date): Date {
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+}
+
 describe('Calendar Page', () => {
     beforeEach(() => {
+        // cy.fixture('calendar/events.json').then((events: object[]) => {
+        //     const sunday = getSunday(new Date());
+
+        //     for (const event of events) {
+
+        //     }
+        // })
+
         cy.interceptApi('GET', '/calendar', { fixture: 'calendar/events.json' });
         cy.loginByCognitoApi(
             'test',
@@ -9,7 +23,7 @@ describe('Calendar Page', () => {
 
         // cy.clock(tournamentsClock);
         cy.visit('/calendar');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
+        // cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('has correct filters', () => {
@@ -26,7 +40,7 @@ describe('Calendar Page', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/calendar');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
+        // cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
