@@ -25,11 +25,6 @@ import ClubDetailsPage from './clubs/ClubDetailsPage';
 import CreateClubPage from './clubs/CreateClubPage';
 import ListClubsPage from './clubs/ListClubsPage';
 import CoachPortalPage from './coaching/coaches/CoachPortalPage';
-import CourseEditorPage from './coaching/coaches/courseEditor/CourseEditorPage';
-import CoachingPage from './coaching/customers/CoachingPage';
-import ListCoursesPage from './courses/list/ListCoursesPage';
-import CoursePage from './courses/view/CoursePage';
-import UnsubscribePage from './dojoDigest/UnsubscribePage';
 import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
@@ -51,7 +46,6 @@ import GroupMeetingPage from './meeting/GroupMeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
 import StripeCancelationPage from './meeting/StripeCancelationPage';
-import MerchPage from './merch/MerchPage';
 import NotificationPage from './notifications/NotificationPage';
 import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
@@ -64,15 +58,7 @@ import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
-import TournamentsPage from './tournaments/TournamentsPage';
-import DetailsPage from './tournaments/openClassical/DetailsPage';
-import InfoPage from './tournaments/openClassical/InfoPage';
-import ListPage from './tournaments/openClassical/ListPage';
-import RegistrationPage from './tournaments/openClassical/RegistrationPage';
-import SubmitResultsPage from './tournaments/openClassical/SubmitResultsPage';
-import AdminPage from './tournaments/openClassical/admin/AdminPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
-import PricingPage from './upsell/PricingPage';
 
 LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
@@ -85,26 +71,6 @@ const router = createBrowserRouter(
                 <Route index element={<LandingPage />} />
                 <Route path='signup' element={<SignupPage />} />
                 <Route path='verify-email' element={<VerifyEmailPage />} />
-                <Route path='tournaments'>
-                    <Route index element={<TournamentsPage />} />
-                    <Route path='open-classical'>
-                        <Route index element={<DetailsPage />} />
-                        <Route path='info' element={<InfoPage />} />
-                        <Route path='register' element={<RegistrationPage />} />
-                        <Route path='submit-results' element={<SubmitResultsPage />} />
-                        <Route path='previous' element={<ListPage />} />
-                        <Route path='admin' element={<AdminPage />} />
-                    </Route>
-                </Route>
-                <Route path='dojodigest/unsubscribe' element={<UnsubscribePage />} />
-
-                <Route path='courses'>
-                    <Route index element={<ListCoursesPage />} />
-                    <Route path=':type/:id' element={<CoursePage />} />
-                </Route>
-                <Route path='coaching' element={<CoachingPage />} />
-
-                <Route path='prices' element={<PricingPage />} />
 
                 <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
 
@@ -198,7 +164,6 @@ const router = createBrowserRouter(
 
                     <Route path='coach'>
                         <Route index element={<CoachPortalPage />} />
-                        <Route path='courses/:type/:id' element={<CourseEditorPage />} />
                     </Route>
                 </Route>
             </Route>
@@ -210,21 +175,6 @@ const router = createBrowserRouter(
                     <Route index element={<GamePage />} />
                 </Route>
             </Route>
-
-            {/* Legacy routes from Wix */}
-            <Route
-                path='books-by-rating'
-                element={<Navigate to='/material/books' replace />}
-            />
-            <Route path='books' element={<Navigate to='/material/books' replace />} />
-            <Route
-                path='recommendations'
-                element={<Navigate to='/material/books' replace />}
-            />
-            <Route path='training' element={<Navigate to='/profile' replace />} />
-            <Route path='home' element={<Navigate to='/profile' replace />} />
-            <Route path='plans-pricing' element={<PricingPage />} />
-            <Route path='shop' element={<MerchPage />} />
 
             <Route path='*' element={<NotFoundPage />} />
         </Route>,

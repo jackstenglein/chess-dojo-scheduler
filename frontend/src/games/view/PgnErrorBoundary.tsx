@@ -2,7 +2,6 @@
 
 import { Button, Container, Stack, Typography } from '@mui/material';
 import React, { Component, ErrorInfo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useAuth } from '../../auth/Auth';
 import { Game } from '../../database/game';
@@ -15,7 +14,6 @@ interface PgnErrorBoundaryProps {
 
 interface PgnErrorBoundaryNavigatorProps extends PgnErrorBoundaryProps {
     username: string;
-    navigate: (to: string) => void;
 }
 
 interface ErrorBoundaryState {
@@ -69,7 +67,7 @@ class PgnErrorBoundary extends Component<
                         <Stack direction='row' spacing={2}>
                             <Button
                                 variant='contained'
-                                onClick={() => this.props.navigate('./edit')}
+                                href={window.location.href + '/edit'}
                             >
                                 Resubmit PGN
                             </Button>
@@ -102,10 +100,9 @@ class PgnErrorBoundary extends Component<
 const PgnErrorBoundaryNavigator: React.FC<
     React.PropsWithChildren<PgnErrorBoundaryProps>
 > = (props) => {
-    const navigate = useNavigate();
     const username = useAuth().user?.username || '';
 
-    return <PgnErrorBoundary navigate={navigate} username={username} {...props} />;
+    return <PgnErrorBoundary username={username} {...props} />;
 };
 
 export default PgnErrorBoundaryNavigator;
