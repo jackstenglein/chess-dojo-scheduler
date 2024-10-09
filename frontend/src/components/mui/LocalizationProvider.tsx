@@ -9,14 +9,8 @@ LicenseInfo.setLicenseKey(
     '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
 );
 
-export const LocalizationProvider = ({
-    initialLang,
-    children,
-}: {
-    initialLang: string | null;
-    children: ReactNode;
-}) => {
-    const [lang, setLang] = useState(initialLang);
+export const LocalizationProvider = ({ children }: { children: ReactNode }) => {
+    const [lang, setLang] = useState('');
 
     useEffect(() => {
         setLang(navigator.languages[0]);
