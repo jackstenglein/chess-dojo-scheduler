@@ -13,14 +13,12 @@ import UpsellAlert from '@/upsell/UpsellAlert';
 import { Button, Stack } from '@mui/material';
 import { GridPaginationModel, GridRowParams } from '@mui/x-data-grid-pro';
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface GamesTabProps {
     user: User;
 }
 
 const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
-    const navigate = useNavigate();
     const api = useApi();
     const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
@@ -35,12 +33,10 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const { request, data, pageSize, setPageSize } = pagination;
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
-        navigate(
-            `/games/${params.row.cohort.replaceAll(
-                '+',
-                '%2B',
-            )}/${params.row.id.replaceAll('?', '%3F')}`,
-        );
+        window.location.href = `/games/${params.row.cohort.replaceAll(
+            '+',
+            '%2B',
+        )}/${params.row.id.replaceAll('?', '%3F')}`;
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
@@ -50,7 +46,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     };
 
     const onSubmit = () => {
-        navigate('/games/import');
+        window.location.href = '/games/import';
     };
 
     return (
