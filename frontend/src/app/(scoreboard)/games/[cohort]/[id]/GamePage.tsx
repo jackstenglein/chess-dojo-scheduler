@@ -1,45 +1,35 @@
-import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
-import { Chess } from '@jackstenglein/chess';
-import { Box } from '@mui/material';
-import { createContext, useContext, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+'use client';
+
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import {
     BoardOrientation,
     GameHeader,
     GameSubmissionType,
     UpdateGameRequest,
     isMissingData,
-} from '../../api/gameApi';
-import { useAuth } from '../../auth/Auth';
-import PgnBoard from '../../board/pgn/PgnBoard';
-import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
-import { Game } from '../../database/game';
-import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
-import PgnErrorBoundary from './PgnErrorBoundary';
+} from '@/api/gameApi';
+import { useAuth } from '@/auth/Auth';
+import PgnBoard from '@/board/pgn/PgnBoard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
+import PgnErrorBoundary from '@/components/games/view/PgnErrorBoundary';
+import { Game } from '@/database/game';
+import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
+import { GameContext } from '@/hooks/useGame';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { Chess } from '@jackstenglein/chess';
+import { Box } from '@mui/material';
+import { useEffect } from 'react';
 
-interface GameContextType {
-    game?: Game;
-    onUpdateGame?: (g: Game) => void;
-    isOwner?: boolean;
-}
-
-export const GameContext = createContext<GameContextType>({});
-
-export function useGame() {
-    return useContext(GameContext);
-}
-
-const GamePage = () => {
+const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
     const api = useApi();
     const request = useRequest<Game>();
     const featureRequest = useRequest();
     const updateRequest = useRequest<Game>();
-    const { cohort, id } = useParams();
     const user = useAuth().user;
-    const [searchParams, setSearchParams] = useSearchParams({ firstLoad: 'false' });
+    const { searchParams, setSearchParams } = useNextSearchParams({ firstLoad: 'false' });
     const firstLoad = searchParams.get('firstLoad') === 'true';
 
     const reset = request.reset;
@@ -107,7 +97,7 @@ const GamePage = () => {
                 const updatedGame = resp.data;
                 request.onSuccess(updatedGame);
                 updateRequest.onSuccess(updatedGame);
-                setSearchParams();
+                setSearchParams({});
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
@@ -170,7 +160,7 @@ const GamePage = () => {
                     initOrientation={request.data.orientation}
                     loading={updateRequest.isLoading()}
                     onSubmit={onSave}
-                    onClose={() => setSearchParams()}
+                    onClose={() => setSearchParams({})}
                 >
                     You can fill this data out now or later in settings.
                 </MissingGameDataPreflight>

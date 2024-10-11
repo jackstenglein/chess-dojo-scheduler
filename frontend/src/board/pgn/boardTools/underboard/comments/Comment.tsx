@@ -1,3 +1,12 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { UpdateCommentRequest } from '@/api/gameApi';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { PositionComment } from '@/database/game';
+import { useGame } from '@/hooks/useGame';
+import Avatar from '@/profile/Avatar';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { Edit, ExpandMore } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -17,15 +26,6 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { useApi } from '../../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import { UpdateCommentRequest } from '../../../../../api/gameApi';
-import { useAuth } from '../../../../../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
-import { PositionComment } from '../../../../../database/game';
-import { useGame } from '../../../../../games/view/GamePage';
-import Avatar from '../../../../../profile/Avatar';
-import CohortIcon from '../../../../../scoreboard/CohortIcon';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
 import Replies from './Replies';
 import ReplyEditor from './ReplyEditor';

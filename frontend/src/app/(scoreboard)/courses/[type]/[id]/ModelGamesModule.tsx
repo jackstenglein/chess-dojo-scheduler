@@ -1,5 +1,5 @@
 import PgnBoard from '@/board/pgn/PgnBoard';
-import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
+import PgnErrorBoundary from '@/components/games/view/PgnErrorBoundary';
 import { Box, Container, Stack } from '@mui/material';
 import { useState } from 'react';
 import { ModuleProps } from './Module';

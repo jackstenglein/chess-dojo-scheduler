@@ -6,9 +6,9 @@ import { RequestSnackbar, useRequest } from '../api/Request';
 import PgnSelector from '../app/(scoreboard)/courses/[type]/[id]/PgnSelector';
 import { useRequiredAuth } from '../auth/Auth';
 import PgnBoard from '../board/pgn/PgnBoard';
+import PgnErrorBoundary from '../components/games/view/PgnErrorBoundary';
 import { Game, GameInfo } from '../database/game';
 import { compareCohorts, dojoCohorts } from '../database/user';
-import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
 import LoadingPage from '../loading/LoadingPage';
 import CohortIcon from '../scoreboard/CohortIcon';
 

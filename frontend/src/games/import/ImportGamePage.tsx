@@ -1,17 +1,15 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { CreateGameRequest, isGame } from '@/api/gameApi';
 import { useRequiredAuth } from '@/auth/Auth';
 import { Container } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
-import { useNavigate } from 'react-router-dom';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { CreateGameRequest, isGame } from '../../api/gameApi';
 import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
     const api = useApi();
     const request = useRequest<string>();
-    const navigate = useNavigate();
     const searchParams = useSearchParams();
     const { user } = useRequiredAuth();
 
@@ -29,12 +27,10 @@ const ImportGamePage = () => {
                         count: 1,
                         method: req.type,
                     });
-                    navigate(
-                        `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
-                            '?',
-                            '%3F',
-                        )}?firstLoad=true`,
-                    );
+                    window.location.href = `/games/${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
+                        '?',
+                        '%3F',
+                    )}?firstLoad=true`;
                 } else {
                     const count = response.data.count;
                     trackEvent(EventType.SubmitGame, {

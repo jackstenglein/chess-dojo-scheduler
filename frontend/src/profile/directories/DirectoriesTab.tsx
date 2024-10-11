@@ -2,8 +2,8 @@ import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { useGame } from '@/games/view/GamePage';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
+import { useGame } from '@/hooks/useGame';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import {

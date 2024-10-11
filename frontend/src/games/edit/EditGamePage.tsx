@@ -1,10 +1,10 @@
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { CreateGameRequest, GameHeader, UpdateGameRequest } from '../../api/gameApi';
-import { Game } from '../../database/game';
 import ImportWizard from '../import/ImportWizard';
 
 interface PreflightData {
@@ -17,7 +17,7 @@ const EditGamePage = () => {
     const request = useRequest<PreflightData>();
     const { cohort, id } = useParams();
     const navigate = useNavigate();
-    const game: Game | undefined = (useLocation().state as { game?: Game })?.game;
+    const unlisted = useNextSearchParams().searchParams.get('unlisted') === 'true';
 
     const onEdit = (remoteGame?: CreateGameRequest, headers?: GameHeader) => {
         if (!cohort || !id || !remoteGame) {
@@ -26,7 +26,7 @@ const EditGamePage = () => {
 
         const req: UpdateGameRequest = {
             ...remoteGame,
-            unlisted: game?.unlisted,
+            unlisted,
             headers,
         };
 
@@ -44,10 +44,6 @@ const EditGamePage = () => {
                 request.onFailure(err);
             });
     };
-
-    if (!game) {
-        return <Navigate to='..' replace />;
-    }
 
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>

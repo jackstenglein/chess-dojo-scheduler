@@ -16,12 +16,7 @@ import {
     Typography,
 } from '@mui/material';
 import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { LicenseInfo } from '@mui/x-license';
 import { useEffect, useMemo, useState } from 'react';
-
-LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
-);
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];

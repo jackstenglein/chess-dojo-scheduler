@@ -1,3 +1,4 @@
+import { useGame } from '@/hooks/useGame';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
@@ -20,7 +21,6 @@ import {
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
-import { useGame } from '../../../games/view/GamePage';
 import { useReconcile } from '../../Board';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';

@@ -17,10 +17,10 @@ import PgnSelector from '../app/(scoreboard)/courses/[type]/[id]/PgnSelector';
 import { useFreeTier, useRequiredAuth } from '../auth/Auth';
 import PgnBoard from '../board/pgn/PgnBoard';
 import PuzzleBoard from '../board/puzzle/PuzzleBoard';
+import PgnErrorBoundary from '../components/games/view/PgnErrorBoundary';
 import { coachUrls, coaches } from '../database/course';
 import { Game, GameInfo } from '../database/game';
 import { compareCohorts } from '../database/user';
-import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
 import LoadingPage from '../loading/LoadingPage';
 
 const MemorizeGamesPage = () => {

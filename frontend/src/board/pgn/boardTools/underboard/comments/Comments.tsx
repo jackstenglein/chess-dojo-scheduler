@@ -1,3 +1,5 @@
+import { Game, PositionComment } from '@/database/game';
+import { useGame } from '@/hooks/useGame';
 import { Chess, EventType, Move } from '@jackstenglein/chess';
 import {
     Button,
@@ -10,8 +12,6 @@ import {
 } from '@mui/material';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { Game, PositionComment } from '../../../../../database/game';
-import { useGame } from '../../../../../games/view/GamePage';
 import { useReconcile } from '../../../../Board';
 import { useChess } from '../../../PgnBoard';
 import Comment from './Comment';

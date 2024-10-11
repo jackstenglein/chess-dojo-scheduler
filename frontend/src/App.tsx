@@ -37,7 +37,6 @@ import ExplorerPage from './games/explorer/ExplorerPage';
 import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
-import GamePage from './games/view/GamePage';
 import MaterialPage from './material/MaterialPage';
 import MemorizeGamesPage from './material/MemorizeGamesPage';
 import ModelGamesPage from './material/ModelGamesPage';
@@ -169,12 +168,6 @@ const router = createBrowserRouter(
             </Route>
 
             {/* Unauthenticated */}
-
-            <Route path='games'>
-                <Route path=':cohort/:id'>
-                    <Route index element={<GamePage />} />
-                </Route>
-            </Route>
 
             <Route path='*' element={<NotFoundPage />} />
         </Route>,

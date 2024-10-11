@@ -1,3 +1,19 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import {
+    BoardOrientation,
+    GameHeader,
+    GameSubmissionType,
+    UpdateGameRequest,
+    isMissingData,
+    parsePgnDate,
+    toPgnDate,
+} from '@/api/gameApi';
+import { useFreeTier } from '@/auth/Auth';
+import DeleteGameButton from '@/components/games/view/DeleteGameButton';
+import { Game, PgnHeaders } from '@/database/game';
+import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -12,24 +28,8 @@ import {
     Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { EventType, trackEvent } from '../../../../../analytics/events';
-import { useApi } from '../../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import {
-    BoardOrientation,
-    GameHeader,
-    GameSubmissionType,
-    UpdateGameRequest,
-    isMissingData,
-    parsePgnDate,
-    toPgnDate,
-} from '../../../../../api/gameApi';
-import { useFreeTier } from '../../../../../auth/Auth';
-import { Game, PgnHeaders } from '../../../../../database/game';
-import { MissingGameDataPreflight } from '../../../../../games/edit/MissingGameDataPreflight';
-import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
@@ -48,7 +48,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
         game.orientation ?? 'white',
     );
     const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const headersChanged = Object.entries(game.headers).some(
         ([name, value]) => value !== headers[name],
@@ -170,7 +170,11 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
                 <Button
                     variant='outlined'
-                    onClick={() => navigate('edit', { state: { game } })}
+                    onClick={() =>
+                        router.push(
+                            `${window.location.href}/edit?unlisted=${game.unlisted || false}`,
+                        )
+                    }
                 >
                     Replace PGN
                 </Button>

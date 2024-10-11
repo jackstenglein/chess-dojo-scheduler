@@ -1,3 +1,7 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Game } from '@/database/game';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -10,10 +14,6 @@ import {
     Tooltip,
 } from '@mui/material';
 import { useState } from 'react';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Game } from '../../database/game';
 
 interface DeleteGameButtonProps {
     game: Game;

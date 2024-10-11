@@ -5,13 +5,8 @@ import { useRequest } from '@/api/Request';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
 import PgnBoard from '@/board/pgn/PgnBoard';
 import { Game } from '@/database/game';
-import { GameContext } from '@/games/view/GamePage';
-import { LicenseInfo } from '@mui/x-license';
+import { GameContext } from '@/hooks/useGame';
 import { useEffect } from 'react';
-
-LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
-);
 
 export const GameViewer = ({ cohort, id }: { cohort: string; id: string }) => {
     const api = useApi();

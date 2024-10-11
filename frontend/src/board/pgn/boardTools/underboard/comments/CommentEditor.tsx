@@ -1,11 +1,11 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useRequiredAuth } from '@/auth/Auth';
+import { PositionComment } from '@/database/game';
+import { useGame } from '@/hooks/useGame';
 import { Send } from '@mui/icons-material';
 import { CircularProgress, IconButton, Stack, TextField, Tooltip } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
-import { useApi } from '../../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import { useRequiredAuth } from '../../../../../auth/Auth';
-import { PositionComment } from '../../../../../database/game';
-import { useGame } from '../../../../../games/view/GamePage';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../../PgnBoard';
 
 export interface CommentEditorProps {
