@@ -13,10 +13,10 @@ import {
 import { useEffect, useState } from 'react';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import PgnSelector from '../app/(scoreboard)/courses/[type]/[id]/PgnSelector';
 import { useFreeTier, useRequiredAuth } from '../auth/Auth';
 import PgnBoard from '../board/pgn/PgnBoard';
 import PuzzleBoard from '../board/puzzle/PuzzleBoard';
-import PgnSelector from '../courses/view/PgnSelector';
 import { coachUrls, coaches } from '../database/course';
 import { Game, GameInfo } from '../database/game';
 import { compareCohorts } from '../database/user';

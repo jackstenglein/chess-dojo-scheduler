@@ -1,10 +1,10 @@
 import { useAuth } from '@/auth/Auth';
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { Button, Grid2, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useRequirements } from '../../api/cache/requirements';
 import { ALL_COHORTS, compareCohorts, User } from '../../database/user';
-import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import {
     displayTimeframe,

@@ -174,14 +174,11 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
         update.headers = game.headers;
 
         const result = game.headers['Result'];
-        if (
-            isMissingData({ ...update, result }) &&
-            update.unlisted !== undefined &&
-            !update.unlisted
-        ) {
+        const missingDataErr = isMissingData({ ...update, result });
+        if (missingDataErr && update.unlisted !== undefined && !update.unlisted) {
             throw new ApiError({
                 statusCode: 400,
-                publicMessage: 'Published games can not be missing data',
+                publicMessage: `Published games can not be missing data: ${missingDataErr}`,
                 privateMessage: 'update requested, but game was missing data',
             });
         }
@@ -205,23 +202,33 @@ function stripPlayerNameHeader(value?: string): string {
 /**
  * Returns whether the game headers are missing data needed to publish
  * @param game The game to check for publishability
- * @returns Whether or not the game update is missing data
+ * @returns An error message if the update is missing data.
  */
 function isMissingData({
     white,
     black,
     result,
     date,
-}: Partial<GameImportHeaders>): boolean {
+}: Partial<GameImportHeaders>): string {
     const strippedWhite = stripPlayerNameHeader(white);
-    const strippedBlack = stripPlayerNameHeader(black);
+    if (!strippedWhite) {
+        return `invalid White header: '${white}'`;
+    }
 
-    return (
-        !strippedWhite ||
-        !strippedBlack ||
-        !isValidDate(date) ||
-        !isPublishableResult(result)
-    );
+    const strippedBlack = stripPlayerNameHeader(black);
+    if (!strippedBlack) {
+        return `invalid Black header: '${black}'`;
+    }
+
+    if (!isValidDate(date)) {
+        return `invalid Date header. Date must be in format YYYY.MM.DD`;
+    }
+
+    if (!isPublishableResult(result)) {
+        return `invalid Result header: '${result}'`;
+    }
+
+    return '';
 }
 
 /**

@@ -4,14 +4,14 @@ describe('Leaderboard Tab', () => {
     beforeEach(() => {
         cy.interceptApi(
             'GET',
-            '/public/tournaments/leaderboard?site=lichess.org&timePeriod=monthly&tournamentType=ARENA&timeControl=blitz&date=2023-09-13T05:00:01.000Z',
+            '/public/tournaments/leaderboard?site=lichess.org&timePeriod=monthly&tournamentType=ARENA&timeControl=blitz&date=2023-09-13T05:00:00.000Z',
             {
                 fixture: 'tournaments/leaderboardBlitzArenaMonthly.json',
             },
         );
         cy.interceptApi(
             'GET',
-            '/public/tournaments/leaderboard?site=lichess.org&timePeriod=yearly&tournamentType=ARENA&timeControl=rapid&date=2023-09-13T05:00:01.000Z',
+            '/public/tournaments/leaderboard?site=lichess.org&timePeriod=yearly&tournamentType=ARENA&timeControl=rapid&date=2023-09-13T05:00:00.000Z',
             {
                 fixture: 'tournaments/leaderboardRapidArenaYearly.json',
             },

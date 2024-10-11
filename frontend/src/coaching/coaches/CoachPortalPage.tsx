@@ -1,7 +1,6 @@
 import { Container, Divider, Stack, Typography } from '@mui/material';
 import NotFoundPage from '../../NotFoundPage';
 import { useRequiredAuth } from '../../auth/Auth';
-import CoursesCard from './courseEditor/CoursesCard';
 import ConnectStripeAccount from './stripe/ConnectStripeAccount';
 import StripeInfo from './stripe/StripeInfo';
 
@@ -23,7 +22,6 @@ const CoachPortalPage = () => {
                 {user.coachInfo?.stripeId ? (
                     <>
                         <StripeInfo />
-                        <CoursesCard />
                     </>
                 ) : (
                     <ConnectStripeAccount />
