@@ -12,7 +12,10 @@ import {
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
-    GridToolbar,
+    GridToolbarColumnsButton,
+    GridToolbarContainer,
+    GridToolbarDensitySelector,
+    GridToolbarFilterButton,
 } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -220,7 +223,7 @@ export default function GameTable({
                         onNextPage={() => setPage(page + 1)}
                     />
                 ),
-                toolbar: GridToolbar,
+                toolbar: CustomGridToolbar,
             }}
             slotProps={{
                 row: {
@@ -229,5 +232,15 @@ export default function GameTable({
             }}
             pagination
         />
+    );
+}
+
+function CustomGridToolbar() {
+    return (
+        <GridToolbarContainer>
+            <GridToolbarColumnsButton />
+            <GridToolbarDensitySelector />
+            <GridToolbarFilterButton />
+        </GridToolbarContainer>
     );
 }
