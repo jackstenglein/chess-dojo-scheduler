@@ -1,3 +1,5 @@
+'use client';
+
 import { PawnIcon } from '@/style/ChessIcons';
 import {
     Group as GroupIcon,
@@ -12,13 +14,11 @@ import InfoPage from './InfoPage';
 import PairingsPage from './PairingPage';
 
 /**
- * Preview tab of the pannel
+ * Renders a tab panel.
  * @param index the int index value
  * @param value the int value
  * @param children ReactNode children
- * @returns
  */
-
 const TabPanel: React.FC<{
     children?: React.ReactNode;
     index: number;
@@ -37,11 +37,10 @@ const TabPanel: React.FC<{
 };
 
 /**
- * Handles the logic for tournament viewer
- * @returns
+ * Renders the round robin tournaments page.
  */
 
-const TournamentViewer: React.FC = () => {
+export const RoundRobinPage = () => {
     const [tabValue, setTabValue] = useState(0);
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -78,5 +77,3 @@ const TournamentViewer: React.FC = () => {
         </Container>
     );
 };
-
-export default TournamentViewer;

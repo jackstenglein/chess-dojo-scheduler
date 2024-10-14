@@ -1,13 +1,11 @@
-import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
-import { Stack, Theme, Typography, useMediaQuery } from '@mui/material';
-import { useState } from 'react';
 import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
     Filters,
-} from '../../../calendar/filters/CalendarFilters';
-import TimezoneFilter from '../../../calendar/filters/TimezoneFilter';
+} from '@/calendar/filters/CalendarFilters';
+import TimezoneFilter from '@/calendar/filters/TimezoneFilter';
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
     PositionType,
     TimeControlType,
@@ -15,9 +13,11 @@ import {
     displayPositionType,
     displayTimeControlType,
     displayTournamentType,
-} from '../../../database/event';
-import { RequirementCategory } from '../../../database/requirement';
-import Icon from '../../../style/Icon';
+} from '@/database/event';
+import { RequirementCategory } from '@/database/requirement';
+import Icon from '@/style/Icon';
+import { Stack, Theme, Typography, useMediaQuery } from '@mui/material';
+import { useState } from 'react';
 
 export function getColor(timeControlType: TimeControlType) {
     switch (timeControlType) {

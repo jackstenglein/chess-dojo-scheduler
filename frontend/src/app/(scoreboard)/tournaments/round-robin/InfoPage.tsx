@@ -33,7 +33,7 @@ import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
 const InfoPage = () => {
     return (
         <Stack spacing={2}>
-            <Typography variant='h5' textAlign='center' color='dullGrey'>
+            <Typography variant='h5' textAlign='center' color='text.secondary'>
                 Welcome to the Dojo Round Robin!
                 <WavingHandIcon
                     sx={{ verticalAlign: 'middle', ml: 1 }}
@@ -43,7 +43,7 @@ const InfoPage = () => {
 
             <Divider />
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <MilitaryTechIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
@@ -53,31 +53,31 @@ const InfoPage = () => {
             <List>
                 <ListItem>
                     <ListItemIcon>
-                        <GroupIcon color='dullGrey' />
+                        <GroupIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Play your fellow Dojoers in your own cohort' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <AllInclusiveIcon color='dullGrey' />
+                        <AllInclusiveIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Play on either on Chess.com or Lichess' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <EmojiEventsIcon color='dullGrey' />
+                        <EmojiEventsIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Schedule games at your own time, have 2 months to complete the round games' />
+                    <ListItemText primary='Schedule games at your own pace, with 2 months to complete the round games' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <NotInterestedIcon color='dullGrey' />
+                        <NotInterestedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Strict anti-cheat measures in place to allow players to learn and grow in the game they love.' />
                 </ListItem>
             </List>
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <HelpCenterIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
@@ -100,7 +100,7 @@ const InfoPage = () => {
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <SiDiscord fontSize={25} style={{ color: '7289da' }} />
+                        <SiDiscord fontSize={25} style={{ color: '#5865f2' }} />
                     </ListItemIcon>
                     <ListItemText primary='Run /register to automatically get placed in your own cohort Dojo round robin tournament!' />
                 </ListItem>
@@ -108,7 +108,7 @@ const InfoPage = () => {
 
             <Divider />
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <LeaderboardIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
@@ -121,25 +121,25 @@ const InfoPage = () => {
             <List>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='You get 1 point for a win, 0.5 for draw and 0 for a loss' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Byes awarded for odd number of players of a point of 1' />
+                    <ListItemText primary='Forced byes for odd number of players receive 1 point' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='when a player withdraws from a tournament everyone else in the tournament gets 1 point each, and that players entire tournament scores not being counted' />
+                    <ListItemText primary="When a player withdraws from a tournament, everyone else in the tournament receives 1 point, and the withdrawing player's scores are not counted" />
                 </ListItem>
             </List>
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <NotInterestedIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
@@ -148,36 +148,36 @@ const InfoPage = () => {
             </Typography>
 
             <Typography>
-                Dojo treats the matter of cheating with a high priority, and automatically
-                takes care with a built in anti-cheat system
+                The Dojo takes cheating very seriously and has the following anti-cheat
+                policies:
             </Typography>
 
             <List>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary="If a player's account gets closed for cheating/fair play violations on Chess.com/Lichess, they are subject to being banned ChessDojo's Discord server." />
+                    <ListItemText primary="If a player's account gets closed for cheating/fair play violations on Chess.com/Lichess, they are subject to being banned from ChessDojo's Discord server." />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='If a player is caught cheating but immediately admit wrongdoing and apologize, based on the severity of their actions they may be given a second chance but will still be prohibited from playing in DojoLiga for at least 3 months' />
+                    <ListItemText primary='If a player is caught cheating but immediately admits wrongdoing and apologizes, based on the severity of their actions they may be given a second chance. However, they will still be prohibited from playing in DojoLiga for at least 3 months' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Cheaters are tracked by the system automatically, and are evicted from leaderboards immediately' />
+                    <ListItemText primary='Cheaters are tracked by the system automatically and are evicted from the leaderboards immediately.' />
                 </ListItem>
             </List>
 
             <Divider />
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <SiDiscord
-                    style={{ verticalAlign: 'middle', marginRight: 9, color: '7289da' }}
+                    style={{ verticalAlign: 'middle', marginRight: 9, color: '#5865f2' }}
                 />
                 Discord Info
             </Typography>

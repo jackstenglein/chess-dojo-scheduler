@@ -73,8 +73,7 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
         });
 
         const ids: string[] = response.data.ids;
-
-        return ids;
+        return ids ?? [];
     } catch (error) {
         console.error('Error fetching tournament IDs:', error);
         throw error;

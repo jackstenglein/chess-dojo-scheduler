@@ -26,11 +26,6 @@ import {
     TournamentData,
 } from './roundRobinApi';
 
-/**
- * Handles the pairing page
- * @returns the pairing page
- */
-
 const PairingsPage = () => {
     const [selectedCohort, setSelectedCohort] = useState<number>(0);
     const [selectedRound, setSelectedRound] = useState<number>(1);
