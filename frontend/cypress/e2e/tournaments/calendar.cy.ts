@@ -15,16 +15,15 @@ describe('Calendar Tab', () => {
     });
 
     it('has tab selector', () => {
-        cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
+        cy.getBySel('tournaments-tab-list').contains('Leaderboard').click();
 
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/tournaments');
+            expect(loc.search).to.eq('?type=leaderboard');
         });
     });
 
     it('has correct filters', () => {
-        cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
-
         cy.getBySel('calendar-filters').contains('Timezone');
         cy.getBySel('calendar-filters').getBySel('timezone-selector');
 
@@ -34,8 +33,6 @@ describe('Calendar Tab', () => {
     });
 
     it('displays correct events for type filters', () => {
-        cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
-
         cy.get('.rs__event__item').should('have.length', 22);
 
         cy.getBySel('tournament-types').click();
@@ -48,8 +45,6 @@ describe('Calendar Tab', () => {
     });
 
     it('displays correct events for time control filters', () => {
-        cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
-
         cy.get('.rs__event__item').should('have.length', 22);
 
         cy.getBySel('time-controls').click();
@@ -69,8 +64,6 @@ describe('Calendar Tab', () => {
     });
 
     it('displays correct events for starting position filters', () => {
-        cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
-
         cy.get('.rs__event__item').should('have.length', 22);
 
         cy.getBySel('starting-position').click();
@@ -83,8 +76,6 @@ describe('Calendar Tab', () => {
     });
 
     it('displays correct popup for events', () => {
-        cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
-
         cy.get('.rs__event__item').contains('Monday Weekly Rapid No. 2').first().click();
 
         cy.get('.MuiPopover-root').contains('Monday Weekly Rapid No. 2');
@@ -102,8 +93,6 @@ describe('Calendar Tab', () => {
     });
 
     it('displays board in custom position event popups', () => {
-        cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
-
         cy.get('.rs__event__item')
             .contains('Endgame Sparring - Pos 9 Arena')
             .click({ force: true });
@@ -129,8 +118,6 @@ describe('Calendar Tab', () => {
     });
 
     it('allows switching between month, week and day views', () => {
-        cy.contains('Calendar', { timeout: 10000 }).should('be.visible').click();
-
         cy.get('[data-testid="rs-wrapper"]').contains('Month').click();
         cy.get('.rs__cell').should('have.length', 6 * 7);
 
