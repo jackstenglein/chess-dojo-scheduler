@@ -1,3 +1,4 @@
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { FEN } from '@jackstenglein/chess';
 import { Help, QuestionMark } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
@@ -38,7 +39,6 @@ import {
 } from '../../../database/explorer';
 import { dojoCohorts, getCohortRange } from '../../../database/user';
 import LoadingPage from '../../../loading/LoadingPage';
-import MultipleSelectChip from '../../../newsfeed/list/MultipleSelectChip';
 import Icon from '../../../style/Icon';
 import UpsellAlert from '../../../upsell/UpsellAlert';
 import { useReconcile } from '../../Board';

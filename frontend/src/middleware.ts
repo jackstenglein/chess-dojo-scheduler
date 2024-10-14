@@ -30,6 +30,16 @@ const unauthenticatedPaths = [
     /^\/forgot-password$/,
 ];
 
+const legacyRoutes = [
+    { oldPath: '/books-by-rating', newPath: '/material/books' },
+    { oldPath: '/books', newPath: '/material/books' },
+    { oldPath: '/recommendations', newPath: '/material/books' },
+    { oldPath: '/training', newPath: '/profile' },
+    { oldPath: '/home', newPath: '/profile' },
+    { oldPath: '/plans-pricing', newPath: '/prices' },
+    { oldPath: '/shop', newPath: 'https://www.chessdojo.shop/shop' },
+];
+
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const response = NextResponse.next();
@@ -37,6 +47,12 @@ export async function middleware(request: NextRequest) {
     for (const path of publicPaths) {
         if (pathname.match(path)) {
             return response;
+        }
+    }
+
+    for (const route of legacyRoutes) {
+        if (pathname === route.oldPath) {
+            return NextResponse.redirect(new URL(route.newPath, request.url));
         }
     }
 

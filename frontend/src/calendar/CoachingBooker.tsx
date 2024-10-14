@@ -1,3 +1,4 @@
+import { displayPrice } from '@/app/(scoreboard)/courses/(list)/CourseListItem';
 import { LoadingButton } from '@mui/lab';
 import {
     AppBar,
@@ -13,7 +14,6 @@ import { EventType, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
 import { useAuth } from '../auth/Auth';
-import { displayPrice } from '../courses/list/CourseListItem';
 import { Event } from '../database/event';
 import { TimeFormat, dojoCohorts } from '../database/user';
 import Icon from '../style/Icon';

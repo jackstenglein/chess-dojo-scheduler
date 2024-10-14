@@ -1,29 +1,54 @@
 import { useReconcile } from '@/board/Board';
-import { LineEval } from '@/stockfish/engine/engine';
+import {
+    ENGINE_ADD_INFO_ON_EVAL_CLICK,
+    ENGINE_ADD_INFO_ON_MOVE_CLICK,
+    ENGINE_PRIMARY_EVAL_TYPE,
+    EngineInfo,
+    LineEval,
+    PrimaryEvalType,
+} from '@/stockfish/engine/engine';
 import { Chess, Color, Move } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
+import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
 
 interface Props {
     line: LineEval;
+    engineInfo: EngineInfo;
 }
 
-export default function LineEvaluation({ line }: Props) {
-    const lineLabel = getLineEvalLabel(line);
+export default function LineEvaluation({ engineInfo, line }: Props) {
     const { chess } = useChess();
     const reconcile = useReconcile();
+    const [primaryEvalType] = useLocalStorage<PrimaryEvalType>(
+        ENGINE_PRIMARY_EVAL_TYPE.Key,
+        ENGINE_PRIMARY_EVAL_TYPE.Default as PrimaryEvalType,
+    );
+    const [addInfoOnEval] = useLocalStorage(
+        ENGINE_ADD_INFO_ON_EVAL_CLICK.Key,
+        ENGINE_ADD_INFO_ON_EVAL_CLICK.Default,
+    );
+    const [addInfoOnMove] = useLocalStorage(
+        ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
+        ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
+    );
+
+    const evaluation = formatLineEval(line);
+    const wdl = formatResultPercentages(Color.white, Color.white, line, ' ');
 
     const isBlackCp =
         (line.cp !== undefined && line.cp < 0) ||
         (line.mate !== undefined && line.mate < 0);
 
-    const showSkeleton = line.depth < 6;
+    const showSkeleton = line.depth === 0;
+    const moves = line.pv.map(moveLineUciToMove(line.fen));
 
-    const onClick = (index: number) => {
+    const onClick = (index: number, addInfo: boolean = addInfoOnMove) => {
         if (chess?.fen() !== line.fen || index >= line.pv.length) {
             return;
         }
 
+        const startTurn = chess.turn();
         let existingOnly = true;
         for (let i = 0; i <= index; i++) {
             const move = chess.move(line.pv[i], { existingOnly });
@@ -34,12 +59,29 @@ export default function LineEvaluation({ line }: Props) {
                 chess.setCommand('dojoEngine', 'true', move);
             }
         }
+        if (addInfo) {
+            let comment = chess.getComment();
+            if (comment.trim().length > 0) {
+                comment += `\n\n`;
+            }
+            comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
+            comment += formatResultPercentages(startTurn, chess.turn(), line);
+            comment += ')';
+            chess.setComment(comment);
+        }
         reconcile();
+    };
+
+    const onClickEval = () => {
+        if (line.pv.length > 0) {
+            onClick(line.pv.length - 1, addInfoOnEval);
+        }
     };
 
     return (
         <ListItem disablePadding sx={{ overflowX: 'clip', alignItems: 'center' }}>
             <Box
+                onClick={onClickEval}
                 sx={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -51,11 +93,25 @@ export default function LineEvaluation({ line }: Props) {
                     borderRadius: '5px',
                     border: '1px solid',
                     borderColor: '#424242',
-                    width: '45px',
-                    minWidth: '45px',
                     height: '23px',
                     minHeight: '23px',
+                    cursor: 'pointer',
+                    '&:hover': {
+                        opacity: 0.85,
+                    },
+                    ...(primaryEvalType === PrimaryEvalType.Eval
+                        ? {
+                              width: '45px',
+                              minWidth: '45px',
+                          }
+                        : {
+                              px: 0.5,
+                              whiteSpace: 'nowrap',
+                          }),
                 }}
+                data-fen={moves.at(-1)?.after}
+                data-from={moves.at(-1)?.from}
+                data-to={moves.at(-1)?.to}
             >
                 {showSkeleton ? (
                     <Skeleton
@@ -74,8 +130,11 @@ export default function LineEvaluation({ line }: Props) {
                             fontWeight: 'bold',
                             color: isBlackCp ? 'white' : 'black',
                         }}
+                        data-fen={moves.at(-1)?.after}
+                        data-from={moves.at(-1)?.from}
+                        data-to={moves.at(-1)?.to}
                     >
-                        {lineLabel}
+                        {primaryEvalType === PrimaryEvalType.Eval ? evaluation : wdl}
                     </Typography>
                 )}
             </Box>
@@ -84,7 +143,7 @@ export default function LineEvaluation({ line }: Props) {
                 {showSkeleton ? (
                     <Skeleton variant='rounded' animation='wave' />
                 ) : (
-                    line.pv.map(moveLineUciToMove(line.fen)).map((move, idx) => {
+                    moves.map((move, idx) => {
                         if (!move) {
                             return null;
                         }
@@ -123,7 +182,7 @@ const MoveLabel = styled('span')(({ theme }) => ({
  * @param line The line to get the evaluation label for.
  * @returns The evaluation label.
  */
-export const getLineEvalLabel = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
+export const formatLineEval = (line: Pick<LineEval, 'cp' | 'mate'>): string => {
     if (line.cp !== undefined) {
         return `${line.cp > 0 ? '+' : ''}${(line.cp / 100).toFixed(2)}`;
     }
@@ -172,4 +231,19 @@ function moveToLabel(move: Move): string {
 
     label += move.san;
     return label;
+}
+
+function formatResultPercentages(
+    startTurn: Color,
+    currentTurn: Color,
+    line: LineEval,
+    separator = '',
+): string {
+    if (!line.resultPercentages) {
+        return '';
+    }
+    if (startTurn === currentTurn) {
+        return ` ${line.resultPercentages.win}${separator}/${separator}${line.resultPercentages.draw}${separator}/${separator}${line.resultPercentages.loss}`;
+    }
+    return ` ${line.resultPercentages.loss}${separator}/${separator}${line.resultPercentages.draw}${separator}/${separator}${line.resultPercentages.win}`;
 }

@@ -37,7 +37,7 @@ import { getUser } from '../api/userApi';
 import {
     clearCheckoutSessionIds,
     getAllCheckoutSessionIds,
-} from '../courses/localStorage';
+} from '../app/(scoreboard)/courses/localStorage';
 import {
     CognitoUser,
     hasCreatedProfile,
@@ -113,7 +113,7 @@ const defaultAuthContextFunction = () => {
 };
 
 const AuthContext = createContext<AuthContextType>({
-    status: AuthStatus.Unauthenticated,
+    status: AuthStatus.Loading,
     getCurrentUser: defaultAuthContextFunction,
     updateUser: defaultAuthContextFunction,
     socialSignin: defaultAuthContextFunction,

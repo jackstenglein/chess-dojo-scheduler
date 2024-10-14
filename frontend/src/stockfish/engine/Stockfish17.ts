@@ -1,5 +1,6 @@
 import { EngineName } from './engine';
 import { EngineWorker } from './EngineWorker';
+import { objectStorage } from './objectStorage';
 import makeModule from './sf17-79.js';
 import { UciEngine } from './UciEngine';
 
@@ -45,8 +46,18 @@ export class Stockfish17 extends UciEngine {
     private getModels(nnueFilenames: string[]): Promise<Uint8Array[]> {
         return Promise.all(
             nnueFilenames.map(async (nnueFilename) => {
-                const req = new XMLHttpRequest();
+                const store = await objectStorage<Uint8Array>({ store: 'nnue' }).catch(
+                    () => undefined,
+                );
+                const storedBuffer = await store
+                    ?.get(nnueFilename)
+                    .catch(() => undefined);
 
+                if (storedBuffer && storedBuffer.length > 128 * 1024) {
+                    return storedBuffer;
+                }
+
+                const req = new XMLHttpRequest();
                 req.open('get', `/static/engine/nnue/${nnueFilename}`, true);
                 req.responseType = 'arraybuffer';
                 req.onprogress = (e) => console.log(e);
@@ -61,6 +72,9 @@ export class Stockfish17 extends UciEngine {
                     };
                     req.send();
                 });
+                store
+                    ?.put(nnueFilename, nnueBuffer)
+                    .catch(() => console.warn('IDB store failed'));
                 return nnueBuffer;
             }),
         );

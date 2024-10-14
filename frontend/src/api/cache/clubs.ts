@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useMemo } from 'react';
 import { useApi } from '../Api';
 import { useRequest } from '../Request';

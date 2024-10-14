@@ -31,7 +31,7 @@ export function useEval(
 
     useEffect(() => {
         if (!ENGINE_THREADS.Default) {
-            ENGINE_THREADS.Default = navigator.hardwareConcurrency;
+            ENGINE_THREADS.Default = threads || navigator.hardwareConcurrency;
             ENGINE_THREADS.Max = navigator.hardwareConcurrency;
         }
         if (threads === 0) {
@@ -46,10 +46,10 @@ export function useEval(
 
         if (!engine?.isReady()) {
             console.error(`Engine ${engineName} not ready`);
-            // return;
         }
 
         const evaluate = async () => {
+            setCurrentPosition(undefined);
             const fen = chess.fen();
             const savedEval = savedEvals.current[fen];
 
@@ -69,7 +69,9 @@ export function useEval(
                 threads: threads || 4,
                 hash: Math.pow(2, hash),
                 setPartialEval: (positionEval: PositionEval) => {
-                    setCurrentPosition(positionEval);
+                    if (positionEval.lines[0]?.fen === chess.fen()) {
+                        setCurrentPosition(positionEval);
+                    }
                 },
             });
 

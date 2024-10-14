@@ -9,14 +9,14 @@ describe('Graduations', () => {
         );
 
         cy.clock(now);
-        cy.visit('/recent');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('displays correct message when no graduations', () => {
         cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/noGraduations.json',
         });
+        cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
         cy.contains('No graduations in the selected timeframe');
     });
 
@@ -24,6 +24,8 @@ describe('Graduations', () => {
         cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
+        cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         const columns = [
             'Name',
@@ -44,6 +46,8 @@ describe('Graduations', () => {
         cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
+        cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('recent-graduates-table').contains('1–11 of 11');
         cy.getBySel('recent-graduates-table')
@@ -55,6 +59,8 @@ describe('Graduations', () => {
         cy.interceptApi('GET', '/public/graduations', {
             fixture: 'recent/graduations.json',
         });
+        cy.visit('/recent');
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('graduates-timeframe-select').click();
         cy.getBySel('Graduation of 8/30/2023').click();
@@ -62,34 +68,5 @@ describe('Graduations', () => {
         cy.getBySel('recent-graduates-table')
             .contains('Bodheen')
             .should('have.attr', 'href', '/profile/372ae346-b786-4000-9fc8-36005eb29415');
-    });
-});
-
-describe('Featured Games', () => {
-    beforeEach(() => {
-        cy.loginByCognitoApi(
-            'test',
-            cy.dojo.env('cognito_username'),
-            cy.dojo.env('cognito_password'),
-        );
-
-        cy.clock(now);
-        cy.visit('/recent');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
-    });
-
-    it('displays correct message when no featured games', () => {
-        cy.interceptApi('GET', '/game/featured', {
-            fixture: 'recent/noGames.json',
-        });
-        cy.contains('No featured games in the past month');
-    });
-
-    it('displays featured games', () => {
-        cy.interceptApi('GET', '/game/featured', {
-            fixture: 'recent/games.json',
-        });
-
-        cy.getBySel('featured-games-table').contains('Beingbadatchess');
     });
 });

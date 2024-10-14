@@ -1,4 +1,4 @@
-import { MastersCohort } from '@/components/games/list/GameListItem';
+import { MastersCohort } from '@/database/game';
 import { SearchFunc } from '@/hooks/usePagination';
 import { Folder } from '@mui/icons-material';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';

@@ -1,3 +1,4 @@
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { DayHours } from '@aldabil/react-scheduler/types';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
@@ -39,7 +40,6 @@ import {
     compareCohorts,
     dojoCohorts,
 } from '../../database/user';
-import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import Icon from '../../style/Icon';
 import TimezoneFilter from './TimezoneFilter';

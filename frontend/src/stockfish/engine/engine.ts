@@ -15,6 +15,9 @@ export interface EngineInfo {
     /** The short user-facing name of the engine. */
     shortName: string;
 
+    /** The extra short user-facing name of the engine. */
+    extraShortName: string;
+
     /**
      * The user-facing description of the engine, displayed when
      * selecting between engines.
@@ -37,6 +40,7 @@ export const engines: EngineInfo[] = [
         name: EngineName.Stockfish17,
         fullName: 'Stockfish 17 NNUE • 79 MB',
         shortName: 'SF 17 • 79 MB',
+        extraShortName: 'SF 17',
         description: 'Best for desktop',
         tech: 'NNUE',
         techDescription: `Evaluation is performed by Stockfish's neural network.`,
@@ -46,6 +50,7 @@ export const engines: EngineInfo[] = [
         name: EngineName.Stockfish16,
         fullName: 'Stockfish 16.1 NNUE • 6 MB',
         shortName: 'SF 16 • 6 MB',
+        extraShortName: 'SF 16',
         description: 'Best for mobile and weaker desktops',
         tech: 'NNUE',
         techDescription: `Evaluation is performed by Stockfish's neural network.`,
@@ -55,6 +60,7 @@ export const engines: EngineInfo[] = [
         name: EngineName.Stockfish11,
         fullName: 'Stockfish 11 HCE',
         shortName: 'SF 11',
+        extraShortName: 'SF 11',
         description: 'Faster than NNUE but less accurate',
         tech: 'HCE',
         techDescription: `Evaluation is performed using various heuristics and rules. Faster, but much less accurate than NNUE.`,
@@ -94,6 +100,7 @@ export const ENGINE_DEPTH = {
     Max: 99,
 } as const;
 
+/** Settings for the number of threads used by the engine. */
 export const ENGINE_THREADS = {
     /** Local storage key for the threads. */
     Key: 'engine-threads',
@@ -125,6 +132,51 @@ export const ENGINE_HASH = {
     Max: 9,
 } as const;
 
+/** The primary evaluation types for an engine. */
+export enum PrimaryEvalType {
+    /** The numeric eval of the position. */
+    Eval = 'eval',
+    /** The engine's expected win/draw/loss percentages. */
+    WinDrawLoss = 'wdl',
+}
+
+/** Settings for the primary evaluation type of the engine. */
+export const ENGINE_PRIMARY_EVAL_TYPE = {
+    /** Local storage key for the primary evaluation type. */
+    Key: 'engine-primary-eval-type',
+    /** The default evaluation type. */
+    Default: 'eval',
+    /** The options for the primary evaluation type. */
+    Options: [
+        { value: PrimaryEvalType.Eval, label: 'Evaluation' },
+        { value: PrimaryEvalType.WinDrawLoss, label: 'Win / Draw / Loss' },
+    ],
+} as const;
+
+/** Settings for adding info on clicking the eval box. */
+export const ENGINE_ADD_INFO_ON_EVAL_CLICK = {
+    /** Local storage key for clicking the eval box behavior. */
+    Key: 'engine-add-info-on-eval-click',
+    /** The default value. */
+    Default: true,
+} as const;
+
+/** Settings for adding info on clicking a move in an engine line. */
+export const ENGINE_ADD_INFO_ON_MOVE_CLICK = {
+    /** Local storage key for clicking a move behavior. */
+    Key: 'engine-add-info-on-move-click',
+    /** The default value. */
+    Default: false,
+} as const;
+
+/** Settings for highlighting engine lines. */
+export const HIGHLIGHT_ENGINE_LINES = {
+    /** Local storage key for highlighting engine lines. */
+    Key: 'highlight-engine-lines',
+    /** The default value. */
+    Default: true,
+} as const;
+
 /** The evaluation of a specific position. */
 export interface PositionEval {
     /** The best move chosen by the engine. */
@@ -151,6 +203,15 @@ export interface LineEval {
     multiPv: number;
     /** The number of nodes per second evaluated by the engine. */
     nps?: number;
+    /** The expected percentages of different results. */
+    resultPercentages?: {
+        /** The expected win percentage evaluated by the engine. */
+        win: number;
+        /** The expected draw percentage evaluated by the engine. */
+        draw: number;
+        /** The expected loss percentage evaluated by the engine. */
+        loss: number;
+    };
 }
 
 /** A cached evaluation of a specific position. */

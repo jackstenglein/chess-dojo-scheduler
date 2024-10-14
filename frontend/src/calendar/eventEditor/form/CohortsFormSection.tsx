@@ -1,6 +1,6 @@
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { Stack, Typography } from '@mui/material';
 import { ALL_COHORTS, dojoCohorts } from '../../../database/user';
-import MultipleSelectChip from '../../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../../scoreboard/CohortIcon';
 import Icon from '../../../style/Icon';
 

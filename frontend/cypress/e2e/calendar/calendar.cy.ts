@@ -1,17 +1,67 @@
-import { tournamentsClock } from '../tournaments/util';
+/**
+ * Returns the most recent Sunday before the given date.
+ * @param d The date to get the Sunday for.
+ * @returns The most recent Sunday before the given date.
+ */
+function getSunday(d: Date): Date {
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+}
+
+/**
+ * Returns a new date created by adding the given number of days to d.
+ * @param d The date to add days to.
+ * @param count The number of days to add.
+ * @returns A new date with the number of days added to d.
+ */
+function addDays(d: Date, count: number): Date {
+    const result = new Date(d);
+    result.setDate(d.getDate() + count);
+    return result;
+}
+
+const sunday = getSunday(new Date());
+
+const dateMapper: Record<string, string> = {
+    '2023-09-10': sunday.toISOString().slice(0, 10),
+    '2023-09-11': addDays(sunday, 1).toISOString().slice(0, 10),
+    '2023-09-12': addDays(sunday, 2).toISOString().slice(0, 10),
+    '2023-09-13': addDays(sunday, 3).toISOString().slice(0, 10),
+    '2023-09-14': addDays(sunday, 4).toISOString().slice(0, 10),
+    '2023-09-15': addDays(sunday, 5).toISOString().slice(0, 10),
+    '2023-09-16': addDays(sunday, 6).toISOString().slice(0, 10),
+};
+
+interface Event {
+    startTime: string;
+    endTime: string;
+}
 
 describe('Calendar Page', () => {
     beforeEach(() => {
-        cy.interceptApi('GET', '/calendar', { fixture: 'calendar/events.json' });
+        cy.fixture('calendar/events.json').then(({ events }: { events: Event[] }) => {
+            for (const event of events) {
+                const startDate = event.startTime.slice(0, 10);
+                const endDate = event.endTime.slice(0, 10);
+
+                event.startTime = event.startTime.replace(
+                    startDate,
+                    dateMapper[startDate],
+                );
+                event.endTime = event.endTime.replace(endDate, dateMapper[endDate]);
+            }
+
+            cy.interceptApi('GET', '/calendar', { events });
+        });
+
         cy.loginByCognitoApi(
             'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
 
-        cy.clock(tournamentsClock);
         cy.visit('/calendar');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('has correct filters', () => {
@@ -28,7 +78,6 @@ describe('Calendar Page', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/calendar');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
@@ -120,7 +169,6 @@ describe('Calendar Page', () => {
         cy.getBySel('book-button');
 
         cy.contains('Available Start Times');
-        cy.contains('9/13/2023');
 
         cy.contains('Owner');
         cy.contains('Ricardo Alves (1500-1600)').should(

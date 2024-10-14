@@ -1,5 +1,8 @@
 import { useFilters } from '@/calendar/filters/CalendarFilters';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import LoadMoreButton from '@/components/newsfeed/LoadMoreButton';
+import NewsfeedItem from '@/components/newsfeed/NewsfeedItem';
+import NewsfeedItemHeader from '@/components/newsfeed/NewsfeedItemHeader';
 import { RequirementCategory } from '@/database/requirement';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Scheduler } from '@aldabil/react-scheduler';
@@ -20,9 +23,6 @@ import { Request, RequestSnackbar } from '../../api/Request';
 import { TimelineEntry, TimelineSpecialRequirementId } from '../../database/timeline';
 import { TimeFormat, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import NewsfeedItem from '../../newsfeed/detail/NewsfeedItem';
-import NewsfeedItemHeader from '../../newsfeed/detail/NewsfeedItemHeader';
-import LoadMoreButton from '../../newsfeed/list/LoadMoreButton';
 import { UseTimelineResponse } from './useTimeline';
 
 export function getTimeSpent(timelineItem: TimelineEntry): string {
