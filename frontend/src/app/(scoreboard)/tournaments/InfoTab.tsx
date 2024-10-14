@@ -1,3 +1,13 @@
+import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import GroupIcon from '@mui/icons-material/Group';
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import PublicIcon from '@mui/icons-material/Public';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import WavingHandIcon from '@mui/icons-material/WavingHand';
 import {
     Divider,
     Link,
@@ -14,23 +24,12 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-
-import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import GroupIcon from '@mui/icons-material/Group';
-import HelpCenterIcon from '@mui/icons-material/HelpCenter';
-import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
-import NotInterestedIcon from '@mui/icons-material/NotInterested';
-import PublicIcon from '@mui/icons-material/Public';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import WavingHandIcon from '@mui/icons-material/WavingHand';
 import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
 
 const InfoTab = () => {
     return (
         <Stack spacing={2}>
-            <Typography variant='h5' textAlign='center' color='dullGrey'>
+            <Typography variant='h5' textAlign='center' color='text.secondary'>
                 Welcome to the DojoLiga!
                 <WavingHandIcon
                     sx={{ verticalAlign: 'middle', ml: 1 }}
@@ -40,7 +39,7 @@ const InfoTab = () => {
 
             <Divider />
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <MilitaryTechIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
@@ -50,7 +49,7 @@ const InfoTab = () => {
             <List>
                 <ListItem>
                     <ListItemIcon>
-                        <PublicIcon color='dullGrey' />
+                        <PublicIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText
                         primary="The DojoLiga is ChessDojo's blitz, rapid, and classical league. It is open
@@ -59,39 +58,31 @@ const InfoTab = () => {
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <GroupIcon color='dullGrey' />
+                        <GroupIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Participate in any league tournaments on either platform. All players will be automatically tracked on the leaderboard.' />
+                    <ListItemText primary='Participate in any league tournaments on either Lichess or Chess.com. All players will be automatically tracked on the leaderboard.' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <AllInclusiveIcon color='dullGrey' />
+                        <AllInclusiveIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText
-                        primary='The league consists of both arena and swiss tournaments with various
-                time controls: blitz, rapid, and classical. Check the ARENAS / SWISS tabs
-                for links to upcoming events.'
-                    />
+                    <ListItemText primary='The league consists of both arena and swiss tournaments with various time controls: blitz, rapid, and classical.' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <EmojiEventsIcon color='dullGrey' />
+                        <EmojiEventsIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText
-                        primary='At the end of each year, the top players on the leaderboard will be
-                invited to the annual Dojo Championship. More info to be announced in
-                September.'
-                    />
+                    <ListItemText primary='At the end of each year, the top players on the leaderboard will be invited to the annual Dojo Championship. More info to be announced in September.' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <NotInterestedIcon color='dullGrey' />
+                        <NotInterestedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Strict anti-cheat measures in place to allow players to learn and grow in the game they love.' />
                 </ListItem>
             </List>
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <HelpCenterIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
@@ -146,7 +137,7 @@ const InfoTab = () => {
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <SiDiscord fontSize={25} style={{ color: '7289da' }} />
+                        <SiDiscord fontSize={25} style={{ color: '#5865f2' }} />
                     </ListItemIcon>
                     <ListItemText
                         primary={
@@ -170,7 +161,7 @@ const InfoTab = () => {
 
             <Divider />
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <LeaderboardIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
@@ -188,37 +179,37 @@ const InfoTab = () => {
             <List>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Blitz/Rapid/Classical Arena - Total points scored per individual in all league arenas.' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Blitz/Rapid/Classical Swiss - Total points scored per individual in all league swisses.' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Blitz/Rapid/Classical Grand Prix - Total points earned via top-10 finishes, with 10 points for 1st place, 9 for 2nd, ..., 1 point for 10th.' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Middlegame Sparring - Total points scored in middlegame sparring tournaments.' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Endgame Sparring - Total points scored in endgame sparring tournaments.' />
                 </ListItem>
             </List>
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <NotInterestedIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
@@ -227,36 +218,36 @@ const InfoTab = () => {
             </Typography>
 
             <Typography>
-                DojoLiga treats the matter of cheating with a high priority, and
-                automatically takes care of anti-cheat system
+                DojoLiga takes cheating very seriously and has the following anti-cheat
+                policies:
             </Typography>
 
             <List>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary="If a player's account gets closed for cheating/fair play violations on Chess.com/Lichess, they are subject to being banned ChessDojo's Discord server." />
+                    <ListItemText primary="If a player's account gets closed for cheating/fair play violations on Chess.com/Lichess, they are subject to being banned from ChessDojo's Discord server." />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='If a player is caught cheating but immediately admit wrongdoing and apologize, based on the severity of their actions they may be given a second chance but will still be prohibited from playing in DojoLiga for at least 3 months' />
+                    <ListItemText primary='If a player is caught cheating but immediately admits wrongdoing and apologizes, based on the severity of their actions they may be given a second chance. However, they will still be prohibited from playing in DojoLiga for at least 3 months.' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <RadioButtonCheckedIcon color='dullGrey' />
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Cheaters are tracked by the system automatically, and are evicted from leaderboards immediately' />
+                    <ListItemText primary='Cheaters are tracked by the system automatically and are evicted from the leaderboards immediately.' />
                 </ListItem>
             </List>
 
             <Divider />
 
-            <Typography variant='h6' color='dullGrey'>
+            <Typography variant='h6' color='text.secondary'>
                 <SiDiscord
-                    style={{ verticalAlign: 'middle', marginRight: 9, color: '7289da' }}
+                    style={{ verticalAlign: 'middle', marginRight: 9, color: '#5865f2' }}
                 />
                 Discord Info
             </Typography>

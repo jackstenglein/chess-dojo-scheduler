@@ -8,14 +8,23 @@ describe('Info Tab', () => {
         cy.visit('/tournaments?type=info');
     });
 
+    it('has tab selector', () => {
+        cy.getBySel('tournaments-tab-list').contains('Calendar').click();
+
+        cy.location().should((loc) => {
+            expect(loc.pathname).to.eq('/tournaments');
+            expect(loc.search).to.eq('?type=calendar');
+        });
+    });
+
     it('has correct content', () => {
-        cy.contains('Welcome to the DojoLiga', { timeout: 10000 });
-        cy.contains('Registration Info', { timeout: 10000 });
-        cy.contains('Leaderboard Info', { timeout: 10000 });
+        cy.contains('Welcome to the DojoLiga');
+        cy.contains('Registration Info');
+        cy.contains('Leaderboard Info');
     });
 
     it('links to Lichess team', () => {
-        cy.get('[data-cy="lichess-team-link"]', { timeout: 10000 }).should(
+        cy.getBySel('lichess-team-link').should(
             'have.attr',
             'href',
             'https://lichess.org/team/chessdojo',
@@ -23,7 +32,7 @@ describe('Info Tab', () => {
     });
 
     it('links to Chess.com team', () => {
-        cy.get('[data-cy="chesscom-team-link"]', { timeout: 10000 }).should(
+        cy.getBySel('chesscom-team-link').should(
             'have.attr',
             'href',
             'https://www.chess.com/club/chessdojo',
@@ -31,8 +40,7 @@ describe('Info Tab', () => {
     });
 
     it('links to Discord server', () => {
-        // Ensure the selector is correct and element is present
-        cy.get('[data-cy="discord-invite-link"]', { timeout: 10000 }).should(
+        cy.getBySel('discord-invite-link').should(
             'have.attr',
             'href',
             'https://discord.gg/AEeHwBWqAX',

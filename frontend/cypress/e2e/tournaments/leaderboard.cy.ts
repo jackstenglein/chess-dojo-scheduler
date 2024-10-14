@@ -25,12 +25,10 @@ describe('Leaderboard Tab', () => {
 
         cy.clock(tournamentsClock);
         cy.visit('/tournaments?type=leaderboard');
-        cy.tick(1000); // Necessary when using cy.clock
+        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('contains search options', () => {
-        cy.contains('Leaderboard', { timeout: 10000 }).should('be.visible').click();
-
         cy.getBySel('time-control-selector').should('be.visible');
         cy.getBySel('tournament-type-selector').should('be.visible');
         cy.contains('September 2023').should('be.visible');
@@ -39,8 +37,6 @@ describe('Leaderboard Tab', () => {
     });
 
     it('contains correct columns', () => {
-        cy.contains('Leaderboard', { timeout: 10000 }).should('be.visible').click();
-
         const columns = ['Rank', 'Username', 'Rating', 'Score'];
 
         cy.getBySel('leaderboard')
@@ -51,11 +47,9 @@ describe('Leaderboard Tab', () => {
     });
 
     it('displays correct data', () => {
-        cy.contains('Leaderboard', { timeout: 10000 }).should('be.visible').click();
-
         cy.contains('Yearly').click();
         cy.getBySel('time-control-selector').click();
-        cy.contains('Blitz', { timeout: 10000 }).click();
+        cy.contains('Blitz').click();
         cy.getBySel('leaderboard').should('be.visible');
 
         cy.getBySel('leaderboard').contains('newPlaye');

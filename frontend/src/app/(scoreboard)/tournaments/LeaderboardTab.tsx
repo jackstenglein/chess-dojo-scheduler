@@ -108,7 +108,6 @@ const LeaderboardTab = () => {
                         select
                         label='Site'
                         value={site}
-                        color='primary'
                         onChange={(e) => setSite(e.target.value as LeaderboardSite)}
                     >
                         <MenuItem value={LeaderboardSite.Lichess}>
@@ -137,10 +136,9 @@ const LeaderboardTab = () => {
                         select
                         label='Time Control'
                         value={timeControl}
-                        color='primary'
                         onChange={(e) => setTimeControl(e.target.value as TimeControl)}
                     >
-                        <MenuItem value={TimeControlType.Blitz}>
+                        <MenuItem value='blitz'>
                             <Icon
                                 name={TimeControlType.Blitz}
                                 sx={{ verticalAlign: 'middle', marginRight: 1 }}
@@ -148,7 +146,7 @@ const LeaderboardTab = () => {
                             />{' '}
                             Blitz
                         </MenuItem>
-                        <MenuItem value={TimeControlType.Rapid}>
+                        <MenuItem value='rapid'>
                             <Icon
                                 name={TimeControlType.Rapid}
                                 sx={{ verticalAlign: 'middle', marginRight: 1 }}
@@ -156,7 +154,7 @@ const LeaderboardTab = () => {
                             />
                             Rapid
                         </MenuItem>
-                        <MenuItem value={TimeControlType.Classical}>
+                        <MenuItem value='classical'>
                             <Icon
                                 name={TimeControlType.Classical}
                                 sx={{ verticalAlign: 'middle', marginRight: 1 }}
@@ -171,7 +169,6 @@ const LeaderboardTab = () => {
                         sx={{ minWidth: 130 }}
                         select
                         label='Tournament Type'
-                        color='primary'
                         value={tournamentType}
                         onChange={(e) =>
                             setTournamentType(e.target.value as TournamentType)
