@@ -9,8 +9,8 @@ import {
 } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useChess } from '@/board/pgn/PgnBoard';
+import { SaveGameDialogue } from '@/components/games/edit/SaveGameDialogue';
 import { Game, PgnHeaders } from '@/database/game';
-import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
 import { LoadingButton } from '@mui/lab';
 import { useState } from 'react';
 
@@ -118,7 +118,7 @@ export const SaveGameButton = ({
             >
                 {isPublishing ? 'Publish' : 'Save Changes'}
             </LoadingButton>
-            <MissingGameDataPreflight
+            <SaveGameDialogue
                 open={showPreflight}
                 onClose={onClosePreflight}
                 initHeaders={headers}
@@ -128,7 +128,7 @@ export const SaveGameButton = ({
             >
                 Your game is missing data. Please fill out these fields to publish your
                 analysis.
-            </MissingGameDataPreflight>
+            </SaveGameDialogue>
         </>
     );
 };

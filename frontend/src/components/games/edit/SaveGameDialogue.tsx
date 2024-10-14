@@ -1,3 +1,11 @@
+import {
+    BoardOrientation,
+    GameHeader,
+    parsePgnDate,
+    stripTagValue,
+    toPgnDate,
+} from '@/api/gameApi';
+import { GameResult, PgnHeaders, isGameResult } from '@/database/game';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -19,14 +27,6 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
-import {
-    BoardOrientation,
-    GameHeader,
-    parsePgnDate,
-    stripTagValue,
-    toPgnDate,
-} from '../../api/gameApi';
-import { GameResult, PgnHeaders, isGameResult } from '../../database/game';
 
 interface FormHeader {
     white: string;
@@ -62,7 +62,7 @@ interface FormError {
     result: string;
 }
 
-interface MissingGameDataPreflightProps {
+interface SaveGameDialogueProps {
     open: boolean;
     onClose: () => void;
     initHeaders?: PgnHeaders;
@@ -74,7 +74,7 @@ interface MissingGameDataPreflightProps {
     onSubmit: (headers: GameHeader, orientation: BoardOrientation) => void;
 }
 
-export const MissingGameDataPreflight = ({
+export const SaveGameDialogue = ({
     open,
     onClose,
     initHeaders,
@@ -84,7 +84,7 @@ export const MissingGameDataPreflight = ({
     title,
     children,
     onSubmit,
-}: MissingGameDataPreflightProps) => {
+}: SaveGameDialogueProps) => {
     const [headers, setHeaders] = useState<FormHeader>(getFormHeader(initHeaders));
     const [errors, setErrors] = useState<Partial<FormError>>({});
     const [orientation, setOrientation] = useState<BoardOrientation>(
