@@ -10,9 +10,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { FaEquals, FaMinusSquare, FaPlusSquare } from 'react-icons/fa';
-import { SiAsterisk } from 'react-icons/si';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 export const MastersCohort = 'masters';
 export const MastersOwnerDisplayName = 'Masters DB';
@@ -60,53 +58,90 @@ export function GameResultIcon({
 
 export function IncompleteIcon() {
     return (
-        <Typography
-            color='text.secondary'
-            display='flex'
-            justifyContent='center'
-            alignItems='center'
-        >
-            <SiAsterisk fontSize='0.875rem' />
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Typography
+                color='text.secondary'
+                display='flex'
+                justifyContent='center'
+                alignItems='center'
+                sx={{
+                    height: '0.875rem',
+                    width: '0.875rem',
+                    fontSize: '1.5rem',
+                    fontWeight: 'bold',
+                    lineHeight: 1,
+                    paddingTop: '0.4375rem',
+                }}
+            >
+                *
+            </Typography>
+        </Box>
     );
 }
 
 export function WinIcon() {
     return (
-        <Typography
-            color='success'
-            display='flex'
-            justifyContent='center'
-            alignItems='center'
-        >
-            <FaPlusSquare fontSize='0.875rem' />
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Typography
+                bgcolor='success.main'
+                color='success.contrastText'
+                display='flex'
+                justifyContent='center'
+                alignItems='center'
+                sx={{
+                    borderRadius: 0.5,
+                    height: '0.875rem',
+                    width: '0.875rem',
+                    fontWeight: 'bold',
+                }}
+            >
+                +
+            </Typography>
+        </Box>
     );
 }
 
 export function LoseIcon() {
     return (
-        <Typography
-            color='error'
-            display='flex'
-            justifyContent='center'
-            alignItems='center'
-        >
-            <FaMinusSquare fontSize='0.875rem' />
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Typography
+                bgcolor='error.main'
+                color='success.contrastText'
+                display='flex'
+                justifyContent='center'
+                alignItems='center'
+                sx={{
+                    borderRadius: 0.5,
+                    height: '0.875rem',
+                    width: '0.875rem',
+                    fontWeight: 'bold',
+                }}
+            >
+                –
+            </Typography>
+        </Box>
     );
 }
 
 export function DrawIcon() {
     return (
-        <Typography
-            color='text.secondary'
-            display='flex'
-            justifyContent='center'
-            alignItems='center'
-        >
-            <FaEquals fontSize='0.875rem' />
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Typography
+                bgcolor='text.secondary'
+                color='success.contrastText'
+                display='flex'
+                justifyContent='center'
+                alignItems='center'
+                sx={{
+                    borderRadius: 0.5,
+                    height: '0.875rem',
+                    width: '0.875rem',
+                    fontWeight: 'bold',
+                }}
+            >
+                =
+            </Typography>
+        </Box>
     );
 }
 
@@ -239,9 +274,7 @@ export function RenderOwner({
             alignItems='center'
             onClick={(e) => e.stopPropagation()}
         >
-            <Link component={RouterLink} to={`/profile/${owner}`}>
-                {ownerDisplayName}
-            </Link>
+            <Link href={`/profile/${owner}`}>{ownerDisplayName}</Link>
         </Stack>
     );
 }
@@ -279,6 +312,10 @@ export function getTimeControl({ timeControl }: { timeControl?: string }) {
 }
 
 export function RenderTimeControl({ timeControl }: { timeControl?: string }) {
+    if (!timeControl) {
+        return null;
+    }
+
     return (
         <Box height='100%' display='flex' alignItems='center'>
             <Typography variant='body2'>{getTimeControl({ timeControl })}</Typography>
