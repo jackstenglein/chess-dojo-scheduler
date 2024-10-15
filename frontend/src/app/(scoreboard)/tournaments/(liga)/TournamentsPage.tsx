@@ -1,12 +1,12 @@
 'use client';
 
-import CalendarTab from '@/app/(scoreboard)/tournaments/CalendarTab';
-import InfoTab from '@/app/(scoreboard)/tournaments/InfoTab';
-import LeaderboardTab from '@/app/(scoreboard)/tournaments/LeaderboardTab';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import Icon from '@/style/Icon';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Tab } from '@mui/material';
+import CalendarTab from './CalendarTab';
+import InfoTab from './InfoTab';
+import LeaderboardTab from './LeaderboardTab';
 
 export default function TournamentsPage() {
     const { searchParams, setSearchParams } = useNextSearchParams({ type: 'calendar' });
