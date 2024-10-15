@@ -51,8 +51,7 @@ export const cohorts = [
     { label: '2300-2400', value: 2300 },
 ];
 
-const authToken = process.env.ROUND_ROBIN_AUTH_TOKEN;
-const endpoint = process.env.ROUND_ROBIN_API_ENDPOINT;
+const endpoint = "https://vmqy3k7nj8.execute-api.us-east-1.amazonaws.com";
 
 /**
  * method to fetch tournament ids for given cohort start value
@@ -64,9 +63,6 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
     try {
         console.log(endpoint);
         const response = await axios.get<TournamentId>(`${endpoint}/tournamentid`, {
-            headers: {
-                Authorization: authToken,
-            },
             params: {
                 'cohort-start': cohortValue,
             },
@@ -89,9 +85,6 @@ export const fetchTournamentIds = async (cohortValue: number): Promise<string[]>
 export const fetchTournamentData = async (id: string): Promise<TournamentData> => {
     try {
         const response = await axios.get<TournamentData>(`${endpoint}/info`, {
-            headers: {
-                Authorization: authToken,
-            },
             params: {
                 tournamentid: id,
             },
