@@ -99,6 +99,12 @@ export function updateDirectory(idToken: string, request: UpdateDirectoryRequest
     });
 }
 
+/**
+ * Sends an API request to share a directory.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to share the directory.
+ * @returns The updated directory.
+ */
 export function shareDirectory(idToken: string, request: ShareDirectoryRequest) {
     return axios.put<Directory>(
         `${BASE_URL}/directory/${request.owner}/${request.id}/share`,

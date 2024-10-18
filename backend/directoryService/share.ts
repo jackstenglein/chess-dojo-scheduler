@@ -16,6 +16,11 @@ import {
 } from './api';
 import { attributeExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
 
+/**
+ * Handles requests to the share directory API. Returns the updated directory.
+ * @param event The API gateway event that triggered the request.
+ * @returns The updated directory after the access is changed.
+ */
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
@@ -43,6 +48,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     }
 };
 
+/**
+ * Sets the access on the given directory.
+ * @param request The owner, id and new access of the directory.
+ * @returns The updated directory.
+ */
 async function shareDirectory(request: ShareDirectoryRequest) {
     const input = new UpdateItemBuilder()
         .key('owner', request.owner)
