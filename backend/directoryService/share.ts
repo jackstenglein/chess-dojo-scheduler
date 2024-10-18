@@ -36,8 +36,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             });
         }
 
-        await shareDirectory(request);
-        return success(null);
+        const directory = await shareDirectory(request);
+        return success(directory);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
     }
@@ -51,7 +51,7 @@ async function shareDirectory(request: ShareDirectoryRequest) {
         .set('access', request.access)
         .condition(attributeExists('id'))
         .table(directoryTable)
-        .return('ALL_OLD')
+        .return('ALL_NEW')
         .build();
 
     console.log('Input: %j', input);

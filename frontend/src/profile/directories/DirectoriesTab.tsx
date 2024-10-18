@@ -25,7 +25,7 @@ import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { ownerColumns, publicColumns } from './DirectoryGridColumns';
-import { ShareButton } from './ShareButton';
+import { ShareButton } from './share/ShareButton';
 
 const pageSizeOptions = [10, 25, 50, 100];
 

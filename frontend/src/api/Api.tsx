@@ -171,6 +171,7 @@ import {
     getUser,
     getUserPublic,
     getUserStatistics,
+    getUserSummaries,
     graduate,
     listFollowers,
     listFollowing,
@@ -226,7 +227,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
         return {
             checkUserAccess: () => checkUserAccess(idToken),
             getUser: () => getUser(idToken),
-            getUserPublic: (username: string) => getUserPublic(username),
+            getUserPublic,
+            getUserSummaries,
             listUserTimeline: (owner: string, startKey?: string) =>
                 listUserTimeline(idToken, owner, startKey),
             listUsersByCohort: (cohort: string, startKey?: string) =>

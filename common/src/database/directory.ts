@@ -127,19 +127,16 @@ export function isDefaultDirectory(id: string): boolean {
 
 /**
  * Access roles a user can have on a shared directory.
- *
- * NEVER change the order of or remove roles. Appending new
- * roles to the end of the list is OK.
  */
 export enum DirectoryAccessRole {
     /** Viewers can see all games and sub directories. */
-    Viewer,
+    Viewer = 'VIEWER',
 
     /** Editors can add games and remove games they added. */
-    Editor,
+    Editor = 'EDITOR',
 
     /** Admins can perform all directory actions except deleting the directory. */
-    Admin,
+    Admin = 'ADMIN',
 }
 
 export const DirectorySchema = z.object({

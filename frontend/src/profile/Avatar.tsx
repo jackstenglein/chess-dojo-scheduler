@@ -67,7 +67,7 @@ const Avatar: React.FC<AvatarProps> = ({
     return (
         <MuiAvatar
             src={url}
-            {...avatarProps(displayName || '', size, fontSize)}
+            {...avatarProps(displayName || '', size, fontSize, sx)}
             imgProps={{ crossOrigin: 'anonymous' }}
         />
     );

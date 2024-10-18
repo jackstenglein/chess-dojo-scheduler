@@ -32,9 +32,9 @@ export interface DirectoryApiContextType {
     /**
      * Shares the directory with the users in the given request.
      * @param request The request to share the directory.
-     * @returns An empty AxiosResponse.
+     * @returns An AxiosResponse containing the updated directory.
      */
-    shareDirectory: (request: ShareDirectoryRequest) => Promise<AxiosResponse<null>>;
+    shareDirectory: (request: ShareDirectoryRequest) => Promise<AxiosResponse<Directory>>;
 
     deleteDirectories: (ids: string[]) => Promise<AxiosResponse<{ parent?: Directory }>>;
 
@@ -100,8 +100,8 @@ export function updateDirectory(idToken: string, request: UpdateDirectoryRequest
 }
 
 export function shareDirectory(idToken: string, request: ShareDirectoryRequest) {
-    return axios.put<null>(
-        `${BASE_URL}/directory/${request.owner}/${request.id}`,
+    return axios.put<Directory>(
+        `${BASE_URL}/directory/${request.owner}/${request.id}/share`,
         { access: request.access },
         {
             headers: { Authorization: `Bearer ${idToken}` },

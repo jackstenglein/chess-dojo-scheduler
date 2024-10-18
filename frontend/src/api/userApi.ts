@@ -5,7 +5,7 @@ import { FollowerEntry } from '../database/follower';
 import { Graduation } from '../database/graduation';
 import { UserStatistics } from '../database/statistics';
 import { TimelineEntry } from '../database/timeline';
-import { User } from '../database/user';
+import { User, UserSummary } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -31,6 +31,13 @@ export interface UserApiContextType {
      * @returns An AxiosResponse containing the provided user in the data field.
      */
     getUserPublic: (username: string) => Promise<AxiosResponse<User>>;
+
+    /**
+     * Gets a list of user summaries for the given usernames. Max of 100 usernames at a time.
+     * @param usernames The usernames to get.
+     * @returns An AxiosResponse containing the list of user summaries.
+     */
+    getUserSummaries: (usernames: string[]) => Promise<AxiosResponse<UserSummary[]>>;
 
     /**
      * listUserTimeline returns a list of the provided user's timeline entries.
@@ -196,6 +203,15 @@ export function getUser(idToken: string) {
  */
 export function getUserPublic(username: string) {
     return axios.get<User>(BASE_URL + '/public/user/' + username);
+}
+
+/**
+ * Gets a list of user summaries for the given usernames. Max of 100 usernames at a time.
+ * @param usernames The usernames to get.
+ * @returns An AxiosResponse containing the list of user summaries.
+ */
+export function getUserSummaries(usernames: string[]) {
+    return axios.post<UserSummary[]>(`${BASE_URL}/public/users`, usernames);
 }
 
 export interface ListUserTimelineResponse {
