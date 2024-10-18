@@ -4,11 +4,13 @@ import { GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     Directory,
+    DirectoryAccessRole,
     DirectoryItemTypes,
     DirectorySchema,
     DirectoryVisibility,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import { checkAccess } from './access';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
@@ -22,7 +24,7 @@ export const getDirectorySchema = DirectorySchema.pick({ owner: true, id: true }
 
 /**
  * Handles requests to the get directory API. Returns an error if the directory does
- * not exist or is private and the caller is not the owner.
+ * not exist or is private and the caller does not have viewer access.
  * @param event The API gateway event that triggered the request.
  * @returns The requested directory.
  */
@@ -41,19 +43,23 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             });
         }
 
-        if (
-            directory.visibility === DirectoryVisibility.PRIVATE &&
-            directory.owner !== userInfo.username
-        ) {
+        const isViewer = await checkAccess({
+            owner: directory.owner,
+            id: directory.id,
+            username: userInfo.username,
+            role: DirectoryAccessRole.Viewer,
+            directory,
+        });
+        if (directory.visibility === DirectoryVisibility.PRIVATE && !isViewer) {
             throw new ApiError({
                 statusCode: 403,
                 publicMessage:
-                    'This directory is private. Ask the owner to make it public.',
+                    'This directory is private. Ask the owner to make it public or share it with you.',
             });
         }
 
-        if (directory.owner !== userInfo.username) {
-            filterPrivateItems(directory);
+        if (!isViewer) {
+            await filterPrivateItems(directory, userInfo.username);
         }
 
         return success(directory);
@@ -90,11 +96,13 @@ export async function fetchDirectory(
 }
 
 /**
- * Removes private subdirectories from the itemIds and items field
- * of the provided directory. The directory is updated in place.
+ * Removes subdirectories that the given viewer should not be able to see
+ * from the itemIds and items field of the provided directory. The directory
+ * is updated in place.
  * @param directory The directory to remove private subdirectories from.
+ * @param viewer The username of the person viewing the directory.
  */
-function filterPrivateItems(directory: Directory) {
+async function filterPrivateItems(directory: Directory, viewer: string) {
     let i = 0;
     let j = 0;
 
@@ -102,7 +110,14 @@ function filterPrivateItems(directory: Directory) {
         const id = directory.itemIds[i];
         if (
             directory.items[id]?.type !== DirectoryItemTypes.DIRECTORY ||
-            directory.items[id].metadata.visibility === DirectoryVisibility.PUBLIC
+            directory.items[id].metadata.visibility === DirectoryVisibility.PUBLIC ||
+            (await checkAccess({
+                owner: directory.owner,
+                id,
+                role: DirectoryAccessRole.Viewer,
+                skipRecursion: true,
+                username: viewer,
+            }))
         ) {
             directory.itemIds[j++] = id;
         } else if (directory.items[id]) {

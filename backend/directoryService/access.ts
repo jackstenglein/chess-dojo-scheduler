@@ -1,4 +1,7 @@
-import { DirectoryAccessRole } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    Directory,
+    DirectoryAccessRole,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { NIL as uuidNil } from 'uuid';
 import { fetchDirectory } from './get';
 
@@ -9,23 +12,29 @@ import { fetchDirectory } from './get';
  * @param id The id of the directory to check.
  * @param username The username of the user to check.
  * @param role The role of the user to check.
+ * @param directory The initial directory to check. If undefined, it will be fetched.
+ * @param skipRecursion Whether to skip recursion and only check access for the given directory.
  */
 export async function checkAccess({
     owner,
     id,
     username,
     role,
+    directory,
+    skipRecursion,
 }: {
     owner: string;
     id: string;
     username: string;
     role: DirectoryAccessRole;
+    directory?: Directory;
+    skipRecursion?: boolean;
 }): Promise<boolean> {
     if (username === owner) {
         return true;
     }
 
-    const directory = await fetchDirectory(owner, id);
+    directory = directory ?? (await fetchDirectory(owner, id));
     if (!directory) {
         return false;
     }
@@ -34,7 +43,7 @@ export async function checkAccess({
         return compareRoles(role, directory.access[username]);
     }
 
-    if (directory.parent !== uuidNil) {
+    if (!skipRecursion && directory.parent !== uuidNil) {
         return checkAccess({ owner, id: directory.parent, username, role });
     }
 
