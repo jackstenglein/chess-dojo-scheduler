@@ -25,10 +25,7 @@ export const EnvSchema = z.object({
     stripe: z.object({
         publishableKey: z.string(),
     }),
-    baseUrl: z
-        .string()
-        .url()
-        .transform((v) => new URL(v)),
+    baseUrl: z.string(),
     isBeta: z.boolean(),
 });
 
