@@ -1,4 +1,6 @@
+
 import axios from 'axios';
+import { getConfig } from '@/config';
 
 /**
  * The Round Robin Info API response
@@ -51,7 +53,7 @@ export const cohorts = [
     { label: '2300-2400', value: 2300 },
 ];
 
-const endpoint = "https://vmqy3k7nj8.execute-api.us-east-1.amazonaws.com";
+const endpoint = getConfig().api.roundRobin;
 
 /**
  * method to fetch tournament ids for given cohort start value
