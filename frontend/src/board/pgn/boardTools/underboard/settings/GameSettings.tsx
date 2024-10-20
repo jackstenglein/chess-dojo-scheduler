@@ -143,9 +143,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                 <SaveGameButton
                     game={game}
                     dirty={dirty}
-                    headersChanged={headersChanged}
                     headers={headers}
-                    orientation={orientation}
                     unlisted={unlisted}
                     onSaveGame={(game) => {
                         setHeaders(game.headers);

@@ -1,11 +1,7 @@
-import {
-    BoardOrientation,
-    GameHeader,
-    parsePgnDate,
-    stripTagValue,
-    toPgnDate,
-} from '@/api/gameApi';
-import { GameResult, PgnHeaders, isGameResult } from '@/database/game';
+import { BoardOrientation, parsePgnDate, stripTagValue } from '@/api/gameApi';
+import { useChess } from '@/board/pgn/PgnBoard';
+import { GameResult, isGameResult } from '@/database/game';
+import { useGame } from '@/games/view/GamePage';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -28,33 +24,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
 
-interface FormHeader {
-    white: string;
-    black: string;
-    date: DateTime | null;
-    result: string;
-}
-
-function getFormHeader(h?: PgnHeaders): FormHeader {
-    const result = h?.Result ?? '';
-
-    return {
-        result,
-        date: parsePgnDate(h?.Date),
-        white: stripTagValue(h?.White || ''),
-        black: stripTagValue(h?.Black || ''),
-    };
-}
-
-export function getGameHeaders(h: FormHeader): GameHeader {
-    return {
-        date: toPgnDate(h.date) ?? '',
-        white: h.white,
-        black: h.black,
-        result: h.result,
-    };
-}
-
 interface FormError {
     white: string;
     black: string;
@@ -62,67 +31,80 @@ interface FormError {
     result: string;
 }
 
-interface SaveGameDialogueProps {
-    open: boolean;
-    onClose: () => void;
-    initHeaders?: PgnHeaders;
-    initOrientation?: BoardOrientation;
-    loading: boolean;
-    title?: string;
-    skippable?: boolean;
-    children?: React.ReactNode;
-    onSubmit: (headers: GameHeader, orientation: BoardOrientation) => void;
+export interface Form {
+    white: string;
+    black: string;
+    date: DateTime | null;
+    result: string;
+    orientation: BoardOrientation;
+    isPublishing: boolean;
 }
 
-export const SaveGameDialogue = ({
-    open,
-    onClose,
-    initHeaders,
-    initOrientation,
-    loading,
-    skippable,
-    title,
+interface SaveGameDialogueProps {
+    children: React.ReactNode;
+    loading: boolean;
+    open: boolean;
+    title: string;
+    onClose: () => void;
+    onSubmit: (form: Form) => void;
+}
+
+export default function SaveGameDialogue({
     children,
+    loading,
+    open,
+    title,
+    onClose,
     onSubmit,
-}: SaveGameDialogueProps) => {
-    const [headers, setHeaders] = useState<FormHeader>(getFormHeader(initHeaders));
+}: SaveGameDialogueProps) {
+    const { chess } = useChess();
+    const { game } = useGame();
+
+    const [form, setForm] = useState<Form>({
+        white: '',
+        black: '',
+        orientation: 'white',
+        result: '*',
+        date: null,
+        isPublishing: false,
+    });
     const [errors, setErrors] = useState<Partial<FormError>>({});
-    const [orientation, setOrientation] = useState<BoardOrientation>(
-        initOrientation ?? 'white',
-    );
-
-    if (skippable === undefined) {
-        skippable = false;
-    }
-
-    if (title === undefined) {
-        title = 'Missing Data';
-    }
 
     useEffect(() => {
-        setHeaders(getFormHeader(initHeaders));
-    }, [initHeaders]);
+        if (!chess || !game) {
+            return;
+        }
 
-    const onChangeHeader = (key: keyof GameHeader, value: string | DateTime | null) => {
-        setHeaders((oldHeaders) => ({ ...oldHeaders, [key]: value }));
-    };
+        const headers = chess.header();
 
-    const submit = () => {
+        setForm((oldForm) => ({
+            ...oldForm,
+            white: headers.getRawValue('White'),
+            black: headers.getRawValue('Black'),
+            result: headers.getRawValue('Result'),
+            date: parsePgnDate(headers.getRawValue('Date')),
+            orientation: game.orientation ?? 'white',
+        }));
+    }, [chess, game]);
+
+    function onChangeField(key: keyof Form, value: string | DateTime | null): void {
+        setForm((oldForm) => ({ ...oldForm, [key]: value }));
+    }
+
+    const submit = (isPublishing: boolean) => {
         const newErrors: Partial<FormError> = {};
 
-        if (!skippable) {
-            if (stripTagValue(headers.white) === '') {
-                newErrors.white = 'This field is required';
-            }
-            if (stripTagValue(headers.black) === '') {
-                newErrors.black = 'This field is required';
-            }
-            if (!isGameResult(headers.result)) {
-                newErrors.result = 'This field is required';
-            }
-            if (!headers.date?.isValid) {
-                newErrors.date = 'This field is required';
-            }
+        if (stripTagValue(form.white) === '') {
+            newErrors.white = 'This field is required';
+        }
+        if (stripTagValue(form.black) === '') {
+            newErrors.black = 'This field is required';
+        }
+        if (!isGameResult(form.result)) {
+            newErrors.result = 'This field is required';
+        }
+        if (!form.date?.isValid) {
+            newErrors.date = 'This field is required';
         }
 
         setErrors(newErrors);
@@ -130,14 +112,25 @@ export const SaveGameDialogue = ({
             return;
         }
 
-        onSubmit(getGameHeaders(headers), orientation);
+        form.isPublishing = isPublishing;
+
+        onSubmit(form);
     };
 
     return (
         <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                {children && <DialogContentText>{children}</DialogContentText>}
+                <DialogContentText>
+                    {children ? (
+                        children
+                    ) : (
+                        <>
+                            Review these required fields before proceeding. You can later
+                            update, them in the game settings section of the editor.
+                        </>
+                    )}
+                </DialogContentText>
 
                 <Stack spacing={3} mt={3}>
                     <Grid2 container columnSpacing={1} rowSpacing={2}>
@@ -151,8 +144,8 @@ export const SaveGameDialogue = ({
                                 fullWidth
                                 data-cy='white'
                                 label="White's name"
-                                value={headers.white}
-                                onChange={(e) => onChangeHeader('white', e.target.value)}
+                                value={form.white}
+                                onChange={(e) => onChangeField('white', e.target.value)}
                                 error={!!errors.white}
                                 helperText={errors.white}
                             />
@@ -168,8 +161,8 @@ export const SaveGameDialogue = ({
                                 fullWidth
                                 data-cy='black'
                                 label="Black's name"
-                                value={headers.black}
-                                onChange={(e) => onChangeHeader('black', e.target.value)}
+                                value={form.black}
+                                onChange={(e) => onChangeField('black', e.target.value)}
                                 error={!!errors.black}
                                 helperText={errors.black}
                             />
@@ -185,8 +178,8 @@ export const SaveGameDialogue = ({
                                 select
                                 data-cy='result'
                                 label='Game Result'
-                                value={headers.result.replaceAll('*', '')}
-                                onChange={(e) => onChangeHeader('result', e.target.value)}
+                                value={form.result.replaceAll('*', '')}
+                                onChange={(e) => onChangeField('result', e.target.value)}
                                 error={!!errors.result}
                                 helperText={errors.result}
                                 fullWidth
@@ -206,9 +199,9 @@ export const SaveGameDialogue = ({
                             <DatePicker
                                 label='Date'
                                 disableFuture
-                                value={headers.date}
+                                value={form.date}
                                 onChange={(newValue) => {
-                                    onChangeHeader('date', newValue);
+                                    onChangeField('date', newValue);
                                 }}
                                 slotProps={{
                                     textField: {
@@ -229,9 +222,9 @@ export const SaveGameDialogue = ({
                                 <FormLabel>Default Orientation</FormLabel>
                                 <RadioGroup
                                     row
-                                    value={orientation}
+                                    value={form.orientation}
                                     onChange={(e) =>
-                                        setOrientation(e.target.value as BoardOrientation)
+                                        onChangeField('orientation', e.target.value)
                                     }
                                 >
                                     <FormControlLabel
@@ -252,16 +245,23 @@ export const SaveGameDialogue = ({
             </DialogContent>
             <DialogActions>
                 <Button data-cy='cancel-preflight' onClick={onClose} disabled={loading}>
-                    {skippable ? 'Skip for now' : 'Cancel'}
+                    Cancel
                 </Button>
                 <LoadingButton
-                    data-cy='submit-preflight'
-                    onClick={submit}
+                    data-cy='preflight-publish-button'
+                    onClick={() => submit(true)}
                     loading={loading}
                 >
-                    Submit
+                    Publish
+                </LoadingButton>
+                <LoadingButton
+                    data-cy='preflight-save-button'
+                    onClick={() => submit(false)}
+                    loading={loading}
+                >
+                    Save
                 </LoadingButton>
             </DialogActions>
         </Dialog>
     );
-};
+}
