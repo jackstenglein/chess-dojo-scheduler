@@ -8,10 +8,10 @@ import {
 } from '@mui/icons-material';
 import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { useState } from 'react';
-import Crosstable from './CrosstablePage';
-import GameSubmission from './gameSubmission';
-import InfoPage from './InfoPage';
-import PairingsPage from './PairingPage';
+import { Crosstable } from './CrosstablePage';
+import { GameSubmission } from './GameSubmission';
+import { InfoPage } from './InfoPage';
+import { PairingsPage } from './PairingPage';
 
 /**
  * Renders a tab panel.

@@ -20,6 +20,8 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
+import { useLocalStorage } from 'usehooks-ts';
+import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
 import {
     cohorts,
     fetchTournamentData,
@@ -31,9 +33,11 @@ import {
  * handles the viewer for game submission
  * @returns the UI for game submission
  */
-
-const GameSubmission = () => {
-    const [selectedCohort, setSelectedCohort] = useState<number>(0);
+export const GameSubmission = () => {
+    const [selectedCohort, setSelectedCohort] = useLocalStorage<number>(
+        ROUND_ROBIN_COHORT_KEY,
+        0,
+    );
     const [tournamentIds, setTournamentIds] = useState<string[]>([]);
     const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -181,5 +185,3 @@ const GameSubmission = () => {
         </Container>
     );
 };
-
-export default GameSubmission;

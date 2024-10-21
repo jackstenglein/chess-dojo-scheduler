@@ -29,8 +29,7 @@ import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
  * Handles the info page
  * @returns the info page
  */
-
-const InfoPage = () => {
+export const InfoPage = () => {
     return (
         <Stack spacing={2}>
             <Typography variant='h5' textAlign='center' color='text.secondary'>
@@ -217,5 +216,3 @@ const InfoPage = () => {
         </Stack>
     );
 };
-
-export default InfoPage;

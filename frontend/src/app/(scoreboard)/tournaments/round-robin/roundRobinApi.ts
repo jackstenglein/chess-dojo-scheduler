@@ -1,6 +1,5 @@
-
-import axios from 'axios';
 import { getConfig } from '@/config';
+import axios from 'axios';
 
 /**
  * The Round Robin Info API response
@@ -53,7 +52,7 @@ export const cohorts = [
     { label: '2300-2400', value: 2300 },
 ];
 
-const endpoint = getConfig().api.roundRobin;
+const endpoint = getConfig().api.roundRobinUrl;
 
 /**
  * method to fetch tournament ids for given cohort start value
@@ -63,7 +62,6 @@ const endpoint = getConfig().api.roundRobin;
 
 export const fetchTournamentIds = async (cohortValue: number): Promise<string[]> => {
     try {
-        console.log(endpoint);
         const response = await axios.get<TournamentId>(`${endpoint}/tournamentid`, {
             params: {
                 'cohort-start': cohortValue,

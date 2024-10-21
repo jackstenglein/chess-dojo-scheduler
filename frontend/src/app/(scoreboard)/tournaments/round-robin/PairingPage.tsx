@@ -19,6 +19,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import {
     cohorts,
     fetchTournamentData,
@@ -26,8 +27,13 @@ import {
     TournamentData,
 } from './roundRobinApi';
 
-const PairingsPage = () => {
-    const [selectedCohort, setSelectedCohort] = useState<number>(0);
+export const ROUND_ROBIN_COHORT_KEY = 'ROUND_ROBIN_COHORT';
+
+export const PairingsPage = () => {
+    const [selectedCohort, setSelectedCohort] = useLocalStorage<number>(
+        ROUND_ROBIN_COHORT_KEY,
+        0,
+    );
     const [selectedRound, setSelectedRound] = useState<number>(1);
     const [tournamentIds, setTournamentIds] = useState<string[]>([]);
     const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
@@ -214,5 +220,3 @@ const PairingsPage = () => {
         </Container>
     );
 };
-
-export default PairingsPage;

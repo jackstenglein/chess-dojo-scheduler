@@ -21,6 +21,8 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
+import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
 import {
     cohorts,
     fetchTournamentData,
@@ -32,9 +34,11 @@ import {
  * handles the crosstable UI menu
  * @returns display tournament crosstables
  */
-
-const Crosstable = () => {
-    const [selectedCohort, setSelectedCohort] = useState<number>(0);
+export const Crosstable = () => {
+    const [selectedCohort, setSelectedCohort] = useLocalStorage<number>(
+        ROUND_ROBIN_COHORT_KEY,
+        0,
+    );
     const [tournamentIds, setTournamentIds] = useState<string[]>([]);
     const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -264,5 +268,3 @@ const Crosstable = () => {
         </Container>
     );
 };
-
-export default Crosstable;
