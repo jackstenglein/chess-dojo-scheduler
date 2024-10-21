@@ -1,4 +1,5 @@
 import {
+    compareRoles,
     Directory,
     DirectoryAccessRole,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -48,26 +49,4 @@ export async function checkAccess({
     }
 
     return false;
-}
-
-/**
- * Returns true if currRole has permissions greater than or equal to minRole.
- * @param minRole The minimum required role.
- * @param currRole The current role to check.
- */
-function compareRoles(
-    minRole: DirectoryAccessRole,
-    currRole: DirectoryAccessRole | undefined,
-): boolean {
-    switch (minRole) {
-        case DirectoryAccessRole.Viewer:
-            return currRole !== undefined;
-        case DirectoryAccessRole.Editor:
-            return (
-                currRole === DirectoryAccessRole.Editor ||
-                currRole === DirectoryAccessRole.Admin
-            );
-        case DirectoryAccessRole.Admin:
-            return currRole === DirectoryAccessRole.Admin;
-    }
 }

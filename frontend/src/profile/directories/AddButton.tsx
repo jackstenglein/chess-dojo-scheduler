@@ -4,7 +4,9 @@ import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
+    compareRoles,
     Directory,
+    DirectoryAccessRole,
     DirectoryVisibilityType,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Add, CreateNewFolder } from '@mui/icons-material';
@@ -24,7 +26,20 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
     const { user: viewer } = useAuth();
     const api = useApi();
 
-    if (viewer?.username !== directory.owner) {
+    const canEdit =
+        viewer?.username === directory.owner ||
+        compareRoles(
+            DirectoryAccessRole.Editor,
+            directory.access?.[viewer?.username || ''],
+        );
+    const canCreateNewFolders =
+        viewer?.username === directory.owner ||
+        compareRoles(
+            DirectoryAccessRole.Admin,
+            directory.access?.[viewer?.username || ''],
+        );
+
+    if (!canEdit) {
         return null;
     }
 
@@ -77,11 +92,21 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
             <Menu open={!!anchorEl} onClose={handleClose} anchorEl={anchorEl}>
                 <AddCurrentGameMenuItem directory={directory} onSuccess={handleClose} />
 
-                <MenuItem onClick={() => setNewDirectoryOpen(true)}>
+                <MenuItem
+                    disabled={!canCreateNewFolders}
+                    onClick={() => setNewDirectoryOpen(true)}
+                >
                     <ListItemIcon>
                         <CreateNewFolder />
                     </ListItemIcon>
-                    <ListItemText primary='New Folder' />
+                    <ListItemText
+                        primary='New Folder'
+                        secondary={
+                            canCreateNewFolders
+                                ? undefined
+                                : 'Missing required admin permissions'
+                        }
+                    />
                 </MenuItem>
 
                 <MenuItem component='a' href={`/games/import?directory=${directory.id}`}>

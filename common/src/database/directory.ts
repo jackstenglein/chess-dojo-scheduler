@@ -86,6 +86,12 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /** The id of the directory item. For a game, this is the value cohort/id. */
         id: z.string(),
 
+        /**
+         * The username of the person who added the item to the directory. If
+         * not included, the directory owner is the adder.
+         */
+        addedBy: z.string().optional(),
+
         /** The metadata of the directory item. */
         metadata: gameMetadataSchema,
     }),
@@ -96,6 +102,12 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /** The id of the directory item. */
         id: z.string(),
 
+        /**
+         * The username of the person who added the item to the directory. If
+         * not included, the directory owner is the adder.
+         */
+        addedBy: z.string().optional(),
+
         /** The metadata of the directory item. */
         metadata: gameMetadataSchema,
     }),
@@ -105,6 +117,12 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 
         /** The id of the directory item. */
         id: z.string(),
+
+        /**
+         * The username of the person who added the item to the directory. If
+         * not included, the directory owner is the adder.
+         */
+        addedBy: z.string().optional(),
 
         /** The metadata of the directory item. */
         metadata: gameMetadataSchema,
@@ -234,6 +252,8 @@ export type DeleteDirectoriesRequest = z.infer<typeof DeleteDirectoriesSchema>;
  * Verifies a request to add items to a directory. Currently, only
  * games are handled by this request. Subdirectories can be added using
  * the create directory request.
+ *
+ * @deprecated Use AddDirectoryItemsSchemaV2, which handles adding items to another user's directory.
  */
 export const AddDirectoryItemsSchema = DirectorySchema.pick({
     /** The id of the directory to add items to. */
@@ -245,8 +265,31 @@ export const AddDirectoryItemsSchema = DirectorySchema.pick({
     }),
 );
 
-/** A request to add items to a directory. */
+/**
+ * Verifies a request to add items to a directory. Currently, only
+ * games are handled by this request. Subdirectories can be added using
+ * the create directory request.
+ */
+export const AddDirectoryItemsSchemaV2 = DirectorySchema.pick({
+    /** The owner of the directory to add items to. */
+    owner: true,
+
+    /** The id of the directory to add items to. */
+    id: true,
+}).merge(
+    z.object({
+        /** The games to add to the directory. */
+        games: gameMetadataSchema.array(),
+    }),
+);
+
+/**
+ * A request to add items to a directory.
+ * @deprecated Use AddDirectoryItemsRequestV2 instead.
+ */
 export type AddDirectoryItemsRequest = z.infer<typeof AddDirectoryItemsSchema>;
+
+export type AddDirectoryItemsRequestV2 = z.infer<typeof AddDirectoryItemsSchemaV2>;
 
 /**
  * Verifies a request to remove items from a directory. Currently, only
@@ -293,3 +336,25 @@ export const ShareDirectorySchema = DirectorySchema.pick({
 
 /** A request to share a directory. */
 export type ShareDirectoryRequest = z.infer<typeof ShareDirectorySchema>;
+
+/**
+ * Returns true if currRole has permissions greater than or equal to minRole.
+ * @param minRole The minimum required role.
+ * @param currRole The current role to check.
+ */
+export function compareRoles(
+    minRole: DirectoryAccessRole,
+    currRole: DirectoryAccessRole | undefined,
+): boolean {
+    switch (minRole) {
+        case DirectoryAccessRole.Viewer:
+            return currRole !== undefined;
+        case DirectoryAccessRole.Editor:
+            return (
+                currRole === DirectoryAccessRole.Editor ||
+                currRole === DirectoryAccessRole.Admin
+            );
+        case DirectoryAccessRole.Admin:
+            return currRole === DirectoryAccessRole.Admin;
+    }
+}

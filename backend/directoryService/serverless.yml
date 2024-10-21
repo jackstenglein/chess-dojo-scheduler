@@ -160,6 +160,26 @@ functions:
           - dynamodb:PartiQLUpdate
         Resource: ${param:GamesTableArn}
 
+  addItemsV2:
+    handler: addItems.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/items
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
   removeItems:
     handler: removeItems.handler
     events:

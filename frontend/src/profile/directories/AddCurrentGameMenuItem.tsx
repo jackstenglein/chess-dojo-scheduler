@@ -39,6 +39,7 @@ export const AddCurrentGameMenuItem = ({
 
         request.onStart();
         api.addDirectoryItems({
+            owner: directory.owner,
             id: directory.id,
             games: [
                 {

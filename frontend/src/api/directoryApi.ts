@@ -1,7 +1,7 @@
 import { getConfig } from '@/config';
 import { BreadcrumbItem } from '@/profile/directories/DirectoryCache';
 import {
-    AddDirectoryItemsRequest,
+    AddDirectoryItemsRequestV2,
     CreateDirectoryRequest,
     Directory,
     MoveDirectoryItemsRequest,
@@ -39,7 +39,7 @@ export interface DirectoryApiContextType {
     deleteDirectories: (ids: string[]) => Promise<AxiosResponse<{ parent?: Directory }>>;
 
     addDirectoryItems: (
-        request: AddDirectoryItemsRequest,
+        request: AddDirectoryItemsRequestV2,
     ) => Promise<AxiosResponse<AddDirectoryItemsResponse>>;
 
     removeDirectoryItem: (
@@ -145,9 +145,9 @@ export interface AddDirectoryItemsResponse {
  * @param request The request to send.
  * @returns The updated directory.
  */
-export function addDirectoryItems(idToken: string, request: AddDirectoryItemsRequest) {
+export function addDirectoryItems(idToken: string, request: AddDirectoryItemsRequestV2) {
     return axios.put<AddDirectoryItemsResponse>(
-        `${BASE_URL}/directory/${request.id}/items`,
+        `${BASE_URL}/directory/${request.owner}/${request.id}/items`,
         { games: request.games },
         {
             headers: { Authorization: `Bearer ${idToken}` },

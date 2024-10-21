@@ -1,5 +1,6 @@
 import { useAuth } from '@/auth/Auth';
 import {
+    compareRoles,
     Directory,
     DirectoryAccessRole,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -15,7 +16,7 @@ export const ShareButton = ({ directory }: { directory: Directory }) => {
     if (
         !user?.username ||
         (user.username !== directory.owner &&
-            directory.access?.[user.username] !== DirectoryAccessRole.Admin)
+            !compareRoles(DirectoryAccessRole.Admin, directory.access?.[user.username]))
     ) {
         return null;
     }
