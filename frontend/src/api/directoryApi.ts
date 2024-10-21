@@ -1,11 +1,12 @@
 import { getConfig } from '@/config';
 import { BreadcrumbItem } from '@/profile/directories/DirectoryCache';
 import {
-    AddDirectoryItemsRequest,
+    AddDirectoryItemsRequestV2,
     CreateDirectoryRequest,
     Directory,
     MoveDirectoryItemsRequest,
     RemoveDirectoryItemsRequest,
+    ShareDirectoryRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import axios, { AxiosResponse } from 'axios';
@@ -28,10 +29,17 @@ export interface DirectoryApiContextType {
         request: UpdateDirectoryRequest,
     ) => Promise<AxiosResponse<UpdateDirectoryResponse>>;
 
+    /**
+     * Shares the directory with the users in the given request.
+     * @param request The request to share the directory.
+     * @returns An AxiosResponse containing the updated directory.
+     */
+    shareDirectory: (request: ShareDirectoryRequest) => Promise<AxiosResponse<Directory>>;
+
     deleteDirectories: (ids: string[]) => Promise<AxiosResponse<{ parent?: Directory }>>;
 
     addDirectoryItems: (
-        request: AddDirectoryItemsRequest,
+        request: AddDirectoryItemsRequestV2,
     ) => Promise<AxiosResponse<AddDirectoryItemsResponse>>;
 
     removeDirectoryItem: (
@@ -92,6 +100,22 @@ export function updateDirectory(idToken: string, request: UpdateDirectoryRequest
 }
 
 /**
+ * Sends an API request to share a directory.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to share the directory.
+ * @returns The updated directory.
+ */
+export function shareDirectory(idToken: string, request: ShareDirectoryRequest) {
+    return axios.put<Directory>(
+        `${BASE_URL}/directory/${request.owner}/${request.id}/share`,
+        { access: request.access },
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
+    );
+}
+
+/**
  * Sends an API request to delete directories.
  * @param idToken The id token of the current signed-in user.
  * @param ids The ids of the directories to delete.
@@ -121,9 +145,9 @@ export interface AddDirectoryItemsResponse {
  * @param request The request to send.
  * @returns The updated directory.
  */
-export function addDirectoryItems(idToken: string, request: AddDirectoryItemsRequest) {
+export function addDirectoryItems(idToken: string, request: AddDirectoryItemsRequestV2) {
     return axios.put<AddDirectoryItemsResponse>(
-        `${BASE_URL}/directory/${request.id}/items`,
+        `${BASE_URL}/directory/${request.owner}/${request.id}/items`,
         { games: request.games },
         {
             headers: { Authorization: `Bearer ${idToken}` },

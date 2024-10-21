@@ -5,24 +5,28 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
-    AddDirectoryItemsRequest,
+    AddDirectoryItemsRequestV2,
     AddDirectoryItemsSchema,
+    AddDirectoryItemsSchemaV2,
     Directory,
+    DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemType,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import { checkAccess } from './access';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
     parseEvent,
     requireUserInfo,
     success,
-    UserInfo,
 } from './api';
 import {
+    and,
     attributeExists,
+    attributeNotExists,
     directoryTable,
     dynamo,
     gameTable,
@@ -33,7 +37,7 @@ const ADD_ITEMS_BATCH_SIZE = 200;
 const MAX_BATCHES = 5;
 
 /**
- * Handles requests to the add directory items API. Returns the updated directory.
+ * Handles requests to the V1 add directory items API. Returns the updated directory.
  * @param event The API gateway event that triggered the request.
  * @returns The updated directory after the items are added.
  */
@@ -42,7 +46,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
         const userInfo = requireUserInfo(event);
         const request = parseEvent(event, AddDirectoryItemsSchema);
-        const items = getDirectoryItems(userInfo, request);
+        const items = getDirectoryItems(
+            { ...request, owner: userInfo.username },
+            userInfo.username,
+        );
         if (items.length === 0) {
             throw new ApiError({
                 statusCode: 400,
@@ -64,20 +71,65 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 };
 
 /**
+ * Handles requests to the V2 add directory items API. Returns the updated directory.
+ * @param event The API gateway event that triggered the request.
+ * @returns The updated directory after the items are added.
+ */
+export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
+    try {
+        console.log('Event: %j', event);
+        const userInfo = requireUserInfo(event);
+        const request = parseEvent(event, AddDirectoryItemsSchemaV2);
+        const items = getDirectoryItems(request, userInfo.username);
+        if (items.length === 0) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Invalid request: at least one item is required',
+            });
+        }
+        if (items.length > ADD_ITEMS_BATCH_SIZE * MAX_BATCHES) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `Invalid request: number of items (${items.length}) is greater than max batch size ${ADD_ITEMS_BATCH_SIZE * MAX_BATCHES}`,
+            });
+        }
+
+        if (
+            !(await checkAccess({
+                owner: request.owner,
+                id: request.id,
+                username: userInfo.username,
+                role: DirectoryAccessRole.Editor,
+            }))
+        ) {
+            throw new ApiError({
+                statusCode: 403,
+                publicMessage: `Missing required editor permissions on the directory (or it does not exist)`,
+            });
+        }
+
+        const directory = await addDirectoryItems(request.owner, request.id, items);
+        return success({ directory });
+    } catch (err) {
+        return errToApiGatewayProxyResultV2(err);
+    }
+};
+
+/**
  * Converts the given AddDirectoryItemsRequest into an array of DirectoryItems to add.
- * @param userInfo The info of the calling user.
  * @param request The request to convert.
+ * @param caller The username of the person adding the items.
  * @returns An array of the converted DirectoryItems.
  */
 function getDirectoryItems(
-    userInfo: UserInfo,
-    request: AddDirectoryItemsRequest,
+    request: AddDirectoryItemsRequestV2,
+    caller: string,
 ): DirectoryItem[] {
     const result: DirectoryItem[] = [];
 
     for (const game of request.games) {
         let type: DirectoryItemType;
-        if (game.owner === userInfo.username) {
+        if (game.owner === request.owner) {
             type = DirectoryItemTypes.OWNED_GAME;
         } else if (game.cohort === 'masters') {
             type = DirectoryItemTypes.MASTER_GAME;
@@ -89,6 +141,7 @@ function getDirectoryItems(
             type,
             id: `${game.cohort}/${game.id}`,
             metadata: game,
+            addedBy: caller,
         });
     }
 
@@ -111,11 +164,12 @@ export async function addDirectoryItems(
         let directory: Directory | undefined = undefined;
 
         for (let i = 0; i < items.length; i += ADD_ITEMS_BATCH_SIZE) {
+            const conditions = [attributeExists('id')];
+
             const builder = new UpdateItemBuilder()
                 .key('owner', owner)
                 .key('id', id)
                 .set('updatedAt', new Date().toISOString())
-                .condition(attributeExists('id'))
                 .table(directoryTable)
                 .return('ALL_NEW');
 
@@ -123,8 +177,10 @@ export async function addDirectoryItems(
 
             for (const item of currentItems) {
                 builder.set(['items', item.id], item);
+                conditions.push(attributeNotExists(['items', item.id]));
             }
 
+            builder.condition(and(...conditions));
             builder.appendToList(
                 'itemIds',
                 currentItems.map((item) => item.id),

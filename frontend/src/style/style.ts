@@ -1,3 +1,5 @@
+import { SxProps } from '@mui/material';
+
 /**
  * Converts the given string to a color.
  * Copied from https://mui.com/material-ui/react-avatar/#letter-avatars
@@ -34,7 +36,12 @@ export interface SxSize {
  * @param name The name of the user.
  * @returns The props for the Avatar.
  */
-export function avatarProps(name: string, size: number | SxSize = 74, fontSize?: SxSize) {
+export function avatarProps(
+    name: string,
+    size: number | SxSize = 74,
+    fontSize?: SxSize,
+    sx?: SxProps,
+) {
     let uppercaseLetters = name.replace(/[a-z]/g, '').slice(0, 3);
 
     const tokens = name.split(' ');
@@ -74,6 +81,7 @@ export function avatarProps(name: string, size: number | SxSize = 74, fontSize?:
 
     return {
         sx: {
+            ...sx,
             bgcolor: stringToColor(name),
             height: height,
             width: height,
