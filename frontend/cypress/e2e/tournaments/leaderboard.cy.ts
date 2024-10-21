@@ -49,10 +49,10 @@ describe('Leaderboard Tab', () => {
     it('displays correct data', () => {
         cy.contains('Yearly').click();
         cy.getBySel('time-control-selector').click();
-        cy.contains('Blitz').click();
+        cy.get('[data-value="blitz"]').click();
         cy.getBySel('leaderboard').should('be.visible');
 
-        cy.getBySel('leaderboard').contains('newPlaye');
+        cy.getBySel('leaderboard').contains('newPlayer');
         cy.getBySel('leaderboard').contains('1–10 of 40');
     });
 });
