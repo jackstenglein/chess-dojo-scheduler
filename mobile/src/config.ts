@@ -13,10 +13,12 @@ export interface Config {
     };
     api: {
         baseUrl: string;
+        roundRobin: string;
     };
     media: {
         picturesBucket: string;
     };
+
 }
 
 const config: Record<string, Config> = {
@@ -35,10 +37,12 @@ const config: Record<string, Config> = {
         },
         api: {
             baseUrl: 'https://c2qamdaw08.execute-api.us-east-1.amazonaws.com',
+            roundRobin: "https://vmqy3k7nj8.execute-api.us-east-1.amazonaws.com",
         },
         media: {
             picturesBucket: 'https://chess-dojo-dev-pictures.s3.amazonaws.com',
         },
+
     },
 
     development: {
@@ -56,10 +60,12 @@ const config: Record<string, Config> = {
         },
         api: {
             baseUrl: 'https://c2qamdaw08.execute-api.us-east-1.amazonaws.com',
+            roundRobin: "https://vmqy3k7nj8.execute-api.us-east-1.amazonaws.com",
         },
         media: {
             picturesBucket: 'https://chess-dojo-dev-pictures.s3.amazonaws.com',
         },
+
     },
 
     production: {
@@ -77,6 +83,7 @@ const config: Record<string, Config> = {
         },
         api: {
             baseUrl: 'https://g4shdaq6ug.execute-api.us-east-1.amazonaws.com',
+            roundRobin: "https://vmqy3k7nj8.execute-api.us-east-1.amazonaws.com",
         },
         media: {
             picturesBucket: 'https://chess-dojo-prod-pictures.s3.amazonaws.com',
