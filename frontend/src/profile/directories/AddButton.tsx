@@ -4,7 +4,9 @@ import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
+    compareRoles,
     Directory,
+    DirectoryAccessRole,
     DirectoryVisibilityType,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Add, CreateNewFolder } from '@mui/icons-material';
@@ -16,7 +18,13 @@ import { AddExistingGamesDialog } from './AddExistingGamesDialog';
 import { useDirectoryCache } from './DirectoryCache';
 import { UpdateDirectoryDialog } from './UpdateDirectoryDialog';
 
-export const AddButton = ({ directory }: { directory: Directory }) => {
+export const AddButton = ({
+    directory,
+    accessRole,
+}: {
+    directory: Directory;
+    accessRole?: DirectoryAccessRole;
+}) => {
     const cache = useDirectoryCache();
     const [anchorEl, setAnchorEl] = useState<HTMLElement>();
     const [newDirectoryOpen, setNewDirectoryOpen] = useState(false);
@@ -24,7 +32,10 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
     const { user: viewer } = useAuth();
     const api = useApi();
 
-    if (viewer?.username !== directory.owner) {
+    const canEdit = compareRoles(DirectoryAccessRole.Editor, accessRole);
+    const canCreateNewFolders = compareRoles(DirectoryAccessRole.Admin, accessRole);
+
+    if (!canEdit) {
         return null;
     }
 
@@ -46,7 +57,7 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
 
         request.onStart();
         api.createDirectory({
-            id: '',
+            owner: directory.owner,
             parent: directory.id,
             name,
             visibility,
@@ -54,7 +65,7 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
             .then((resp) => {
                 console.log('createDirectory: ', resp);
                 cache.put(resp.data.parent);
-                cache.put(resp.data.directory);
+                cache.putWithAccess(resp.data.directory, resp.data.accessRole);
                 trackEvent(EventType.CreateDirectory, { visibility });
                 handleClose();
             })
@@ -77,11 +88,21 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
             <Menu open={!!anchorEl} onClose={handleClose} anchorEl={anchorEl}>
                 <AddCurrentGameMenuItem directory={directory} onSuccess={handleClose} />
 
-                <MenuItem onClick={() => setNewDirectoryOpen(true)}>
+                <MenuItem
+                    disabled={!canCreateNewFolders}
+                    onClick={() => setNewDirectoryOpen(true)}
+                >
                     <ListItemIcon>
                         <CreateNewFolder />
                     </ListItemIcon>
-                    <ListItemText primary='New Folder' />
+                    <ListItemText
+                        primary='New Folder'
+                        secondary={
+                            canCreateNewFolders
+                                ? undefined
+                                : 'Missing required admin permissions'
+                        }
+                    />
                 </MenuItem>
 
                 <MenuItem component='a' href={`/games/import?directory=${directory.id}`}>

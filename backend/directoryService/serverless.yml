@@ -38,11 +38,43 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt DirectoriesTable.Arn
 
+  createV2:
+    handler: create.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{parent}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
   get:
     handler: get.handler
     events:
       - httpApi:
           path: /directory/{owner}/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  getV2:
+    handler: get.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/v2
           method: get
           authorizer:
             type: jwt
@@ -81,6 +113,22 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  share:
+    handler: share.handler
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/share
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
         Resource: !GetAtt DirectoriesTable.Arn
 
   delete:
@@ -144,11 +192,51 @@ functions:
           - dynamodb:PartiQLUpdate
         Resource: ${param:GamesTableArn}
 
+  addItemsV2:
+    handler: addItems.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/items
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
   removeItems:
     handler: removeItems.handler
     events:
       - httpApi:
           path: /directory/{directoryId}/items/delete
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
+  removeItemsV2:
+    handler: removeItems.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{directoryId}/items/delete
           method: put
           authorizer:
             type: jwt

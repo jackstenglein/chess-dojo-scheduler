@@ -3,6 +3,7 @@ import { IdentifiableCache, useIdentifiableCache } from '@/api/cache/Cache';
 import { useRequest } from '@/api/Request';
 import {
     Directory,
+    DirectoryAccessRole,
     DirectoryVisibility,
     HOME_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -42,7 +43,17 @@ export interface BreadcrumbData {
     putBreadcrumb: (directory: Partial<Directory>) => void;
 }
 
-export type DirectoryCacheContextType = IdentifiableCache<Directory> & BreadcrumbData;
+export interface AccessData {
+    /** Maps a directory owner/id to the current user's access role. */
+    accessRoles: Record<string, DirectoryAccessRole | undefined>;
+
+    /** Puts the given directory into the cache, along with the current user's access role. */
+    putWithAccess: (directory: Directory, access?: DirectoryAccessRole) => void;
+}
+
+export type DirectoryCacheContextType = IdentifiableCache<Directory> &
+    BreadcrumbData &
+    AccessData;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const DirectoryCacheContext = createContext<DirectoryCacheContextType>(null!);
@@ -56,6 +67,9 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
         (item) => `${item.owner}/${item.id}`,
     );
     const [breadcrumbs, setBreadcrumbs] = useState<Record<string, BreadcrumbItem>>({});
+    const [accessData, setAccessData] = useState<
+        Record<string, DirectoryAccessRole | undefined>
+    >({});
 
     const putBreadcrumb = useCallback(
         (directory: Partial<Directory>) => {
@@ -93,6 +107,17 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
         [update, putBreadcrumb],
     );
 
+    const putDirectoryWithAccess = useCallback(
+        (directory: Directory, access?: DirectoryAccessRole) => {
+            putDirectory(directory);
+            setAccessData((data) => ({
+                ...data,
+                [`${directory.owner}/${directory.id}`]: access,
+            }));
+        },
+        [putDirectory, setAccessData],
+    );
+
     return (
         <DirectoryCacheContext.Provider
             value={{
@@ -102,6 +127,8 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
                 breadcrumbs,
                 setBreadcrumbs,
                 putBreadcrumb,
+                accessRoles: accessData,
+                putWithAccess: putDirectoryWithAccess,
             }}
         >
             {children}
@@ -145,7 +172,7 @@ export function useDirectory(owner: string, id: string) {
                 .then((resp) => {
                     console.log('getDirectory: ', resp);
                     cache.markFetched(compoundKey);
-                    cache.put(resp.data);
+                    cache.putWithAccess(resp.data.directory, resp.data.accessRole);
                     cache.request.onSuccess();
                 })
                 .catch((err: AxiosError) => {
@@ -165,6 +192,7 @@ export function useDirectory(owner: string, id: string) {
 
     return {
         directory,
+        accessRole: cache.accessRoles[`${owner}/${id}`],
         request: cache.request,
         putDirectory: cache.put,
         updateDirectory: cache.update,
