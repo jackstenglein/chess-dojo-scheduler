@@ -38,6 +38,23 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt DirectoriesTable.Arn
 
+  createV2:
+    handler: create.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{parent}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
   get:
     handler: get.handler
     events:

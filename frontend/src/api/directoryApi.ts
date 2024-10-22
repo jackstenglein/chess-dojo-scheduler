@@ -2,7 +2,8 @@ import { getConfig } from '@/config';
 import { BreadcrumbItem } from '@/profile/directories/DirectoryCache';
 import {
     AddDirectoryItemsRequestV2,
-    CreateDirectoryRequest,
+    CreateDirectoryRequestV2,
+    CreateDirectoryRequestV2Client,
     Directory,
     DirectoryAccessRole,
     MoveDirectoryItemsRequest,
@@ -31,8 +32,13 @@ export interface DirectoryApiContextType {
         id: string,
     ) => Promise<AxiosResponse<Record<string, BreadcrumbItem>>>;
 
+    /**
+     * Sends an API request to create a directory.
+     * @param request The create directory request.
+     * @returns The parent directory, the child directory and the caller's access role for the child directory.
+     */
     createDirectory: (
-        request: CreateDirectoryRequest,
+        request: CreateDirectoryRequestV2Client,
     ) => Promise<AxiosResponse<CreateDirectoryResponse>>;
 
     updateDirectory: (
@@ -100,15 +106,34 @@ export function listBreadcrumbs(idToken: string, owner: string, id: string) {
     );
 }
 
+/** The response from a request to create a directory. */
 export interface CreateDirectoryResponse {
+    /** The newly-created child directory. */
     directory: Directory;
+
+    /** The updated parent directory. */
     parent: Directory;
+
+    /** The caller's access on the child directory. */
+    accessRole: DirectoryAccessRole;
 }
 
-export function createDirectory(idToken: string, request: CreateDirectoryRequest) {
-    return axios.post<CreateDirectoryResponse>(`${BASE_URL}/directory`, request, {
-        headers: { Authorization: `Bearer ${idToken}` },
-    });
+/**
+ * Sends an API request to create a directory.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to create the directory.
+ * @returns An AxiosResponse containing the parent directory, the child directory
+ * and the caller's access role on the child directory.
+ */
+export function createDirectory(idToken: string, request: CreateDirectoryRequestV2) {
+    const { owner, parent, ...rest } = request;
+    return axios.post<CreateDirectoryResponse>(
+        `${BASE_URL}/directory/${owner}/${parent}`,
+        rest,
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
+    );
 }
 
 export interface UpdateDirectoryResponse {

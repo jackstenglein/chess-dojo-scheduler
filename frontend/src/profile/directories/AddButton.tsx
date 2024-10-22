@@ -57,7 +57,7 @@ export const AddButton = ({
 
         request.onStart();
         api.createDirectory({
-            id: '',
+            owner: directory.owner,
             parent: directory.id,
             name,
             visibility,
@@ -65,7 +65,7 @@ export const AddButton = ({
             .then((resp) => {
                 console.log('createDirectory: ', resp);
                 cache.put(resp.data.parent);
-                cache.put(resp.data.directory);
+                cache.putWithAccess(resp.data.directory, resp.data.accessRole);
                 trackEvent(EventType.CreateDirectory, { visibility });
                 handleClose();
             })

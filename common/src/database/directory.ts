@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 
 const gameMetadataSchema = z.object({
@@ -215,6 +216,10 @@ export type DirectoryItemGame = z.infer<
 /** The metadata of a game in a directory. */
 export type DirectoryItemGameMetadata = z.infer<typeof gameMetadataSchema>;
 
+/**
+ * Verifies a request to create a directory.
+ * @deprecated Use CreateDirectorySchemaV2 instead.
+ */
 export const CreateDirectorySchema = DirectorySchema.pick({
     id: true,
     parent: true,
@@ -222,8 +227,35 @@ export const CreateDirectorySchema = DirectorySchema.pick({
     visibility: true,
 });
 
-/** A request to create a directory. */
+const CreateDirectorySchemaV2Client = DirectorySchema.pick({
+    owner: true,
+    parent: true,
+    name: true,
+    visibility: true,
+});
+
+/**
+ * Verifies a request to create a directory.
+ */
+export const CreateDirectorySchemaV2 = CreateDirectorySchemaV2Client.transform(
+    (value) => {
+        return { ...value, id: uuidv4() };
+    },
+);
+
+/**
+ * A request to create a directory.
+ * @deprecated Use CreateDirectoryRequestV2 instead.
+ */
 export type CreateDirectoryRequest = z.infer<typeof CreateDirectorySchema>;
+
+/** A request to create a directory, as seen by the server. */
+export type CreateDirectoryRequestV2 = z.infer<typeof CreateDirectorySchemaV2>;
+
+/** A request to create a directory, as seen by the client. */
+export type CreateDirectoryRequestV2Client = z.infer<
+    typeof CreateDirectorySchemaV2Client
+>;
 
 /** Verifies a request to update a directory. */
 export const UpdateDirectorySchema = DirectorySchema.pick({
