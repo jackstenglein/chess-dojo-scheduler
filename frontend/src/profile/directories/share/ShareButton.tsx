@@ -1,4 +1,3 @@
-import { useAuth } from '@/auth/Auth';
 import {
     compareRoles,
     Directory,
@@ -9,15 +8,16 @@ import { Button } from '@mui/material';
 import { useState } from 'react';
 import { ShareDialog } from './ShareDialog';
 
-export const ShareButton = ({ directory }: { directory: Directory }) => {
+export const ShareButton = ({
+    directory,
+    accessRole,
+}: {
+    directory: Directory;
+    accessRole?: DirectoryAccessRole;
+}) => {
     const [open, setOpen] = useState(false);
-    const { user } = useAuth();
 
-    if (
-        !user?.username ||
-        (user.username !== directory.owner &&
-            !compareRoles(DirectoryAccessRole.Admin, directory.access?.[user.username]))
-    ) {
+    if (!compareRoles(DirectoryAccessRole.Admin, accessRole)) {
         return null;
     }
 

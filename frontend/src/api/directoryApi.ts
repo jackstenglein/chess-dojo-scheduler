@@ -4,8 +4,9 @@ import {
     AddDirectoryItemsRequestV2,
     CreateDirectoryRequest,
     Directory,
+    DirectoryAccessRole,
     MoveDirectoryItemsRequest,
-    RemoveDirectoryItemsRequest,
+    RemoveDirectoryItemsRequestV2,
     ShareDirectoryRequest,
     UpdateDirectoryRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -14,7 +15,16 @@ import axios, { AxiosResponse } from 'axios';
 const BASE_URL = getConfig().api.baseUrl;
 
 export interface DirectoryApiContextType {
-    getDirectory: (owner: string, id: string) => Promise<AxiosResponse<Directory>>;
+    /**
+     * Sends an API request to get a directory.
+     * @param owner The owner of the directory to get.
+     * @param id The id of the directory to get.
+     * @returns The requested directory and the caller's access role for that directory.
+     */
+    getDirectory: (
+        owner: string,
+        id: string,
+    ) => Promise<AxiosResponse<GetDirectoryResponse>>;
 
     listBreadcrumbs: (
         owner: string,
@@ -42,8 +52,13 @@ export interface DirectoryApiContextType {
         request: AddDirectoryItemsRequestV2,
     ) => Promise<AxiosResponse<AddDirectoryItemsResponse>>;
 
+    /**
+     * Sends a RemoveDirectoryItem request to the API.
+     * @param request The request to send.
+     * @returns The updated directory.
+     */
     removeDirectoryItem: (
-        request: RemoveDirectoryItemsRequest,
+        request: RemoveDirectoryItemsRequestV2,
     ) => Promise<AxiosResponse<AddDirectoryItemsResponse>>;
 
     moveDirectoryItems: (
@@ -51,15 +66,23 @@ export interface DirectoryApiContextType {
     ) => Promise<AxiosResponse<MoveDirectoryItemsResponse>>;
 }
 
+export interface GetDirectoryResponse {
+    /** The requested directory. */
+    directory: Directory;
+
+    /** The access role of the current user for the given directory. */
+    accessRole?: DirectoryAccessRole;
+}
+
 /**
  * Sends an API request to get a directory.
  * @param idToken The id token of the current signed-in user.
  * @param owner The owner of the directory to get.
  * @param id The id of the directory to get.
- * @returns The requested directory.
+ * @returns The requested directory and the caller's access role for that directory.
  */
 export function getDirectory(idToken: string, owner: string, id: string) {
-    return axios.get<Directory>(`${BASE_URL}/directory/${owner}/${id}`, {
+    return axios.get<GetDirectoryResponse>(`${BASE_URL}/directory/${owner}/${id}/v2`, {
         headers: {
             Authorization: `Bearer ${idToken}`,
         },
@@ -163,10 +186,10 @@ export function addDirectoryItems(idToken: string, request: AddDirectoryItemsReq
  */
 export function removeDirectoryItem(
     idToken: string,
-    request: RemoveDirectoryItemsRequest,
+    request: RemoveDirectoryItemsRequestV2,
 ) {
     return axios.put<AddDirectoryItemsResponse>(
-        `${BASE_URL}/directory/${request.directoryId}/items/delete`,
+        `${BASE_URL}/directory/${request.owner}/${request.directoryId}/items/delete`,
         { itemIds: request.itemIds },
         {
             headers: { Authorization: `Bearer ${idToken}` },

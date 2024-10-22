@@ -18,7 +18,13 @@ import { AddExistingGamesDialog } from './AddExistingGamesDialog';
 import { useDirectoryCache } from './DirectoryCache';
 import { UpdateDirectoryDialog } from './UpdateDirectoryDialog';
 
-export const AddButton = ({ directory }: { directory: Directory }) => {
+export const AddButton = ({
+    directory,
+    accessRole,
+}: {
+    directory: Directory;
+    accessRole?: DirectoryAccessRole;
+}) => {
     const cache = useDirectoryCache();
     const [anchorEl, setAnchorEl] = useState<HTMLElement>();
     const [newDirectoryOpen, setNewDirectoryOpen] = useState(false);
@@ -26,18 +32,8 @@ export const AddButton = ({ directory }: { directory: Directory }) => {
     const { user: viewer } = useAuth();
     const api = useApi();
 
-    const canEdit =
-        viewer?.username === directory.owner ||
-        compareRoles(
-            DirectoryAccessRole.Editor,
-            directory.access?.[viewer?.username || ''],
-        );
-    const canCreateNewFolders =
-        viewer?.username === directory.owner ||
-        compareRoles(
-            DirectoryAccessRole.Admin,
-            directory.access?.[viewer?.username || ''],
-        );
+    const canEdit = compareRoles(DirectoryAccessRole.Editor, accessRole);
+    const canCreateNewFolders = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     if (!canEdit) {
         return null;

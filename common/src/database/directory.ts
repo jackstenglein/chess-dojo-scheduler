@@ -155,6 +155,9 @@ export enum DirectoryAccessRole {
 
     /** Admins can perform all directory actions except deleting the directory. */
     Admin = 'ADMIN',
+
+    /** The owner of the directory. Can perform all directory actions. */
+    Owner = 'OWNER',
 }
 
 export const DirectorySchema = z.object({
@@ -289,12 +292,15 @@ export const AddDirectoryItemsSchemaV2 = DirectorySchema.pick({
  */
 export type AddDirectoryItemsRequest = z.infer<typeof AddDirectoryItemsSchema>;
 
+/** A request to add items to a directory. */
 export type AddDirectoryItemsRequestV2 = z.infer<typeof AddDirectoryItemsSchemaV2>;
 
 /**
  * Verifies a request to remove items from a directory. Currently, only
  * games are handled by this request. Subdirectories can be removed using
- * the delete directory request. */
+ * the delete directory request.
+ * @deprecated Use RemoveDirectoryItemsSchemaV2, which handles removing items from another user's directory.
+ */
 export const RemoveDirectoryItemsSchema = z.object({
     /** The id of the directory to remove the item from. */
     directoryId: DirectorySchema.shape.id,
@@ -303,8 +309,29 @@ export const RemoveDirectoryItemsSchema = z.object({
     itemIds: z.string().array(),
 });
 
-/** A request to remove game items from a directory. */
+/**
+ * Verifies a request to remove items from a directory. Currently, only
+ * games are handled by this request. Subdirectories can be removed using
+ * the delete directory request.
+ */
+export const RemoveDirectoryItemsSchemaV2 = z.object({
+    /** The owner of the directory to remove the items from. */
+    owner: DirectorySchema.shape.owner,
+
+    /** The id of the directory to remove the items from. */
+    directoryId: DirectorySchema.shape.id,
+
+    /** The ids of the item to remove. */
+    itemIds: z.string().array(),
+});
+
+/** A request to remove game items from a directory.
+ * @deprecated Use RemoveDirectoryItemsRequestV2 instead.
+ */
 export type RemoveDirectoryItemsRequest = z.infer<typeof RemoveDirectoryItemsSchema>;
+
+/** A request to remove game items from a directory. */
+export type RemoveDirectoryItemsRequestV2 = z.infer<typeof RemoveDirectoryItemsSchemaV2>;
 
 /**
  * Verifies a request to move items between directories.
@@ -352,9 +379,16 @@ export function compareRoles(
         case DirectoryAccessRole.Editor:
             return (
                 currRole === DirectoryAccessRole.Editor ||
-                currRole === DirectoryAccessRole.Admin
+                currRole === DirectoryAccessRole.Admin ||
+                currRole === DirectoryAccessRole.Owner
             );
         case DirectoryAccessRole.Admin:
-            return currRole === DirectoryAccessRole.Admin;
+            return (
+                currRole === DirectoryAccessRole.Admin ||
+                currRole === DirectoryAccessRole.Owner
+            );
+
+        case DirectoryAccessRole.Owner:
+            return currRole === DirectoryAccessRole.Owner;
     }
 }

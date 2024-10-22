@@ -77,13 +77,7 @@ async function moveItems(
         items.filter((i) => i.type === DirectoryItemTypes.DIRECTORY),
     );
 
-    source = await removeDirectoryItems(
-        owner,
-        source.id,
-        request.items,
-        itemOrderMap,
-        true,
-    );
+    source = await removeDirectoryItems(owner, source.id, request.items, true);
     return { source, target };
 }
 

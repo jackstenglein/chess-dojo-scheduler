@@ -3,6 +3,7 @@
 import { GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
+    compareRoles,
     Directory,
     DirectoryAccessRole,
     DirectoryItemTypes,
@@ -10,7 +11,7 @@ import {
     DirectoryVisibility,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { checkAccess } from './access';
+import { checkAccess, getAccessRole } from './access';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
@@ -43,13 +44,13 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             });
         }
 
-        const isViewer = await checkAccess({
+        const accessRole = await getAccessRole({
             owner: directory.owner,
             id: directory.id,
             username: userInfo.username,
-            role: DirectoryAccessRole.Viewer,
             directory,
         });
+        const isViewer = compareRoles(DirectoryAccessRole.Viewer, accessRole);
         if (directory.visibility === DirectoryVisibility.PRIVATE && !isViewer) {
             throw new ApiError({
                 statusCode: 403,
@@ -63,6 +64,47 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         }
 
         return success(directory);
+    } catch (err) {
+        return errToApiGatewayProxyResultV2(err);
+    }
+};
+
+export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
+    try {
+        console.log('Event: %j', event);
+
+        const userInfo = requireUserInfo(event);
+        const request = parsePathParameters(event, getDirectorySchema);
+        const directory = await fetchDirectory(request.owner, request.id);
+
+        if (!directory) {
+            throw new ApiError({
+                statusCode: 404,
+                publicMessage: 'Directory not found',
+            });
+        }
+
+        const accessRole = await getAccessRole({
+            owner: directory.owner,
+            id: directory.id,
+            username: userInfo.username,
+            directory,
+        });
+        const isViewer = compareRoles(DirectoryAccessRole.Viewer, accessRole);
+
+        if (directory.visibility === DirectoryVisibility.PRIVATE && !isViewer) {
+            throw new ApiError({
+                statusCode: 403,
+                publicMessage:
+                    'This directory is private. Ask the owner to make it public or share it with you.',
+            });
+        }
+
+        if (!isViewer) {
+            await filterPrivateItems(directory, userInfo.username);
+        }
+
+        return success({ directory, accessRole });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
     }

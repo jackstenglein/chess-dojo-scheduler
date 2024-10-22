@@ -5,11 +5,15 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
+    compareRoles,
     Directory,
+    DirectoryAccessRole,
     DirectoryItemTypes,
     RemoveDirectoryItemsSchema,
+    RemoveDirectoryItemsSchemaV2,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import { getAccessRole } from './access';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
@@ -24,7 +28,6 @@ import {
     dynamo,
     equal,
     gameTable,
-    notEqual,
     UpdateItemBuilder,
 } from './database';
 import { fetchDirectory } from './get';
@@ -54,33 +57,71 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 };
 
 /**
+ * Handles requests to the remove directory item API. Returns the updated
+ * directory. Cannot be used to remove a subdirectory. Use the delete directory API
+ * instead.
+ * @param event The API gateway event that triggered the request.
+ * @returns The updated directory after the item is removed.
+ */
+export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
+    try {
+        console.log('Event: %j', event);
+        const userInfo = requireUserInfo(event);
+        const request = parseEvent(event, RemoveDirectoryItemsSchemaV2);
+
+        const accessRole = await getAccessRole({
+            owner: request.owner,
+            id: request.directoryId,
+            username: userInfo.username,
+        });
+        if (!compareRoles(DirectoryAccessRole.Editor, accessRole)) {
+            throw new ApiError({
+                statusCode: 403,
+                publicMessage:
+                    'Missing required editor permissions on the directory (or it does not exist)',
+            });
+        }
+
+        const directory = await removeDirectoryItems(
+            request.owner,
+            request.directoryId,
+            request.itemIds,
+            undefined,
+            accessRole === DirectoryAccessRole.Editor ? userInfo.username : undefined,
+        );
+        return success({ directory });
+    } catch (err) {
+        return errToApiGatewayProxyResultV2(err);
+    }
+};
+
+/**
  * Removes the specified items from the specified directory.
  * @param owner The owner of the directory.
  * @param directoryId The id of the directory to remove the items from.
  * @param items The ids of the items to remove from the directory.
- * @param itemIndices A map from item id to the index in the parent directory's itemIds field.
  * @param allowSubdirectory Whether to allow removing subdirectories.
+ * @param caller The username of the person removing the items. If included, the addedBy attribute
+ * of each item must equal this value.
  * @returns The updated directory.
  */
 export async function removeDirectoryItems(
     owner: string,
     directoryId: string,
     items: string[],
-    itemIndices?: Record<string, number>,
     allowSubdirectory?: boolean,
+    caller?: string,
 ): Promise<Directory> {
     try {
-        if (!itemIndices) {
-            const directory = await fetchDirectory(owner, directoryId);
-            if (!directory) {
-                throw new ApiError({
-                    statusCode: 400,
-                    publicMessage: 'Directory not found',
-                    privateMessage: `Directory ${owner}/${directoryId} does not exist`,
-                });
-            }
-            itemIndices = getItemIndexMap(directory.itemIds);
+        const directory = await fetchDirectory(owner, directoryId);
+        if (!directory) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Directory not found',
+                privateMessage: `Directory ${owner}/${directoryId} does not exist`,
+            });
         }
+        const itemIndices = getItemIndexMap(directory.itemIds);
 
         const conditions = [attributeExists('id')];
         const builder = new UpdateItemBuilder()
@@ -95,10 +136,23 @@ export async function removeDirectoryItems(
             builder.remove(['itemIds', itemIndices[id]]);
             conditions.push(equal(['itemIds', itemIndices[id]], id));
 
-            if (!allowSubdirectory) {
-                conditions.push(
-                    notEqual(['items', id, 'type'], DirectoryItemTypes.DIRECTORY),
-                );
+            if (
+                !allowSubdirectory &&
+                directory.items[id].type === DirectoryItemTypes.DIRECTORY
+            ) {
+                throw new ApiError({
+                    statusCode: 400,
+                    publicMessage: `Invalid request: item ${id} is a directory and must be removed through the delete API.`,
+                    privateMessage: `Directory ${owner}/${directoryId}`,
+                });
+            }
+
+            if (caller && directory.items[id].addedBy !== caller) {
+                throw new ApiError({
+                    statusCode: 400,
+                    publicMessage: `Invalid request: item ${id} was added by someone else. You need admin permissions to remove it.`,
+                    privateMessage: `Directory ${owner}/${directoryId}. Added by: ${directory.items[id].addedBy}`,
+                });
             }
         }
         builder.condition(allowSubdirectory ? conditions[0] : and(...conditions));

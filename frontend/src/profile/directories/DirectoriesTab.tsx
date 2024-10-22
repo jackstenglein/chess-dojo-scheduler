@@ -1,12 +1,13 @@
 import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
-import { useAuth } from '@/auth/Auth';
 import { useGame } from '@/games/view/GamePage';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import {
+    compareRoles,
+    DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
@@ -24,7 +25,7 @@ import { BulkItemEditor } from './BulkItemEditor';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
-import { ownerColumns, publicColumns } from './DirectoryGridColumns';
+import { adminColumns, publicColumns } from './DirectoryGridColumns';
 import { ShareButton } from './share/ShareButton';
 
 const pageSizeOptions = [10, 25, 50, 100];
@@ -33,12 +34,14 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const { game } = useGame();
-    const { user: viewer } = useAuth();
     const api = useApi();
     const reorderRequest = useRequest();
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
     const contextMenu = useDataGridContextMenu(rowSelectionModel);
-    const { directory, request, putDirectory } = useDirectory(username, directoryId);
+    const { directory, accessRole, request, putDirectory } = useDirectory(
+        username,
+        directoryId,
+    );
 
     const rows = useMemo(() => {
         return (
@@ -69,7 +72,8 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
         return <NotFoundPage />;
     }
 
-    const isOwner = viewer?.username === username;
+    const isEditor = compareRoles(DirectoryAccessRole.Editor, accessRole);
+    const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     const onClickRow = (params: GridRowParams<DirectoryItem>) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
@@ -106,8 +110,8 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
             <DirectoryBreadcrumbs owner={username} id={directoryId} />
 
             <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
-                <AddButton directory={directory} />
-                <ShareButton directory={directory} />
+                <AddButton directory={directory} accessRole={accessRole} />
+                <ShareButton directory={directory} accessRole={accessRole} />
 
                 <BulkItemEditor
                     directory={directory}
@@ -119,13 +123,13 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
             <DataGridPro
                 data-cy='directories-data-grid'
                 rows={rows}
-                columns={isOwner ? ownerColumns : publicColumns}
+                columns={isAdmin ? adminColumns : publicColumns}
                 onRowClick={onClickRow}
                 autoHeight
                 loading={!directory && request.isLoading()}
                 sx={{ width: 1 }}
                 slotProps={{
-                    row: isOwner
+                    row: isEditor
                         ? {
                               onContextMenu: contextMenu.open,
                           }
@@ -143,11 +147,11 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
                     },
                 }}
                 getRowHeight={getRowHeight}
-                checkboxSelection={isOwner}
+                checkboxSelection={isEditor}
                 checkboxSelectionVisibleOnly
                 onRowSelectionModelChange={setRowSelectionModel}
                 rowSelectionModel={rowSelectionModel}
-                rowReordering={isOwner}
+                rowReordering={isAdmin}
                 onRowOrderChange={handleRowOrderChange}
                 pagination
                 pageSizeOptions={pageSizeOptions}

@@ -161,7 +161,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
     },
 ];
 
-export const ownerColumns: GridColDef<DirectoryItem>[] = [
+export const adminColumns: GridColDef<DirectoryItem>[] = [
     ...publicColumns.slice(0, 2),
     {
         field: 'result',
