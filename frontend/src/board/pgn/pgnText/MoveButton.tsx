@@ -1,3 +1,6 @@
+import { useReconcile } from '@/board/Board';
+import useGame from '@/context/useGame';
+import { formatTime } from '@/database/requirement';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
@@ -20,12 +23,9 @@ import {
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
-import { useGame } from '../../../games/view/GamePage';
-import { useReconcile } from '../../Board';
+import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
-import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
-import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
 
 export function getTextColor(
     move: Move,

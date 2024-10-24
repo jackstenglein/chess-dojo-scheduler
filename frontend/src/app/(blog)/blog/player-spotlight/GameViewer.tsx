@@ -4,8 +4,8 @@ import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
 import PgnBoard from '@/board/pgn/PgnBoard';
+import { GameContext } from '@/context/useGame';
 import { Game } from '@/database/game';
-import { GameContext } from '@/games/view/GamePage';
 import { LicenseInfo } from '@mui/x-license';
 import { useEffect } from 'react';
 
