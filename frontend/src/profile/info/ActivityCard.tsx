@@ -1,30 +1,37 @@
 import { useAuth } from '@/auth/Auth';
 import { getTimeZonedDate } from '@/calendar/displayDate';
-import { formatTime } from '@/database/requirement';
+import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    MenuItem,
-    TextField,
-    Tooltip,
-} from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { Card, CardContent, CardHeader, MenuItem, TextField,Tooltip } from '@mui/material';
+import { cloneElement, useEffect, useMemo, useState } from 'react';
 import ActivityCalendar, { Activity } from 'react-activity-calendar';
 import { useLocalStorage } from 'usehooks-ts';
 import { useTimeline } from '../activity/useTimeline';
+import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
 
 const MAX_LEVEL = 4;
 const MAX_POINTS_COUNT = 10;
 const MAX_HOURS_COUNT = 5 * 60;
 const MIN_DATE = '2024-01-01';
 
+const requirementColors: Record<RequirementCategory, string> = {
+    [RequirementCategory.Welcome]: '#c27ba0',
+    [RequirementCategory.Games]: '#ff9900',
+    [RequirementCategory.Tactics]: '#38761d',
+    [RequirementCategory.Middlegames]: '#0000ff',
+    [RequirementCategory.Endgame]: '#351c75',
+    [RequirementCategory.Opening]: '#cc0000',
+    [RequirementCategory.Graduation]: '#FFECB3',
+    [RequirementCategory.NonDojo]: '#CFD8DC',
+    [RequirementCategory.SuggestedTasks]: '#FFE0B2',
+};
+
 export const ActivityCard = ({ user }: { user: User }) => {
     const [view, setView] = useState('time');
+    const [calendarView, setCalendarView] = useState('standard'); // State for calendar view
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
@@ -51,15 +58,26 @@ export const ActivityCard = ({ user }: { user: User }) => {
         <Card>
             <CardHeader
                 title={
-                    <TextField
-                        size='small'
-                        select
-                        value={view}
-                        onChange={(e) => setView(e.target.value)}
-                    >
-                        <MenuItem value='points'>Dojo Points</MenuItem>
-                        <MenuItem value='time'>Hours Worked</MenuItem>
-                    </TextField>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <TextField
+                            size='small'
+                            select
+                            value={view}
+                            onChange={(e) => setView(e.target.value)}
+                        >
+                            <MenuItem value='points'>Dojo Points</MenuItem>
+                            <MenuItem value='time'>Hours Worked</MenuItem>
+                        </TextField>
+                        <TextField
+                            size='small'
+                            select
+                            value={calendarView} // Select for calendar view
+                            onChange={(e) => setCalendarView(e.target.value)}
+                        >
+                            <MenuItem value='standard'>Standard</MenuItem>
+                            <MenuItem value='multi'>Task</MenuItem>
+                        </TextField>
+                    </div>
                 }
             />
             <CardContent
@@ -70,37 +88,103 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     },
                 }}
             >
-                <ActivityCalendar
-                    ref={setCalendarRef}
-                    colorScheme={isLight ? 'light' : 'dark'}
-                    theme={{
-                        dark: ['#393939', '#F7941F'],
-                        light: ['#EBEDF0', '#F7941F'],
-                    }}
-                    data={activities}
-                    renderBlock={(block, activity) => (
-                        <Tooltip
-                            disableInteractive
-                            title={
+                {calendarView === 'standard' && (
+                    <ActivityCalendar
+                        ref={setCalendarRef}
+                        colorScheme={isLight ? 'light' : 'dark'}
+                        theme={{
+                            dark: ['#393939', '#F7941F'],
+                            light: ['#EBEDF0', '#F7941F'],
+                        }}
+                        data={activities}
+                        renderBlock={(block, activity) => {
+                            return (
+                                <Tooltip
+                                    disableInteractive
+                                    title={
+                                        view === 'points'
+                                            ? `${Math.round(10 * activity.count) / 10} Dojo point${activity.count !== 1 ? 's' : ''} on ${activity.date}`
+                                            : `${formatTime(activity.count)} on ${activity.date}`
+                                    }
+                                >
+                                    {block}
+                                </Tooltip>
+                            );
+                        }}
+                        labels={{
+                            totalCount:
                                 view === 'points'
-                                    ? `${Math.round(10 * activity.count) / 10} Dojo point${activity.count !== 1 ? 's' : ''} on ${activity.date}`
-                                    : `${formatTime(activity.count)} on ${activity.date}`
-                            }
-                        >
-                            {block}
-                        </Tooltip>
-                    )}
-                    labels={{
-                        totalCount:
-                            view === 'points'
-                                ? '{{count}} Dojo points in 2024'
-                                : `${formatTime(totalCount)} in 2024`,
-                    }}
-                    totalCount={Math.round(10 * totalCount) / 10}
-                    maxLevel={MAX_LEVEL}
-                    showWeekdayLabels
-                    weekStart={weekStartOn}
-                />
+                                    ? '{{count}} Dojo points in 2024'
+                                    : `${formatTime(totalCount)} in 2024`,
+                        }}
+                        totalCount={Math.round(10 * totalCount) / 10}
+                        maxLevel={MAX_LEVEL}
+                        showWeekdayLabels
+                        weekStart={weekStartOn}
+                    />
+                )}
+
+                {calendarView === 'multi' && (
+                    <ActivityCalendar
+                        ref={setCalendarRef}
+                        colorScheme={isLight ? 'light' : 'dark'}
+                        theme={{
+                            dark: ['#393939', '#F7941F'],
+                            light: ['#EBEDF0', '#F7941F'],
+                        }}
+                        data={activities}
+                        renderBlock={(block, activity) => {
+                            const entry = entries.find((entry) => {
+                                const dateStr = new Date(entry.date || entry.createdAt)
+                                    .toISOString()
+                                    .split('T')[0];
+                                return dateStr === activity.date;
+                            });
+                            const color = entry
+                                ? requirementColors[entry.requirementCategory]
+                                : isLight ? '#EBEDF0' : '#393939';
+
+                            return (
+                                <Tooltip
+                                    disableInteractive
+                                    title={
+                                        view === 'points'
+                                            ? `${Math.round(10 * activity.count) / 10} Dojo point${activity.count !== 1 ? 's' : ''} on ${activity.date}`
+                                            : `${formatTime(activity.count)} on ${activity.date}`
+                                    }
+                                >
+                                    {cloneElement(block, {
+                                        style: { ...block.props.style, fill: color },
+                                    })}
+                                </Tooltip>
+                            );
+                        }}
+                        labels={{
+                            totalCount:
+                                view === 'points'
+                                    ? '{{count}} Dojo points in 2024'
+                                    : `${formatTime(totalCount)} in 2024`,
+                        }}
+                        totalCount={Math.round(10 * totalCount) / 10}
+                        maxLevel={MAX_LEVEL}
+                        showWeekdayLabels
+                        renderColorLegend={(block, level) => {
+                            return (
+                                <Tooltip
+                                    disableInteractive
+                                    title={
+                                        view === 'points'
+                                            ? `Dojo points per task categories`
+                                            : `Dojo hours per task categories`
+                                    }
+                                >
+                                    {block}
+                                </Tooltip>
+                            );
+                        }}
+                        weekStart={weekStartOn}
+                    />
+                )}
             </CardContent>
         </Card>
     );
