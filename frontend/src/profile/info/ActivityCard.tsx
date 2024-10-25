@@ -5,13 +5,19 @@ import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
-import { Card, CardContent, CardHeader, MenuItem, TextField,Tooltip } from '@mui/material';
+import { SportsEsports } from '@mui/icons-material';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    MenuItem,
+    TextField,
+    Tooltip,
+} from '@mui/material';
 import { cloneElement, useEffect, useMemo, useState } from 'react';
 import ActivityCalendar, { Activity } from 'react-activity-calendar';
 import { useLocalStorage } from 'usehooks-ts';
 import { useTimeline } from '../activity/useTimeline';
-import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
-
 const MAX_LEVEL = 4;
 const MAX_POINTS_COUNT = 10;
 const MAX_HOURS_COUNT = 5 * 60;
@@ -142,7 +148,45 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             });
                             const color = entry
                                 ? requirementColors[entry.requirementCategory]
-                                : isLight ? '#EBEDF0' : '#393939';
+                                : isLight
+                                  ? '#EBEDF0'
+                                  : '#393939';
+
+                            // Check if entry exists and its category is "Games"
+                            if (
+                                entry &&
+                                entry.requirementCategory === RequirementCategory.Games
+                            ) {
+                                return (
+                                    <Tooltip
+                                        disableInteractive
+                                        title={
+                                            view === 'points'
+                                                ? `${Math.round(10 * activity.count) / 10} Dojo point${activity.count !== 1 ? 's' : ''} on ${activity.date}`
+                                                : `${formatTime(activity.count)} on ${activity.date}`
+                                        }
+                                    >
+                                        {cloneElement(block, {
+                                            style: {
+                                                ...block.props.style,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                backgroundColor: color, // Set the background color for the icon
+                                            },
+                                            children: (
+                                                <SportsEsports
+                                                    fontSize='small'
+                                                    style={{
+                                                        fontSize: '16px', // Adjust size to fit within block
+                                                        color: 'white',
+                                                    }}
+                                                />
+                                            ),
+                                        })}
+                                    </Tooltip>
+                                );
+                            }
 
                             return (
                                 <Tooltip
