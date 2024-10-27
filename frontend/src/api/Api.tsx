@@ -1,12 +1,12 @@
 'use client';
 
 import {
-    AddDirectoryItemsRequest,
-    CreateDirectoryRequest,
+    AddDirectoryItemsRequestV2,
+    CreateDirectoryRequestV2Client,
     MoveDirectoryItemsRequest,
-    RemoveDirectoryItemsRequest,
+    RemoveDirectoryItemsRequestV2,
     ShareDirectoryRequest,
-    UpdateDirectoryRequest,
+    UpdateDirectoryRequestV2,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     ExamAttempt,
@@ -472,16 +472,16 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getDirectory: (owner: string, id: string) => getDirectory(idToken, owner, id),
             listBreadcrumbs: (owner: string, id: string) =>
                 listBreadcrumbs(idToken, owner, id),
-            createDirectory: (request: CreateDirectoryRequest) =>
+            createDirectory: (request: CreateDirectoryRequestV2Client) =>
                 createDirectory(idToken, request),
-            updateDirectory: (request: UpdateDirectoryRequest) =>
+            updateDirectory: (request: UpdateDirectoryRequestV2) =>
                 updateDirectory(idToken, request),
             shareDirectory: (request: ShareDirectoryRequest) =>
                 shareDirectory(idToken, request),
             deleteDirectories: (ids: string[]) => deleteDirectories(idToken, ids),
-            addDirectoryItems: (request: AddDirectoryItemsRequest) =>
+            addDirectoryItems: (request: AddDirectoryItemsRequestV2) =>
                 addDirectoryItems(idToken, request),
-            removeDirectoryItem: (request: RemoveDirectoryItemsRequest) =>
+            removeDirectoryItem: (request: RemoveDirectoryItemsRequestV2) =>
                 removeDirectoryItem(idToken, request),
             moveDirectoryItems: (request: MoveDirectoryItemsRequest) =>
                 moveDirectoryItems(idToken, request),

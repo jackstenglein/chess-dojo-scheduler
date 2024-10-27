@@ -171,6 +171,7 @@ export const onUpdateDirectory =
 
         request.onStart();
         api.updateDirectory({
+            owner: directory.owner,
             id: selectedItem.id,
             name,
             visibility,

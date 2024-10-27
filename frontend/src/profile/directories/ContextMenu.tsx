@@ -1,5 +1,7 @@
 import {
+    compareRoles,
     Directory,
+    DirectoryAccessRole,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
@@ -20,11 +22,13 @@ import { ItemEditorDialogs, useDirectoryEditor } from './BulkItemEditor';
 
 export const ContextMenu = ({
     directory,
+    accessRole,
     itemIds,
     position,
     onClose,
 }: {
     directory: Directory;
+    accessRole: DirectoryAccessRole | undefined;
     itemIds: string[];
     position?: PopoverPosition;
     onClose: () => void;
@@ -38,6 +42,8 @@ export const ContextMenu = ({
     const isDirectory =
         editor.items.length === 1 &&
         editor.items[0].type === DirectoryItemTypes.DIRECTORY;
+
+    const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     return (
         <>
@@ -55,7 +61,7 @@ export const ContextMenu = ({
                     },
                 }}
             >
-                {isDirectory && (
+                {isDirectory && isAdmin && (
                     <MenuItem onClick={editor.onRename}>
                         <ListItemIcon>
                             <DriveFileRenameOutline />

@@ -92,6 +92,7 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
         newIds.splice(params.targetIndex, 0, id);
 
         api.updateDirectory({
+            owner: username,
             id: directoryId,
             itemIds: newIds,
         })
@@ -159,6 +160,7 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
 
             <ContextMenu
                 directory={directory}
+                accessRole={accessRole}
                 itemIds={contextMenu.rowIds as string[]}
                 onClose={contextMenu.close}
                 position={contextMenu.position}

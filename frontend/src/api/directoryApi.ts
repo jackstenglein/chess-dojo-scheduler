@@ -2,14 +2,13 @@ import { getConfig } from '@/config';
 import { BreadcrumbItem } from '@/profile/directories/DirectoryCache';
 import {
     AddDirectoryItemsRequestV2,
-    CreateDirectoryRequestV2,
     CreateDirectoryRequestV2Client,
     Directory,
     DirectoryAccessRole,
     MoveDirectoryItemsRequest,
     RemoveDirectoryItemsRequestV2,
     ShareDirectoryRequest,
-    UpdateDirectoryRequest,
+    UpdateDirectoryRequestV2,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import axios, { AxiosResponse } from 'axios';
 
@@ -41,8 +40,14 @@ export interface DirectoryApiContextType {
         request: CreateDirectoryRequestV2Client,
     ) => Promise<AxiosResponse<CreateDirectoryResponse>>;
 
+    /**
+     * Sends an API request to update a directory's name, visibility and/or item order.
+     * The caller must have Admin or higher permissions on the directory.
+     * @param request The update directory request.
+     * @returns An AxiosResponse containing the updated directory and potentially the updated parent directory.
+     */
     updateDirectory: (
-        request: UpdateDirectoryRequest,
+        request: UpdateDirectoryRequestV2,
     ) => Promise<AxiosResponse<UpdateDirectoryResponse>>;
 
     /**
@@ -125,7 +130,10 @@ export interface CreateDirectoryResponse {
  * @returns An AxiosResponse containing the parent directory, the child directory
  * and the caller's access role on the child directory.
  */
-export function createDirectory(idToken: string, request: CreateDirectoryRequestV2) {
+export function createDirectory(
+    idToken: string,
+    request: CreateDirectoryRequestV2Client,
+) {
     const { owner, parent, ...rest } = request;
     return axios.post<CreateDirectoryResponse>(
         `${BASE_URL}/directory/${owner}/${parent}`,
@@ -141,10 +149,21 @@ export interface UpdateDirectoryResponse {
     parent?: Directory;
 }
 
-export function updateDirectory(idToken: string, request: UpdateDirectoryRequest) {
-    return axios.put<UpdateDirectoryResponse>(`${BASE_URL}/directory`, request, {
-        headers: { Authorization: `Bearer ${idToken}` },
-    });
+/**
+ * Sends an API request to update a directory's name, visibility and/or item order.
+ * The caller must have Admin or higher permissions on the directory.
+ * @param request The update directory request.
+ * @returns An AxiosResponse containing the updated directory and potentially the updated parent directory.
+ */
+export function updateDirectory(idToken: string, request: UpdateDirectoryRequestV2) {
+    const { owner, id, ...rest } = request;
+    return axios.put<UpdateDirectoryResponse>(
+        `${BASE_URL}/directory/${owner}/${id}`,
+        rest,
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
+    );
 }
 
 /**

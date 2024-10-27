@@ -15,6 +15,7 @@ import {
     ApiError,
     errToApiGatewayProxyResultV2,
     parseBody,
+    parseEvent,
     requireUserInfo,
     success,
 } from './api';
@@ -72,7 +73,7 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
 
         const userInfo = requireUserInfo(event);
-        const request = parseBody(event, UpdateDirectorySchemaV2);
+        const request = parseEvent(event, UpdateDirectorySchemaV2);
 
         if (!request.name && !request.visibility && !request.itemIds) {
             throw new ApiError({
