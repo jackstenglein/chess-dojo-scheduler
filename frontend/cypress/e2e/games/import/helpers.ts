@@ -25,6 +25,7 @@ export function cancelPreflight() {
  * @param black The name of the player with black.
  * @param lastMove The SAN of the last move.
  * @param lastMoveClock The clock times of the players on the last move.
+ * @param lastMoveEmt The elapsed move time of the last move.
  * @param orientation The orientation of the board.
  */
 export function verifyGame({
@@ -32,12 +33,14 @@ export function verifyGame({
     black,
     lastMove,
     lastMoveClock,
+    lastMoveEmt,
     orientation,
 }: {
     white?: string;
     black?: string;
     lastMove?: string;
     lastMoveClock?: { white?: string; black?: string };
+    lastMoveEmt?: string;
     orientation?: 'white' | 'black';
 }) {
     cy.location('pathname').should('match', gameUrlRegex);
@@ -55,7 +58,7 @@ export function verifyGame({
     if (lastMove) {
         cy.getBySel('pgn-text-move-button')
             .last()
-            .should('have.text', lastMove)
+            .should('contain.text', lastMove)
             .click({ force: true });
 
         if (lastMoveClock?.white) {
@@ -68,6 +71,9 @@ export function verifyGame({
                 orientation === 'black' ? 'player-header-footer' : 'player-header-header',
             ).contains(lastMoveClock.black);
         }
+    }
+    if (lastMoveEmt) {
+        cy.getBySel('elapsed-move-time').last().should('have.text', lastMoveEmt);
     }
 }
 
