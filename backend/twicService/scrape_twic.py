@@ -28,6 +28,11 @@ ses = boto3.client('ses')
 
 unknown_time_controls = set()
 
+success = 0
+skipped = 0
+failed = 0
+pgns_per_event = {}
+
 
 def handler(event, context):
     """
@@ -75,6 +80,13 @@ def handle_error(archive_num, msg, metadata):
     trace = traceback.format_exc()
     print(f'ERROR {archive_num}: {msg}')
     print(trace)
+
+    print(f'ERROR {archive_num} Current Status: ')
+    print(f'ERROR {archive_num} Success: {success}')
+    print(f'ERROR {archive_num} Failed: {failed}')
+    print(f'ERROR {archive_num} Skipped: {skipped}')
+    print(f'ERROR {archive_num} Total: ', success+failed+skipped)
+    print(f'ERROR {archive_num} PGNs per event: ', pgns_per_event)
 
     if metadata != None:
         metadata['lastFailure'] = {
@@ -329,22 +341,25 @@ def upload_pgns(archive_num, pgns, twic_info):
     @param pgns The list of PGNs to upload.
     @param twic_info The list of TWIC info objects.
     """
+    global success
+    global skipped
+    global failed
+    global pgns_per_event
+
     time_control_info = load_time_control_info('time_controls.csv')
 
     twic_index = 0
-    success = 0
-    skipped = 0
-    failed = 0
-
-    pgns_per_event = {}
 
     with games_table.batch_writer() as batch:
         for i, pgn in enumerate(pgns):
             site_changed = i > 0 and get_site(pgns[i-1]) != get_site(pgn)
             time_headers, used_twic_index = get_time_headers(archive_num, pgn, site_changed, twic_index, twic_info, time_control_info)
         
-            twic_index = used_twic_index
-            pgns_per_event[twic_info[twic_index]['event']] = pgns_per_event.get(twic_info[twic_index]['event'], 0) + 1
+            if used_twic_index is None:
+                pgns_per_event['unknown_event'] = pgns_per_event.get('unknown_event', 0) + 1
+            else:
+                twic_index = used_twic_index
+                pgns_per_event[twic_info[twic_index]['event']] = pgns_per_event.get(twic_info[twic_index]['event'], 0) + 1
 
             game = chess.pgn.read_game(io.StringIO(pgn))
             if game is None:
@@ -475,11 +490,13 @@ def get_time_headers(archive_num, pgn, site_changed, twic_index, twic_infos, tim
     @param time_control_info The mapping from TWIC time controls to PGN time controls.
     """
     used_twic_index = get_matching_twic_index(archive_num, pgn, site_changed, twic_index, twic_infos)
-    twic_info = twic_infos[used_twic_index]
+    twic_info = {}
+    if used_twic_index is not None:
+        twic_info = twic_infos[used_twic_index]
     
     event = get_event(pgn)
     matched_section = None
-    for section in twic_info['sections']:
+    for section in twic_info.get('sections', []):
         if section['event'] == event:
             matched_section = section
 
@@ -487,7 +504,7 @@ def get_time_headers(archive_num, pgn, site_changed, twic_index, twic_infos, tim
     if matched_section:
         possible_time_controls.append(matched_section['time_control'])
     else:
-        possible_time_controls.extend([section['time_control'] for section in twic_info['sections'] if section['time_control']])
+        possible_time_controls.extend([section['time_control'] for section in twic_info.get('sections', []) if section['time_control']])
 
     possible_time_classes = set()
     for tc in possible_time_controls:
