@@ -1,6 +1,5 @@
 import { TimelineEntry } from '@/database/timeline';
 import { Link, Stack, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 
 interface GameNewsfeedItemProps {
     entry: TimelineEntry;
@@ -15,8 +14,7 @@ const GameNewsfeedItem: React.FC<GameNewsfeedItemProps> = ({ entry }) => {
             <Typography mt={1}>
                 Published a{' '}
                 <Link
-                    component={RouterLink}
-                    to={`/games/${entry.cohort.replaceAll(
+                    href={`/games/${entry.cohort.replaceAll(
                         '+',
                         '%2B',
                     )}/${gameInfo?.id.replaceAll('?', '%3F')}`}
