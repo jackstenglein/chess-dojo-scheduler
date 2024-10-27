@@ -1,3 +1,4 @@
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Stack, Typography } from '@mui/material';
 import {
@@ -8,7 +9,6 @@ import {
     getDisplayString,
 } from '../../database/event';
 import { User, dojoCohorts } from '../../database/user';
-import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import Icon from '../../style/Icon';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
