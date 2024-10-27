@@ -227,6 +227,7 @@ export const CreateDirectorySchema = DirectorySchema.pick({
     visibility: true,
 });
 
+/** Verifies a request to create a directory. */
 const CreateDirectorySchemaV2Client = DirectorySchema.pick({
     owner: true,
     parent: true,
@@ -257,7 +258,10 @@ export type CreateDirectoryRequestV2Client = z.infer<
     typeof CreateDirectorySchemaV2Client
 >;
 
-/** Verifies a request to update a directory. */
+/**
+ * Verifies a request to update a directory.
+ * @deprecated Use UpdateDirectorySchemaV2 instead.
+ */
 export const UpdateDirectorySchema = DirectorySchema.pick({
     /** The id of the directory to update. */
     id: true,
@@ -272,8 +276,32 @@ export const UpdateDirectorySchema = DirectorySchema.pick({
     itemIds: true,
 }).partial({ name: true, visibility: true, itemIds: true });
 
-/** A request to update a directory. */
+/**
+ * A request to update a directory.
+ * @deprecated Use UpdateDirectoryRequestV2 instead.
+ */
 export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;
+
+/** Verifies a request to update a directory. */
+export const UpdateDirectorySchemaV2 = DirectorySchema.pick({
+    /** The owner of the directory to update. */
+    owner: true,
+
+    /** The id of the directory to update. */
+    id: true,
+
+    /** The new name to set on the directory. */
+    name: true,
+
+    /** The new visibility to set on the directory. */
+    visibility: true,
+
+    /** The new order of the items to set on the directory. */
+    itemIds: true,
+}).partial({ name: true, visibility: true, itemIds: true });
+
+/** A request to update a directory. */
+export type UpdateDirectoryRequestV2 = z.infer<typeof UpdateDirectorySchemaV2>;
 
 /** Verifies a request to delete directories. */
 export const DeleteDirectoriesSchema = z.object({
@@ -367,6 +395,7 @@ export type RemoveDirectoryItemsRequestV2 = z.infer<typeof RemoveDirectoryItemsS
 
 /**
  * Verifies a request to move items between directories.
+ * @deprecated Use MoveDirectoryItemsSchemaV2 instead.
  */
 export const MoveDirectoryItemsSchema = z
     .object({
@@ -383,8 +412,45 @@ export const MoveDirectoryItemsSchema = z
         message: 'source/target directories must be different',
     });
 
-/** A request to move items between directories. */
+/**
+ * A request to move items between directories.
+ * @deprecated Use MoveDirectoryItemsRequestV2 instead.
+ */
 export type MoveDirectoryItemsRequest = z.infer<typeof MoveDirectoryItemsSchema>;
+
+/**
+ * Verifies a request to move items between directories.
+ */
+export const MoveDirectoryItemsSchemaV2 = z
+    .object({
+        /** The directory currently containing the items. */
+        source: z.object({
+            /** The owner of the directory currently containing the items. */
+            owner: DirectorySchema.shape.owner,
+            /** The id of the directory currently containing the items. */
+            id: DirectorySchema.shape.id,
+        }),
+
+        /** The directory to move the items into. */
+        target: z.object({
+            /** The owner of the directory to move the items into. */
+            owner: DirectorySchema.shape.owner,
+            /** The id of the directory to move the items into. */
+            id: DirectorySchema.shape.id,
+        }),
+
+        /** The ids of the items to move. */
+        items: z.string().array(),
+    })
+    .refine(
+        (val) => val.source.owner !== val.target.owner || val.source.id !== val.target.id,
+        {
+            message: 'source/target directories must be different',
+        },
+    );
+
+/** A request to move items between directories. */
+export type MoveDirectoryItemsRequestV2 = z.infer<typeof MoveDirectoryItemsSchemaV2>;
 
 /** Verifies the type of a request to share a directory. */
 export const ShareDirectorySchema = DirectorySchema.pick({

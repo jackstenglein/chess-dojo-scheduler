@@ -28,7 +28,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const userInfo = requireUserInfo(event);
         const request = parseEvent(event, ShareDirectorySchema);
 
-        const hasAccess = checkAccess({
+        const hasAccess = await checkAccess({
             owner: request.owner,
             id: request.id,
             username: userInfo.username,
