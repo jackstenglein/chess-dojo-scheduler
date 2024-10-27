@@ -1,6 +1,6 @@
+import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import { Box, Paper, Stack } from '@mui/material';
-import { useGame } from '../../../../games/view/GamePage';
 import { useChess } from '../../PgnBoard';
 import { UnderboardApi } from '../underboard/Underboard';
 import ControlButtons from './ControlButtons';
