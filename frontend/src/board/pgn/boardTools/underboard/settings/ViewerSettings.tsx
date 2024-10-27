@@ -15,7 +15,11 @@ export const PieceStyleKey = 'pieceStyle';
 export const CoordinateStyleKey = 'coordinateStyle';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior2';
-export const ShowMoveTimesInPgnKey = 'showMoveTimesInPgn';
+/** Whether to show elapsed move times in the PGN text. */
+export const ShowMoveTimesInPgn = {
+    Key: 'showMoveTimesInPgn',
+    Default: true,
+} as const;
 export const ShowLegalMovesKey = 'showLegalMoves';
 export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
 export const ShowGlyphsKey = 'showGlyphsOnBoard';
@@ -85,9 +89,9 @@ const ViewerSettings = () => {
         VariationBehaviorKey,
         VariationBehavior.Dialog,
     );
-    const [showMoveTimes, setShowMoveTimes] = useLocalStorage(
-        ShowMoveTimesInPgnKey,
-        false,
+    const [showMoveTimes, setShowMoveTimes] = useLocalStorage<boolean>(
+        ShowMoveTimesInPgn.Key,
+        ShowMoveTimesInPgn.Default,
     );
     const [capturedMaterialBehavior, setCapturedMaterialBehavior] =
         useLocalStorage<string>(
