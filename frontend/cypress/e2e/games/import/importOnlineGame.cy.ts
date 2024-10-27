@@ -52,7 +52,7 @@ describe('Import Games Page - Import Online Games', () => {
 
     it('submits from Lichess chapter URL', () => {
         importUrl(testUrls.lichessChapter);
-        verifyGame({ white: 'Test1', black: 'Test2', lastMove: 'e4' });
+        verifyGame({ white: 'Test1', black: 'Test2', lastMove: 'e4', lastMoveEmt: '0' });
         deleteCurrentGame();
     });
 
@@ -66,6 +66,7 @@ describe('Import Games Page - Import Online Games', () => {
                 white: '0:17:37',
                 black: '0:10:28',
             },
+            lastMoveEmt: '00:17',
         });
         deleteCurrentGame();
     });
@@ -80,6 +81,7 @@ describe('Import Games Page - Import Online Games', () => {
                 white: '0:17:37',
                 black: '0:10:28',
             },
+            lastMoveEmt: '00:17',
         });
         deleteCurrentGame();
     });
@@ -91,6 +93,7 @@ describe('Import Games Page - Import Online Games', () => {
 
         verifyGame({
             lastMove: 'd4',
+            lastMoveEmt: '0',
         });
         deleteCurrentGame();
     });
@@ -105,6 +108,7 @@ describe('Import Games Page - Import Online Games', () => {
                 white: '0:04:14',
                 black: '0:02:54',
             },
+            lastMoveEmt: '00:00',
         });
         deleteCurrentGame();
     });
@@ -118,6 +122,7 @@ describe('Import Games Page - Import Online Games', () => {
 
         verifyGame({
             lastMove: 'Nxb6',
+            lastMoveEmt: '0',
         });
 
         deleteCurrentGame();
@@ -129,6 +134,7 @@ describe('Import Games Page - Import Online Games', () => {
             white: 'Test1',
             black: 'Test2',
             lastMove: 'e4',
+            lastMoveEmt: '0',
         });
         deleteCurrentGame();
     });
@@ -143,6 +149,7 @@ describe('Import Games Page - Import Online Games', () => {
                 white: '0:08:14',
                 black: '0:09:05',
             },
+            lastMoveEmt: '00:48',
         });
         deleteCurrentGame();
     });
@@ -158,6 +165,7 @@ describe('Import Games Page - Import Online Games', () => {
                     white: '0:00:23',
                     black: '0:02:26',
                 },
+                lastMoveEmt: '00:01',
             });
             deleteCurrentGame();
         });
@@ -179,6 +187,7 @@ describe('Import Games Page - Import Online Games', () => {
                 white: '0:15:36',
                 black: '0:10:24',
             },
+            lastMoveEmt: '00:01',
             orientation: 'black',
         });
         deleteCurrentGame();
