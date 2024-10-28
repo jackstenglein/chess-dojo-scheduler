@@ -1,11 +1,17 @@
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     Directory,
     DirectoryAccessRole,
+    DirectoryItem,
+    DirectoryItemTypes,
+    DirectoryVisibility,
+    SHARED_DIRECTORY_ID,
     ShareDirectoryRequest,
     ShareDirectorySchema,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import { NIL as uuidNil } from 'uuid';
 import { checkAccess } from './access';
 import {
     ApiError,
@@ -14,6 +20,7 @@ import {
     requireUserInfo,
     success,
 } from './api';
+import { createDirectory } from './create';
 import { attributeExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
 
 /**
@@ -54,18 +61,129 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
  * @returns The updated directory.
  */
 async function shareDirectory(request: ShareDirectoryRequest) {
+    const updatedAt = new Date().toISOString();
     const input = new UpdateItemBuilder()
         .key('owner', request.owner)
         .key('id', request.id)
-        .set('updatedAt', new Date().toISOString())
+        .set('updatedAt', updatedAt)
         .set('access', request.access)
         .condition(attributeExists('id'))
         .table(directoryTable)
-        .return('ALL_NEW')
+        .return('ALL_OLD')
         .build();
 
     console.log('Input: %j', input);
     const result = await dynamo.send(input);
     const directory = unmarshall(result.Attributes!) as Directory;
+
+    await updateSharedWithMeDirectories(directory, request.access);
+
+    directory.updatedAt = updatedAt;
+    directory.access = request.access;
     return directory;
+}
+
+/**
+ * Updates the other users' shared with me directories to match the
+ * access update implied by directory and newAccess.
+ * @param directory The directory before the access update.
+ * @param newAccess The new access of the directory.
+ */
+async function updateSharedWithMeDirectories(
+    directory: Directory,
+    newAccess: Record<string, DirectoryAccessRole>,
+) {
+    // Remove from users who are present in the old directory's
+    // access but not in the new access
+    for (const username of Object.keys(directory.access || {})) {
+        if (!newAccess[username]) {
+            await removeFromSharedWithMe(directory, username);
+        }
+    }
+
+    // Add to users who are present in the new access but
+    // not in the old directory's access
+    for (const username of Object.keys(newAccess)) {
+        if (!directory.access?.[username]) {
+            await addToSharedWithMe(directory, username);
+        }
+    }
+}
+
+/**
+ * Removes the given directory from the shared with me folder of the given username.
+ * @param directory The directory to remove.
+ * @param username The username of the shared with me owner.
+ */
+async function removeFromSharedWithMe(directory: Directory, username: string) {
+    try {
+        const input = new UpdateItemBuilder()
+            .key('owner', username)
+            .key('id', SHARED_DIRECTORY_ID)
+            .remove(['items', directory.id])
+            .set('updatedAt', new Date().toISOString())
+            .condition(attributeExists('id'))
+            .table(directoryTable)
+            .return('NONE')
+            .build();
+        await dynamo.send(input);
+    } catch (err) {
+        if (!(err instanceof ConditionalCheckFailedException)) {
+            throw err;
+        }
+    }
+}
+
+/**
+ * Adds the given directory to the shared with me folder of the given username.
+ * If the shared with me folder doesn't exist, it is created.
+ * @param directory The directory to add.
+ * @param username The username of the shared with me owner.
+ */
+async function addToSharedWithMe(directory: Directory, username: string) {
+    const item: DirectoryItem = {
+        type: DirectoryItemTypes.DIRECTORY,
+        id: directory.id,
+        addedBy: directory.owner,
+        metadata: {
+            createdAt: directory.createdAt,
+            updatedAt: directory.updatedAt,
+            visibility: directory.visibility,
+            name: directory.name,
+        },
+    };
+
+    const updatedAt = new Date().toISOString();
+    const input = new UpdateItemBuilder()
+        .key('owner', username)
+        .key('id', SHARED_DIRECTORY_ID)
+        .set('updatedAt', updatedAt)
+        .set(['items', directory.id], item)
+        .appendToList('itemIds', [directory.id])
+        .condition(attributeExists('id'))
+        .table(directoryTable)
+        .return('NONE')
+        .build();
+
+    try {
+        await dynamo.send(input);
+    } catch (err) {
+        if (!(err instanceof ConditionalCheckFailedException)) {
+            throw err;
+        }
+
+        await createDirectory({
+            owner: username,
+            id: SHARED_DIRECTORY_ID,
+            parent: uuidNil,
+            name: 'Shared with Me',
+            visibility: DirectoryVisibility.PRIVATE,
+            createdAt: updatedAt,
+            updatedAt,
+            items: {
+                [directory.id]: item,
+            },
+            itemIds: [directory.id],
+        });
+    }
 }

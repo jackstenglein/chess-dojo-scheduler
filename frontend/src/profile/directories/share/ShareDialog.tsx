@@ -179,6 +179,8 @@ export const ShareDialog = ({
                     Save
                 </LoadingButton>
             </DialogActions>
+
+            <RequestSnackbar request={request} />
         </Dialog>
     );
 };

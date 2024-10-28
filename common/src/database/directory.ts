@@ -75,9 +75,6 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 
             /** The name of the directory. */
             name: z.string().trim().max(100),
-
-            /** Whether the directory has been shared. */
-            shared: z.boolean().optional(),
         }),
     }),
     z.object({
@@ -133,8 +130,17 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 /** The id of the home directory. */
 export const HOME_DIRECTORY_ID = 'home';
 
+/** The id of the shared with me directory. */
+export const SHARED_DIRECTORY_ID = 'shared';
+
 /** The ids of default directories. */
-const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID];
+const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID, SHARED_DIRECTORY_ID];
+
+/**
+ * The ids of directories fully managed by the platform.
+ * These directories cannot be manually updated.
+ */
+const PLATFORM_MANAGED_DIRECTORIES = [SHARED_DIRECTORY_ID];
 
 /**
  * Returns true if the given id is a default directory.
@@ -142,6 +148,15 @@ const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID];
  */
 export function isDefaultDirectory(id: string): boolean {
     return DEFAULT_DIRECTORIES.includes(id);
+}
+
+/**
+ * Returns true if the given id is a platform-managed directory.
+ * These directories cannot be manually updated.
+ * @param id The id to check.
+ */
+export function isManagedDirectory(id: string): boolean {
+    return PLATFORM_MANAGED_DIRECTORIES.includes(id);
 }
 
 /**
@@ -169,10 +184,15 @@ export const DirectorySchema = z.object({
      * The id of the directory. Most directories are v4 UUIDs, but some have
      * fixed, known values:
      *   - The home directory is `home`.
+     *   - The shared with me directory is `shared`.
      */
-    id: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID)]),
+    id: z.union([
+        z.string().uuid(),
+        z.literal(HOME_DIRECTORY_ID),
+        z.literal(SHARED_DIRECTORY_ID),
+    ]),
 
-    /** The id of the parent directory. Top-level directories (home) use uuid.NIL. */
+    /** The id of the parent directory. Top-level directories use uuid.NIL. */
     parent: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID)]),
 
     /** The name of the directory. */

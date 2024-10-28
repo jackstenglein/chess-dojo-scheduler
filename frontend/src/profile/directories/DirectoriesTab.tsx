@@ -10,6 +10,7 @@ import {
     DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
+    SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Stack } from '@mui/material';
 import {
@@ -32,14 +33,17 @@ const pageSizeOptions = [10, 25, 50, 100];
 
 export const DirectoriesTab = ({ username }: { username: string }) => {
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
+
     const directoryId = searchParams.get('directory') || 'home';
+    const directoryOwner = searchParams.get('directoryOwner') || username;
+
     const { game } = useGame();
     const api = useApi();
     const reorderRequest = useRequest();
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
     const contextMenu = useDataGridContextMenu(rowSelectionModel);
     const { directory, accessRole, request, putDirectory } = useDirectory(
-        username,
+        directoryOwner,
         directoryId,
     );
 
@@ -77,12 +81,16 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
 
     const onClickRow = (params: GridRowParams<DirectoryItem>) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
-            updateSearchParams({ directory: params.row.id });
+            updateSearchParams({
+                directory: params.row.id,
+                directoryOwner:
+                    directory.id === SHARED_DIRECTORY_ID ? params.row.id : directoryOwner,
+            });
         } else {
             window.location.href = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
                 '?',
                 '%3F',
-            )}?directory=${searchParams.get('directory')}&directoryOwner=${username}`;
+            )}?directory=${directoryId}&directoryOwner=${directoryOwner}`;
         }
     };
 
@@ -92,7 +100,7 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
         newIds.splice(params.targetIndex, 0, id);
 
         api.updateDirectory({
-            owner: username,
+            owner: directoryOwner,
             id: directoryId,
             itemIds: newIds,
         })
@@ -108,7 +116,7 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
 
     return (
         <Stack spacing={2} alignItems='start'>
-            <DirectoryBreadcrumbs owner={username} id={directoryId} />
+            <DirectoryBreadcrumbs owner={directoryOwner} id={directoryId} />
 
             <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
                 <AddButton directory={directory} accessRole={accessRole} />

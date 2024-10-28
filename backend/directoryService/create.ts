@@ -207,7 +207,7 @@ async function createHomeDirectory(
  * Puts the given directory in DynamoDB, if it does not already exist.
  * @param directory The directory to create.
  */
-async function createDirectory(directory: Directory) {
+export async function createDirectory(directory: Directory) {
     try {
         await dynamo.send(
             new PutItemCommand({
