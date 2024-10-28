@@ -3,6 +3,14 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
 
+export interface NavigateOptions {
+    /**
+     * Whether to reset the current scroll position when navigating.
+     * @default true
+     */
+    scroll?: boolean;
+}
+
 /**
  * Extends the default NextJS useSearchParams and useRouter hooks to
  * provide the search params, as well as functions to set and update
@@ -16,17 +24,17 @@ export function useNextSearchParams(defaultInit?: Record<string, string>) {
     const pathname = usePathname();
 
     const updateSearchParams = useCallback(
-        (params: Record<string, string>) => {
+        (params: Record<string, string>, options?: NavigateOptions) => {
             const newParams = mergeSearchParams(searchParams, params, true);
-            router.push(`${pathname}?${newParams.toString()}`);
+            router.push(`${pathname}?${newParams.toString()}`, options);
         },
         [searchParams, router, pathname],
     );
 
     const setSearchParams = useCallback(
-        (params: Record<string, string>) => {
+        (params: Record<string, string>, options?: NavigateOptions) => {
             const newParams = new URLSearchParams(params);
-            router.push(`${pathname}?${newParams.toString()}`);
+            router.push(`${pathname}?${newParams.toString()}`, options);
         },
         [pathname, router],
     );

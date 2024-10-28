@@ -1,4 +1,18 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { GetClubResponse } from '@/api/clubApi';
+import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
+import { LocationChip } from '@/components/clubs/LocationChip';
+import { MemberCountChip } from '@/components/clubs/MemberCountChip';
+import { UrlChip } from '@/components/clubs/UrlChip';
 import NewsfeedList from '@/components/newsfeed/NewsfeedList';
+import { ClubDetails } from '@/database/club';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import LoadingPage from '@/loading/LoadingPage';
+import { ClubAvatar } from '@/profile/Avatar';
+import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import {
     Box,
@@ -12,40 +26,28 @@ import {
     Typography,
     useTheme,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { GetClubResponse } from '../api/clubApi';
-import { AuthStatus, useAuth, useFreeTier } from '../auth/Auth';
-import { ClubDetails } from '../database/club';
-import LoadingPage from '../loading/LoadingPage';
-import { ClubAvatar } from '../profile/Avatar';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import ClubJoinRequestDialog from './ClubJoinRequestDialog';
-import JoinRequestsTab from './JoinRequestsTab';
-import LeaveClubDialog from './LeaveClubDialog';
-import LocationChip from './LocationChip';
-import MemberCountChip from './MemberCountChip';
-import ScoreboardTab from './ScoreboardTab';
-import UrlChip from './UrlChip';
+import { ClubJoinRequestDialog } from './ClubJoinRequestDialog';
+import { JoinRequestsTab } from './JoinRequestsTab';
+import { LeaveClubDialog } from './LeaveClubDialog';
+import { ScoreboardTab } from './ScoreboardTab';
 
-const ClubDetailsPage = () => {
+export const ClubDetailsPage = ({ id }: { id: string }) => {
     const auth = useAuth();
     const viewer = auth.user;
     const api = useApi();
-    const { id } = useParams();
     const request = useRequest<GetClubResponse>();
     const joinRequest = useRequest();
-    const navigate = useNavigate();
-    const [searchParams, setSearchParams] = useSearchParams({ view: 'scoreboard' });
+    const { searchParams, setSearchParams } = useNextSearchParams({ view: 'scoreboard' });
     const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
     const [showLeaveDialog, setShowLeaveDialog] = useState(false);
     const [snackbarText, setSnackbarText] = useState('');
     const [upsellAction, setUpsellAction] = useState('');
     const isFreeTier = useFreeTier();
+    const router = useRouter();
 
     const reset = request.reset;
     useEffect(() => {
@@ -90,7 +92,7 @@ const ClubDetailsPage = () => {
 
     const onJoinClub = () => {
         if (!viewer) {
-            navigate('/signin');
+            router.push('/signin');
         } else if (isFreeTier && !club?.allowFreeTier) {
             setUpsellAction(RestrictedAction.JoinSubscriberClubs);
         } else if (club?.approvalRequired) {
@@ -177,7 +179,7 @@ const ClubDetailsPage = () => {
                                             <Button
                                                 variant='contained'
                                                 onClick={() =>
-                                                    navigate(`/clubs/${club.id}/edit`)
+                                                    router.push(`/clubs/${club.id}/edit`)
                                                 }
                                             >
                                                 Edit Settings
@@ -224,7 +226,10 @@ const ClubDetailsPage = () => {
                                     <Tabs
                                         value={searchParams.get('view')}
                                         onChange={(_, t: string) =>
-                                            setSearchParams({ view: t })
+                                            setSearchParams(
+                                                { view: t },
+                                                { scroll: false },
+                                            )
                                         }
                                         aria-label='profile tabs'
                                         variant='scrollable'
@@ -341,5 +346,3 @@ const Description: React.FC<{ description: string }> = ({ description }) => {
         </div>
     );
 };
-
-export default ClubDetailsPage;
