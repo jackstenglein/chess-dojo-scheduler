@@ -1,12 +1,12 @@
+import { ClubLocation } from '@/database/club';
 import { Place } from '@mui/icons-material';
 import { Chip } from '@mui/material';
-import { ClubLocation } from '../database/club';
 
 interface LocationChipProps {
     location: ClubLocation;
 }
 
-const LocationChip: React.FC<LocationChipProps> = ({ location }) => {
+export const LocationChip: React.FC<LocationChipProps> = ({ location }) => {
     if (!location.city && !location.state && !location.country) {
         return null;
     }
@@ -35,5 +35,3 @@ const LocationChip: React.FC<LocationChipProps> = ({ location }) => {
         <Chip color='secondary' icon={<Place sx={{ pl: '4px' }} />} label={locationStr} />
     );
 };
-
-export default LocationChip;

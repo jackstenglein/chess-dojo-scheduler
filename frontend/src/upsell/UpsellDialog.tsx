@@ -7,7 +7,6 @@ import {
     DialogTitle,
 } from '@mui/material';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../analytics/events';
 
 export enum RestrictedAction {
@@ -50,8 +49,6 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
     bulletPoints = defaultBulletPoints,
     currentAction,
 }) => {
-    const navigate = useNavigate();
-
     useEffect(() => {
         if (open) {
             trackEvent(EventType.ViewUpsellDialog, { current_action: currentAction });
@@ -69,7 +66,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
         event.preventDefault();
         event.stopPropagation();
         const currentPage = encodeURIComponent(window.location.href);
-        navigate(`/prices?redirect=${currentPage}`);
+        window.location.href = `/prices?redirect=${currentPage}`;
     };
 
     return (

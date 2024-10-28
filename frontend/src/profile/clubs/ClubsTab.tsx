@@ -1,11 +1,11 @@
+import { useClubs } from '@/api/cache/clubs';
+import { RequestSnackbar } from '@/api/Request';
+import { ListClubItem } from '@/app/(scoreboard)/clubs/ClubGrid';
+import { useAuth } from '@/auth/Auth';
+import { User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import { Link, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { useClubs } from '../../api/cache/clubs';
-import { RequestSnackbar } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { ListClubItem } from '../../clubs/ClubGrid';
-import { User } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
 
 interface ClubsTabProps {
     /** The user whose joined clubs will be displayed. */
