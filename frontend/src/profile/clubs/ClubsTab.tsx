@@ -1,11 +1,10 @@
 import { useClubs } from '@/api/cache/clubs';
 import { RequestSnackbar } from '@/api/Request';
-import { ListClubItem } from '@/app/(scoreboard)/clubs/ClubGrid';
 import { useAuth } from '@/auth/Auth';
+import { ListClubItem } from '@/components/clubs/ClubGrid';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { Link, Stack, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 
 interface ClubsTabProps {
     /** The user whose joined clubs will be displayed. */
@@ -37,16 +36,12 @@ const ClubsTab: React.FC<ClubsTabProps> = ({ user }) => {
                     <>
                         <Typography>You have not joined any clubs yet.</Typography>
                         <Typography>
-                            Go to the{' '}
-                            <Link component={RouterLink} to='/clubs'>
-                                Clubs page
-                            </Link>{' '}
-                            to join some!
+                            Go to the <Link href='/clubs'>Clubs page</Link> to join some!
                         </Typography>
                     </>
                 ) : (
                     <Typography textAlign='center'>
-                        This user has not joined any clubs
+                        This user has not joined any clubs yet.
                     </Typography>
                 )}
             </Stack>

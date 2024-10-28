@@ -1,13 +1,13 @@
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
+import { ClubGrid } from '@/components/clubs/ClubGrid';
 import { Club } from '@/database/club';
 import { ClubFilters } from '@/hooks/useClubFilters';
 import LoadingPage from '@/loading/LoadingPage';
 import { Stack } from '@mui/material';
 import { useEffect, useMemo } from 'react';
 import { ClubFilterEditor, filterClubs } from './ClubFilters';
-import { ClubGrid } from './ClubGrid';
 
 interface AllClubsTabProps {
     filters: ClubFilters;

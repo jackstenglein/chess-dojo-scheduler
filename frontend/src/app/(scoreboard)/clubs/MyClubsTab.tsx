@@ -1,11 +1,11 @@
 import { useClubs } from '@/api/cache/clubs';
 import { useAuth } from '@/auth/Auth';
+import { ClubGrid } from '@/components/clubs/ClubGrid';
 import { ClubFilters } from '@/hooks/useClubFilters';
 import LoadingPage from '@/loading/LoadingPage';
 import { Stack } from '@mui/material';
 import { useMemo } from 'react';
 import { ClubFilterEditor, filterClubs } from './ClubFilters';
-import { ClubGrid } from './ClubGrid';
 
 const NO_CLUBS: string[] = [];
 
