@@ -27,6 +27,7 @@ import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { adminColumns, publicColumns } from './DirectoryGridColumns';
+import { NavigationMenu } from './navigation/NavigationMenu';
 import { ShareButton } from './share/ShareButton';
 
 const pageSizeOptions = [10, 25, 50, 100];
@@ -42,14 +43,23 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
     const reorderRequest = useRequest();
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
     const contextMenu = useDataGridContextMenu(rowSelectionModel);
+
+    console.log('Owner: ', directoryOwner);
+
     const { directory, accessRole, request, putDirectory } = useDirectory(
         directoryOwner,
         directoryId,
     );
 
     const rows = useMemo(() => {
+        const seen = new Set<string>();
         return (
             (directory?.itemIds
+                .filter((id) => {
+                    const result = !seen.has(id);
+                    seen.add(id);
+                    return result;
+                })
                 .map((id) => {
                     const item = directory.items[id];
                     if (!item) {
@@ -84,7 +94,9 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
             updateSearchParams({
                 directory: params.row.id,
                 directoryOwner:
-                    directory.id === SHARED_DIRECTORY_ID ? params.row.id : directoryOwner,
+                    directory.id === SHARED_DIRECTORY_ID
+                        ? (params.row.addedBy ?? directoryOwner)
+                        : directoryOwner,
             });
         } else {
             window.location.href = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
@@ -115,64 +127,74 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
     };
 
     return (
-        <Stack spacing={2} alignItems='start'>
-            <DirectoryBreadcrumbs owner={directoryOwner} id={directoryId} />
+        <Stack direction='row' columnGap={2}>
+            <NavigationMenu id={directoryId} owner={directoryOwner} username={username} />
 
-            <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
-                <AddButton directory={directory} accessRole={accessRole} />
-                <ShareButton directory={directory} accessRole={accessRole} />
+            <Stack spacing={2} alignItems='start' flexGrow={1}>
+                <DirectoryBreadcrumbs owner={directoryOwner} id={directoryId} />
 
-                <BulkItemEditor
+                <Stack
+                    direction='row'
+                    alignItems='center'
+                    gap={2}
+                    width={1}
+                    flexWrap='wrap'
+                >
+                    <AddButton directory={directory} accessRole={accessRole} />
+                    <ShareButton directory={directory} accessRole={accessRole} />
+
+                    <BulkItemEditor
+                        directory={directory}
+                        itemIds={rowSelectionModel as string[]}
+                        onClear={() => setRowSelectionModel([])}
+                    />
+                </Stack>
+
+                <DataGridPro
+                    data-cy='directories-data-grid'
+                    rows={rows}
+                    columns={isAdmin ? adminColumns : publicColumns}
+                    onRowClick={onClickRow}
+                    autoHeight
+                    loading={!directory && request.isLoading()}
+                    sx={{ width: 1 }}
+                    slotProps={{
+                        row: isEditor
+                            ? {
+                                  onContextMenu: contextMenu.open,
+                              }
+                            : undefined,
+                    }}
+                    initialState={{
+                        columns: {
+                            columnVisibilityModel: {
+                                createdAt: !game,
+                                result: !game,
+                            },
+                        },
+                        pagination: {
+                            paginationModel: { pageSize: 10 },
+                        },
+                    }}
+                    getRowHeight={getRowHeight}
+                    checkboxSelection={isEditor}
+                    checkboxSelectionVisibleOnly
+                    onRowSelectionModelChange={setRowSelectionModel}
+                    rowSelectionModel={rowSelectionModel}
+                    rowReordering={isAdmin}
+                    onRowOrderChange={handleRowOrderChange}
+                    pagination
+                    pageSizeOptions={pageSizeOptions}
+                />
+
+                <ContextMenu
                     directory={directory}
-                    itemIds={rowSelectionModel as string[]}
-                    onClear={() => setRowSelectionModel([])}
+                    accessRole={accessRole}
+                    itemIds={contextMenu.rowIds as string[]}
+                    onClose={contextMenu.close}
+                    position={contextMenu.position}
                 />
             </Stack>
-
-            <DataGridPro
-                data-cy='directories-data-grid'
-                rows={rows}
-                columns={isAdmin ? adminColumns : publicColumns}
-                onRowClick={onClickRow}
-                autoHeight
-                loading={!directory && request.isLoading()}
-                sx={{ width: 1 }}
-                slotProps={{
-                    row: isEditor
-                        ? {
-                              onContextMenu: contextMenu.open,
-                          }
-                        : undefined,
-                }}
-                initialState={{
-                    columns: {
-                        columnVisibilityModel: {
-                            createdAt: !game,
-                            result: !game,
-                        },
-                    },
-                    pagination: {
-                        paginationModel: { pageSize: 10 },
-                    },
-                }}
-                getRowHeight={getRowHeight}
-                checkboxSelection={isEditor}
-                checkboxSelectionVisibleOnly
-                onRowSelectionModelChange={setRowSelectionModel}
-                rowSelectionModel={rowSelectionModel}
-                rowReordering={isAdmin}
-                onRowOrderChange={handleRowOrderChange}
-                pagination
-                pageSizeOptions={pageSizeOptions}
-            />
-
-            <ContextMenu
-                directory={directory}
-                accessRole={accessRole}
-                itemIds={contextMenu.rowIds as string[]}
-                onClose={contextMenu.close}
-                position={contextMenu.position}
-            />
         </Stack>
     );
 };
