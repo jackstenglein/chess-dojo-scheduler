@@ -1,4 +1,7 @@
-import { SaveGameButton } from '@/components/games/edit/SaveGameButton';
+import { RequestSnackbar } from '@/api/Request';
+import SaveGameDialogue from '@/components/games/edit/SaveGameDialogue';
+import useSaveGame, { SaveGameDetails } from '@/hooks/useSaveGame';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     FormControl,
@@ -14,9 +17,14 @@ import {
 import { DatePicker } from '@mui/x-date-pickers';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BoardOrientation, parsePgnDate, toPgnDate } from '../../../../../api/gameApi';
+import {
+    BoardOrientation,
+    isMissingData,
+    parsePgnDate,
+    toPgnDate,
+} from '../../../../../api/gameApi';
 import { useFreeTier } from '../../../../../auth/Auth';
-import { Game, PgnHeaders } from '../../../../../database/game';
+import { Game } from '../../../../../database/game';
 import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
@@ -34,14 +42,24 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
     const [orientation, setOrientation] = useState<BoardOrientation>(
         game.orientation ?? 'white',
     );
-    const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
+    const [headers, setHeaders] = useState<SaveGameDetails>({
+        white: headers.White,
+        black: headers.Black,
+    });
     const navigate = useNavigate();
+    const [showPreflight, setShowPreflight] = useState<boolean>(false);
+    const { request, saveGame } = useSaveGame({ onSaveGame, game });
+
+    const loading = request.isLoading();
+
+    const unlisted = visibility === 'unlisted';
+    const isPublishing = (game.unlisted ?? false) && !unlisted;
+    const needsPreflight = !unlisted && isMissingData({ ...game, headers });
 
     const headersChanged = Object.entries(game.headers).some(
         ([name, value]) => value !== headers[name],
     );
 
-    const unlisted = visibility === 'unlisted';
     const dirty =
         headersChanged ||
         orientation !== game.orientation ||
@@ -49,6 +67,15 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
     const onChangeHeader = (name: string, value: string) => {
         setHeaders((oldHeaders) => ({ ...oldHeaders, [name]: value }));
+    };
+
+    const onShowPreflight = () => {
+        setShowPreflight(true);
+    };
+
+    const onClosePreflight = () => {
+        setShowPreflight(false);
+        request.reset();
     };
 
     return (
@@ -140,16 +167,27 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
             </Stack>
 
             <Stack spacing={2}>
-                <SaveGameButton
-                    game={game}
-                    dirty={dirty}
-                    headers={headers}
-                    unlisted={unlisted}
-                    onSaveGame={(game) => {
-                        setHeaders(game.headers);
-                        onSaveGame?.(game);
-                    }}
-                />
+                <RequestSnackbar request={request} showSuccess />
+                <LoadingButton
+                    variant='contained'
+                    disabled={!dirty}
+                    loading={loading}
+                    onClick={() =>
+                        needsPreflight ? onShowPreflight() : saveGame({ ...headers })
+                    }
+                >
+                    {isPublishing ? 'Publish' : 'Save Changes'}
+                </LoadingButton>
+                <SaveGameDialogue
+                    open={showPreflight}
+                    onClose={onClosePreflight}
+                    onSubmit={onSave}
+                    loading={loading}
+                    title='Provide missing data'
+                >
+                    Your game is missing data. Please fill out these fields to publish
+                    your analysis.
+                </SaveGameDialogue>
 
                 <RequestReviewDialog game={game} />
 
