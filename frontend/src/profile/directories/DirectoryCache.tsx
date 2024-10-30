@@ -1,6 +1,6 @@
 import { useApi } from '@/api/Api';
 import { IdentifiableCache, useIdentifiableCache } from '@/api/cache/Cache';
-import { useRequest } from '@/api/Request';
+import { Request, useRequest } from '@/api/Request';
 import {
     Directory,
     DirectoryAccessRole,
@@ -147,7 +147,15 @@ const defaultHomeDirectory: Omit<Directory, 'owner'> = {
     itemIds: [],
 };
 
-export function useDirectory(owner: string, id: string) {
+export interface UseDirectoryResponse {
+    directory?: Directory;
+    accessRole?: DirectoryAccessRole;
+    request: Request;
+    putDirectory: (directory: Directory) => void;
+    updateDirectory: (directory: Partial<Directory>) => void;
+}
+
+export function useDirectory(owner: string, id: string): UseDirectoryResponse {
     const api = useApi();
     const cache = useDirectoryCache();
 

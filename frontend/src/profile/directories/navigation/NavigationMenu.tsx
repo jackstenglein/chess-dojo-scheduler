@@ -16,7 +16,7 @@ import {
     Tooltip,
     styled,
 } from '@mui/material';
-import { useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 
 const openWidth = 167;
 
@@ -90,23 +90,30 @@ const List = styled(MuiList, { shouldForwardProp: (prop) => prop !== 'open' })(
 );
 
 export const NavigationMenu = ({
+    namespace,
     id,
     owner,
-    username,
+    enabled,
+    defaultValue,
 }: {
+    namespace: string;
     id: string;
     owner: string;
-    username?: string;
+    enabled?: boolean;
+    defaultValue?: boolean;
 }) => {
     const { user } = useAuth();
     const { updateSearchParams } = useSearchParams();
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useLocalStorage(
+        `/DirectoryNavigationMenu/${namespace}/open`,
+        defaultValue ?? false,
+    );
 
     if (!user) {
         return null;
     }
 
-    if (username && username !== user.username) {
+    if (!enabled) {
         return null;
     }
 

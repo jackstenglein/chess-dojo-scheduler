@@ -1,7 +1,6 @@
 import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
-import { useGame } from '@/games/view/GamePage';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
@@ -12,15 +11,20 @@ import {
     DirectoryItemTypes,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { Stack } from '@mui/material';
+import { Stack, SxProps } from '@mui/material';
 import {
     DataGridPro,
+    GridColumnVisibilityModel,
     GridRowHeightParams,
     GridRowOrderChangeParams,
     GridRowParams,
     GridRowSelectionModel,
+    GridToolbarColumnsButton,
+    GridToolbarContainer,
+    GridToolbarFilterButton,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import { AddButton } from './AddButton';
 import { BulkItemEditor } from './BulkItemEditor';
 import { ContextMenu } from './ContextMenu';
@@ -30,26 +34,61 @@ import { adminColumns, publicColumns } from './DirectoryGridColumns';
 import { NavigationMenu } from './navigation/NavigationMenu';
 import { ShareButton } from './share/ShareButton';
 
-const pageSizeOptions = [10, 25, 50, 100];
+const pageSizeOptions = [10, 25, 50, 100] as const;
 
-export const DirectoriesTab = ({ username }: { username: string }) => {
+interface DirectoriesSectionProps {
+    /** The namespace for the local storage data. */
+    namespace: string;
+
+    /** The default directory owner if not specified in query params. */
+    defaultDirectoryOwner: string;
+
+    /** Whether to enable the navigation menu. */
+    enableNavigationMenu: boolean;
+
+    /** Whether to default the navigation menu to open. */
+    defaultNavigationMenuOpen?: boolean;
+
+    /** The default column visibility, if the user has not changed any settings. */
+    defaultColumnVisibility?: Record<string, boolean>;
+
+    /** The sx prop passed to the DataGrid component. */
+    sx?: SxProps;
+}
+
+export const DirectoriesSection = ({
+    namespace,
+    defaultDirectoryOwner,
+    enableNavigationMenu,
+    defaultNavigationMenuOpen,
+    defaultColumnVisibility,
+    sx,
+}: DirectoriesSectionProps) => {
+    const api = useApi();
     const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
 
-    const directoryId = searchParams.get('directory') || 'home';
-    const directoryOwner = searchParams.get('directoryOwner') || username;
+    const [columnVisibility, setColumnVisibility] =
+        useLocalStorage<GridColumnVisibilityModel>(
+            `/DirectoryTable/${namespace}/visibility`,
+            {
+                type: true,
+                name: true,
+                result: true,
+                ...(defaultColumnVisibility ?? {}),
+            },
+        );
 
-    const { game } = useGame();
-    const api = useApi();
-    const reorderRequest = useRequest();
+    const directoryId = searchParams.get('directory') || 'home';
+    const directoryOwner = searchParams.get('directoryOwner') || defaultDirectoryOwner;
+
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
     const contextMenu = useDataGridContextMenu(rowSelectionModel);
-
-    console.log('Owner: ', directoryOwner);
 
     const { directory, accessRole, request, putDirectory } = useDirectory(
         directoryOwner,
         directoryId,
     );
+    const reorderRequest = useRequest();
 
     const rows = useMemo(() => {
         const seen = new Set<string>();
@@ -85,24 +124,20 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
     if (!directory) {
         return <NotFoundPage />;
     }
-
-    const isEditor = compareRoles(DirectoryAccessRole.Editor, accessRole);
-    const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
-
     const onClickRow = (params: GridRowParams<DirectoryItem>) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
             updateSearchParams({
                 directory: params.row.id,
                 directoryOwner:
                     directory.id === SHARED_DIRECTORY_ID
-                        ? (params.row.addedBy ?? directoryOwner)
-                        : directoryOwner,
+                        ? (params.row.addedBy ?? directory.owner)
+                        : directory.owner,
             });
         } else {
             window.location.href = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
                 '?',
                 '%3F',
-            )}?directory=${directoryId}&directoryOwner=${directoryOwner}`;
+            )}?directory=${directory.id}&directoryOwner=${directory.owner}`;
         }
     };
 
@@ -112,8 +147,8 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
         newIds.splice(params.targetIndex, 0, id);
 
         api.updateDirectory({
-            owner: directoryOwner,
-            id: directoryId,
+            owner: directory.owner,
+            id: directory.id,
             itemIds: newIds,
         })
             .then((resp) => {
@@ -126,9 +161,18 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
             });
     };
 
+    const isEditor = compareRoles(DirectoryAccessRole.Editor, accessRole);
+    const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
+
     return (
         <Stack direction='row' columnGap={2}>
-            <NavigationMenu id={directoryId} owner={directoryOwner} username={username} />
+            <NavigationMenu
+                namespace={namespace}
+                id={directoryId}
+                owner={directoryOwner}
+                enabled={enableNavigationMenu}
+                defaultValue={defaultNavigationMenuOpen}
+            />
 
             <Stack spacing={2} alignItems='start' flexGrow={1}>
                 <DirectoryBreadcrumbs owner={directoryOwner} id={directoryId} />
@@ -151,13 +195,17 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
                 </Stack>
 
                 <DataGridPro
+                    autoHeight
                     data-cy='directories-data-grid'
                     rows={rows}
                     columns={isAdmin ? adminColumns : publicColumns}
+                    columnVisibilityModel={columnVisibility}
+                    onColumnVisibilityModelChange={(model) => setColumnVisibility(model)}
                     onRowClick={onClickRow}
-                    autoHeight
                     loading={!directory && request.isLoading()}
-                    sx={{ width: 1 }}
+                    slots={{
+                        toolbar: CustomGridToolbar,
+                    }}
                     slotProps={{
                         row: isEditor
                             ? {
@@ -166,12 +214,6 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
                             : undefined,
                     }}
                     initialState={{
-                        columns: {
-                            columnVisibilityModel: {
-                                createdAt: !game,
-                                result: !game,
-                            },
-                        },
                         pagination: {
                             paginationModel: { pageSize: 10 },
                         },
@@ -185,6 +227,7 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
                     onRowOrderChange={handleRowOrderChange}
                     pagination
                     pageSizeOptions={pageSizeOptions}
+                    sx={{ width: 1, ...sx }}
                 />
 
                 <ContextMenu
@@ -198,6 +241,15 @@ export const DirectoriesTab = ({ username }: { username: string }) => {
         </Stack>
     );
 };
+
+function CustomGridToolbar() {
+    return (
+        <GridToolbarContainer>
+            <GridToolbarColumnsButton />
+            <GridToolbarFilterButton />
+        </GridToolbarContainer>
+    );
+}
 
 function getRowHeight(params: GridRowHeightParams) {
     if (typeof params.id === 'string' && params.id.includes('/')) {
