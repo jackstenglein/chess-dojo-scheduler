@@ -5,6 +5,7 @@ import {
     CreateDirectoryRequestV2Client,
     Directory,
     DirectoryAccessRole,
+    ListBreadcrumbsRequest,
     MoveDirectoryItemsRequest,
     RemoveDirectoryItemsRequestV2,
     ShareDirectoryRequest,
@@ -26,9 +27,13 @@ export interface DirectoryApiContextType {
         id: string,
     ) => Promise<AxiosResponse<GetDirectoryResponse>>;
 
+    /**
+     * Sends an API request to list the breadcrumbs for a directory.
+     * @param request The request to list the breadcrumbs.
+     * @returns A map from the directory id to the breadcrumb data.
+     */
     listBreadcrumbs: (
-        owner: string,
-        id: string,
+        request: ListBreadcrumbsRequest,
     ) => Promise<AxiosResponse<Record<string, BreadcrumbItem>>>;
 
     /**
@@ -100,10 +105,18 @@ export function getDirectory(idToken: string, owner: string, id: string) {
     });
 }
 
-export function listBreadcrumbs(idToken: string, owner: string, id: string) {
+/**
+ * Sends an API request to list the breadcrumbs for a directory.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to list the breadcrumbs.
+ * @returns A map from the directory id to the breadcrumb data.
+ */
+export function listBreadcrumbs(idToken: string, request: ListBreadcrumbsRequest) {
+    const { owner, id, ...rest } = request;
     return axios.get<Record<string, BreadcrumbItem>>(
         `${BASE_URL}/directory/${owner}/${id}/breadcrumbs`,
         {
+            params: rest,
             headers: {
                 Authorization: `Bearer ${idToken}`,
             },

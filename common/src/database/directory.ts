@@ -482,6 +482,24 @@ export const ShareDirectorySchema = DirectorySchema.pick({
 /** A request to share a directory. */
 export type ShareDirectoryRequest = z.infer<typeof ShareDirectorySchema>;
 
+/** Verifies the type of a request to list the breadcrumbs for a directory. */
+export const ListBreadcrumbsSchema = DirectorySchema.pick({
+    /** The owner of the directory. */
+    owner: true,
+    /** The id of the directory. */
+    id: true,
+})
+    .merge(
+        z.object({
+            /** Whether the viewer is looking at a shared directory. */
+            shared: z.string().optional(),
+        }),
+    )
+    .transform((val) => ({ ...val, shared: val.shared === 'true' }));
+
+/** A request to list the breadcrumbs of a directory. */
+export type ListBreadcrumbsRequest = z.infer<typeof ListBreadcrumbsSchema>;
+
 /**
  * Returns true if currRole has permissions greater than or equal to minRole.
  * @param minRole The minimum required role.

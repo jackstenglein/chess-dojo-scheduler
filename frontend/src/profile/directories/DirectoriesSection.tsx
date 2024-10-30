@@ -175,24 +175,30 @@ export const DirectoriesSection = ({
             />
 
             <Stack spacing={2} alignItems='start' flexGrow={1}>
-                <DirectoryBreadcrumbs owner={directoryOwner} id={directoryId} />
+                <DirectoryBreadcrumbs
+                    owner={directoryOwner}
+                    id={directoryId}
+                    currentProfile={defaultDirectoryOwner}
+                />
 
-                <Stack
-                    direction='row'
-                    alignItems='center'
-                    gap={2}
-                    width={1}
-                    flexWrap='wrap'
-                >
-                    <AddButton directory={directory} accessRole={accessRole} />
-                    <ShareButton directory={directory} accessRole={accessRole} />
+                {isEditor && (
+                    <Stack
+                        direction='row'
+                        alignItems='center'
+                        gap={2}
+                        width={1}
+                        flexWrap='wrap'
+                    >
+                        <AddButton directory={directory} accessRole={accessRole} />
+                        <ShareButton directory={directory} accessRole={accessRole} />
 
-                    <BulkItemEditor
-                        directory={directory}
-                        itemIds={rowSelectionModel as string[]}
-                        onClear={() => setRowSelectionModel([])}
-                    />
-                </Stack>
+                        <BulkItemEditor
+                            directory={directory}
+                            itemIds={rowSelectionModel as string[]}
+                            onClear={() => setRowSelectionModel([])}
+                        />
+                    </Stack>
+                )}
 
                 <DataGridPro
                     autoHeight

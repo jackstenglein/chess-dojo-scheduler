@@ -6,6 +6,7 @@ import {
     DirectoryAccessRole,
     DirectoryVisibility,
     HOME_DIRECTORY_ID,
+    SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { AxiosError } from 'axios';
 import {
@@ -207,7 +208,7 @@ export function useDirectory(owner: string, id: string): UseDirectoryResponse {
     };
 }
 
-export function useBreadcrumbs(owner: string, id: string) {
+export function useBreadcrumbs(owner: string, id: string, sharedOwner?: string) {
     const cache = useDirectoryCache();
     const api = useApi();
     const request = useRequest();
@@ -218,7 +219,11 @@ export function useBreadcrumbs(owner: string, id: string) {
     while (cache.breadcrumbs[compoundKey]) {
         const item = cache.breadcrumbs[compoundKey];
         result.push(item);
-        compoundKey = `${owner}/${item.parent}`;
+        if (item.parent === SHARED_DIRECTORY_ID && sharedOwner) {
+            compoundKey = `${sharedOwner}/${item.parent}`;
+        } else {
+            compoundKey = `${owner}/${item.parent}`;
+        }
     }
 
     const setBreadcrumbs = cache.setBreadcrumbs;
@@ -228,7 +233,11 @@ export function useBreadcrumbs(owner: string, id: string) {
         }
 
         request.onStart();
-        api.listBreadcrumbs(owner, id)
+        api.listBreadcrumbs({
+            owner,
+            id,
+            shared: Boolean(sharedOwner && sharedOwner !== owner),
+        })
             .then((resp) => {
                 console.log('listBreadcrumbs: ', resp);
                 request.onSuccess();
@@ -238,7 +247,7 @@ export function useBreadcrumbs(owner: string, id: string) {
                 console.error('listBreadcrumbs: ', err);
                 request.onFailure(err);
             });
-    }, [id, request, api, owner, setBreadcrumbs]);
+    }, [id, request, api, owner, setBreadcrumbs, sharedOwner]);
 
     return result.reverse();
 }

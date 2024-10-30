@@ -1,4 +1,6 @@
+import { useAuth } from '@/auth/Auth';
 import { useSearchParams } from '@/hooks/useSearchParams';
+import { SHARED_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { MoreHoriz, NavigateNext } from '@mui/icons-material';
 import {
     Breadcrumbs,
@@ -19,18 +21,21 @@ const MAX_ITEM_LENGTH = 50;
 export const DirectoryBreadcrumbs = ({
     owner,
     id,
+    currentProfile,
     onClick,
     maxItems = 3,
     variant = 'h6',
 }: {
     owner: string;
     id: string;
+    currentProfile?: string;
     onClick?: (id: string) => void;
     maxItems?: number;
     variant?: TypographyOwnProps['variant'];
 }) => {
+    const { user } = useAuth();
     const { updateSearchParams } = useSearchParams();
-    const currentBreadcrumbs = useBreadcrumbs(owner, id);
+    const currentBreadcrumbs = useBreadcrumbs(owner, id, currentProfile);
     const [menuAnchor, setMenuAnchor] = useState<HTMLElement>();
 
     if (currentBreadcrumbs.length === 0) {
@@ -47,9 +52,15 @@ export const DirectoryBreadcrumbs = ({
         if (onClick) {
             onClick(item.id);
         } else {
-            updateSearchParams({ directory: item.id });
+            const newParams: Record<string, string> = { directory: item.id };
+            if (item.id === SHARED_DIRECTORY_ID) {
+                newParams.directoryOwner = user?.username || '';
+            }
+            updateSearchParams(newParams);
         }
     };
+
+    console.log('Current breadcrumbs: ', currentBreadcrumbs);
 
     return (
         <Stack spacing={1} direction='row' alignItems='center'>
