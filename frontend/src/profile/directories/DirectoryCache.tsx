@@ -148,6 +148,17 @@ const defaultHomeDirectory: Omit<Directory, 'owner'> = {
     itemIds: [],
 };
 
+const defaultSharedDirectory: Omit<Directory, 'owner'> = {
+    id: SHARED_DIRECTORY_ID,
+    parent: uuidNil,
+    name: 'Shared with Me',
+    visibility: DirectoryVisibility.PRIVATE,
+    createdAt: '',
+    updatedAt: '',
+    items: {},
+    itemIds: [],
+};
+
 export interface UseDirectoryResponse {
     directory?: Directory;
     accessRole?: DirectoryAccessRole;
@@ -191,6 +202,9 @@ export function useDirectory(owner: string, id: string): UseDirectoryResponse {
                         cache.request.onSuccess();
                         if (id === HOME_DIRECTORY_ID) {
                             cache.put({ ...defaultHomeDirectory, owner });
+                        }
+                        if (id === SHARED_DIRECTORY_ID) {
+                            cache.put({ ...defaultSharedDirectory, owner });
                         }
                     } else {
                         cache.request.onFailure(err);

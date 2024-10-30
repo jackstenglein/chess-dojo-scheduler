@@ -85,7 +85,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
     },
     {
         field: 'result',
-        headerName: 'Result/Visibility',
+        headerName: 'Result',
         headerAlign: 'center',
         valueGetter: (_value, row) => {
             switch (row.type) {
@@ -165,7 +165,7 @@ export const adminColumns: GridColDef<DirectoryItem>[] = [
     ...publicColumns.slice(0, 2),
     {
         field: 'result',
-        headerName: 'Result',
+        headerName: 'Result/Visibility',
         headerAlign: 'center',
         valueGetter: (_value, row) => {
             switch (row.type) {
