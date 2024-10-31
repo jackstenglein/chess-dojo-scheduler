@@ -15,12 +15,14 @@ import { Stack, SxProps } from '@mui/material';
 import {
     DataGridPro,
     GridColumnVisibilityModel,
+    GridDensity,
     GridRowHeightParams,
     GridRowOrderChangeParams,
     GridRowParams,
     GridRowSelectionModel,
     GridToolbarColumnsButton,
     GridToolbarContainer,
+    GridToolbarDensitySelector,
     GridToolbarFilterButton,
 } from '@mui/x-data-grid-pro';
 import { useMemo, useState } from 'react';
@@ -77,6 +79,10 @@ export const DirectoriesSection = ({
                 ...(defaultColumnVisibility ?? {}),
             },
         );
+    const [density, setDensity] = useLocalStorage<GridDensity>(
+        `/DirectoryTable/density`,
+        'comfortable',
+    );
 
     const directoryId = searchParams.get('directory') || 'home';
     const directoryOwner = searchParams.get('directoryOwner') || defaultDirectoryOwner;
@@ -207,6 +213,8 @@ export const DirectoriesSection = ({
                     columns={isAdmin ? adminColumns : publicColumns}
                     columnVisibilityModel={columnVisibility}
                     onColumnVisibilityModelChange={(model) => setColumnVisibility(model)}
+                    density={density}
+                    onDensityChange={(d) => setDensity(d)}
                     onRowClick={onClickRow}
                     loading={!directory && request.isLoading()}
                     slots={{
@@ -252,6 +260,7 @@ function CustomGridToolbar() {
     return (
         <GridToolbarContainer>
             <GridToolbarColumnsButton />
+            <GridToolbarDensitySelector />
             <GridToolbarFilterButton />
         </GridToolbarContainer>
     );
