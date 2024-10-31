@@ -1,23 +1,14 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
-import {
-    BoardOrientation,
-    GameSubmissionType,
-    toPgnDate,
-    UpdateGameRequest,
-} from '@/api/gameApi';
+import { BoardOrientation, GameSubmissionType, UpdateGameRequest } from '@/api/gameApi';
 import { useRequest } from '@/api/Request';
 import { useChess } from '@/board/pgn/PgnBoard';
-import { Game } from '@/database/game';
-import { DateTime } from 'luxon';
+import { Game, PgnHeaders } from '@/database/game';
 
 export interface SaveGameDetails {
-    white: string;
-    black: string;
-    date: DateTime | null;
-    result: string;
+    headers: PgnHeaders;
     orientation: BoardOrientation;
-    isPublishing: boolean;
+    isPublishing?: boolean;
 }
 
 export default function useSaveGame({
@@ -31,19 +22,20 @@ export default function useSaveGame({
     const api = useApi();
     const request = useRequest();
 
-    const saveGame = ({ white, black, result, date, isPublishing }: SaveGameDetails) => {
+    const saveGame = ({
+        headers,
+        isPublishing,
+    }: SaveGameDetails & { isPublishing?: boolean }) => {
         request.onStart();
-
-        const newHeaders = {
-            white: white,
-            black: black,
-            result: result,
-            date: toPgnDate(date) ?? '',
-        };
 
         const update: UpdateGameRequest = {
             timelineId: game.timelineId,
-            headers: newHeaders,
+            headers: {
+                white: headers.White,
+                black: headers.Black,
+                date: headers.Date,
+                result: headers.Result,
+            },
         };
 
         // Presence of unlisted field signals whether to
@@ -54,37 +46,12 @@ export default function useSaveGame({
             update.unlisted = true;
         }
 
-        if (newHeaders) {
-            const pgnHeaders = {
-                White: newHeaders.white,
-                Black: newHeaders.black,
-                Date: newHeaders.date || undefined,
-            };
-
-            for (const [name, value] of Object.entries(pgnHeaders)) {
-                chess?.setHeader(name, value);
-            }
-
-            update.headers = newHeaders;
-            update.type = GameSubmissionType.Editor;
-            update.pgnText = chess?.renderPgn();
+        for (const [name, value] of Object.entries(headers)) {
+            chess?.setHeader(name, value);
         }
 
-        if (newHeaders) {
-            const pgnHeaders = {
-                White: newHeaders.white,
-                Black: newHeaders.black,
-                Date: newHeaders.date,
-            };
-
-            for (const [name, value] of Object.entries(pgnHeaders)) {
-                chess?.setHeader(name, value);
-            }
-
-            update.headers = newHeaders;
-            update.type = GameSubmissionType.Editor;
-            update.pgnText = chess?.renderPgn();
-        }
+        update.type = GameSubmissionType.Editor;
+        update.pgnText = chess?.renderPgn();
 
         api.updateGame(game.cohort, game.id, update)
             .then((resp) => {

@@ -1,12 +1,13 @@
+import { BoardOrientation, parsePgnDate, toPgnDate } from '@/api/gameApi';
 import { RequestSnackbar } from '@/api/Request';
-import SaveGameDialogue from '@/components/games/edit/SaveGameDialogue';
+import { Game } from '@/database/game';
+import DeleteGameButton from '@/games/view/DeleteGameButton';
 import useSaveGame, { SaveGameDetails } from '@/hooks/useSaveGame';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
     FormControl,
     FormControlLabel,
-    FormHelperText,
     FormLabel,
     Radio,
     RadioGroup,
@@ -17,15 +18,6 @@ import {
 import { DatePicker } from '@mui/x-date-pickers';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    BoardOrientation,
-    isMissingData,
-    parsePgnDate,
-    toPgnDate,
-} from '../../../../../api/gameApi';
-import { useFreeTier } from '../../../../../auth/Auth';
-import { Game } from '../../../../../database/game';
-import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
 
@@ -35,47 +27,37 @@ interface GameSettingsProps {
 }
 
 const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
-    const isFreeTier = useFreeTier();
-    const [visibility, setVisibility] = useState(
-        game.unlisted ? 'unlisted' : 'published',
-    );
-    const [orientation, setOrientation] = useState<BoardOrientation>(
-        game.orientation ?? 'white',
-    );
-    const [headers, setHeaders] = useState<SaveGameDetails>({
-        white: headers.White,
-        black: headers.Black,
+    const [gameDetails, setGameDetails] = useState<SaveGameDetails>({
+        headers: game.headers,
+        orientation: game.orientation ?? 'white',
+        isPublishing: false,
     });
     const navigate = useNavigate();
-    const [showPreflight, setShowPreflight] = useState<boolean>(false);
     const { request, saveGame } = useSaveGame({ onSaveGame, game });
 
     const loading = request.isLoading();
-
-    const unlisted = visibility === 'unlisted';
-    const isPublishing = (game.unlisted ?? false) && !unlisted;
-    const needsPreflight = !unlisted && isMissingData({ ...game, headers });
+    const headers = gameDetails.headers;
 
     const headersChanged = Object.entries(game.headers).some(
         ([name, value]) => value !== headers[name],
     );
 
-    const dirty =
-        headersChanged ||
-        orientation !== game.orientation ||
-        (game.unlisted ?? false) !== unlisted;
+    const orientationChanged = gameDetails.orientation !== game.orientation;
+
+    const dirty = headersChanged || orientationChanged;
 
     const onChangeHeader = (name: string, value: string) => {
-        setHeaders((oldHeaders) => ({ ...oldHeaders, [name]: value }));
+        setGameDetails((oldDetails) => ({
+            ...oldDetails,
+            headers: { ...oldDetails.headers, [name]: value },
+        }));
     };
 
-    const onShowPreflight = () => {
-        setShowPreflight(true);
-    };
-
-    const onClosePreflight = () => {
-        setShowPreflight(false);
-        request.reset();
+    const onChangeOrientation = (orientation: string) => {
+        setGameDetails((oldDetails) => ({
+            ...oldDetails,
+            orientation: orientation as BoardOrientation,
+        }));
     };
 
     return (
@@ -121,10 +103,8 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                         <FormLabel>Default Orientation</FormLabel>
                         <RadioGroup
                             row
-                            value={orientation}
-                            onChange={(e) =>
-                                setOrientation(e.target.value as BoardOrientation)
-                            }
+                            value={gameDetails.orientation}
+                            onChange={(e) => onChangeOrientation(e.target.value)}
                         >
                             <FormControlLabel
                                 value='white'
@@ -138,31 +118,6 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                             />
                         </RadioGroup>
                     </FormControl>
-
-                    <FormControl disabled={isFreeTier}>
-                        <FormLabel>Visibility</FormLabel>
-                        <RadioGroup
-                            row
-                            value={visibility}
-                            onChange={(e) => setVisibility(e.target.value)}
-                        >
-                            <FormControlLabel
-                                value='published'
-                                control={<Radio disabled={isFreeTier} />}
-                                label='Published'
-                            />
-                            <FormControlLabel
-                                value='unlisted'
-                                control={<Radio disabled={isFreeTier} />}
-                                label='Unlisted'
-                            />
-                        </RadioGroup>
-                        {isFreeTier && (
-                            <FormHelperText>
-                                Free-tier users can only submit unlisted games
-                            </FormHelperText>
-                        )}
-                    </FormControl>
                 </Stack>
             </Stack>
 
@@ -172,22 +127,10 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                     variant='contained'
                     disabled={!dirty}
                     loading={loading}
-                    onClick={() =>
-                        needsPreflight ? onShowPreflight() : saveGame({ ...headers })
-                    }
+                    onClick={() => saveGame(gameDetails)}
                 >
-                    {isPublishing ? 'Publish' : 'Save Changes'}
+                    Save Changes
                 </LoadingButton>
-                <SaveGameDialogue
-                    open={showPreflight}
-                    onClose={onClosePreflight}
-                    onSubmit={onSave}
-                    loading={loading}
-                    title='Provide missing data'
-                >
-                    Your game is missing data. Please fill out these fields to publish
-                    your analysis.
-                </SaveGameDialogue>
 
                 <RequestReviewDialog game={game} />
 

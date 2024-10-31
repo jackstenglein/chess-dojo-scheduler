@@ -1,7 +1,8 @@
-import { BoardOrientation, parsePgnDate, stripTagValue } from '@/api/gameApi';
+import { BoardOrientation, parsePgnDate, stripTagValue, toPgnDate } from '@/api/gameApi';
 import { useChess } from '@/board/pgn/PgnBoard';
+import useGame from '@/context/useGame';
 import { GameResult, isGameResult } from '@/database/game';
-import { useGame } from '@/games/view/GamePage';
+import { SaveGameDetails } from '@/hooks/useSaveGame';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -46,7 +47,7 @@ interface SaveGameDialogueProps {
     open: boolean;
     title: string;
     onClose: () => void;
-    onSubmit: (form: Form) => void;
+    onSubmit: (details: SaveGameDetails & { isPublishing: boolean }) => void;
 }
 
 export default function SaveGameDialogue({
@@ -92,6 +93,10 @@ export default function SaveGameDialogue({
     }
 
     const submit = (isPublishing: boolean) => {
+        if (!game) {
+            return;
+        }
+
         const newErrors: Partial<FormError> = {};
 
         if (stripTagValue(form.white) === '') {
@@ -114,7 +119,17 @@ export default function SaveGameDialogue({
 
         form.isPublishing = isPublishing;
 
-        onSubmit(form);
+        onSubmit({
+            headers: {
+                ...game.headers,
+                White: form.white,
+                Black: form.black,
+                Date: toPgnDate(form.date) ?? '????.??.??',
+                Result: form.result as GameResult,
+            },
+            orientation: form.orientation,
+            isPublishing,
+        });
     };
 
     return (

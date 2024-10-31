@@ -12,8 +12,7 @@ describe('List Games Page', () => {
         cy.getBySel('games-table').contains('Cohort');
         cy.getBySel('games-table').contains('Players');
         cy.getBySel('games-table').contains('Result');
-        cy.getBySel('games-table').contains('Moves');
-        cy.getBySel('games-table').contains('Date');
+        cy.getBySel('games-table').contains('Played');
     });
 
     it('has import game button', () => {

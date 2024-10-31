@@ -18,8 +18,8 @@ describe('Info Tab', () => {
     });
 
     it('has correct content', () => {
-        cy.contains('Welcome to the DojoLiga!');
-        cy.contains('How to Join');
+        cy.contains('Welcome to the DojoLiga');
+        cy.contains('Registration Info');
         cy.contains('Leaderboard Info');
     });
 
@@ -28,6 +28,22 @@ describe('Info Tab', () => {
             'have.attr',
             'href',
             'https://lichess.org/team/chessdojo',
+        );
+    });
+
+    it('links to Chess.com team', () => {
+        cy.getBySel('chesscom-team-link').should(
+            'have.attr',
+            'href',
+            'https://www.chess.com/club/chessdojo',
+        );
+    });
+
+    it('links to Discord server', () => {
+        cy.getBySel('discord-invite-link').should(
+            'have.attr',
+            'href',
+            'https://discord.gg/AEeHwBWqAX',
         );
     });
 });

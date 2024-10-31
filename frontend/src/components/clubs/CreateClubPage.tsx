@@ -1,3 +1,15 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useCache } from '@/api/cache/Cache';
+import { ClubDetails } from '@/database/club';
+import LoadingPage from '@/loading/LoadingPage';
+import { ClubAvatar } from '@/profile/Avatar';
+import {
+    MAX_PROFILE_PICTURE_SIZE_MB,
+    encodeFileToBase64,
+} from '@/profile/editor/ProfileEditorPage';
 import { Delete, Upload } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -12,25 +24,13 @@ import {
     Typography,
 } from '@mui/material';
 import { AxiosResponse } from 'axios';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useCache } from '../api/cache/Cache';
-import { ClubDetails } from '../database/club';
-import LoadingPage from '../loading/LoadingPage';
-import { ClubAvatar } from '../profile/Avatar';
-import {
-    MAX_PROFILE_PICTURE_SIZE_MB,
-    encodeFileToBase64,
-} from '../profile/editor/ProfileEditorPage';
 
-const CreateClubPage = () => {
+export const CreateClubPage = ({ id }: { id: string }) => {
     const api = useApi();
     const getRequest = useRequest<ClubDetails>();
     const saveRequest = useRequest();
-    const navigate = useNavigate();
-    const { id } = useParams();
     const { setImageBypass } = useCache();
 
     const [name, setName] = useState('');
@@ -47,6 +47,8 @@ const CreateClubPage = () => {
 
     const [logoUrl, setLogoUrl] = useState<string>();
     const [logoData, setLogoData] = useState<string>();
+
+    const router = useRouter();
 
     useEffect(() => {
         if (id && !getRequest.isSent()) {
@@ -150,7 +152,7 @@ const CreateClubPage = () => {
         promise
             .then((resp) => {
                 console.log('createClub: ', resp);
-                navigate(`/clubs/${resp.data.id}`);
+                router.push(`/clubs/${resp.data.id}`);
                 if (club.logoData !== undefined) {
                     setImageBypass(Date.now());
                 }
@@ -325,5 +327,3 @@ const CreateClubPage = () => {
         </Container>
     );
 };
-
-export default CreateClubPage;

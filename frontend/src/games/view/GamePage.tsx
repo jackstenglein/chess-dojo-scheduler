@@ -1,26 +1,17 @@
-import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import PgnBoard from '@/board/pgn/PgnBoard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { getConfig } from '@/config';
+import { GameContext } from '@/context/useGame';
+import { Game } from '@/database/game';
 import { Box } from '@mui/material';
-import { createContext, useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import PgnBoard from '../../board/pgn/PgnBoard';
-import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
-import { Game } from '../../database/game';
 import PgnErrorBoundary from './PgnErrorBoundary';
 
-interface GameContextType {
-    game?: Game;
-    onUpdateGame?: (g: Game) => void;
-    isOwner?: boolean;
-}
-
-export const GameContext = createContext<GameContextType>({});
-
-export function useGame() {
-    return useContext(GameContext);
-}
+const isBeta = getConfig().isBeta;
 
 const GamePage = () => {
     const api = useApi();
@@ -52,10 +43,6 @@ const GamePage = () => {
         }
     }, [request, api, cohort, id]);
 
-    const onUpdateGame = (g: Game) => {
-        request.onSuccess({ ...g, pgn: request.data?.pgn ?? g.pgn });
-    };
-
     const isOwner = request.data?.owner === user?.username;
 
     return (
@@ -74,7 +61,7 @@ const GamePage = () => {
                 <GameContext.Provider
                     value={{
                         game: request.data,
-                        onUpdateGame,
+                        onUpdateGame: request.onSuccess,
                         isOwner,
                     }}
                 >
@@ -82,7 +69,7 @@ const GamePage = () => {
                         pgn={request.data?.pgn}
                         startOrientation={request.data?.orientation}
                         underboardTabs={[
-                            ...(user ? [DefaultUnderboardTab.Directories] : []),
+                            ...(isBeta ? [DefaultUnderboardTab.Directories] : []),
                             DefaultUnderboardTab.Tags,
                             ...(isOwner ? [DefaultUnderboardTab.Editor] : []),
                             DefaultUnderboardTab.Comments,
@@ -91,9 +78,6 @@ const GamePage = () => {
                             DefaultUnderboardTab.Settings,
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
-                        slots={{
-                            moveButtonExtras: EngineMoveButtonExtras,
-                        }}
                     />
                 </GameContext.Provider>
             </PgnErrorBoundary>
