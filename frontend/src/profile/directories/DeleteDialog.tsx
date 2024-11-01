@@ -59,6 +59,7 @@ export const DeleteDialog = ({
             promises.push(
                 api
                     .removeDirectoryItem({
+                        owner: directory.owner,
                         directoryId: directory.id,
                         itemIds: gameItemIds,
                     })
