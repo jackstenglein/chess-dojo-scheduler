@@ -167,7 +167,9 @@ export const DirectoriesSection = ({
             });
     };
 
-    const isEditor = compareRoles(DirectoryAccessRole.Editor, accessRole);
+    const isEditor =
+        compareRoles(DirectoryAccessRole.Editor, accessRole) &&
+        directoryId !== SHARED_DIRECTORY_ID;
     const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     return (

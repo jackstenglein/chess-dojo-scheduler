@@ -3,6 +3,7 @@ import {
     Directory,
     DirectoryAccessRole,
     DirectoryItemTypes,
+    SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     Delete,
@@ -69,21 +70,25 @@ export const ContextMenu = ({
                         <ListItemText primary='Edit Name/Visibility' />
                     </MenuItem>
                 )}
-                <MenuItem onClick={editor.onMove}>
-                    <ListItemIcon>
-                        <DriveFileMoveOutlined />
-                    </ListItemIcon>
-                    <ListItemText primary='Move' />
-                </MenuItem>
-                <Divider />
-                <MenuItem onClick={editor.onDelete}>
-                    <ListItemIcon>
-                        {isDirectory ? <Delete /> : <FolderOff />}
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={isDirectory ? 'Delete' : 'Remove from Folder'}
-                    />
-                </MenuItem>
+                {directory.id !== SHARED_DIRECTORY_ID && (
+                    <>
+                        <MenuItem onClick={editor.onMove}>
+                            <ListItemIcon>
+                                <DriveFileMoveOutlined />
+                            </ListItemIcon>
+                            <ListItemText primary='Move' />
+                        </MenuItem>
+                        <Divider />
+                        <MenuItem onClick={editor.onDelete}>
+                            <ListItemIcon>
+                                {isDirectory ? <Delete /> : <FolderOff />}
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={isDirectory ? 'Delete' : 'Remove from Folder'}
+                            />
+                        </MenuItem>
+                    </>
+                )}
             </Menu>
 
             <ItemEditorDialogs editor={editor} />

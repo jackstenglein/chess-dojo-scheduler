@@ -62,7 +62,16 @@ export interface DirectoryApiContextType {
      */
     shareDirectory: (request: ShareDirectoryRequest) => Promise<AxiosResponse<Directory>>;
 
-    deleteDirectories: (ids: string[]) => Promise<AxiosResponse<{ parent?: Directory }>>;
+    /**
+     * Sends an API request to delete the given directories, which must all have the same parent.
+     * @param owner The owner of the directories.
+     * @param ids The ids of the directories.
+     * @returns The updated parent directory.
+     */
+    deleteDirectories: (
+        owner: string,
+        ids: string[],
+    ) => Promise<AxiosResponse<{ parent?: Directory }>>;
 
     addDirectoryItems: (
         request: AddDirectoryItemsRequestV2,
@@ -203,13 +212,14 @@ export function shareDirectory(idToken: string, request: ShareDirectoryRequest) 
 /**
  * Sends an API request to delete directories.
  * @param idToken The id token of the current signed-in user.
+ * @param owner The owner of the directories to delete.
  * @param ids The ids of the directories to delete.
  * @returns The updated parent directory.
  */
-export function deleteDirectories(idToken: string, ids: string[]) {
+export function deleteDirectories(idToken: string, owner: string, ids: string[]) {
     return axios.put<{ parent?: Directory }>(
-        `${BASE_URL}/directory/delete`,
-        { ids },
+        `${BASE_URL}/directory/delete/v2`,
+        { owner, ids },
         {
             headers: {
                 Authorization: `Bearer ${idToken}`,

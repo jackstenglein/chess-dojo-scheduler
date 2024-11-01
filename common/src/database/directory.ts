@@ -323,13 +323,31 @@ export const UpdateDirectorySchemaV2 = DirectorySchema.pick({
 /** A request to update a directory. */
 export type UpdateDirectoryRequestV2 = z.infer<typeof UpdateDirectorySchemaV2>;
 
-/** Verifies a request to delete directories. */
+/**
+ * Verifies a request to delete directories.
+ * @deprecated Use DeleteDirectoriesSchemaV2 instead.
+ */
 export const DeleteDirectoriesSchema = z.object({
     ids: z.string().array(),
 });
 
-/** A request to delete directories. All directories in the request must have the same parent. */
+/**
+ * A request to delete directories. All directories in the request must have the same parent.
+ * @deprecated Use DeleteDirectoriesRequestV2 instead.
+ */
 export type DeleteDirectoriesRequest = z.infer<typeof DeleteDirectoriesSchema>;
+
+/** Verifies a request to delete directories. */
+export const DeleteDirectoriesSchemaV2 = z.object({
+    /** The owner of the directories to delete. */
+    owner: z.string(),
+
+    /** The ids of the directories to delete. */
+    ids: z.string().array(),
+});
+
+/** A request to delete directories. All directories in the request must have the same parent. */
+export type DeleteDirectoriesRequestV2 = z.infer<typeof DeleteDirectoriesSchemaV2>;
 
 /**
  * Verifies a request to add items to a directory. Currently, only

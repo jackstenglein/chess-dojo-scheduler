@@ -4,7 +4,7 @@ import {
     AddDirectoryItemsRequestV2,
     CreateDirectoryRequestV2Client,
     ListBreadcrumbsRequest,
-    MoveDirectoryItemsRequest,
+    MoveDirectoryItemsRequestV2,
     RemoveDirectoryItemsRequestV2,
     ShareDirectoryRequest,
     UpdateDirectoryRequestV2,
@@ -479,12 +479,13 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 updateDirectory(idToken, request),
             shareDirectory: (request: ShareDirectoryRequest) =>
                 shareDirectory(idToken, request),
-            deleteDirectories: (ids: string[]) => deleteDirectories(idToken, ids),
+            deleteDirectories: (owner: string, ids: string[]) =>
+                deleteDirectories(idToken, owner, ids),
             addDirectoryItems: (request: AddDirectoryItemsRequestV2) =>
                 addDirectoryItems(idToken, request),
             removeDirectoryItem: (request: RemoveDirectoryItemsRequestV2) =>
                 removeDirectoryItem(idToken, request),
-            moveDirectoryItems: (request: MoveDirectoryItemsRequest) =>
+            moveDirectoryItems: (request: MoveDirectoryItemsRequestV2) =>
                 moveDirectoryItems(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);

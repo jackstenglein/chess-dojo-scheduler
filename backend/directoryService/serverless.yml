@@ -169,6 +169,27 @@ functions:
           - dynamodb:PartiQLUpdate
         Resource: ${param:GamesTableArn}
 
+  deleteV2:
+    handler: delete.handlerV2
+    events:
+      - httpApi:
+          path: /directory/delete/v2
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
   recursiveDelete:
     handler: recursiveDelete.handler
     events:
