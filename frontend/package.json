@@ -60,7 +60,7 @@
         "sharp": "^0.33.5",
         "use-long-press": "^3.2.0",
         "usehooks-ts": "^3.1.0",
-        "uuid": "^10.0.0",
+        "uuid": "^11.0.2",
         "vite": "^5.4.8",
         "vite-tsconfig-paths": "^5.0.1",
         "vitest": "^2.1.1",
