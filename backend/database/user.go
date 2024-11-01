@@ -1230,6 +1230,11 @@ func (repo *dynamoRepository) SearchUsers(query string, fields []string, startKe
 
 // BatchGetUsers returns a list of users with the provided usernames.
 func (repo *dynamoRepository) BatchGetUsers(usernames []string) ([]*User, error) {
+	return repo.BatchGetUsersProjection(usernames, "")
+}
+
+// BatchGetUsers returns a list of users with the provided usernames and the provided projection expression.
+func (repo *dynamoRepository) BatchGetUsersProjection(usernames []string, projectionExpression string) ([]*User, error) {
 	if len(usernames) == 0 {
 		return []*User{}, nil
 	}
@@ -1243,6 +1248,10 @@ func (repo *dynamoRepository) BatchGetUsers(usernames []string) ([]*User, error)
 				Keys: []map[string]*dynamodb.AttributeValue{},
 			},
 		},
+	}
+
+	if projectionExpression != "" {
+		input.RequestItems[userTable].ProjectionExpression = &projectionExpression
 	}
 
 	for _, u := range usernames {
