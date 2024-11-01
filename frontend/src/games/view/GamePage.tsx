@@ -1,36 +1,25 @@
-import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
-import { Chess } from '@jackstenglein/chess';
-import { Box } from '@mui/material';
-import { createContext, useContext, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
 import {
     BoardOrientation,
     GameHeader,
     GameSubmissionType,
-    UpdateGameRequest,
     isMissingData,
-} from '../../api/gameApi';
-import { useAuth } from '../../auth/Auth';
-import PgnBoard from '../../board/pgn/PgnBoard';
-import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
-import { Game } from '../../database/game';
+    UpdateGameRequest,
+} from '@/api/gameApi';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import PgnBoard from '@/board/pgn/PgnBoard';
+import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
+import { GameContext } from '@/context/useGame';
+import { Game } from '@/database/game';
+import { Chess } from '@jackstenglein/chess';
+import { Box } from '@mui/material';
+import { useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
 import PgnErrorBoundary from './PgnErrorBoundary';
-
-interface GameContextType {
-    game?: Game;
-    onUpdateGame?: (g: Game) => void;
-    isOwner?: boolean;
-}
-
-export const GameContext = createContext<GameContextType>({});
-
-export function useGame() {
-    return useContext(GameContext);
-}
 
 const GamePage = () => {
     const api = useApi();

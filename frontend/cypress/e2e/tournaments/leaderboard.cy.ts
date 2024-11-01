@@ -16,6 +16,7 @@ describe('Leaderboard Tab', () => {
                 fixture: 'tournaments/leaderboardRapidArenaYearly.json',
             },
         );
+
         cy.loginByCognitoApi(
             'test',
             cy.dojo.env('cognito_username'),
@@ -28,15 +29,15 @@ describe('Leaderboard Tab', () => {
     });
 
     it('contains search options', () => {
-        cy.getBySel('time-control-selector');
-        cy.getBySel('tournament-type-selector');
-        cy.contains('September 2023');
-        cy.contains('Monthly');
-        cy.contains('Yearly');
+        cy.getBySel('time-control-selector').should('be.visible');
+        cy.getBySel('tournament-type-selector').should('be.visible');
+        cy.contains('September 2023').should('be.visible');
+        cy.contains('Monthly').should('be.visible');
+        cy.contains('Yearly').should('be.visible');
     });
 
     it('contains correct columns', () => {
-        const columns = ['Rank', 'Lichess Username', 'Lichess Rating', 'Score'];
+        const columns = ['Rank', 'Username', 'Rating', 'Score'];
 
         cy.getBySel('leaderboard')
             .find('.MuiDataGrid-columnHeader')
@@ -46,15 +47,12 @@ describe('Leaderboard Tab', () => {
     });
 
     it('displays correct data', () => {
-        cy.getBySel('leaderboard').contains('agedwhitecheddar');
-        cy.getBySel('leaderboard').contains('1–10 of 189');
-
         cy.contains('Yearly').click();
         cy.getBySel('time-control-selector').click();
-        cy.contains('Rapid').click();
+        cy.get('[data-value="blitz"]').click();
+        cy.getBySel('leaderboard').should('be.visible');
 
-        cy.getBySel('leaderboard').contains('sir_ser');
-        cy.getBySel('leaderboard').contains('agedwhitecheddar').should('not.exist');
-        cy.getBySel('leaderboard').contains('1–10 of 193');
+        cy.getBySel('leaderboard').contains('newPlayer');
+        cy.getBySel('leaderboard').contains('1–10 of 40');
     });
 });

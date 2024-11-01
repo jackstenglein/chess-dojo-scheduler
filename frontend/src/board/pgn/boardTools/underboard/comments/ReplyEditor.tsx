@@ -1,12 +1,12 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useRequiredAuth } from '@/auth/Auth';
+import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
+import useGame from '@/context/useGame';
+import { PositionComment } from '@/database/game';
 import { LoadingButton } from '@mui/lab';
 import { Button, Stack, TextField } from '@mui/material';
 import { useState } from 'react';
-import { useApi } from '../../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import { useRequiredAuth } from '../../../../../auth/Auth';
-import { PositionComment } from '../../../../../database/game';
-import { useGame } from '../../../../../games/view/GamePage';
-import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
 
 interface ReplyEditorProps {
     parent: PositionComment;

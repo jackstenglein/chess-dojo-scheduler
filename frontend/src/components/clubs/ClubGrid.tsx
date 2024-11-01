@@ -1,3 +1,8 @@
+import { Request, RequestSnackbar } from '@/api/Request';
+import { LocationChip } from '@/components/clubs/LocationChip';
+import { MemberCountChip } from '@/components/clubs/MemberCountChip';
+import { Club } from '@/database/club';
+import { ClubAvatar } from '@/profile/Avatar';
 import {
     Card,
     CardActionArea,
@@ -9,19 +14,13 @@ import {
     Theme,
     Typography,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { Request, RequestSnackbar } from '../api/Request';
-import { Club } from '../database/club';
-import { ClubAvatar } from '../profile/Avatar';
-import LocationChip from './LocationChip';
-import MemberCountChip from './MemberCountChip';
 
 interface ClubGridProps<T> {
     clubs?: Club[];
     request: Request<T>;
 }
 
-function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
+export function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
     if (!clubs || clubs.length === 0) {
         return (
             <>
@@ -50,16 +49,12 @@ function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
     );
 }
 
-export default ClubGrid;
-
 interface ListClubItemProps {
     club: Club;
     sx?: SxProps<Theme>;
 }
 
 export const ListClubItem: React.FC<ListClubItemProps> = ({ club, sx }) => {
-    const navigate = useNavigate();
-
     return (
         <Card variant='outlined' sx={sx}>
             <CardActionArea
@@ -70,7 +65,7 @@ export const ListClubItem: React.FC<ListClubItemProps> = ({ club, sx }) => {
                     alignItems: 'start',
                     justifyContent: 'start',
                 }}
-                onClick={() => navigate(`/clubs/${club.id}`)}
+                href={`/clubs/${club.id}`}
             >
                 <CardHeader
                     sx={{ pb: 1 }}

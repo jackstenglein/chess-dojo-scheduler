@@ -38,7 +38,7 @@ const tabData: Record<string, TabData> = {
             'Middlegame and endgame sparring positions to hone your skills',
         ],
         images: [
-            'https://chess-dojo-images.s3.amazonaws.com/landing-page/training-plan.png',
+            'https://chess-dojo-images.s3.amazonaws.com/landing-page/training-plan.webp',
         ],
     },
     games: {
@@ -57,7 +57,7 @@ const tabData: Record<string, TabData> = {
             `Get insights into how you're using your time in games`,
         ],
         images: [
-            'https://chess-dojo-images.s3.amazonaws.com/landing-page/game-clock.png',
+            'https://chess-dojo-images.s3.amazonaws.com/landing-page/game-clock.webp',
         ],
     },
     scoreboard: {
@@ -76,7 +76,7 @@ const tabData: Record<string, TabData> = {
             'Gamify your chess improvement and reach the top of the leaderboards',
         ],
         images: [
-            'https://chess-dojo-images.s3.amazonaws.com/landing-page/scoreboard.png',
+            'https://chess-dojo-images.s3.amazonaws.com/landing-page/scoreboard.webp',
         ],
     },
     community: {
@@ -94,7 +94,7 @@ const tabData: Record<string, TabData> = {
             'Find training partners at all levels (and timezones!)',
             'Book study groups, sparring sessions and training games with the shared group calendar',
         ],
-        images: ['https://chess-dojo-images.s3.amazonaws.com/landing-page/calendar.png'],
+        images: ['https://chess-dojo-images.s3.amazonaws.com/landing-page/calendar.webp'],
     },
     support: {
         title: (
@@ -110,7 +110,7 @@ const tabData: Record<string, TabData> = {
             'Ask questions directly to the senseis: GM Jesse Kraai, IM David Pruess and IM Kostya Kavutskiy',
             'Get your games reviewed on stream when you graduate to the next level',
         ],
-        images: ['https://chess-dojo-images.s3.amazonaws.com/landing-page/support.png'],
+        images: ['https://chess-dojo-images.s3.amazonaws.com/landing-page/support.webp'],
     },
 };
 
