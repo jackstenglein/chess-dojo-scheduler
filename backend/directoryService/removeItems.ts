@@ -163,6 +163,9 @@ export async function removeDirectoryItems(
         await removeDirectoryFromGames(owner, directoryId, items);
         return unmarshall(result.Attributes!) as Directory;
     } catch (err) {
+        if (err instanceof ApiError) {
+            throw err;
+        }
         if (err instanceof ConditionalCheckFailedException) {
             throw new ApiError({
                 statusCode: 400,
