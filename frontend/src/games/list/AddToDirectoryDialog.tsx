@@ -42,7 +42,7 @@ export const AddToDirectoryDialog = ({
     const request = useRequest<string>();
     const api = useApi();
 
-    const onNavigate = (id: string) => {
+    const onNavigate = (_owner: string, id: string) => {
         setDirectoryId(id);
     };
 
@@ -55,6 +55,7 @@ export const AddToDirectoryDialog = ({
 
         request.onStart();
         api.addDirectoryItems({
+            owner: user.username,
             id: directoryId,
             games: [
                 {
@@ -104,7 +105,7 @@ export const AddToDirectoryDialog = ({
                             <DirectoryBreadcrumbs
                                 owner={user.username}
                                 id={directoryId}
-                                onClick={onNavigate}
+                                onClick={(item) => onNavigate(item.owner, item.id)}
                                 variant='h6'
                             />
 
@@ -116,6 +117,7 @@ export const AddToDirectoryDialog = ({
                                     .map((newItem) => (
                                         <MoveListItem
                                             key={newItem.id}
+                                            owner={user.username}
                                             item={newItem}
                                             onNavigate={onNavigate}
                                         />
