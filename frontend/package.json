@@ -6,7 +6,7 @@
     "dependencies": {
         "@aldabil/react-scheduler": "^2.9.5",
         "@aws-amplify/adapter-nextjs": "^1.2.12",
-        "@dotenvx/dotenvx": "^1.14.2",
+        "@dotenvx/dotenvx": "^1.21.1",
         "@emotion/cache": "^11.13.1",
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
