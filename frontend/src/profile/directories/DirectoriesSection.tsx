@@ -81,7 +81,7 @@ export const DirectoriesSection = ({
         );
     const [density, setDensity] = useLocalStorage<GridDensity>(
         `/DirectoryTable/density`,
-        'comfortable',
+        'standard',
     );
 
     const directoryId = searchParams.get('directory') || 'home';

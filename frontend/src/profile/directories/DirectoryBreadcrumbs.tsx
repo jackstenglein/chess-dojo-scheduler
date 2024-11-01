@@ -29,7 +29,7 @@ export const DirectoryBreadcrumbs = ({
     owner: string;
     id: string;
     currentProfile?: string;
-    onClick?: (id: string) => void;
+    onClick?: (item: BreadcrumbItem) => void;
     maxItems?: number;
     variant?: TypographyOwnProps['variant'];
 }) => {
@@ -50,7 +50,7 @@ export const DirectoryBreadcrumbs = ({
     const handleClick = (item: BreadcrumbItem) => {
         setMenuAnchor(undefined);
         if (onClick) {
-            onClick(item.id);
+            onClick(item);
         } else {
             const newParams: Record<string, string> = { directory: item.id };
             if (item.id === SHARED_DIRECTORY_ID) {

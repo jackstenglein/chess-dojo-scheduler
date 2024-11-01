@@ -58,7 +58,10 @@ async function fetchBreadcrumbs({
     shared?: boolean;
     viewer: string;
 }) {
-    const results: Record<string, { id: string; name: string; parent: string }> = {};
+    const results: Record<
+        string,
+        { owner: string; id: string; name: string; parent: string }
+    > = {};
 
     while (id && id !== uuidNil) {
         const getItemOutput = await dynamo.send(
@@ -67,11 +70,10 @@ async function fetchBreadcrumbs({
                     owner: { S: owner },
                     id: { S: id },
                 },
-                ProjectionExpression: '#name, #parent, #id, #access',
+                ProjectionExpression: '#name, #parent, #access',
                 ExpressionAttributeNames: {
                     '#name': 'name',
                     '#parent': 'parent',
-                    '#id': 'id',
                     '#access': 'access',
                 },
                 TableName: directoryTable,
@@ -85,11 +87,13 @@ async function fetchBreadcrumbs({
         if (shared && directory.access?.[viewer]) {
             results[`${owner}/${id}`] = {
                 id,
+                owner,
                 name: directory.name,
                 parent: SHARED_DIRECTORY_ID,
             };
             results[`${viewer}/${SHARED_DIRECTORY_ID}`] = {
                 id: SHARED_DIRECTORY_ID,
+                owner: viewer,
                 name: 'Shared with Me',
                 parent: uuidNil,
             };
@@ -98,6 +102,7 @@ async function fetchBreadcrumbs({
 
         results[`${owner}/${id}`] = {
             id,
+            owner,
             name: directory.name,
             parent: directory.parent,
         };

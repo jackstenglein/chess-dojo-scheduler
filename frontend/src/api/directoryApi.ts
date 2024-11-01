@@ -6,7 +6,7 @@ import {
     Directory,
     DirectoryAccessRole,
     ListBreadcrumbsRequest,
-    MoveDirectoryItemsRequest,
+    MoveDirectoryItemsRequestV2,
     RemoveDirectoryItemsRequestV2,
     ShareDirectoryRequest,
     UpdateDirectoryRequestV2,
@@ -77,8 +77,13 @@ export interface DirectoryApiContextType {
         request: RemoveDirectoryItemsRequestV2,
     ) => Promise<AxiosResponse<AddDirectoryItemsResponse>>;
 
+    /**
+     * Sends an API request to move items between two directories.
+     * @param request The move items request to send.
+     * @returns The updated source and target directories.
+     */
     moveDirectoryItems: (
-        request: MoveDirectoryItemsRequest,
+        request: MoveDirectoryItemsRequestV2,
     ) => Promise<AxiosResponse<MoveDirectoryItemsResponse>>;
 }
 
@@ -269,9 +274,12 @@ export interface MoveDirectoryItemsResponse {
  * @param request The request to send.
  * @returns The updated source/target directories.
  */
-export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsRequest) {
+export function moveDirectoryItems(
+    idToken: string,
+    request: MoveDirectoryItemsRequestV2,
+) {
     return axios.put<MoveDirectoryItemsResponse>(
-        `${BASE_URL}/directory/items/move`,
+        `${BASE_URL}/directory/items/move/v2`,
         request,
         { headers: { Authorization: `Bearer ${idToken}` } },
     );

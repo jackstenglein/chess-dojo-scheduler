@@ -26,6 +26,9 @@ export interface BreadcrumbItem {
     /** The name of the directory in the breadcrumb item. */
     name: string;
 
+    /** The owner of the directory in the breadcrumb item. */
+    owner: string;
+
     /** The id of the directory in the breadcrumb item. */
     id: string;
 
@@ -80,6 +83,7 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
                         ...data,
                         [`${directory.owner}/${directory.id}`]: {
                             name: directory.name || '',
+                            owner: directory.owner || '',
                             id: directory.id || '',
                             parent: directory.parent || '',
                         },
