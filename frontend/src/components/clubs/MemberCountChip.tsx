@@ -5,7 +5,7 @@ interface MemberCountChipProps {
     count: number;
 }
 
-const MemberCountChip: React.FC<MemberCountChipProps> = ({ count }) => {
+export const MemberCountChip: React.FC<MemberCountChipProps> = ({ count }) => {
     return (
         <Chip
             color='secondary'
@@ -14,5 +14,3 @@ const MemberCountChip: React.FC<MemberCountChipProps> = ({ count }) => {
         />
     );
 };
-
-export default MemberCountChip;

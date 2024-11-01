@@ -1,6 +1,9 @@
 import {
+    compareRoles,
     Directory,
+    DirectoryAccessRole,
     DirectoryItemTypes,
+    SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     Delete,
@@ -20,11 +23,13 @@ import { ItemEditorDialogs, useDirectoryEditor } from './BulkItemEditor';
 
 export const ContextMenu = ({
     directory,
+    accessRole,
     itemIds,
     position,
     onClose,
 }: {
     directory: Directory;
+    accessRole: DirectoryAccessRole | undefined;
     itemIds: string[];
     position?: PopoverPosition;
     onClose: () => void;
@@ -38,6 +43,8 @@ export const ContextMenu = ({
     const isDirectory =
         editor.items.length === 1 &&
         editor.items[0].type === DirectoryItemTypes.DIRECTORY;
+
+    const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     return (
         <>
@@ -55,7 +62,7 @@ export const ContextMenu = ({
                     },
                 }}
             >
-                {isDirectory && (
+                {isDirectory && isAdmin && (
                     <MenuItem onClick={editor.onRename}>
                         <ListItemIcon>
                             <DriveFileRenameOutline />
@@ -63,21 +70,25 @@ export const ContextMenu = ({
                         <ListItemText primary='Edit Name/Visibility' />
                     </MenuItem>
                 )}
-                <MenuItem onClick={editor.onMove}>
-                    <ListItemIcon>
-                        <DriveFileMoveOutlined />
-                    </ListItemIcon>
-                    <ListItemText primary='Move' />
-                </MenuItem>
-                <Divider />
-                <MenuItem onClick={editor.onDelete}>
-                    <ListItemIcon>
-                        {isDirectory ? <Delete /> : <FolderOff />}
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={isDirectory ? 'Delete' : 'Remove from Folder'}
-                    />
-                </MenuItem>
+                {directory.id !== SHARED_DIRECTORY_ID && (
+                    <>
+                        <MenuItem onClick={editor.onMove}>
+                            <ListItemIcon>
+                                <DriveFileMoveOutlined />
+                            </ListItemIcon>
+                            <ListItemText primary='Move' />
+                        </MenuItem>
+                        <Divider />
+                        <MenuItem onClick={editor.onDelete}>
+                            <ListItemIcon>
+                                {isDirectory ? <Delete /> : <FolderOff />}
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={isDirectory ? 'Delete' : 'Remove from Folder'}
+                            />
+                        </MenuItem>
+                    </>
+                )}
             </Menu>
 
             <ItemEditorDialogs editor={editor} />

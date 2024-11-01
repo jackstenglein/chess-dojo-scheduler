@@ -9,6 +9,7 @@ import {
     Directory,
     DirectoryItem,
     DirectoryItemTypes,
+    SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { ChevronRight, Folder } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -40,6 +41,7 @@ export const MoveDialog = ({
 }) => {
     const { user } = useRequiredAuth();
     const moveRequest = useRequest();
+    const [newDirectoryOwner, setNewDirectoryOwner] = useState(user.username);
     const [newDirectoryId, setNewDirectoryId] = useState('home');
     const api = useApi();
 
@@ -48,11 +50,16 @@ export const MoveDialog = ({
         request,
         putDirectory,
         updateDirectory,
-    } = useDirectory(user.username, newDirectoryId);
+    } = useDirectory(newDirectoryOwner, newDirectoryId);
 
     const disabled = parent.id === newDirectoryId;
 
-    const onNavigate = (id: string) => {
+    const onNavigate = (owner: string, id: string) => {
+        if (id === SHARED_DIRECTORY_ID) {
+            setNewDirectoryOwner(user.username);
+        } else {
+            setNewDirectoryOwner(owner);
+        }
         setNewDirectoryId(id);
     };
 
@@ -63,8 +70,14 @@ export const MoveDialog = ({
 
         moveRequest.onStart();
         api.moveDirectoryItems({
-            source: parent.id,
-            target: newDirectoryId,
+            source: {
+                owner: parent.owner,
+                id: parent.id,
+            },
+            target: {
+                owner: newDirectoryOwner,
+                id: newDirectoryId,
+            },
             items: items.map((item) => item.id),
         })
             .then((resp) => {
@@ -105,20 +118,22 @@ export const MoveDialog = ({
                         <Stack alignItems='center' direction='row' spacing={1.5}>
                             <Typography color='text.secondary'>From:</Typography>
                             <DirectoryBreadcrumbs
-                                owner={user.username}
+                                owner={parent.owner}
                                 id={parent.id}
-                                onClick={onNavigate}
+                                onClick={(item) => onNavigate(item.owner, item.id)}
                                 variant='body1'
+                                currentProfile={user.username}
                             />
                         </Stack>
 
                         <Stack alignItems='center' direction='row' spacing={1.5} mb={1}>
                             <Typography color='text.secondary'>To:</Typography>
                             <DirectoryBreadcrumbs
-                                owner={user.username}
+                                owner={newDirectoryOwner}
                                 id={newDirectoryId}
-                                onClick={onNavigate}
+                                onClick={(item) => onNavigate(item.owner, item.id)}
                                 variant='body1'
+                                currentProfile={user.username}
                             />
                         </Stack>
 
@@ -128,6 +143,12 @@ export const MoveDialog = ({
                                 .map((newItem) => (
                                     <MoveListItem
                                         key={newItem.id}
+                                        owner={
+                                            (newDirectory.id === SHARED_DIRECTORY_ID
+                                                ? newItem.addedBy
+                                                : newDirectory.owner) ??
+                                            newDirectory.owner
+                                        }
                                         item={newItem}
                                         onNavigate={onNavigate}
                                         disabled={items.some(
@@ -165,17 +186,22 @@ export const MoveDialog = ({
 };
 
 export function MoveListItem({
+    owner,
     item,
     onNavigate,
     disabled,
 }: {
+    owner: string;
     item: DirectoryItem;
-    onNavigate: (id: string) => void;
+    onNavigate: (owner: string, id: string) => void;
     disabled?: boolean;
 }) {
     if (item.type === DirectoryItemTypes.DIRECTORY) {
         return (
-            <ListItemButton disabled={disabled} onClick={() => onNavigate(item.id)}>
+            <ListItemButton
+                disabled={disabled}
+                onClick={() => onNavigate(owner, item.id)}
+            >
                 <ListItemIcon>
                     <Folder />
                 </ListItemIcon>

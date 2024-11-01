@@ -2,6 +2,7 @@ import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
 import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
 import stockfishImage from './dojo-digest/vol-13/stockfish.png';
+import fileSharingImage from './dojo-digest/vol-14/share-directory.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
@@ -22,6 +23,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'New Folder Sharing and Other Updates',
+        subtitle: 'Dojo Digest Vol 14 • November 1, 2024',
+        body: `Two months ago, we announced our file system for organizing your games and repertoires. Today, we're releasing a major update, which allows you to share folders with other users.`,
+        href: '/blog/dojo-digest/vol-14',
+        image: {
+            src: fileSharingImage,
+            alt: '',
+        },
+    },
     {
         title: 'Stockfish Now Available in Game Annotator',
         subtitle: 'Dojo Digest Vol 13 • October 1, 2024',
