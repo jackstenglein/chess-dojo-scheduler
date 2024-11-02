@@ -40,7 +40,7 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         (line.cp !== undefined && line.cp < 0) ||
         (line.mate !== undefined && line.mate < 0);
 
-    const showSkeleton = line.depth === 0;
+    const showSkeleton = line.depth === 0 || line.fen !== chess?.fen();
     const moves = line.pv.map(moveLineUciToMove(line.fen));
 
     const onClick = (index: number, addInfo: boolean = addInfoOnMove) => {
