@@ -1,4 +1,4 @@
-import { Avatar as MuiAvatar } from '@mui/material';
+import { Avatar as MuiAvatar, SxProps } from '@mui/material';
 
 import { useCache } from '../api/cache/Cache';
 import { getConfig } from '../config';
@@ -36,6 +36,9 @@ interface AvatarProps {
      * If provided, this overrides all other parameters to display this image URL instead.
      */
     url?: string;
+
+    /** The sx parameter to pass to the MUI Avatar component. */
+    sx?: SxProps;
 }
 
 const Avatar: React.FC<AvatarProps> = ({
@@ -45,6 +48,7 @@ const Avatar: React.FC<AvatarProps> = ({
     size,
     fontSize,
     url,
+    sx,
 }) => {
     const { imageBypass } = useCache();
 
@@ -63,7 +67,7 @@ const Avatar: React.FC<AvatarProps> = ({
     return (
         <MuiAvatar
             src={url}
-            {...avatarProps(displayName || '', size, fontSize)}
+            {...avatarProps(displayName || '', size, fontSize, sx)}
             imgProps={{ crossOrigin: 'anonymous' }}
         />
     );

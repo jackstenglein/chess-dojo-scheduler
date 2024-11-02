@@ -1,10 +1,25 @@
 import { Box, Link, Stack, Typography } from '@mui/material';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import { Container } from '../../common/Container';
 import { Footer } from '../../common/Footer';
 import { Header } from '../../common/Header';
 import { DojoAchievements } from '../components/DojoAchievements';
 import filesImage from './dojo-files.png';
+
+export const metadata: Metadata = {
+    title: 'Introducing the Dojo File System | ChessDojo Blog',
+    description: `The Dojo has a new file system to help you organize and manage your games! A new files tab has been added to your profile. You'll start out with an empty Home folder, where you can add games or nested folders...`,
+    keywords: [
+        'Chess',
+        'Dojo',
+        'Training',
+        'Digest',
+        'Games',
+        'Repertoire',
+        'File System',
+    ],
+};
 
 export default function DojoDigestVol12() {
     return (

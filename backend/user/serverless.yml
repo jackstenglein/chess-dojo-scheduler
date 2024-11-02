@@ -180,6 +180,18 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: ${param:UsersTableArn}
+  
+  batchGetSummary:
+    handler: batchGetSummary/main.go
+    events:
+      - httpApi:
+          path: /public/users
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: ${param:UsersTableArn}
 
   listTimeline:
     handler: timeline/list/main.go
