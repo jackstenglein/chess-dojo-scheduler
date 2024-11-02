@@ -7,9 +7,9 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
 import {
     DataGridPro,
+    DataGridProProps,
     GridColDef,
     GridColumnVisibilityModel,
-    GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
     GridToolbarColumnsButton,
@@ -139,26 +139,34 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     },
 ];
 
-interface GameTableProps {
+interface GameTableProps
+    extends Omit<
+        DataGridProProps<GameInfo>,
+        | 'columns'
+        | 'rows'
+        | 'pagination'
+        | 'columnVisibilityModel'
+        | 'onColumnVisibilityModelChange'
+    > {
     namespace: string;
     pagination: PaginationResult;
-    onPaginationModelChange: (model: GridPaginationModel) => void;
-    onClickRow: (params: GridRowParams<GameInfo>) => void;
-    contextMenu: DataGridContextMenu;
+    contextMenu?: DataGridContextMenu;
     limitFreeTier?: boolean;
     columns?: GridColDef<GameInfo>[];
     defaultVisibility?: Record<string, boolean>;
+    onRowClick?: (params: GridRowParams<GameInfo>) => void;
 }
 
 export default function GameTable({
     namespace,
     pagination,
     onPaginationModelChange,
-    onClickRow,
+    onRowClick,
     contextMenu,
     limitFreeTier,
     columns,
     defaultVisibility,
+    ...dataGridProps
 }: GameTableProps) {
     const freeTierLimited = useFreeTier() && limitFreeTier;
     const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
@@ -184,6 +192,7 @@ export default function GameTable({
 
     return (
         <DataGridPro
+            {...dataGridProps}
             data-cy='games-table'
             columns={transformedColumns}
             rows={data}
@@ -200,7 +209,7 @@ export default function GameTable({
             autoHeight
             sx={{ width: 1 }}
             rowHeight={70}
-            onRowClick={onClickRow}
+            onRowClick={onRowClick}
             initialState={{
                 density: 'compact',
                 sorting: {
@@ -225,11 +234,15 @@ export default function GameTable({
                 ),
                 toolbar: CustomGridToolbar,
             }}
-            slotProps={{
-                row: {
-                    onContextMenu: contextMenu.open,
-                },
-            }}
+            slotProps={
+                contextMenu
+                    ? {
+                          row: {
+                              onContextMenu: contextMenu.open,
+                          },
+                      }
+                    : undefined
+            }
             pagination
         />
     );
