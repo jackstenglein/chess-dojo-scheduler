@@ -59,6 +59,8 @@
         "remark-gfm": "^4.0.0",
         "rrule": "^2.8.1",
         "sharp": "^0.33.5",
+        "typedoc": "^0.26.11",
+        "typedoc-plugin-markdown": "^4.2.10",
         "use-long-press": "^3.2.0",
         "usehooks-ts": "^3.1.0",
         "uuid": "^10.0.0",
