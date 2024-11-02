@@ -68,20 +68,19 @@ export default function EngineSection() {
                             <Typography variant='h5'>
                                 {formatLineEval(engineLines[0])}
                             </Typography>
-                            {resultPercentages && (
-                                <Tooltip
-                                    title="The engine's expected Win / Draw / Loss percentages"
-                                    disableInteractive
+                            <Tooltip
+                                title="The engine's expected Win / Draw / Loss percentages"
+                                disableInteractive
+                            >
+                                <Typography
+                                    variant='caption'
+                                    sx={{ whiteSpace: 'nowrap' }}
                                 >
-                                    <Typography
-                                        variant='caption'
-                                        sx={{ whiteSpace: 'nowrap' }}
-                                    >
-                                        {resultPercentages.win} / {resultPercentages.draw}{' '}
-                                        / {resultPercentages.loss}
-                                    </Typography>
-                                </Tooltip>
-                            )}
+                                    {resultPercentages?.win ?? '?'} /{' '}
+                                    {resultPercentages?.draw ?? '?'} /{' '}
+                                    {resultPercentages?.loss ?? '?'}
+                                </Typography>
+                            </Tooltip>
                         </Stack>
                     )}
 
