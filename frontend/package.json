@@ -115,7 +115,7 @@
         ]
     },
     "devDependencies": {
-        "@cypress/code-coverage": "^3.13.2",
+        "@cypress/code-coverage": "^3.13.5",
         "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@jackstenglein/eslint-config-dojo": "file:../eslint-config-dojo",
         "@testing-library/jest-dom": "^6.5.0",
