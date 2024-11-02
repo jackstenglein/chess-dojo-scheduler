@@ -8,15 +8,7 @@ interface UnpublishedGameBannerProps {
 
 export function UnpublishedGameBanner(_: UnpublishedGameBannerProps) {
     return (
-        <Alert
-            severity='info'
-            variant='outlined'
-            action={
-                <>
-                    <Button>Publish</Button>
-                </>
-            }
-        >
+        <Alert severity='info' variant='outlined' action={<Button>Publish</Button>}>
             <Stack direction='row' alignItems='center'>
                 <Typography variant='body1'>
                     This game is hidden. Publish or share its URL.
