@@ -30,6 +30,7 @@
         "@types/react": "^18.3.10",
         "@types/react-dom": "^18.2.24",
         "@vitejs/plugin-react": "^4.3.2",
+        "async-mutex": "^0.5.0",
         "aws-amplify": "^6.5.0",
         "axios": "^1.7.7",
         "chessground": "^9.1.1",
