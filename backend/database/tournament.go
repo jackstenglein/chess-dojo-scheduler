@@ -678,3 +678,36 @@ func (repo *dynamoRepository) OpenClassicalAddRound(region, section string, pair
 	}
 	return result, nil
 }
+
+// Sets the pairings in the given round for current open classical.
+func (repo *dynamoRepository) OpenClassicalSetRound(region, section string, round int, pairings []OpenClassicalPairing) (*OpenClassical, error) {
+	list, err := dynamodbattribute.MarshalList(pairings)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to marshal pairings", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type":     {S: aws.String(string(LeaderboardType_OpenClassical))},
+			"startsAt": {S: aws.String(CurrentLeaderboard)},
+		},
+		UpdateExpression: aws.String(fmt.Sprintf("SET #sections.#s.#rounds[%d].#pairings = :pairings", round)),
+		ExpressionAttributeNames: map[string]*string{
+			"#sections": aws.String("sections"),
+			"#s":        aws.String(fmt.Sprintf("%s_%s", region, section)),
+			"#rounds":   aws.String("rounds"),
+			"#pairings": aws.String("pairings"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":pairings": {L: list},
+		},
+		TableName:    aws.String(tournamentTable),
+		ReturnValues: aws.String("ALL_NEW"),
+	}
+
+	result := &OpenClassical{}
+	if err := repo.updateItem(input, result); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed DynamoDB UpdateItem call", err)
+	}
+	return result, nil
+}
