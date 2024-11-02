@@ -57,6 +57,7 @@
         "react-tooltip": "^4.4.3",
         "remark-gfm": "^4.0.0",
         "rrule": "^2.8.1",
+        "serve": "^14.2.4",
         "sharp": "^0.33.5",
         "use-long-press": "^3.2.0",
         "usehooks-ts": "^3.1.0",
@@ -93,7 +94,9 @@
         "lint:types:watch": "tsc --noEmit --watch",
         "cy:parallel": "cypress-parallel -s test:cypress -t 3 --spec $(find cypress/e2e -name '*.cy.ts')",
         "format": "prettier src cypress/e2e --write",
-        "format:check": "prettier src cypress/e2e --check"
+        "format:check": "prettier src cypress/e2e --check",
+        "docs:serve": "serve docs",
+        "docs:build": "typedoc"
     },
     "config": {
         "run_dev": "dotenvx run --env-file=.env.development.local --env-file=.env.local --env-file=.env.development --env-file=.env",
@@ -150,6 +153,8 @@
         "proper-lockfile": "^4.1.2",
         "swc-plugin-coverage-instrument": "^0.0.24",
         "tsx": "^4.19.1",
+        "typedoc": "^0.26.11",
+        "typedoc-plugin-markdown": "^4.2.10",
         "typescript": "^5.4.5",
         "typescript-eslint": "^8.8.0",
         "vite-plugin-eslint": "^1.8.1"
