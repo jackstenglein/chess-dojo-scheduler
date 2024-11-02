@@ -49,12 +49,8 @@ export const EvaluationSection = ({
                 onMouseOver={onMouseOver}
                 onMouseLeave={onMouseLeave}
             >
-                {allLines.slice(0, maxLines).map((line) => (
-                    <LineEvaluation
-                        engineInfo={engineInfo}
-                        key={line.multiPv}
-                        line={line}
-                    />
+                {Array.from({ length: maxLines }).map((_, i) => (
+                    <LineEvaluation engineInfo={engineInfo} key={i} line={allLines[i]} />
                 ))}
             </List>
             <Popper

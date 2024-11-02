@@ -13,7 +13,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
 
 interface Props {
-    line: LineEval;
+    line?: LineEval;
     engineInfo: EngineInfo;
 }
 
@@ -32,6 +32,10 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
     );
+
+    if (!line) {
+        return <ListItem disablePadding sx={{ minHeight: '31px' }} />;
+    }
 
     const evaluation = formatLineEval(line);
     const wdl = formatResultPercentages(Color.white, Color.white, line, ' ');
