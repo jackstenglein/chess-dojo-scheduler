@@ -153,6 +153,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                 </Stack>
 
                 <Stack direction='row' alignItems='center' gap={1}>
+                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
                     {time && (
                         <Typography
                             variant='caption'
@@ -162,8 +163,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                             {time}
                         </Typography>
                     )}
-
-                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
                 </Stack>
             </Stack>
         </MuiButton>
