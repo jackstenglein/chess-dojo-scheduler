@@ -117,7 +117,7 @@ async function handleCreateDirectory(
     }
 
     if (!parent && request.parent === HOME_DIRECTORY_ID) {
-        parent = await createHomeDirectory(request);
+        parent = await createHomeDirectory(request.owner, request);
     } else if (parent) {
         parent = await addSubDirectory(parent, request, userInfo.username);
     } else {
@@ -170,35 +170,40 @@ function getRequest(event: APIGatewayProxyEventV2): CreateDirectoryRequest {
 
 /**
  * Creates the home directory for the given request.
- * @param request The create directory request that caused the home directory to be created.
+ * @param owner The owner of the home directory.
+ * @param request If included, the directory will be created with a subdirectory matching the request.
  * @returns The created directory.
  */
-async function createHomeDirectory(
-    request: CreateDirectoryRequestV2,
+export async function createHomeDirectory(
+    owner: string,
+    request?: CreateDirectoryRequestV2,
 ): Promise<Directory> {
     const createdAt = new Date().toISOString();
-    const directory = {
-        owner: request.owner,
+    const directory: Directory = {
+        owner,
         id: HOME_DIRECTORY_ID,
         parent: uuidNil,
         name: 'Home',
         visibility: DirectoryVisibility.PUBLIC,
         createdAt,
         updatedAt: createdAt,
-        items: {
-            [request.id]: {
-                type: DirectoryItemTypes.DIRECTORY,
-                id: request.id,
-                metadata: {
-                    createdAt,
-                    updatedAt: createdAt,
-                    visibility: request.visibility,
-                    name: request.name,
-                },
-            },
-        },
-        itemIds: [request.id],
+        items: {},
+        itemIds: [],
     };
+    if (request) {
+        directory.items[request.id] = {
+            type: DirectoryItemTypes.DIRECTORY,
+            id: request.id,
+            metadata: {
+                createdAt,
+                updatedAt: createdAt,
+                visibility: request.visibility,
+                name: request.name,
+            },
+        };
+        directory.itemIds = [request.id];
+    }
+
     await createDirectory(directory);
     return directory;
 }
