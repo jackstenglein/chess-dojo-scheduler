@@ -22,10 +22,7 @@ export default function useSaveGame({
     const api = useApi();
     const request = useRequest();
 
-    const saveGame = ({
-        headers,
-        isPublishing,
-    }: SaveGameDetails & { isPublishing?: boolean }) => {
+    const saveGame = ({ headers, isPublishing }: SaveGameDetails) => {
         request.onStart();
 
         const update: UpdateGameRequest = {

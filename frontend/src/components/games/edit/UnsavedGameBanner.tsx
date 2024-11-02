@@ -4,7 +4,7 @@ import { Alert, Button, Stack, Typography } from '@mui/material';
 
 interface UnsavedGameBannerProps {
     game: Game;
-    onSaveGame: (g: Game) => void;
+    onSaveGame?: (g: Game) => void;
 }
 
 export function UnsavedGameBanner({ game, onSaveGame }: UnsavedGameBannerProps) {
