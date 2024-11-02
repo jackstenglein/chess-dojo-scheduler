@@ -142,6 +142,7 @@
         "command-line-usage": "^7.0.3",
         "cypress": "^13.15.1",
         "cypress-parallel": "^0.14.0",
+        "dependency-cruiser": "^16.5.0",
         "eslint": "^8.57.0",
         "eslint-config-next": "^15.0.2",
         "eslint-plugin-cypress": "^3.5.0",
