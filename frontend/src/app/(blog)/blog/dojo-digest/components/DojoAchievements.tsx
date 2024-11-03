@@ -13,7 +13,7 @@ export const DojoAchievements = ({
 }) => {
     return (
         <Typography textAlign='center' mt={4}>
-            Dojo Achievements
+            The Dojo has collectively achieved:
             <br />
             <br />
             <strong>{rating}</strong> rating points gained

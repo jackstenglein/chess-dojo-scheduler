@@ -1,11 +1,13 @@
 'use client';
 
 import {
-    AddDirectoryItemsRequest,
-    CreateDirectoryRequest,
-    MoveDirectoryItemsRequest,
-    RemoveDirectoryItemsRequest,
-    UpdateDirectoryRequest,
+    AddDirectoryItemsRequestV2,
+    CreateDirectoryRequestV2Client,
+    ListBreadcrumbsRequest,
+    MoveDirectoryItemsRequestV2,
+    RemoveDirectoryItemsRequestV2,
+    ShareDirectoryRequest,
+    UpdateDirectoryRequestV2,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     ExamAttempt,
@@ -51,6 +53,7 @@ import {
     listBreadcrumbs,
     moveDirectoryItems,
     removeDirectoryItem,
+    shareDirectory,
     updateDirectory,
 } from './directoryApi';
 import {
@@ -169,6 +172,7 @@ import {
     getUser,
     getUserPublic,
     getUserStatistics,
+    getUserSummaries,
     graduate,
     listFollowers,
     listFollowing,
@@ -224,7 +228,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
         return {
             checkUserAccess: () => checkUserAccess(idToken),
             getUser: () => getUser(idToken),
-            getUserPublic: (username: string) => getUserPublic(username),
+            getUserPublic,
+            getUserSummaries,
             listUserTimeline: (owner: string, startKey?: string) =>
                 listUserTimeline(idToken, owner, startKey),
             listUsersByCohort: (cohort: string, startKey?: string) =>
@@ -466,18 +471,21 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 createSupportTicket(idToken, request),
 
             getDirectory: (owner: string, id: string) => getDirectory(idToken, owner, id),
-            listBreadcrumbs: (owner: string, id: string) =>
-                listBreadcrumbs(idToken, owner, id),
-            createDirectory: (request: CreateDirectoryRequest) =>
+            listBreadcrumbs: (request: ListBreadcrumbsRequest) =>
+                listBreadcrumbs(idToken, request),
+            createDirectory: (request: CreateDirectoryRequestV2Client) =>
                 createDirectory(idToken, request),
-            updateDirectory: (request: UpdateDirectoryRequest) =>
+            updateDirectory: (request: UpdateDirectoryRequestV2) =>
                 updateDirectory(idToken, request),
-            deleteDirectories: (ids: string[]) => deleteDirectories(idToken, ids),
-            addDirectoryItems: (request: AddDirectoryItemsRequest) =>
+            shareDirectory: (request: ShareDirectoryRequest) =>
+                shareDirectory(idToken, request),
+            deleteDirectories: (owner: string, ids: string[]) =>
+                deleteDirectories(idToken, owner, ids),
+            addDirectoryItems: (request: AddDirectoryItemsRequestV2) =>
                 addDirectoryItems(idToken, request),
-            removeDirectoryItem: (request: RemoveDirectoryItemsRequest) =>
+            removeDirectoryItem: (request: RemoveDirectoryItemsRequestV2) =>
                 removeDirectoryItem(idToken, request),
-            moveDirectoryItems: (request: MoveDirectoryItemsRequest) =>
+            moveDirectoryItems: (request: MoveDirectoryItemsRequestV2) =>
                 moveDirectoryItems(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);

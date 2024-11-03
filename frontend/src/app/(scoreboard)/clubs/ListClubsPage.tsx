@@ -1,25 +1,28 @@
+'use client';
+
+import { useFreeTier } from '@/auth/Auth';
+import { useClubFilters } from '@/hooks/useClubFilters';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useFreeTier } from '../auth/Auth';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import AllClubsTab from './AllClubsTab';
-import { useClubFilters } from './ClubFilters';
-import MyClubsTab from './MyClubsTab';
+import { AllClubsTab } from './AllClubsTab';
+import { MyClubsTab } from './MyClubsTab';
 
-const ListClubsPage = () => {
-    const navigate = useNavigate();
-    const [searchParams, setSearchParams] = useSearchParams({ view: 'all' });
+export const ListClubsPage = () => {
+    const { searchParams, setSearchParams } = useNextSearchParams({ view: 'all' });
     const isFreeTier = useFreeTier();
     const [upsellAction, setUpsellAction] = useState('');
     const filters = useClubFilters();
+    const router = useRouter();
 
     const onCreateClub = () => {
         if (isFreeTier) {
             setUpsellAction(RestrictedAction.CreateClubs);
         } else {
-            navigate('/clubs/create');
+            router.push('/clubs/create');
         }
     };
 
@@ -68,5 +71,3 @@ const ListClubsPage = () => {
         </Container>
     );
 };
-
-export default ListClubsPage;

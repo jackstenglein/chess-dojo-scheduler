@@ -1,3 +1,6 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { ClubDetails } from '@/database/club';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -9,10 +12,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { ClubDetails } from '../database/club';
-
 interface ClubJoinRequestDialogProps {
     clubId: string;
     clubName: string;
@@ -21,7 +20,7 @@ interface ClubJoinRequestDialogProps {
     onClose: () => void;
 }
 
-const ClubJoinRequestDialog: React.FC<ClubJoinRequestDialogProps> = ({
+export const ClubJoinRequestDialog: React.FC<ClubJoinRequestDialogProps> = ({
     clubId,
     clubName,
     open,
@@ -78,5 +77,3 @@ const ClubJoinRequestDialog: React.FC<ClubJoinRequestDialogProps> = ({
         </Dialog>
     );
 };
-
-export default ClubJoinRequestDialog;

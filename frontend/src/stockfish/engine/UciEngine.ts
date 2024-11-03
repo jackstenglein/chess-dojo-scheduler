@@ -1,4 +1,5 @@
 import { getConfig } from '@/config';
+import { Mutex } from 'async-mutex';
 import { EngineWorker } from './EngineWorker';
 import {
     ENGINE_DEPTH,
@@ -22,7 +23,8 @@ export abstract class UciEngine {
     private hash: number = Math.pow(2, ENGINE_HASH.Default);
     private _debug: boolean;
     private observers = new Set<(message: string) => void>();
-    private evaluatingFen = '';
+    private stopMutex = new Mutex();
+    private runMutex = new Mutex();
 
     /**
      * Gets an EngineWorker from the given stockfish.js path.
@@ -110,7 +112,6 @@ export abstract class UciEngine {
      * @param message The message to publish.
      */
     private publishMessage = (message: string) => {
-        this.debug('Posting message to observers: ', message);
         for (const observer of this.observers) {
             observer(message);
         }
@@ -248,9 +249,7 @@ export abstract class UciEngine {
      */
     public shutdown(): void {
         this.ready = false;
-        if (this.evaluatingFen) {
-            this.publishMessage('bestmove');
-        }
+        this.publishMessage('bestmove');
         this.worker?.uci('quit');
         this.worker?.terminate?.();
         this.debug(`${this.engineName} shutdown`);
@@ -267,11 +266,8 @@ export abstract class UciEngine {
      * Stops calculating as soon as possible.
      * @returns A Promise that resolves once the engine has stopped.
      */
-    public async stopSearch(): Promise<void> {
-        if (this.evaluatingFen) {
-            await this.sendCommands(['stop'], 'bestmove');
-            this.evaluatingFen = '';
-        }
+    public async stopSearch(): Promise<string[]> {
+        return this.sendCommands(['stop', 'isready'], 'readyok');
     }
 
     /**
@@ -292,31 +288,37 @@ export abstract class UciEngine {
     }: EvaluatePositionWithUpdateParams): Promise<PositionEval> {
         this.throwErrorIfNotReady();
 
+        this.stopMutex.cancel();
+        await this.stopMutex.acquire();
+
+        // Only 1 thread can stop current position and start running SF on new position now
         await this.stopSearch();
-        await this.setMultiPv(multiPv);
-        await this.setThreads(threads);
-        await this.setHash(hash);
 
-        const whiteToPlay = fen.split(' ')[1] === 'w';
+        return this.runMutex.runExclusive(async () => {
+            await this.setMultiPv(multiPv);
+            await this.setThreads(threads);
+            await this.setHash(hash);
 
-        const onNewMessage = (messages: string[]) => {
-            const parsedResults = parseEvaluationResults(fen, messages, whiteToPlay);
-            setPartialEval?.(parsedResults);
-        };
+            const whiteToPlay = fen.split(' ')[1] === 'w';
 
-        this.debug(`Started evaluating ${fen}`);
+            const onNewMessage = (messages: string[]) => {
+                const parsedResults = parseEvaluationResults(fen, messages, whiteToPlay);
+                console.debug('Setting partial results: ', parsedResults);
+                setPartialEval?.(parsedResults);
+            };
 
-        this.evaluatingFen = fen;
-        const results = await this.sendCommands(
-            [`position fen ${fen}`, `go depth ${depth}`],
-            'bestmove',
-            onNewMessage,
-        );
-        if (this.evaluatingFen === fen) {
-            this.evaluatingFen = '';
-        }
-        this.debug(`Stopped evaluating ${fen}`);
-        return parseEvaluationResults(fen, results, whiteToPlay);
+            this.debug(`Started evaluating ${fen}`);
+            const promise = this.sendCommands(
+                [`position fen ${fen}`, `go depth ${depth}`],
+                'bestmove',
+                onNewMessage,
+            );
+            this.stopMutex.release(); // Other threads can now stop running this position
+
+            const results = await promise;
+            this.debug(`Stopped evaluating ${fen}`);
+            return parseEvaluationResults(fen, results, whiteToPlay);
+        });
     }
 
     /**

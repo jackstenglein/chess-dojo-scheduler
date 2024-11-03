@@ -1,18 +1,19 @@
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
+import { useCache } from '@/api/cache/Cache';
+import { ClubGrid } from '@/components/clubs/ClubGrid';
+import { Club } from '@/database/club';
+import { ClubFilters } from '@/hooks/useClubFilters';
+import LoadingPage from '@/loading/LoadingPage';
 import { Stack } from '@mui/material';
 import { useEffect, useMemo } from 'react';
-import { useApi } from '../api/Api';
-import { useRequest } from '../api/Request';
-import { useCache } from '../api/cache/Cache';
-import { Club } from '../database/club';
-import LoadingPage from '../loading/LoadingPage';
-import { ClubFilterEditor, ClubFilters, filterClubs } from './ClubFilters';
-import ClubGrid from './ClubGrid';
+import { ClubFilterEditor, filterClubs } from './ClubFilters';
 
 interface AllClubsTabProps {
     filters: ClubFilters;
 }
 
-const AllClubsTab: React.FC<AllClubsTabProps> = ({ filters }) => {
+export const AllClubsTab: React.FC<AllClubsTabProps> = ({ filters }) => {
     const api = useApi();
     const request = useRequest<Club[]>();
     const cache = useCache().clubs;
@@ -49,5 +50,3 @@ const AllClubsTab: React.FC<AllClubsTabProps> = ({ filters }) => {
         </Stack>
     );
 };
-
-export default AllClubsTab;

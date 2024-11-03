@@ -1,3 +1,10 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { GetClubResponse } from '@/api/clubApi';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { ClubDetails, ClubJoinRequest, ClubJoinRequestStatus } from '@/database/club';
+import Avatar from '@/profile/Avatar';
 import { Block, Check } from '@mui/icons-material';
 import {
     CircularProgress,
@@ -9,20 +16,15 @@ import {
     Typography,
 } from '@mui/material';
 
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { GetClubResponse } from '../api/clubApi';
-import { useAuth } from '../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
-import { ClubDetails, ClubJoinRequest, ClubJoinRequestStatus } from '../database/club';
-import Avatar from '../profile/Avatar';
-
 interface JoinRequestsTabProps {
     club: ClubDetails;
     onProcessRequest: (club: GetClubResponse, snackbarText: string) => void;
 }
 
-const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({ club, onProcessRequest }) => {
+export const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({
+    club,
+    onProcessRequest,
+}) => {
     const viewer = useAuth().user;
     if (viewer?.username !== club.owner) {
         return null;
@@ -186,5 +188,3 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
         </Stack>
     );
 };
-
-export default JoinRequestsTab;

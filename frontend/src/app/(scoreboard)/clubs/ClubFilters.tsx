@@ -1,3 +1,5 @@
+import { Club } from '@/database/club';
+import { ClubFilters, ClubSortMethod } from '@/hooks/useClubFilters';
 import {
     FormControl,
     FormControlLabel,
@@ -8,26 +10,12 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { useState } from 'react';
-import { Club } from '../database/club';
 
-export interface ClubFilters {
-    search: string;
-    setSearch: (search: string) => void;
-
-    sortMethod: ClubSortMethod;
-    setSortMethod: (sortMethod: ClubSortMethod) => void;
-
-    sortDirection: 'asc' | 'desc';
-    setSortDirection: (sortDirection: 'asc' | 'desc') => void;
-}
-
-export enum ClubSortMethod {
-    Alphabetical = 'ALPHABETICAL',
-    MemberCount = 'MEMBER_COUNT',
-    CreationDate = 'CREATION_DATE',
-}
-
+/**
+ * Converts a ClubSortMethod into a user-facing display string.
+ * @param sortMethod The sort method to convert.
+ * @returns A user-facing display string.
+ */
 function displayClubSortMethod(sortMethod: ClubSortMethod): string {
     switch (sortMethod) {
         case ClubSortMethod.Alphabetical:
@@ -39,21 +27,12 @@ function displayClubSortMethod(sortMethod: ClubSortMethod): string {
     }
 }
 
-export function useClubFilters(): ClubFilters {
-    const [search, setSearch] = useState('');
-    const [sortMethod, setSortMethod] = useState(ClubSortMethod.Alphabetical);
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-
-    return {
-        search,
-        setSearch,
-        sortMethod,
-        setSortMethod,
-        sortDirection,
-        setSortDirection,
-    };
-}
-
+/**
+ * Filters the given list of clubs for the ones that match the given set of filters.
+ * @param clubs The clubs to filter.
+ * @param filters The filters to check.
+ * @returns A list of clubs matching the filters.
+ */
 export function filterClubs(clubs: Club[] | undefined, filters: ClubFilters): Club[] {
     let result = clubs || [];
     const search = filters.search.trim().toLowerCase();

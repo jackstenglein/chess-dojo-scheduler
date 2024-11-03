@@ -8,6 +8,7 @@ import {
     DirectoryItemTypes,
     DirectoryVisibility,
     DirectoryVisibilityType,
+    SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Help } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -171,6 +172,10 @@ export const onUpdateDirectory =
 
         request.onStart();
         api.updateDirectory({
+            owner:
+                directory.id === SHARED_DIRECTORY_ID
+                    ? selectedItem.addedBy || directory.owner
+                    : directory.owner,
             id: selectedItem.id,
             name,
             visibility,

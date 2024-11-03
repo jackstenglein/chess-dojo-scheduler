@@ -13,7 +13,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
 
 interface Props {
-    line: LineEval;
+    line?: LineEval;
     engineInfo: EngineInfo;
 }
 
@@ -33,6 +33,10 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
     );
 
+    if (!line) {
+        return <ListItem disablePadding sx={{ minHeight: '31px' }} />;
+    }
+
     const evaluation = formatLineEval(line);
     const wdl = formatResultPercentages(Color.white, Color.white, line, ' ');
 
@@ -40,7 +44,7 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         (line.cp !== undefined && line.cp < 0) ||
         (line.mate !== undefined && line.mate < 0);
 
-    const showSkeleton = line.depth === 0;
+    const showSkeleton = line.depth === 0 || line.fen !== chess?.fen();
     const moves = line.pv.map(moveLineUciToMove(line.fen));
 
     const onClick = (index: number, addInfo: boolean = addInfoOnMove) => {

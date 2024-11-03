@@ -21,9 +21,6 @@ import SignupPage from './auth/SignupPage';
 import VerifyEmailPage from './auth/VerifyEmailPage';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
-import ClubDetailsPage from './clubs/ClubDetailsPage';
-import CreateClubPage from './clubs/CreateClubPage';
-import ListClubsPage from './clubs/ListClubsPage';
 import CoachPortalPage from './coaching/coaches/CoachPortalPage';
 import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
@@ -73,15 +70,6 @@ const router = createBrowserRouter(
                 <Route path='verify-email' element={<VerifyEmailPage />} />
 
                 <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
-
-                <Route path='clubs'>
-                    <Route index element={<ListClubsPage />} />
-                    <Route path='create' element={<CreateClubPage />} />
-                    <Route path=':id'>
-                        <Route index element={<ClubDetailsPage />} />
-                        <Route path='edit' element={<CreateClubPage />} />
-                    </Route>
-                </Route>
 
                 <Route element={<RequireAuth />}>
                     <Route path='profile'>

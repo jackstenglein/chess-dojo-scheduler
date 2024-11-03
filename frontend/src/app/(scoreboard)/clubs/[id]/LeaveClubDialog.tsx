@@ -1,3 +1,7 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { leaveClub } from '@/api/clubApi';
+import { ClubDetails } from '@/database/club';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -8,11 +12,6 @@ import {
     DialogTitle,
 } from '@mui/material';
 
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { leaveClub } from '../api/clubApi';
-import { ClubDetails } from '../database/club';
-
 interface LeaveClubDialogProps {
     clubId: string;
     clubName: string;
@@ -22,7 +21,7 @@ interface LeaveClubDialogProps {
     onClose: () => void;
 }
 
-const LeaveClubDialog: React.FC<LeaveClubDialogProps> = ({
+export const LeaveClubDialog: React.FC<LeaveClubDialogProps> = ({
     clubId,
     clubName,
     approvalRequired,
@@ -74,5 +73,3 @@ const LeaveClubDialog: React.FC<LeaveClubDialogProps> = ({
         </Dialog>
     );
 };
-
-export default LeaveClubDialog;

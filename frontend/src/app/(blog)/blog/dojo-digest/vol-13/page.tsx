@@ -1,4 +1,5 @@
 import { Link, Stack, Typography } from '@mui/material';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import { Container } from '../../common/Container';
 import { Footer } from '../../common/Footer';
@@ -7,6 +8,12 @@ import { DojoAchievements } from '../components/DojoAchievements';
 import activityHeatmapImage from './activity-heatmap.png';
 import kostyaImage from './kostya-italy.jpg';
 import stockfishImage from './stockfish.png';
+
+export const metadata: Metadata = {
+    title: 'Stockfish Now Available in Game Annotator | ChessDojo Blog',
+    description: `Stockfish 17 (desktop version) and Stockfish 16 (mobile version) are now both available in our game annotator. Both engines run locally in your browser, although...`,
+    keywords: ['Chess', 'Dojo', 'Training', 'Digest', 'Stockfish', 'Engine'],
+};
 
 export default function DojoDigestVol13() {
     return (

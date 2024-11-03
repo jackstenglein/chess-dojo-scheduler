@@ -7,7 +7,7 @@ interface UrlChipProps {
 
 const urlRegex = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?]+)/gim;
 
-const UrlChip: React.FC<UrlChipProps> = ({ url }) => {
+export const UrlChip: React.FC<UrlChipProps> = ({ url }) => {
     if (!url) {
         return null;
     }
@@ -28,5 +28,3 @@ const UrlChip: React.FC<UrlChipProps> = ({ url }) => {
         </a>
     );
 };
-
-export default UrlChip;

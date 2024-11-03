@@ -26,7 +26,7 @@ import GraduationDialog from './GraduationDialog';
 import ActivityTab from './activity/ActivityTab';
 import ClubsTab from './clubs/ClubsTab';
 import CoachTab from './coach/CoachTab';
-import { DirectoriesTab } from './directories/DirectoriesTab';
+import { DirectoriesSection } from './directories/DirectoriesSection';
 import { DirectoryCacheProvider } from './directories/DirectoryCache';
 import { ActivityCard } from './info/ActivityCard';
 import { BadgeCard } from './info/BadgeCard';
@@ -277,7 +277,23 @@ const ProfilePage = () => {
                             </TabPanel>
                             <TabPanel value='files' sx={{ px: { xs: 0 } }}>
                                 <DirectoryCacheProvider>
-                                    <DirectoriesTab username={user.username} />
+                                    <DirectoriesSection
+                                        namespace={
+                                            currentUserProfile
+                                                ? 'own-profile'
+                                                : 'other-profile'
+                                        }
+                                        defaultDirectoryOwner={user.username}
+                                        enableNavigationMenu={currentUserProfile}
+                                        defaultNavigationMenuOpen={true}
+                                        defaultColumnVisibility={{
+                                            type: true,
+                                            name: true,
+                                            result: true,
+                                            owner: true,
+                                            createdAt: true,
+                                        }}
+                                    />
                                 </DirectoryCacheProvider>
                             </TabPanel>
                             <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>

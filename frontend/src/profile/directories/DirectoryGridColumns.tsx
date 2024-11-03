@@ -18,7 +18,7 @@ import Avatar from '../Avatar';
 export const publicColumns: GridColDef<DirectoryItem>[] = [
     {
         field: 'type',
-        headerName: '',
+        headerName: 'Type',
         valueGetter(_value, row) {
             if (row.type === DirectoryItemTypes.DIRECTORY) {
                 return -1;
@@ -85,7 +85,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
     },
     {
         field: 'result',
-        headerName: '',
+        headerName: 'Result',
         headerAlign: 'center',
         valueGetter: (_value, row) => {
             switch (row.type) {
@@ -161,11 +161,11 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
     },
 ];
 
-export const ownerColumns: GridColDef<DirectoryItem>[] = [
+export const adminColumns: GridColDef<DirectoryItem>[] = [
     ...publicColumns.slice(0, 2),
     {
         field: 'result',
-        headerName: '',
+        headerName: 'Result/Visibility',
         headerAlign: 'center',
         valueGetter: (_value, row) => {
             switch (row.type) {

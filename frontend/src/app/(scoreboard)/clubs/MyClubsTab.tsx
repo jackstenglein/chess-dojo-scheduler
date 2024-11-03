@@ -1,10 +1,11 @@
+import { useClubs } from '@/api/cache/clubs';
+import { useAuth } from '@/auth/Auth';
+import { ClubGrid } from '@/components/clubs/ClubGrid';
+import { ClubFilters } from '@/hooks/useClubFilters';
+import LoadingPage from '@/loading/LoadingPage';
 import { Stack } from '@mui/material';
 import { useMemo } from 'react';
-import { useClubs } from '../api/cache/clubs';
-import { useAuth } from '../auth/Auth';
-import LoadingPage from '../loading/LoadingPage';
-import { ClubFilterEditor, ClubFilters, filterClubs } from './ClubFilters';
-import ClubGrid from './ClubGrid';
+import { ClubFilterEditor, filterClubs } from './ClubFilters';
 
 const NO_CLUBS: string[] = [];
 
@@ -12,8 +13,8 @@ interface MyClubsTabProps {
     filters: ClubFilters;
 }
 
-const MyClubsTab: React.FC<MyClubsTabProps> = ({ filters }) => {
-    const user = useAuth().user;
+export const MyClubsTab: React.FC<MyClubsTabProps> = ({ filters }) => {
+    const { user } = useAuth();
     const { clubs, request } = useClubs(user?.clubs || NO_CLUBS);
 
     const displayedClubs = useMemo(() => filterClubs(clubs, filters), [clubs, filters]);
@@ -29,5 +30,3 @@ const MyClubsTab: React.FC<MyClubsTabProps> = ({ filters }) => {
         </Stack>
     );
 };
-
-export default MyClubsTab;

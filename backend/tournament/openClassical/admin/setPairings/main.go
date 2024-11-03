@@ -97,7 +97,14 @@ func handlePairings(request SetPairingsRequest) api.Response {
 		return api.Failure(err)
 	}
 
-	openClassical, err = repository.OpenClassicalAddRound(request.Region, request.Section, pairings)
+	sectionName := fmt.Sprintf("%s_%s", request.Region, request.Section)
+	section := openClassical.Sections[sectionName]
+	if request.Round-1 >= len(section.Rounds) {
+		openClassical, err = repository.OpenClassicalAddRound(request.Region, request.Section, pairings)
+	} else {
+		openClassical, err = repository.OpenClassicalSetRound(request.Region, request.Section, request.Round-1, pairings)
+	}
+
 	if err != nil {
 		return api.Failure(err)
 	}
@@ -117,9 +124,6 @@ func getPairings(request SetPairingsRequest, openClassical *database.OpenClassic
 	section, ok := openClassical.Sections[sectionName]
 	if !ok {
 		return nil, errors.New(400, fmt.Sprintf("Invalid request: section %q not found", sectionName), "")
-	}
-	if len(section.Rounds) != request.Round-1 {
-		return nil, errors.New(400, fmt.Sprintf("Invalid request: request is for round %d but next round is %d", request.Round, len(section.Rounds)+1), "")
 	}
 
 	reader := csv.NewReader(strings.NewReader(request.CsvData))

@@ -1,4 +1,5 @@
 import { Box, Link, Stack, Typography } from '@mui/material';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import { Container } from '../../common/Container';
 import { Footer } from '../../common/Footer';
@@ -8,6 +9,12 @@ import anandImage from './anand.jpg';
 import kaidanovImage from './kaidanov.jpg';
 import kostyaImage from './kostya.jpg';
 import kraaiImage from './kraai.jpg';
+
+export const metadata: Metadata = {
+    title: 'Kraai Scores Clear Second at the US Senior | ChessDojo Blog',
+    description: `Sensei Kraai trusted the program and the results finally came. In a field of legends, 9 GMs and one IM, the sensei won his last four games and scored his fifth GM norm...`,
+    keywords: ['Chess', 'Dojo', 'Training', 'Digest', 'US Senior', 'Kraai'],
+};
 
 export default function DojoDigestVol11() {
     return (

@@ -1,18 +1,26 @@
 import { useRequiredAuth } from '@/auth/Auth';
-import { useSearchParams } from '@/hooks/useSearchParams';
-import { DirectoriesTab } from '@/profile/directories/DirectoriesTab';
+import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { CardContent } from '@mui/material';
 
 export const Directories = () => {
     const { user } = useRequiredAuth();
-    const { searchParams } = useSearchParams();
 
     return (
         <CardContent sx={{ height: 1 }}>
             <DirectoryCacheProvider>
-                <DirectoriesTab
-                    username={searchParams.get('directoryOwner') || user.username}
+                <DirectoriesSection
+                    namespace='games-page'
+                    defaultDirectoryOwner={user.username}
+                    enableNavigationMenu
+                    defaultNavigationMenuOpen={false}
+                    defaultColumnVisibility={{
+                        type: true,
+                        name: true,
+                        result: true,
+                        owner: false,
+                        createdAt: false,
+                    }}
                 />
             </DirectoryCacheProvider>
         </CardContent>
