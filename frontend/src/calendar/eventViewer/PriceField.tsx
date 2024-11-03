@@ -1,7 +1,7 @@
 import { Stack, Typography } from '@mui/material';
 
+import { displayPrice } from '@/app/(scoreboard)/courses/(list)/CourseListItem';
 import { useAuth } from '../../auth/Auth';
-import { displayPrice } from '../../courses/list/CourseListItem';
 import { Event } from '../../database/event';
 
 const PriceField: React.FC<{ event: Event }> = ({ event }) => {

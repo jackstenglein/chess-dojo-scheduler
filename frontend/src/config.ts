@@ -18,6 +18,7 @@ export const EnvSchema = z.object({
     }),
     api: z.object({
         baseUrl: z.string(),
+        roundRobinUrl: z.string(),
     }),
     media: z.object({
         picturesBucket: z.string(),
@@ -25,10 +26,7 @@ export const EnvSchema = z.object({
     stripe: z.object({
         publishableKey: z.string(),
     }),
-    baseUrl: z
-        .string()
-        .url()
-        .transform((v) => new URL(v)),
+    baseUrl: z.string(),
     isBeta: z.boolean(),
 });
 
@@ -50,6 +48,7 @@ export function getConfig(): Config {
         },
         api: {
             baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+            roundRobinUrl: process.env.NEXT_PUBLIC_ROUND_ROBIN_API_ENDPOINT,
         },
         media: {
             picturesBucket: process.env.NEXT_PUBLIC_MEDIA_PICTURES_BUCKET,

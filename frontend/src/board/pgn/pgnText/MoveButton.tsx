@@ -1,3 +1,5 @@
+import { useReconcile } from '@/board/Board';
+import useGame from '@/context/useGame';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
@@ -20,12 +22,10 @@ import {
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
-import { useGame } from '../../../games/view/GamePage';
-import { useReconcile } from '../../Board';
+import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
+import { ShowMoveTimesInPgn } from '../boardTools/underboard/settings/ViewerSettings';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
-import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
-import { ShowMoveTimesInPgnKey } from '../boardTools/underboard/settings/ViewerSettings';
 
 export function getTextColor(
     move: Move,
@@ -153,16 +153,16 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                 </Stack>
 
                 <Stack direction='row' alignItems='center' gap={1}>
+                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
                     {time && (
                         <Typography
                             variant='caption'
                             color={isCurrentMove ? 'primary.contrastText' : 'info.main'}
+                            data-cy='elapsed-move-time'
                         >
                             {time}
                         </Typography>
                     )}
-
-                    {slots?.moveButtonExtras && <slots.moveButtonExtras {...props} />}
                 </Stack>
             </Stack>
         </MuiButton>
@@ -250,7 +250,10 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     const [isCurrentMove, setIsCurrentMove] = useState(chess?.currentMove() === move);
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
     const [, setForceRender] = useState(0);
-    const [showMoveTimes] = useLocalStorage(ShowMoveTimesInPgnKey, false);
+    const [showMoveTimes] = useLocalStorage(
+        ShowMoveTimesInPgn.Key,
+        ShowMoveTimesInPgn.Default,
+    );
 
     const onClickMove = useCallback(
         (move: Move | null) => {

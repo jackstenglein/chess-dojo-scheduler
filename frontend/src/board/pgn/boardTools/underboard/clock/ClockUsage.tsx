@@ -1,7 +1,7 @@
 import { useReconcile } from '@/board/Board';
 import { useChess } from '@/board/pgn/PgnBoard';
 import { useLightMode } from '@/style/useLightMode';
-import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
+import { Chess, Event, EventType, Move } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Edit } from '@mui/icons-material';
 import { Box, CardContent, IconButton, Stack, Tooltip, Typography } from '@mui/material';
@@ -79,12 +79,7 @@ export function formatTime(value: number): string {
     return result;
 }
 
-export function getInitialClock(pgn?: Pgn): number {
-    if (!pgn) {
-        return 0;
-    }
-
-    const timeControl = pgn.header.tags.TimeControl?.value;
+export function getInitialClock(timeControl?: string): number {
     if (!timeControl) {
         return 0;
     }
@@ -99,12 +94,7 @@ export function getInitialClock(pgn?: Pgn): number {
     return startTime;
 }
 
-export function getIncrement(pgn?: Pgn): number {
-    if (!pgn) {
-        return 0;
-    }
-
-    const timeControl = pgn.header.tags.TimeControl?.value;
+export function getIncrement(timeControl?: string): number {
     if (!timeControl) {
         return 0;
     }

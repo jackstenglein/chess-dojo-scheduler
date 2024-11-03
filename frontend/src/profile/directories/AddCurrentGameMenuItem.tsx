@@ -1,7 +1,7 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { useGame } from '@/games/view/GamePage';
+import useGame from '@/context/useGame';
 import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { DriveFileMove } from '@mui/icons-material';
 import {
@@ -39,6 +39,7 @@ export const AddCurrentGameMenuItem = ({
 
         request.onStart();
         api.addDirectoryItems({
+            owner: directory.owner,
             id: directory.id,
             games: [
                 {

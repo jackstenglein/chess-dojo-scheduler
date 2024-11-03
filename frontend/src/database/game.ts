@@ -2,6 +2,7 @@ export enum GameResult {
     White = '1-0',
     Black = '0-1',
     Draw = '1/2-1/2',
+    Incomplete = '*',
 }
 
 /**
@@ -180,3 +181,5 @@ export function displayGameReviewType(t: GameReviewType): string {
             return 'Deep Dive';
     }
 }
+export const MastersCohort = 'masters';
+export const MastersOwnerDisplayName = 'Masters DB';

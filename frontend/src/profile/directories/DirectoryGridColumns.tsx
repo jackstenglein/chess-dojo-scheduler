@@ -1,11 +1,7 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
-import {
-    MastersCohort,
-    MastersOwnerDisplayName,
-    RenderPlayers,
-    RenderResult,
-} from '@/components/games/list/GameListItem';
+import { RenderPlayers, RenderResult } from '@/components/games/list/GameListItem';
+import { MastersCohort, MastersOwnerDisplayName } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
@@ -22,7 +18,7 @@ import Avatar from '../Avatar';
 export const publicColumns: GridColDef<DirectoryItem>[] = [
     {
         field: 'type',
-        headerName: '',
+        headerName: 'Type',
         valueGetter(_value, row) {
             if (row.type === DirectoryItemTypes.DIRECTORY) {
                 return -1;
@@ -89,7 +85,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
     },
     {
         field: 'result',
-        headerName: '',
+        headerName: 'Result',
         headerAlign: 'center',
         valueGetter: (_value, row) => {
             switch (row.type) {
@@ -165,11 +161,11 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
     },
 ];
 
-export const ownerColumns: GridColDef<DirectoryItem>[] = [
+export const adminColumns: GridColDef<DirectoryItem>[] = [
     ...publicColumns.slice(0, 2),
     {
         field: 'result',
-        headerName: '',
+        headerName: 'Result/Visibility',
         headerAlign: 'center',
         valueGetter: (_value, row) => {
             switch (row.type) {

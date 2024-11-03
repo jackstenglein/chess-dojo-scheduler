@@ -1,15 +1,10 @@
-import { MastersCohort } from '@/components/games/list/GameListItem';
+import { MastersCohort } from '@/database/game';
+import { ALL_COHORTS } from '@/database/user';
 import { AllInclusive } from '@mui/icons-material';
-import {
-    Tooltip as MuiTooltip,
-    SvgIconProps,
-    TooltipProps,
-    tooltipClasses,
-} from '@mui/material';
-import { SxProps, styled } from '@mui/material/styles';
+import { SvgIconProps, Tooltip, tooltipClasses } from '@mui/material';
+import { SxProps } from '@mui/material/styles';
 import Image from 'next/image';
 import { CSSProperties } from 'react';
-import { ALL_COHORTS } from '../database/user';
 
 export const cohortIcons: Record<string, string> = {
     '0-300': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/0-300.png',
@@ -37,14 +32,6 @@ export const cohortIcons: Record<string, string> = {
     '2400+': 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
     [MastersCohort]: 'https://chess-dojo-images.s3.amazonaws.com/icons/v3/2300-2400.png',
 };
-
-const Tooltip = styled(({ className, ...props }: TooltipProps) => (
-    <MuiTooltip {...props} arrow classes={{ popper: className }} />
-))(() => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-        zIndex: 1301,
-    },
-}));
 
 interface CohortIconProps {
     cohort?: string;
@@ -76,7 +63,14 @@ const CohortIcon: React.FC<CohortIconProps & SvgIconProps> = ({
     }
 
     return (
-        <Tooltip title={tooltip !== undefined ? tooltip : `Graduated from ${cohort}`}>
+        <Tooltip
+            title={tooltip !== undefined ? tooltip : `Graduated from ${cohort}`}
+            sx={{
+                [`& .${tooltipClasses.tooltip}`]: {
+                    zIndex: 1301,
+                },
+            }}
+        >
             <Image
                 data-cy='graduation-icon'
                 src={`${url}${skipCache ? `?bypassCache=${new Date().getTime()}` : ''}`}

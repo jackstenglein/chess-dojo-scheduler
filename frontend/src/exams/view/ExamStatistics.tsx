@@ -1,3 +1,4 @@
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { useLightMode } from '@/style/useLightMode';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { Exam } from '@jackstenglein/chess-dojo-common/src/database/exam';
@@ -20,6 +21,7 @@ import {
     ResponsiveChartContainer,
     ScatterPlot,
     ScatterSeriesType,
+    ScatterValueType,
     axisClasses,
     legendClasses,
     lineElementClasses,
@@ -33,7 +35,6 @@ import {
     isCohortInRange,
     normalizedRatingToCohort,
 } from '../../database/user';
-import MultipleSelectChip from '../../newsfeed/list/MultipleSelectChip';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import { getBestFitCohortRange } from './exam';
 
@@ -57,7 +58,10 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
     const [legendMargin, setLegendMargin] = useState(100);
 
     const cohortToSeries = useMemo(() => {
-        const cohortToSeries: Record<string, ScatterSeriesType> = {};
+        const cohortToSeries: Record<
+            string,
+            ScatterSeriesType & { data: ScatterValueType[] }
+        > = {};
 
         Object.entries(exam.answers).forEach(([username, answer]) => {
             if (answer.rating <= 0 || username === user?.username) {

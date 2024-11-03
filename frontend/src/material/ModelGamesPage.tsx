@@ -3,9 +3,9 @@ import { Box, CardContent, MenuItem, TextField, Typography } from '@mui/material
 import { useEffect, useMemo, useState } from 'react';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
+import PgnSelector from '../app/(scoreboard)/courses/[type]/[id]/PgnSelector';
 import { useRequiredAuth } from '../auth/Auth';
 import PgnBoard from '../board/pgn/PgnBoard';
-import PgnSelector from '../courses/view/PgnSelector';
 import { Game, GameInfo } from '../database/game';
 import { compareCohorts, dojoCohorts } from '../database/user';
 import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
