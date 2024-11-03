@@ -44,8 +44,11 @@ const MIN_DATE = '2024-01-01';
  * @param user The user whose activity will be displayed in the heatmap.
  */
 export const ActivityCard = ({ user }: { user: User }) => {
-    const [field, setField] = useState<TimelineEntryField>('minutesSpent');
-    const [view, setView] = useState<View>('standard');
+    const [field, setField] = useLocalStorage<TimelineEntryField>(
+        'activityHeatmap.field',
+        'minutesSpent',
+    );
+    const [view, setView] = useLocalStorage<View>('activityHeatmap.view', 'standard');
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
@@ -183,7 +186,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
 };
 
 /**
- * GEts a list of activities and the total count for the given parameters.
+ * Gets a list of activities and the total count for the given parameters.
  * @param entries The timeline entries to extract data from.
  * @param field The field to extract from each timeline entry.
  * @param clamp The max value to use when calculating activity levels.
