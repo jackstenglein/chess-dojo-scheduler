@@ -105,7 +105,7 @@ const RegistrationPage = () => {
             section,
             byeRequests,
         })
-            .then((resp) => {
+            .then(() => {
                 request.onSuccess();
             })
             .catch((err) => {

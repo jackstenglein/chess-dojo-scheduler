@@ -287,7 +287,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
         debouncedOnSave.cancel();
         answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
         saveProgress(true)
-            .then((resp) => {
+            .then(() => {
                 navigate('..');
             })
             .catch((err) => {

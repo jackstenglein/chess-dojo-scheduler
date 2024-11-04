@@ -99,7 +99,7 @@ const FollowerListItem: React.FC<FollowerListItemProps> = ({
 
         unfollowRequest.onStart();
         api.editFollower(entry.poster, 'unfollow')
-            .then((resp) => {
+            .then(() => {
                 onUnfollow(entry.poster);
             })
             .catch((err) => {
