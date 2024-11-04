@@ -158,7 +158,6 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             notes,
         )
             .then((response) => {
-                console.log('updateUserProgress: ', response);
                 trackEvent(EventType.UpdateProgress, {
                     requirement_id: requirement.id,
                     requirement_name: requirement.name,

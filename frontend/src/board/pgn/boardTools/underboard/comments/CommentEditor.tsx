@@ -63,7 +63,6 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEdit
         request.onStart();
         api.createComment(game.cohort, game.id, positionComment, existingComments)
             .then((resp) => {
-                console.log('createComment: ', resp);
                 setComment('');
                 request.onSuccess();
                 onUpdateGame(resp.data);

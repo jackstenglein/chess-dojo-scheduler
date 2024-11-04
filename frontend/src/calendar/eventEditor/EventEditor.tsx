@@ -86,7 +86,6 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
         try {
             scheduler.loading(true);
             const response = await api.setEvent(event);
-            console.log('Got setEvent response: ', response);
             const newEvent = response.data;
 
             trackEvent(AnalyticsEventType.SetAvailability, {

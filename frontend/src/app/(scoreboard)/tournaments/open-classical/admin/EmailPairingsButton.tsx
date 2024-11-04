@@ -33,7 +33,6 @@ const EmailPairingsButton: React.FC<EmailPairingsButtonProps> = ({
         request.onStart();
         api.adminEmailPairings(currentRound)
             .then((resp) => {
-                console.log('adminEmailPairings: ', resp);
                 onSuccess(resp.data.openClassical);
                 request.onSuccess(`${resp.data.emailsSent} emails sent`);
                 setOpen(false);

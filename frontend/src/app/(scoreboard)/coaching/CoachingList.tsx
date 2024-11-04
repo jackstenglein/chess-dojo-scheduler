@@ -100,7 +100,6 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
         request.onStart();
         api.bookEvent(event.id)
             .then((resp) => {
-                console.log('bookEvent response: ', resp);
                 trackEvent(AnalyticsEventType.BookCoaching, {
                     event_id: event.id,
                     coach_id: event.owner,

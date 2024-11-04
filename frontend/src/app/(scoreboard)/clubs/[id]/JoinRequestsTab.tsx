@@ -100,7 +100,6 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
         request.onStart();
         api.processJoinRequest(clubId, joinRequest.username, status)
             .then((resp) => {
-                console.log('processJoinRequest: ', resp);
                 if (status === ClubJoinRequestStatus.Approved) {
                     onProcessRequest(
                         resp.data,

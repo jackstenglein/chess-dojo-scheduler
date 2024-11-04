@@ -20,7 +20,6 @@ const StripeInfo = () => {
             request.onStart();
             api.getPaymentAccount()
                 .then((resp) => {
-                    console.log('getPaymentAccount: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {

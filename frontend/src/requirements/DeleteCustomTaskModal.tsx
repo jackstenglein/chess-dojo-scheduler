@@ -42,7 +42,6 @@ const DeleteCustomTaskModal: React.FC<DeleteCustomTaskModalProps> = ({
             customTasks: newTasks,
         })
             .then((resp) => {
-                console.log('updateUser: ', resp);
                 trackEvent(EventType.DeleteNondojoTask, {
                     task_id: task.id,
                     task_name: task.name,

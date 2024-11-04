@@ -194,7 +194,6 @@ export function useDirectory(owner: string, id: string): UseDirectoryResponse {
             cache.request.onStart();
             api.getDirectory(owner, id)
                 .then((resp) => {
-                    console.log('getDirectory: ', resp);
                     cache.markFetched(compoundKey);
                     cache.putWithAccess(resp.data.directory, resp.data.accessRole);
                     cache.request.onSuccess();
@@ -257,7 +256,6 @@ export function useBreadcrumbs(owner: string, id: string, sharedOwner?: string) 
             shared: Boolean(sharedOwner && sharedOwner !== owner),
         })
             .then((resp) => {
-                console.log('listBreadcrumbs: ', resp);
                 request.onSuccess();
                 setBreadcrumbs((data) => ({ ...data, ...resp.data }));
             })

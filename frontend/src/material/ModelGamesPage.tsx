@@ -26,7 +26,6 @@ const ModelGamesPage = () => {
 
             api.listGamesByOwner('model_games')
                 .then((res) => {
-                    console.log('listModelGames: ', res);
                     listRequest.onSuccess(
                         res.data.games.sort((lhs, rhs) =>
                             compareCohorts(lhs.cohort, rhs.cohort),
@@ -51,7 +50,6 @@ const ModelGamesPage = () => {
             getRequest.onStart();
             api.getGame(gameInfo.cohort, gameInfo.id)
                 .then((res) => {
-                    console.log('getGame: ', res);
                     getRequest.onSuccess(res.data);
                 })
                 .catch((err) => {

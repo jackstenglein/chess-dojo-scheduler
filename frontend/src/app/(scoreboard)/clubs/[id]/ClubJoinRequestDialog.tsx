@@ -35,7 +35,6 @@ export const ClubJoinRequestDialog: React.FC<ClubJoinRequestDialogProps> = ({
         request.onStart();
         api.requestToJoinClub(clubId, notes)
             .then((resp) => {
-                console.log('requestToJoinClub: ', resp);
                 onSuccess(resp.data);
                 setNotes('');
             })

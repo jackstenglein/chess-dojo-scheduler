@@ -26,7 +26,6 @@ const FollowersList = () => {
             request.onStart();
             searchFunc(username || '')
                 .then((resp) => {
-                    console.log('listFollowers: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
@@ -101,7 +100,6 @@ const FollowerListItem: React.FC<FollowerListItemProps> = ({
         unfollowRequest.onStart();
         api.editFollower(entry.poster, 'unfollow')
             .then((resp) => {
-                console.log('editFollower: ', resp);
                 onUnfollow(entry.poster);
             })
             .catch((err) => {

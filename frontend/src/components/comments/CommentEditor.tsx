@@ -35,7 +35,6 @@ function CommentEditor<T, CreateFunctionProps>(
         request.onStart();
         createFunction(createFunctionProps, content)
             .then((resp) => {
-                console.log(resp);
                 setComment('');
                 onSuccess(resp.data);
                 request.onSuccess();

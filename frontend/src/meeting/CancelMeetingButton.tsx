@@ -35,7 +35,6 @@ const CancelMeetingButton: React.FC<
 
         api.cancelEvent(meetingId)
             .then((response) => {
-                console.log('Cancel meeting response: ', response);
                 trackEvent(EventType.CancelMeeting, {
                     meeting_id: meetingId,
                 });

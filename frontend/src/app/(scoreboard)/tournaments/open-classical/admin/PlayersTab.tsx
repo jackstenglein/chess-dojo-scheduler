@@ -90,7 +90,6 @@ function CustomToolbar({ region, ratingRange }: { region: string; ratingRange: s
         downloadRequest.onStart();
         api.adminGetRegistrations(region, ratingRange)
             .then((resp) => {
-                console.log('adminGetRegistrations: ', resp);
                 const link = document.createElement('a');
                 link.href = window.URL.createObjectURL(resp.data);
                 link.download = `${region}_${ratingRange}_Registrations.csv`;
@@ -183,7 +182,6 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
 
         func(updatePlayer, region, ratingRange)
             .then((resp) => {
-                console.log('updatePlayer: ', resp);
                 onUpdate(resp.data);
                 setUpdatePlayer('');
                 updateRequest.onSuccess(

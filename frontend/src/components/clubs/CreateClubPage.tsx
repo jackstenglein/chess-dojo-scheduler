@@ -55,7 +55,6 @@ export const CreateClubPage = ({ id }: { id: string }) => {
             getRequest.onStart();
             api.getClub(id)
                 .then((resp) => {
-                    console.log('getClub: ', resp);
                     getRequest.onSuccess(resp.data.club);
                     const club = resp.data.club;
                     setName(club.name);
@@ -151,7 +150,6 @@ export const CreateClubPage = ({ id }: { id: string }) => {
 
         promise
             .then((resp) => {
-                console.log('createClub: ', resp);
                 router.push(`/clubs/${resp.data.id}`);
                 if (club.logoData !== undefined) {
                     setImageBypass(Date.now());

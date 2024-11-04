@@ -52,7 +52,6 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                 },
             })
                 .then((resp) => {
-                    console.log('updateUserExercises: ', resp);
                     request.onSuccess();
                 })
                 .catch((err) => {

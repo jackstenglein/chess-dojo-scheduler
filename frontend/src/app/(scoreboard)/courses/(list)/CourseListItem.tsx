@@ -80,7 +80,6 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
             window.location.href,
         )
             .then((resp) => {
-                console.log('purchaseCourse: ', resp);
                 window.location.href = resp.data.url;
                 request.onSuccess();
             })

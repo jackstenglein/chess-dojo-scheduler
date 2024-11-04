@@ -49,7 +49,6 @@ const DetailsPage = () => {
             request.onStart();
             api.getOpenClassical(tournament)
                 .then((resp) => {
-                    console.log('getOpenClassical: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {

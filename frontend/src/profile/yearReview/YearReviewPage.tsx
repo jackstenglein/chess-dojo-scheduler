@@ -28,7 +28,6 @@ const YearReviewPage = () => {
             request.onStart();
             getYearReview(username, year)
                 .then((resp) => {
-                    console.log('getYearReview: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {

@@ -114,7 +114,6 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             customTasks: newTasks,
         })
             .then((resp) => {
-                console.log('updateUser: ', resp);
                 trackEvent(eventType, {
                     task_id: newTask.id,
                     task_name: name,

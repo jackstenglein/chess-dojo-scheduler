@@ -158,7 +158,6 @@ export const DirectoriesSection = ({
             itemIds: newIds,
         })
             .then((resp) => {
-                console.log('updateDirectory: ', resp);
                 putDirectory(resp.data.directory);
             })
             .catch((err) => {
