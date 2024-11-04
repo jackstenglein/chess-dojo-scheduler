@@ -76,7 +76,6 @@ export const AddToDirectoryDialog = ({
             ],
         })
             .then((resp) => {
-                console.log('addDirectoryItem: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess(`Game added to ${resp.data.directory.name}`);
                 trackEvent(EventType.AddDirectoryItems, {

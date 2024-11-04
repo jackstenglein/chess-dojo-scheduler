@@ -397,7 +397,6 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
             totalTime,
         )
             .then((response) => {
-                console.log('updateUserTimeline: ', response);
                 trackEvent(EventType.UpdateTimeline, {
                     requirement_id: requirement.id,
                     requirement_name: requirement.name,

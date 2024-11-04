@@ -33,7 +33,6 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({
         request.onStart();
         api.purchaseCourse(course.type, course.id, purchaseOption.name)
             .then((resp) => {
-                console.log('purchaseCourse: ', resp);
                 window.location.href = resp.data.url;
                 request.onSuccess();
             })

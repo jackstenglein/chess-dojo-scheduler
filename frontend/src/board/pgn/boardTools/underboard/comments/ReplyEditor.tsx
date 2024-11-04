@@ -51,7 +51,6 @@ const ReplyEditor: React.FC<ReplyEditorProps> = ({ parent, onCancel }) => {
         request.onStart();
         api.createComment(game.cohort, game.id, positionComment, true)
             .then((resp) => {
-                console.log('createComment: ', resp);
                 onUpdateGame(resp.data);
                 onCancel();
             })

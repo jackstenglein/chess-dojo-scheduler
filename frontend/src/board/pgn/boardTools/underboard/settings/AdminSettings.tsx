@@ -87,7 +87,6 @@ const GameReviewDetails: React.FC<AdminSettingsProps> = ({ game, onSaveGame }) =
         request.onStart();
         api.markReviewed(game.cohort, game.id)
             .then((resp) => {
-                console.log('markReviewed: ', resp.data);
                 request.onSuccess();
                 onSaveGame?.(resp.data);
             })

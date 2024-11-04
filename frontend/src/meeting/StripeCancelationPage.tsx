@@ -16,7 +16,6 @@ const StripeCancelationPage = () => {
             request.onStart();
             api.cancelEvent(meetingId)
                 .then((resp) => {
-                    console.log('cancelEvent: ', resp);
                     request.onSuccess();
                     put(resp.data);
                 })

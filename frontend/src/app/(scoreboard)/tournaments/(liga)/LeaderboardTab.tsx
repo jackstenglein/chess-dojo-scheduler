@@ -72,7 +72,6 @@ const LeaderboardTab = () => {
                             ...p,
                             rank: idx + 1,
                         })) || [];
-                    console.log('getLeaderboard: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {

@@ -131,7 +131,6 @@ export const ShareDialog = ({
             access: newAccess,
         })
             .then((resp) => {
-                console.log('shareDirectory: ', resp);
                 onClose();
                 request.onSuccess();
                 putDirectory(resp.data);
@@ -215,7 +214,6 @@ function AddAccessSection({
                     RatingSystem.Lichess,
                 ])
                     .then((resp) => {
-                        console.log('searchUsers: ', resp);
                         callback(resp);
                     })
                     .catch((err) => {
@@ -337,7 +335,6 @@ function CurrentAccessSection({
             usernames.push(owner);
             api.getUserSummaries(usernames)
                 .then((resp) => {
-                    console.log('getUserSummaries: ', resp);
                     request.onSuccess(
                         resp.data.reduce<Record<string, UserSummary>>((acc, user) => {
                             acc[user.username] = user;

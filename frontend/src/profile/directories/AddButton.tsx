@@ -63,7 +63,6 @@ export const AddButton = ({
             visibility,
         })
             .then((resp) => {
-                console.log('createDirectory: ', resp);
                 cache.put(resp.data.parent);
                 cache.putWithAccess(resp.data.directory, resp.data.accessRole);
                 trackEvent(EventType.CreateDirectory, { visibility });
