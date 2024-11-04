@@ -153,6 +153,8 @@ export const PairingsPage = () => {
                                                         />{' '}
                                                         {tournament.tournamentname}{' '}
                                                         Tournament Pairings
+                                                        {' '}
+                                                        {tournament.players.length < 10 ? '[Registration Open]': '[Tournament Started]'}
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
