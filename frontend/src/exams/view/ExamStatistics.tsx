@@ -21,6 +21,7 @@ import {
     ResponsiveChartContainer,
     ScatterPlot,
     ScatterSeriesType,
+    ScatterValueType,
     axisClasses,
     legendClasses,
     lineElementClasses,
@@ -57,7 +58,10 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
     const [legendMargin, setLegendMargin] = useState(100);
 
     const cohortToSeries = useMemo(() => {
-        const cohortToSeries: Record<string, ScatterSeriesType> = {};
+        const cohortToSeries: Record<
+            string,
+            ScatterSeriesType & { data: ScatterValueType[] }
+        > = {};
 
         Object.entries(exam.answers).forEach(([username, answer]) => {
             if (answer.rating <= 0 || username === user?.username) {

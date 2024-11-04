@@ -59,6 +59,7 @@ export const DeleteDialog = ({
             promises.push(
                 api
                     .removeDirectoryItem({
+                        owner: directory.owner,
                         directoryId: directory.id,
                         itemIds: gameItemIds,
                     })
@@ -73,7 +74,7 @@ export const DeleteDialog = ({
         }
         if (directoryItemIds.length > 0) {
             promises.push(
-                api.deleteDirectories(directoryItemIds).then((resp) => {
+                api.deleteDirectories(directory.owner, directoryItemIds).then((resp) => {
                     console.log('deleteDirectory: ', resp);
 
                     trackEvent(EventType.DeleteDirectory, {

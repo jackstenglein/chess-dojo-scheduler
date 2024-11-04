@@ -148,6 +148,8 @@ export interface User {
     exams: Record<string, UserExamSummary>;
 }
 
+export type UserSummary = Pick<User, 'username' | 'displayName' | 'dojoCohort'>;
+
 /** A summary of a user's performance on a single exam. */
 export interface UserExamSummary {
     /** The type of the exam this summary refers to. */

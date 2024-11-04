@@ -1,10 +1,12 @@
 import { useApi } from '@/api/Api';
 import { IdentifiableCache, useIdentifiableCache } from '@/api/cache/Cache';
-import { useRequest } from '@/api/Request';
+import { Request, useRequest } from '@/api/Request';
 import {
     Directory,
+    DirectoryAccessRole,
     DirectoryVisibility,
     HOME_DIRECTORY_ID,
+    SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { AxiosError } from 'axios';
 import {
@@ -24,6 +26,9 @@ export interface BreadcrumbItem {
     /** The name of the directory in the breadcrumb item. */
     name: string;
 
+    /** The owner of the directory in the breadcrumb item. */
+    owner: string;
+
     /** The id of the directory in the breadcrumb item. */
     id: string;
 
@@ -42,7 +47,17 @@ export interface BreadcrumbData {
     putBreadcrumb: (directory: Partial<Directory>) => void;
 }
 
-export type DirectoryCacheContextType = IdentifiableCache<Directory> & BreadcrumbData;
+export interface AccessData {
+    /** Maps a directory owner/id to the current user's access role. */
+    accessRoles: Record<string, DirectoryAccessRole | undefined>;
+
+    /** Puts the given directory into the cache, along with the current user's access role. */
+    putWithAccess: (directory: Directory, access?: DirectoryAccessRole) => void;
+}
+
+export type DirectoryCacheContextType = IdentifiableCache<Directory> &
+    BreadcrumbData &
+    AccessData;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const DirectoryCacheContext = createContext<DirectoryCacheContextType>(null!);
@@ -56,6 +71,9 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
         (item) => `${item.owner}/${item.id}`,
     );
     const [breadcrumbs, setBreadcrumbs] = useState<Record<string, BreadcrumbItem>>({});
+    const [accessData, setAccessData] = useState<
+        Record<string, DirectoryAccessRole | undefined>
+    >({});
 
     const putBreadcrumb = useCallback(
         (directory: Partial<Directory>) => {
@@ -65,6 +83,7 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
                         ...data,
                         [`${directory.owner}/${directory.id}`]: {
                             name: directory.name || '',
+                            owner: directory.owner || '',
                             id: directory.id || '',
                             parent: directory.parent || '',
                         },
@@ -93,6 +112,17 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
         [update, putBreadcrumb],
     );
 
+    const putDirectoryWithAccess = useCallback(
+        (directory: Directory, access?: DirectoryAccessRole) => {
+            putDirectory(directory);
+            setAccessData((data) => ({
+                ...data,
+                [`${directory.owner}/${directory.id}`]: access,
+            }));
+        },
+        [putDirectory, setAccessData],
+    );
+
     return (
         <DirectoryCacheContext.Provider
             value={{
@@ -102,6 +132,8 @@ export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
                 breadcrumbs,
                 setBreadcrumbs,
                 putBreadcrumb,
+                accessRoles: accessData,
+                putWithAccess: putDirectoryWithAccess,
             }}
         >
             {children}
@@ -120,7 +152,26 @@ const defaultHomeDirectory: Omit<Directory, 'owner'> = {
     itemIds: [],
 };
 
-export function useDirectory(owner: string, id: string) {
+const defaultSharedDirectory: Omit<Directory, 'owner'> = {
+    id: SHARED_DIRECTORY_ID,
+    parent: uuidNil,
+    name: 'Shared with Me',
+    visibility: DirectoryVisibility.PRIVATE,
+    createdAt: '',
+    updatedAt: '',
+    items: {},
+    itemIds: [],
+};
+
+export interface UseDirectoryResponse {
+    directory?: Directory;
+    accessRole?: DirectoryAccessRole;
+    request: Request;
+    putDirectory: (directory: Directory) => void;
+    updateDirectory: (directory: Partial<Directory>) => void;
+}
+
+export function useDirectory(owner: string, id: string): UseDirectoryResponse {
     const api = useApi();
     const cache = useDirectoryCache();
 
@@ -145,7 +196,7 @@ export function useDirectory(owner: string, id: string) {
                 .then((resp) => {
                     console.log('getDirectory: ', resp);
                     cache.markFetched(compoundKey);
-                    cache.put(resp.data);
+                    cache.putWithAccess(resp.data.directory, resp.data.accessRole);
                     cache.request.onSuccess();
                 })
                 .catch((err: AxiosError) => {
@@ -156,6 +207,9 @@ export function useDirectory(owner: string, id: string) {
                         if (id === HOME_DIRECTORY_ID) {
                             cache.put({ ...defaultHomeDirectory, owner });
                         }
+                        if (id === SHARED_DIRECTORY_ID) {
+                            cache.put({ ...defaultSharedDirectory, owner });
+                        }
                     } else {
                         cache.request.onFailure(err);
                     }
@@ -165,13 +219,14 @@ export function useDirectory(owner: string, id: string) {
 
     return {
         directory,
+        accessRole: cache.accessRoles[`${owner}/${id}`],
         request: cache.request,
         putDirectory: cache.put,
         updateDirectory: cache.update,
     };
 }
 
-export function useBreadcrumbs(owner: string, id: string) {
+export function useBreadcrumbs(owner: string, id: string, sharedOwner?: string) {
     const cache = useDirectoryCache();
     const api = useApi();
     const request = useRequest();
@@ -182,7 +237,11 @@ export function useBreadcrumbs(owner: string, id: string) {
     while (cache.breadcrumbs[compoundKey]) {
         const item = cache.breadcrumbs[compoundKey];
         result.push(item);
-        compoundKey = `${owner}/${item.parent}`;
+        if (item.parent === SHARED_DIRECTORY_ID && sharedOwner) {
+            compoundKey = `${sharedOwner}/${item.parent}`;
+        } else {
+            compoundKey = `${owner}/${item.parent}`;
+        }
     }
 
     const setBreadcrumbs = cache.setBreadcrumbs;
@@ -192,7 +251,11 @@ export function useBreadcrumbs(owner: string, id: string) {
         }
 
         request.onStart();
-        api.listBreadcrumbs(owner, id)
+        api.listBreadcrumbs({
+            owner,
+            id,
+            shared: Boolean(sharedOwner && sharedOwner !== owner),
+        })
             .then((resp) => {
                 console.log('listBreadcrumbs: ', resp);
                 request.onSuccess();
@@ -202,7 +265,7 @@ export function useBreadcrumbs(owner: string, id: string) {
                 console.error('listBreadcrumbs: ', err);
                 request.onFailure(err);
             });
-    }, [id, request, api, owner, setBreadcrumbs]);
+    }, [id, request, api, owner, setBreadcrumbs, sharedOwner]);
 
     return result.reverse();
 }
