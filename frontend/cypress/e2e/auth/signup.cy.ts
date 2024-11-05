@@ -1,6 +1,13 @@
 describe('Signup Page', () => {
     beforeEach(() => {
         cy.visit('/signup');
+        cy.intercept('POST', 'https://cognito-idp.us-east-1.amazonaws.com/', {
+            CodeDeliveryDetails: {
+                AttributeName: 'email',
+                DeliveryMedium: 'EMAIL',
+                Destination: 'test@email.com',
+            },
+        });
     });
 
     it('has correct content', () => {
@@ -40,13 +47,16 @@ describe('Signup Page', () => {
         cy.get('#password-helper-text').should('have.text', 'Password is required');
     });
 
-    it('redirects to email verification after submit', () => {
+    it('shows email verification after submit', () => {
         cy.get('#name').type('Test Name');
         cy.get('#email').type('test@email.com');
         cy.get('#password').type('testpassword');
 
         cy.getBySel('submit-button').click();
 
-        cy.location('pathname').should('equal', '/verify-email');
+        cy.getBySel('description').should(
+            'contain',
+            'please enter the verification code',
+        );
     });
 });

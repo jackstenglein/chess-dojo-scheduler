@@ -1,6 +1,6 @@
 describe('Verify Email Page', () => {
     beforeEach(() => {
-        cy.visit('/verify-email');
+        cy.visit('/signup');
         cy.intercept('POST', 'https://cognito-idp.us-east-1.amazonaws.com/', {
             CodeDeliveryDetails: {
                 AttributeName: 'email',
