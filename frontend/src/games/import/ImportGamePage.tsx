@@ -41,7 +41,6 @@ const ImportGamePage = () => {
                         newUrl += `&directory=${req.directory.id}&directoryOwner=${req.directory.owner}`;
                     }
 
-                    console.log('New URL: ', newUrl);
                     navigate(newUrl);
                 } else {
                     const count = response.data.count;
