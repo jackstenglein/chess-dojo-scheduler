@@ -1,6 +1,6 @@
+import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { describe, expect, it } from 'vitest';
 import {
-    GameSubmissionType,
     isChesscomAnalysisURL,
     isChesscomGameURL,
     isLichessChapterURL,
@@ -9,27 +9,27 @@ import {
 } from './gameApi';
 
 const testURLs: Record<string, string[]> = {
-    [GameSubmissionType.ChesscomGame]: ['https://www.chess.com/game/live/107855985867'],
-    [GameSubmissionType.ChesscomAnalysis]: [
+    [GameImportTypes.chesscomGame]: ['https://www.chess.com/game/live/107855985867'],
+    [GameImportTypes.chesscomAnalysis]: [
         'https://www.chess.com/analysis/game/live/108036079387?tab=review',
         'https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis',
     ],
-    [GameSubmissionType.LichessGame]: [
+    [GameImportTypes.lichessGame]: [
         'https://lichess.org/mN1qj7pP/black',
         'https://lichess.org/mN1qj7pP/',
         'https://lichess.org/mN1qj7pP',
         'https://lichess.org/mN1qj7pP/white',
     ],
-    [GameSubmissionType.LichessStudy]: ['https://lichess.org/study/JIPuIPVG/'],
-    [GameSubmissionType.LichessChapter]: ['https://lichess.org/study/y14Z6s3N/fqJZzUm8'],
+    [GameImportTypes.lichessStudy]: ['https://lichess.org/study/JIPuIPVG/'],
+    [GameImportTypes.lichessChapter]: ['https://lichess.org/study/y14Z6s3N/fqJZzUm8'],
 };
 
 const urlMatchers: Record<string, (url: string) => boolean> = {
-    [GameSubmissionType.ChesscomGame]: isChesscomGameURL,
-    [GameSubmissionType.ChesscomAnalysis]: isChesscomAnalysisURL,
-    [GameSubmissionType.LichessGame]: isLichessGameURL,
-    [GameSubmissionType.LichessStudy]: isLichessStudyURL,
-    [GameSubmissionType.LichessChapter]: isLichessChapterURL,
+    [GameImportTypes.chesscomGame]: isChesscomGameURL,
+    [GameImportTypes.chesscomAnalysis]: isChesscomAnalysisURL,
+    [GameImportTypes.lichessGame]: isLichessGameURL,
+    [GameImportTypes.lichessStudy]: isLichessStudyURL,
+    [GameImportTypes.lichessChapter]: isLichessChapterURL,
 };
 
 Object.entries(urlMatchers).forEach(([submissionType, match]) =>

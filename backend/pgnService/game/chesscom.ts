@@ -1,10 +1,9 @@
-import { Chess } from '@jackstenglein/chess';
+import { CandidateMove, Chess } from '@jackstenglein/chess';
 import tcn from '@savi2w/chess-tcn';
 import axios from 'axios';
+import { ApiError } from 'chess-dojo-directory-service/api';
 import { Browser, BrowserErrorCaptureEnum } from 'happy-dom';
 import moment from 'moment';
-import { ApiError } from './errors';
-
 /**
  * Converts the given epoch milliseconds to the H:mm:ss format.
  * @param ms The epoch time in milliseconds.
@@ -144,7 +143,7 @@ export async function getChesscomGame(gameURL?: string) {
         const clk = msToClk(timestamp);
         const move = tcn.decode(encodedMove);
 
-        game.move(move);
+        game.move(move as CandidateMove);
         game.setComment(`[%clk ${clk}]`);
     });
 

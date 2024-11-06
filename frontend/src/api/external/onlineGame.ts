@@ -1,6 +1,9 @@
+import {
+    GameImportTypes,
+    OnlineGameImportType,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { useEffect, useMemo } from 'react';
 import { GameResult } from '../../database/game';
-import { GameSubmissionType } from '../gameApi';
 import {
     ChesscomGame,
     ChesscomGameResult,
@@ -12,7 +15,7 @@ import { LichessGame, LichessPerfType, useLichessUserGames } from './lichess';
 /** A unified interface for online games from any source. */
 export interface OnlineGame {
     /** The source where this game was originally pulled from. */
-    source: GameSubmissionType;
+    source: OnlineGameImportType;
 
     /** The id of the game in the original source. */
     id: string;
@@ -126,7 +129,7 @@ export function chesscomOnlineGame(
     const [result, resultReason] = chesscomGameResult(game);
 
     return {
-        source: GameSubmissionType.ChesscomGame,
+        source: GameImportTypes.chesscomGame,
         id: game.uuid,
         url: game.url,
         endTime: game.end_time * 1000,
@@ -235,7 +238,7 @@ export function lichessOnlineGame(
     const { white, black } = game.players;
 
     return {
-        source: GameSubmissionType.LichessGame,
+        source: GameImportTypes.lichessGame,
         id: game.id,
         url: `https://lichess.org/${game.id}`,
         endTime: game.lastMoveAt,

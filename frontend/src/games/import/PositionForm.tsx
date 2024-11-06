@@ -1,4 +1,5 @@
 import { Chess } from '@jackstenglein/chess';
+import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import {
     Autocomplete,
     Box,
@@ -11,7 +12,6 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
-import { GameSubmissionType } from '../../api/gameApi';
 import { useFreeTier } from '../../auth/Auth';
 import Board from '../../board/Board';
 import { ALL_COHORTS } from '../../database/user';
@@ -78,7 +78,7 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
             const chess = new Chess({ fen });
             onSubmit({
                 pgnText: chess.pgn.render(),
-                type: GameSubmissionType.Fen,
+                type: GameImportTypes.fen,
             });
         } catch (err) {
             setError('Invalid FEN');
