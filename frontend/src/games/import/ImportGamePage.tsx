@@ -1,11 +1,12 @@
 import { useRequiredAuth } from '@/auth/Auth';
+import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Container } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { CreateGameRequest, isGame } from '../../api/gameApi';
+import { isGame } from '../../api/gameApi';
 import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
@@ -17,7 +18,10 @@ const ImportGamePage = () => {
 
     const onCreate = (req: CreateGameRequest) => {
         if (searchParams.has('directory')) {
-            req.directory = `${user.username}/${searchParams.get('directory')}`;
+            req.directory = {
+                owner: user.username,
+                id: searchParams.get('directory') || '',
+            };
         }
 
         request.onStart();

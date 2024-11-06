@@ -1,3 +1,8 @@
+import {
+    CreateGameRequest,
+    GameHeader,
+    UpdateGameRequest,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import axios, { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { getConfig } from '../config';
@@ -53,7 +58,7 @@ export interface GameApiContextType {
     updateGame: (
         cohort: string,
         id: string,
-        req: UpdateGameRequest,
+        req: Partial<UpdateGameRequest>,
     ) => Promise<AxiosResponse<Game>>;
 
     /**
@@ -196,45 +201,6 @@ export interface GameApiContextType {
     markReviewed: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
 }
 
-export enum GameSubmissionType {
-    LichessChapter = 'lichessChapter',
-    LichessStudy = 'lichessStudy',
-    LichessGame = 'lichessGame',
-    ChesscomGame = 'chesscomGame',
-    ChesscomAnalysis = 'chesscomAnalysis',
-    Editor = 'editor',
-    Manual = 'manual',
-    StartingPosition = 'startingPosition',
-    Fen = 'fen',
-}
-
-export interface CreateGameRequest {
-    url?: string;
-    pgnText?: string;
-    type: GameSubmissionType;
-
-    /** The id of the directory to add the game to. */
-    directory?: string;
-}
-
-/** The orientation of the board. */
-export type BoardOrientation = 'white' | 'black';
-
-export interface UpdateGameRequest extends Omit<CreateGameRequest, 'type'> {
-    timelineId?: string;
-    orientation?: BoardOrientation;
-    unlisted?: boolean;
-    headers?: GameHeader;
-    type?: GameSubmissionType;
-}
-
-export interface GameHeader {
-    white: string;
-    black: string;
-    date: string;
-    result: string;
-}
-
 export interface EditGameResponse {
     headers: GameHeader[];
     count: number;
@@ -312,7 +278,7 @@ export function updateGame(
     idToken: string,
     cohort: string,
     id: string,
-    req: UpdateGameRequest,
+    req: Partial<UpdateGameRequest>,
 ) {
     cohort = encodeURIComponent(cohort);
     // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded

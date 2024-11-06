@@ -1,12 +1,6 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
-import {
-    BoardOrientation,
-    GameHeader,
-    GameSubmissionType,
-    isMissingData,
-    UpdateGameRequest,
-} from '@/api/gameApi';
+import { isMissingData } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
@@ -15,6 +9,12 @@ import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButton
 import { GameContext } from '@/context/useGame';
 import { Game } from '@/database/game';
 import { Chess } from '@jackstenglein/chess';
+import {
+    GameHeader,
+    GameImportTypes,
+    GameOrientation,
+    UpdateGameRequest,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Box } from '@mui/material';
 import { useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -53,7 +53,7 @@ const GamePage = () => {
         }
     }, [request, api, cohort, id]);
 
-    const onSave = (headers: GameHeader, orientation: BoardOrientation) => {
+    const onSave = (headers: GameHeader, orientation: GameOrientation) => {
         const game = request.data;
 
         if (game === undefined) {
@@ -79,10 +79,12 @@ const GamePage = () => {
         }
 
         const update: UpdateGameRequest = {
+            cohort: game.cohort,
+            id: game.id,
             headers,
             unlisted: true,
             orientation,
-            type: GameSubmissionType.Editor,
+            type: GameImportTypes.editor,
             pgnText: chess.renderPgn(),
         };
 
