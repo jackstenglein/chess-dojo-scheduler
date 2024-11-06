@@ -8,6 +8,7 @@ import PgnBoard from '@/board/pgn/PgnBoard';
 import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
 import { GameContext } from '@/context/useGame';
 import { Game } from '@/database/game';
+import { useSearchParams } from '@/hooks/useSearchParams';
 import { Chess } from '@jackstenglein/chess';
 import {
     GameHeader,
@@ -17,7 +18,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Box } from '@mui/material';
 import { useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
 import PgnErrorBoundary from './PgnErrorBoundary';
 
@@ -28,7 +29,7 @@ const GamePage = () => {
     const updateRequest = useRequest<Game>();
     const { cohort, id } = useParams();
     const user = useAuth().user;
-    const [searchParams, setSearchParams] = useSearchParams({ firstLoad: 'false' });
+    const { searchParams, updateSearchParams } = useSearchParams({ firstLoad: 'false' });
     const firstLoad = searchParams.get('firstLoad') === 'true';
 
     const reset = request.reset;
@@ -98,7 +99,7 @@ const GamePage = () => {
                 const updatedGame = resp.data;
                 request.onSuccess(updatedGame);
                 updateRequest.onSuccess(updatedGame);
-                setSearchParams();
+                updateSearchParams({ firstLoad: 'false' });
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
@@ -161,7 +162,7 @@ const GamePage = () => {
                     initOrientation={request.data.orientation}
                     loading={updateRequest.isLoading()}
                     onSubmit={onSave}
-                    onClose={() => setSearchParams()}
+                    onClose={() => updateSearchParams({ firstLoad: 'false' })}
                 >
                     You can fill this data out now or later in settings.
                 </MissingGameDataPreflight>

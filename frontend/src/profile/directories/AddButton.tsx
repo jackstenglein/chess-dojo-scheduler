@@ -104,7 +104,10 @@ export const AddButton = ({
                     />
                 </MenuItem>
 
-                <MenuItem component='a' href={`/games/import?directory=${directory.id}`}>
+                <MenuItem
+                    component='a'
+                    href={`/games/import?directory=${directory.id}&directoryOwner=${directory.owner}`}
+                >
                     <ListItemIcon>
                         <PawnIcon />
                     </ListItemIcon>

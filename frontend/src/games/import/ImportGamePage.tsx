@@ -1,12 +1,11 @@
-import { useRequiredAuth } from '@/auth/Auth';
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { isGame } from '@/api/gameApi';
 import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Container } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import { useNavigate } from 'react-router-dom';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { isGame } from '../../api/gameApi';
 import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
@@ -14,12 +13,11 @@ const ImportGamePage = () => {
     const request = useRequest<string>();
     const navigate = useNavigate();
     const searchParams = useSearchParams();
-    const { user } = useRequiredAuth();
 
     const onCreate = (req: CreateGameRequest) => {
-        if (searchParams.has('directory')) {
+        if (searchParams.has('directory') && searchParams.has('directoryOwner')) {
             req.directory = {
-                owner: user.username,
+                owner: searchParams.get('directoryOwner') || '',
                 id: searchParams.get('directory') || '',
             };
         }
@@ -33,12 +31,18 @@ const ImportGamePage = () => {
                         count: 1,
                         method: req.type,
                     });
-                    navigate(
-                        `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
-                            '?',
-                            '%3F',
-                        )}?firstLoad=true`,
-                    );
+
+                    let newUrl = `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
+                        '?',
+                        '%3F',
+                    )}?firstLoad=true`;
+
+                    if (req.directory) {
+                        newUrl += `&directory=${req.directory.id}&directoryOwner=${req.directory.owner}`;
+                    }
+
+                    console.log('New URL: ', newUrl);
+                    navigate(newUrl);
                 } else {
                     const count = response.data.count;
                     trackEvent(EventType.SubmitGame, {

@@ -12,16 +12,15 @@ import {
     isLichessGameURL,
     isLichessStudyURL,
 } from '@/api/gameApi';
-import {
-    GameImportTypes,
-    OnlineGameImportType,
-} from '@jackstenglein/chess-dojo-common/src/database/game';
-
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { RenderPlayers } from '@/components/games/list/GameListItem';
 import { RatingSystem, isCohortInRange } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
+import {
+    GameImportTypes,
+    OnlineGameImportType,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import {
     Backdrop,
     Button,
