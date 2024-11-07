@@ -68,6 +68,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
+          - dynamodb:PutItem
         Resource: !GetAtt DirectoriesTable.Arn
 
   getV2:
@@ -83,6 +84,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
+          - dynamodb:PutItem
         Resource: !GetAtt DirectoriesTable.Arn
 
   listBreadcrumbs:

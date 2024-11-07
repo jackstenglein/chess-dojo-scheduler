@@ -172,7 +172,6 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
         request.onStart();
         api.updateComment(update)
             .then((resp) => {
-                console.log('updateComment: ', resp);
                 onUpdateGame?.(resp.data);
                 setEditValue(undefined);
                 request.onSuccess();
@@ -193,7 +192,6 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             parentIds: comment.parentIds,
         })
             .then((resp) => {
-                console.log('deleteComment: ', resp);
                 onUpdateGame?.(resp.data);
                 setShowDelete(false);
             })

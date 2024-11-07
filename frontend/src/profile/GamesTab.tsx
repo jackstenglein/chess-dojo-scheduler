@@ -78,7 +78,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                     namespace='games-profile-tab'
                     pagination={pagination}
                     onPaginationModelChange={onPaginationModelChange}
-                    onClickRow={onClickRow}
+                    onRowClick={onClickRow}
                     contextMenu={contextMenu}
                     defaultVisibility={{
                         publishedAt: false,

@@ -1,5 +1,6 @@
 import { useChess } from '@/board/pgn/PgnBoard';
 import { EventType } from '@jackstenglein/chess';
+import { E_CANCELED } from 'async-mutex';
 import { useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import {
@@ -62,33 +63,33 @@ export function useEval(
                 return;
             }
 
-            const rawPositionEval = await engine.evaluatePositionWithUpdate({
-                fen,
-                depth,
-                multiPv,
-                threads: threads || 4,
-                hash: Math.pow(2, hash),
-                setPartialEval: (positionEval: PositionEval) => {
-                    if (positionEval.lines[0]?.fen === chess.fen()) {
-                        setCurrentPosition(positionEval);
-                    }
-                },
-            });
+            try {
+                const rawPositionEval = await engine.evaluatePositionWithUpdate({
+                    fen,
+                    depth,
+                    multiPv,
+                    threads: threads || 4,
+                    hash: Math.pow(2, hash),
+                    setPartialEval: (positionEval: PositionEval) => {
+                        if (positionEval.lines[0]?.fen === chess.fen()) {
+                            setCurrentPosition(positionEval);
+                        }
+                    },
+                });
 
-            savedEvals.current = {
-                ...savedEvals.current,
-                [fen]: { ...rawPositionEval, engine: engineName },
-            };
+                savedEvals.current = {
+                    ...savedEvals.current,
+                    [fen]: { ...rawPositionEval, engine: engineName },
+                };
+            } catch (err) {
+                if (err !== E_CANCELED) {
+                    throw err;
+                }
+            }
         };
 
         const observer = {
-            types: [
-                EventType.Initialized,
-                EventType.DeleteMove,
-                EventType.LegalMove,
-                EventType.NewVariation,
-                EventType.PromoteVariation,
-            ],
+            types: [EventType.Initialized, EventType.LegalMove],
             handler: evaluate,
         };
 

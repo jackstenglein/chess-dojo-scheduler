@@ -11,10 +11,19 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
+    UpdateGameRequest,
+    UpdateGameSchema,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
+import {
     APIGatewayProxyEventV2,
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
+import {
+    ApiError,
+    errToApiGatewayProxyResultV2,
+    parseEvent,
+} from 'chess-dojo-directory-service/api';
 import { directoryTable } from 'chess-dojo-directory-service/database';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -26,13 +35,10 @@ import {
     success,
     timelineTable,
 } from './create';
-import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
 import {
     Game,
     GameImportHeaders,
-    GameOrientation,
     GameUpdate,
-    UpdateGameRequest,
     isPublishableResult,
     isValidDate,
 } from './types';
@@ -57,7 +63,7 @@ async function updateGame(
         });
     }
 
-    const request = getRequest(event);
+    const request = parseEvent(event, UpdateGameSchema);
     const update = await getGameUpdate(request);
 
     const result = await applyUpdate(
@@ -77,64 +83,6 @@ async function updateGame(
     }
 
     return success(result.new);
-}
-
-/**
- * Parses an API Gateway event and returns the corresponding UpdateGameRequest.
- * @param event The API Gateway event to parse.
- * @returns An UpdateGameRequest.
- */
-function getRequest(event: APIGatewayProxyEventV2): UpdateGameRequest {
-    const cohort = event.pathParameters?.cohort;
-    if (!cohort) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: cohort is required',
-        });
-    }
-
-    const encodedId = event.pathParameters?.id;
-    if (!encodedId) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: id is required',
-        });
-    }
-    const id = atob(encodedId);
-
-    try {
-        const request: Partial<UpdateGameRequest> = JSON.parse(event.body || '{}');
-        if (!request.type && !request.orientation) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage:
-                    'Invalid request: at least one of type or orientation is required',
-            });
-        }
-        if (
-            request.orientation &&
-            request.orientation !== GameOrientation.White &&
-            request.orientation !== GameOrientation.Black
-        ) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: `Invalid request: orientation must be "${GameOrientation.White}" or "${GameOrientation.Black}" if provided`,
-            });
-        }
-
-        return {
-            ...request,
-            cohort,
-            id,
-        };
-    } catch (err) {
-        console.error('Failed to unmarshal body: ', err);
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: body could not be unmarshaled',
-            cause: err,
-        });
-    }
 }
 
 /**

@@ -1,15 +1,15 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Game } from '@/database/game';
 import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
+import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { CloudDone, CloudOff } from '@mui/icons-material';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import debounce from 'lodash.debounce';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { EventType, trackEvent } from '../../../../analytics/events';
-import { useApi } from '../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../api/Request';
-import { GameSubmissionType } from '../../../../api/gameApi';
-import { useAuth } from '../../../../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../../../../calendar/displayDate';
-import { Game } from '../../../../database/game';
 import { useChess } from '../../PgnBoard';
 
 export function useDebounce<T>(callback: (...args: T[]) => void, delay = 6000) {
@@ -46,7 +46,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
         if (pgnText !== initialPgn) {
             request.onStart();
             api.updateGame(cohort, id, {
-                type: GameSubmissionType.Editor,
+                type: GameImportTypes.editor,
                 pgnText,
             })
                 .then(() => {

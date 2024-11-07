@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ApiError } from './errors';
+import { ApiError } from 'chess-dojo-directory-service/api';
 import { getPathSegment } from './helpers';
 import { isValidResult } from './types';
 

@@ -87,7 +87,6 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
         request.onStart();
         api.putOpenClassicalPairings(req)
             .then((resp) => {
-                console.log('putOpenClassicalPairings: ', resp);
                 request.onSuccess(resp.data);
                 onSuccess(resp.data);
                 handleClose();

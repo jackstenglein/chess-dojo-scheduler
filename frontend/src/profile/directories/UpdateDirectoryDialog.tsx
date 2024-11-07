@@ -181,7 +181,6 @@ export const onUpdateDirectory =
             visibility,
         })
             .then((resp) => {
-                console.log('updateDirectory: ', resp);
                 cache.put(resp.data.directory);
                 if (resp.data.parent) {
                     cache.put(resp.data.parent);

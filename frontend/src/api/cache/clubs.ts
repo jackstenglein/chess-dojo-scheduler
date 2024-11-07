@@ -28,7 +28,6 @@ export function useClubs(clubIds: string[]) {
 
             api.batchGetClubs(clubIds)
                 .then((resp) => {
-                    console.log('batchGetClubs: ', resp.data);
                     cache.clubs.putMany(resp.data);
                     request.onSuccess();
                 })

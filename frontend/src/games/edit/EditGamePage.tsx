@@ -1,9 +1,13 @@
+import {
+    CreateGameRequest,
+    GameHeader,
+    UpdateGameRequest,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Box, Container, Stack, Typography } from '@mui/material';
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { CreateGameRequest, GameHeader, UpdateGameRequest } from '../../api/gameApi';
 import { Game } from '../../database/game';
 import ImportWizard from '../import/ImportWizard';
 
@@ -26,6 +30,8 @@ const EditGamePage = () => {
 
         const req: UpdateGameRequest = {
             ...remoteGame,
+            cohort,
+            id,
             unlisted: game?.unlisted,
             headers,
         };

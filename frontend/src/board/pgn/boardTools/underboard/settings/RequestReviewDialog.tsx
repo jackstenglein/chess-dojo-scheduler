@@ -132,7 +132,6 @@ const SubmitDialogContent: React.FC<{
         request.onStart();
         api.requestReview(cohort, id, reviewType)
             .then((resp) => {
-                console.log('requestReview: ', resp);
                 window.location.href = resp.data.url;
             })
             .catch((err) => {

@@ -113,7 +113,6 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
         request.onStart();
         api.bookEvent(availability.id, selectedTime, selectedType)
             .then((response) => {
-                console.log('Book response: ', response);
                 trackEvent(EventType.BookAvailability, {
                     availability_id: availability.id,
                     is_group: false,
@@ -135,7 +134,6 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
         request.onStart();
         api.bookEvent(availability.id)
             .then((response) => {
-                console.log('Book response: ', response);
                 trackEvent(EventType.BookAvailability, {
                     availability_id: availability.id,
                     is_group: true,

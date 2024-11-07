@@ -64,7 +64,6 @@ export const DeleteDialog = ({
                         itemIds: gameItemIds,
                     })
                     .then((resp) => {
-                        console.log('removeDirectoryItem: ', resp);
                         cache.put(resp.data.directory);
                         trackEvent(EventType.RemoveDirectoryItems, {
                             count: gameItemIds.length,
@@ -75,8 +74,6 @@ export const DeleteDialog = ({
         if (directoryItemIds.length > 0) {
             promises.push(
                 api.deleteDirectories(directory.owner, directoryItemIds).then((resp) => {
-                    console.log('deleteDirectory: ', resp);
-
                     trackEvent(EventType.DeleteDirectory, {
                         count: directoryItemIds.length,
                     });

@@ -1,3 +1,8 @@
+import {
+    CreateGameRequest,
+    GameImportType,
+    GameImportTypes,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { DesktopMacOutlined, UploadFile } from '@mui/icons-material';
 import {
     Card,
@@ -13,7 +18,6 @@ import {
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { useState } from 'react';
-import { CreateGameRequest, GameSubmissionType } from '../../api/gameApi';
 import BoardIcon from '../../style/BoardIcon';
 import KingRookIcon from '../../style/KingRookIcon';
 import { OnlineGameForm } from './OnlineGameForm';
@@ -26,7 +30,7 @@ interface ImportWizardProps {
 }
 
 export const ImportWizard = ({ onSubmit, loading }: ImportWizardProps) => {
-    const [selected, setSelected] = useState<GameSubmissionType>();
+    const [selected, setSelected] = useState<GameImportType>();
     const [dialog, setDialog] = useState<string>();
 
     const onSelect = (req: CreateGameRequest) => {
@@ -44,10 +48,10 @@ export const ImportWizard = ({ onSubmit, loading }: ImportWizardProps) => {
                 name='Starting Position'
                 description='Annotate a blank game'
                 icon={KingRookIcon}
-                loading={selected === GameSubmissionType.StartingPosition && loading}
+                loading={selected === GameImportTypes.startingPosition && loading}
                 disabled={loading}
                 onClick={() => {
-                    onSelect({ type: GameSubmissionType.StartingPosition, pgnText: '' });
+                    onSelect({ type: GameImportTypes.startingPosition, pgnText: '' });
                 }}
                 id='import-starting-position'
             />

@@ -61,7 +61,6 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
             request.onStart();
             api.getClub(id, true)
                 .then((resp) => {
-                    console.log('getClub: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
@@ -101,7 +100,6 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
             joinRequest.onStart();
             api.joinClub(id || '')
                 .then((resp) => {
-                    console.log('joinClub: ', resp);
                     onProcessRequest(resp.data, 'Joined club');
                     joinRequest.onSuccess();
                 })

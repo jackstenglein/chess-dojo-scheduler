@@ -17,8 +17,6 @@ import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
 import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
-import SignupPage from './auth/SignupPage';
-import VerifyEmailPage from './auth/VerifyEmailPage';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
 import CoachPortalPage from './coaching/coaches/CoachPortalPage';
@@ -48,7 +46,6 @@ import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import ProfileEditorPage from './profile/editor/ProfileEditorPage';
 import FollowersPage from './profile/followers/FollowersPage';
-import YearReviewPage from './profile/yearReview/YearReviewPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
 import RequirementPage from './requirements/RequirementPage';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
@@ -66,10 +63,6 @@ const router = createBrowserRouter(
         <Route path='/' element={<Root />}>
             <Route element={<SwitchCohortPrompt />}>
                 <Route index element={<LandingPage />} />
-                <Route path='signup' element={<SignupPage />} />
-                <Route path='verify-email' element={<VerifyEmailPage />} />
-
-                <Route path='yearreview/:username/:year' element={<YearReviewPage />} />
 
                 <Route element={<RequireAuth />}>
                     <Route path='profile'>

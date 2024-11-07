@@ -216,7 +216,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const user = parseUser(apiResponse.data, cognitoUser);
-        console.log('Got user: ', user);
         setUser(user);
         setStatus(AuthStatus.Authenticated);
         setAnalyticsUser(user);

@@ -117,7 +117,7 @@ const ListGamesPage = () => {
                         namespace='games-list-page'
                         limitFreeTier
                         pagination={pagination}
-                        onClickRow={(params) => onClick(params.row)}
+                        onRowClick={(params) => onClick(params.row)}
                         onPaginationModelChange={onPaginationModelChange}
                         contextMenu={contextMenu}
                         defaultVisibility={{

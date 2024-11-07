@@ -45,7 +45,6 @@ const SupportTicket = () => {
             message: message.trim(),
         })
             .then((resp) => {
-                console.log('createSupportTicket:', resp);
                 request.onSuccess(resp.data.ticketId);
             })
             .catch((err) => {

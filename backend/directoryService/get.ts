@@ -9,6 +9,7 @@ import {
     DirectoryItemTypes,
     DirectorySchema,
     DirectoryVisibility,
+    HOME_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { checkAccess, getAccessRole } from './access';
@@ -19,6 +20,7 @@ import {
     requireUserInfo,
     success,
 } from './api';
+import { createHomeDirectory } from './create';
 import { directoryTable, dynamo } from './database';
 
 export const getDirectorySchema = DirectorySchema.pick({ owner: true, id: true });
@@ -35,13 +37,17 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         const userInfo = requireUserInfo(event);
         const request = parsePathParameters(event, getDirectorySchema);
-        const directory = await fetchDirectory(request.owner, request.id);
+        let directory = await fetchDirectory(request.owner, request.id);
 
         if (!directory) {
-            throw new ApiError({
-                statusCode: 404,
-                publicMessage: 'Directory not found',
-            });
+            if (userInfo.username === request.owner && request.id === HOME_DIRECTORY_ID) {
+                directory = await createHomeDirectory(userInfo.username);
+            } else {
+                throw new ApiError({
+                    statusCode: 404,
+                    publicMessage: 'Directory not found',
+                });
+            }
         }
 
         const accessRole = await getAccessRole({
@@ -75,13 +81,17 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
 
         const userInfo = requireUserInfo(event);
         const request = parsePathParameters(event, getDirectorySchema);
-        const directory = await fetchDirectory(request.owner, request.id);
+        let directory = await fetchDirectory(request.owner, request.id);
 
         if (!directory) {
-            throw new ApiError({
-                statusCode: 404,
-                publicMessage: 'Directory not found',
-            });
+            if (userInfo.username === request.owner && request.id === HOME_DIRECTORY_ID) {
+                directory = await createHomeDirectory(userInfo.username);
+            } else {
+                throw new ApiError({
+                    statusCode: 404,
+                    publicMessage: 'Directory not found',
+                });
+            }
         }
 
         const accessRole = await getAccessRole({

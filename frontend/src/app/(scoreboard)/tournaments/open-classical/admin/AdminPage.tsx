@@ -27,7 +27,6 @@ const AdminPage = () => {
             request.onStart();
             api.getOpenClassical()
                 .then((resp) => {
-                    console.log('getOpenClassical: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {

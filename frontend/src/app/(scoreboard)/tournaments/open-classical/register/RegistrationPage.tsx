@@ -105,8 +105,7 @@ const RegistrationPage = () => {
             section,
             byeRequests,
         })
-            .then((resp) => {
-                console.log('registerForOpenClassical: ', resp);
+            .then(() => {
                 request.onSuccess();
             })
             .catch((err) => {

@@ -1,3 +1,4 @@
+import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Clear } from '@mui/icons-material';
 import {
     Button,
@@ -12,7 +13,6 @@ import {
     TextField,
 } from '@mui/material';
 import React, { useRef, useState } from 'react';
-import { GameSubmissionType } from '../../api/gameApi';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 import { OrDivider } from './OrDivider';
@@ -46,8 +46,8 @@ export const PGNForm: React.FC<ImportDialogProps> = ({ onSubmit, loading, onClos
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const text = e.target?.result?.toString();
-                onSubmit({ pgnText: text, type: GameSubmissionType.Manual });
+                const text = e.target?.result?.toString() ?? '';
+                onSubmit({ pgnText: text, type: GameImportTypes.manual });
             };
             reader.readAsText(file);
             return;
@@ -55,7 +55,7 @@ export const PGNForm: React.FC<ImportDialogProps> = ({ onSubmit, loading, onClos
 
         onSubmit({
             pgnText,
-            type: GameSubmissionType.Manual,
+            type: GameImportTypes.manual,
         });
     };
 

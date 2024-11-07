@@ -140,7 +140,6 @@ const StatisticsPage = () => {
             request.onStart();
             api.getUserStatistics()
                 .then((response) => {
-                    console.log('getUserStatistics: ', response);
                     request.onSuccess(response.data);
                 })
                 .catch((err) => {

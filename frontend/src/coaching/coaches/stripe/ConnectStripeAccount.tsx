@@ -14,7 +14,6 @@ const ConnectStripeAccount = () => {
 
         api.createPaymentAccount()
             .then((response) => {
-                console.log('Create Payment Account: ', response);
                 window.location.href = response.data.url;
             })
             .catch((err) => {

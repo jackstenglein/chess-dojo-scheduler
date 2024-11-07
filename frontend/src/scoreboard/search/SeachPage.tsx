@@ -209,7 +209,6 @@ const SearchPage = () => {
 
         searchUsers(query.trim(), selectedFields)
             .then((resp) => {
-                console.log('searchUsers: ', resp);
                 onSuccess(resp);
             })
             .catch((err) => {

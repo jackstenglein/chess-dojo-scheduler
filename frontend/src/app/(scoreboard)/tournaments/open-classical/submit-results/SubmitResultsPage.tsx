@@ -74,7 +74,6 @@ const SubmitResultsPage = () => {
         axios
             .get<LichessGameResponse>(`https://lichess.org/api/game/${gameId}`)
             .then((resp) => {
-                console.log('Lichess Game Resp: ', resp);
                 setErrors({ ...errors, gameUrl: '' });
                 setWhite(resp.data.players.white.userId);
                 setBlack(resp.data.players.black.userId);
@@ -140,7 +139,6 @@ const SubmitResultsPage = () => {
             notes: notes.trim(),
         })
             .then((resp) => {
-                console.log('submitResultsForOpenClassical: ', resp);
                 request.onSuccess();
                 const round =
                     resp.data.sections[`${region}_${section}`]?.rounds.length ||

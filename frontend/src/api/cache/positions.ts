@@ -28,7 +28,6 @@ export function usePosition(fen: string): UsePositionResponse {
             request.onStart();
             api.getPosition(normalizedFen)
                 .then((resp) => {
-                    console.log('getPosition: ', resp);
                     cache.positions.markFetched(normalizedFen);
                     cache.positions.put(resp.data);
                     request.onSuccess();

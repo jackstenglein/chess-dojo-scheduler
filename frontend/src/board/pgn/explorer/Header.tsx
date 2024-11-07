@@ -147,7 +147,6 @@ const FollowDialog: React.FC<FollowDialogProps> = ({
             disableVariations,
         })
             .then((resp) => {
-                console.log('followPosition: ', resp);
                 request.onSuccess();
                 setFollower(resp.data);
                 onClose();
@@ -166,7 +165,6 @@ const FollowDialog: React.FC<FollowDialogProps> = ({
             unfollow: true,
         })
             .then((resp) => {
-                console.log('followPosition: ', resp);
                 deleteRequest.onSuccess();
                 setFollower(resp.data);
                 onClose();

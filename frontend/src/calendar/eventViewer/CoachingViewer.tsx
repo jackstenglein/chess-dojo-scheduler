@@ -37,7 +37,6 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
         request.onStart();
         api.bookEvent(event.id)
             .then((resp) => {
-                console.log('bookEvent response: ', resp);
                 trackEvent(EventType.BookCoaching, {
                     event_id: event.id,
                     coach_id: event.owner,

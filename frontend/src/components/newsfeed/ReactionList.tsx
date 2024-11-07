@@ -184,7 +184,6 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
         request.onStart();
         api.setNewsfeedReaction(owner, id, types)
             .then((resp) => {
-                console.log('setNewsfeedReaction: ', resp);
                 onEdit(resp.data);
                 request.onSuccess();
             })

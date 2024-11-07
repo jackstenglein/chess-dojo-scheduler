@@ -18,7 +18,7 @@ describe('Directories', () => {
         cy.contains('New Game').should(
             'have.attr',
             'href',
-            '/games/import?directory=home',
+            '/games/import?directory=home&directoryOwner=398ee7df-13a1-4fbf-bae3-e156f252512d',
         );
     });
 

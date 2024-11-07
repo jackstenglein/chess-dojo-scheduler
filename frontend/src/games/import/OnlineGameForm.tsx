@@ -6,7 +6,6 @@ import {
     useOnlineGames,
 } from '@/api/external/onlineGame';
 import {
-    GameSubmissionType,
     isChesscomAnalysisURL,
     isChesscomGameURL,
     isLichessChapterURL,
@@ -18,6 +17,10 @@ import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { RenderPlayers } from '@/components/games/list/GameListItem';
 import { RatingSystem, isCohortInRange } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
+import {
+    GameImportTypes,
+    OnlineGameImportType,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import {
     Backdrop,
     Button,
@@ -99,7 +102,7 @@ const RecentGameCell = ({
                             justifyContent='space-between'
                         >
                             <Stack direction='row' alignItems='center' spacing={1}>
-                                {game.source === GameSubmissionType.LichessGame ? (
+                                {game.source === GameImportTypes.lichessGame ? (
                                     <SiLichess />
                                 ) : (
                                     <SiChessdotcom />
@@ -194,15 +197,15 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
             return;
         }
 
-        const urlCheckers: [GameSubmissionType, (url: string) => boolean][] = [
-            [GameSubmissionType.LichessChapter, isLichessChapterURL],
-            [GameSubmissionType.LichessStudy, isLichessStudyURL],
-            [GameSubmissionType.LichessGame, isLichessGameURL],
-            [GameSubmissionType.ChesscomGame, isChesscomGameURL],
-            [GameSubmissionType.ChesscomAnalysis, isChesscomAnalysisURL],
+        const urlCheckers: [OnlineGameImportType, (url: string) => boolean][] = [
+            [GameImportTypes.lichessChapter, isLichessChapterURL],
+            [GameImportTypes.lichessStudy, isLichessStudyURL],
+            [GameImportTypes.lichessGame, isLichessGameURL],
+            [GameImportTypes.chesscomGame, isChesscomGameURL],
+            [GameImportTypes.chesscomAnalysis, isChesscomAnalysisURL],
         ];
 
-        let submissionType: GameSubmissionType | null = null;
+        let submissionType: OnlineGameImportType | null = null;
         for (const [candidate, matcher] of urlCheckers) {
             if (matcher(url)) {
                 submissionType = candidate;
@@ -219,7 +222,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
     };
 
     const onClickGame = (game: OnlineGame) => {
-        onSubmit({ pgnText: game.pgn, type: game.source });
+        onSubmit({ pgnText: game.pgn, type: game.source, url: game.url });
     };
 
     return (
