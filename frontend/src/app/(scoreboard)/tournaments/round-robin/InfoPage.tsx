@@ -28,8 +28,16 @@ import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
 
 const faqs = [
     {
+        question: 'Is there a registration period for Dojo Round robins?',
+        answer: 'yes, the registration for the tournament started at Nov/2/2024 and it last a week long, but players are welcome to join to fill up remaining tournaments',
+    },
+    {
         question: 'How do I register for the Dojo Round Robin?',
         answer: 'Use the /register command in the Dojo Training Program Discord to join the tournament in your cohort.',
+    },
+    {
+        question: 'I just graduated from my cohort, can I play 1 level up?',
+        answer: 'Yes players are allowed to play 1 level down and 1 level up so even if you graduate you can stay in the tournament cohort when you registered. This can be done by changing cohort roles in training program Discord in #roles channel',
     },
     {
         question: 'What are the time controls for different cohorts?',
@@ -37,7 +45,12 @@ const faqs = [
     },
     {
         question: 'When do the tournaments start?',
-        answer: "The tournaments start after registration period ends, and when there are atleast 10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @Alex Dodd on Discord about tournaments starting. ",
+        answer: "The tournaments start after registration period ends, and when there are atleast 8-10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @Alex Dodd on Discord about tournaments starting.",
+    },
+    {
+        question:
+            'My cohort tournament pairings and crosstable are not showing, why is that?',
+        answer: "There are less than 5 players so the tournament pairings can't be generated, please invite your friends or ask around so more people can sign up and the tournament can start!",
     },
     {
         question:
@@ -136,12 +149,6 @@ export const InfoPage = () => {
 1600+: 60+30
 2000+: 90+30'
                     />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <NotInterestedIcon sx={{ color: 'text.secondary' }} />
-                    </ListItemIcon>
-                    <ListItemText primary='Strict anti-cheat measures in place to allow players to learn and grow in the game they love.' />
                 </ListItem>
             </List>
 
