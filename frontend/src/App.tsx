@@ -119,6 +119,7 @@ const router = createBrowserRouter(
                         <Route path=':cohort/:id'>
                             <Route path='edit' element={<EditGamePage />} />
                         </Route>
+                        <Route path='new' element={<EditGamePage />} />
                         <Route path='review-queue' element={<ReviewQueuePage />} />
                     </Route>
 
