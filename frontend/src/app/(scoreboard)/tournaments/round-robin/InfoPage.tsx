@@ -70,6 +70,10 @@ const faqs = [
         answer: 'No! The system will automatically find your games and track the crosstables, however if you suspect your game scores are not up to date, or there is wrong game URL in game panel please contact @Alex Dodd or @Noobmaster',
     },
     {
+        question: 'I played a game but I do not see scores coming in why is that?',
+        answer: 'The scores take time to be calculated usually occur end of day, there can be also a problem with account verification, if you and your opponent played on Chess.com but you only connected your account with Lichess using /verify the scores would be neglected as you did not connect your Chess.com account. So always connect the account you and your opponent are playing on.',
+    },
+    {
         question: 'What happens if I suspect someone of cheating?',
         answer: 'Report it immediately. Cheating is taken very seriously, and players caught cheating will be banned from the server.',
     },
