@@ -3,7 +3,7 @@ import { getTimeZonedDate } from '@/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
-import { CategoryColors, CategoryHeatMapColors } from '@/style/ThemeProvider';
+import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import {
@@ -19,7 +19,8 @@ import {
     Typography,
 } from '@mui/material';
 import { cloneElement, useEffect, useMemo, useState } from 'react';
-import ActivityCalendar, {
+import {
+    ActivityCalendar,
     Activity as BaseActivity,
     BlockElement,
 } from 'react-activity-calendar';
@@ -29,16 +30,23 @@ import { useTimeline } from '../activity/useTimeline';
 interface Activity extends BaseActivity {
     /** The count of the activity by category. */
     categoryCounts?: Partial<Record<RequirementCategory, number>>;
-    isplayed: string[];
 }
 
 type TimelineEntryField = 'dojoPoints' | 'minutesSpent';
-type View = 'standard' | 'task';
 
 const MAX_LEVEL = 4;
 const MAX_POINTS_COUNT = 10;
-const MAX_HOURS_COUNT = 5 * 60;
+const MAX_HOURS_COUNT = 4 * 60;
 const MIN_DATE = '2024-01-01';
+
+const VALID_CATEGORIES = [
+    RequirementCategory.Games,
+    RequirementCategory.Tactics,
+    RequirementCategory.Middlegames,
+    RequirementCategory.Endgame,
+    RequirementCategory.Opening,
+    RequirementCategory.NonDojo,
+];
 
 /**
  * Renders a card showing the user's activity heatmap.
@@ -49,7 +57,6 @@ export const ActivityCard = ({ user }: { user: User }) => {
         'activityHeatmap.field',
         'minutesSpent',
     );
-    const [view, setView] = useLocalStorage<View>('activityHeatmap.view', 'standard');
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
@@ -90,15 +97,6 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             <MenuItem value='dojoPoints'>Dojo Points</MenuItem>
                             <MenuItem value='minutesSpent'>Hours Worked</MenuItem>
                         </TextField>
-                        <TextField
-                            size='small'
-                            select
-                            value={view}
-                            onChange={(e) => setView(e.target.value as View)}
-                        >
-                            <MenuItem value='standard'>Standard</MenuItem>
-                            <MenuItem value='task'>Max Task</MenuItem>
-                        </TextField>
                     </div>
                 }
             />
@@ -122,9 +120,12 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     }}
                     data={activities}
                     renderBlock={(block, activity) =>
-                        view === 'standard'
-                            ? renderStandardBlock(block, activity as Activity, field)
-                            : rendertaskBlock(block, activity as Activity, field)
+                        renderBlock(
+                            block,
+                            activity as Activity,
+                            field,
+                            isLight ? '#EBEDF0' : '#393939',
+                        )
                     }
                     labels={{
                         totalCount:
@@ -136,52 +137,45 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     maxLevel={MAX_LEVEL}
                     showWeekdayLabels
                     weekStart={weekStartOn}
-                    hideColorLegend={view === 'task'}
                     renderColorLegend={(block, level) =>
                         renderLegendTooltip(block, level, maxCount, field)
                     }
                 />
 
-                {view === 'task' && (
-                    <Stack
-                        direction='row'
-                        flexWrap='wrap'
-                        columnGap={1}
-                        rowGap={0.5}
-                        mt={0.5}
-                    >
-                        {Object.entries(CategoryColors).map(([category, color]) => {
-                            if (
-                                category === RequirementCategory.SuggestedTasks ||
-                                category === RequirementCategory.Graduation ||
-                                category === RequirementCategory.Welcome
-                            ) {
-                                return null;
-                            }
+                <Stack
+                    direction='row'
+                    flexWrap='wrap'
+                    columnGap={1}
+                    rowGap={0.5}
+                    mt={0.5}
+                >
+                    {Object.entries(CategoryColors).map(([category, color]) => {
+                        if (!VALID_CATEGORIES.includes(category as RequirementCategory)) {
+                            return null;
+                        }
 
-                            return (
-                                <Stack
-                                    key={category}
-                                    direction='row'
-                                    alignItems='center'
-                                    gap={0.5}
-                                >
-                                    <Box
-                                        sx={{
-                                            height: '12px',
-                                            width: '12px',
-                                            borderRadius: '2px',
-                                            backgroundColor: color,
-                                        }}
-                                    />
-                                    <Typography variant='caption' pt='2px'>
-                                        {category}
-                                    </Typography>
-                                </Stack>
-                            );
-                        })}
-                    </Stack>
-                )}
+                        return (
+                            <Stack
+                                key={category}
+                                direction='row'
+                                alignItems='center'
+                                gap={0.5}
+                            >
+                                <Box
+                                    sx={{
+                                        height: '12px',
+                                        width: '12px',
+                                        borderRadius: '2px',
+                                        backgroundColor: color,
+                                    }}
+                                />
+                                <Typography variant='caption' pt='2px'>
+                                    {category}
+                                </Typography>
+                            </Stack>
+                        );
+                    })}
+                </Stack>
             </CardContent>
         </Card>
     );
@@ -206,7 +200,7 @@ function getActivity(
     let maxCount = 0;
 
     for (const entry of entries) {
-        if (entry[field] <= 0 || !entry.requirementCategory) {
+        if (entry[field] <= 0 || !VALID_CATEGORIES.includes(entry.requirementCategory)) {
             continue;
         }
 
@@ -224,12 +218,7 @@ function getActivity(
             count: 0,
             level: 0,
             categoryCounts: {},
-            isplayed: [],
         };
-
-        if (entry.requirementName.includes('play')) {
-            activity.isplayed.push(dateStr);
-        }
 
         activity.count += entry[field];
         if (activity.categoryCounts) {
@@ -251,7 +240,6 @@ function getActivity(
             count: 0,
             level: 0,
             categoryCounts: {},
-            isplayed: [],
         };
     }
 
@@ -262,7 +250,6 @@ function getActivity(
             count: 0,
             level: 0,
             categoryCounts: {},
-            isplayed: [],
         };
     }
 
@@ -288,93 +275,63 @@ function getActivity(
 }
 
 /**
- * Renders a block in the heatmap for the standard view.
+ * Renders a block in the heatmap.
  * @param block The block to render, as passed from React Activity Calendar.
  * @param activity The activity associated with the block.
  * @param field The field (dojo points/minutes) being displayed.
+ * @param baseColor The level 0 color.
  * @returns A block representing the given activity.
  */
-function renderStandardBlock(
+function renderBlock(
     block: BlockElement,
     activity: Activity,
     field: TimelineEntryField,
+    baseColor: string,
 ) {
+    let maxCategory: RequirementCategory | undefined = undefined;
+    let maxCount: number | undefined = undefined;
+    let color: string | undefined = undefined;
+
+    for (const [category, count] of Object.entries(activity.categoryCounts ?? {})) {
+        if (maxCount === undefined || count > maxCount) {
+            maxCategory = category as RequirementCategory;
+            maxCount = count;
+        }
+    }
+
+    if (maxCount && maxCategory) {
+        const level = calculateLevel(
+            maxCount,
+            field === 'dojoPoints' ? MAX_POINTS_COUNT : MAX_HOURS_COUNT,
+        );
+        color = calculateColor([baseColor, CategoryColors[maxCategory]], level);
+    }
+
+    const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
     return (
-        <Tooltip disableInteractive title={renderTooltip(activity, field)}>
-            {block}
+        <Tooltip
+            key={activity.date}
+            disableInteractive
+            title={renderTooltip(activity, field)}
+        >
+            {cloneElement(block, { style: newStyle })}
         </Tooltip>
     );
 }
 
 /**
- * Renders a block in the heatmap for the max task view.
- * @param block The block to render, as passed from React Activity Calendar.
- * @param activity The activity associated with the block.
- * @param field The field (dojo points/minutes) being displayed.
- * @returns A block representing the given activity.
+ * Returns the level of the given count for the given max count.
+ * Level will be in the range [0, MAX_LEVEL].
+ * @param count The count to get the level for.
+ * @param maxCount The max count. Counts >= this value will return MAX_LEVEL.
  */
-function rendertaskBlock(
-    block: BlockElement,
-    activity: Activity,
-    field: TimelineEntryField,
-) {
-    let maxCategory: RequirementCategory | undefined = undefined;
-    let maxCount: number | undefined = undefined;
-    let countColor: string | undefined = undefined;
-    for (const [category, count] of Object.entries(activity.categoryCounts ?? {})) {
-        if (category === RequirementCategory.Welcome) {
-            continue;
-        }
-
-        if (maxCount === undefined || count > maxCount) {
-            maxCategory = category as RequirementCategory;
-            maxCount = count;
-
-            if (field === 'dojoPoints') {
-                if (maxCount <= (1 / 4) * MAX_POINTS_COUNT) {
-                    countColor = CategoryHeatMapColors[maxCategory][0];
-                } else if (
-                    maxCount > (1 / 4) * MAX_POINTS_COUNT &&
-                    maxCount <= (2 / 4) * MAX_POINTS_COUNT
-                ) {
-                    countColor = CategoryHeatMapColors[maxCategory][1];
-                } else if (
-                    maxCount > (2 / 4) * MAX_POINTS_COUNT &&
-                    maxCount <= (3 / 4) * MAX_POINTS_COUNT
-                ) {
-                    countColor = CategoryHeatMapColors[maxCategory][2];
-                } else {
-                    countColor = CategoryHeatMapColors[maxCategory][3];
-                }
-            } else {
-                if (maxCount * 60 <= (1 / 4) * MAX_HOURS_COUNT) {
-                    countColor = CategoryHeatMapColors[maxCategory][0];
-                } else if (
-                    maxCount * 60 > (1 / 4) * MAX_HOURS_COUNT &&
-                    maxCount <= (2 / 4) * MAX_HOURS_COUNT
-                ) {
-                    countColor = CategoryHeatMapColors[maxCategory][1];
-                } else if (
-                    maxCount * 60 > (2 / 4) * MAX_HOURS_COUNT &&
-                    maxCount <= (3 / 4) * MAX_HOURS_COUNT
-                ) {
-                    countColor = CategoryHeatMapColors[maxCategory][2];
-                } else {
-                    countColor = CategoryHeatMapColors[maxCategory][3];
-                }
-            }
+function calculateLevel(count: number, maxCount: number): number {
+    for (let i = 1; i <= MAX_LEVEL; i++) {
+        if (count < (maxCount / MAX_LEVEL) * i) {
+            return i - 1;
         }
     }
-
-    const newStyle = maxCategory
-        ? { ...block.props.style, fill: countColor }
-        : block.props.style;
-
-    return renderStandardBlock(
-        cloneElement(block, { style: newStyle }) as BlockElement,
-        activity,
-        field,
-    );
+    return MAX_LEVEL;
 }
 
 /**
@@ -468,8 +425,19 @@ function renderLegendTooltip(
     }
 
     return (
-        <Tooltip disableInteractive title={value}>
+        <Tooltip key={level} disableInteractive title={value}>
             {block}
         </Tooltip>
     );
+}
+
+/**
+ * Returns a CSS color-mix for the given color scale and level.
+ * @param colors The color scale to calculate.
+ * @param level The level to get the color for.
+ */
+function calculateColor(colors: [from: string, to: string], level: number): string {
+    const [from, to] = colors;
+    const mixFactor = (level / MAX_LEVEL) * 100;
+    return `color-mix(in oklab, ${to} ${parseFloat(mixFactor.toFixed(2))}%, ${from})`;
 }
