@@ -92,7 +92,7 @@ export const ImportWizard = ({ onSubmit, loading }: ImportWizardProps) => {
                 id='import-custom-position'
             />
 
-            <Dialog open={!!dialog} onClose={onCloseDialog} fullWidth>
+            <Dialog open={!!dialog} onClose={onCloseDialog} fullWidth scroll='body'>
                 {dialog === 'online' && (
                     <OnlineGameForm
                         loading={loading}
