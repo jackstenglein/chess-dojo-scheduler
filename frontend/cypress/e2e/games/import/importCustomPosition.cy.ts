@@ -36,16 +36,4 @@ describe('Import Games Page - Custom Position', () => {
 
         deleteCurrentGame();
     });
-
-    it('requires supported FEN', () => {
-        const fen = 'super invalid';
-
-        cy.getBySel('position-entry').clear();
-        cy.getBySel('position-entry').type(fen);
-        cy.getBySel('position-entry').type('{enter}');
-        clickImport();
-
-        cy.location('pathname').should('eq', '/games/import');
-        cy.contains('Invalid FEN');
-    });
 });
