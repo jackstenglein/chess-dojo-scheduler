@@ -29,7 +29,7 @@ import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
 const faqs = [
     {
         question: 'Is there a registration period for Dojo Round robins?',
-        answer: 'yes, the registration for the tournament started at Nov/2/2024 and it last a week long, but players are welcome to join to fill up remaining tournaments',
+        answer: 'yes, the registration for the tournament starts 1 week before the tournament start date, the tournament season start every 3 months.',
     },
     {
         question: 'How do I register for the Dojo Round Robin?',
@@ -45,7 +45,7 @@ const faqs = [
     },
     {
         question: 'When do the tournaments start?',
-        answer: "The tournaments start after registration period ends, and when there are atleast 8-10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @Alex Dodd on Discord about tournaments starting.",
+        answer: "The tournaments start after registration period ends, and when there are atleast 8-10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @DojoSystem on Discord about tournaments starting.",
     },
     {
         question:
