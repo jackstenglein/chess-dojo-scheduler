@@ -25,6 +25,7 @@ describe('Import Games Page - Custom Position', () => {
 
         cy.getBySel('position-entry').clear();
         cy.getBySel('position-entry').type(fen);
+        cy.getBySel('position-entry').type('{enter}');
         clickImport();
 
         cy.location('pathname').should('match', gameUrlRegex);
@@ -41,6 +42,7 @@ describe('Import Games Page - Custom Position', () => {
 
         cy.getBySel('position-entry').clear();
         cy.getBySel('position-entry').type(fen);
+        cy.getBySel('position-entry').type('{enter}');
         clickImport();
 
         cy.location('pathname').should('eq', '/games/import');

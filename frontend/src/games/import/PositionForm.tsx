@@ -68,7 +68,12 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
         if (!value) {
             setFen('');
         } else if (typeof value === 'string') {
-            setFen(value);
+            try {
+                new Chess({ fen: value });
+                setFen(value);
+            } catch {
+                setFen('');
+            }
         } else {
             setFen(value.fen);
         }
