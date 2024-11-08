@@ -1,8 +1,8 @@
+import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
 import { Chess } from '@jackstenglein/chess';
 import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import {
     Autocomplete,
-    Box,
     Button,
     DialogActions,
     DialogContent,
@@ -13,8 +13,8 @@ import {
 import { useMemo, useState } from 'react';
 import { useRequirements } from '../../api/cache/requirements';
 import { useFreeTier } from '../../auth/Auth';
-import Board from '../../board/Board';
 import { ALL_COHORTS } from '../../database/user';
+import { BoardEditor } from './BoardEditor';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 
@@ -27,6 +27,7 @@ interface PositionFormOption {
 }
 
 export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) => {
+    const [inputValue, setInputValue] = useState('');
     const [fen, setFen] = useState<string>('');
     const [error, setError] = useState<string>('');
 
@@ -85,12 +86,27 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
         }
     };
 
+    const onChangeBoard = (value: string) => {
+        setFen(value);
+        const valueTokens = value.split(' ');
+        const position = positions.find((p) => {
+            const pTokens = p.fen.split(' ');
+            return pTokens.slice(0, 4).every((token, idx) => token === valueTokens[idx]);
+        });
+        if (position) {
+            setInputValue(getOptionLabel(position));
+        } else {
+            setInputValue(value);
+        }
+    };
+
     return (
         <>
             <DialogTitle>Custom Position</DialogTitle>
             <DialogContent>
                 <Stack mt={0.8} spacing={2} alignItems='center'>
                     <Autocomplete
+                        id={BlockBoardKeyboardShortcuts}
                         sx={{ width: 1 }}
                         options={positions}
                         getOptionLabel={getOptionLabel}
@@ -105,8 +121,9 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
                         )}
                         isOptionEqualToValue={(a, b) => a.id === b.id}
                         onChange={changeFen}
+                        inputValue={inputValue}
                         onInputChange={(_e, value) => {
-                            setFen(value);
+                            setInputValue(value);
                         }}
                         data-cy='position-entry'
                         freeSolo
@@ -114,15 +131,7 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
                         blurOnSelect
                     />
 
-                    <Box sx={{ aspectRatio: 1, width: '100%', maxWidth: '336px' }}>
-                        <Board
-                            key={fen}
-                            config={{
-                                fen,
-                                viewOnly: true,
-                            }}
-                        />
-                    </Box>
+                    <BoardEditor fen={fen} onUpdate={onChangeBoard} />
                 </Stack>
             </DialogContent>
 

@@ -232,12 +232,18 @@ export type onMoveFunc = (board: BoardApi, chess: Chess, move: PrimitiveMove) =>
 interface BoardProps {
     config?: BoardConfig;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
+    onInitializeBoard?: (board: BoardApi) => void;
     onMove?: onMoveFunc;
 }
 
 const promotionPieces = ['q', 'n', 'r', 'b'];
 
-const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
+const Board: React.FC<BoardProps> = ({
+    config,
+    onInitialize,
+    onInitializeBoard,
+    onMove,
+}) => {
     const { chess, config: chessConfig } = useChess();
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
@@ -327,6 +333,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             setIsInitialized(true);
         } else if (boardRef.current && board && !isInitialized) {
             board.set({ ...config });
+            onInitializeBoard?.(board);
             setIsInitialized(true);
         }
     }, [
@@ -338,6 +345,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         setIsInitialized,
         onMove,
         onInitialize,
+        onInitializeBoard,
         onStartPromotion,
         pieceStyle,
         showGlyphs,

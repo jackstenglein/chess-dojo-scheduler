@@ -87,7 +87,7 @@ export function getBoardSx(style: BoardStyle): BoardSx {
 export function getPieceSx(style: PieceStyle): PieceSx {
     switch (style) {
         case PieceStyle.Standard:
-            return getStandardPieceBackgrounds('/static/board/pieces/standard/', '.png');
+            return getStandardPieceBackgrounds('/static/board/pieces/standard/', '.webp');
         case PieceStyle.Pixel:
             return getStandardPieceBackgrounds('/static/board/pieces/pixel/', '.svg');
         case PieceStyle.Spatial:
