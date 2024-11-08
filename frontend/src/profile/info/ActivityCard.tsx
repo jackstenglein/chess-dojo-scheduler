@@ -3,7 +3,7 @@ import { getTimeZonedDate } from '@/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
-import { CategoryColors } from '@/style/ThemeProvider';
+import { CategoryColors, CategoryHeatMapColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import {
@@ -29,6 +29,7 @@ import { useTimeline } from '../activity/useTimeline';
 interface Activity extends BaseActivity {
     /** The count of the activity by category. */
     categoryCounts?: Partial<Record<RequirementCategory, number>>;
+    isplayed: string[];
 }
 
 type TimelineEntryField = 'dojoPoints' | 'minutesSpent';
@@ -152,7 +153,8 @@ export const ActivityCard = ({ user }: { user: User }) => {
                         {Object.entries(CategoryColors).map(([category, color]) => {
                             if (
                                 category === RequirementCategory.SuggestedTasks ||
-                                category === RequirementCategory.Graduation
+                                category === RequirementCategory.Graduation ||
+                                category === RequirementCategory.Welcome
                             ) {
                                 return null;
                             }
@@ -222,7 +224,13 @@ function getActivity(
             count: 0,
             level: 0,
             categoryCounts: {},
+            isplayed: [],
         };
+
+        if (entry.requirementName.includes('play')) {
+            activity.isplayed.push(dateStr);
+        }
+
         activity.count += entry[field];
         if (activity.categoryCounts) {
             activity.categoryCounts[entry.requirementCategory] =
@@ -238,12 +246,24 @@ function getActivity(
     }
 
     if (!activities[MIN_DATE]) {
-        activities[MIN_DATE] = { date: MIN_DATE, count: 0, level: 0, categoryCounts: {} };
+        activities[MIN_DATE] = {
+            date: MIN_DATE,
+            count: 0,
+            level: 0,
+            categoryCounts: {},
+            isplayed: [],
+        };
     }
 
     const endDate = new Date().toISOString().split('T')[0];
     if (!activities[endDate]) {
-        activities[endDate] = { date: endDate, count: 0, level: 0, categoryCounts: {} };
+        activities[endDate] = {
+            date: endDate,
+            count: 0,
+            level: 0,
+            categoryCounts: {},
+            isplayed: [],
+        };
     }
 
     if (clamp) {
@@ -300,15 +320,54 @@ function rendertaskBlock(
 ) {
     let maxCategory: RequirementCategory | undefined = undefined;
     let maxCount: number | undefined = undefined;
+    let countColor: string | undefined = undefined;
     for (const [category, count] of Object.entries(activity.categoryCounts ?? {})) {
+        if (category === RequirementCategory.Welcome) {
+            continue;
+        }
+
         if (maxCount === undefined || count > maxCount) {
             maxCategory = category as RequirementCategory;
             maxCount = count;
+
+            if (field === 'dojoPoints') {
+                if (maxCount <= (1 / 4) * MAX_POINTS_COUNT) {
+                    countColor = CategoryHeatMapColors[maxCategory][0];
+                } else if (
+                    maxCount > (1 / 4) * MAX_POINTS_COUNT &&
+                    maxCount <= (2 / 4) * MAX_POINTS_COUNT
+                ) {
+                    countColor = CategoryHeatMapColors[maxCategory][1];
+                } else if (
+                    maxCount > (2 / 4) * MAX_POINTS_COUNT &&
+                    maxCount <= (3 / 4) * MAX_POINTS_COUNT
+                ) {
+                    countColor = CategoryHeatMapColors[maxCategory][2];
+                } else {
+                    countColor = CategoryHeatMapColors[maxCategory][3];
+                }
+            } else {
+                if (maxCount * 60 <= (1 / 4) * MAX_HOURS_COUNT) {
+                    countColor = CategoryHeatMapColors[maxCategory][0];
+                } else if (
+                    maxCount * 60 > (1 / 4) * MAX_HOURS_COUNT &&
+                    maxCount <= (2 / 4) * MAX_HOURS_COUNT
+                ) {
+                    countColor = CategoryHeatMapColors[maxCategory][1];
+                } else if (
+                    maxCount * 60 > (2 / 4) * MAX_HOURS_COUNT &&
+                    maxCount <= (3 / 4) * MAX_HOURS_COUNT
+                ) {
+                    countColor = CategoryHeatMapColors[maxCategory][2];
+                } else {
+                    countColor = CategoryHeatMapColors[maxCategory][3];
+                }
+            }
         }
     }
 
     const newStyle = maxCategory
-        ? { ...block.props.style, fill: CategoryColors[maxCategory] }
+        ? { ...block.props.style, fill: countColor }
         : block.props.style;
 
     return renderStandardBlock(
