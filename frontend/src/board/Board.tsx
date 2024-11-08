@@ -236,7 +236,24 @@ interface BoardProps {
     onMove?: onMoveFunc;
 }
 
-const promotionPieces = ['q', 'n', 'r', 'b'];
+const promotionPieces = [
+    {
+        key: 'q',
+        name: 'queen',
+    },
+    {
+        key: 'n',
+        name: 'knight',
+    },
+    {
+        key: 'r',
+        name: 'rook',
+    },
+    {
+        key: 'b',
+        name: 'bishop',
+    },
+] as const;
 
 const Board: React.FC<BoardProps> = ({
     config,
@@ -407,12 +424,10 @@ const Board: React.FC<BoardProps> = ({
         });
     }, [board, chess, showGlyphs]);
 
+    const pieceSx = getPieceSx(pieceStyle);
+
     return (
-        <Box
-            width={1}
-            height={1}
-            sx={{ ...getPieceSx(pieceStyle), ...getBoardSx(boardStyle) }}
-        >
+        <Box width={1} height={1} sx={{ ...pieceSx, ...getBoardSx(boardStyle) }}>
             <div
                 data-cy='chessground-board'
                 ref={boardRef}
@@ -423,17 +438,20 @@ const Board: React.FC<BoardProps> = ({
                 <DialogContent>
                     <Stack direction='row'>
                         {promotionPieces.map((piece) => (
-                            <Button key={piece} onClick={() => onFinishPromotion(piece)}>
+                            <Button
+                                key={piece.key}
+                                onClick={() => onFinishPromotion(piece.key)}
+                            >
                                 <Box
                                     sx={{
                                         width: '75px',
                                         aspectRatio: 1,
                                         backgroundSize: 'cover',
-                                        backgroundImage: `url(${
-                                            promotion
-                                                ? `https://www.chess.com/chess-themes/pieces/bases/150/${promotion.color[0]}${piece}.png`
-                                                : ''
-                                        })`,
+                                        backgroundImage: promotion
+                                            ? pieceSx[
+                                                  `--${promotion.color}-${piece.name}`
+                                              ]
+                                            : '',
                                     }}
                                 />
                             </Button>
