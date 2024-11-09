@@ -11,15 +11,15 @@ import {
 import { ReactNode, useEffect } from 'react';
 
 export const CategoryColors: Record<RequirementCategory, string> = {
-    [RequirementCategory.SuggestedTasks]: '#c27ba0', // light magenta 1
-    [RequirementCategory.Welcome]: '#c27ba0', // light magenta 1
-    [RequirementCategory.Games]: '#ff9900', // orange
-    [RequirementCategory.Tactics]: '#38761d', // dark green 2
-    [RequirementCategory.Middlegames]: '#0000ff', // blue
-    [RequirementCategory.Endgame]: '#674ea7', // dark purple 1
-    [RequirementCategory.Opening]: '#cc0000', // dark red 1
-    [RequirementCategory.Graduation]: '#f44336', // red
-    [RequirementCategory.NonDojo]: '#cccccc', // gray
+    [RequirementCategory.SuggestedTasks]: '#c27ba0',
+    [RequirementCategory.Welcome]: '#c27ba0',
+    [RequirementCategory.Games]: '#F7941F',
+    [RequirementCategory.Tactics]: '#6EC149',
+    [RequirementCategory.Middlegames]: '#5555FA',
+    [RequirementCategory.Endgame]: '#7B5AD1',
+    [RequirementCategory.Opening]: '#C34A4A',
+    [RequirementCategory.Graduation]: '#f44336',
+    [RequirementCategory.NonDojo]: '#cccccc',
 };
 
 declare module '@mui/material/styles' {
@@ -139,13 +139,13 @@ const defaultPalette = {
     }),
     opening: defaultTheme.palette.augmentColor({
         color: {
-            main: '#cc0000',
+            main: '#C34A4A',
         },
         name: 'opening',
     }),
     endgame: defaultTheme.palette.augmentColor({
         color: {
-            main: '#674ea7',
+            main: '#7B5AD1',
         },
         name: 'endgame',
     }),

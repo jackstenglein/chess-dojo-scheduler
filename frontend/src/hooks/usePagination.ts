@@ -108,7 +108,6 @@ export function usePagination(
 
         searchFunc(startKey)
             .then((response) => {
-                console.log('ListGames: ', response);
                 request.onSuccess();
                 const newGames = filterFunc
                     ? response.data.games.filter(filterFunc)

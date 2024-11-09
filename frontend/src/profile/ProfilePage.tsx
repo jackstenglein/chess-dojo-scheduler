@@ -77,7 +77,6 @@ const ProfilePage = () => {
             followRequest.onStart();
             api.getFollower(username)
                 .then((resp) => {
-                    console.log('getFollower: ', resp);
                     followRequest.onSuccess(resp.data || undefined);
                 })
                 .catch((err) => {
@@ -105,7 +104,6 @@ const ProfilePage = () => {
         followRequest.onStart();
         api.editFollower(user.username, action)
             .then((resp) => {
-                console.log('editFollower: ', resp);
                 const incrementalCount = action === 'follow' ? 1 : -1;
                 auth.updateUser({
                     followingCount: currentUser.followingCount + incrementalCount,

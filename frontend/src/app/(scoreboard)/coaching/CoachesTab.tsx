@@ -21,7 +21,6 @@ const CoachesTab = () => {
             request.onStart();
             listCoaches()
                 .then((resp) => {
-                    console.log('listCoaches: ', resp);
                     request.onSuccess(
                         resp.data.sort((lhs, rhs) =>
                             compareCohorts(rhs.dojoCohort, lhs.dojoCohort),
@@ -65,7 +64,6 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
             followRequest.onStart();
             api.getFollower(coach.username)
                 .then((resp) => {
-                    console.log('getFollower: ', resp);
                     followRequest.onSuccess(resp.data || undefined);
                 })
                 .catch((err) => {
@@ -88,7 +86,6 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
         followRequest.onStart();
         api.editFollower(coach.username, action)
             .then((resp) => {
-                console.log('editFollower: ', resp);
                 const incrementalCount = action === 'follow' ? 1 : -1;
                 auth.updateUser({
                     followingCount: currentUser.followingCount + incrementalCount,

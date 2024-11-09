@@ -8,9 +8,16 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
 import {
+    DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    CreateGameRequest,
+    CreateGameSchema,
+    GameOrientation,
+    GameOrientations,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     clockToSeconds,
@@ -21,17 +28,20 @@ import {
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
+import { checkAccess } from 'chess-dojo-directory-service/access';
 import { addDirectoryItems } from 'chess-dojo-directory-service/addItems';
+import {
+    ApiError,
+    errToApiGatewayProxyResultV2,
+    parseBody,
+} from 'chess-dojo-directory-service/api';
 import { v4 as uuidv4 } from 'uuid';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
-import { ApiError, errToApiGatewayProxyResultV2 } from './errors';
 import { getLichessChapter, getLichessGame, getLichessStudy, splitPgns } from './lichess';
 import {
-    CreateGameRequest,
     Game,
     GameImportHeaders,
     GameImportType,
-    GameOrientation,
     isValidDate,
     isValidResult,
 } from './types';
@@ -57,7 +67,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     try {
         const user = await getUser(event);
-        const request = getRequest(event);
+        const request = parseBody(event, CreateGameSchema);
 
         const pgnTexts = await getPgnTexts(request);
         if (pgnTexts.length > MAX_GAMES_PER_IMPORT) {
@@ -69,14 +79,29 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         console.log('PGN texts length: ', pgnTexts.length);
 
-        if (request.directory && request.directory.split('/').length !== 2) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: `Invalid request: directory ${request.directory} should have owner and id components separated by a slash`,
+        if (request.directory) {
+            const hasAccess = await checkAccess({
+                owner: request.directory.owner,
+                id: request.directory.id,
+                username: user.username,
+                role: DirectoryAccessRole.Editor,
             });
+            if (!hasAccess) {
+                throw new ApiError({
+                    statusCode: 403,
+                    publicMessage: `Missing required editor permissions to add games to this directory`,
+                    privateMessage: `Directory ${request.directory.owner}/${request.directory.id}. User ${user.username}`,
+                });
+            }
         }
 
-        const games = getGames(user, pgnTexts, request.directory);
+        const games = getGames(
+            user,
+            pgnTexts,
+            request.directory
+                ? `${request.directory.owner}/${request.directory.id}`
+                : undefined,
+        );
         if (games.length === 0) {
             throw new ApiError({
                 statusCode: 400,
@@ -87,7 +112,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const updated = await batchPutGames(games);
 
         if (request.directory) {
-            await addGamesToDirectory(request.directory, games);
+            await addGamesToDirectory(
+                request.directory.owner,
+                request.directory.id,
+                games,
+            );
         }
 
         if (games.length === 1) {
@@ -139,22 +168,6 @@ export function getUserInfo(event: any): { username: string; email: string } {
         username: claims['cognito:username'] || '',
         email: claims['email'] || '',
     };
-}
-
-function getRequest(event: APIGatewayProxyEventV2): CreateGameRequest {
-    let request: CreateGameRequest;
-    try {
-        request = JSON.parse(event.body || '{}');
-    } catch (err) {
-        console.error('Failed to unmarshal body: ', err);
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: body could not be unmarshaled',
-            cause: err,
-        });
-    }
-
-    return request;
 }
 
 /**
@@ -431,23 +444,23 @@ export function getGame(
  */
 function getDefaultOrientation(chess: Chess, user?: User): GameOrientation {
     if (!user) {
-        return GameOrientation.White;
+        return GameOrientations.white;
     }
 
     for (const rating of Object.values(user.ratings)) {
         if (rating.username?.toLowerCase() === chess.header().tags.White?.toLowerCase()) {
-            return GameOrientation.White;
+            return GameOrientations.white;
         }
         if (rating.username?.toLowerCase() === chess.header().tags.Black?.toLowerCase()) {
-            return GameOrientation.Black;
+            return GameOrientations.black;
         }
     }
 
     if (user?.displayName.toLowerCase() === chess.header().tags.Black?.toLowerCase()) {
-        return GameOrientation.Black;
+        return GameOrientations.black;
     }
 
-    return GameOrientation.White;
+    return GameOrientations.white;
 }
 
 async function batchPutGames(games: Game[]): Promise<number> {
@@ -495,14 +508,18 @@ async function batchPutGames(games: Game[]): Promise<number> {
 
 /**
  * Adds the given games to the given directory.
- * @param directoryId The id of the directory. Must be owned by the owner of the games.
+ * @param owner The owner of the directory.
+ * @param id The id of the directory.
  * @param games The games to add. Must all have the same owner.
  */
-async function addGamesToDirectory(directoryId: string, games: Game[]) {
+async function addGamesToDirectory(owner: string, id: string, games: Game[]) {
     try {
-        console.log('Adding %d games to directory %s', games.length, directoryId);
+        console.log('Adding %d games to directory %s/%s', games.length, owner, id);
         const directoryItems: DirectoryItem[] = games.map((g) => ({
-            type: DirectoryItemTypes.OWNED_GAME,
+            type:
+                owner === g.owner
+                    ? DirectoryItemTypes.OWNED_GAME
+                    : DirectoryItemTypes.DOJO_GAME,
             id: `${g.cohort}/${g.id}`,
             metadata: {
                 cohort: g.cohort,
@@ -518,7 +535,7 @@ async function addGamesToDirectory(directoryId: string, games: Game[]) {
             },
         }));
 
-        await addDirectoryItems(games[0].owner, directoryId, directoryItems);
+        await addDirectoryItems(owner, id, directoryItems);
     } catch (err) {
         console.error('Failed to add games to directory: ', err);
     }

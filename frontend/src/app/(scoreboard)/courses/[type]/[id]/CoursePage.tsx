@@ -52,7 +52,6 @@ export const CoursePage = ({ params }: { params: { type: string; id: string } })
             api.getCourse(params.type, params.id, checkoutId)
                 .then((resp) => {
                     request.onSuccess(resp.data);
-                    console.log('getCourse: ', resp);
                 })
                 .catch((err) => {
                     request.onFailure(err);

@@ -93,7 +93,6 @@ export const AddExistingGamesDialog = ({
         addRequest.onStart();
         api.addDirectoryItems({ owner: directory.owner, id: directory.id, games })
             .then((resp) => {
-                console.log('addDirectoryItems: ', resp);
                 cache.put(resp.data.directory);
                 addRequest.onSuccess();
                 trackEvent(EventType.AddDirectoryItems, {

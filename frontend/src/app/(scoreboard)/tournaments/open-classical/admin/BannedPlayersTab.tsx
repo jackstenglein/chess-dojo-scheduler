@@ -57,7 +57,6 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({
         unbanRequest.onStart();
         api.adminUnbanPlayer(unbanPlayer)
             .then((resp) => {
-                console.log('adminUnbanPlayer: ', resp);
                 onUpdate(resp.data);
                 setUnbanPlayer('');
                 unbanRequest.onSuccess(`${unbanPlayer} unbanned`);

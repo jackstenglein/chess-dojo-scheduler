@@ -1,3 +1,5 @@
+import { GameOrientation } from '@jackstenglein/chess-dojo-common/src/database/game';
+
 /** A game submitted to the Dojo database. */
 export interface Game {
     /** The cohort the game belongs to. */
@@ -62,48 +64,6 @@ export interface Game {
 
     /** A set of directories containing this game, in the form `owner/id`. */
     directories?: string[];
-}
-
-/** The default orientation of the game when it is first opened. */
-export enum GameOrientation {
-    White = 'white',
-    Black = 'black',
-}
-
-/** A request to create a new Game. */
-export interface CreateGameRequest {
-    /** The import type of the Game. */
-    type?: GameImportType;
-
-    /** The URL to import from, if supported by type. */
-    url?: string;
-
-    /** The raw PGN text of the Game, if supported by type. */
-    pgnText?: string;
-
-    /** The id of the directory to add the game to. */
-    directory?: string;
-}
-
-/** A request to update an existing Game. */
-export interface UpdateGameRequest extends CreateGameRequest {
-    /** The cohort the Game is in. */
-    cohort: string;
-
-    /** The id of the Game. */
-    id: string;
-
-    /** The existing timeline id of the Game. */
-    timelineId?: string;
-
-    /** If specified, update whether the game should be unlisted. */
-    unlisted?: boolean;
-
-    /** The import headers of the Game. */
-    headers?: GameImportHeaders;
-
-    /** The default orientation of the Game. */
-    orientation?: GameOrientation;
 }
 
 export interface GameUpdate {

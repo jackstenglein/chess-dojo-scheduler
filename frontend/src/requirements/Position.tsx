@@ -65,7 +65,6 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                 name: position.title,
             })
             .then((resp) => {
-                console.log('Generate Lichess URL: ', resp);
                 trackEvent(EventType.CreateSparringLink, {
                     position_fen: position.fen.trim(),
                     position_name: position.title,

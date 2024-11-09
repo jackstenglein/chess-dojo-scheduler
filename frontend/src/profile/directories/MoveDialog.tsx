@@ -81,7 +81,6 @@ export const MoveDialog = ({
             items: items.map((item) => item.id),
         })
             .then((resp) => {
-                console.log('moveDirectoryItems: ', resp);
                 moveRequest.onSuccess();
                 onCancel();
                 putDirectory(resp.data.source);

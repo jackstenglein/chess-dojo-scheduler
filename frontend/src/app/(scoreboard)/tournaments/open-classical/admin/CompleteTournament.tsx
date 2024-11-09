@@ -37,7 +37,6 @@ const CompleteTournament: React.FC<CompleteTournamentProps> = ({
         request.onStart();
         api.adminCompleteTournament(date.toUTC().toISO() || '')
             .then((resp) => {
-                console.log('adminCompleteTournament: ', resp);
                 request.onSuccess();
                 onSuccess(resp.data);
                 setOpen(false);

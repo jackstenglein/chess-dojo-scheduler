@@ -14,6 +14,7 @@ import {
     Typography,
 } from '@mui/material';
 
+import { AccessTime, HelpOutline } from '@mui/icons-material';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupIcon from '@mui/icons-material/Group';
@@ -24,6 +25,62 @@ import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
 import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
+
+const faqs = [
+    {
+        question: 'How do I register for the Dojo Round Robin?',
+        answer: 'Use the /register command in the Dojo Training Program Discord to join the tournament in your cohort.',
+    },
+    {
+        question: 'What are the time controls for different cohorts?',
+        answer: 'Time controls are based on your rating: Under 800: 30+0, 800-1200: 30+30, 1200+: 45+30, 1600+: 60+30, 2000+: 90+30.',
+    },
+    {
+        question: 'When do the tournaments start?',
+        answer: "The tournaments start after registration period ends, and when there are atleast 10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @Alex Dodd on Discord about tournaments starting. ",
+    },
+    {
+        question:
+            "When I register for the tournaments the bot doesn't allow me, why is that?",
+        answer: 'Make sure you have verified either of Lichess/Chess.com accounts with /verify or /verifychesscom, also make sure to pick your cohort role in #roles, if an issue still persists contact @Noobmaster or create tech ticket',
+    },
+    {
+        question: 'What if I want to withdraw from the tournament?',
+        answer: "You can withdraw from the tournament with /withdraw BUT you can't join back after withdrawing",
+    },
+    {
+        question: 'How do I schedule the round games?',
+        answer: 'You can schedule the round games from #round-robin-find-games, you can use either Lichess/Chess.com or OTB',
+    },
+    {
+        question: 'I just played a game, do I have to submit the game somewhere?',
+        answer: 'No! The system will automatically find your games and track the crosstables, however if you suspect your game scores are not up to date, or there is wrong game URL in game panel please contact @Alex Dodd or @Noobmaster',
+    },
+    {
+        question: 'What happens if I suspect someone of cheating?',
+        answer: 'Report it immediately. Cheating is taken very seriously, and players caught cheating will be banned from the server.',
+    },
+    {
+        question: 'I have other question which is not here, where should I ask?',
+        answer: 'No worries! You can ask them in #round-robin-player-chat or create a training prgram ticket',
+    },
+];
+
+const FAQSection = () => (
+    <Stack spacing={2}>
+        <Typography variant='h6' color='text.secondary'>
+            <HelpOutline sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
+            Frequently Asked Questions
+        </Typography>
+        <List>
+            {faqs.map((faq, index) => (
+                <ListItem key={index}>
+                    <ListItemText primary={faq.question} secondary={faq.answer} />
+                </ListItem>
+            ))}
+        </List>
+    </Stack>
+);
 
 /**
  * Handles the info page
@@ -66,7 +123,19 @@ export const InfoPage = () => {
                     <ListItemIcon>
                         <EmojiEventsIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Schedule games at your own pace, with 2 months to complete the round games' />
+                    <ListItemText primary='Schedule games at your own pace, with 3 months to complete the 9 round games' />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <AccessTime sx={{ color: 'text.secondary' }} />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary='Play classical time control games recommended by Training program for your cohort: Under 800: 30+0
+800-1200: 30+30
+1200+: 45+30
+1600+: 60+30
+2000+: 90+30'
+                    />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
@@ -101,7 +170,7 @@ export const InfoPage = () => {
                     <ListItemIcon>
                         <SiDiscord fontSize={25} style={{ color: '#5865f2' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Run /register to automatically get placed in your own cohort Dojo round robin tournament!' />
+                    <ListItemText primary='Head over to #roles and pick round robin role, then go to #round-robin-player-commands channel to register via /register to automatically get placed in your own cohort Dojo round robin tournament!' />
                 </ListItem>
             </List>
 
@@ -174,6 +243,8 @@ export const InfoPage = () => {
 
             <Divider />
 
+            <FAQSection />
+
             <Typography variant='h6' color='text.secondary'>
                 <SiDiscord
                     style={{ verticalAlign: 'middle', marginRight: 9, color: '#5865f2' }}
@@ -213,6 +284,7 @@ export const InfoPage = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <Divider />
         </Stack>
     );
 };

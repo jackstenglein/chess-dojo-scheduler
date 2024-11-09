@@ -1,3 +1,8 @@
+import {
+    GameHeader,
+    GameOrientation,
+    GameOrientations,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -19,13 +24,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
-import {
-    BoardOrientation,
-    GameHeader,
-    parsePgnDate,
-    stripTagValue,
-    toPgnDate,
-} from '../../api/gameApi';
+import { parsePgnDate, stripTagValue, toPgnDate } from '../../api/gameApi';
 import { GameResult, PgnHeaders, isGameResult } from '../../database/game';
 
 interface FormHeader {
@@ -66,12 +65,12 @@ interface MissingGameDataPreflightProps {
     open: boolean;
     onClose: () => void;
     initHeaders?: PgnHeaders;
-    initOrientation?: BoardOrientation;
+    initOrientation?: GameOrientation;
     loading: boolean;
     title?: string;
     skippable?: boolean;
     children?: React.ReactNode;
-    onSubmit: (headers: GameHeader, orientation: BoardOrientation) => void;
+    onSubmit: (headers: GameHeader, orientation: GameOrientation) => void;
 }
 
 export const MissingGameDataPreflight = ({
@@ -87,8 +86,8 @@ export const MissingGameDataPreflight = ({
 }: MissingGameDataPreflightProps) => {
     const [headers, setHeaders] = useState<FormHeader>(getFormHeader(initHeaders));
     const [errors, setErrors] = useState<Partial<FormError>>({});
-    const [orientation, setOrientation] = useState<BoardOrientation>(
-        initOrientation ?? 'white',
+    const [orientation, setOrientation] = useState<GameOrientation>(
+        initOrientation ?? GameOrientations.white,
     );
 
     if (skippable === undefined) {
@@ -231,16 +230,16 @@ export const MissingGameDataPreflight = ({
                                     row
                                     value={orientation}
                                     onChange={(e) =>
-                                        setOrientation(e.target.value as BoardOrientation)
+                                        setOrientation(e.target.value as GameOrientation)
                                     }
                                 >
                                     <FormControlLabel
-                                        value='white'
+                                        value={GameOrientations.white}
                                         control={<Radio />}
                                         label='White'
                                     />
                                     <FormControlLabel
-                                        value='black'
+                                        value={GameOrientations.black}
                                         control={<Radio />}
                                         label='Black'
                                     />

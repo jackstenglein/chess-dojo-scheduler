@@ -65,7 +65,7 @@ func handler(ctx context.Context, event Event) (Event, error) {
 	}
 
 	twitchTime := time.Now()
-	twitchTime = time.Date(twitchTime.Year(), twitchTime.Month(), twitchTime.Day(), 16, 0, 0, 0, twitchTime.Location())
+	twitchTime = time.Date(twitchTime.Year(), twitchTime.Month(), twitchTime.Day(), 17, 0, 0, 0, twitchTime.Location())
 
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("## %s Congrats to this week's %s Grads!\n", discord.MessageEmojiDojo, event.ID))

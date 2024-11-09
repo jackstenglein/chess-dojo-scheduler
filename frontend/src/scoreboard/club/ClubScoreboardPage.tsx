@@ -28,7 +28,6 @@ const ClubScoreboardPage = () => {
             request.onStart();
             api.getClub(id, true)
                 .then((resp) => {
-                    console.log('getClub: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {

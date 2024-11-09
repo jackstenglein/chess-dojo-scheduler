@@ -1,4 +1,4 @@
-import { ApiError } from './errors';
+import { ApiError } from 'chess-dojo-directory-service/api';
 
 /**
  * Returns the specified pathname segment from the given URL.

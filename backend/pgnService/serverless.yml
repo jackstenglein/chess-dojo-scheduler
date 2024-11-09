@@ -157,6 +157,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
+          - dynamodb:GetItem
         Resource: ${param:DirectoriesTableArn}
 
   updateGame:

@@ -38,7 +38,6 @@ const MemorizeGamesPage = () => {
 
             api.listGamesByOwner('games_to_memorize')
                 .then((res) => {
-                    console.log('listGamesToMemorize: ', res);
                     const games = res.data.games.sort((lhs, rhs) =>
                         compareCohorts(lhs.cohort, rhs.cohort),
                     );
@@ -61,7 +60,6 @@ const MemorizeGamesPage = () => {
             getRequest.onStart();
             api.getGame(gameInfo.cohort, gameInfo.id)
                 .then((res) => {
-                    console.log('getGame: ', res);
                     getRequest.onSuccess(res.data);
                 })
                 .catch((err) => {

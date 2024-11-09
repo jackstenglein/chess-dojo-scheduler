@@ -13,6 +13,10 @@ import {
     ExamAttempt,
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
+import {
+    CreateGameRequest,
+    UpdateGameRequest,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { DateTime } from 'luxon';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
@@ -86,11 +90,9 @@ import {
     getPosition,
 } from './explorerApi';
 import {
-    CreateGameRequest,
     DeleteCommentRequest,
     GameApiContextType,
     UpdateCommentRequest,
-    UpdateGameRequest,
     createComment,
     createGame,
     deleteComment,
@@ -298,7 +300,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getGame: (cohort: string, id: string) => getGame(cohort, id),
             featureGame: (cohort: string, id: string, featured: string) =>
                 featureGame(idToken, cohort, id, featured),
-            updateGame: (cohort: string, id: string, req: UpdateGameRequest) =>
+            updateGame: (cohort: string, id: string, req: Partial<UpdateGameRequest>) =>
                 updateGame(idToken, cohort, id, req),
             deleteGame: (cohort: string, id: string) => deleteGame(idToken, cohort, id),
             listGamesByCohort: (

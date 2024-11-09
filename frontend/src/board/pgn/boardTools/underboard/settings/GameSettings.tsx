@@ -1,3 +1,18 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { isMissingData, parsePgnDate, toPgnDate } from '@/api/gameApi';
+import { useFreeTier } from '@/auth/Auth';
+import { Game, PgnHeaders } from '@/database/game';
+import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
+import DeleteGameButton from '@/games/view/DeleteGameButton';
+import {
+    GameHeader,
+    GameImportTypes,
+    GameOrientation,
+    GameOrientations,
+    UpdateGameRequest,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -14,22 +29,6 @@ import {
 import { DatePicker } from '@mui/x-date-pickers';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EventType, trackEvent } from '../../../../../analytics/events';
-import { useApi } from '../../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import {
-    BoardOrientation,
-    GameHeader,
-    GameSubmissionType,
-    UpdateGameRequest,
-    isMissingData,
-    parsePgnDate,
-    toPgnDate,
-} from '../../../../../api/gameApi';
-import { useFreeTier } from '../../../../../auth/Auth';
-import { Game, PgnHeaders } from '../../../../../database/game';
-import { MissingGameDataPreflight } from '../../../../../games/edit/MissingGameDataPreflight';
-import DeleteGameButton from '../../../../../games/view/DeleteGameButton';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
@@ -44,8 +43,8 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
     const [visibility, setVisibility] = useState(
         game.unlisted ? 'unlisted' : 'published',
     );
-    const [orientation, setOrientation] = useState<BoardOrientation>(
-        game.orientation ?? 'white',
+    const [orientation, setOrientation] = useState<GameOrientation>(
+        game.orientation ?? GameOrientations.white,
     );
     const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
     const navigate = useNavigate();
@@ -109,16 +108,16 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                             row
                             value={orientation}
                             onChange={(e) =>
-                                setOrientation(e.target.value as BoardOrientation)
+                                setOrientation(e.target.value as GameOrientation)
                             }
                         >
                             <FormControlLabel
-                                value='white'
+                                value={GameOrientations.white}
                                 control={<Radio />}
                                 label='White'
                             />
                             <FormControlLabel
-                                value='black'
+                                value={GameOrientations.black}
                                 control={<Radio />}
                                 label='Black'
                             />
@@ -183,7 +182,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 interface SaveGameButtonProps {
     game: Game;
     unlisted: boolean;
-    orientation: BoardOrientation;
+    orientation: GameOrientation;
     headers: PgnHeaders;
     headersChanged: boolean;
     dirty: boolean;
@@ -217,7 +216,7 @@ const SaveGameButton = ({
         request.reset();
     };
 
-    const onSave = (newHeaders?: GameHeader, newOrientation?: BoardOrientation) => {
+    const onSave = (newHeaders?: GameHeader, newOrientation?: GameOrientation) => {
         request.onStart();
 
         if (!newHeaders && headersChanged) {
@@ -229,7 +228,10 @@ const SaveGameButton = ({
             };
         }
 
-        const update: UpdateGameRequest = {
+        const update: Partial<UpdateGameRequest> = {
+            type: newHeaders ? GameImportTypes.editor : undefined,
+            cohort: game.cohort,
+            id: game.id,
             orientation: newOrientation || orientation,
             timelineId: game.timelineId,
         };
@@ -252,7 +254,6 @@ const SaveGameButton = ({
             }
 
             update.headers = newHeaders;
-            update.type = GameSubmissionType.Editor;
             update.pgnText = chess?.renderPgn();
         }
 

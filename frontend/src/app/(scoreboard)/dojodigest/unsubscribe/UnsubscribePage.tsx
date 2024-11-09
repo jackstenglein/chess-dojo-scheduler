@@ -20,8 +20,7 @@ const UnsubscribePage = () => {
 
         request.onStart();
         unsubscribeFromDojoDigest(email)
-            .then((resp) => {
-                console.log('unsubscribeFromDojoDigest: ', resp);
+            .then(() => {
                 request.onSuccess();
             })
             .catch((err) => {

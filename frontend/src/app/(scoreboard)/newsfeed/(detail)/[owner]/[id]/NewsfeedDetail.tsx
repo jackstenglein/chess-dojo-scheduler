@@ -18,7 +18,6 @@ export function NewsfeedDetail({ owner, id }: { owner: string; id: string }) {
             request.onStart();
             api.getNewsfeedItem(owner, id)
                 .then((resp) => {
-                    console.log('getNewsfeedItem: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {

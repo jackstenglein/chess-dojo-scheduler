@@ -63,7 +63,6 @@ export const AddButton = ({
             visibility,
         })
             .then((resp) => {
-                console.log('createDirectory: ', resp);
                 cache.put(resp.data.parent);
                 cache.putWithAccess(resp.data.directory, resp.data.accessRole);
                 trackEvent(EventType.CreateDirectory, { visibility });
@@ -105,7 +104,10 @@ export const AddButton = ({
                     />
                 </MenuItem>
 
-                <MenuItem component='a' href={`/games/import?directory=${directory.id}`}>
+                <MenuItem
+                    component='a'
+                    href={`/games/import?directory=${directory.id}&directoryOwner=${directory.owner}`}
+                >
                     <ListItemIcon>
                         <PawnIcon />
                     </ListItemIcon>

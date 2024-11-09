@@ -33,7 +33,6 @@ export function useExam() {
             request.onStart();
             api.getExam(type, id)
                 .then((resp) => {
-                    console.log('getExam: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {

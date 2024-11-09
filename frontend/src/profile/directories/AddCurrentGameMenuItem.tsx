@@ -60,7 +60,6 @@ export const AddCurrentGameMenuItem = ({
             ],
         })
             .then((resp) => {
-                console.log('addDirectoryItems: ', resp);
                 cache.put(resp.data.directory);
                 request.onSuccess();
                 trackEvent(EventType.AddDirectoryItems, {

@@ -89,7 +89,6 @@ function useNewsfeedIds(initialNewsfeedIds: string[]): [string[], (v: string[]) 
     );
 
     useEffect(() => {
-        console.log('Setting initial newsfeed ids');
         let startingIds = initialNewsfeedIds.filter(
             (id) => (localStorage.getItem(`newsfeedId_${id}`) || 'true') === 'true',
         );
@@ -153,7 +152,6 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
             request.onStart();
             api.listNewsfeed(newsfeedIds)
                 .then((resp) => {
-                    console.log('listNewsfeed: ', resp);
                     handleResponse(resp.data);
                     request.onSuccess();
                 })
@@ -198,7 +196,6 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
         request.onStart();
         api.listNewsfeed(newsfeedIds, skipLastFetch, JSON.stringify(startKey))
             .then((resp) => {
-                console.log('listNewsfeed: ', resp);
                 handleResponse(resp.data);
                 request.onSuccess();
             })

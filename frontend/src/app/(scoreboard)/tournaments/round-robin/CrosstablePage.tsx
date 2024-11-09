@@ -143,7 +143,12 @@ export const Crosstable = () => {
                                             {tournament.tournamentname}{' '}
                                             {showLeaderboard[tournament.info]
                                                 ? 'Leaderboard'
-                                                : 'Crosstable'}
+                                                : 'Crosstable'}{' '}
+                                            {tournament.players.length < 10
+                                                ? '[Registration Open]'
+                                                : '[Tournament Started]'}{' '}
+                                            {'Size: '}
+                                            {tournament.players.length}
                                         </Typography>
                                         <Button
                                             variant='contained'

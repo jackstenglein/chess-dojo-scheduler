@@ -43,7 +43,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         request.onStart();
         api.subscriptionCheckout({ interval, successUrl: redirect, cancelUrl: redirect })
             .then((resp) => {
-                console.log('subscriptionCheckout: ', resp);
                 window.location.href = resp.data.url;
             })
             .catch((err: unknown) => {

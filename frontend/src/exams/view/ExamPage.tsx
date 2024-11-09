@@ -287,8 +287,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
         debouncedOnSave.cancel();
         answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
         saveProgress(true)
-            .then((resp) => {
-                console.log('putExamAttempt: ', resp);
+            .then(() => {
                 navigate('..');
             })
             .catch((err) => {
@@ -305,7 +304,6 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
         if (!disableSave) {
             saveProgress(false, scores.total.user)
                 .then((resp) => {
-                    console.log('putExamAttempt: ', resp);
                     if (resp.data.exam) {
                         setExamAndAnswer(resp.data.exam, resp.data.answer);
                     } else {
