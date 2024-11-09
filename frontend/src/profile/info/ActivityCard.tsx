@@ -30,14 +30,18 @@ import { useTimeline } from '../activity/useTimeline';
 interface Activity extends BaseActivity {
     /** The count of the activity by category. */
     categoryCounts?: Partial<Record<RequirementCategory, number>>;
+
+    /** Whether a classical game was played on this date. */
+    gamePlayed?: boolean;
 }
 
 type TimelineEntryField = 'dojoPoints' | 'minutesSpent';
 
 const MAX_LEVEL = 4;
-const MAX_POINTS_COUNT = 10;
+const MAX_POINTS_COUNT = 9;
 const MAX_HOURS_COUNT = 4 * 60;
 const MIN_DATE = '2024-01-01';
+const CLASSICAL_GAMES_REQUIREMENT_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
 
 const VALID_CATEGORIES = [
     RequirementCategory.Games,
@@ -220,6 +224,10 @@ function getActivity(
             categoryCounts: {},
         };
 
+        if (entry.requirementId === CLASSICAL_GAMES_REQUIREMENT_ID) {
+            activity.gamePlayed = true;
+        }
+
         activity.count += entry[field];
         if (activity.categoryCounts) {
             activity.categoryCounts[entry.requirementCategory] =
@@ -314,7 +322,18 @@ function renderBlock(
             disableInteractive
             title={renderTooltip(activity, field)}
         >
-            {cloneElement(block, { style: newStyle })}
+            <g>
+                {cloneElement(block, { style: newStyle })}
+                {activity.gamePlayed && (
+                    <text
+                        x={block.props.x}
+                        y={parseFloat(`${block.props.y ?? 0}`) + 11}
+                        fontSize='12px'
+                    >
+                        ⚔️
+                    </text>
+                )}
+            </g>
         </Tooltip>
     );
 }
@@ -326,9 +345,12 @@ function renderBlock(
  * @param maxCount The max count. Counts >= this value will return MAX_LEVEL.
  */
 function calculateLevel(count: number, maxCount: number): number {
-    for (let i = 1; i <= MAX_LEVEL; i++) {
-        if (count < (maxCount / MAX_LEVEL) * i) {
-            return i - 1;
+    if (count === 0) {
+        return 0;
+    }
+    for (let i = 1; i < MAX_LEVEL; i++) {
+        if (count < (maxCount / (MAX_LEVEL - 1)) * i) {
+            return i;
         }
     }
     return MAX_LEVEL;
@@ -353,6 +375,24 @@ function renderTooltip(activity: Activity, field: TimelineEntryField) {
                     : `${formatTime(activity.count)} on ${activity.date}`}
             </Typography>
             <Divider sx={{ width: 1 }} />
+            {activity.gamePlayed && (
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    columnGap='1rem'
+                    width={1}
+                >
+                    <Stack direction='row' alignItems='center' columnGap={0.5}>
+                        <Typography fontSize='12px' pt='2px'>
+                            ⚔️
+                        </Typography>
+                        <Typography variant='caption' pt='2px'>
+                            Classical Game Played
+                        </Typography>
+                    </Stack>
+                </Stack>
+            )}
             {categories.map(([category, count]) => (
                 <Stack
                     key={category}
@@ -403,15 +443,19 @@ function renderLegendTooltip(
     field: TimelineEntryField,
 ) {
     let value = '';
-    const minValue = (maxCount / MAX_LEVEL) * level;
+    const minValue = Math.max(0, (maxCount / (MAX_LEVEL - 1)) * (level - 1));
     if (field === 'minutesSpent') {
         value = formatTime(minValue);
     } else {
         value = `${minValue}`;
     }
 
-    if (level < MAX_LEVEL) {
-        const maxValue = (maxCount / MAX_LEVEL) * (level + 1);
+    if (level === 0) {
+        if (field === 'dojoPoints') {
+            value += ' Dojo points';
+        }
+    } else if (level < MAX_LEVEL) {
+        const maxValue = (maxCount / (MAX_LEVEL - 1)) * level;
         if (field === 'minutesSpent') {
             value += ` – ${formatTime(maxValue)}`;
         } else {
