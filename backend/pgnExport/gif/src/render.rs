@@ -7,7 +7,7 @@ use rusttype::{Font, LayoutIter, Scale};
 use shakmaty::{uci::Uci, Bitboard, Board, File, Rank, Square};
 
 use crate::{
-    api::{Comment, Coordinates, Orientation, PlayerName, RequestBody, RequestParams},
+    api::{Comment, Coordinates, Orientation, PlayerName, Date, RequestBody, RequestParams},
     theme::{SpriteKey, Theme, Themes},
 };
 
@@ -20,14 +20,16 @@ enum RenderState {
 struct PlayerBars {
     white: PlayerName,
     black: PlayerName,
+    date: Date,
 }
 
 impl PlayerBars {
-    fn from(white: Option<PlayerName>, black: Option<PlayerName>) -> Option<PlayerBars> {
-        if white.is_some() || black.is_some() {
+    fn from(white: Option<PlayerName>, black: Option<PlayerName>, date: Option<Date>) -> Option<PlayerBars> {
+        if white.is_some() || black.is_some() || date.is_some() {
             Some(PlayerBars {
                 white: white.unwrap_or_default(),
                 black: black.unwrap_or_default(),
+                date: date.unwrap_or_default(),
             })
         } else {
             None
@@ -72,7 +74,7 @@ pub struct Render {
 
 impl Render {
     pub fn new_image(themes: &'static Themes, params: RequestParams) -> Render {
-        let bars = PlayerBars::from(params.white, params.black);
+        let bars = PlayerBars::from(params.white, params.black, params.date);
         let theme = themes.get(params.theme, params.piece);
         Render {
             theme,
@@ -95,7 +97,7 @@ impl Render {
     }
 
     pub fn new_animation(themes: &'static Themes, params: RequestBody) -> Render {
-        let bars = PlayerBars::from(params.white, params.black);
+        let bars = PlayerBars::from(params.white, params.black, params.date);
         let default_delay = params.delay;
         let theme = themes.get(params.theme, params.piece);
         Render {
@@ -175,6 +177,8 @@ impl Iterator for Render {
                         self.theme,
                         self.font,
                         self.orientation.fold(&bars.black, &bars.white),
+                        &bars.date,
+                        150,
                     );
 
                     render_bar(
@@ -182,6 +186,8 @@ impl Iterator for Render {
                         self.theme,
                         self.font,
                         self.orientation.fold(&bars.white, &bars.black),
+                        "ChessDojo.club",
+                        220,
                     );
 
                     view.slice_mut(s!(
@@ -436,7 +442,7 @@ fn render_rank(
     render_coord(square_buffer, glyphs, theme, text_color, background_color)
 }
 
-fn render_bar(mut view: ArrayViewMut2<u8>, theme: &Theme, font: &Font, player_name: &str) {
+fn render_bar(mut view: ArrayViewMut2<u8>, theme: &Theme, font: &Font, player_name: &str, extra_text: &str, extra_text_offset: usize) {
     view.fill(theme.bar_color());
 
     let mut text_color = theme.text_color();
@@ -493,13 +499,13 @@ fn render_bar(mut view: ArrayViewMut2<u8>, theme: &Theme, font: &Font, player_na
         }
     }
 
-    let url_glyphs = font.layout(
-        "ChessDojo.club", 
+    let extra_glyphs = font.layout(
+        extra_text, 
         scale, 
-        rusttype::point((theme.width() - 220) as f32, padding + v_metrics.ascent),
+        rusttype::point((theme.width() - extra_text_offset) as f32, padding + v_metrics.ascent),
     );
 
-    for g in url_glyphs {
+    for g in extra_glyphs {
         if let Some(bb) = g.pixel_bounding_box() {
             // Poor man's anti-aliasing.
             g.draw(|left, top, intensity| {

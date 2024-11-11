@@ -37,6 +37,8 @@ impl Orientation {
 
 pub type PlayerName = ArrayString<100>; // length limited to prevent dos
 
+pub type Date = ArrayString<10>;
+
 pub type Comment = ArrayString<255>; // strict length limit for gif comments
 
 #[derive(Debug, Default, Copy, Clone)]
@@ -156,6 +158,7 @@ impl CheckSquare {
 pub struct RequestParams {
     pub white: Option<PlayerName>,
     pub black: Option<PlayerName>,
+    pub date: Option<Date>,
     pub comment: Option<Comment>,
     #[serde_as(as = "DisplayFromStr")]
     #[serde(default)]
@@ -179,6 +182,7 @@ pub struct RequestParams {
 pub struct RequestBody {
     pub white: Option<PlayerName>,
     pub black: Option<PlayerName>,
+    pub date: Option<Date>,
     pub comment: Option<Comment>,
     pub frames: Vec<RequestFrame>,
     #[serde(default)]
