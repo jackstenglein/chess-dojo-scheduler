@@ -421,8 +421,13 @@ interface PgnGifProps {
     }[];
 }
 
+/**
+ * Sends an API request to fetch the gif data for the given props.
+ * @param props The request to get the gif.
+ * @returns The gif data as a blob.
+ */
 function getPgnGif(props: PgnGifProps) {
-    return axios.post(`${config.api.baseUrl}/public/pgn-export/gif`, props, {
+    return axios.post<Blob>(`${config.api.baseUrl}/public/pgn-export/gif`, props, {
         responseType: 'blob',
     });
 }
