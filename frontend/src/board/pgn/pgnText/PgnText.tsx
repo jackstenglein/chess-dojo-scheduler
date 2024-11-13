@@ -1,3 +1,6 @@
+import { UnpublishedGameBanner } from '@/components/games/edit/UnpublishedGameBanner';
+import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
+import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import { Card, Stack } from '@mui/material';
 import React, { useMemo, useRef } from 'react';
@@ -14,6 +17,7 @@ const PgnText = () => {
     const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
     const { config } = useChess();
+    const { unsaved, game } = useGame();
 
     const handleScroll = (child: HTMLElement | null) => {
         const scrollParent = ref.current;
@@ -35,6 +39,8 @@ const PgnText = () => {
             variant={light ? 'outlined' : 'elevation'}
             sx={{ display: 'flex', flexDirection: 'column' }}
         >
+            {game && game.unlisted === true && <UnpublishedGameBanner />}
+            {unsaved && <UnsavedGameBanner />}
             {!config?.disableEngine && <EngineSection />}
             <Stack
                 ref={ref}
