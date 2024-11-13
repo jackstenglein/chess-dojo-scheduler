@@ -5,6 +5,7 @@ export interface GameContextType {
     game?: Game;
     onUpdateGame?: (g: Game) => void;
     isOwner?: boolean;
+    unsaved?: boolean;
 }
 
 export const GameContext = createContext<GameContextType>({});
