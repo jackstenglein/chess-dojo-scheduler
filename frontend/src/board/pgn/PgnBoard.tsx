@@ -37,6 +37,7 @@ interface ChessContextType {
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
+    orientation?: 'white' | 'black';
 }
 
 export const ChessContext = createContext<ChessContextType>({});
@@ -90,7 +91,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
 
         const disableNullMoves = disableNullMovesProp ?? !game;
         const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
-        const [, setOrientation] = useState(startOrientation);
+        const [orientation, setOrientation] = useState(startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
 
         const toggleOrientation = useCallback(() => {
@@ -113,11 +114,13 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 toggleOrientation,
                 keydownMap,
                 slots,
+                orientation,
             }),
             [
                 chess,
                 board,
                 allowMoveDeletion,
+                orientation,
                 toggleOrientation,
                 keydownMap,
                 slots,
