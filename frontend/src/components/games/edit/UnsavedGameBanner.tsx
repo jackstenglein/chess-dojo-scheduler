@@ -1,4 +1,5 @@
 import { toPgnDate } from '@/api/gameApi';
+import { RequestSnackbar } from '@/api/Request';
 import { useChess } from '@/board/pgn/PgnBoard';
 import useSaveGame from '@/hooks/useSaveGame';
 import {
@@ -14,7 +15,7 @@ export function UnsavedGameBanner() {
     const { createGame, stagedCreateGame, request } = useSaveGame();
     const { chess } = useChess();
 
-    const onSubmit = (form: SaveGameForm) => {
+    const onSubmit = async (form: SaveGameForm) => {
         if (!chess) {
             return;
         }
@@ -32,13 +33,9 @@ export function UnsavedGameBanner() {
 
         req.pgnText = pgnText;
 
-        createGame(req)
-            .then(() => {
-                setShowDialogue(false);
-            })
-            .catch(() => {
-                request.onFailure();
-            });
+        await createGame(req).then(() => {
+            setShowDialogue(false);
+        });
     };
 
     return (
@@ -61,6 +58,7 @@ export function UnsavedGameBanner() {
                 onSubmit={onSubmit}
                 onClose={() => setShowDialogue(false)}
             />
+            <RequestSnackbar request={request} />
         </>
     );
 }

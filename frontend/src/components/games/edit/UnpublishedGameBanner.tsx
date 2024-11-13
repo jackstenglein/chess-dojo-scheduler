@@ -46,9 +46,9 @@ export function UnpublishedGameBanner(_: UnpublishedGameBannerProps) {
             pgnText: chess.renderPgn(),
         };
 
-        await updateGame(req);
-
-        setShowDialogue(false);
+        await updateGame(req).then(() => {
+            setShowDialogue(false);
+        });
     };
 
     return (
