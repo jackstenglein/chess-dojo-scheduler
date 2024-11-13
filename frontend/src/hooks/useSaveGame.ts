@@ -4,14 +4,19 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { EditGameResponse, isGame } from '@/api/gameApi';
 import { Request, useRequest } from '@/api/Request';
+import useGame from '@/context/useGame';
 import { Game } from '@/database/game';
-import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
+import {
+    CreateGameRequest,
+    UpdateGameRequest,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { useSessionStorage } from 'usehooks-ts';
 
 const STAGED_CREATE_GAME_KEY = 'useSaveGame:stageCreateGame';
 
 export interface UseSaveGameFields {
     createGame: (req: CreateGameRequest) => Promise<void>;
+    updateGame: (req: UpdateGameRequest) => Promise<void>;
     stageCreateGame: (req: CreateGameRequest) => void;
     stagedCreateGame: CreateGameRequest | null;
     request: Request<string>;
@@ -22,12 +27,13 @@ export default function useSaveGame(): UseSaveGameFields {
     const request = useRequest<string>();
     const [stagedCreateGame, stageCreateGame] =
         useSessionStorage<CreateGameRequest | null>(STAGED_CREATE_GAME_KEY, null);
+    const { game } = useGame();
 
-    const createGame = async (req: CreateGameRequest) => {
+    const createGame = async (createReq: CreateGameRequest) => {
         request.onStart();
         let data: Game | EditGameResponse | undefined;
         try {
-            const response = await api.createGame(req);
+            const response = await api.createGame(createReq);
             data = response.data;
         } catch (err) {
             console.error('CreateGame ', err);
@@ -38,7 +44,7 @@ export default function useSaveGame(): UseSaveGameFields {
             return;
         }
 
-        onCreateGame(req, data);
+        onCreateGame(createReq, data);
 
         if (!isGame(data)) {
             request.onSuccess(`Created ${data.count} games`);
@@ -47,56 +53,33 @@ export default function useSaveGame(): UseSaveGameFields {
         request.onSuccess();
     };
 
-    /*
-    const saveGame = ({ headers, isPublishing }: SaveGameDetails) => {
+    const updateGame = async (updateReq: UpdateGameRequest) => {
+        if (!game) {
+            return;
+        }
+
         request.onStart();
-
-        const update: UpdateGameRequest = {
-            timelineId: game.timelineId,
-            headers: {
-                white: headers.White,
-                black: headers.Black,
-                date: headers.Date,
-                result: headers.Result,
-            },
-        };
-
-        // Presence of unlisted field signals whether to
-        // queue publishing/unlisting workflow.
-        if (isPublishing) {
-            update.unlisted = false;
-        } else if (!game.unlisted) {
-            update.unlisted = true;
+        let data: Game | EditGameResponse | undefined;
+        try {
+            const response = await api.updateGame(game.cohort, game.id, updateReq);
+            data = response.data;
+        } catch (err) {
+            console.error('updateGame ', err);
+            request.onFailure(err);
         }
 
-        for (const [name, value] of Object.entries(headers)) {
-            chess?.setHeader(name, value);
+        if (!data) {
+            return;
         }
 
-        update.type = GameSubmissionType.Editor;
-        update.pgnText = chess?.renderPgn();
-
-        api.updateGame(game.cohort, game.id, update)
-            .then((resp) => {
-                trackEvent(EventType.UpdateGame, {
-                    method: 'settings',
-                    dojo_cohort: game.cohort,
-                });
-
-                request.onSuccess();
-                onSaveGame?.(resp.data);
-            })
-            .catch((err) => {
-                console.error('updateGame: ', err);
-                request.onFailure(err);
-            });
+        request.onSuccess();
     };
-    */
 
     return {
         stagedCreateGame,
         stageCreateGame,
         createGame,
+        updateGame,
         request,
     };
 }
