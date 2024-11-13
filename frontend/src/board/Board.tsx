@@ -232,12 +232,35 @@ export type onMoveFunc = (board: BoardApi, chess: Chess, move: PrimitiveMove) =>
 interface BoardProps {
     config?: BoardConfig;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
+    onInitializeBoard?: (board: BoardApi) => void;
     onMove?: onMoveFunc;
 }
 
-const promotionPieces = ['q', 'n', 'r', 'b'];
+const promotionPieces = [
+    {
+        key: 'q',
+        name: 'queen',
+    },
+    {
+        key: 'n',
+        name: 'knight',
+    },
+    {
+        key: 'r',
+        name: 'rook',
+    },
+    {
+        key: 'b',
+        name: 'bishop',
+    },
+] as const;
 
-const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
+const Board: React.FC<BoardProps> = ({
+    config,
+    onInitialize,
+    onInitializeBoard,
+    onMove,
+}) => {
     const { chess, config: chessConfig } = useChess();
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
@@ -327,6 +350,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
             setIsInitialized(true);
         } else if (boardRef.current && board && !isInitialized) {
             board.set({ ...config });
+            onInitializeBoard?.(board);
             setIsInitialized(true);
         }
     }, [
@@ -338,6 +362,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         setIsInitialized,
         onMove,
         onInitialize,
+        onInitializeBoard,
         onStartPromotion,
         pieceStyle,
         showGlyphs,
@@ -399,12 +424,10 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
         });
     }, [board, chess, showGlyphs]);
 
+    const pieceSx = getPieceSx(pieceStyle);
+
     return (
-        <Box
-            width={1}
-            height={1}
-            sx={{ ...getPieceSx(pieceStyle), ...getBoardSx(boardStyle) }}
-        >
+        <Box width={1} height={1} sx={{ ...pieceSx, ...getBoardSx(boardStyle) }}>
             <div
                 data-cy='chessground-board'
                 ref={boardRef}
@@ -415,17 +438,20 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onMove }) => {
                 <DialogContent>
                     <Stack direction='row'>
                         {promotionPieces.map((piece) => (
-                            <Button key={piece} onClick={() => onFinishPromotion(piece)}>
+                            <Button
+                                key={piece.key}
+                                onClick={() => onFinishPromotion(piece.key)}
+                            >
                                 <Box
                                     sx={{
                                         width: '75px',
                                         aspectRatio: 1,
                                         backgroundSize: 'cover',
-                                        backgroundImage: `url(${
-                                            promotion
-                                                ? `https://www.chess.com/chess-themes/pieces/bases/150/${promotion.color[0]}${piece}.png`
-                                                : ''
-                                        })`,
+                                        backgroundImage: promotion
+                                            ? pieceSx[
+                                                  `--${promotion.color}-${piece.name}`
+                                              ]
+                                            : '',
                                     }}
                                 />
                             </Button>
