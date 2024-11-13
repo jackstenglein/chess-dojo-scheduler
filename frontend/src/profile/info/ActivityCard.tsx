@@ -3,6 +3,7 @@ import { getTimeZonedDate } from '@/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
+import { PawnIcon } from '@/style/ChessIcons';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
@@ -204,7 +205,7 @@ function getActivity(
     let maxCount = 0;
 
     for (const entry of entries) {
-        if (entry[field] <= 0 || !VALID_CATEGORIES.includes(entry.requirementCategory)) {
+        if (entry[field] < 0 || !VALID_CATEGORIES.includes(entry.requirementCategory)) {
             continue;
         }
 
@@ -322,18 +323,17 @@ function renderBlock(
             disableInteractive
             title={renderTooltip(activity, field)}
         >
-            <g>
-                {cloneElement(block, { style: newStyle })}
-                {activity.gamePlayed && (
-                    <text
-                        x={block.props.x}
-                        y={parseFloat(`${block.props.y ?? 0}`) + 11}
-                        fontSize='12px'
-                    >
-                        ⚔️
-                    </text>
-                )}
-            </g>
+            {activity.gamePlayed ? (
+                <PawnIcon
+                    x={block.props.x}
+                    y={block.props.y}
+                    width={block.props.width}
+                    height={block.props.height}
+                    sx={{ fontSize: '12px' }}
+                />
+            ) : (
+                cloneElement(block, { style: newStyle })
+            )}
         </Tooltip>
     );
 }
@@ -384,9 +384,7 @@ function renderTooltip(activity: Activity, field: TimelineEntryField) {
                     width={1}
                 >
                     <Stack direction='row' alignItems='center' columnGap={0.5}>
-                        <Typography fontSize='12px' pt='2px'>
-                            ⚔️
-                        </Typography>
+                        <PawnIcon sx={{ fontSize: '12px' }} />
                         <Typography variant='caption' pt='2px'>
                             Classical Game Played
                         </Typography>
