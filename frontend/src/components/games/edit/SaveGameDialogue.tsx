@@ -170,7 +170,7 @@ export default function SaveGameDialogue({
                                 select
                                 data-cy='result'
                                 label='Game Result'
-                                value={form.result.replaceAll('*', '')}
+                                value={form.result}
                                 onChange={(e) => onChangeField('result', e.target.value)}
                                 error={!!errors.result}
                                 helperText={errors.result}
@@ -179,6 +179,9 @@ export default function SaveGameDialogue({
                                 <MenuItem value={GameResult.White}>White Won</MenuItem>
                                 <MenuItem value={GameResult.Draw}>Draw</MenuItem>
                                 <MenuItem value={GameResult.Black}>Black Won</MenuItem>
+                                <MenuItem value={GameResult.Incomplete}>
+                                    Incomplete
+                                </MenuItem>
                             </TextField>
                         </Grid2>
 
