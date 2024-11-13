@@ -109,10 +109,8 @@ function onCreateGame(req: CreateGameRequest, data: Game | EditGameResponse) {
             method: req.type,
         });
 
-        let newUrl = `../${game.cohort.replaceAll('+', '%2B')}/${game.id.replaceAll(
-            '?',
-            '%3F',
-        )}?firstLoad=true`;
+        const urlSafeId = game.id.replaceAll('?', '%3F');
+        let newUrl = `/games/${game.cohort.replaceAll('+', '%2B')}/${urlSafeId}`;
 
         if (req.directory) {
             newUrl += `&directory=${req.directory.id}&directoryOwner=${req.directory.owner}`;
