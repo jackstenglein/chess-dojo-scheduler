@@ -3,7 +3,6 @@ import { getTimeZonedDate } from '@/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
-import { PawnIcon } from '@/style/ChessIcons';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
@@ -25,6 +24,7 @@ import {
     Activity as BaseActivity,
     BlockElement,
 } from 'react-activity-calendar';
+import { GiCrossedSwords } from 'react-icons/gi';
 import { useLocalStorage } from 'usehooks-ts';
 import { useTimeline } from '../activity/useTimeline';
 
@@ -180,6 +180,20 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             </Stack>
                         );
                     })}
+                    <Stack
+                        direction='row'
+                        justifyContent='space-between'
+                        alignItems='center'
+                        columnGap='1rem'
+                        width={1}
+                    >
+                        <Stack direction='row' alignItems='center' columnGap={0.5}>
+                            <GiCrossedSwords />
+                            <Typography variant='caption' pt='2px'>
+                                Classical Game Played
+                            </Typography>
+                        </Stack>
+                    </Stack>
                 </Stack>
             </CardContent>
         </Card>
@@ -324,13 +338,20 @@ function renderBlock(
             title={renderTooltip(activity, field)}
         >
             {activity.gamePlayed ? (
-                <PawnIcon
+                <g
                     x={block.props.x}
                     y={block.props.y}
                     width={block.props.width}
                     height={block.props.height}
-                    sx={{ fontSize: '12px' }}
-                />
+                >
+                    <GiCrossedSwords
+                        x={block.props.x}
+                        y={block.props.y}
+                        width={block.props.width}
+                        height={block.props.height}
+                        fontSize='12px'
+                    />
+                </g>
             ) : (
                 cloneElement(block, { style: newStyle })
             )}
@@ -384,7 +405,7 @@ function renderTooltip(activity: Activity, field: TimelineEntryField) {
                     width={1}
                 >
                     <Stack direction='row' alignItems='center' columnGap={0.5}>
-                        <PawnIcon sx={{ fontSize: '12px' }} />
+                        <GiCrossedSwords />
                         <Typography variant='caption' pt='2px'>
                             Classical Game Played
                         </Typography>
