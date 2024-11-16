@@ -1,4 +1,4 @@
-import { Chess, Event, EventType } from '@jackstenglein/chess';
+import { Chess, CommentType, Event, EventType } from '@jackstenglein/chess';
 import { Edit } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
@@ -7,7 +7,10 @@ import {
     Box,
     Button,
     CardContent,
+    FormControlLabel,
     IconButton,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
     ToggleButton,
@@ -72,6 +75,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const [, setForceRender] = useState(0);
     const textFieldRef = useRef<HTMLTextAreaElement>();
     const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
+    const [commentType, setCommentType] = useState(CommentType.After);
 
     useEffect(() => {
         if (chess) {
@@ -121,7 +125,15 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
 
     const move = chess.currentMove();
     const isMainline = chess.isInMainline(move);
-    const comment = move ? move.commentAfter || '' : chess.pgn.gameComment.comment || '';
+
+    let comment = '';
+    if (!move) {
+        comment = chess.pgn.gameComment.comment ?? '';
+    } else if (!isMainline && commentType === CommentType.Before) {
+        comment = move.commentMove ?? '';
+    } else {
+        comment = move.commentAfter ?? '';
+    }
 
     const handleExclusiveNag =
         (nagSet: Nag[]) => (_event: unknown, newNag: string | null) => {
@@ -195,27 +207,56 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     />
                 )}
 
-                <TextField
-                    inputRef={textFieldRef}
-                    label='Comments'
-                    id={BlockBoardKeyboardShortcuts}
-                    multiline
-                    minRows={isMainline ? 3 : 7}
-                    value={comment}
-                    onChange={(event) => chess.setComment(event.target.value)}
-                    fullWidth
+                <Stack
                     sx={{
                         flexGrow: { md: 1 },
-                        '& .MuiInputBase-root': {
-                            md: {
-                                height: '100%',
-                                '& .MuiInputBase-input': {
-                                    height: '100% !important',
+                    }}
+                >
+                    <TextField
+                        inputRef={textFieldRef}
+                        label='Comments'
+                        id={BlockBoardKeyboardShortcuts}
+                        multiline
+                        minRows={isMainline ? 3 : 7}
+                        value={comment}
+                        onChange={(event) =>
+                            chess.setComment(event.target.value, commentType)
+                        }
+                        fullWidth
+                        sx={{
+                            flexGrow: { md: 1 },
+                            '& .MuiInputBase-root': {
+                                md: {
+                                    height: '100%',
+                                    '& .MuiInputBase-input': {
+                                        height: '100% !important',
+                                    },
                                 },
                             },
-                        },
-                    }}
-                />
+                        }}
+                    />
+
+                    {!isMainline && (
+                        <RadioGroup
+                            row
+                            value={commentType}
+                            onChange={(e) =>
+                                setCommentType(e.target.value as CommentType)
+                            }
+                        >
+                            <FormControlLabel
+                                value={CommentType.Before}
+                                control={<Radio size='small' />}
+                                label='Comment Before'
+                            />
+                            <FormControlLabel
+                                value={CommentType.After}
+                                control={<Radio size='small' />}
+                                label='Comment After'
+                            />
+                        </RadioGroup>
+                    )}
+                </Stack>
 
                 <Stack spacing={1}>
                     <ToggleButtonGroup
