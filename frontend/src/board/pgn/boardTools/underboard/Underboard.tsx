@@ -7,6 +7,7 @@ import {
     Folder,
     Sell,
     Settings as SettingsIcon,
+    Share,
     Storage,
 } from '@mui/icons-material';
 import {
@@ -30,6 +31,7 @@ import ClockUsage from './clock/ClockUsage';
 import Comments from './comments/Comments';
 import { Directories } from './directories/Directories';
 import Settings from './settings/Settings';
+import { ShareTab } from './share/ShareTab';
 import Tags from './tags/Tags';
 
 export enum DefaultUnderboardTab {
@@ -39,6 +41,7 @@ export enum DefaultUnderboardTab {
     Comments = 'comments',
     Explorer = 'explorer',
     Clocks = 'clocks',
+    Share = 'share',
     Settings = 'settings',
 }
 
@@ -84,6 +87,11 @@ const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
         name: DefaultUnderboardTab.Clocks,
         tooltip: 'Clock Usage',
         icon: <AccessAlarm />,
+    },
+    [DefaultUnderboardTab.Share]: {
+        name: DefaultUnderboardTab.Share,
+        tooltip: 'Share',
+        icon: <Share />,
     },
     [DefaultUnderboardTab.Settings]: {
         name: DefaultUnderboardTab.Settings,
@@ -262,6 +270,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 setFocusEditor={setFocusCommenter}
                             />
                         )}
+                        {underboard === DefaultUnderboardTab.Share && <ShareTab />}
 
                         {customTab?.element}
                     </Stack>

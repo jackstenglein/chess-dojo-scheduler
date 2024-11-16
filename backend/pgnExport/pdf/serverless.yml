@@ -1,0 +1,37 @@
+service: chess-dojo-pgn-export-pdf
+
+plugins:
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+layers:
+  latex:
+    package:
+      artifact: layer.zip
+
+functions:
+  pdf:
+    handler: pdf.handler
+    timeout: 25
+    layers:
+      - arn:aws:lambda:us-east-1:652718333417:layer:perl-5_30-layer:1
+      - !Ref LatexLambdaLayer
+    events:
+      - httpApi:
+          path: /public/pgn-export/pdf
+          method: post
+    environment:
+      PATH: '/opt/texlive/bin/x86_64-linux:/opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
