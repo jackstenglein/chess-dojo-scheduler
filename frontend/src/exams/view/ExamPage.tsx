@@ -263,6 +263,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                     EventType.Initialized,
                     EventType.UpdateDrawables,
                     EventType.DeleteMove,
+                    EventType.DeleteBeforeMove,
                     EventType.PromoteVariation,
                 ],
                 handler: () => {

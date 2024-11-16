@@ -25,6 +25,7 @@ export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
 interface ChessConfig {
     initKey?: string;
     allowMoveDeletion?: boolean;
+    allowDeleteBefore?: boolean;
     disableTakebacks?: Color | 'both';
     disableNullMoves?: boolean;
     disableEngine?: boolean;
@@ -78,6 +79,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             onInitialize: parentOnInitialize,
             initKey,
             allowMoveDeletion,
+            allowDeleteBefore,
             disableTakebacks,
             disableNullMoves: disableNullMovesProp,
             disableEngine,
@@ -107,6 +109,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 config: {
                     initKey,
                     allowMoveDeletion,
+                    allowDeleteBefore,
                     disableTakebacks,
                     disableEngine,
                 },
@@ -118,6 +121,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 chess,
                 board,
                 allowMoveDeletion,
+                allowDeleteBefore,
                 toggleOrientation,
                 keydownMap,
                 slots,

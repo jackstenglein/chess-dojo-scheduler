@@ -1,7 +1,7 @@
 import { Event, EventType, Move } from '@jackstenglein/chess';
 import { useEffect, useState } from 'react';
 import { useChess } from '../PgnBoard';
-import Ellipsis from './Ellipsis';
+import { Ellipsis } from './Ellipsis';
 import Interrupt, { hasInterrupt } from './Interrupt';
 import MoveButton from './MoveButton';
 import MoveNumber from './MoveNumber';
@@ -26,9 +26,16 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll }) => {
                     EventType.NewVariation,
                     EventType.UpdateComment,
                     EventType.DeleteMove,
+                    EventType.DeleteBeforeMove,
                     EventType.PromoteVariation,
                 ],
                 handler: (event: Event) => {
+                    if (
+                        event.type === EventType.DeleteBeforeMove &&
+                        event.move === move
+                    ) {
+                        setNeedReminder(true);
+                    }
                     if (
                         event.type === EventType.NewVariation &&
                         move === chess.getVariantParent(event.move)
@@ -91,7 +98,11 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll }) => {
                     <MoveNumber key={`move-number-${move.ply}`} ply={move.ply} />
 
                     {move.ply % 2 === 0 && (
-                        <Ellipsis key={`ellipsis-${move.ply}`} ply={move.ply} />
+                        <Ellipsis
+                            key={`ellipsis-${move.ply}`}
+                            ply={move.ply}
+                            firstMove={!move.previous}
+                        />
                     )}
                 </>
             )}
