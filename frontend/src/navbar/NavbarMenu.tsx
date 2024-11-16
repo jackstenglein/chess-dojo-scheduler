@@ -1,7 +1,9 @@
 import { useNotifications } from '@/api/cache/Cache';
 import NotificationButton from '@/notifications/NotificationButton';
 import { PawnIcon } from '@/style/ChessIcons';
+import { FontAwesomeSvgIcon } from '@/style/Icon';
 import { TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
+import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 import {
     AutoStories,
     BorderColor,
@@ -223,6 +225,12 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     icon: <YoutubeIcon color='youtube' />,
                     onClick: () =>
                         window.open('https://www.youtube.com/@ChessDojo', '_blank'),
+                },
+                {
+                    name: 'Patreon',
+                    icon: <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: 'white' }} />,
+                    onClick: () =>
+                        window.open('https://www.patreon.com/ChessDojo', '_blank'),
                 },
             ],
         },
