@@ -35,7 +35,7 @@ export function UnpublishedGameBanner(_: UnpublishedGameBannerProps) {
         const req: UpdateGameRequest = {
             id: game.id,
             cohort: game.cohort,
-            timelineId: game.timelineId,
+            timelineId: game.timelineId || undefined,
             headers: {
                 white: form.white,
                 black: form.black,
