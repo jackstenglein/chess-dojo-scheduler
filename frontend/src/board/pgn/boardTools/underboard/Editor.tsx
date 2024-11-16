@@ -1,5 +1,5 @@
 import { Chess, CommentType, Event, EventType, Move } from '@jackstenglein/chess';
-import { Edit } from '@mui/icons-material';
+import { Backspace, Edit } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -365,7 +365,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     >
                         <span>
                             <Button
-                                startIcon={<DeleteIcon />}
+                                startIcon={<Backspace />}
                                 variant='outlined'
                                 onClick={() => chess.deleteBefore(move)}
                                 disabled={
@@ -376,7 +376,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                                 }
                                 fullWidth
                             >
-                                Delete up to here
+                                Delete before here
                             </Button>
                         </span>
                     </Tooltip>

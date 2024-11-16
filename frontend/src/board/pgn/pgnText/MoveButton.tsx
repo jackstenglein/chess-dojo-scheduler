@@ -241,7 +241,7 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                     <ListItemIcon>
                         <Backspace />
                     </ListItemIcon>
-                    <ListItemText>Delete up to here</ListItemText>
+                    <ListItemText>Delete before here</ListItemText>
                 </MenuItem>
             </MenuList>
         </Menu>
