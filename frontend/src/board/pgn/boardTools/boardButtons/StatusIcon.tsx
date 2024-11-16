@@ -1,26 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
+import { useReconcile } from '@/board/Board';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { Game } from '@/database/game';
 import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
 import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { CloudDone, CloudOff } from '@mui/icons-material';
-import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import {
+    Box,
+    CircularProgress,
+    IconButton,
+    Menu,
+    MenuItem,
+    Tooltip,
+} from '@mui/material';
 import debounce from 'lodash.debounce';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useChess } from '../../PgnBoard';
 
-export function useDebounce<T>(callback: (...args: T[]) => void, delay = 6000) {
-    const ref = useRef<(...args: T[]) => void>();
+export function useDebounce(callback: (...args: any[]) => void, delay = 6000) {
+    const ref = useRef<(...args: any[]) => void>();
 
     useEffect(() => {
         ref.current = callback;
     }, [callback]);
 
     const debouncedCallback = useMemo(() => {
-        const func = (...args: T[]) => {
+        const func = (...args: any[]) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             ref.current?.(...args);
         };
 
@@ -28,6 +38,11 @@ export function useDebounce<T>(callback: (...args: T[]) => void, delay = 6000) {
     }, [delay]);
 
     return debouncedCallback;
+}
+
+interface UndoLog {
+    date: Date;
+    pgn: string;
 }
 
 interface StatusIconProps {
@@ -40,9 +55,12 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
     const request = useRequest<Date>();
     const [initialPgn, setInitialPgn] = useState(chess?.renderPgn() || '');
     const [hasChanges, setHasChanges] = useState(false);
-    const user = useAuth().user;
+    const [undoLog, setUndoLog] = useState<UndoLog[]>([]);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+    const { user } = useAuth();
+    const reconcile = useReconcile();
 
-    const onSave = (cohort: string, id: string, pgnText: string) => {
+    const onSave = (cohort: string, id: string, pgnText: string, isUndo?: boolean) => {
         if (pgnText !== initialPgn) {
             request.onStart();
             api.updateGame(cohort, id, {
@@ -54,7 +72,19 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                         method: 'autosave',
                         dojo_cohort: cohort,
                     });
-                    request.onSuccess(new Date());
+
+                    if (!isUndo) {
+                        setUndoLog((log) => [
+                            ...log,
+                            {
+                                date: request.data || new Date(game.updatedAt || ''),
+                                pgn: initialPgn,
+                            },
+                        ]);
+                    }
+
+                    const date = new Date();
+                    request.onSuccess(date);
                     setInitialPgn(pgnText);
                     setHasChanges(false);
                 })
@@ -101,17 +131,44 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
         }
     }, [chess, game, initialPgn, setInitialPgn, debouncedOnSave, setHasChanges]);
 
+    const onRestore = () => {
+        setAnchorEl(null);
+        const undo = undoLog[undoLog.length - 1];
+        if (!undo?.pgn) {
+            return;
+        }
+
+        onSave(game.cohort, game.id, undo.pgn, true);
+        setUndoLog(undoLog.slice(0, -1));
+
+        let currentMove = chess?.currentMove();
+        chess?.loadPgn(undo.pgn);
+        chess?.seek(null, true);
+
+        const moves = [];
+        while (currentMove) {
+            moves.push(currentMove);
+            currentMove = currentMove.previous;
+        }
+
+        for (let i = moves.length - 1; i >= 0; i--) {
+            if (!chess?.move(moves[i].san, { existingOnly: true })) {
+                break;
+            }
+        }
+        reconcile();
+    };
+
     return (
         <Box
             sx={{
-                pr: request.isFailure() ? undefined : 1,
                 display: 'flex',
                 alignItems: 'center',
             }}
         >
             {request.isLoading() ? (
                 <Tooltip title='Saving'>
-                    <CircularProgress size={24} />
+                    <CircularProgress size={24} sx={{ mx: 1 }} />
                 </Tooltip>
             ) : request.isFailure() ? (
                 <Tooltip title='Failed to save. Click to retry.'>
@@ -125,7 +182,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                 </Tooltip>
             ) : hasChanges ? (
                 <Tooltip title='Unsaved changes.'>
-                    <CloudOff sx={{ color: 'text.secondary' }} />
+                    <CloudOff sx={{ color: 'text.secondary', mx: 1 }} />
                 </Tooltip>
             ) : (
                 <Tooltip
@@ -138,12 +195,44 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                                   request.data || new Date(game.updatedAt || ''),
                                   user?.timezoneOverride,
                                   user?.timeFormat,
-                              )}`
+                              )}. ${undoLog.length ? 'Click to restore previous version.' : 'No changes made since opening.'}`
                             : `No changes made since opening.`
                     }
                 >
-                    <CloudDone sx={{ color: 'text.secondary' }} />
+                    <IconButton
+                        onClick={
+                            undoLog.length
+                                ? (e) => setAnchorEl(e.currentTarget)
+                                : undefined
+                        }
+                    >
+                        <CloudDone sx={{ color: 'text.secondary' }} />
+                    </IconButton>
                 </Tooltip>
+            )}
+
+            {anchorEl && (
+                <Menu anchorEl={anchorEl} open onClose={() => setAnchorEl(null)}>
+                    {undoLog.length ? (
+                        <MenuItem onClick={onRestore}>
+                            Restore Previous Save (
+                            {toDojoDateString(
+                                undoLog[undoLog.length - 1].date,
+                                user?.timezoneOverride,
+                            )}{' '}
+                            {toDojoTimeString(
+                                undoLog[undoLog.length - 1].date,
+                                user?.timezoneOverride,
+                                user?.timeFormat,
+                            )}
+                            )
+                        </MenuItem>
+                    ) : (
+                        <MenuItem onClick={() => setAnchorEl(null)}>
+                            No Previous Versions
+                        </MenuItem>
+                    )}
+                </Menu>
             )}
 
             <RequestSnackbar request={request} />
