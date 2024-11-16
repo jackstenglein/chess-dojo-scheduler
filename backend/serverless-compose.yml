@@ -168,3 +168,8 @@ services:
     path: pgnExport/gif
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
+  
+  pgnExportPdfService:
+    path: pgnExport/pdf
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}

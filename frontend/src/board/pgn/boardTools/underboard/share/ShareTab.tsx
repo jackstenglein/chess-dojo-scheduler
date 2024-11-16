@@ -1,7 +1,18 @@
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useChess } from '@/board/pgn/PgnBoard';
 import { getConfig } from '@/config';
+import useGame from '@/context/useGame';
 import { Chess } from '@jackstenglein/chess';
-import { Check, ContentPaste, Download, Link, OpenInNew } from '@mui/icons-material';
+import { PdfExportRequest } from '@jackstenglein/chess-dojo-common/src/pgn/export';
+import {
+    Check,
+    ContentPaste,
+    Download,
+    Link,
+    OpenInNew,
+    PictureAsPdf,
+} from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     CardContent,
@@ -9,6 +20,8 @@ import {
     Divider,
     FormControlLabel,
     FormGroup,
+    FormLabel,
+    Slider,
     Stack,
 } from '@mui/material';
 import axios from 'axios';
@@ -53,10 +66,17 @@ const pgnExportOptions = {
         key: 'export-pgn/skip-clocks',
         default: false,
     },
+    plyBetweenDiagrams: {
+        key: 'export-pgn/ply-between-diagrams',
+        default: 20,
+        min: 8,
+        max: 40,
+    },
 } as const;
 
 export function ShareTab() {
     const { chess, board } = useChess();
+    const { game } = useGame();
     const [copied, setCopied] = useState('');
 
     const [boardStyle] = useLocalStorage<string>(BoardStyleKey, BoardStyle.Standard);
@@ -90,6 +110,11 @@ export function ShareTab() {
         pgnExportOptions.skipClocks.key,
         pgnExportOptions.skipClocks.default,
     );
+    const [plyBetweenDiagrams, setPlyBetweenDiagrams] = useLocalStorage<number>(
+        pgnExportOptions.plyBetweenDiagrams.key,
+        pgnExportOptions.plyBetweenDiagrams.default,
+    );
+    const pdfRequest = useRequest();
 
     const onCopy = (name: string, value: string) => {
         copy(value);
@@ -212,9 +237,51 @@ export function ShareTab() {
         a.click();
     };
 
+    const onDownloadPdf = async () => {
+        if (!chess) {
+            return;
+        }
+
+        try {
+            pdfRequest.onStart();
+            const pgn = chess.renderPgn();
+
+            const response = await getPdf({
+                pgn,
+                orientation: game?.orientation || board?.state.orientation || 'white',
+                cohort: game?.cohort,
+                id: game?.id,
+                skipHeader,
+                skipComments,
+                skipNags,
+                skipVariations,
+                skipNullMoves,
+                plyBetweenDiagrams,
+            });
+
+            const white = getPlayer(chess, 'White', 'WhiteElo');
+            const black = getPlayer(chess, 'Black', 'BlackElo');
+
+            const a = document.createElement('a');
+            a.download = `${white} - ${black}.pdf`;
+            a.href = window.URL.createObjectURL(response.data);
+            a.dataset.downloadurl = ['application/octet-stream', a.download, a.href].join(
+                ':',
+            );
+            a.click();
+
+            pdfRequest.onSuccess();
+        } catch (err) {
+            console.error('exportPgnPdf: ', err);
+            pdfRequest.onFailure(err);
+        }
+    };
+
     return (
         <CardContent>
             <Stack>
+                <RequestSnackbar request={pdfRequest} />
+
                 <Stack
                     direction='row'
                     gap={1}
@@ -334,6 +401,23 @@ export function ShareTab() {
                     </FormGroup>
                 </Stack>
 
+                <FormGroup sx={{ mt: 1.5, mb: 1 }}>
+                    <FormLabel>
+                        {plyBetweenDiagrams / 2} Moves Between Diagrams (PDF Only)
+                    </FormLabel>
+                    <Slider
+                        value={plyBetweenDiagrams}
+                        onChange={(_, value) => setPlyBetweenDiagrams(value as number)}
+                        step={2}
+                        min={pgnExportOptions.plyBetweenDiagrams.min}
+                        max={pgnExportOptions.plyBetweenDiagrams.max}
+                        valueLabelFormat={(value) => {
+                            return value / 2;
+                        }}
+                        valueLabelDisplay='auto'
+                    />
+                </FormGroup>
+
                 <Stack
                     direction='row'
                     gap={1}
@@ -357,6 +441,15 @@ export function ShareTab() {
                     >
                         Download PGN
                     </Button>
+
+                    <LoadingButton
+                        variant='contained'
+                        startIcon={<PictureAsPdf />}
+                        onClick={onDownloadPdf}
+                        loading={pdfRequest.isLoading()}
+                    >
+                        Download PDF
+                    </LoadingButton>
                 </Stack>
             </Stack>
         </CardContent>
@@ -428,6 +521,12 @@ interface PgnGifProps {
  */
 function getPgnGif(props: PgnGifProps) {
     return axios.post<Blob>(`${config.api.baseUrl}/public/pgn-export/gif`, props, {
+        responseType: 'blob',
+    });
+}
+
+function getPdf(request: PdfExportRequest) {
+    return axios.post<Blob>(`${config.api.baseUrl}/public/pgn-export/pdf`, request, {
         responseType: 'blob',
     });
 }
