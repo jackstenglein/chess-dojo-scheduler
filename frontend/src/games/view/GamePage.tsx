@@ -149,6 +149,7 @@ const GamePage = () => {
                             DefaultUnderboardTab.Settings,
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
+                        allowDeleteBefore={request.data?.owner === user?.username}
                         slots={{
                             moveButtonExtras: EngineMoveButtonExtras,
                         }}

@@ -3,7 +3,7 @@ import useGame from '@/context/useGame';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
-import { Help } from '@mui/icons-material';
+import { Backspace, Help } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -81,7 +81,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
         if (!n) return null;
 
         return (
-            <Tooltip key={n.label} title={n.description}>
+            <Tooltip key={n.label} title={n.description} disableInteractive>
                 <Typography
                     display='inline'
                     fontSize='inherit'
@@ -106,7 +106,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                 color: isCurrentMove
                     ? undefined
                     : getTextColor(move, inline, highlightEngineLines),
-                backgroundColor: isCurrentMove ? 'primary' : 'initial',
+                backgroundColor: isCurrentMove ? 'primary' : undefined,
                 paddingRight: inline ? undefined : 2,
 
                 // non-inline only props
@@ -138,7 +138,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                     {text}
                     {displayNags}
                     {move.isNullMove && (
-                        <Tooltip title='A null move passes the turn to the opponent and is commonly used for demonstrating a threat.'>
+                        <Tooltip
+                            title='A null move passes the turn to the opponent and is commonly used for demonstrating a threat.'
+                            disableInteractive
+                        >
                             <Help
                                 fontSize='inherit'
                                 sx={{
@@ -173,22 +176,20 @@ Button.displayName = 'Button';
 interface MoveMenuProps {
     anchor?: HTMLElement;
     move: Move;
-    onDelete: () => void;
     onClose: () => void;
 }
 
-const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) => {
-    const { chess } = useChess();
+const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
+    const { chess, config } = useChess();
+    const reconcile = useReconcile();
+
     if (!chess) {
         return null;
     }
 
     const canPromote = chess.canPromoteVariation(move);
-
-    const onClickDelete = () => {
-        onDelete();
-        onClose();
-    };
+    const canDeleteBefore =
+        config?.allowDeleteBefore && chess.isInMainline(move) && !!move.previous;
 
     const onMakeMainline = () => {
         chess.promoteVariation(move, true);
@@ -197,6 +198,18 @@ const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) 
 
     const onPromote = () => {
         chess.promoteVariation(move);
+        onClose();
+    };
+
+    const onClickDelete = () => {
+        chess?.delete(move);
+        reconcile();
+        onClose();
+    };
+
+    const onClickDeleteBefore = () => {
+        chess?.deleteBefore(move);
+        reconcile();
         onClose();
     };
 
@@ -222,6 +235,13 @@ const MoveMenu: React.FC<MoveMenuProps> = ({ anchor, move, onDelete, onClose }) 
                         <DeleteIcon />
                     </ListItemIcon>
                     <ListItemText>Delete from here</ListItemText>
+                </MenuItem>
+
+                <MenuItem disabled={!canDeleteBefore} onClick={onClickDeleteBefore}>
+                    <ListItemIcon>
+                        <Backspace />
+                    </ListItemIcon>
+                    <ListItemText>Delete up to here</ListItemText>
                 </MenuItem>
             </MenuList>
         </Menu>
@@ -342,11 +362,6 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         [setMenuAnchorEl, allowMoveDeletion],
     );
 
-    const onDelete = () => {
-        chess?.delete(move);
-        reconcile();
-    };
-
     const handleMenuClose = () => {
         setMenuAnchorEl(undefined);
     };
@@ -375,12 +390,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     onRightClick={onRightClick}
                     text={text}
                 />
-                <MoveMenu
-                    anchor={menuAnchorEl}
-                    move={move}
-                    onDelete={onDelete}
-                    onClose={handleMenuClose}
-                />
+                <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
             </>
         );
     }
@@ -399,12 +409,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 text={moveText}
                 time={moveTime}
             />
-            <MoveMenu
-                anchor={menuAnchorEl}
-                move={move}
-                onDelete={onDelete}
-                onClose={handleMenuClose}
-            />
+            <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
         </Grid>
     );
 };

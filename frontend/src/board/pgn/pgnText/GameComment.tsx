@@ -12,9 +12,9 @@ const GameComment = () => {
     useEffect(() => {
         if (chess) {
             const observer = {
-                types: [EventType.UpdateComment],
+                types: [EventType.UpdateComment, EventType.DeleteBeforeMove],
                 handler: (event: Event) => {
-                    if (!event.move) {
+                    if (event.type === EventType.DeleteBeforeMove || !event.move) {
                         setForceRender((v) => v + 1);
                     }
                 },

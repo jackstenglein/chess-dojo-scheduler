@@ -129,6 +129,9 @@ function shouldRerender(chess: Chess, event: Event): boolean {
     if (event.type === EventType.DeleteMove) {
         return !event.mainlineMove;
     }
+    if (event.type === EventType.DeleteBeforeMove) {
+        return true;
+    }
     if (event.type === EventType.PromoteVariation) {
         return chess.isInMainline(event.variantRoot);
     }
@@ -184,6 +187,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     EventType.UpdateHeader,
                     EventType.LegalMove,
                     EventType.DeleteMove,
+                    EventType.DeleteBeforeMove,
                     EventType.PromoteVariation,
                 ],
                 handler: (event: Event) => {

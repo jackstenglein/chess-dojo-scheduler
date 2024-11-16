@@ -80,6 +80,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                     ChessEventType.Initialized,
                     ChessEventType.UpdateDrawables,
                     ChessEventType.DeleteMove,
+                    ChessEventType.DeleteBeforeMove,
                     ChessEventType.PromoteVariation,
                     ChessEventType.UpdateHeader,
                 ],

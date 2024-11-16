@@ -43,6 +43,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                 EventType.NewVariation,
                 EventType.Initialized,
                 EventType.DeleteMove,
+                EventType.DeleteBeforeMove,
                 EventType.PromoteVariation,
             ],
             handler: () => setVariationDialogMove(null),

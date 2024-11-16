@@ -1,4 +1,4 @@
-import { Chess, CommentType, Event, EventType } from '@jackstenglein/chess';
+import { Chess, CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { Edit } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
@@ -159,7 +159,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
 
     const takebacksDisabled =
         config?.disableTakebacks === 'both' ||
-        config?.disableTakebacks?.[0] === move?.color;
+        (Boolean(move) && config?.disableTakebacks?.[0] === move?.color);
 
     const nullMoveStatus = getNullMoveStatus(chess);
 
@@ -339,14 +339,47 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     >
                         Move variation up
                     </Button>
-                    <Button
-                        startIcon={<DeleteIcon />}
-                        variant='outlined'
-                        onClick={() => chess.delete(move)}
-                        disabled={!config?.allowMoveDeletion || takebacksDisabled}
+                    <Tooltip
+                        title='Delete this move and all moves after it'
+                        disableInteractive
                     >
-                        Delete from here
-                    </Button>
+                        <Button
+                            startIcon={<DeleteIcon />}
+                            variant='outlined'
+                            onClick={() => chess.delete(move)}
+                            disabled={
+                                !config?.allowMoveDeletion || takebacksDisabled || !move
+                            }
+                        >
+                            Delete from here
+                        </Button>
+                    </Tooltip>
+                    <Tooltip
+                        title={getDeleteBeforeTooltip({
+                            allowDeleteBefore: config?.allowDeleteBefore,
+                            takebacksDisabled,
+                            isMainline,
+                            move,
+                        })}
+                        disableInteractive
+                    >
+                        <span>
+                            <Button
+                                startIcon={<DeleteIcon />}
+                                variant='outlined'
+                                onClick={() => chess.deleteBefore(move)}
+                                disabled={
+                                    !config?.allowDeleteBefore ||
+                                    takebacksDisabled ||
+                                    !isMainline ||
+                                    !move?.previous
+                                }
+                                fullWidth
+                            >
+                                Delete up to here
+                            </Button>
+                        </span>
+                    </Tooltip>
                 </Stack>
             </Stack>
         </CardContent>
@@ -375,4 +408,27 @@ function getNullMoveStatus(chess: Chess): { disabled: boolean; tooltip: string }
         disabled: false,
         tooltip: 'You can also add a null move by moving the king onto the enemy king.',
     };
+}
+
+function getDeleteBeforeTooltip({
+    allowDeleteBefore,
+    takebacksDisabled,
+    isMainline,
+    move,
+}: {
+    allowDeleteBefore?: boolean;
+    takebacksDisabled?: boolean;
+    isMainline?: boolean;
+    move?: Move | null;
+}) {
+    if (!allowDeleteBefore || takebacksDisabled) {
+        return 'This action is not allowed';
+    }
+    if (!isMainline) {
+        return 'This action is only available for mainline moves';
+    }
+    if (!move?.previous) {
+        return 'This action is not available for the first move';
+    }
+    return 'Make this the first move and delete all moves before it';
 }
