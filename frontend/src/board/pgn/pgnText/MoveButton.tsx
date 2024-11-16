@@ -8,7 +8,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
-    Grid,
+    Grid2,
     ListItemIcon,
     ListItemText,
     Menu,
@@ -398,7 +398,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     const moveTime = showMoveTimes && game ? getMoveTime(chess, move) : undefined;
 
     return (
-        <Grid key={`move-${move.ply}`} item xs={5}>
+        <Grid2 key={`move-${move.ply}`} size={5}>
             <Button
                 ref={ref}
                 isCurrentMove={isCurrentMove}
@@ -410,7 +410,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 time={moveTime}
             />
             <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
-        </Grid>
+        </Grid2>
     );
 };
 
