@@ -1,3 +1,9 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { Request, RequestSnackbar, useRequest } from '@/api/Request';
+import { useCache } from '@/api/cache/Cache';
+import { Notification, NotificationType } from '@/database/notification';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
     Button,
@@ -8,10 +14,6 @@ import {
     Stack,
     Tooltip,
 } from '@mui/material';
-import { useApi } from '../api/Api';
-import { Request, RequestSnackbar, useRequest } from '../api/Request';
-import { useCache } from '../api/cache/Cache';
-import { Notification, NotificationType } from '../database/notification';
 import NotificationDescription from './NotificationDescription';
 
 interface NotificationListItemProps {

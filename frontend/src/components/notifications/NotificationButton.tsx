@@ -1,7 +1,7 @@
+import { useNotifications } from '@/api/cache/Cache';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Badge, IconButton, Menu, MenuItem, MenuList, Tooltip } from '@mui/material';
 import { useState } from 'react';
-import { useNotifications } from '../api/cache/Cache';
 import { NotificationListItem } from './NotificationListItem';
 
 const NotificationButton = () => {

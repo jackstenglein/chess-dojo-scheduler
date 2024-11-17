@@ -1,12 +1,11 @@
-import { Stack, Typography } from '@mui/material';
-
 import {
     Notification,
     NotificationType,
     getDescription,
     getTitle,
-} from '../database/notification';
-import Avatar from '../profile/Avatar';
+} from '@/database/notification';
+import Avatar from '@/profile/Avatar';
+import { Stack, Typography } from '@mui/material';
 
 interface NotificationDescriptionProps {
     notification: Notification;

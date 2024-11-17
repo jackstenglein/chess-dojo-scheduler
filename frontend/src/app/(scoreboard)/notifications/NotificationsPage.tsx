@@ -1,8 +1,10 @@
-import { Container, Stack, Typography } from '@mui/material';
-import { useNotifications } from '../api/cache/Cache';
-import { NotificationListItem } from './NotificationListItem';
+'use client';
 
-const NotificationPage = () => {
+import { useNotifications } from '@/api/cache/Cache';
+import { NotificationListItem } from '@/components/notifications/NotificationListItem';
+import { Container, Stack, Typography } from '@mui/material';
+
+export function NotificationsPage() {
     const { notifications } = useNotifications();
 
     return (
@@ -17,6 +19,4 @@ const NotificationPage = () => {
             </Stack>
         </Container>
     );
-};
-
-export default NotificationPage;
+}
