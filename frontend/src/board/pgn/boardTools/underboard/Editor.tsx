@@ -35,6 +35,7 @@ import {
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import ClockTextField from './clock/ClockTextField';
 import { TimeControlDescription } from './clock/TimeControlDescription';
+import { DeletePrompt, useDeletePrompt } from './DeletePrompt';
 import { TimeControlEditor } from './tags/TimeControlEditor';
 
 interface NagButtonProps extends ToggleButtonProps {
@@ -76,6 +77,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const textFieldRef = useRef<HTMLTextAreaElement>();
     const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
     const [commentType, setCommentType] = useState(CommentType.After);
+    const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
 
     useEffect(() => {
         if (chess) {
@@ -346,7 +348,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         <Button
                             startIcon={<DeleteIcon />}
                             variant='outlined'
-                            onClick={() => chess.delete(move)}
+                            onClick={() => onDelete(move, 'after')}
                             disabled={
                                 !config?.allowMoveDeletion || takebacksDisabled || !move
                             }
@@ -367,7 +369,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             <Button
                                 startIcon={<Backspace />}
                                 variant='outlined'
-                                onClick={() => chess.deleteBefore(move)}
+                                onClick={() => onDelete(move, 'before')}
                                 disabled={
                                     !config?.allowDeleteBefore ||
                                     takebacksDisabled ||
@@ -381,6 +383,10 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         </span>
                     </Tooltip>
                 </Stack>
+
+                {deleteAction && (
+                    <DeletePrompt deleteAction={deleteAction} onClose={onCloseDelete} />
+                )}
             </Stack>
         </CardContent>
     );

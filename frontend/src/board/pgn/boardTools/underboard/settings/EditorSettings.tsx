@@ -1,4 +1,12 @@
-import { MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+    FormGroup,
+    FormLabel,
+    MenuItem,
+    Slider,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 
 export const ClockFieldFormatKey = 'clockFieldFormat';
@@ -8,10 +16,20 @@ export enum ClockFieldFormat {
     ThreeField = 'THREE_FIELD',
 }
 
+export const WarnBeforeDelete = {
+    key: 'pgn-editor/warn-before-delete',
+    default: 8,
+} as const;
+
 const EditorSettings = () => {
     const [clockFieldFormat, setClockFieldFormat] = useLocalStorage<string>(
         ClockFieldFormatKey,
         ClockFieldFormat.SingleField,
+    );
+
+    const [warnBeforeDelete, setWarnBeforeDelete] = useLocalStorage<number>(
+        WarnBeforeDelete.key,
+        WarnBeforeDelete.default,
     );
 
     return (
@@ -26,6 +44,23 @@ const EditorSettings = () => {
                 <MenuItem value={ClockFieldFormat.SingleField}>Single Field</MenuItem>
                 <MenuItem value={ClockFieldFormat.ThreeField}>Three Fields</MenuItem>
             </TextField>
+
+            <FormGroup sx={{ px: 1 }}>
+                <FormLabel>
+                    Warn Before Deleting {warnBeforeDelete} or More Moves
+                </FormLabel>
+                <Slider
+                    value={warnBeforeDelete}
+                    onChange={(_, value) => setWarnBeforeDelete(value as number)}
+                    step={1}
+                    min={1}
+                    max={30}
+                    valueLabelFormat={(value) => {
+                        return value;
+                    }}
+                    valueLabelDisplay='auto'
+                />
+            </FormGroup>
         </Stack>
     );
 };
