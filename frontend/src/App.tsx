@@ -35,7 +35,6 @@ import GamePage from './games/view/GamePage';
 import MaterialPage from './material/MaterialPage';
 import MemorizeGamesPage from './material/MemorizeGamesPage';
 import ModelGamesPage from './material/ModelGamesPage';
-import SparringPage from './material/SparringPage';
 import GroupMeetingPage from './meeting/GroupMeetingPage';
 import ListMeetingsPage from './meeting/ListMeetingsPage';
 import MeetingPage from './meeting/MeetingPage';
@@ -134,7 +133,6 @@ const router = createBrowserRouter(
 
                     <Route path='material'>
                         <Route index element={<MaterialPage />} />
-                        <Route path='sparring' element={<SparringPage />} />
                         <Route path='modelgames' element={<ModelGamesPage />} />
                         <Route path='memorizegames' element={<MemorizeGamesPage />} />
                     </Route>

@@ -1,3 +1,14 @@
+'use client';
+
+import { RequestSnackbar } from '@/api/Request';
+import { useRequirements } from '@/api/cache/requirements';
+import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
+import { Requirement } from '@/database/requirement';
+import { ALL_COHORTS, dojoCohorts } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import Position from '@/requirements/Position';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import Icon, { IconProps } from '@/style/Icon';
 import {
     Box,
     Button,
@@ -10,15 +21,6 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
-import { RequestSnackbar } from '../api/Request';
-import { useRequirements } from '../api/cache/requirements';
-import { useFreeTier } from '../auth/Auth';
-import { Requirement } from '../database/requirement';
-import { ALL_COHORTS, dojoCohorts } from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
-import Position from '../requirements/Position';
-import CohortIcon from '../scoreboard/CohortIcon';
-import Icon, { IconProps } from '../style/Icon';
 
 interface SparringRequirementProps {
     requirement: Requirement;
@@ -316,7 +318,7 @@ const sectionData = [
     },
 ];
 
-const SparringPage = () => {
+function AuthSparringPage() {
     const { requirements, request } = useRequirements(ALL_COHORTS, true);
     const isFreeTier = useFreeTier();
 
@@ -388,6 +390,14 @@ const SparringPage = () => {
             </Stack>
         </Container>
     );
-};
+}
 
-export default SparringPage;
+export function SparringPage() {
+    const { status } = useAuth();
+
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+
+    return <AuthSparringPage />;
+}
