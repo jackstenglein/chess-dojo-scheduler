@@ -1,3 +1,6 @@
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
+import { StripeAccount } from '@/database/payment';
 import { Cancel, CheckCircle, HourglassEmpty } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -12,10 +15,6 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-
-import { useApi } from '../../../api/Api';
-import { useRequest } from '../../../api/Request';
-import { StripeAccount } from '../../../database/payment';
 
 function StatusIcon({ status }: { status: boolean | 'active' | 'inactive' | 'pending' }) {
     let title = '';

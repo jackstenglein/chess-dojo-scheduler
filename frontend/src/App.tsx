@@ -19,7 +19,6 @@ import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
-import CoachPortalPage from './coaching/coaches/CoachPortalPage';
 import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
@@ -142,10 +141,6 @@ const router = createBrowserRouter(
                     </Route>
 
                     <Route path='notifications' element={<NotificationPage />} />
-
-                    <Route path='coach'>
-                        <Route index element={<CoachPortalPage />} />
-                    </Route>
                 </Route>
             </Route>
 

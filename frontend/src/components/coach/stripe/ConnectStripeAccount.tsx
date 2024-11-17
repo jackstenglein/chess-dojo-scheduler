@@ -1,9 +1,8 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { OpenInNew } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
-
-import { OpenInNew } from '@mui/icons-material';
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
 
 const ConnectStripeAccount = () => {
     const api = useApi();

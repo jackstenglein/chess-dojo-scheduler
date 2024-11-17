@@ -1,13 +1,20 @@
+'use client';
+
+import NotFoundPage from '@/NotFoundPage';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import ConnectStripeAccount from '@/components/coach/stripe/ConnectStripeAccount';
+import StripeInfo from '@/components/coach/stripe/StripeInfo';
+import LoadingPage from '@/loading/LoadingPage';
 import { Container, Divider, Stack, Typography } from '@mui/material';
-import NotFoundPage from '../../NotFoundPage';
-import { useRequiredAuth } from '../../auth/Auth';
-import ConnectStripeAccount from './stripe/ConnectStripeAccount';
-import StripeInfo from './stripe/StripeInfo';
 
 const CoachPortalPage = () => {
-    const { user } = useRequiredAuth();
+    const { user, status } = useAuth();
 
-    if (!user.isCoach) {
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+
+    if (!user?.isCoach) {
         return <NotFoundPage />;
     }
 

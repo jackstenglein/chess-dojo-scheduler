@@ -1,3 +1,4 @@
+import { StripeAccount, StripePayoutMethod } from '@/database/payment';
 import { AccountBalance, CreditCard, Help } from '@mui/icons-material';
 import {
     Card,
@@ -11,7 +12,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { StripeAccount, StripePayoutMethod } from '../../../database/payment';
 
 const PayoutsCard = ({ account }: { account?: StripeAccount }) => {
     if (!account) {
