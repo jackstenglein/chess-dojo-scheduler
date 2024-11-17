@@ -19,7 +19,6 @@ import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
-import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
 import { ListEndgameExamsPage } from './exams/list/ListEndgameExamsPage';
@@ -74,7 +73,6 @@ const router = createBrowserRouter(
                     </Route>
 
                     <Route path='tests'>
-                        <Route index element={<ExamLandingPage />} />
                         <Route path='tactics' element={<ListTacticsExamsPage />} />
                         <Route path='checkmate' element={<ListCheckmateExamsPage />} />
                         <Route path='endgame' element={<ListEndgameExamsPage />} />

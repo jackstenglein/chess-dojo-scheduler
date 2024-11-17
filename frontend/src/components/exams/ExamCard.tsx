@@ -1,9 +1,7 @@
-import { KingIcon, QueenIcon, RookIcon } from '@/style/ChessIcons';
 import {
     Card,
     CardActionArea,
     CardContent,
-    Container,
     Grid2,
     Stack,
     SvgIconProps,
@@ -11,40 +9,6 @@ import {
     Typography,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import { Link } from 'react-router-dom';
-
-/**
- * Renders a simple landing page that directs users to the different types of exams
- * (tactics, polgar, endgame, etc).
- */
-export const ExamLandingPage = () => {
-    return (
-        <Container maxWidth='lg' sx={{ py: 5 }}>
-            <Grid2 container rowSpacing={2} columnSpacing={2}>
-                <ExamCard
-                    name='Tactics Tests'
-                    description='All Ratings'
-                    href='/tests/tactics'
-                    icon={QueenIcon}
-                />
-
-                <ExamCard
-                    name='Checkmate Tests'
-                    description='All Ratings'
-                    href='/tests/checkmate'
-                    icon={KingIcon}
-                />
-
-                <ExamCard
-                    name='Endgame Tests'
-                    description='All Ratings'
-                    href='/tests/endgame'
-                    icon={RookIcon}
-                />
-            </Grid2>
-        </Container>
-    );
-};
 
 interface ExamCardProps {
     name: string;
@@ -56,7 +20,7 @@ interface ExamCardProps {
     disabled?: boolean;
 }
 
-const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) => {
+export const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) => {
     const Icon = icon;
     return (
         <Grid2
@@ -71,9 +35,9 @@ const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) =>
                 sx={{ opacity: disabled ? 0.8 : 1, height: 1 }}
             >
                 <CardActionArea
-                    component={Link}
+                    component='a'
                     disabled={disabled}
-                    to={href}
+                    href={href}
                     sx={{ height: 1 }}
                 >
                     <CardContent>
