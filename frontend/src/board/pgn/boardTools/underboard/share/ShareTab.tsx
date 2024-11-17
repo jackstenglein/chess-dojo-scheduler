@@ -138,7 +138,7 @@ export function ShareTab() {
         }
 
         const fen = chess.fen();
-        const params = new URLSearchParams({
+        const newParams: Record<string, string> = {
             fen,
             orientation: board?.state.orientation || 'white',
             white: getPlayer(chess, 'White', 'WhiteElo'),
@@ -149,8 +149,11 @@ export function ShareTab() {
             theme: boardStyle.toLowerCase(),
             piece:
                 pieceStyle === PieceStyle.ThreeD ? 'standard' : pieceStyle.toLowerCase(),
-        });
-
+        };
+        if (!newParams.lastMove) {
+            delete newParams.lastMove;
+        }
+        const params = new URLSearchParams(newParams);
         const url = `${config.api.baseUrl}/public/pgn-export/image?${params.toString()}`;
         window.open(url, '_blank');
     };
