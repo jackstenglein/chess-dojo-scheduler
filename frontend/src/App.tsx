@@ -20,9 +20,6 @@ import { RequireAuth } from './auth/Auth';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
-import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
-import { ListEndgameExamsPage } from './exams/list/ListEndgameExamsPage';
-import { ListTacticsExamsPage } from './exams/list/ListTacticsExamsPage';
 import { AdminStatsPage } from './exams/view/AdminStatsPage';
 import ExamPage from './exams/view/ExamPage';
 import EditGamePage from './games/edit/EditGamePage';
@@ -73,10 +70,6 @@ const router = createBrowserRouter(
                     </Route>
 
                     <Route path='tests'>
-                        <Route path='tactics' element={<ListTacticsExamsPage />} />
-                        <Route path='checkmate' element={<ListCheckmateExamsPage />} />
-                        <Route path='endgame' element={<ListEndgameExamsPage />} />
-
                         <Route path=':type/:id'>
                             <Route index element={<ExamInstructionsPage />} />
                             <Route path='exam' element={<ExamPage />} />

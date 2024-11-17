@@ -1,3 +1,12 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
+import { toDojoDateString } from '@/calendar/displayDate';
+import { isCohortInRange } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { Exam, ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { getRegression } from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import { Check, Close, ExpandLess, ExpandMore, Help, Lock } from '@mui/icons-material';
@@ -18,14 +27,6 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth, useFreeTier } from '../../auth/Auth';
-import { toDojoDateString } from '../../calendar/displayDate';
-import { isCohortInRange } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
-import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 
 interface CohortRangeExams {
     name: string;
@@ -89,13 +90,13 @@ function getExamInfo(e: Exam, username?: string, timezoneOverride?: string): Exa
 export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) => {
     const api = useApi();
     const request = useRequest<ExamInfo[]>();
-    const user = useAuth().user;
+    const { user, status } = useAuth();
     const [expanded, setExpanded] = useState(
         cohortRanges.map((c) => isCohortInRange(user?.dojoCohort, c)),
     );
 
     useEffect(() => {
-        if (!request.isSent()) {
+        if (status !== AuthStatus.Loading && !request.isSent()) {
             request.onStart();
 
             api.listExams(examType)
@@ -112,7 +113,7 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                     request.onFailure(err);
                 });
         }
-    }, [request, api, examType, user?.username, user?.timezoneOverride]);
+    }, [request, api, examType, user?.username, user?.timezoneOverride, status]);
 
     const ranges = useMemo(() => {
         const ranges: CohortRangeExams[] = [];
@@ -302,7 +303,6 @@ const initialState = {
 
 export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
     const user = useAuth().user;
-    const navigate = useNavigate();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [upsellOpen, setUpsellOpen] = useState(false);
     const isFreeTier = useFreeTier();
@@ -344,9 +344,7 @@ export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
 
     const onClickRow = (params: GridRowParams<ExamInfo>) => {
         if (params.row.exam.answers[user?.username || '']) {
-            navigate(`/tests/${params.row.exam.type}/${params.row.id}/exam`, {
-                state: { exam: params.row.exam },
-            });
+            window.location.href = `/tests/${params.row.exam.type}/${params.row.id}/exam`;
             return;
         }
 
@@ -360,9 +358,7 @@ export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);
         } else {
-            navigate(`/tests/${params.row.exam.type}/${params.row.id}`, {
-                state: { exam: params.row.exam },
-            });
+            window.location.href = `/tests/${params.row.exam.type}/${params.row.id}`;
         }
     };
 

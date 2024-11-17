@@ -1,26 +1,26 @@
+import { ExamList } from '@/components/exams/ExamList';
+import { KingIcon } from '@/style/ChessIcons';
 import { ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Container, Stack, Typography } from '@mui/material';
-import { QueenIcon } from '../../style/ChessIcons';
-import { ExamList } from './ExamList';
 
-const TACTICS_RANGES = ['0-1000', '1000-1500', '1500-2000', '2000+'];
+const POLGAR_RANGES = ['0-500', '500-1000', '1000-1500', '1500+'];
 
 /**
- * Renders the Material > Tests > Tactics Tests page.
+ * Renders the Material > Tests > Checkmate Tests page.
  */
-export const ListTacticsExamsPage = () => {
+export default function ListCheckmateExamsPage() {
     return (
         <Container sx={{ py: 5 }}>
             <Stack spacing={4}>
                 <Typography variant='h4'>
-                    <QueenIcon
+                    <KingIcon
                         fontSize='inherit'
                         sx={{ mr: 2, verticalAlign: 'center' }}
                     />
-                    Tactics Tests
+                    Checkmate Tests
                 </Typography>
-                <ExamList cohortRanges={TACTICS_RANGES} examType={ExamType.Tactics} />
+                <ExamList cohortRanges={POLGAR_RANGES} examType={ExamType.Polgar} />
             </Stack>
         </Container>
     );
-};
+}
