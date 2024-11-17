@@ -23,6 +23,7 @@ import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'rea
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
 import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
+import { DeletePrompt, useDeletePrompt } from '../boardTools/underboard/DeletePrompt';
 import { ShowMoveTimesInPgn } from '../boardTools/underboard/settings/ViewerSettings';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
@@ -181,7 +182,7 @@ interface MoveMenuProps {
 
 const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
     const { chess, config } = useChess();
-    const reconcile = useReconcile();
+    const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
 
     if (!chess) {
         return null;
@@ -201,50 +202,50 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
         onClose();
     };
 
-    const onClickDelete = () => {
-        chess?.delete(move);
-        reconcile();
-        onClose();
-    };
-
-    const onClickDeleteBefore = () => {
-        chess?.deleteBefore(move);
-        reconcile();
-        onClose();
-    };
-
     return (
-        <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
-            <MenuList>
-                <MenuItem disabled={chess.isInMainline(move)} onClick={onMakeMainline}>
-                    <ListItemIcon>
-                        <CheckIcon />
-                    </ListItemIcon>
-                    <ListItemText>Make main line</ListItemText>
-                </MenuItem>
+        <>
+            <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
+                <MenuList>
+                    <MenuItem
+                        disabled={chess.isInMainline(move)}
+                        onClick={onMakeMainline}
+                    >
+                        <ListItemIcon>
+                            <CheckIcon />
+                        </ListItemIcon>
+                        <ListItemText>Make main line</ListItemText>
+                    </MenuItem>
 
-                <MenuItem disabled={!canPromote} onClick={onPromote}>
-                    <ListItemIcon>
-                        <ArrowUpwardIcon />
-                    </ListItemIcon>
-                    <ListItemText>Move variation up</ListItemText>
-                </MenuItem>
+                    <MenuItem disabled={!canPromote} onClick={onPromote}>
+                        <ListItemIcon>
+                            <ArrowUpwardIcon />
+                        </ListItemIcon>
+                        <ListItemText>Move variation up</ListItemText>
+                    </MenuItem>
 
-                <MenuItem onClick={onClickDelete}>
-                    <ListItemIcon>
-                        <DeleteIcon />
-                    </ListItemIcon>
-                    <ListItemText>Delete from here</ListItemText>
-                </MenuItem>
+                    <MenuItem onClick={() => onDelete(move, 'after')}>
+                        <ListItemIcon>
+                            <DeleteIcon />
+                        </ListItemIcon>
+                        <ListItemText>Delete from here</ListItemText>
+                    </MenuItem>
 
-                <MenuItem disabled={!canDeleteBefore} onClick={onClickDeleteBefore}>
-                    <ListItemIcon>
-                        <Backspace />
-                    </ListItemIcon>
-                    <ListItemText>Delete before here</ListItemText>
-                </MenuItem>
-            </MenuList>
-        </Menu>
+                    <MenuItem
+                        disabled={!canDeleteBefore}
+                        onClick={() => onDelete(move, 'before')}
+                    >
+                        <ListItemIcon>
+                            <Backspace />
+                        </ListItemIcon>
+                        <ListItemText>Delete before here</ListItemText>
+                    </MenuItem>
+                </MenuList>
+            </Menu>
+
+            {deleteAction && (
+                <DeletePrompt deleteAction={deleteAction} onClose={onCloseDelete} />
+            )}
+        </>
     );
 };
 
@@ -390,7 +391,13 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     onRightClick={onRightClick}
                     text={text}
                 />
-                <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
+                {menuAnchorEl && (
+                    <MoveMenu
+                        anchor={menuAnchorEl}
+                        move={move}
+                        onClose={handleMenuClose}
+                    />
+                )}
             </>
         );
     }
@@ -409,7 +416,9 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 text={moveText}
                 time={moveTime}
             />
-            <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
+            {menuAnchorEl && (
+                <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
+            )}
         </Grid2>
     );
 };
