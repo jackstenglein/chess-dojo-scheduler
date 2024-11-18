@@ -1,3 +1,18 @@
+'use client';
+
+import NotFoundPage from '@/NotFoundPage';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useCache } from '@/api/cache/Cache';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import Field from '@/calendar/eventViewer/Field';
+import ParticipantsList from '@/calendar/eventViewer/ParticipantsList';
+import { Event, EventStatus, EventType, getDisplayString } from '@/database/event';
+import { User, dojoCohorts } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import CancelMeetingButton from '@/meeting/CancelMeetingButton';
+import MeetingMessages from '@/meeting/MeetingMessages';
 import { Warning } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -11,20 +26,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
-import NotFoundPage from '../NotFoundPage';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useCache } from '../api/cache/Cache';
-import { useRequiredAuth } from '../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
-import Field from '../calendar/eventViewer/Field';
-import ParticipantsList from '../calendar/eventViewer/ParticipantsList';
-import { Event, EventStatus, EventType, getDisplayString } from '../database/event';
-import { User, dojoCohorts } from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
-import CancelMeetingButton from './CancelMeetingButton';
-import MeetingMessages from './MeetingMessages';
 
 const CANCELATION_DEADLINE = 24 * 1000 * 60 * 60; // 24 hours
 
@@ -91,13 +92,15 @@ function getCancelDialog(user: User, meeting: Event): [string, string, string] {
     }
 }
 
-const MeetingPage = () => {
-    const { meetingId } = useParams();
+export function MeetingPage({ meetingId }: { meetingId: string }) {
     const cache = useCache();
-    const { user } = useRequiredAuth();
-    const navigate = useNavigate();
+    const { user } = useAuth();
     const checkoutRequest = useRequest();
     const api = useApi();
+
+    if (!user) {
+        return <LoadingPage />;
+    }
 
     const meeting = cache.events.get(meetingId || '');
     if (!meeting) {
@@ -115,7 +118,7 @@ const MeetingPage = () => {
     }
 
     const onCancel = (event: Event) => {
-        navigate('/calendar', { state: { canceled: true } });
+        window.location.href = '/calendar';
         cache.events.put(event);
     };
 
@@ -130,11 +133,7 @@ const MeetingPage = () => {
         return (
             <Container maxWidth='md' sx={{ py: 4 }}>
                 <Typography>This meeting has not been booked yet.</Typography>
-                <Button
-                    onClick={() => navigate('/calendar')}
-                    variant='contained'
-                    sx={{ mt: 2 }}
-                >
+                <Button href='/calendar' variant='contained' sx={{ mt: 2 }}>
                     Return to Calendar
                 </Button>
             </Container>
@@ -301,6 +300,4 @@ const MeetingPage = () => {
             </Stack>
         </Container>
     );
-};
-
-export default MeetingPage;
+}

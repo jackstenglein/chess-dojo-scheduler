@@ -1,3 +1,7 @@
+import { useRequiredAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Event, EventStatus, getDisplayString } from '@/database/event';
+import Avatar from '@/profile/Avatar';
 import {
     Card,
     CardActionArea,
@@ -8,12 +12,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useRequiredAuth } from '../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../calendar/displayDate';
-import { Event, EventStatus, getDisplayString } from '../database/event';
-import Avatar from '../profile/Avatar';
 
 function getTitle(event: Event): string {
     if (event.coaching) {
@@ -31,11 +29,6 @@ interface MeetingListItemProps {
 
 const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
     const { user } = useRequiredAuth();
-    const navigate = useNavigate();
-
-    const onClick = () => {
-        navigate('/meeting/' + meeting.id);
-    };
 
     const start = new Date(meeting.bookedStartTime || meeting.startTime);
 
@@ -51,7 +44,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
 
     return (
         <Card variant='outlined' sx={{ width: 1 }}>
-            <CardActionArea onClick={onClick}>
+            <CardActionArea href={`/meeting/${meeting.id}`}>
                 <CardHeader
                     title={getTitle(meeting)}
                     subheader={`${toDojoDateString(

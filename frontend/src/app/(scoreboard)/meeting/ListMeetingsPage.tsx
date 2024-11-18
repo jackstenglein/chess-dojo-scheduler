@@ -1,18 +1,23 @@
+'use client';
+
+import { RequestSnackbar } from '@/api/Request';
+import { useEvents } from '@/api/cache/Cache';
+import { useAuth } from '@/auth/Auth';
+import MeetingListItem from '@/components/meeting/MeetingListItem';
+import { Event } from '@/database/event';
+import LoadingPage from '@/loading/LoadingPage';
 import { Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { RequestSnackbar } from '../api/Request';
-import { useEvents } from '../api/cache/Cache';
-import { useRequiredAuth } from '../auth/Auth';
-import { Event } from '../database/event';
-import MeetingListItem from './MeetingListItem';
 
 const ONE_HOUR = 3600000;
 
-const ListMeetingsPage = () => {
-    const { user } = useRequiredAuth();
-    const navigate = useNavigate();
-
+export const ListMeetingsPage = () => {
+    const { user } = useAuth();
     const { events, request } = useEvents();
+
+    if (!user) {
+        return <LoadingPage />;
+    }
+
     const filterTime = new Date(new Date().getTime() - ONE_HOUR).toISOString();
 
     const meetingFilter = (e: Event) => {
@@ -49,7 +54,7 @@ const ListMeetingsPage = () => {
                             Looks like you don't have any meetings. Go to the calendar and
                             schedule one now!
                         </Typography>
-                        <Button variant='contained' onClick={() => navigate('/calendar')}>
+                        <Button variant='contained' href='/calendar'>
                             Go to Calendar
                         </Button>
                     </>
@@ -62,5 +67,3 @@ const ListMeetingsPage = () => {
         </Container>
     );
 };
-
-export default ListMeetingsPage;

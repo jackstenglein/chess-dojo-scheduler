@@ -31,10 +31,6 @@ import GamePage from './games/view/GamePage';
 import MaterialPage from './material/MaterialPage';
 import MemorizeGamesPage from './material/MemorizeGamesPage';
 import ModelGamesPage from './material/ModelGamesPage';
-import GroupMeetingPage from './meeting/GroupMeetingPage';
-import ListMeetingsPage from './meeting/ListMeetingsPage';
-import MeetingPage from './meeting/MeetingPage';
-import StripeCancelationPage from './meeting/StripeCancelationPage';
 import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import ProfileEditorPage from './profile/editor/ProfileEditorPage';
@@ -88,14 +84,7 @@ const router = createBrowserRouter(
                     <Route path='calendar' element={<CalendarPage />}>
                         <Route path='availability/:id' element={<EventBooker />} />
                     </Route>
-                    <Route path='meeting'>
-                        <Route index element={<ListMeetingsPage />} />
-                        <Route path=':meetingId'>
-                            <Route index element={<MeetingPage />} />
-                            <Route path='cancel' element={<StripeCancelationPage />} />
-                        </Route>
-                    </Route>
-                    <Route path='group/:availabilityId' element={<GroupMeetingPage />} />
+
                     <Route path='games'>
                         <Route index element={<ListGamesPage />} />
                         <Route path='import' element={<ImportGamePage />} />

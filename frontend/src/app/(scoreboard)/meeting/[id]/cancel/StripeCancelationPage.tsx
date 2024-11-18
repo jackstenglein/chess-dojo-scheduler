@@ -1,32 +1,34 @@
-import { useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { useRequest } from '../api/Request';
-import { useCache } from '../api/cache/Cache';
+'use client';
 
-const StripeCancelationPage = () => {
-    const { meetingId } = useParams();
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
+import { useCache } from '@/api/cache/Cache';
+import { useAuth } from '@/auth/Auth';
+import LoadingPage from '@/loading/LoadingPage';
+import { useEffect } from 'react';
+
+export function StripeCancelationPage({ meetingId }: { meetingId: string }) {
     const api = useApi();
     const request = useRequest();
     const cache = useCache();
+    const { user } = useAuth();
     const put = cache.events.put;
 
     useEffect(() => {
-        if (meetingId && !request.isSent()) {
+        if (user && meetingId && !request.isSent()) {
             request.onStart();
             api.cancelEvent(meetingId)
                 .then((resp) => {
                     request.onSuccess();
                     put(resp.data);
+                    window.location.href = '/calendar';
                 })
                 .catch((err) => {
                     console.error(err);
                     request.onFailure(err);
                 });
         }
-    }, [request, api, meetingId, put]);
+    }, [request, api, meetingId, put, user]);
 
-    return <Navigate to='/calendar' replace />;
-};
-
-export default StripeCancelationPage;
+    return <LoadingPage />;
+}

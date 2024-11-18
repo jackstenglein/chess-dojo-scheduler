@@ -20,7 +20,6 @@ import { TransitionProps } from '@mui/material/transitions';
 import { TimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { EventType, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
@@ -51,7 +50,6 @@ interface AvailabilityBookerProps {
 const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability }) => {
     const request = useRequest();
     const api = useApi();
-    const navigate = useNavigate();
     const cache = useCache();
     const user = useAuth().user;
 
@@ -122,7 +120,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                 });
                 request.onSuccess();
                 cache.events.put(response.data.event);
-                navigate(`/meeting/${response.data.event.id}`);
+                window.location.href = `/meeting/${response.data.event.id}`;
             })
             .catch((err) => {
                 console.error(err);
@@ -143,7 +141,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                 });
                 request.onSuccess();
                 cache.events.put(response.data.event);
-                navigate(`/group/${response.data.event.id}`);
+                window.location.href = `/meeting/${response.data.event.id}`;
             })
             .catch((err) => {
                 console.error(err);
@@ -176,7 +174,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                     <Button
                         data-cy='cancel-button'
                         color='error'
-                        onClick={() => navigate('/calendar')}
+                        href='/calendar'
                         disabled={request.status === RequestStatus.Loading}
                         startIcon={<Icon name='cancel' />}
                     >
