@@ -1,4 +1,21 @@
+import { useEvents } from '@/api/cache/Cache';
+import { useAuth } from '@/auth/Auth';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
+import {
+    AvailabilityType,
+    CalendarSessionType,
+    Event,
+    EventStatus,
+    PositionType,
+    TimeControlType,
+    TournamentType,
+    displayTimeControlType,
+    getDisplaySessionString,
+    getDisplayString,
+} from '@/database/event';
+import { ALL_COHORTS, TimeFormat, compareCohorts, dojoCohorts } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import Icon from '@/style/Icon';
 import { DayHours } from '@aldabil/react-scheduler/types';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
@@ -18,30 +35,7 @@ import MuiAccordionSummary, {
 import { Theme, styled } from '@mui/material/styles';
 import { DateTime } from 'luxon';
 import React, { useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useLocalStorage } from 'usehooks-ts';
-import { useEvents } from '../../api/cache/Cache';
-import { useAuth } from '../../auth/Auth';
-import {
-    AvailabilityType,
-    CalendarSessionType,
-    Event,
-    EventStatus,
-    PositionType,
-    TimeControlType,
-    TournamentType,
-    displayTimeControlType,
-    getDisplaySessionString,
-    getDisplayString,
-} from '../../database/event';
-import {
-    ALL_COHORTS,
-    TimeFormat,
-    compareCohorts,
-    dojoCohorts,
-} from '../../database/user';
-import CohortIcon from '../../scoreboard/CohortIcon';
-import Icon from '../../style/Icon';
 import TimezoneFilter from './TimezoneFilter';
 import { DefaultTimezone } from './TimezoneSelector';
 
@@ -369,7 +363,13 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
     return (
         <Stack data-cy='calendar-filters' spacing={{ xs: 3, sm: 4 }}>
             {meetingCount > 0 && (
-                <Link component={RouterLink} to='/meeting'>
+                <Link
+                    href='/meeting'
+                    sx={{
+                        alignSelf: 'center',
+                        my: 'calc(2 * var(--mui-spacing)) !important',
+                    }}
+                >
                     View {meetingCount} upcoming meeting{meetingCount !== 1 ? 's' : ''}
                 </Link>
             )}
