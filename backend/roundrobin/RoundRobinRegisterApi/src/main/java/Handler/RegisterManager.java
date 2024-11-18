@@ -253,6 +253,11 @@ public class RegisterManager {
             crosstable.createCrossTable();
         }
 
+        if(currentPlayerCount.size() == MAX_PLAYER_SIZE){
+            CohortRange sameRange = CohortRange.findCohortRange(tourneyID.getInteger("cohort-start"), tourneyID.getInteger("cohort-end"));
+            create.createNewRoundRobinTournament(sameRange, false, RRcollection);
+        }
+
         if (result.getModifiedCount() > 0) {
             System.out.println("Player " + username + " added successfully");
         } else {
