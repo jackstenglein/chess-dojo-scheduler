@@ -1,4 +1,4 @@
-## Round Robin Withdraw API
+## Round Robin Game API
 
 this is the backend of Round robins, it uses API gateway, AWS lambda, Java 21 and maven
 
@@ -7,5 +7,5 @@ this is the backend of Round robins, it uses API gateway, AWS lambda, Java 21 an
 - `mvn clean`
 - `mvn package`
 - `cd target`
-- deploy RoundRobinWithdrawAPI-1.0-SNAPSHOT.jar to lambda
+- deploy RoundRobinGameAPI-1.0-SNAPSHOT.jar to lambda
 - set lambda Handler to `Handler.App::handleRequest`
