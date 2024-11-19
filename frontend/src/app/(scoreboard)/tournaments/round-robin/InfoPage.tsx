@@ -28,8 +28,16 @@ import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
 
 const faqs = [
     {
+        question: 'Is there a registration period for Dojo Round robins?',
+        answer: 'yes, the registration for the tournament starts 1 week before the tournament start date, the tournament season start every 3 months.',
+    },
+    {
         question: 'How do I register for the Dojo Round Robin?',
         answer: 'Use the /register command in the Dojo Training Program Discord to join the tournament in your cohort.',
+    },
+    {
+        question: 'I just graduated from my cohort, can I play 1 level up?',
+        answer: 'Yes players are allowed to play 1 level down and 1 level up so even if you graduate you can stay in the tournament cohort when you registered. This can be done by changing cohort roles in training program Discord in #roles channel',
     },
     {
         question: 'What are the time controls for different cohorts?',
@@ -37,7 +45,12 @@ const faqs = [
     },
     {
         question: 'When do the tournaments start?',
-        answer: "The tournaments start after registration period ends, and when there are atleast 10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @Alex Dodd on Discord about tournaments starting. ",
+        answer: "The tournaments start after registration period ends, and when there are atleast 8-10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @DojoSystem on Discord about tournaments starting.",
+    },
+    {
+        question:
+            'My cohort tournament pairings and crosstable are not showing, why is that?',
+        answer: "There are less than 5 players so the tournament pairings can't be generated, please invite your friends or ask around so more people can sign up and the tournament can start!",
     },
     {
         question:
@@ -55,6 +68,10 @@ const faqs = [
     {
         question: 'I just played a game, do I have to submit the game somewhere?',
         answer: 'No! The system will automatically find your games and track the crosstables, however if you suspect your game scores are not up to date, or there is wrong game URL in game panel please contact @Alex Dodd or @Noobmaster',
+    },
+    {
+        question: 'I played a game but I do not see scores coming in why is that?',
+        answer: 'The scores take time to be calculated usually occur end of day, there can be also a problem with account verification, if you and your opponent played on Chess.com but you only connected your account with Lichess using /verify the scores would be neglected as you did not connect your Chess.com account. So always connect the account you and your opponent are playing on.',
     },
     {
         question: 'What happens if I suspect someone of cheating?',
@@ -136,12 +153,6 @@ export const InfoPage = () => {
 1600+: 60+30
 2000+: 90+30'
                     />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <NotInterestedIcon sx={{ color: 'text.secondary' }} />
-                    </ListItemIcon>
-                    <ListItemText primary='Strict anti-cheat measures in place to allow players to learn and grow in the game they love.' />
                 </ListItem>
             </List>
 
