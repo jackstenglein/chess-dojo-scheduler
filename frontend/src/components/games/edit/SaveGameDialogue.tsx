@@ -94,7 +94,7 @@ export default function SaveGameDialogue({
         if (stripTagValue(form.black) === '') {
             newErrors.black = 'This field is required';
         }
-        if (!form.result || form.result == GameResult.Incomplete) {
+        if (!form.result || form.result === GameResult.Incomplete) {
             newErrors.result = 'This field is required';
         }
         if (!form.date?.isValid) {
