@@ -2,14 +2,13 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { AuthStatus, useAuth } from '@/auth/Auth';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
 import PgnBoard from '@/board/pgn/PgnBoard';
+import { NextRequireAuth } from '@/components/auth/NextRequireAuth';
 import { Game, GameInfo } from '@/database/game';
 import { compareCohorts, dojoCohorts, User } from '@/database/user';
 import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
 import LoadingPage from '@/loading/LoadingPage';
-import NotFoundPage from '@/NotFoundPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Search } from '@mui/icons-material';
 import { Box, CardContent, MenuItem, TextField, Typography } from '@mui/material';
@@ -17,14 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import PgnSelector from '../../courses/[type]/[id]/PgnSelector';
 
 export function ModelGamesPage() {
-    const { user, status } = useAuth();
-    if (status === AuthStatus.Loading) {
-        return <LoadingPage />;
-    }
-    if (!user) {
-        return <NotFoundPage />;
-    }
-    return <AuthModelGamesPage user={user} />;
+    return <NextRequireAuth Component={AuthModelGamesPage} />;
 }
 
 function AuthModelGamesPage({ user }: { user: User }) {

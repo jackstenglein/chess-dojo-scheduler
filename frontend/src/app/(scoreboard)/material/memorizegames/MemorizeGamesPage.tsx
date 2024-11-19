@@ -1,3 +1,16 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import PgnSelector from '@/app/(scoreboard)/courses/[type]/[id]/PgnSelector';
+import { useFreeTier } from '@/auth/Auth';
+import PgnBoard from '@/board/pgn/PgnBoard';
+import PuzzleBoard from '@/board/puzzle/PuzzleBoard';
+import { coaches, coachUrls } from '@/database/course';
+import { Game, GameInfo } from '@/database/game';
+import { compareCohorts, User } from '@/database/user';
+import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
+import LoadingPage from '@/loading/LoadingPage';
 import {
     Box,
     Container,
@@ -11,20 +24,8 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import PgnSelector from '../app/(scoreboard)/courses/[type]/[id]/PgnSelector';
-import { useFreeTier, useRequiredAuth } from '../auth/Auth';
-import PgnBoard from '../board/pgn/PgnBoard';
-import PuzzleBoard from '../board/puzzle/PuzzleBoard';
-import { coachUrls, coaches } from '../database/course';
-import { Game, GameInfo } from '../database/game';
-import { compareCohorts } from '../database/user';
-import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
-import LoadingPage from '../loading/LoadingPage';
 
-const MemorizeGamesPage = () => {
-    const { user } = useRequiredAuth();
+export function MemorizeGamesPage({ user }: { user: User }) {
     const api = useApi();
     const listRequest = useRequest<GameInfo[]>();
     const getRequest = useRequest<Game>();
@@ -223,6 +224,4 @@ const MemorizeGamesPage = () => {
             </Container>
         </Container>
     );
-};
-
-export default MemorizeGamesPage;
+}

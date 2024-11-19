@@ -28,8 +28,6 @@ import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
-import MaterialPage from './material/MaterialPage';
-import MemorizeGamesPage from './material/MemorizeGamesPage';
 import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import ProfileEditorPage from './profile/editor/ProfileEditorPage';
@@ -103,11 +101,6 @@ const router = createBrowserRouter(
                         <Route path='search' element={<SearchPage />} />
                         <Route path='clubs/:id' element={<ClubScoreboardPage />} />
                         <Route path=':type' element={<ScoreboardPage />} />
-                    </Route>
-
-                    <Route path='material'>
-                        <Route index element={<MaterialPage />} />
-                        <Route path='memorizegames' element={<MemorizeGamesPage />} />
                     </Route>
                 </Route>
             </Route>
