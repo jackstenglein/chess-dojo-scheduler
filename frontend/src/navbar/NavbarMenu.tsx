@@ -1,5 +1,6 @@
 import { useNotifications } from '@/api/cache/Cache';
 import NotificationButton from '@/components/notifications/NotificationButton';
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
 import { TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
@@ -43,6 +44,7 @@ import {
     Button,
     Collapse,
     IconButton,
+    Link,
     List,
     ListItemIcon,
     Menu,
@@ -52,7 +54,6 @@ import {
     Typography,
     useMediaQuery,
 } from '@mui/material';
-import Image from 'next/image';
 import React, { useState } from 'react';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { hasCreatedProfile } from '../database/user';
@@ -60,29 +61,23 @@ import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,
 } from './UnauthenticatedMenu';
-import logo from './logo192.png';
 
 export const Logo = () => {
     return (
-        <a
+        <Link
             href='/'
-            style={{
+            sx={{
                 height: '100%',
-                paddingTop: '10px',
-                paddingBottom: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 marginRight: '15px',
             }}
         >
-            <Image
-                src={logo}
-                style={{
-                    height: '100%',
-                    width: 'auto',
-                }}
-                alt=''
-                priority
+            <ChessDojoIcon
+                sx={{ color: 'white', fontSize: { xs: '50px', md: '60px' } }}
             />
-        </a>
+        </Link>
     );
 };
 
