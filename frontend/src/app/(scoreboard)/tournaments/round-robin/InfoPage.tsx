@@ -256,46 +256,6 @@ export const InfoPage = () => {
 
             <FAQSection />
 
-            <Typography variant='h6' color='text.secondary'>
-                <SiDiscord
-                    style={{ verticalAlign: 'middle', marginRight: 9, color: '#5865f2' }}
-                />
-                Discord Info
-            </Typography>
-
-            <Typography>
-                The registration for Dojo Round Robin is only available in the Dojo
-                Training Program Discord
-            </Typography>
-
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>/verify</TableCell>
-                            <TableCell>Connect your Discord to Lichess account</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>/verifychesscom</TableCell>
-                            <TableCell>
-                                Connect your Discord to Chess.com account
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>/register</TableCell>
-                            <TableCell>
-                                Register for upcoming round robin tournament in your
-                                cohort
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>/withdraw</TableCell>
-                            <TableCell> Withdraw from running round robin </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <Divider />
         </Stack>
     );
 };
