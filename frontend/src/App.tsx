@@ -65,14 +65,6 @@ const router = createBrowserRouter(
                         </Route>
                     </Route>
 
-                    <Route path='tactics'>
-                        <Route index element={<Navigate to='/tests/tactics' replace />} />
-                        <Route
-                            path='*'
-                            element={<Navigate to='/tests/tactics' replace />}
-                        />
-                    </Route>
-
                     <Route path='calendar' element={<CalendarPage />}>
                         <Route path='availability/:id' element={<EventBooker />} />
                     </Route>
