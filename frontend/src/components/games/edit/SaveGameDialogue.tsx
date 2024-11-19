@@ -1,6 +1,6 @@
 import { parsePgnDate, stripTagValue } from '@/api/gameApi';
 import { useChess } from '@/board/pgn/PgnBoard';
-import { GameResult, isGameResult } from '@/database/game';
+import { GameResult } from '@/database/game';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -94,7 +94,7 @@ export default function SaveGameDialogue({
         if (stripTagValue(form.black) === '') {
             newErrors.black = 'This field is required';
         }
-        if (!isGameResult(form.result)) {
+        if (!form.result || form.result == GameResult.Incomplete) {
             newErrors.result = 'This field is required';
         }
         if (!form.date?.isValid) {
@@ -179,9 +179,6 @@ export default function SaveGameDialogue({
                                 <MenuItem value={GameResult.White}>White Won</MenuItem>
                                 <MenuItem value={GameResult.Draw}>Draw</MenuItem>
                                 <MenuItem value={GameResult.Black}>Black Won</MenuItem>
-                                <MenuItem value={GameResult.Incomplete}>
-                                    Incomplete
-                                </MenuItem>
                             </TextField>
                         </Grid2>
 

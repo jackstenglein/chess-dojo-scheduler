@@ -4,7 +4,10 @@ import { useChess } from '@/board/pgn/PgnBoard';
 import useGame from '@/context/useGame';
 import { Game } from '@/database/game';
 import useSaveGame from '@/hooks/useSaveGame';
-import { UpdateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
+import {
+    GameImportTypes,
+    UpdateGameRequest,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Alert, Button, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import SaveGameDialogue, { SaveGameForm } from './SaveGameDialogue';
@@ -35,15 +38,10 @@ export function UnpublishedGameBanner(_: UnpublishedGameBannerProps) {
         const req: UpdateGameRequest = {
             id: game.id,
             cohort: game.cohort,
-            timelineId: game.timelineId || undefined,
-            headers: {
-                white: form.white,
-                black: form.black,
-                result: form.result,
-                date: pgnDate,
-            },
+            timelineId: game.timelineId,
             unlisted: false,
             pgnText: chess.renderPgn(),
+            type: GameImportTypes.manual,
         };
 
         await updateGame(req).then(() => {
