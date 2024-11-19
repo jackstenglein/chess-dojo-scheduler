@@ -23,7 +23,6 @@ import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { AdminStatsPage } from './exams/view/AdminStatsPage';
 import ExamPage from './exams/view/ExamPage';
 import EditGamePage from './games/edit/EditGamePage';
-import ExplorerPage from './games/explorer/ExplorerPage';
 import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
@@ -76,7 +75,6 @@ const router = createBrowserRouter(
                             path='submit'
                             element={<Navigate to='/games/import' replace />}
                         />
-                        <Route path='explorer' element={<ExplorerPage />} />
                         <Route path=':cohort/:id'>
                             <Route path='edit' element={<EditGamePage />} />
                         </Route>
