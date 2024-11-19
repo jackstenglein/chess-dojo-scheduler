@@ -1,7 +1,7 @@
 'use client';
 
 import { RequirementCategory } from '@/database/requirement';
-import { CssBaseline } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
 import { blue, deepPurple } from '@mui/material/colors';
 import {
     ThemeProvider as MuiThemeProvider,
@@ -196,7 +196,11 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return (
         <MuiThemeProvider theme={theme}>
             <CssBaseline enableColorScheme />
-            <DefaultDarkModeSetter>{children}</DefaultDarkModeSetter>
+            <DefaultDarkModeSetter>
+                <Box sx={{ '--navbar-height': { xs: '60px', md: '75px' } }}>
+                    {children}
+                </Box>
+            </DefaultDarkModeSetter>
         </MuiThemeProvider>
     );
 };

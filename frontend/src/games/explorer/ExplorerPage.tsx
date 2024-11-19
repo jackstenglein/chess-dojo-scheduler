@@ -18,7 +18,6 @@ const ExplorerPage = () => {
                 pt: 4,
                 pb: 4,
                 '--gap': '16px',
-                '--site-header-height': '80px',
                 '--site-header-margin': '60px',
                 '--player-header-height': '28px',
                 '--underboard-width': '500px',
@@ -26,7 +25,7 @@ const ExplorerPage = () => {
                 '--tools-height': '40px',
                 '--board-width': 'calc(100vw - var(--coach-width) - 60px)',
                 '--board-height':
-                    'calc(100vh - var(--site-header-height) - var(--site-header-margin) - var(--tools-height) - 8px - 2 * var(--player-header-height))',
+                    'calc(100vh - var(--navbar-height) - var(--site-header-margin) - var(--tools-height) - 8px - 2 * var(--player-header-height))',
                 '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
             }}
         >
