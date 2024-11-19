@@ -95,7 +95,7 @@ functions:
 
 #    Define function environment variables here
 #    environment:
-  CONNECTION_STRING: ""
+CONNECTION_STRING: put-it-here
 
 # you can add CloudFormation resource templates here
 #resources:
