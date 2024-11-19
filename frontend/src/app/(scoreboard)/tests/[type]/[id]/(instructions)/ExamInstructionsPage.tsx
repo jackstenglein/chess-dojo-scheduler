@@ -1,22 +1,45 @@
+'use client';
+
+import NotFoundPage from '@/NotFoundPage';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import {
+    CompletedExam,
+    InProgressExam,
+} from '@/app/(scoreboard)/tests/[type]/[id]/exam/ExamPage';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import { displayExamType } from '@/database/exam';
+import { User } from '@/database/user';
+import Instructions from '@/exams/instructions/Instructions';
+import { useExam } from '@/exams/view/exam';
+import LoadingPage from '@/loading/LoadingPage';
 import {
     Exam,
     ExamAnswer,
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Button, Container, Stack, Typography } from '@mui/material';
-import { Link, Navigate } from 'react-router-dom';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { displayExamType } from '../../database/exam';
-import LoadingPage from '../../loading/LoadingPage';
-import { CompletedExam, InProgressExam } from '../view/ExamPage';
-import { useExam } from '../view/exam';
-import Instructions from './Instructions';
 
-const ExamInstructionsPage = () => {
-    const user = useAuth().user;
+export function ExamInstructionsPage({ type, id }: { type: ExamType; id: string }) {
+    const { user, status } = useAuth();
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+    if (!user) {
+        return <NotFoundPage />;
+    }
+    return <AuthExamInstructionPage user={user} type={type} id={id} />;
+}
 
-    const { type, id, request, exam } = useExam();
+function AuthExamInstructionPage({
+    user,
+    type,
+    id,
+}: {
+    user: User;
+    type: ExamType;
+    id: string;
+}) {
+    const { request, exam } = useExam({ type, id });
     const answerRequest = useRequest<ExamAnswer>();
 
     if (request.isLoading() || !request.isSent()) {
@@ -31,8 +54,9 @@ const ExamInstructionsPage = () => {
         );
     }
 
-    if (!type || !id || !exam) {
-        return <Navigate to='/tests' />;
+    if (!exam) {
+        window.location.href = '/tests';
+        return null;
     }
 
     const sample = getSampleExam(exam);
@@ -94,12 +118,15 @@ const ExamInstructionsPage = () => {
                     </Typography>
 
                     <Stack direction='row' spacing={2} mt={3}>
-                        <Button variant='contained' component={Link} to='exam'>
+                        <Button variant='contained' href={`/tests/${type}/${id}/exam`}>
                             Begin Test
                         </Button>
 
                         {user?.isAdmin && (
-                            <Button variant='outlined' component={Link} to='stats'>
+                            <Button
+                                variant='outlined'
+                                href={`/tests/${type}/${id}/stats`}
+                            >
                                 View Stats
                             </Button>
                         )}
@@ -108,9 +135,7 @@ const ExamInstructionsPage = () => {
             </Container>
         </Container>
     );
-};
-
-export default ExamInstructionsPage;
+}
 
 const tacticsSampleProblems = [
     `[FEN "r5k1/pp2bppp/2p1pn2/3rN2q/5QP1/2BP4/PP2PP1P/R4RK1 b - - 0 1"]

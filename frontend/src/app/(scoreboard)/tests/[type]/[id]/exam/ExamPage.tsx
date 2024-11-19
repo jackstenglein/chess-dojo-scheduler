@@ -1,8 +1,38 @@
+'use client';
+
+import NotFoundPage from '@/NotFoundPage';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth, useRequiredAuth } from '@/auth/Auth';
+import { BoardApi, Chess } from '@/board/Board';
+import PgnBoard, {
+    BlockBoardKeyboardShortcuts,
+    PgnBoardApi,
+    useChess,
+} from '@/board/pgn/PgnBoard';
+import { useDebounce } from '@/board/pgn/boardTools/boardButtons/StatusIcon';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { ButtonProps as MoveButtonProps } from '@/board/pgn/pgnText/MoveButton';
+import { getCurrentRating, getNormalizedRating } from '@/database/user';
+import Instructions from '@/exams/instructions/Instructions';
+import CompletedExamPgnSelector from '@/exams/view/CompletedExamPgnSelector';
+import ExamPgnSelector, { ProblemStatus } from '@/exams/view/ExamPgnSelector';
+import ExamStatistics from '@/exams/view/ExamStatistics';
+import {
+    addExtraVariation,
+    getEventHeader,
+    getFen,
+    getMoveDescription,
+    getOrientation,
+    useExam,
+} from '@/exams/view/exam';
+import LoadingPage from '@/loading/LoadingPage';
 import { EventType } from '@jackstenglein/chess';
 import {
     Exam,
     ExamAnswer,
     ExamAttempt,
+    ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import {
     getSolutionScore,
@@ -29,35 +59,9 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCountdown } from 'react-countdown-circle-timer';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useRequiredAuth } from '../../auth/Auth';
-import { BoardApi, Chess } from '../../board/Board';
-import PgnBoard, {
-    BlockBoardKeyboardShortcuts,
-    PgnBoardApi,
-    useChess,
-} from '../../board/pgn/PgnBoard';
-import { useDebounce } from '../../board/pgn/boardTools/boardButtons/StatusIcon';
-import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
-import { ButtonProps as MoveButtonProps } from '../../board/pgn/pgnText/MoveButton';
-import { getCurrentRating, getNormalizedRating } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
-import Instructions from '../instructions/Instructions';
-import CompletedExamPgnSelector from './CompletedExamPgnSelector';
-import ExamPgnSelector, { ProblemStatus } from './ExamPgnSelector';
-import ExamStatistics from './ExamStatistics';
-import {
-    addExtraVariation,
-    getEventHeader,
-    getFen,
-    getMoveDescription,
-    getOrientation,
-    useExam,
-} from './exam';
 
 export interface Scores {
     total: {
@@ -84,8 +88,19 @@ function getColorsTime(limitSeconds?: number): { 0: number } & { 1: number } & n
     ];
 }
 
-const ExamPage = () => {
-    const { request, exam, answer } = useExam();
+export function ExamPage({ type, id }: { type: ExamType; id: string }) {
+    const { user, status } = useAuth();
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+    if (!user) {
+        return <NotFoundPage />;
+    }
+    return <AuthExamPage type={type} id={id} />;
+}
+
+function AuthExamPage({ type, id }: { type: ExamType; id: string }) {
+    const { request, exam, answer } = useExam({ type, id });
     const inProgress = !answer || answer.attempts.slice(-1)[0].inProgress;
 
     const [isRetaking, setIsRetaking] = useState(false);
@@ -111,7 +126,8 @@ const ExamPage = () => {
     }
 
     if (!exam) {
-        return <Navigate to='/tests' />;
+        window.location.href = '/tests';
+        return null;
     }
 
     if (inProgress || isRetaking) {
@@ -164,9 +180,7 @@ const ExamPage = () => {
             </Dialog>
         </>
     );
-};
-
-export default ExamPage;
+}
 
 interface InProgressExamProps {
     exam: Exam;
@@ -194,7 +208,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
     const [isTimeOver, setIsTimeOver] = useState(false);
     const [problemStatus, setProblemStatus] = useState<Record<number, ProblemStatus>>({});
     const answerRequest = useRequest();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const currentAttempt = answer?.attempts.slice(-1)[0]?.inProgress
         ? answer.attempts.slice(-1)[0]
@@ -289,7 +303,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
         answerPgns.current[selectedProblem] = pgnApi.current?.getPgn() || '';
         saveProgress(true)
             .then(() => {
-                navigate('..');
+                router.push(`/tests/${exam.type}/${exam.id}`);
             })
             .catch((err) => {
                 console.error(err);

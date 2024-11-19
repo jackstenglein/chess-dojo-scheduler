@@ -19,9 +19,6 @@ import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
-import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
-import { AdminStatsPage } from './exams/view/AdminStatsPage';
-import ExamPage from './exams/view/ExamPage';
 import EditGamePage from './games/edit/EditGamePage';
 import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
@@ -53,14 +50,6 @@ const router = createBrowserRouter(
                             <Route index element={<ProfilePage />} />
                             <Route path='followers' element={<FollowersPage />} />
                             <Route path='following' element={<FollowersPage />} />
-                        </Route>
-                    </Route>
-
-                    <Route path='tests'>
-                        <Route path=':type/:id'>
-                            <Route index element={<ExamInstructionsPage />} />
-                            <Route path='exam' element={<ExamPage />} />
-                            <Route path='stats' element={<AdminStatsPage />} />
                         </Route>
                     </Route>
 
