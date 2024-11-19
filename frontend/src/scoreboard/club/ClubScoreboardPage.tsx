@@ -6,9 +6,9 @@ import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 import { GetClubResponse } from '../../api/clubApi';
 import { useAuth } from '../../auth/Auth';
+import ScoreboardViewSelector from '../../components/scoreboard/ScoreboardViewSelector';
 import LoadingPage from '../../loading/LoadingPage';
 import Scoreboard from '../Scoreboard';
-import ScoreboardViewSelector from '../ScoreboardViewSelector';
 
 const ClubScoreboardPage = () => {
     const { id } = useParams();

@@ -1,14 +1,13 @@
+import { useClubs } from '@/api/cache/clubs';
+import { useAuth } from '@/auth/Auth';
+import { dojoCohorts } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { Groups } from '@mui/icons-material';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import LanguageIcon from '@mui/icons-material/Language';
 import SearchIcon from '@mui/icons-material/Search';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { MenuItem, TextField } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useClubs } from '../api/cache/clubs';
-import { useAuth } from '../auth/Auth';
-import { dojoCohorts } from '../database/user';
-import CohortIcon from './CohortIcon';
 
 const NO_CLUBS: string[] = [];
 
@@ -33,12 +32,11 @@ const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({
     value,
     onChange,
 }) => {
-    const navigate = useNavigate();
-    const user = useAuth().user;
+    const { user } = useAuth();
     const { clubs } = useClubs(user?.clubs || NO_CLUBS);
 
     const defaultOnChange = (value: string) => {
-        navigate(`/scoreboard/${value}`);
+        window.location.href = `/scoreboard/${value}`;
     };
 
     return (

@@ -1,14 +1,16 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
+import { UserStatistics } from '@/database/statistics';
+import { RatingSystem, dojoCohorts, formatRatingSystem } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import Chart, { Datum, Series } from '@/scoreboard/statistics/Chart';
 import { Container, Stack } from '@mui/material';
 import { useEffect, useMemo } from 'react';
 import { AxisOptions } from 'react-charts';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { UserStatistics } from '../../database/statistics';
-import { RatingSystem, dojoCohorts, formatRatingSystem } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
-import ScoreboardViewSelector from '../ScoreboardViewSelector';
-import Chart, { Datum, Series } from './Chart';
 
 const primaryAxis: AxisOptions<Datum> = {
     getValue: (datum) => datum.cohort,
@@ -130,7 +132,7 @@ function getAdminParticipantsSeries(data: UserStatistics | undefined): Series[] 
     ];
 }
 
-const StatisticsPage = () => {
+export function StatisticsPage() {
     const api = useApi();
     const request = useRequest<UserStatistics>();
     const { user } = useAuth();
@@ -423,6 +425,4 @@ const StatisticsPage = () => {
             </Stack>
         </Container>
     );
-};
-
-export default StatisticsPage;
+}

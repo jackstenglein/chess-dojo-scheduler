@@ -18,9 +18,9 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
+import ScoreboardViewSelector from '../../components/scoreboard/ScoreboardViewSelector';
 import { RatingSystem, User } from '../../database/user';
 import Avatar from '../../profile/Avatar';
-import ScoreboardViewSelector from '../ScoreboardViewSelector';
 
 const AllColumns: GridColDef<User>[] = [
     {

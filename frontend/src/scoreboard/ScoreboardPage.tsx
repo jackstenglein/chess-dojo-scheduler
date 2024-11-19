@@ -5,6 +5,7 @@ import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useRequirements } from '../api/cache/requirements';
 import { useAuth, useFreeTier } from '../auth/Auth';
+import ScoreboardViewSelector from '../components/scoreboard/ScoreboardViewSelector';
 import { Graduation } from '../database/graduation';
 import { dojoCohorts } from '../database/user';
 import LoadingPage from '../loading/LoadingPage';
@@ -12,7 +13,6 @@ import UpsellAlert from '../upsell/UpsellAlert';
 import GraduationChips from './GraduationChips';
 import Scoreboard from './Scoreboard';
 import ScoreboardTutorial from './ScoreboardTutorial';
-import ScoreboardViewSelector from './ScoreboardViewSelector';
 import { ScoreboardRow } from './scoreboardData';
 
 const ScoreboardPage = () => {
