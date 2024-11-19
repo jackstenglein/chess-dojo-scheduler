@@ -36,7 +36,6 @@ import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import ProfileEditorPage from './profile/editor/ProfileEditorPage';
 import FollowersPage from './profile/followers/FollowersPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
-import RequirementPage from './requirements/RequirementPage';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
 import SearchPage from './scoreboard/search/SeachPage';
@@ -105,10 +104,6 @@ const router = createBrowserRouter(
                         <Route path='search' element={<SearchPage />} />
                         <Route path='clubs/:id' element={<ClubScoreboardPage />} />
                         <Route path=':type' element={<ScoreboardPage />} />
-                    </Route>
-
-                    <Route path='requirements'>
-                        <Route path=':id' element={<RequirementPage />} />
                     </Route>
 
                     <Route path='material'>
