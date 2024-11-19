@@ -35,7 +35,6 @@ import FollowersPage from './profile/followers/FollowersPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
 import ScoreboardPage from './scoreboard/ScoreboardPage';
 import ClubScoreboardPage from './scoreboard/club/ClubScoreboardPage';
-import SearchPage from './scoreboard/search/SeachPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 
 LicenseInfo.setLicenseKey(
@@ -96,7 +95,6 @@ const router = createBrowserRouter(
 
                     <Route path='scoreboard'>
                         <Route index element={<ScoreboardPage />} />
-                        <Route path='search' element={<SearchPage />} />
                         <Route path='clubs/:id' element={<ClubScoreboardPage />} />
                         <Route path=':type' element={<ScoreboardPage />} />
                     </Route>

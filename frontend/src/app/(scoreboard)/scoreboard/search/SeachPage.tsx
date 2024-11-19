@@ -1,3 +1,10 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
+import { RatingSystem, User } from '@/database/user';
+import Avatar from '@/profile/Avatar';
 import {
     Checkbox,
     Container,
@@ -16,11 +23,6 @@ import {
     GridRowModel,
 } from '@mui/x-data-grid-pro';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import ScoreboardViewSelector from '../../components/scoreboard/ScoreboardViewSelector';
-import { RatingSystem, User } from '../../database/user';
-import Avatar from '../../profile/Avatar';
 
 const AllColumns: GridColDef<User>[] = [
     {
@@ -154,7 +156,7 @@ function useDebounce(
     }, [callback, delay]);
 }
 
-const SearchPage = () => {
+export function SearchPage() {
     const api = useApi();
     const request = useRequest<User[]>();
 
@@ -310,6 +312,4 @@ const SearchPage = () => {
             </Stack>
         </Container>
     );
-};
-
-export default SearchPage;
+}
