@@ -31,7 +31,7 @@ public class GameHandler {
         try{
 
             String player1;
-            String discord1 = Discordname.equalsIgnoreCase("null") ? dojoUsername : Discordname;
+            String discord1 = Discordname.equalsIgnoreCase("null") || Discordname.equalsIgnoreCase("") ? dojoUsername : Discordname;
             Platform platform = Platform.fromURL(gameURL);
 
             if(platform == Platform.CHESSCOM){

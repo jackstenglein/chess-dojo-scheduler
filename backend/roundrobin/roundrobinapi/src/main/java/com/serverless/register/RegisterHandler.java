@@ -40,12 +40,12 @@ public class RegisterHandler {
 
     public String playerRegister() throws ChessComPubApiException, IOException {
 
-        if(DiscordName.equalsIgnoreCase("null") && DiscordID.equalsIgnoreCase("null") && dojoUsername.equalsIgnoreCase("null")){
+        if(DiscordName.equalsIgnoreCase("null") || DiscordName.equalsIgnoreCase("")) && (DiscordID.equalsIgnoreCase("null") || DiscordID.equalsIgnoreCase("")) && (dojoUsername.equalsIgnoreCase("null") || dojoUsername.equalsIgnoreCase("")){
             throw new IOException("Invalid params, at least 1 paramter must be valid");
         }
 
-        String nonDiscordUserName = DiscordName.equalsIgnoreCase("null") ? dojoUsername : DiscordName;
-        String nonDiscordUserID = DiscordID.equalsIgnoreCase("null") ? dojoUsername : DiscordID;
+        String nonDiscordUserName = DiscordName.equalsIgnoreCase("null") || DiscordName.equalsIgnoreCase("") ? dojoUsername : DiscordName;
+        String nonDiscordUserID = DiscordID.equalsIgnoreCase("null") || DiscordID.equalsIgnoreCase("") ? dojoUsername : DiscordID;
 
 
         if(actions.alreadyRegisteredInTournament(RRcollection, nonDiscordUserName)){

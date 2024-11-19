@@ -23,7 +23,7 @@ public class WithdrawHandler {
     public String playerWithdraw(){
 
         try{
-            String nonDiscordUser = Discordname.equalsIgnoreCase("null") ? dojoUsername : Discordname;
+            String nonDiscordUser = Discordname.equalsIgnoreCase("null") || Discordname.equalsIgnoreCase("") ? dojoUsername : Discordname;
             Document getTournamentId = actions.getRegisteredPlayerTournamentID(RRcollection, nonDiscordUser);
             if(getTournamentId != null) {
                 String tournamentId = getTournamentId.getString("tournamentId");
