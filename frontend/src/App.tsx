@@ -30,7 +30,6 @@ import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
 import MaterialPage from './material/MaterialPage';
 import MemorizeGamesPage from './material/MemorizeGamesPage';
-import ModelGamesPage from './material/ModelGamesPage';
 import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import ProfileEditorPage from './profile/editor/ProfileEditorPage';
@@ -108,7 +107,6 @@ const router = createBrowserRouter(
 
                     <Route path='material'>
                         <Route index element={<MaterialPage />} />
-                        <Route path='modelgames' element={<ModelGamesPage />} />
                         <Route path='memorizegames' element={<MemorizeGamesPage />} />
                     </Route>
                 </Route>

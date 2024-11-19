@@ -1,19 +1,33 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import PgnBoard from '@/board/pgn/PgnBoard';
+import { Game, GameInfo } from '@/database/game';
+import { compareCohorts, dojoCohorts, User } from '@/database/user';
+import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
+import LoadingPage from '@/loading/LoadingPage';
+import NotFoundPage from '@/NotFoundPage';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { Search } from '@mui/icons-material';
 import { Box, CardContent, MenuItem, TextField, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import PgnSelector from '../app/(scoreboard)/courses/[type]/[id]/PgnSelector';
-import { useRequiredAuth } from '../auth/Auth';
-import PgnBoard from '../board/pgn/PgnBoard';
-import { Game, GameInfo } from '../database/game';
-import { compareCohorts, dojoCohorts } from '../database/user';
-import PgnErrorBoundary from '../games/view/PgnErrorBoundary';
-import LoadingPage from '../loading/LoadingPage';
-import CohortIcon from '../scoreboard/CohortIcon';
+import PgnSelector from '../../courses/[type]/[id]/PgnSelector';
 
-const ModelGamesPage = () => {
-    const { user } = useRequiredAuth();
+export function ModelGamesPage() {
+    const { user, status } = useAuth();
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+    if (!user) {
+        return <NotFoundPage />;
+    }
+    return <AuthModelGamesPage user={user} />;
+}
+
+function AuthModelGamesPage({ user }: { user: User }) {
     const api = useApi();
     const listRequest = useRequest<GameInfo[]>();
     const getRequest = useRequest<Game>();
@@ -141,6 +155,9 @@ const ModelGamesPage = () => {
                                     </CardContent>
                                 ),
                             },
+                            DefaultUnderboardTab.Explorer,
+                            DefaultUnderboardTab.Share,
+                            DefaultUnderboardTab.Settings,
                         ]}
                         initialUnderboardTab='selector'
                     />
@@ -151,6 +168,4 @@ const ModelGamesPage = () => {
             <RequestSnackbar request={getRequest} />
         </Box>
     );
-};
-
-export default ModelGamesPage;
+}
