@@ -33,7 +33,6 @@ import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import ProfileEditorPage from './profile/editor/ProfileEditorPage';
 import FollowersPage from './profile/followers/FollowersPage';
 import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
-import ScoreboardPage from './scoreboard/ScoreboardPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 
 LicenseInfo.setLicenseKey(
@@ -90,11 +89,6 @@ const router = createBrowserRouter(
                             <Route path='edit' element={<EditGamePage />} />
                         </Route>
                         <Route path='review-queue' element={<ReviewQueuePage />} />
-                    </Route>
-
-                    <Route path='scoreboard'>
-                        <Route index element={<ScoreboardPage />} />
-                        <Route path=':type' element={<ScoreboardPage />} />
                     </Route>
                 </Route>
             </Route>

@@ -1,29 +1,43 @@
-import { Container, Stack, Typography } from '@mui/material';
-import { useEffect } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useRequirements } from '../api/cache/requirements';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import ScoreboardViewSelector from '../components/scoreboard/ScoreboardViewSelector';
-import { Graduation } from '../database/graduation';
-import { dojoCohorts } from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
-import UpsellAlert from '../upsell/UpsellAlert';
-import GraduationChips from './GraduationChips';
-import Scoreboard from './Scoreboard';
-import ScoreboardTutorial from './ScoreboardTutorial';
-import { ScoreboardRow } from './scoreboardData';
+'use client';
 
-const ScoreboardPage = () => {
-    const { user } = useAuth();
+import NotFoundPage from '@/NotFoundPage';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useRequirements } from '@/api/cache/requirements';
+import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
+import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
+import { Graduation } from '@/database/graduation';
+import { dojoCohorts, User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import GraduationChips from '@/scoreboard/GraduationChips';
+import Scoreboard from '@/scoreboard/Scoreboard';
+import ScoreboardTutorial from '@/scoreboard/ScoreboardTutorial';
+import { ScoreboardRow } from '@/scoreboard/scoreboardData';
+import UpsellAlert from '@/upsell/UpsellAlert';
+import { Container, Stack, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export function ScoreboardPage({ type }: { type?: string }) {
+    const { user, status } = useAuth();
+
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+    if (!user) {
+        return <NotFoundPage />;
+    }
+
+    return <AuthScoreboardPage user={user} type={type} />;
+}
+
+function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
     const isFreeTier = useFreeTier();
-    const { type } = useParams();
 
     const dataRequest = useRequest<ScoreboardRow[]>();
     const graduationsRequest = useRequest<Graduation[]>();
     const api = useApi();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const { requirements, request: requirementRequest } = useRequirements(
         type || '',
@@ -31,7 +45,7 @@ const ScoreboardPage = () => {
     );
 
     useEffect(() => {
-        if (type && !dataRequest.isSent()) {
+        if (user && type && !dataRequest.isSent()) {
             dataRequest.onStart();
             api.getScoreboard(type)
                 .then((data) => {
@@ -43,10 +57,10 @@ const ScoreboardPage = () => {
                     dataRequest.onFailure(err);
                 });
         }
-    }, [type, dataRequest, api]);
+    }, [type, dataRequest, api, user]);
 
     useEffect(() => {
-        if (type && dojoCohorts.includes(type) && !graduationsRequest.isSent()) {
+        if (user && type && dojoCohorts.includes(type) && !graduationsRequest.isSent()) {
             graduationsRequest.onStart();
             api.listGraduationsByCohort(type)
                 .then((graduations) => {
@@ -68,12 +82,14 @@ const ScoreboardPage = () => {
         }
     }, [type, dataReset, gradReset]);
 
-    const onChangeViewType = (type: string) => {
-        navigate(`/scoreboard/${type}`);
-    };
+    useEffect(() => {
+        if (!type && user) {
+            router.replace(`/scoreboard/${user.dojoCohort}`);
+        }
+    }, [user, type, router]);
 
     if (!type) {
-        return <Navigate to={`./${user?.dojoCohort}`} replace />;
+        return null;
     }
 
     if (
@@ -97,7 +113,7 @@ const ScoreboardPage = () => {
                 </Stack>
             )}
 
-            <ScoreboardViewSelector value={type} onChange={onChangeViewType} />
+            <ScoreboardViewSelector value={type} />
 
             <GraduationChips cohort={type} />
 
@@ -138,9 +154,7 @@ const ScoreboardPage = () => {
             <ScoreboardTutorial />
         </Container>
     );
-};
-
-export default ScoreboardPage;
+}
 
 const ScoreboardToolbar = () => {
     return (
