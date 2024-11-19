@@ -1,20 +1,20 @@
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { GetClubResponse } from '@/api/clubApi';
+import { useAuth } from '@/auth/Auth';
+import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
+import LoadingPage from '@/loading/LoadingPage';
+import Scoreboard from '@/scoreboard/Scoreboard';
 import { Container, Link } from '@mui/material';
 import { GridToolbarContainer } from '@mui/x-data-grid-pro';
 import { useEffect } from 'react';
-import { Link as RouterLink, useParams } from 'react-router-dom';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { GetClubResponse } from '../../api/clubApi';
-import { useAuth } from '../../auth/Auth';
-import ScoreboardViewSelector from '../../components/scoreboard/ScoreboardViewSelector';
-import LoadingPage from '../../loading/LoadingPage';
-import Scoreboard from '../Scoreboard';
 
-const ClubScoreboardPage = () => {
-    const { id } = useParams();
+export function ClubScoreboardPage({ id }: { id: string }) {
     const api = useApi();
     const request = useRequest<GetClubResponse>();
-    const user = useAuth().user;
+    const { user } = useAuth();
 
     const reset = request.reset;
     useEffect(() => {
@@ -24,7 +24,7 @@ const ClubScoreboardPage = () => {
     }, [id, reset]);
 
     useEffect(() => {
-        if (id && !request.isSent()) {
+        if (user && id && !request.isSent()) {
             request.onStart();
             api.getClub(id, true)
                 .then((resp) => {
@@ -35,7 +35,10 @@ const ClubScoreboardPage = () => {
                     request.onFailure(err);
                 });
         }
-    }, [id, request, api]);
+    }, [id, request, api, user]);
+
+    console.log('User: ', user);
+    console.log('Id: ', id);
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;
@@ -62,16 +65,14 @@ const ClubScoreboardPage = () => {
             />
         </Container>
     );
-};
+}
 
 function CustomToolbar({ id }: { id?: string }) {
     return (
         <GridToolbarContainer>
-            <Link component={RouterLink} to={`/clubs/${id}`} sx={{ mt: 0.5, ml: 0.5 }}>
+            <Link href={`/clubs/${id}`} sx={{ mt: 0.5, ml: 0.5 }}>
                 Go to Club
             </Link>
         </GridToolbarContainer>
     );
 }
-
-export default ClubScoreboardPage;
