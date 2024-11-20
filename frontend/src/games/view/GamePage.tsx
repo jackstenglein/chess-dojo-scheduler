@@ -145,9 +145,11 @@ const GamePage = () => {
                             DefaultUnderboardTab.Comments,
                             DefaultUnderboardTab.Explorer,
                             DefaultUnderboardTab.Clocks,
+                            DefaultUnderboardTab.Share,
                             DefaultUnderboardTab.Settings,
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
+                        allowDeleteBefore={request.data?.owner === user?.username}
                         slots={{
                             moveButtonExtras: EngineMoveButtonExtras,
                         }}

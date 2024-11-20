@@ -74,11 +74,8 @@ export function toShapes(chess?: Chess): DrawShape[] {
     }
 
     const currentMove = chess.currentMove();
-    if (!currentMove) {
-        return [];
-    }
+    const commentDiag = currentMove ? currentMove.commentDiag : chess.pgn.gameComment;
 
-    const commentDiag = currentMove.commentDiag;
     const result: DrawShape[] = [];
     if (commentDiag) {
         if (commentDiag.colorArrows) {

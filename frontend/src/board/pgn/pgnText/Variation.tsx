@@ -1,5 +1,5 @@
-import { Event, EventType } from '@jackstenglein/chess';
-import { Grid, Paper } from '@mui/material';
+import { Chess, Event, EventType } from '@jackstenglein/chess';
+import { Grid2, Paper } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useChess } from '../PgnBoard';
 import MoveDisplay from './MoveDisplay';
@@ -18,27 +18,12 @@ const Variation: React.FC<VariationProps> = ({ handleScroll }) => {
                 types: [
                     EventType.Initialized,
                     EventType.DeleteMove,
+                    EventType.DeleteBeforeMove,
                     EventType.PromoteVariation,
                     EventType.LegalMove,
                 ],
                 handler: (event: Event) => {
-                    if (event.type === EventType.Initialized) {
-                        setForceRender((v) => v + 1);
-                    }
-                    if (event.type === EventType.DeleteMove && event.mainlineMove) {
-                        setForceRender((v) => v + 1);
-                    }
-                    if (
-                        event.type === EventType.PromoteVariation &&
-                        chess.isInMainline(event.variantRoot)
-                    ) {
-                        console.log('Variation forcing render: ', event);
-                        setForceRender((v) => v + 1);
-                    }
-                    if (
-                        event.type === EventType.LegalMove &&
-                        chess.lastMove() === event.move
-                    ) {
+                    if (shouldRerender(event, chess)) {
                         setForceRender((v) => v + 1);
                     }
                 },
@@ -51,7 +36,7 @@ const Variation: React.FC<VariationProps> = ({ handleScroll }) => {
 
     return (
         <Paper sx={{ boxShadow: 'none' }}>
-            <Grid container>
+            <Grid2 container>
                 {chess?.history().map((move) => {
                     return (
                         <MoveDisplay
@@ -61,9 +46,36 @@ const Variation: React.FC<VariationProps> = ({ handleScroll }) => {
                         />
                     );
                 })}
-            </Grid>
+            </Grid2>
         </Paper>
     );
 };
 
 export default Variation;
+
+/**
+ * Returns true if the Variation component should rerender based on the given
+ * event.
+ * @param event The event that may trigger a rerender.
+ * @param chess The chess instance.
+ * @returns True if the Variation component should rerender.
+ */
+function shouldRerender(event: Event, chess: Chess): boolean {
+    switch (event.type) {
+        case EventType.Initialized:
+        case EventType.DeleteBeforeMove:
+            return true;
+
+        case EventType.LegalMove:
+            return chess.lastMove() === event.move;
+
+        case EventType.DeleteMove:
+            return Boolean(event.mainlineMove);
+
+        case EventType.PromoteVariation:
+            return chess.isInMainline(event.variantRoot);
+
+        default:
+            return false;
+    }
+}

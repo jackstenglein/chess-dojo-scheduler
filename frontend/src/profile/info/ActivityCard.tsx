@@ -312,10 +312,17 @@ function renderBlock(
     baseColor: string,
 ) {
     let maxCategory: RequirementCategory | undefined = undefined;
+    let totalCount = 0;
     let maxCount: number | undefined = undefined;
     let color: string | undefined = undefined;
 
-    for (const [category, count] of Object.entries(activity.categoryCounts ?? {})) {
+    for (const category of Object.values(RequirementCategory)) {
+        const count = activity.categoryCounts?.[category as RequirementCategory];
+        if (!count) {
+            continue;
+        }
+
+        totalCount += count;
         if (maxCount === undefined || count > maxCount) {
             maxCategory = category as RequirementCategory;
             maxCount = count;
@@ -324,7 +331,7 @@ function renderBlock(
 
     if (maxCount && maxCategory) {
         const level = calculateLevel(
-            maxCount,
+            totalCount,
             field === 'dojoPoints' ? MAX_POINTS_COUNT : MAX_HOURS_COUNT,
         );
         color = calculateColor([baseColor, CategoryColors[maxCategory]], level);
@@ -332,30 +339,29 @@ function renderBlock(
 
     const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
     return (
-        <Tooltip
-            key={activity.date}
-            disableInteractive
-            title={renderTooltip(activity, field)}
-        >
-            {activity.gamePlayed ? (
-                <g
+        <>
+            {activity.gamePlayed && (
+                <GiCrossedSwords
                     x={block.props.x}
                     y={block.props.y}
                     width={block.props.width}
                     height={block.props.height}
-                >
-                    <GiCrossedSwords
-                        x={block.props.x}
-                        y={block.props.y}
-                        width={block.props.width}
-                        height={block.props.height}
-                        fontSize='12px'
-                    />
-                </g>
-            ) : (
-                cloneElement(block, { style: newStyle })
+                    fontSize='12px'
+                />
             )}
-        </Tooltip>
+            <Tooltip
+                key={activity.date}
+                disableInteractive
+                title={renderTooltip(activity, field)}
+            >
+                {cloneElement(block, {
+                    style: {
+                        ...newStyle,
+                        ...(activity.gamePlayed ? { fill: 'transparent' } : {}),
+                    },
+                })}
+            </Tooltip>
+        </>
     );
 }
 

@@ -1,5 +1,5 @@
-import { Chess, Event, EventType } from '@jackstenglein/chess';
-import { Edit } from '@mui/icons-material';
+import { Chess, CommentType, Event, EventType, Move } from '@jackstenglein/chess';
+import { Backspace, Edit } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -7,7 +7,10 @@ import {
     Box,
     Button,
     CardContent,
+    FormControlLabel,
     IconButton,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
     ToggleButton,
@@ -32,6 +35,7 @@ import {
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import ClockTextField from './clock/ClockTextField';
 import { TimeControlDescription } from './clock/TimeControlDescription';
+import { DeletePrompt, useDeletePrompt } from './DeletePrompt';
 import { TimeControlEditor } from './tags/TimeControlEditor';
 
 interface NagButtonProps extends ToggleButtonProps {
@@ -72,6 +76,8 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const [, setForceRender] = useState(0);
     const textFieldRef = useRef<HTMLTextAreaElement>();
     const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
+    const [commentType, setCommentType] = useState(CommentType.After);
+    const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
 
     useEffect(() => {
         if (chess) {
@@ -121,7 +127,15 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
 
     const move = chess.currentMove();
     const isMainline = chess.isInMainline(move);
-    const comment = move ? move.commentAfter || '' : chess.pgn.gameComment.comment || '';
+
+    let comment = '';
+    if (!move) {
+        comment = chess.pgn.gameComment.comment ?? '';
+    } else if (!isMainline && commentType === CommentType.Before) {
+        comment = move.commentMove ?? '';
+    } else {
+        comment = move.commentAfter ?? '';
+    }
 
     const handleExclusiveNag =
         (nagSet: Nag[]) => (_event: unknown, newNag: string | null) => {
@@ -147,7 +161,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
 
     const takebacksDisabled =
         config?.disableTakebacks === 'both' ||
-        config?.disableTakebacks?.[0] === move?.color;
+        (Boolean(move) && config?.disableTakebacks?.[0] === move?.color);
 
     const nullMoveStatus = getNullMoveStatus(chess);
 
@@ -195,27 +209,56 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     />
                 )}
 
-                <TextField
-                    inputRef={textFieldRef}
-                    label='Comments'
-                    id={BlockBoardKeyboardShortcuts}
-                    multiline
-                    minRows={isMainline ? 3 : 7}
-                    value={comment}
-                    onChange={(event) => chess.setComment(event.target.value)}
-                    fullWidth
+                <Stack
                     sx={{
                         flexGrow: { md: 1 },
-                        '& .MuiInputBase-root': {
-                            md: {
-                                height: '100%',
-                                '& .MuiInputBase-input': {
-                                    height: '100% !important',
+                    }}
+                >
+                    <TextField
+                        inputRef={textFieldRef}
+                        label='Comments'
+                        id={BlockBoardKeyboardShortcuts}
+                        multiline
+                        minRows={isMainline ? 3 : 7}
+                        value={comment}
+                        onChange={(event) =>
+                            chess.setComment(event.target.value, commentType)
+                        }
+                        fullWidth
+                        sx={{
+                            flexGrow: { md: 1 },
+                            '& .MuiInputBase-root': {
+                                md: {
+                                    height: '100%',
+                                    '& .MuiInputBase-input': {
+                                        height: '100% !important',
+                                    },
                                 },
                             },
-                        },
-                    }}
-                />
+                        }}
+                    />
+
+                    {!isMainline && (
+                        <RadioGroup
+                            row
+                            value={commentType}
+                            onChange={(e) =>
+                                setCommentType(e.target.value as CommentType)
+                            }
+                        >
+                            <FormControlLabel
+                                value={CommentType.Before}
+                                control={<Radio size='small' />}
+                                label='Comment Before'
+                            />
+                            <FormControlLabel
+                                value={CommentType.After}
+                                control={<Radio size='small' />}
+                                label='Comment After'
+                            />
+                        </RadioGroup>
+                    )}
+                </Stack>
 
                 <Stack spacing={1}>
                     <ToggleButtonGroup
@@ -298,15 +341,52 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     >
                         Move variation up
                     </Button>
-                    <Button
-                        startIcon={<DeleteIcon />}
-                        variant='outlined'
-                        onClick={() => chess.delete(move)}
-                        disabled={!config?.allowMoveDeletion || takebacksDisabled}
+                    <Tooltip
+                        title='Delete this move and all moves after it'
+                        disableInteractive
                     >
-                        Delete from here
-                    </Button>
+                        <Button
+                            startIcon={<DeleteIcon />}
+                            variant='outlined'
+                            onClick={() => onDelete(move, 'after')}
+                            disabled={
+                                !config?.allowMoveDeletion || takebacksDisabled || !move
+                            }
+                        >
+                            Delete from here
+                        </Button>
+                    </Tooltip>
+                    <Tooltip
+                        title={getDeleteBeforeTooltip({
+                            allowDeleteBefore: config?.allowDeleteBefore,
+                            takebacksDisabled,
+                            isMainline,
+                            move,
+                        })}
+                        disableInteractive
+                    >
+                        <span>
+                            <Button
+                                startIcon={<Backspace />}
+                                variant='outlined'
+                                onClick={() => onDelete(move, 'before')}
+                                disabled={
+                                    !config?.allowDeleteBefore ||
+                                    takebacksDisabled ||
+                                    !isMainline ||
+                                    !move?.previous
+                                }
+                                fullWidth
+                            >
+                                Delete before here
+                            </Button>
+                        </span>
+                    </Tooltip>
                 </Stack>
+
+                {deleteAction && (
+                    <DeletePrompt deleteAction={deleteAction} onClose={onCloseDelete} />
+                )}
             </Stack>
         </CardContent>
     );
@@ -334,4 +414,27 @@ function getNullMoveStatus(chess: Chess): { disabled: boolean; tooltip: string }
         disabled: false,
         tooltip: 'You can also add a null move by moving the king onto the enemy king.',
     };
+}
+
+function getDeleteBeforeTooltip({
+    allowDeleteBefore,
+    takebacksDisabled,
+    isMainline,
+    move,
+}: {
+    allowDeleteBefore?: boolean;
+    takebacksDisabled?: boolean;
+    isMainline?: boolean;
+    move?: Move | null;
+}) {
+    if (!allowDeleteBefore || takebacksDisabled) {
+        return 'This action is not allowed';
+    }
+    if (!isMainline) {
+        return 'This action is only available for mainline moves';
+    }
+    if (!move?.previous) {
+        return 'This action is not available for the first move';
+    }
+    return 'Make this the first move and delete all moves before it';
 }

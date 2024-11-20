@@ -1,7 +1,7 @@
 import { Move } from '@jackstenglein/chess';
-import { Divider, Grid, Paper } from '@mui/material';
+import { Divider, Grid2, Paper } from '@mui/material';
 import Comment from './Comment';
-import Ellipsis from './Ellipsis';
+import { Ellipsis } from './Ellipsis';
 import Lines from './Lines';
 
 export function hasInterrupt(move: Move): boolean {
@@ -24,7 +24,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, handleScroll }) => {
     return (
         <>
             {move.ply % 2 === 1 && <Ellipsis ply={move.ply} />}
-            <Grid item xs={12}>
+            <Grid2 size={12}>
                 <Paper elevation={3} sx={{ boxShadow: 'none', color: 'text.secondary' }}>
                     <Divider
                         sx={{
@@ -65,7 +65,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, handleScroll }) => {
 
                     <Divider />
                 </Paper>
-            </Grid>
+            </Grid2>
         </>
     );
 };

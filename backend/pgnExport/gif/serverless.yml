@@ -1,0 +1,30 @@
+service: chess-dojo-pgn-export-gif
+
+provider:
+  name: aws
+  runtime: provided.al2023
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+package:
+  individually: true
+  artifact: target/lambda/gif/bootstrap.zip
+
+functions:
+  gif:
+    handler: gif
+    package:
+      artifact: target/lambda/gif/bootstrap.zip
+    events:
+      - httpApi:
+          path: /public/pgn-export/image
+          method: get
+      - httpApi:
+          path: /public/pgn-export/gif
+          method: post

@@ -163,3 +163,13 @@ services:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+
+  pgnExportGifService:
+    path: pgnExport/gif
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+  
+  pgnExportPdfService:
+    path: pgnExport/pdf
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
