@@ -14,8 +14,8 @@ export default function InfoPage() {
                         week. Because this is a short tournament, we ask that you only
                         register if you anticipate that you will be able to play most of
                         the rounds. If you do require a bye in a particular round, you
-                        will be able to submit your bye requests when registering. Players
-                        are limited to 2 bye requests per tournament.
+                        will be able to submit your bye requests when registering. Please submit all of your bye requests when you register. Players
+                        are limited to 2 bye requests per tournament. 
                     </Typography>
 
                     <Typography>
@@ -58,6 +58,40 @@ export default function InfoPage() {
                 </Stack>
 
                 <Stack>
+                    <Typography variant='h6'>Playing Games</Typography>
+                    <Divider sx={{ mb: 1 }} />
+                    <Typography>
+                        The preferred time control for this tournament is as follows:
+                    </Typography>
+                    <ul>
+                        <li>Open: 90+30</li>
+                        <li>U1800: 60+30</li>
+                    </ul>
+                    <Typography>
+                        Players may opt to play a different time control than the preferred one only if both players agree. If a time control is not agreed upon, the preferred time control will be used. If one player cannot make the time to play the preferred time control they will forfeit the game.
+                    </Typography>
+                </Stack>
+
+                <Stack>
+                    <Typography variant='h6'>Submitting Results</Typography>
+                    <Divider sx={{ mb: 1 }} />
+                    <Typography>
+                        Once you've completed your game, the winner takes responsibility
+                        for submitting the game result. In the case of a draw, you'll have
+                        to decide which one of you will submit the game. Please do not
+                        submit the game twice. Navigate to the{' '}
+                        <Link href='/tournaments/open-classical/submit-results'>
+                            Result Submission Page
+                        </Link>{' '}
+                        and fill in all relevant information. Please ensure your form
+                        submission has been submitted successfully. Please note: Games
+                        must be submitted no later than Sunday at midnight EST. We cannot
+                        accept late game submissions. Not submitting your games in time
+                        will result in a forfeit loss for both players (0 - 0).
+                    </Typography>
+                </Stack>
+
+                <Stack>
                     <Typography variant='h6'>Disputes</Typography>
                     <Divider sx={{ mb: 1 }} />
                     <Typography component='div'>
@@ -86,37 +120,6 @@ export default function InfoPage() {
                         effort to schedule a game and are still unable to find a time to
                         play, the game can be submitted as a draw (1/2-1/2). In case of a
                         dispute, please contact the TD on Discord.
-                    </Typography>
-                </Stack>
-
-                <Stack>
-                    <Typography variant='h6'>Playing Games</Typography>
-                    <Divider sx={{ mb: 1 }} />
-                    <Typography>
-                        The preferred time control for this tournament is as follows:
-                    </Typography>
-                    <ul>
-                        <li>Open: 90+30</li>
-                        <li>U1800: 60+30</li>
-                    </ul>
-                </Stack>
-
-                <Stack>
-                    <Typography variant='h6'>Submitting Results</Typography>
-                    <Divider sx={{ mb: 1 }} />
-                    <Typography>
-                        Once you've completed your game, the winner takes responsibility
-                        for submitting the game result. In the case of a draw, you'll have
-                        to decide which one of you will submit the game. Please do not
-                        submit the game twice. Navigate to the{' '}
-                        <Link href='/tournaments/open-classical/submit-results'>
-                            Result Submission Page
-                        </Link>{' '}
-                        and fill in all relevant information. Please ensure your form
-                        submission has been submitted successfully. Please note: Games
-                        must be submitted no later than Sunday at midnight EST. We cannot
-                        accept late game submissions. Not submitting your games in time
-                        will result in a forfeit loss for both players (0 - 0).
                     </Typography>
                 </Stack>
 
