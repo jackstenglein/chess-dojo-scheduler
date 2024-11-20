@@ -66,7 +66,7 @@ export const InfoPage = () => {
                     <ListItemIcon>
                         <EmojiEventsIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Schedule games at your own pace, with 2 months to complete the round games' />
+                    <ListItemText primary='Schedule games at your own pace, with 3 months to complete the round games' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
