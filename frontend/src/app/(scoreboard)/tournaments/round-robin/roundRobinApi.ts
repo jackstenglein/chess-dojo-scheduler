@@ -20,6 +20,9 @@ export interface TournamentData {
 }
 
 
+interface RoundRobinApi{
+    message: string;
+}
 
 /**
  * The Round Robin Tournament ID API response
@@ -98,3 +101,62 @@ export const fetchTournamentData = async (id: string): Promise<TournamentData> =
         throw error;
     }
 };
+
+
+export const registerUser = async (cohortValue: number, discordName: string, discordId: string, lichessName: string, chessComName: string, dojoUsername: string): Promise<string> => {
+    try {
+        const response = await axios.post<RoundRobinApi>(`${endpoint}`, {
+            params: {
+                'mode': 'register',
+                'cohortstart': cohortValue,
+                'discordname': discordName,
+                'discordid': discordId,
+                'lichessname': lichessName,
+                'chesscomname': chessComName,
+                'dojousername': dojoUsername
+            },
+        });
+
+        return response.data.message;
+    } catch (error) {
+        console.error('Round robin user registration error!', error);
+        throw error;
+    }
+};
+
+export const withdrawUser = async (discordName: string, dojoUsername: string): Promise<string> => {
+    try {
+        const response = await axios.post<RoundRobinApi>(`${endpoint}`, {
+            params: {
+                'mode': 'withdraw',
+                'discordname': discordName,
+                'dojousername': dojoUsername
+            },
+        });
+
+        return response.data.message;
+    } catch (error) {
+        console.error('Round robin user withdraw error!', error);
+        throw error;
+    }
+};
+
+
+export const submitGameFromUser = async (discordName: string, dojoUsername: string, gameURL: string): Promise<string> => {
+    try {
+        const response = await axios.post<RoundRobinApi>(`${endpoint}`, {
+            params: {
+                'mode': 'game',
+                'discordname': discordName,
+                'dojousername': dojoUsername,
+                'gameurl': gameURL,
+            },
+        });
+
+        return response.data.message;
+    } catch (error) {
+        console.error('Round robin user game submission error!', error);
+        throw error;
+    }
+};
+

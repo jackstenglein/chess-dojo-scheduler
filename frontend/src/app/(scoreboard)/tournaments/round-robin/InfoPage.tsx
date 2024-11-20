@@ -1,16 +1,12 @@
 import {
+    Box,
+    Button,
     Divider,
     List,
     ListItem,
     ListItemIcon,
     ListItemText,
-    Paper,
     Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableRow,
     Typography,
 } from '@mui/material';
 
@@ -18,13 +14,15 @@ import { AccessTime, HelpOutline } from '@mui/icons-material';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupIcon from '@mui/icons-material/Group';
-import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
-import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
+import { useState } from 'react';
+import GameModal from './GameModal';
+import RegisterModal from './RegisterModal';
+import WithdrawModal from './WithdrawModal';
 
 const faqs = [
     {
@@ -104,6 +102,16 @@ const FAQSection = () => (
  * @returns the info page
  */
 export const InfoPage = () => {
+    const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
+    const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
+    const [isGameModalOpen, setGameModalOpen] = useState(false);
+
+    const handleOpenRegisterModal = () => setRegisterModalOpen(true);
+    const handleCloseRegisterModal = () => setRegisterModalOpen(false);
+    const handleOpenWithdrawModal = () => setWithdrawModalOpen(true);
+    const handleCloseWithdrawModal = () => setWithdrawModalOpen(false);
+    const handleOpenGameModal = () => setGameModalOpen(true);
+    const handleCloseGameModal = () => setGameModalOpen(false);
     return (
         <Stack spacing={2}>
             <Typography variant='h5' textAlign='center' color='text.secondary'>
@@ -156,34 +164,42 @@ export const InfoPage = () => {
                 </ListItem>
             </List>
 
-            <Typography variant='h6' color='text.secondary'>
-                <HelpCenterIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
-                Registration Info
-            </Typography>
+            <Box textAlign='left'>
+                <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleOpenRegisterModal}
+                >
+                    Register
+                </Button>
+                <Button
+                    sx={{ ml: 1 }}
+                    variant='contained'
+                    color='primary'
+                    onClick={handleOpenWithdrawModal}
+                >
+                    Withdraw
+                </Button>
 
-            <List>
-                <ListItem>
-                    <ListItemIcon>
-                        <SiLichess fontSize={25} />
-                    </ListItemIcon>
-                    <ListItemText primary='Connect your Lichess account to your Discord in the training program Discord with /verify' />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <SiChessdotcom fontSize={25} style={{ color: '#81b64c' }} />
-                    </ListItemIcon>
-                    <ListItemText primary='Connect your Chess.com account to your Discord in the training program Discord with /verifychesscom' />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <SiDiscord fontSize={25} style={{ color: '#5865f2' }} />
-                    </ListItemIcon>
-                    <ListItemText primary='Head over to #roles and pick round robin role, then go to #round-robin-player-commands channel to register via /register to automatically get placed in your own cohort Dojo round robin tournament!' />
-                </ListItem>
-            </List>
+                <Button
+                    sx={{ ml: 1 }}
+                    variant='contained'
+                    color='primary'
+                    onClick={handleOpenGameModal}
+                >
+                    Submit Game
+                </Button>
+            </Box>
+
+            <RegisterModal
+                open={isRegisterModalOpen}
+                onClose={handleCloseRegisterModal}
+            />
+            <WithdrawModal
+                open={isWithdrawModalOpen}
+                onClose={handleCloseWithdrawModal}
+            />
+            <GameModal open={isGameModalOpen} onClose={handleCloseGameModal} />
 
             <Divider />
 
@@ -255,7 +271,6 @@ export const InfoPage = () => {
             <Divider />
 
             <FAQSection />
-
         </Stack>
     );
 };
