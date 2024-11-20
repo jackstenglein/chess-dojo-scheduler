@@ -12,7 +12,6 @@ import java.util.List;
 
 public class RegisterManager {
 
-    private final VerificationManager verification = new VerificationManager();
     private final int MAX_PLAYER_SIZE = 8;
     private final CreateRoundRobin create = new CreateRoundRobin(MAX_PLAYER_SIZE);
     private final RoundRobinManager manager = new RoundRobinManager();
@@ -25,25 +24,13 @@ public class RegisterManager {
     }
 
 
-    public boolean addPlayerToDB(String DiscordID, String DiscordName, MongoCollection<Document> RRplayerCollection, MongoCollection<Document> lichessCollection, MongoCollection<Document> ccCollection){
+    public void addPlayerToDB(String DiscordID, String DiscordName, String Lichessname, String Chesscomname, MongoCollection<Document> RRplayerCollection){
 
-        if(verification.userPresentNormal(RRplayerCollection, DiscordID)){
-            return true;
-        }
-
-        if(verification.userPresentNormal(lichessCollection, DiscordID) || verification.userPresentNormal(ccCollection, DiscordID)){
-            String Lichessname = verification.getReletatedLichessName(DiscordID, lichessCollection);
-            String Chesscomname = verification.getReletatedChessName(DiscordID, ccCollection);
-            createNewPlayer(Lichessname, Chesscomname, DiscordName , DiscordID, 0.0,  RRplayerCollection);
-
-            return true;
-        }
-
-        return false;
+        createNewPlayer(Lichessname, Chesscomname, DiscordName, DiscordID, 0.0, RRplayerCollection);
     }
 
 
-    public void createNewPlayer(String Lichessname, String Chesscomname, String DiscordName, String DiscordID, double score, MongoCollection<Document> RRplayercollection){
+    private void createNewPlayer(String Lichessname, String Chesscomname, String DiscordName, String DiscordID, double score, MongoCollection<Document> RRplayercollection){
         Document document = new Document("Lichessname", Lichessname)
                 .append("Chesscomname", Chesscomname)
                 .append("Discordid", DiscordID)

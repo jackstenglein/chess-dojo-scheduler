@@ -51,20 +51,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Register for Dojo Round Robin</DialogTitle>
             <DialogContent>
-                <Typography variant="body1" gutterBottom>
-                   First verify either of your Lichess.org or Chess.com account by pasting {user.discordUsername.includes('') ? user.displayName : user.discordUsername} in the profile location 
-                </Typography>
-                <Divider/>
-                <Typography variant="body1" gutterBottom>
-                    on Lichess {'>'} Profile {'>'} edit Profile {'>'} location
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                    on Chess.com {'>'} Profile {'>'} edit Profile {'>'} location
-                </Typography>
-                <Divider/>
-                <Typography variant="body1" gutterBottom>
-                    Then enter the following details to register for upcoming {user.dojoCohort} RR tournament
-                </Typography>
                 <TextField
                     fullWidth
                     margin="normal"
