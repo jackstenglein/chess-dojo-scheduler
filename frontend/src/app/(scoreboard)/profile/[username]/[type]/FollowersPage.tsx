@@ -1,21 +1,26 @@
+'use client';
+
+import NotFoundPage from '@/NotFoundPage';
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import FollowersList from '@/components/profile/followers/FollowersList';
+import UserInfo from '@/components/profile/info/UserInfo';
+import { User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import { Container, Divider, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import NotFoundPage from '../../NotFoundPage';
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { User } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
-import UserInfo from '../info/UserInfo';
-import FollowersList from './FollowersList';
 
-const FollowersPage = () => {
-    const { username } = useParams();
+export function FollowersPage({
+    username,
+    type,
+}: {
+    username: string;
+    type: 'followers' | 'following';
+}) {
     const api = useApi();
     const { user: currentUser } = useAuth();
     const request = useRequest<User>();
-    const pathname = useLocation().pathname;
 
     const currentUserProfile = !username || username === currentUser?.username;
 
@@ -41,7 +46,7 @@ const FollowersPage = () => {
         return <NotFoundPage />;
     }
 
-    const title = pathname.endsWith('/followers') ? 'Followers' : 'Following';
+    const title = type === 'followers' ? 'Followers' : 'Following';
 
     return (
         <Container maxWidth='md' sx={{ pt: 6, pb: 4 }}>
@@ -53,10 +58,10 @@ const FollowersPage = () => {
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
 
-                <FollowersList />
+                <FollowersList username={username} type={type} />
             </Stack>
         </Container>
     );
-};
+}
 
 export default FollowersPage;

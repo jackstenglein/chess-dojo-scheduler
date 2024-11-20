@@ -1,6 +1,6 @@
 import PersonIcon from '@mui/icons-material/Person';
 import { Chip, Link } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import RouterLink from 'next/link';
 
 interface CountChipProps {
     count: number;
@@ -11,7 +11,7 @@ interface CountChipProps {
 
 const CountChip: React.FC<CountChipProps> = ({ count, label, singularLabel, link }) => {
     return (
-        <Link component={RouterLink} to={link}>
+        <Link component={RouterLink} href={link}>
             <Chip
                 label={`${count} ${count === 1 ? singularLabel || label : label}`}
                 variant='outlined'

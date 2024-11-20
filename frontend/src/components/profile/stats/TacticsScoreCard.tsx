@@ -1,4 +1,7 @@
+import { useRequirements } from '@/api/cache/requirements';
 import { RequirementCategory } from '@/database/requirement';
+import { ALL_COHORTS, User } from '@/database/user';
+import { calculateTacticsRating } from '@/exams/view/exam';
 import Icon from '@/style/Icon';
 import { FiberManualRecord, FiberManualRecordOutlined } from '@mui/icons-material';
 import {
@@ -10,11 +13,8 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import RouterLink from 'next/link';
 import { ReactNode } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { useRequirements } from '../../api/cache/requirements';
-import { ALL_COHORTS, User } from '../../database/user';
-import { calculateTacticsRating } from '../../exams/view/exam';
 
 interface TacticsScoreCardProps {
     user: User;
@@ -30,8 +30,6 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
             : minCohort;
 
     const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
-
-    console.log('Tactics rating: ', tacticsRating);
 
     return (
         <Card variant='outlined'>
@@ -177,7 +175,7 @@ function getTooltip(
 
 const LinkIf = ({ to, children }: { to?: string; children: ReactNode }) => {
     return to ? (
-        <Link component={RouterLink} to={to}>
+        <Link component={RouterLink} href={to}>
             {children}
         </Link>
     ) : (

@@ -1,6 +1,5 @@
+import { User, isActive } from '@/database/user';
 import { Chip, Tooltip } from '@mui/material';
-
-import { User, isActive } from '../../database/user';
 
 interface InactiveChipProps {
     user: User;

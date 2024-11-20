@@ -1,3 +1,12 @@
+import { useRequirements } from '@/api/cache/requirements';
+import {
+    ALL_COHORTS,
+    RatingSystem,
+    User,
+    formatRatingSystem,
+    getSystemCurrentRating,
+} from '@/database/user';
+import { calculateTacticsRating } from '@/exams/view/exam';
 import { Help } from '@mui/icons-material';
 import {
     Card,
@@ -8,15 +17,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { useRequirements } from '../../api/cache/requirements';
-import {
-    ALL_COHORTS,
-    RatingSystem,
-    User,
-    formatRatingSystem,
-    getSystemCurrentRating,
-} from '../../database/user';
-import { calculateTacticsRating } from '../../exams/view/exam';
 
 interface MetricsDashboardProps {
     user: User;

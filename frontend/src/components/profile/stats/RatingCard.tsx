@@ -1,3 +1,11 @@
+import { useAuth } from '@/auth/Auth';
+import {
+    RatingHistory,
+    RatingSystem,
+    formatRatingSystem,
+    getNormalizedRating,
+    getRatingBoundary,
+} from '@/database/user';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -16,14 +24,6 @@ import {
 } from '@mui/material';
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
-import { useAuth } from '../../auth/Auth';
-import {
-    RatingHistory,
-    RatingSystem,
-    formatRatingSystem,
-    getNormalizedRating,
-    getRatingBoundary,
-} from '../../database/user';
 
 export function getMemberLink(ratingSystem: RatingSystem, username: string): string {
     switch (ratingSystem) {

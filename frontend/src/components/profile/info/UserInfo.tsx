@@ -1,9 +1,8 @@
+import { SubscriptionStatus, User } from '@/database/user';
+import Avatar from '@/profile/Avatar';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import WarningIcon from '@mui/icons-material/Warning';
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
-
-import { SubscriptionStatus, User } from '../../database/user';
-import CohortIcon from '../../scoreboard/CohortIcon';
-import Avatar from '../Avatar';
 
 interface UserInfoProps {
     user: User;

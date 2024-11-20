@@ -1,3 +1,35 @@
+'use client';
+
+import NotFoundPage from '@/NotFoundPage';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import { ActivityCard } from '@/components/profile/info/ActivityCard';
+import { BadgeCard } from '@/components/profile/info/BadgeCard';
+import Bio from '@/components/profile/info/Bio';
+import CoachChip from '@/components/profile/info/CoachChip';
+import CountChip from '@/components/profile/info/CountChip';
+import CreatedAtChip from '@/components/profile/info/CreatedAtChip';
+import DiscordChip from '@/components/profile/info/DiscordChip';
+import InactiveChip from '@/components/profile/info/InactiveChip';
+import { RatingsCard } from '@/components/profile/info/RatingsCard';
+import TimezoneChip from '@/components/profile/info/TimezoneChip';
+import UserInfo from '@/components/profile/info/UserInfo';
+import StatsTab from '@/components/profile/stats/StatsTab';
+import { FollowerEntry } from '@/database/follower';
+import { User } from '@/database/user';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import LoadingPage from '@/loading/LoadingPage';
+import GamesTab from '@/profile/GamesTab';
+import GraduationDialog from '@/profile/GraduationDialog';
+import ActivityTab from '@/profile/activity/ActivityTab';
+import ClubsTab from '@/profile/clubs/ClubsTab';
+import CoachTab from '@/profile/coach/CoachTab';
+import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
+import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
+import ProgressTab from '@/profile/progress/ProgressTab';
+import ProfilePageTutorial from '@/profile/tutorials/ProfilePageTutorial';
+import { PawnIcon } from '@/style/ChessIcons';
 import {
     Edit,
     Folder,
@@ -11,50 +43,36 @@ import {
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
+import RouterLink from 'next/link';
 import { useEffect } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import NotFoundPage from '../NotFoundPage';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
-import { FollowerEntry } from '../database/follower';
-import { User } from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
-import { PawnIcon } from '../style/ChessIcons';
-import GamesTab from './GamesTab';
-import GraduationDialog from './GraduationDialog';
-import ActivityTab from './activity/ActivityTab';
-import ClubsTab from './clubs/ClubsTab';
-import CoachTab from './coach/CoachTab';
-import { DirectoriesSection } from './directories/DirectoriesSection';
-import { DirectoryCacheProvider } from './directories/DirectoryCache';
-import { ActivityCard } from './info/ActivityCard';
-import { BadgeCard } from './info/BadgeCard';
-import Bio from './info/Bio';
-import CoachChip from './info/CoachChip';
-import CountChip from './info/CountChip';
-import CreatedAtChip from './info/CreatedAtChip';
-import DiscordChip from './info/DiscordChip';
-import InactiveChip from './info/InactiveChip';
-import { RatingsCard } from './info/RatingsCard';
-import TimezoneChip from './info/TimezoneChip';
-import UserInfo from './info/UserInfo';
-import ProgressTab from './progress/ProgressTab';
-import StatsTab from './stats/StatsTab';
-import ProfilePageTutorial from './tutorials/ProfilePageTutorial';
 
-const ProfilePage = () => {
-    const { username } = useParams();
-    const navigate = useNavigate();
+export function ProfilePage({ username }: { username?: string }) {
+    const { user, status } = useAuth();
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+
+    if (!user) {
+        return <NotFoundPage />;
+    }
+    return <AuthProfilePage currentUser={user} username={username} />;
+}
+
+function AuthProfilePage({
+    currentUser,
+    username,
+}: {
+    currentUser: User;
+    username?: string;
+}) {
     const api = useApi();
     const auth = useAuth();
-    const currentUser = auth.user;
     const request = useRequest<User>();
     const followRequest = useRequest<FollowerEntry>();
 
     const currentUserProfile = !username || username === currentUser?.username;
 
-    const [searchParams, setSearchParams] = useSearchParams(
+    const { searchParams, updateSearchParams } = useNextSearchParams(
         currentUserProfile ? { view: 'progress' } : { view: 'stats' },
     );
 
@@ -152,10 +170,11 @@ const ProfilePage = () => {
                             <Stack direction='row' spacing={2}>
                                 <GraduationDialog />
                                 <Button
+                                    component={RouterLink}
                                     id='edit-profile-button'
                                     variant='contained'
                                     startIcon={<Edit />}
-                                    onClick={() => navigate('/profile/edit')}
+                                    href='/profile/edit'
                                 >
                                     Edit Profile
                                 </Button>
@@ -209,7 +228,7 @@ const ProfilePage = () => {
                                 <Tabs
                                     value={searchParams.get('view') || 'stats'}
                                     onChange={(_, t: string) =>
-                                        setSearchParams({ view: t })
+                                        updateSearchParams({ view: t })
                                     }
                                     aria-label='profile tabs'
                                     variant='scrollable'
@@ -323,9 +342,7 @@ const ProfilePage = () => {
             </Container>
         </Box>
     );
-};
-
-export default ProfilePage;
+}
 
 function ProfileTab({
     label,

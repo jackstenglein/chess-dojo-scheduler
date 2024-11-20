@@ -1,4 +1,5 @@
 import { useFreeTier } from '@/auth/Auth';
+import DojoScoreCard from '@/components/profile/stats/DojoScoreCard';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
     Button,
@@ -22,7 +23,6 @@ import {
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import DojoScoreCard from '../stats/DojoScoreCard';
 import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory, { Category } from './ProgressCategory';
 

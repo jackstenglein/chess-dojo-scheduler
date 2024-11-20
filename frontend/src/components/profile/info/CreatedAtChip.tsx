@@ -1,7 +1,7 @@
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString } from '@/calendar/displayDate';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Chip, Tooltip } from '@mui/material';
-import { useAuth } from '../../auth/Auth';
-import { toDojoDateString } from '../../calendar/displayDate';
 
 interface CreatedAtChipProps {
     createdAt?: string;

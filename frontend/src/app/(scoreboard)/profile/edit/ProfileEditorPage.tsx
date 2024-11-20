@@ -1,4 +1,18 @@
+'use client';
+
+import { EventType, setUserCohort, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
+import { useCache } from '@/api/cache/Cache';
 import { DefaultTimezone, TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
+import {
+    Rating,
+    RatingSystem,
+    User,
+    dojoCohorts,
+    formatRatingSystem,
+} from '@/database/user';
+import Avatar from '@/profile/Avatar';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
@@ -27,21 +41,9 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import RouterLink from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { EventType, setUserCohort, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, RequestStatus, useRequest } from '../../api/Request';
-import { useCache } from '../../api/cache/Cache';
-import { useRequiredAuth } from '../../auth/Auth';
-import {
-    Rating,
-    RatingSystem,
-    User,
-    dojoCohorts,
-    formatRatingSystem,
-} from '../../database/user';
-import Avatar from '../Avatar';
 import NotificationSettingsEditor from './NotificationSettingsEditor';
 import SubscriptionManager from './SubscriptionManager';
 
@@ -197,11 +199,10 @@ export function encodeFileToBase64(file: File): Promise<string> {
     });
 }
 
-const ProfileEditorPage = () => {
-    const { user } = useRequiredAuth();
+export function ProfileEditorPage({ user }: { user: User }) {
     const api = useApi();
-    const navigate = useNavigate();
     const { setImageBypass } = useCache();
+    const router = useRouter();
 
     const [displayName, setDisplayName] = useState(user.displayName);
     const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
@@ -383,7 +384,7 @@ const ProfileEditorPage = () => {
                 if (update.profilePictureData !== undefined) {
                     setImageBypass(Date.now());
                 }
-                navigate('..');
+                router.push('/profile');
             })
             .catch((err) => {
                 console.error(err);
@@ -545,10 +546,11 @@ const ProfileEditorPage = () => {
                                 </LoadingButton>
 
                                 <Button
+                                    component={RouterLink}
                                     variant='contained'
                                     color='error'
                                     disableElevation
-                                    onClick={() => navigate('..')}
+                                    href='/profile'
                                     startIcon={<NotInterestedIcon />}
                                 >
                                     Cancel
@@ -744,7 +746,7 @@ const ProfileEditorPage = () => {
                                                         Learn how to find your DWZ ID{' '}
                                                         <Link
                                                             component={RouterLink}
-                                                            to='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
+                                                            href='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
                                                         >
                                                             here
                                                         </Link>
@@ -898,6 +900,4 @@ const ProfileEditorPage = () => {
             </Grid2>
         </Container>
     );
-};
-
-export default ProfileEditorPage;
+}

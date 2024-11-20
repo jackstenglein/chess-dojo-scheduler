@@ -1,5 +1,3 @@
-import { Stack } from '@mui/material';
-
 import {
     getRatingUsername,
     getSystemCurrentRating,
@@ -7,7 +5,8 @@ import {
     hideRatingUsername,
     RatingSystem,
     User,
-} from '../../database/user';
+} from '@/database/user';
+import { Stack } from '@mui/material';
 import RatingCard from './RatingCard';
 import TacticsScoreCard from './TacticsScoreCard';
 

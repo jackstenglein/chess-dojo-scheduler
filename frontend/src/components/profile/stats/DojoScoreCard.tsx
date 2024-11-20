@@ -1,16 +1,16 @@
-import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
-import EqualizerIcon from '@mui/icons-material/Equalizer';
-import { Card, CardContent, Grid2, Stack, Tooltip, Typography } from '@mui/material';
-import React from 'react';
-import { useRequirements } from '../../api/cache/requirements';
+import { useRequirements } from '@/api/cache/requirements';
 import {
     getCategoryScore,
     getCohortScore,
     getTotalCategoryScore,
     getTotalScore,
-} from '../../database/requirement';
-import { User, getCurrentRating, getNormalizedRating } from '../../database/user';
-import ScoreboardProgress from '../../scoreboard/ScoreboardProgress';
+} from '@/database/requirement';
+import { User, getCurrentRating, getNormalizedRating } from '@/database/user';
+import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import { Card, CardContent, Grid2, Stack, Tooltip, Typography } from '@mui/material';
+import React from 'react';
 
 const categories = [
     'Games + Analysis',

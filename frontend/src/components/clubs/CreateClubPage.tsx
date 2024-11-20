@@ -3,13 +3,13 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
-import { ClubDetails } from '@/database/club';
-import LoadingPage from '@/loading/LoadingPage';
-import { ClubAvatar } from '@/profile/Avatar';
 import {
     MAX_PROFILE_PICTURE_SIZE_MB,
     encodeFileToBase64,
-} from '@/profile/editor/ProfileEditorPage';
+} from '@/app/(scoreboard)/profile/edit/ProfileEditorPage';
+import { ClubDetails } from '@/database/club';
+import LoadingPage from '@/loading/LoadingPage';
+import { ClubAvatar } from '@/profile/Avatar';
 import { Delete, Upload } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {

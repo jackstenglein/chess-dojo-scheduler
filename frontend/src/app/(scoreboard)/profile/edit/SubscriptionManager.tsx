@@ -2,9 +2,9 @@ import { OpenInNew } from '@mui/icons-material';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { LoadingButton } from '@mui/lab';
 import { Button, Divider, Stack, Typography } from '@mui/material';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { SubscriptionStatus, User } from '../../database/user';
+import { useApi } from '../../../../api/Api';
+import { RequestSnackbar, useRequest } from '../../../../api/Request';
+import { SubscriptionStatus, User } from '../../../../database/user';
 
 interface SubscriptionManagerProps {
     user: User;

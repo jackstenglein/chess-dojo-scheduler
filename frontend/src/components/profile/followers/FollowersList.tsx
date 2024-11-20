@@ -1,21 +1,24 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { ListFollowersResponse } from '@/api/userApi';
+import { useAuth } from '@/auth/Auth';
+import { FollowerEntry } from '@/database/follower';
+import LoadingPage from '@/loading/LoadingPage';
+import Avatar from '@/profile/Avatar';
+import { LoadingButton } from '@mui/lab';
 import { Link, Stack, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
 
-import { LoadingButton } from '@mui/lab';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { ListFollowersResponse } from '../../api/userApi';
-import { useAuth } from '../../auth/Auth';
-import { FollowerEntry } from '../../database/follower';
-import LoadingPage from '../../loading/LoadingPage';
-import Avatar from '../Avatar';
-
-const FollowersList = () => {
+export const FollowersList = ({
+    username,
+    type,
+}: {
+    username: string;
+    type: 'following' | 'followers';
+}) => {
     const api = useApi();
-    const isFollowing = useLocation().pathname.endsWith('/following');
+    const isFollowing = type === 'following';
     const request = useRequest<ListFollowersResponse>();
-    const { username } = useParams();
     const auth = useAuth();
     const currentUser = auth.user;
 

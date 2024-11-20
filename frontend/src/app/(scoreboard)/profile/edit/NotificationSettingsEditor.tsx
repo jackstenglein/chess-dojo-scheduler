@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DiscordIcon } from '@/components/profile/info/DiscordChip';
+import { UserNotificationSettings } from '@/database/user';
 import { Email, Notifications, Web } from '@mui/icons-material';
 import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { UserNotificationSettings } from '../../database/user';
-import { DiscordIcon } from '../info/DiscordChip';
 
 function getSettingValue(
     notificationSettings: UserNotificationSettings,

@@ -24,11 +24,7 @@ import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
 import ReviewQueuePage from './games/review/ReviewQueuePage';
 import GamePage from './games/view/GamePage';
-import ProfilePage from './profile/ProfilePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
-import ProfileEditorPage from './profile/editor/ProfileEditorPage';
-import FollowersPage from './profile/followers/FollowersPage';
-import YearReviewRedirect from './profile/yearReview/YearReviewRedirect';
 import { TutorialProvider } from './tutorial/TutorialContext';
 
 LicenseInfo.setLicenseKey(
@@ -42,17 +38,6 @@ const router = createBrowserRouter(
                 <Route index element={<LandingPage />} />
 
                 <Route element={<RequireAuth />}>
-                    <Route path='profile'>
-                        <Route index element={<ProfilePage />} />
-                        <Route path='edit' element={<ProfileEditorPage />} />
-                        <Route path='yearreview' element={<YearReviewRedirect />} />
-                        <Route path=':username'>
-                            <Route index element={<ProfilePage />} />
-                            <Route path='followers' element={<FollowersPage />} />
-                            <Route path='following' element={<FollowersPage />} />
-                        </Route>
-                    </Route>
-
                     <Route path='calendar' element={<CalendarPage />}>
                         <Route path='availability/:id' element={<EventBooker />} />
                     </Route>

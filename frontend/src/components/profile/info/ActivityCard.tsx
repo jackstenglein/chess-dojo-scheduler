@@ -3,6 +3,7 @@ import { getTimeZonedDate } from '@/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
+import { useTimeline } from '@/profile/activity/useTimeline';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
@@ -26,7 +27,6 @@ import {
 } from 'react-activity-calendar';
 import { GiCrossedSwords } from 'react-icons/gi';
 import { useLocalStorage } from 'usehooks-ts';
-import { useTimeline } from '../activity/useTimeline';
 
 interface Activity extends BaseActivity {
     /** The count of the activity by category. */
