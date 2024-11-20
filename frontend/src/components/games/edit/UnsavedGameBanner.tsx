@@ -6,12 +6,16 @@ import {
     CreateGameRequest,
     GameImportTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
-import { Alert, Button, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import SaveGameDialogue, { SaveGameForm } from './SaveGameDialogue';
 
-export function UnsavedGameBanner() {
+interface UnsavedGameBannerProps {
+    dismissable?: boolean;
+}
+export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
     const [showDialogue, setShowDialogue] = useState<boolean>(false);
+    const [showBanner, setShowBanner] = useState<boolean>(true);
     const { createGame, stagedCreateGame, request } = useSaveGame();
     const { chess } = useChess();
 
@@ -40,24 +44,33 @@ export function UnsavedGameBanner() {
 
     return (
         <>
-            <Alert
+            {showBanner && <Alert
                 severity='warning'
                 variant='outlined'
-                action={<Button onClick={() => setShowDialogue(true)}>Create</Button>}
+                action={
+                    <Box>
+                        {dismissable &&
+                            <Button onClick={() => setShowBanner(false)}>Dismiss</Button>
+                        }
+                        <Button onClick={() => setShowDialogue(true)}>Save</Button>
+                    </Box>
+                }
+                onClose={() => setShowBanner(false)}
             >
                 <Stack direction='row' alignItems='center'>
                     <Typography variant='body1'>
-                        Changes not autosaved until game is created.
+                        Changes not saved
                     </Typography>
                 </Stack>
             </Alert>
-            <SaveGameDialogue
+            }
+            {showDialogue && <SaveGameDialogue
                 open={showDialogue}
                 title='Create Game'
                 loading={request.isLoading()}
                 onSubmit={onSubmit}
                 onClose={() => setShowDialogue(false)}
-            />
+            />}
             <RequestSnackbar request={request} />
         </>
     );

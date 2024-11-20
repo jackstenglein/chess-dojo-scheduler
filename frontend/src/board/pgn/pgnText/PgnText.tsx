@@ -40,7 +40,7 @@ const PgnText = () => {
             sx={{ display: 'flex', flexDirection: 'column' }}
         >
             {game && game.unlisted === true && <UnpublishedGameBanner />}
-            {unsaved && <UnsavedGameBanner />}
+            {unsaved && <UnsavedGameBanner dismissable/>}
             {!config?.disableEngine && <EngineSection />}
             <Stack
                 ref={ref}

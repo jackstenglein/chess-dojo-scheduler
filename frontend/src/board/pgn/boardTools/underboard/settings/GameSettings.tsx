@@ -32,6 +32,8 @@ import { useNavigate } from 'react-router-dom';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
+import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
+import useGame from '@/context/useGame';
 
 interface GameSettingsProps {
     game: Game;
