@@ -8,7 +8,7 @@ import PgnBoard from '@/board/pgn/PgnBoard';
 import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
 import { GameContext } from '@/context/useGame';
 import { Game } from '@/database/game';
-import { useSearchParams } from '@/hooks/useSearchParams';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { Chess } from '@jackstenglein/chess';
 import {
     GameHeader,
@@ -18,18 +18,18 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Box } from '@mui/material';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
 import PgnErrorBoundary from './PgnErrorBoundary';
 
-const GamePage = () => {
+const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
     const api = useApi();
     const request = useRequest<Game>();
     const featureRequest = useRequest();
     const updateRequest = useRequest<Game>();
-    const { cohort, id } = useParams();
     const user = useAuth().user;
-    const { searchParams, updateSearchParams } = useSearchParams({ firstLoad: 'false' });
+    const { searchParams, updateSearchParams } = useNextSearchParams({
+        firstLoad: 'false',
+    });
     const firstLoad = searchParams.get('firstLoad') === 'true';
 
     const reset = request.reset;

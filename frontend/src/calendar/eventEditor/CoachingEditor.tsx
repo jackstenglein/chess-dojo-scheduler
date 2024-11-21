@@ -1,3 +1,6 @@
+import { useAuth } from '@/auth/Auth';
+import { Event, EventStatus } from '@/database/event';
+import { User, dojoCohorts } from '@/database/user';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import {
     Alert,
@@ -9,10 +12,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/Auth';
-import { Event, EventStatus } from '../../database/event';
-import { User, dojoCohorts } from '../../database/user';
+import RouterLink from 'next/link';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
@@ -162,7 +162,6 @@ interface CoachingEditorProps {
 
 const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
     const { user } = useAuth();
-    const navigate = useNavigate();
 
     if (!user?.coachInfo?.onboardingComplete || !user.coachInfo.stripeId) {
         return (
@@ -171,9 +170,10 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                 variant='filled'
                 action={
                     <Button
+                        component={RouterLink}
                         color='inherit'
                         size='small'
-                        onClick={() => navigate('/coach')}
+                        href='/coach'
                     >
                         Open Portal
                     </Button>

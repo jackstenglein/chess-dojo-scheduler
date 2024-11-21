@@ -4,15 +4,14 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { isGame } from '@/api/gameApi';
 import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Container } from '@mui/material';
-import { useSearchParams } from 'next/navigation';
-import { useNavigate } from 'react-router-dom';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
     const api = useApi();
     const request = useRequest<string>();
-    const navigate = useNavigate();
     const searchParams = useSearchParams();
+    const router = useRouter();
 
     const onCreate = (req: CreateGameRequest) => {
         if (searchParams.has('directory') && searchParams.has('directoryOwner')) {
@@ -41,7 +40,7 @@ const ImportGamePage = () => {
                         newUrl += `&directory=${req.directory.id}&directoryOwner=${req.directory.owner}`;
                     }
 
-                    navigate(newUrl);
+                    router.push(newUrl);
                 } else {
                     const count = response.data.count;
                     trackEvent(EventType.SubmitGame, {
@@ -49,7 +48,7 @@ const ImportGamePage = () => {
                         method: req.type,
                     });
                     request.onSuccess(`Created ${count} games`);
-                    window.location.href = '/profile?view=games';
+                    router.push('/profile?view=games');
                 }
             })
             .catch((err) => {

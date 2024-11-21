@@ -1,22 +1,20 @@
+import { useApi } from '@/api/Api';
+import { useCache } from '@/api/cache/Cache';
+import { useRequiredAuth } from '@/auth/Auth';
 import CommentEditor from '@/components/comments/CommentEditor';
 import CommentList from '@/components/comments/CommentList';
+import { Event, EventType } from '@/database/event';
+import LoadingPage from '@/loading/LoadingPage';
 import { Box, Card, CardContent, CardHeader, Stack } from '@mui/material';
 import { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { useApi } from '../api/Api';
-import { useCache } from '../api/cache/Cache';
-import { useRequiredAuth } from '../auth/Auth';
-import { Event, EventType } from '../database/event';
-import LoadingPage from '../loading/LoadingPage';
 
-const MeetingMessages = () => {
+const MeetingMessages = ({ meetingId }: { meetingId: string }) => {
     const { user } = useRequiredAuth();
-    const { meetingId } = useParams();
     const cache = useCache();
     const api = useApi();
     const bottomRef = useRef<HTMLDivElement>(null);
 
-    const meeting = cache.events.get(meetingId || '');
+    const meeting = cache.events.get(meetingId);
     const messages = meeting?.messages;
 
     useEffect(() => {
@@ -87,7 +85,7 @@ const MeetingMessages = () => {
                         createFunctionProps={meetingId || ''}
                         createFunction={api.createMessage}
                         onSuccess={onSuccess}
-                        label='Send a message...'
+                        label='Send a message@.'
                         tooltip='Send Message'
                     />
                 </Box>

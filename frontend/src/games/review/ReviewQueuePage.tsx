@@ -14,8 +14,8 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
+import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 
@@ -131,7 +131,7 @@ const columns: GridColDef<GameInfo>[] = [
 ];
 
 const ReviewQueuePage = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const api = useApi();
     const search = useCallback(
         (startKey: string) => api.listGamesForReview(startKey),
@@ -142,7 +142,7 @@ const ReviewQueuePage = () => {
         usePagination(search, 0, 10);
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
-        navigate(
+        router.push(
             `/games/${params.row.cohort.replaceAll('+', '%2B')}/${params.row.id.replaceAll(
                 '?',
                 '%3F',

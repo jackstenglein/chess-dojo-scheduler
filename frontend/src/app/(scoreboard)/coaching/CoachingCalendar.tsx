@@ -1,12 +1,12 @@
 import { useApi } from '@/api/Api';
 import { Request, RequestSnackbar, useRequest } from '@/api/Request';
+import { getProcessedEvents } from '@/app/(scoreboard)/calendar/CalendarPage';
 import { useAuth } from '@/auth/Auth';
-import { getProcessedEvents } from '@/calendar/CalendarPage';
 import EventEditor from '@/calendar/eventEditor/EventEditor';
-import ProcessedEventViewer from '@/calendar/eventViewer/ProcessedEventViewer';
 import { getHours, useFilters } from '@/calendar/filters/CalendarFilters';
 import TimezoneFilter from '@/calendar/filters/TimezoneFilter';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
 import { Event } from '@/database/event';
 import { TimeFormat } from '@/database/user';
 import { Scheduler } from '@aldabil/react-scheduler';

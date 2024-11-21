@@ -1,5 +1,5 @@
 import { useNotifications } from '@/api/cache/Cache';
-import NotificationButton from '@/notifications/NotificationButton';
+import NotificationButton from '@/components/notifications/NotificationButton';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
