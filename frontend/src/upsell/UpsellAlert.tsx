@@ -1,11 +1,13 @@
 import { Alert, Button } from '@mui/material';
+import NextLink from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface UpsellAlertProps {
     children: string;
 }
 
 const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
-    const currentPage = encodeURIComponent(window.location.href);
+    const pathname = usePathname();
 
     return (
         <Alert
@@ -14,8 +16,9 @@ const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
             variant='filled'
             action={
                 <Button
+                    component={NextLink}
                     color='inherit'
-                    href={`/prices?redirect=${currentPage}`}
+                    href={`/prices?redirect=${pathname}`}
                     size='small'
                     sx={{ textAlign: 'center' }}
                 >

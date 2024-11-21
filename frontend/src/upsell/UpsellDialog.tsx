@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import {
     Button,
     Dialog,
@@ -6,8 +7,9 @@ import {
     DialogContentText,
     DialogTitle,
 } from '@mui/material';
+import NextLink from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { EventType, trackEvent } from '../analytics/events';
 
 export enum RestrictedAction {
     AccessAllTasks = 'Access all training plan tasks for all cohorts (0-2500)',
@@ -49,6 +51,8 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
     bulletPoints = defaultBulletPoints,
     currentAction,
 }) => {
+    const pathname = usePathname();
+
     useEffect(() => {
         if (open) {
             trackEvent(EventType.ViewUpsellDialog, { current_action: currentAction });
@@ -61,13 +65,6 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
             ...bulletPoints.filter((bp) => bp !== currentAction),
         ];
     }
-
-    const onViewPrices = (event: React.MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const currentPage = encodeURIComponent(window.location.href);
-        window.location.href = `/prices?redirect=${currentPage}`;
-    };
 
     return (
         <Dialog
@@ -98,7 +95,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => onClose(false)}>Cancel</Button>
-                <Button onClick={onViewPrices} href='/prices'>
+                <Button component={NextLink} href={`/prices?redirect=${pathname}`}>
                     View Prices
                 </Button>
             </DialogActions>
