@@ -4,6 +4,7 @@ import { useFreeTier, useRequiredAuth } from '@/auth/Auth';
 import { MastersCohort } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
 import { dojoCohorts } from '@/database/user';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { SearchFunc } from '@/hooks/usePagination';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
@@ -30,7 +31,6 @@ import { styled } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import React, { useCallback, useEffect, useState } from 'react';
-import { URLSearchParamsInit, useSearchParams } from 'react-router-dom';
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -519,7 +519,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     const { user } = useRequiredAuth();
     const api = useApi();
 
-    const [searchParams, setSearchParams] = useSearchParams({
+    const { searchParams, setSearchParams } = useNextSearchParams({
         cohort: user.dojoCohort,
         player: '',
         color: 'either',
@@ -651,7 +651,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     ]);
 
     // Functions that change the search params
-    const onSetSearchParams = (params: URLSearchParamsInit) => {
+    const onSetSearchParams = (params: Record<string, string>) => {
         trackEvent(EventType.SearchGames, params);
         setSearchParams(params);
     };
