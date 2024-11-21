@@ -69,12 +69,8 @@ export const ActivityCard = ({ user }: { user: User }) => {
         'activityHeatmap.field',
         'minutesSpent',
     );
-    const [maxPointsCount, setMaxPointsCount] = useState<number>(
-        9
-    );
-    const [maxHoursCount, setMaxHoursCount] = useState<number>(
-        4 * 60
-    );
+    const [maxPointsCount, setMaxPointsCount] = useState<number>(9);
+    const [maxHoursCount, setMaxHoursCount] = useState<number>(4 * 60);
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
@@ -183,7 +179,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                   field,
                                   isLight ? '#EBEDF0' : '#393939',
                                   maxPointsCount,
-                                  maxHoursCount
+                                  maxHoursCount,
                               )
                             : renderStandardBlock(block, activity as Activity, field)
                     }
@@ -211,8 +207,8 @@ export const ActivityCard = ({ user }: { user: User }) => {
                         '& .MuiDialog-paper': {
                             backgroundColor: '#000000',
                             color: '#fff',
-                            height: view === 'standard' ? '65vh' : '50vh', 
-                            width: '120vw', 
+                            height: view === 'standard' ? '65vh' : '50vh',
+                            width: '120vw',
                             borderRadius: '8px', // Rounded corners
                             overflow: 'hidden', // Ensure no scrollbars
                             display: 'flex',
@@ -313,7 +309,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                               field,
                                               isLight ? '#EBEDF0' : '#393939',
                                               maxPointsCount,
-                                              maxHoursCount
+                                              maxHoursCount,
                                           )
                                         : renderStandardBlock(
                                               block,
