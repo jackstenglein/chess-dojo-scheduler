@@ -37,6 +37,7 @@ interface Activity extends BaseActivity {
 }
 
 type TimelineEntryField = 'dojoPoints' | 'minutesSpent';
+type View = 'standard' | 'task';
 
 const MAX_LEVEL = 4;
 const MAX_POINTS_COUNT = 9;
@@ -62,20 +63,29 @@ export const ActivityCard = ({ user }: { user: User }) => {
         'activityHeatmap.field',
         'minutesSpent',
     );
+    const [maxPointsCount, setMaxPointsCount] = useLocalStorage<number>(
+        'activityHeatmap.maxPoints',
+        9,
+    );
+    const [maxHoursCount, setMaxHoursCount] = useLocalStorage<number>(
+        'activityHeatmap.maxHours',
+        4 * 60,
+    );
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
     const [, setCalendarRef] = useState<HTMLElement | null>(null);
     const [weekStartOn] = useLocalStorage<WeekDays>('calendarFilters.weekStartOn', 0);
+    const [view, setView] = useLocalStorage<View>('activityHeatmap.view', 'standard');
 
     const { activities, totalCount, maxCount } = useMemo(() => {
         return getActivity(
             entries,
             field,
-            field === 'dojoPoints' ? MAX_POINTS_COUNT : MAX_HOURS_COUNT,
+            field === 'dojoPoints' ? maxPointsCount : maxHoursCount,
             viewer,
         );
-    }, [field, entries, viewer]);
+    }, [field, entries, viewer, maxPointsCount, maxHoursCount]);
 
     useEffect(() => {
         const scroller = document.getElementsByClassName(
@@ -102,6 +112,33 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             <MenuItem value='dojoPoints'>Dojo Points</MenuItem>
                             <MenuItem value='minutesSpent'>Hours Worked</MenuItem>
                         </TextField>
+                        <TextField
+                            size='small'
+                            select
+                            value={view}
+                            onChange={(e) => setView(e.target.value as View)}
+                        >
+                            <MenuItem value='standard'>Standard</MenuItem>
+                            <MenuItem value='task'>Activity</MenuItem>
+                        </TextField>
+                        <TextField
+                            size='small'
+                            select
+                            value={
+                                field === 'dojoPoints' ? maxPointsCount : maxHoursCount
+                            }
+                            onChange={(e) =>
+                                field === 'dojoPoints'
+                                    ? setMaxPointsCount(Number(e.target.value))
+                                    : setMaxHoursCount(Number(e.target.value) * 60)
+                            }
+                        >
+                            {[1, 5, 10].map((value) => (
+                                <MenuItem key={value} value={value}>
+                                    {value} {field === 'dojoPoints' ? 'point' : 'hour'}
+                                </MenuItem>
+                            ))}
+                        </TextField>
                     </div>
                 }
             />
@@ -125,12 +162,14 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     }}
                     data={activities}
                     renderBlock={(block, activity) =>
-                        renderBlock(
-                            block,
-                            activity as Activity,
-                            field,
-                            isLight ? '#EBEDF0' : '#393939',
-                        )
+                        view === 'standard'
+                            ? renderBlock(
+                                  block,
+                                  activity as Activity,
+                                  field,
+                                  isLight ? '#EBEDF0' : '#393939',
+                              )
+                            : renderStandardBlock(block, activity as Activity, field)
                     }
                     labels={{
                         totalCount:
@@ -142,59 +181,68 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     maxLevel={MAX_LEVEL}
                     showWeekdayLabels
                     weekStart={weekStartOn}
+                    hideColorLegend={view === 'task'}
                     renderColorLegend={(block, level) =>
                         renderLegendTooltip(block, level, maxCount, field)
                     }
                 />
 
-                <Stack
-                    direction='row'
-                    flexWrap='wrap'
-                    columnGap={1}
-                    rowGap={0.5}
-                    mt={0.5}
-                >
-                    {Object.entries(CategoryColors).map(([category, color]) => {
-                        if (!VALID_CATEGORIES.includes(category as RequirementCategory)) {
-                            return null;
-                        }
-
-                        return (
-                            <Stack
-                                key={category}
-                                direction='row'
-                                alignItems='center'
-                                gap={0.5}
-                            >
-                                <Box
-                                    sx={{
-                                        height: '12px',
-                                        width: '12px',
-                                        borderRadius: '2px',
-                                        backgroundColor: color,
-                                    }}
-                                />
-                                <Typography variant='caption' pt='2px'>
-                                    {category}
-                                </Typography>
-                            </Stack>
-                        );
-                    })}
+                {view === 'standard' ? (
                     <Stack
                         direction='row'
-                        justifyContent='space-between'
-                        alignItems='center'
-                        columnGap='1rem'
-                        width={1}
+                        flexWrap='wrap'
+                        columnGap={1}
+                        rowGap={0.5}
+                        mt={0.5}
                     >
-                        <Stack direction='row' alignItems='center' columnGap={0.5}>
-                            <GiCrossedSwords />
-                            <Typography variant='caption' pt='2px'>
-                                Classical Game Played
-                            </Typography>
+                        {Object.entries(CategoryColors).map(([category, color]) => {
+                            if (
+                                !VALID_CATEGORIES.includes(
+                                    category as RequirementCategory,
+                                )
+                            ) {
+                                return null;
+                            }
+
+                            return (
+                                <Stack
+                                    key={category}
+                                    direction='row'
+                                    alignItems='center'
+                                    gap={0.5}
+                                >
+                                    <Box
+                                        sx={{
+                                            height: '12px',
+                                            width: '12px',
+                                            borderRadius: '2px',
+                                            backgroundColor: color,
+                                        }}
+                                    />
+                                    <Typography variant='caption' pt='2px'>
+                                        {category}
+                                    </Typography>
+                                </Stack>
+                            );
+                        })}
+                        <Stack
+                            direction='row'
+                            justifyContent='space-between'
+                            alignItems='center'
+                            columnGap='1rem'
+                            width={1}
+                        >
+                            <Stack direction='row' alignItems='center' columnGap={0.5}>
+                                <GiCrossedSwords />
+                                <Typography variant='caption' pt='2px'>
+                                    Classical Game Played
+                                </Typography>
+                            </Stack>
                         </Stack>
                     </Stack>
-                </Stack>
+                ) : (
+                    <Stack></Stack>
+                )}
             </CardContent>
         </Card>
     );
@@ -362,6 +410,25 @@ function renderBlock(
                 })}
             </Tooltip>
         </>
+    );
+}
+
+/**
+ * Renders a block in the heatmap for the standard view.
+ * @param block The block to render, as passed from React Activity Calendar.
+ * @param activity The activity associated with the block.
+ * @param field The field (dojo points/minutes) being displayed.
+ * @returns A block representing the given activity.
+ */
+function renderStandardBlock(
+    block: BlockElement,
+    activity: Activity,
+    field: TimelineEntryField,
+) {
+    return (
+        <Tooltip disableInteractive title={renderTooltip(activity, field)}>
+            {block}
+        </Tooltip>
     );
 }
 
