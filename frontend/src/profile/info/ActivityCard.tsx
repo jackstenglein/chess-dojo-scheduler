@@ -17,7 +17,13 @@ import {
     TextField,
     Tooltip,
     Typography,
+    IconButton,
+    Dialog,
+    DialogContent,
+    DialogTitle
+    
 } from '@mui/material';
+import { Close } from '@mui/icons-material';
 import { cloneElement, useEffect, useMemo, useState } from 'react';
 import {
     ActivityCalendar,
@@ -27,6 +33,7 @@ import {
 import { GiCrossedSwords } from 'react-icons/gi';
 import { useLocalStorage } from 'usehooks-ts';
 import { useTimeline } from '../activity/useTimeline';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
 interface Activity extends BaseActivity {
     /** The count of the activity by category. */
@@ -77,6 +84,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
     const [, setCalendarRef] = useState<HTMLElement | null>(null);
     const [weekStartOn] = useLocalStorage<WeekDays>('calendarFilters.weekStartOn', 0);
     const [view, setView] = useLocalStorage<View>('activityHeatmap.view', 'standard');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { activities, totalCount, maxCount } = useMemo(() => {
         return getActivity(
@@ -100,7 +108,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
         <Card>
             <CardHeader
                 title={
-                    <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <TextField
                             size='small'
                             select
@@ -108,6 +116,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             onChange={(e) =>
                                 setField(e.target.value as TimelineEntryField)
                             }
+                            sx={{ml: -0.6}}
                         >
                             <MenuItem value='dojoPoints'>Dojo Points</MenuItem>
                             <MenuItem value='minutesSpent'>Hours Worked</MenuItem>
@@ -139,6 +148,9 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                 </MenuItem>
                             ))}
                         </TextField>
+                        <IconButton color='primary' onClick={() => setIsModalOpen(true)} sx={{mr: 0.3, ml: -1}} size='small'>
+                            <ZoomInIcon/>
+                        </IconButton>
                     </div>
                 }
             />
@@ -186,6 +198,83 @@ export const ActivityCard = ({ user }: { user: User }) => {
                         renderLegendTooltip(block, level, maxCount, field)
                     }
                 />
+
+            <Dialog
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                maxWidth="lg"
+            
+                sx={{
+                    '& .MuiDialog-paper': {
+                        backgroundColor: '#2d2d2e', // Dark grey background
+                        color: '#fff', // White text
+                        height: '80vh', // Custom height
+                        borderRadius: '8px', // Rounded corners
+                        // overflow: 'hidden',
+                    },
+                }}
+            >
+                <DialogTitle>
+                    <Typography variant="h6">Zoomed-In Heatmap</Typography>
+                    <IconButton
+                        aria-label="close"
+                        onClick={() => setIsModalOpen(false)}
+                        sx={{
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                            color: (theme) => theme.palette.grey[500],
+                        }}
+                    >
+                        <Close/>
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent 
+                >
+                    <Box
+                        sx={{
+                            transform: 'scale(3.5)', // Zoom factor
+                            transformOrigin: 'top left',
+                            overflow: 'auto',
+                            width: '100%',
+                        }}
+                    >
+                        <ActivityCalendar
+                    ref={setCalendarRef}
+                    colorScheme={isLight ? 'light' : 'dark'}
+                    theme={{
+                        dark: ['#393939', '#F7941F'],
+                        light: ['#EBEDF0', '#F7941F'],
+                    }}
+                    data={activities}
+                    renderBlock={(block, activity) =>
+                        view === 'standard'
+                            ? renderBlock(
+                                  block,
+                                  activity as Activity,
+                                  field,
+                                  isLight ? '#EBEDF0' : '#393939',
+                              )
+                            : renderStandardBlock(block, activity as Activity, field)
+                    }
+                    labels={{
+                        totalCount:
+                            field === 'dojoPoints'
+                                ? '{{count}} Dojo points in 2024'
+                                : `${formatTime(totalCount)} in 2024`,
+                    }}
+                    totalCount={Math.round(10 * totalCount) / 10}
+                    maxLevel={MAX_LEVEL}
+                    showWeekdayLabels
+                    weekStart={weekStartOn}
+                    hideColorLegend={view === 'task'}
+                    renderColorLegend={(block, level) =>
+                        renderLegendTooltip(block, level, maxCount, field)
+                    }
+                />
+                    </Box>
+                </DialogContent>
+            </Dialog>
 
                 {view === 'standard' ? (
                     <Stack
