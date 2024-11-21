@@ -1,15 +1,20 @@
-import { Scheduler } from '@aldabil/react-scheduler';
-import type { EventRendererProps, SchedulerRef } from '@aldabil/react-scheduler/types';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Button, Container, Grid2, Snackbar, Stack, Typography } from '@mui/material';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { RRule } from 'rrule';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useEvents } from '../api/cache/Cache';
-import { useAuth, useFreeTier } from '../auth/Auth';
+'use client';
+
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useEvents } from '@/api/cache/Cache';
+import { useAuth, useFreeTier } from '@/auth/Auth';
+import CalendarTutorial from '@/calendar/CalendarTutorial';
+import { getTimeZonedDate } from '@/calendar/displayDate';
+import EventEditor from '@/calendar/eventEditor/EventEditor';
+import {
+    CalendarFilters,
+    Filters,
+    getHours,
+    useFilters,
+} from '@/calendar/filters/CalendarFilters';
+import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
 import {
     AvailabilityType,
     CalendarSessionType,
@@ -17,22 +22,18 @@ import {
     EventStatus,
     EventType,
     TimeControlType,
-} from '../database/event';
-import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '../database/user';
-import Icon, { icons } from '../style/Icon';
-import UpsellAlert from '../upsell/UpsellAlert';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import CalendarTutorial from './CalendarTutorial';
-import { getTimeZonedDate } from './displayDate';
-import EventEditor from './eventEditor/EventEditor';
-import ProcessedEventViewer from './eventViewer/ProcessedEventViewer';
-import {
-    CalendarFilters,
-    Filters,
-    getHours,
-    useFilters,
-} from './filters/CalendarFilters';
-import { DefaultTimezone } from './filters/TimezoneSelector';
+} from '@/database/event';
+import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '@/database/user';
+import Icon, { icons } from '@/style/Icon';
+import UpsellAlert from '@/upsell/UpsellAlert';
+import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
+import { Scheduler } from '@aldabil/react-scheduler';
+import type { EventRendererProps, SchedulerRef } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Button, Container, Grid2, Snackbar, Stack, Typography } from '@mui/material';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RRule } from 'rrule';
 
 function processAvailability(
     user: User | undefined,
@@ -319,9 +320,7 @@ export default function CalendarPage() {
     const { user } = useAuth();
     const api = useApi();
     const isFreeTier = useFreeTier();
-    const [canceled, setCanceled] = useState(
-        Boolean((useLocation().state as { canceled: boolean })?.canceled) || false,
-    );
+    const [canceled, setCanceled] = useState(false);
 
     const { events, putEvent, removeEvent, request } = useEvents();
 
@@ -591,8 +590,6 @@ export default function CalendarPage() {
             </Grid2>
 
             <CalendarTutorial />
-
-            <Outlet />
         </Container>
     );
 }

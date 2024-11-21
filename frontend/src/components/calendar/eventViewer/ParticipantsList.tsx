@@ -1,10 +1,10 @@
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
 
+import { useAuth } from '@/auth/Auth';
+import { Event } from '@/database/event';
+import Avatar from '@/profile/Avatar';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { Warning } from '@mui/icons-material';
-import { useAuth } from '../../auth/Auth';
-import { Event } from '../../database/event';
-import Avatar from '../../profile/Avatar';
-import CohortIcon from '../../scoreboard/CohortIcon';
 
 interface ParticipantsListProps {
     event: Event;

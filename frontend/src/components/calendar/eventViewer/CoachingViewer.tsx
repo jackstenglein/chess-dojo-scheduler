@@ -1,14 +1,15 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { Event, EventStatus } from '@/database/event';
+import { dojoCohorts } from '@/database/user';
+import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { LoadingButton } from '@mui/lab';
 import { Alert, Button, Stack, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import { Event, EventStatus } from '../../database/event';
-import { dojoCohorts } from '../../database/user';
-import Icon from '../../style/Icon';
+import RouterLink from 'next/link';
+import { useRouter } from 'next/navigation';
 import Field from './Field';
 import OwnerField from './OwnerField';
 import ParticipantsList from './ParticipantsList';
@@ -22,7 +23,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
     const api = useApi();
     const request = useRequest();
     const user = useAuth().user;
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const event = processedEvent.event as Event;
     if (!event.coaching) {
@@ -31,7 +32,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
     const onBook = () => {
         if (!user) {
-            navigate('/signup');
+            router.push('/signup');
         }
 
         request.onStart();
@@ -107,8 +108,9 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             {isOwner || isParticipant ? (
                 <Button
+                    component={RouterLink}
                     variant='contained'
-                    onClick={() => navigate(`/meeting/${event.id}`)}
+                    href={`/meeting/${event.id}`}
                     color='success'
                     startIcon={<Icon name='eye' />}
                 >

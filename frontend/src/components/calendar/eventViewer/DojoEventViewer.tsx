@@ -1,6 +1,6 @@
+import { Event } from '@/database/event';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Stack } from '@mui/material';
-import { Event } from '../../database/event';
 import Field from './Field';
 
 interface DojoEventViewerProps {

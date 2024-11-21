@@ -1,5 +1,5 @@
+import Icon, { type IconName } from '@/style/Icon';
 import { Stack, Typography } from '@mui/material';
-import Icon, { type IconName } from '../../style/Icon';
 
 interface FieldProps {
     title?: string;

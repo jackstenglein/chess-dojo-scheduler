@@ -1,10 +1,10 @@
+import { AvailabilityType, Event, getDisplayString } from '@/database/event';
+import { dojoCohorts } from '@/database/user';
+import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Button, Stack } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AvailabilityType, Event, getDisplayString } from '../../database/event';
-import { dojoCohorts } from '../../database/user';
-import Icon from '../../style/Icon';
 import Field from './Field';
 import OwnerField from './OwnerField';
 
@@ -13,13 +13,13 @@ interface AvailabilityViewerProps {
 }
 
 const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const event = processedEvent.event as Event;
     const isOwner = processedEvent.isOwner as boolean;
 
     const startBooking = () => {
-        navigate(`/calendar/availability/${event.id}`);
+        router.push(`/calendar/availability/${event.id}`);
     };
 
     return (

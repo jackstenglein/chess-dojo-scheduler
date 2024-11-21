@@ -17,8 +17,6 @@ import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
 import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
-import CalendarPage from './calendar/CalendarPage';
-import EventBooker from './calendar/EventBooker';
 import EditGamePage from './games/edit/EditGamePage';
 import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
@@ -38,10 +36,6 @@ const router = createBrowserRouter(
                 <Route index element={<LandingPage />} />
 
                 <Route element={<RequireAuth />}>
-                    <Route path='calendar' element={<CalendarPage />}>
-                        <Route path='availability/:id' element={<EventBooker />} />
-                    </Route>
-
                     <Route path='games'>
                         <Route index element={<ListGamesPage />} />
                         <Route path='import' element={<ImportGamePage />} />

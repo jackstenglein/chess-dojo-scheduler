@@ -1,14 +1,15 @@
+'use client';
+
+import { useCache } from '@/api/cache/Cache';
+import { EventType } from '@/database/event';
+import LoadingPage from '@/loading/LoadingPage';
 import { Alert, Snackbar } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useCache } from '../api/cache/Cache';
-import { EventType } from '../database/event';
-import LoadingPage from '../loading/LoadingPage';
+import { useRouter } from 'next/navigation';
 import AvailabilityBooker from './AvailabilityBooker';
 import CoachingBooker from './CoachingBooker';
 
-const EventBooker = () => {
-    const navigate = useNavigate();
-    const { id } = useParams();
+const EventBooker = ({ id }: { id: string }) => {
+    const router = useRouter();
     const cache = useCache();
 
     const event = cache.events.get(id || '');
@@ -28,7 +29,7 @@ const EventBooker = () => {
                     variant='filled'
                     severity='error'
                     sx={{ width: '100%' }}
-                    onClose={() => navigate('/calendar')}
+                    onClose={() => router.push('/calendar')}
                 >
                     This event cannot be found. It is either fully booked, deleted or not
                     available to your cohort.

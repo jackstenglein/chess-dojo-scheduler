@@ -1,3 +1,18 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
+import { useCache } from '@/api/cache/Cache';
+import { useAuth } from '@/auth/Auth';
+import {
+    getTimeZonedDate,
+    toDojoDateString,
+    toDojoTimeString,
+} from '@/calendar/displayDate';
+import { AvailabilityType, Event, getDisplayString } from '@/database/event';
+import { TimeFormat } from '@/database/user';
+import Avatar from '@/profile/Avatar';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import Icon from '@/style/Icon';
 import { LoadingButton } from '@mui/lab';
 import {
     AppBar,
@@ -20,19 +35,8 @@ import { TransitionProps } from '@mui/material/transitions';
 import { TimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import React, { useEffect, useState } from 'react';
-import { EventType, trackEvent } from '../analytics/events';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { useCache } from '../api/cache/Cache';
-import { useAuth } from '../auth/Auth';
-import { AvailabilityType, Event, getDisplayString } from '../database/event';
-import { TimeFormat } from '../database/user';
-import Avatar from '../profile/Avatar';
-import CohortIcon from '../scoreboard/CohortIcon';
-import Icon from '../style/Icon';
-import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from './displayDate';
-import Field from './eventViewer/Field';
-import OwnerField from './eventViewer/OwnerField';
+import Field from '../eventViewer/Field';
+import OwnerField from '../eventViewer/OwnerField';
 
 export const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {

@@ -1,4 +1,12 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { displayPrice } from '@/app/(scoreboard)/courses/(list)/CourseListItem';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Event } from '@/database/event';
+import { TimeFormat, dojoCohorts } from '@/database/user';
+import Icon from '@/style/Icon';
 import { LoadingButton } from '@mui/lab';
 import {
     AppBar,
@@ -9,19 +17,11 @@ import {
     Toolbar,
     Typography,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { EventType, trackEvent } from '../analytics/events';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, RequestStatus, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
-import { Event } from '../database/event';
-import { TimeFormat, dojoCohorts } from '../database/user';
-import Icon from '../style/Icon';
+import RouterLink from 'next/link';
+import Field from '../eventViewer/Field';
+import OwnerField from '../eventViewer/OwnerField';
+import ParticipantsList from '../eventViewer/ParticipantsList';
 import { Transition } from './AvailabilityBooker';
-import { toDojoDateString, toDojoTimeString } from './displayDate';
-import Field from './eventViewer/Field';
-import OwnerField from './eventViewer/OwnerField';
-import ParticipantsList from './eventViewer/ParticipantsList';
 
 interface CoachingBookerProps {
     event: Event;
@@ -29,7 +29,6 @@ interface CoachingBookerProps {
 
 const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
     const user = useAuth().user;
-    const navigate = useNavigate();
     const request = useRequest();
     const api = useApi();
 
@@ -83,8 +82,9 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     </Typography>
                     <Button
                         data-cy='cancel-button'
+                        component={RouterLink}
                         color='error'
-                        onClick={() => navigate('/calendar')}
+                        href={'/calendar'}
                         disabled={request.status === RequestStatus.Loading}
                         startIcon={<Icon name='cancel' />}
                     >

@@ -1,8 +1,8 @@
+import { Event, getDisplayString } from '@/database/event';
+import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Button, Stack, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { Event, getDisplayString } from '../../database/event';
-import Icon from '../../style/Icon';
+import RouterLink from 'next/link';
 import Field from './Field';
 import ParticipantsList from './ParticipantsList';
 
@@ -13,7 +13,6 @@ interface MeetingViewerProps {
 }
 
 const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
-    const navigate = useNavigate();
     const event = processedEvent.event as Event;
 
     const participantsLength = Object.values(event.participants).length;
@@ -59,8 +58,9 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
             </Stack>
 
             <Button
+                component={RouterLink}
                 variant='contained'
-                onClick={() => navigate(`/meeting/${event.id}`)}
+                href={`/meeting/${event.id}`}
                 startIcon={<Icon name='eye' />}
             >
                 View Details
