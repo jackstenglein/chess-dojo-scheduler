@@ -14,8 +14,9 @@ export default function InfoPage() {
                         week. Because this is a short tournament, we ask that you only
                         register if you anticipate that you will be able to play most of
                         the rounds. If you do require a bye in a particular round, you
-                        will be able to submit your bye requests when registering. Please submit all of your bye requests when you register. Players
-                        are limited to 2 bye requests per tournament. 
+                        will be able to submit your bye requests when registering. Please
+                        submit all of your bye requests when you register. Players are
+                        limited to 2 bye requests per tournament.
                     </Typography>
 
                     <Typography>
@@ -68,10 +69,16 @@ export default function InfoPage() {
                         <li>U1800: 60+30</li>
                     </ul>
                     <Typography>
-                        Players may opt to play a different time control than the preferred one only if both players agree. If a time control is not agreed upon, the preferred time control will be used. If one player cannot agree to play the preferred time control they will forfeit the game.
+                        Players may opt to play a different time control than the
+                        preferred one only if both players agree. If a time control is not
+                        agreed upon, the preferred time control will be used. If one
+                        player cannot agree to play the preferred time control they will
+                        forfeit the game.
                     </Typography>
                     <Typography>
-                        Similarly, rated games are preferred, but unrated games are allowed if both players agree. If one player cannot agree to play a rated game they will forfeit the game.
+                        Similarly, rated games are preferred, but unrated games are
+                        allowed if both players agree. If one player cannot agree to play
+                        a rated game they will forfeit the game.
                     </Typography>
                 </Stack>
 
