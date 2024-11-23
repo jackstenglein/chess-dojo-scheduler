@@ -67,7 +67,7 @@ public class RegisterManager {
     public void pushPairingForRunningTournament(MongoCollection<Document> RRcollection, String pairings, String tournamentID) throws RoundRobinException{
         RRcollection.updateOne(
                 new Document("tournamentId", tournamentID),
-                Updates.set("pairings", pairings)
+                Updates.set("pairing-data", Parser.getPairingsInListFormat(pairings))
         );
     }
 
