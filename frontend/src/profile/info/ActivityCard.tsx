@@ -7,7 +7,7 @@ import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { Close } from '@mui/icons-material';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 import {
     Box,
     Card,
@@ -69,7 +69,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
         'activityHeatmap.field',
         'minutesSpent',
     );
-    const [maxPointsCount, setMaxPointsCount] = useState<number>(9);
+    const [maxPointsCount, setMaxPointsCount] = useState<number>(1);
     const [maxHoursCount, setMaxHoursCount] = useState<number>(4 * 60);
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
@@ -117,17 +117,10 @@ export const ActivityCard = ({ user }: { user: User }) => {
                         <TextField
                             size='small'
                             select
-                            value={view}
-                            onChange={(e) => setView(e.target.value as View)}
-                        >
-                            <MenuItem value='standard'>Standard</MenuItem>
-                            <MenuItem value='task'>Activity</MenuItem>
-                        </TextField>
-                        <TextField
-                            size='small'
-                            select
                             value={
-                                field === 'dojoPoints' ? maxPointsCount : maxHoursCount
+                                field === 'dojoPoints'
+                                    ? maxPointsCount
+                                    : maxHoursCount / 60
                             }
                             onChange={(e) =>
                                 field === 'dojoPoints'
@@ -135,20 +128,26 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                     : setMaxHoursCount(Number(e.target.value) * 60)
                             }
                         >
-                            {[1, 5, 10].map((value) => (
-                                <MenuItem key={value} value={value}>
-                                    {value} {field === 'dojoPoints' ? 'point' : 'hour'}
+                            {[1, 2, 3, 4].map((value) => (
+                                <MenuItem value={value}>
+                                    {value}{' '}
+                                    {field === 'dojoPoints'
+                                        ? 'point'
+                                        : value == 1
+                                          ? 'hour'
+                                          : 'hours'}
                                 </MenuItem>
                             ))}
                         </TextField>
-                        <IconButton
-                            color='primary'
-                            onClick={() => setIsModalOpen(true)}
-                            sx={{ mr: 2, ml: -1 }}
+                        <TextField
                             size='small'
+                            select
+                            value={view}
+                            onChange={(e) => setView(e.target.value as View)}
                         >
-                            <ZoomInIcon />
-                        </IconButton>
+                            <MenuItem value='standard'>Category</MenuItem>
+                            <MenuItem value='task'>All Tasks</MenuItem>
+                        </TextField>
                     </div>
                 }
             />
@@ -234,19 +233,10 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             <TextField
                                 size='small'
                                 select
-                                value={view}
-                                onChange={(e) => setView(e.target.value as View)}
-                            >
-                                <MenuItem value='standard'>Standard</MenuItem>
-                                <MenuItem value='task'>Activity</MenuItem>
-                            </TextField>
-                            <TextField
-                                size='small'
-                                select
                                 value={
                                     field === 'dojoPoints'
                                         ? maxPointsCount
-                                        : maxHoursCount
+                                        : maxHoursCount / 60
                                 }
                                 onChange={(e) =>
                                     field === 'dojoPoints'
@@ -254,12 +244,25 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                         : setMaxHoursCount(Number(e.target.value) * 60)
                                 }
                             >
-                                {[1, 5, 10].map((value) => (
+                                {[1, 2, 3, 4].map((value) => (
                                     <MenuItem key={value} value={value}>
                                         {value}{' '}
-                                        {field === 'dojoPoints' ? 'point' : 'hour'}
+                                        {field === 'dojoPoints'
+                                            ? 'point'
+                                            : value == 1
+                                              ? 'hour'
+                                              : 'hours'}
                                     </MenuItem>
                                 ))}
+                            </TextField>
+                            <TextField
+                                size='small'
+                                select
+                                value={view}
+                                onChange={(e) => setView(e.target.value as View)}
+                            >
+                                <MenuItem value='standard'>Category</MenuItem>
+                                <MenuItem value='task'>All Tasks</MenuItem>
                             </TextField>
                         </Box>
                         <IconButton
@@ -453,10 +456,29 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                     Classical Game Played
                                 </Typography>
                             </Stack>
+                            <IconButton
+                                color='primary'
+                                onClick={() => setIsModalOpen(true)}
+                                sx={{ mr: 0, ml: 5 }}
+                                size='small'
+                            >
+                                <ZoomOutMapIcon />
+                            </IconButton>
                         </Stack>
                     </Stack>
                 ) : (
-                    <Stack></Stack>
+                    <Stack>
+                        <Stack direction='row' alignItems='center' columnGap={4}>
+                            <IconButton
+                                color='primary'
+                                onClick={() => setIsModalOpen(true)}
+                                sx={{ mr: 0, ml: 40 }}
+                                size='small'
+                            >
+                                <ZoomOutMapIcon />
+                            </IconButton>
+                        </Stack>
+                    </Stack>
                 )}
             </CardContent>
         </Card>
