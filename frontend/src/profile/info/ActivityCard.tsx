@@ -129,11 +129,11 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             }
                         >
                             {[1, 2, 3, 4].map((value) => (
-                                <MenuItem value={value}>
+                                <MenuItem key={value} value={value}>
                                     {value}{' '}
                                     {field === 'dojoPoints'
                                         ? 'point'
-                                        : value == 1
+                                        : value === 1
                                           ? 'hour'
                                           : 'hours'}
                                 </MenuItem>
@@ -249,7 +249,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                         {value}{' '}
                                         {field === 'dojoPoints'
                                             ? 'point'
-                                            : value == 1
+                                            : value === 1
                                               ? 'hour'
                                               : 'hours'}
                                     </MenuItem>
