@@ -294,6 +294,8 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                         <MenuItem value='magenta'>Magenta</MenuItem>
                                         <MenuItem value='teal'>Teal</MenuItem>
                                         <MenuItem value='maroon'>Maroon</MenuItem>
+                                        <MenuItem value='blue'>Blue</MenuItem>
+                                        <MenuItem value='purple'>Purple</MenuItem>
                                     </TextField>
                                 </Tooltip>
                             ) : (

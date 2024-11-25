@@ -27,6 +27,8 @@ export const HeatmapColors: Record<string, string> = {
     magenta: '#FF00FF',
     teal: '#008080',
     maroon: '#800000',
+    blue: '#0287d4',
+    purple: '#6f02e3',
 };
 
 declare module '@mui/material/styles' {
