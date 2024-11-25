@@ -19,67 +19,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { BoardApi } from '../../../../Board';
 import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
 import { DefaultUnderboardTab, UnderboardApi } from '../Underboard';
-
-export const BoardKeyBindingsKey = 'boardKeyBindings';
-
-export enum ShortcutAction {
-    /** Go to the starting position of the game. */
-    FirstMove = 'FIRST_MOVE',
-
-    /** Go to the first move of the current variation. */
-    FirstMoveVariation = 'FIRST_MOVE_VARIATION',
-
-    /** Go to the move before the current move. */
-    PreviousMove = 'PREVIOUS_MOVE',
-
-    /** Go to the move after the current move. */
-    NextMove = 'NEXT_MOVE',
-
-    /** Go to the last move of the game. */
-    LastMove = 'LAST_MOVE',
-
-    /** Go to the last move of the current variation. */
-    LastMoveVariation = 'LAST_MOVE_VARIATION',
-
-    /** Toggle the orientation of the board. */
-    ToggleOrientation = 'TOGGLE_ORIENTATION',
-
-    /** Go to the first variation of the next move, or the next move if it has no variations. */
-    FirstVariation = 'FIRST_VARIATION',
-
-    /** Open the PGN tags tab. */
-    OpenTags = 'OPEN_TAGS',
-
-    /** Open the PGN editor tab, if present. */
-    OpenEditor = 'OPEN_EDITOR',
-
-    /** Open the comments tab. */
-    OpenComments = 'OPEN_COMMENTS',
-
-    /** Open the database explorer tab. */
-    OpenDatabase = 'OPEN_DATABASE',
-
-    /** Open the clock usage tab. */
-    OpenClocks = 'OPEN_CLOCKS',
-
-    /** Open the settings tab. */
-    OpenSettings = 'OPEN_SETTINGS',
-
-    /**
-     * Opens the editor tab and focuses the editor text field. If the editor tab is not present,
-     * the comment tab textfield is focused.
-     */
-    FocusMainTextField = 'FOCUS_MAIN_TEXTFIELD',
-
-    /** Opens the comments tab and focuses the text field. */
-    FocusCommentTextField = 'FOCUS_COMMENT_TEXTFIELD',
-
-    /** Unfocuses any currently-focused text field. */
-    UnfocusTextField = 'UNFOCUS_TEXTFIELD',
-
-    /** Inserts a null move. */
-    InsertNullMove = 'INSERT_NULL_MOVE',
-}
+import { KeyBinding, ShortcutAction, ShortcutBindings } from './ShortcutAction';
 
 /**
  * Returns a user-facing display string for the given ShortcutAction.
@@ -104,6 +44,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'First Move in Variation';
         case ShortcutAction.LastMoveVariation:
             return 'Last Move in Variation';
+        case ShortcutAction.OpenFiles:
+            return 'Open Files';
         case ShortcutAction.OpenTags:
             return 'Open Tags';
         case ShortcutAction.OpenEditor:
@@ -116,6 +58,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Open Clock Usage';
         case ShortcutAction.OpenSettings:
             return 'Open Settings';
+        case ShortcutAction.OpenShare:
+            return 'Open Share';
         case ShortcutAction.FocusMainTextField:
             return 'Focus Main Text Field';
         case ShortcutAction.FocusCommentTextField:
@@ -150,6 +94,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Go to the first move of the current variation.';
         case ShortcutAction.LastMoveVariation:
             return 'Go to the last move of the current variation.';
+        case ShortcutAction.OpenFiles:
+            return 'Open the Files tab.';
         case ShortcutAction.OpenTags:
             return 'Open the Tags tab.';
         case ShortcutAction.OpenEditor:
@@ -162,6 +108,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Open the Clock Usage tab.';
         case ShortcutAction.OpenSettings:
             return 'Open the Settings tab.';
+        case ShortcutAction.OpenShare:
+            return 'Open the Share tab.';
         case ShortcutAction.FocusMainTextField:
             return 'Open the Editor tab, if present, and focus the text field. If the Editor tab is not present, open the Comments tab and focus the text field.';
         case ShortcutAction.FocusCommentTextField:
@@ -184,38 +132,6 @@ function displayKey(key?: string): string | undefined {
     }
     return key;
 }
-
-interface KeyBinding {
-    /** The modifier key set on the key binding, or the empty string if none is set. */
-    modifier: string;
-
-    /** The key set on the key binding, or the empty string if none is set. */
-    key: string;
-}
-
-/**
- * The default key bindings to use if the user has not overridden anything.
- */
-export const defaultKeyBindings: Record<ShortcutAction, KeyBinding> = {
-    [ShortcutAction.FirstMove]: { modifier: '', key: '' },
-    [ShortcutAction.PreviousMove]: { modifier: '', key: 'ArrowLeft' },
-    [ShortcutAction.NextMove]: { modifier: '', key: 'ArrowRight' },
-    [ShortcutAction.LastMove]: { modifier: '', key: '' },
-    [ShortcutAction.ToggleOrientation]: { modifier: '', key: 'f' },
-    [ShortcutAction.FirstVariation]: { modifier: 'Shift', key: 'ArrowRight' },
-    [ShortcutAction.FirstMoveVariation]: { modifier: '', key: '' },
-    [ShortcutAction.LastMoveVariation]: { modifier: '', key: '' },
-    [ShortcutAction.OpenTags]: { modifier: '', key: '' },
-    [ShortcutAction.OpenEditor]: { modifier: '', key: '' },
-    [ShortcutAction.OpenComments]: { modifier: '', key: '' },
-    [ShortcutAction.OpenDatabase]: { modifier: '', key: '' },
-    [ShortcutAction.OpenClocks]: { modifier: '', key: '' },
-    [ShortcutAction.OpenSettings]: { modifier: '', key: '' },
-    [ShortcutAction.FocusMainTextField]: { modifier: '', key: '' },
-    [ShortcutAction.FocusCommentTextField]: { modifier: '', key: '' },
-    [ShortcutAction.UnfocusTextField]: { modifier: '', key: '' },
-    [ShortcutAction.InsertNullMove]: { modifier: '', key: '' },
-};
 
 /** The valid modifier keys. */
 export const modifierKeys = ['Shift', 'Control', 'Alt'];
@@ -369,57 +285,15 @@ function handleLastMoveVariation({ chess, reconcile }: ShortcutHandlerProps) {
 }
 
 /**
- * Handles opening the Tags tab in the underboard. This function is a no-op if opts
- * does not contain a valid underboardApi object.
- * @param opts The options to use.
+ * Returns a shortcut handler which opens the provided underboard tab. The handler
+ * is a no-op if opts does not contain a valid underboardApi object.
+ * @param tab The tab to open.
+ * @returns A shortcut handler which opens the given tab.
  */
-function handleOpenTags({ opts }: ShortcutHandlerProps) {
-    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Tags);
-}
-
-/**
- * Handles opening the Editor tab in the underboard. This function is a no-op if opts
- * does not contain a valid underboardApi object.
- * @param opts The options to use.
- */
-function handleOpenEditor({ opts }: ShortcutHandlerProps) {
-    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Editor);
-}
-
-/**
- * Handles opening the Comments tab in the underboard. This function is a no-op if opts
- * does not contain a valid underboardApi object.
- * @param opts The options to use.
- */
-function handleOpenComments({ opts }: ShortcutHandlerProps) {
-    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Comments);
-}
-
-/**
- * Handles opening the Database Explorer tab in the underboard. This function is a no-op if opts
- * does not contain a valid underboardApi object.
- * @param opts The options to use.
- */
-function handleOpenDatabase({ opts }: ShortcutHandlerProps) {
-    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Explorer);
-}
-
-/**
- * Handles opening the Clock Usage tab in the underboard. This function is a no-op if opts
- * does not contain a valid underboardApi object.
- * @param opts The options to use.
- */
-function handleOpenClocks({ opts }: ShortcutHandlerProps) {
-    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Clocks);
-}
-
-/**
- * Handles opening the Settings tab in the underboard. This function is a no-op if opts
- * does not contain a valid underboardApi object.
- * @param opts The options to use.
- */
-function handleOpenSettings({ opts }: ShortcutHandlerProps) {
-    opts?.underboardApi?.switchTab(DefaultUnderboardTab.Settings);
+function handleOpenTab(tab: DefaultUnderboardTab): ShortcutHandler {
+    return ({ opts }: ShortcutHandlerProps) => {
+        opts?.underboardApi?.switchTab(tab);
+    };
 }
 
 /**
@@ -482,12 +356,14 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.FirstVariation]: handleFirstVariation,
     [ShortcutAction.FirstMoveVariation]: handleFirstMoveVariation,
     [ShortcutAction.LastMoveVariation]: handleLastMoveVariation,
-    [ShortcutAction.OpenTags]: handleOpenTags,
-    [ShortcutAction.OpenEditor]: handleOpenEditor,
-    [ShortcutAction.OpenComments]: handleOpenComments,
-    [ShortcutAction.OpenDatabase]: handleOpenDatabase,
-    [ShortcutAction.OpenClocks]: handleOpenClocks,
-    [ShortcutAction.OpenSettings]: handleOpenSettings,
+    [ShortcutAction.OpenFiles]: handleOpenTab(DefaultUnderboardTab.Directories),
+    [ShortcutAction.OpenTags]: handleOpenTab(DefaultUnderboardTab.Tags),
+    [ShortcutAction.OpenEditor]: handleOpenTab(DefaultUnderboardTab.Editor),
+    [ShortcutAction.OpenComments]: handleOpenTab(DefaultUnderboardTab.Comments),
+    [ShortcutAction.OpenDatabase]: handleOpenTab(DefaultUnderboardTab.Explorer),
+    [ShortcutAction.OpenClocks]: handleOpenTab(DefaultUnderboardTab.Clocks),
+    [ShortcutAction.OpenSettings]: handleOpenTab(DefaultUnderboardTab.Settings),
+    [ShortcutAction.OpenShare]: handleOpenTab(DefaultUnderboardTab.Share),
     [ShortcutAction.FocusMainTextField]: handleFocusMainTextField,
     [ShortcutAction.FocusCommentTextField]: handleFocusCommentTextField,
     [ShortcutAction.UnfocusTextField]: handleUnfocusTextField,
@@ -511,7 +387,7 @@ export function matchAction(
     key = key.toLowerCase();
 
     for (const action of Object.values(ShortcutAction)) {
-        const binding = keyBindings[action] || defaultKeyBindings[action];
+        const binding = keyBindings[action] || ShortcutBindings.default[action];
 
         if (binding.key.toLowerCase() === key) {
             if (
@@ -543,8 +419,8 @@ export function matchAction(
  */
 const KeyboardShortcuts = () => {
     const [keyBindings, setKeyBindings] = useLocalStorage(
-        BoardKeyBindingsKey,
-        defaultKeyBindings,
+        ShortcutBindings.key,
+        ShortcutBindings.default,
     );
 
     const [editAction, setEditAction] = useState<ShortcutAction>();
@@ -578,7 +454,7 @@ const KeyboardShortcuts = () => {
         setKeyBindings({
             ...keyBindings,
             [action]: {
-                key: (keyBindings[action] || defaultKeyBindings[action]).key,
+                key: (keyBindings[action] || ShortcutBindings.default[action]).key,
                 modifier,
             },
         });
@@ -586,7 +462,7 @@ const KeyboardShortcuts = () => {
 
     const onOpenEditor = (action: ShortcutAction) => {
         setEditAction(action);
-        setEditKey((keyBindings[action] || defaultKeyBindings[action]).key);
+        setEditKey((keyBindings[action] || ShortcutBindings.default[action]).key);
     };
 
     const onCloseEditor = () => {
@@ -600,8 +476,9 @@ const KeyboardShortcuts = () => {
                 ...keyBindings,
                 [editAction]: {
                     key: editKey || '',
-                    modifier: (keyBindings[editAction] || defaultKeyBindings[editAction])
-                        .modifier,
+                    modifier: (
+                        keyBindings[editAction] || ShortcutBindings.default[editAction]
+                    ).modifier,
                 },
             });
         }
@@ -614,8 +491,9 @@ const KeyboardShortcuts = () => {
                 ...keyBindings,
                 [editAction]: {
                     key: '',
-                    modifier: (keyBindings[editAction] || defaultKeyBindings[editAction])
-                        .modifier,
+                    modifier: (
+                        keyBindings[editAction] || ShortcutBindings.default[editAction]
+                    ).modifier,
                 },
             });
         }
@@ -623,7 +501,7 @@ const KeyboardShortcuts = () => {
     };
 
     const onReset = () => {
-        setKeyBindings(defaultKeyBindings);
+        setKeyBindings(ShortcutBindings.default);
     };
 
     return (
@@ -644,7 +522,7 @@ const KeyboardShortcuts = () => {
                     <Typography textAlign='center'>Key</Typography>
                 </Grid2>
                 {Object.values(ShortcutAction).map((a) => {
-                    const binding = keyBindings[a] || defaultKeyBindings[a];
+                    const binding = keyBindings[a] || ShortcutBindings.default[a];
                     return (
                         <Fragment key={a}>
                             <Grid2 size={5}>
