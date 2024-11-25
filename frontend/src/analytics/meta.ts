@@ -7,3 +7,8 @@ function fbq(event: string, params?: object) {
 export function metaLead() {
     fbq('Lead');
 }
+
+/** Emits a Meta CompleteRegistration event. */
+export function metaCompleteRegistration() {
+    fbq('CompleteRegistration');
+}
