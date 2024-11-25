@@ -3,7 +3,7 @@ import { getTimeZonedDate } from '@/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
-import { CategoryColors } from '@/style/ThemeProvider';
+import { CategoryColors, HeatmapColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { Close } from '@mui/icons-material';
@@ -77,6 +77,10 @@ export const ActivityCard = ({ user }: { user: User }) => {
     const [, setCalendarRef] = useState<HTMLElement | null>(null);
     const [weekStartOn] = useLocalStorage<WeekDays>('calendarFilters.weekStartOn', 0);
     const [view, setView] = useLocalStorage<View>('activityHeatmap.view', 'standard');
+    const [singlecolor, setSingleColor] = useLocalStorage<string>(
+        'singlecolor.pick',
+        'yellow',
+    );
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { activities, totalCount, maxCount } = useMemo(() => {
@@ -102,52 +106,58 @@ export const ActivityCard = ({ user }: { user: User }) => {
             <CardHeader
                 title={
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <TextField
-                            size='small'
-                            select
-                            value={field}
-                            onChange={(e) =>
-                                setField(e.target.value as TimelineEntryField)
-                            }
-                            sx={{ ml: -0.6 }}
-                        >
-                            <MenuItem value='dojoPoints'>Dojo Points</MenuItem>
-                            <MenuItem value='minutesSpent'>Hours Worked</MenuItem>
-                        </TextField>
-                        <TextField
-                            size='small'
-                            select
-                            value={
-                                field === 'dojoPoints'
-                                    ? maxPointsCount
-                                    : maxHoursCount / 60
-                            }
-                            onChange={(e) =>
-                                field === 'dojoPoints'
-                                    ? setMaxPointsCount(Number(e.target.value))
-                                    : setMaxHoursCount(Number(e.target.value) * 60)
-                            }
-                        >
-                            {[1, 2, 3, 4].map((value) => (
-                                <MenuItem key={value} value={value}>
-                                    {value}{' '}
-                                    {field === 'dojoPoints'
-                                        ? 'point'
-                                        : value === 1
-                                          ? 'hour'
-                                          : 'hours'}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        <TextField
-                            size='small'
-                            select
-                            value={view}
-                            onChange={(e) => setView(e.target.value as View)}
-                        >
-                            <MenuItem value='standard'>Category</MenuItem>
-                            <MenuItem value='task'>All Tasks</MenuItem>
-                        </TextField>
+                        <Tooltip title='Work type' placement='top'>
+                            <TextField
+                                size='small'
+                                select
+                                value={field}
+                                onChange={(e) =>
+                                    setField(e.target.value as TimelineEntryField)
+                                }
+                                sx={{ ml: -0.6 }}
+                            >
+                                <MenuItem value='dojoPoints'>Dojo Points</MenuItem>
+                                <MenuItem value='minutesSpent'>Hours Worked</MenuItem>
+                            </TextField>
+                        </Tooltip>
+                        <Tooltip title='Goal levels per day' placement='top'>
+                            <TextField
+                                size='small'
+                                select
+                                value={
+                                    field === 'dojoPoints'
+                                        ? maxPointsCount
+                                        : maxHoursCount / 60
+                                }
+                                onChange={(e) =>
+                                    field === 'dojoPoints'
+                                        ? setMaxPointsCount(Number(e.target.value))
+                                        : setMaxHoursCount(Number(e.target.value) * 60)
+                                }
+                            >
+                                {[1, 2, 3, 4].map((value) => (
+                                    <MenuItem key={value} value={value}>
+                                        {value}{' '}
+                                        {field === 'dojoPoints'
+                                            ? 'point'
+                                            : value === 1
+                                              ? 'hour'
+                                              : 'hours'}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Tooltip>
+                        <Tooltip title='View mode' placement='top'>
+                            <TextField
+                                size='small'
+                                select
+                                value={view}
+                                onChange={(e) => setView(e.target.value as View)}
+                            >
+                                <MenuItem value='standard'>Classic</MenuItem>
+                                <MenuItem value='task'>Single</MenuItem>
+                            </TextField>
+                        </Tooltip>
                     </div>
                 }
             />
@@ -166,8 +176,8 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     ref={setCalendarRef}
                     colorScheme={isLight ? 'light' : 'dark'}
                     theme={{
-                        dark: ['#393939', '#F7941F'],
-                        light: ['#EBEDF0', '#F7941F'],
+                        dark: ['#393939', HeatmapColors[singlecolor]],
+                        light: ['#EBEDF0', HeatmapColors[singlecolor]],
                     }}
                     data={activities}
                     renderBlock={(block, activity) =>
@@ -204,7 +214,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
                     maxWidth={false}
                     sx={{
                         '& .MuiDialog-paper': {
-                            backgroundColor: '#000000',
+                            backgroundColor: isLight ? '#b0d9f7' : '#000000',
                             color: '#fff',
                             height: view === 'standard' ? '65vh' : '50vh',
                             width: '120vw',
@@ -218,52 +228,77 @@ export const ActivityCard = ({ user }: { user: User }) => {
                 >
                     <DialogTitle>
                         <Box sx={{ display: 'flex', gap: 3, alignItems: 'left' }}>
-                            <TextField
-                                size='small'
-                                select
-                                value={field}
-                                onChange={(e) =>
-                                    setField(e.target.value as TimelineEntryField)
-                                }
-                                sx={{ ml: -0.6 }}
-                            >
-                                <MenuItem value='dojoPoints'>Dojo Points</MenuItem>
-                                <MenuItem value='minutesSpent'>Hours Worked</MenuItem>
-                            </TextField>
-                            <TextField
-                                size='small'
-                                select
-                                value={
-                                    field === 'dojoPoints'
-                                        ? maxPointsCount
-                                        : maxHoursCount / 60
-                                }
-                                onChange={(e) =>
-                                    field === 'dojoPoints'
-                                        ? setMaxPointsCount(Number(e.target.value))
-                                        : setMaxHoursCount(Number(e.target.value) * 60)
-                                }
-                            >
-                                {[1, 2, 3, 4].map((value) => (
-                                    <MenuItem key={value} value={value}>
-                                        {value}{' '}
-                                        {field === 'dojoPoints'
-                                            ? 'point'
-                                            : value === 1
-                                              ? 'hour'
-                                              : 'hours'}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            <TextField
-                                size='small'
-                                select
-                                value={view}
-                                onChange={(e) => setView(e.target.value as View)}
-                            >
-                                <MenuItem value='standard'>Category</MenuItem>
-                                <MenuItem value='task'>All Tasks</MenuItem>
-                            </TextField>
+                            <Tooltip title='Work type' placement='top'>
+                                <TextField
+                                    size='small'
+                                    select
+                                    value={field}
+                                    onChange={(e) =>
+                                        setField(e.target.value as TimelineEntryField)
+                                    }
+                                    sx={{ ml: -0.6 }}
+                                >
+                                    <MenuItem value='dojoPoints'>Dojo Points</MenuItem>
+                                    <MenuItem value='minutesSpent'>Hours Worked</MenuItem>
+                                </TextField>
+                            </Tooltip>
+                            <Tooltip title='Goal levels per day' placement='top'>
+                                <TextField
+                                    size='small'
+                                    select
+                                    value={
+                                        field === 'dojoPoints'
+                                            ? maxPointsCount
+                                            : maxHoursCount / 60
+                                    }
+                                    onChange={(e) =>
+                                        field === 'dojoPoints'
+                                            ? setMaxPointsCount(Number(e.target.value))
+                                            : setMaxHoursCount(
+                                                  Number(e.target.value) * 60,
+                                              )
+                                    }
+                                >
+                                    {[1, 2, 3, 4].map((value) => (
+                                        <MenuItem key={value} value={value}>
+                                            {value}{' '}
+                                            {field === 'dojoPoints'
+                                                ? 'point'
+                                                : value === 1
+                                                  ? 'hour'
+                                                  : 'hours'}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Tooltip>
+                            <Tooltip title='View mode' placement='top'>
+                                <TextField
+                                    size='small'
+                                    select
+                                    value={view}
+                                    onChange={(e) => setView(e.target.value as View)}
+                                >
+                                    <MenuItem value='standard'>Classic</MenuItem>
+                                    <MenuItem value='task'>Single</MenuItem>
+                                </TextField>
+                            </Tooltip>
+                            {view !== 'standard' ? (
+                                <Tooltip title='Color picker' placement='top'>
+                                    <TextField
+                                        size='small'
+                                        select
+                                        value={singlecolor}
+                                        onChange={(e) => setSingleColor(e.target.value)}
+                                    >
+                                        <MenuItem value='yellow'>Yellow</MenuItem>
+                                        <MenuItem value='magenta'>Magenta</MenuItem>
+                                        <MenuItem value='teal'>Teal</MenuItem>
+                                        <MenuItem value='maroon'>Maroon</MenuItem>
+                                    </TextField>
+                                </Tooltip>
+                            ) : (
+                                ''
+                            )}
                         </Box>
                         <IconButton
                             aria-label='close'
@@ -300,8 +335,8 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                 ref={setCalendarRef}
                                 colorScheme={isLight ? 'light' : 'dark'}
                                 theme={{
-                                    dark: ['#393939', '#F7941F'],
-                                    light: ['#EBEDF0', '#F7941F'],
+                                    dark: ['#393939', HeatmapColors[singlecolor]],
+                                    light: ['#EBEDF0', HeatmapColors[singlecolor]],
                                 }}
                                 data={activities}
                                 renderBlock={(block, activity) =>
@@ -456,27 +491,31 @@ export const ActivityCard = ({ user }: { user: User }) => {
                                     Classical Game Played
                                 </Typography>
                             </Stack>
-                            <IconButton
-                                color='primary'
-                                onClick={() => setIsModalOpen(true)}
-                                sx={{ mr: 0, ml: 5 }}
-                                size='small'
-                            >
-                                <ZoomOutMapIcon />
-                            </IconButton>
+                            <Tooltip title='Pop out view'>
+                                <IconButton
+                                    color='primary'
+                                    onClick={() => setIsModalOpen(true)}
+                                    sx={{ mr: 0, ml: 5 }}
+                                    size='small'
+                                >
+                                    <ZoomOutMapIcon />
+                                </IconButton>
+                            </Tooltip>
                         </Stack>
                     </Stack>
                 ) : (
                     <Stack>
                         <Stack direction='row' alignItems='center' columnGap={4}>
-                            <IconButton
-                                color='primary'
-                                onClick={() => setIsModalOpen(true)}
-                                sx={{ mr: 0, ml: 40 }}
-                                size='small'
-                            >
-                                <ZoomOutMapIcon />
-                            </IconButton>
+                            <Tooltip title='Pop out view'>
+                                <IconButton
+                                    color='primary'
+                                    onClick={() => setIsModalOpen(true)}
+                                    sx={{ mr: 0, ml: 40 }}
+                                    size='small'
+                                >
+                                    <ZoomOutMapIcon />
+                                </IconButton>
+                            </Tooltip>
                         </Stack>
                     </Stack>
                 )}
