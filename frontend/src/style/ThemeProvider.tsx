@@ -22,8 +22,6 @@ export const CategoryColors: Record<RequirementCategory, string> = {
     [RequirementCategory.NonDojo]: '#dbdbdb',
 };
 
-
-
 declare module '@mui/material/styles' {
     interface Palette {
         opening: Palette['primary'];
