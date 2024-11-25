@@ -16,6 +16,7 @@ const gameImportType = z.enum([
     'manual',
     'startingPosition',
     'fen',
+    'clone',
 ]);
 
 /** The import type of a game. */
@@ -121,6 +122,13 @@ export const CreateGameSchema = z.discriminatedUnion('type', [
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.fen),
+        })
+        .merge(pgnTextSchema),
+
+    z
+        .object({
+            /** The import type of the game. */
+            type: z.literal(GameImportTypes.clone),
         })
         .merge(pgnTextSchema),
 ]);

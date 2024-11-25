@@ -1,13 +1,19 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { isGame } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
 import { useChess } from '@/board/pgn/PgnBoard';
 import { getConfig } from '@/config';
 import useGame from '@/context/useGame';
 import { Chess } from '@jackstenglein/chess';
+import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { PdfExportRequest } from '@jackstenglein/chess-dojo-common/src/pgn/export';
 import {
     Check,
     ContentPaste,
     Download,
+    FolderOutlined,
     Link,
     OpenInNew,
     PictureAsPdf,
@@ -78,6 +84,8 @@ export function ShareTab() {
     const { chess, board } = useChess();
     const { game } = useGame();
     const [copied, setCopied] = useState('');
+    const api = useApi();
+    const { user } = useAuth();
 
     const [boardStyle] = useLocalStorage<string>(BoardStyleKey, BoardStyle.Standard);
     const [pieceStyle] = useLocalStorage<string>(PieceStyleKey, PieceStyle.Standard);
@@ -114,7 +122,9 @@ export function ShareTab() {
         pgnExportOptions.plyBetweenDiagrams.key,
         pgnExportOptions.plyBetweenDiagrams.default,
     );
+
     const pdfRequest = useRequest();
+    const cloneRequest = useRequest();
 
     const onCopy = (name: string, value: string) => {
         copy(value);
@@ -199,9 +209,8 @@ export function ShareTab() {
         }
     };
 
-    const onCopyPgn = () => {
-        onCopy(
-            'pgn',
+    const renderPgn = () => {
+        return (
             chess?.renderPgn({
                 skipComments,
                 skipNags,
@@ -210,8 +219,12 @@ export function ShareTab() {
                 skipNullMoves,
                 skipHeader,
                 skipClocks,
-            }) || '',
+            }) || ''
         );
+    };
+
+    const onCopyPgn = () => {
+        onCopy('pgn', renderPgn());
     };
 
     const onDownloadPgn = () => {
@@ -219,15 +232,7 @@ export function ShareTab() {
             return;
         }
 
-        const pgn = chess.renderPgn({
-            skipComments,
-            skipNags,
-            skipDrawables,
-            skipVariations,
-            skipNullMoves,
-            skipHeader,
-            skipClocks,
-        });
+        const pgn = renderPgn();
         const white = getPlayer(chess, 'White', 'WhiteElo');
         const black = getPlayer(chess, 'Black', 'BlackElo');
 
@@ -280,10 +285,44 @@ export function ShareTab() {
         }
     };
 
+    const onCloneGame = () => {
+        if (!chess) {
+            return;
+        }
+
+        cloneRequest.onStart();
+        chess.setHeader('ClonedFrom', window.location.href);
+        const pgn = renderPgn();
+        chess.setHeader('ClonedFrom');
+
+        api.createGame({ pgnText: pgn, type: GameImportTypes.clone })
+            .then((resp) => {
+                if (isGame(resp.data)) {
+                    const urlSafeCohort = resp.data.cohort.replaceAll('+', '%2B');
+                    window
+                        .open(
+                            `${config.baseUrl}/games/${urlSafeCohort}/${resp.data.id}`,
+                            '_blank',
+                        )
+                        ?.focus();
+                    trackEvent(EventType.SubmitGame, {
+                        count: 1,
+                        method: GameImportTypes.clone,
+                    });
+                }
+                cloneRequest.onSuccess();
+            })
+            .catch((err) => {
+                console.error('createGame: ', err);
+                cloneRequest.onFailure(err);
+            });
+    };
+
     return (
         <CardContent>
             <Stack>
                 <RequestSnackbar request={pdfRequest} />
+                <RequestSnackbar request={cloneRequest} />
 
                 <Stack
                     direction='row'
@@ -292,6 +331,10 @@ export function ShareTab() {
                     mb={2}
                     justifyContent='center'
                 >
+                    <Button variant='contained' startIcon={<FolderOutlined />}>
+                        Add to Folder
+                    </Button>
+
                     <CopyButton
                         name='url'
                         startIcon={<Link />}
@@ -453,6 +496,16 @@ export function ShareTab() {
                     >
                         Download PDF
                     </LoadingButton>
+
+                    {user && (
+                        <LoadingButton
+                            variant='contained'
+                            loading={cloneRequest.isLoading()}
+                            onClick={onCloneGame}
+                        >
+                            Clone Game
+                        </LoadingButton>
+                    )}
                 </Stack>
             </Stack>
         </CardContent>
