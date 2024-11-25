@@ -22,14 +22,7 @@ export const CategoryColors: Record<RequirementCategory, string> = {
     [RequirementCategory.NonDojo]: '#dbdbdb',
 };
 
-export const HeatmapColors: Record<string, string> = {
-    yellow: '#f7941f',
-    magenta: '#FF00FF',
-    teal: '#008080',
-    maroon: '#800000',
-    blue: '#0287d4',
-    purple: '#6f02e3',
-};
+
 
 declare module '@mui/material/styles' {
     interface Palette {
