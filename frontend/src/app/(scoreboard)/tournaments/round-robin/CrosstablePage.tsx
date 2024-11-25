@@ -144,7 +144,7 @@ export const Crosstable = () => {
                                             {showLeaderboard[tournament.info]
                                                 ? 'Leaderboard'
                                                 : 'Crosstable'}{' '}
-                                            {tournament.players.length < 10
+                                            {tournament.players.length < 8
                                                 ? '[Registration Open]'
                                                 : '[Tournament Started]'}{' '}
                                             {'Size: '}
