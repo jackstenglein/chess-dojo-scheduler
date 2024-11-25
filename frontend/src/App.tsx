@@ -20,6 +20,7 @@ import { RequireAuth } from './auth/Auth';
 import CalendarPage from './calendar/CalendarPage';
 import EventBooker from './calendar/EventBooker';
 import CoachPortalPage from './coaching/coaches/CoachPortalPage';
+import { MUI_LICENSE_KEY } from './config';
 import { ExamLandingPage } from './exams/ExamLandingPage';
 import ExamInstructionsPage from './exams/instructions/ExamInstructionsPage';
 import { ListCheckmateExamsPage } from './exams/list/ListCheckmateExamsPage';
@@ -54,9 +55,7 @@ import SearchPage from './scoreboard/search/SeachPage';
 import StatisticsPage from './scoreboard/statistics/StatisticsPage';
 import { TutorialProvider } from './tutorial/TutorialContext';
 
-LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
-);
+LicenseInfo.setLicenseKey(MUI_LICENSE_KEY);
 
 const router = createBrowserRouter(
     createRoutesFromElements(
