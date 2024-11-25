@@ -28,6 +28,8 @@ export const EnvSchema = z.object({
     }),
     stripe: z.object({
         publishableKey: z.string(),
+        monthlyPriceId: z.string(),
+        yearlyPriceId: z.string(),
     }),
     baseUrl: z.string(),
     isBeta: z.boolean(),
@@ -59,6 +61,8 @@ export function getConfig(): Config {
         },
         stripe: {
             publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+            monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID,
+            yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID,
         },
         baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
         isBeta: process.env.NEXT_PUBLIC_IS_BETA === 'true',

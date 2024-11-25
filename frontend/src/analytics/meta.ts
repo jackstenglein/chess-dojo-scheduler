@@ -12,3 +12,16 @@ export function metaLead() {
 export function metaCompleteRegistration() {
     fbq('CompleteRegistration');
 }
+
+/** Emits a Meta InitiateCheckout event. */
+export function metaInitiateCheckout(
+    contentIds: string[],
+    currency: string,
+    value: number,
+) {
+    fbq('InitiateCheckout', {
+        content_ids: contentIds,
+        currency,
+        value,
+    });
+}
