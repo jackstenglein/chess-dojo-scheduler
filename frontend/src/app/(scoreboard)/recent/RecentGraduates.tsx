@@ -2,6 +2,7 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { MUI_LICENSE_KEY } from '@/config';
 import { Graduation } from '@/database/graduation';
 import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
@@ -19,9 +20,7 @@ import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-
 import { LicenseInfo } from '@mui/x-license';
 import { useEffect, useMemo, useState } from 'react';
 
-LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
-);
+LicenseInfo.setLicenseKey(MUI_LICENSE_KEY);
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];

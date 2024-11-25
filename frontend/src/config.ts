@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+export const MUI_LICENSE_KEY =
+    'b63a52d106bd196a9b02ba316e6e9673Tz0xMDE1MjMsRT0xNzYyNzMwMDQ1MDAwLFM9cHJvLExNPXN1YnNjcmlwdGlvbixQVj1RMy0yMDI0LEtWPTI=';
+
 export const EnvSchema = z.object({
     auth: z.object({
         region: z.literal('us-east-1'),
