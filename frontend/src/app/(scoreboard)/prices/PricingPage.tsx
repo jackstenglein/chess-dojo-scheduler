@@ -1,8 +1,10 @@
 'use client';
 
+import { metaInitiateCheckout } from '@/analytics/meta';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import { getConfig } from '@/config';
 import { SubscriptionStatus } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
@@ -10,6 +12,8 @@ import PriceMatrix from '@/upsell/PriceMatrix';
 import { Container, Grid2, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+
+const config = getConfig();
 
 interface PricingPageProps {
     onFreeTier?: () => void;
@@ -41,6 +45,13 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         setInterval(interval);
 
         request.onStart();
+        metaInitiateCheckout(
+            interval === 'month'
+                ? [config.stripe.monthlyPriceId]
+                : [config.stripe.yearlyPriceId],
+            'USD',
+            interval === 'month' ? 15 : 100,
+        );
         api.subscriptionCheckout({ interval, successUrl: redirect, cancelUrl: redirect })
             .then((resp) => {
                 window.location.href = resp.data.url;
