@@ -116,7 +116,7 @@ type PurchaseSubscriptionRequest struct {
 	CancelUrl  string `json:"cancelUrl"`
 }
 
-func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionRequest) (string, error) {
+func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionRequest, userAgent, ipAddress string) (string, error) {
 	var priceId string
 
 	if user == nil {
@@ -154,7 +154,9 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 		ClientReferenceID:   stripe.String(user.Username),
 		AllowPromotionCodes: stripe.Bool(true),
 		Metadata: map[string]string{
-			"type": string(CheckoutSessionType_Subscription),
+			"type":      string(CheckoutSessionType_Subscription),
+			"userAgent": userAgent,
+			"ipAddress": ipAddress,
 		},
 		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
 			TrialSettings: &stripe.CheckoutSessionSubscriptionDataTrialSettingsParams{
