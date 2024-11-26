@@ -1,7 +1,7 @@
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-resizable/css/styles.css';
 import { BoardApi, Chess } from '../Board';
 import KeyboardHandler from './KeyboardHandler';
@@ -53,7 +53,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
         setSizes(calcSizes());
     }, [setSizes, calcSizes]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         onWindowResize();
     }, [setSizes, calcSizes, onWindowResize]);
 
@@ -78,7 +78,7 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
     );
 
     if (!sizes) {
-        return <></>;
+        return null;
     }
 
     return (

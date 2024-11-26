@@ -1,5 +1,3 @@
-import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
-import useGame from '@/context/useGame';
 import { MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 
@@ -16,11 +14,8 @@ const EditorSettings = () => {
         ClockFieldFormat.SingleField,
     );
 
-    const { unsaved } = useGame();
-
     return (
         <Stack spacing={3}>
-            {unsaved && <UnsavedGameBanner />}
             <Typography variant='h5'>Editor Settings</Typography>
             <TextField
                 select

@@ -44,33 +44,36 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
 
     return (
         <>
-            {showBanner && <Alert
-                severity='warning'
-                variant='outlined'
-                action={
-                    <Box>
-                        {dismissable &&
-                            <Button onClick={() => setShowBanner(false)}>Dismiss</Button>
-                        }
-                        <Button onClick={() => setShowDialogue(true)}>Save</Button>
-                    </Box>
-                }
-                onClose={() => setShowBanner(false)}
-            >
-                <Stack direction='row' alignItems='center'>
-                    <Typography variant='body1'>
-                        Changes not saved
-                    </Typography>
-                </Stack>
-            </Alert>
-            }
-            {showDialogue && <SaveGameDialogue
-                open={showDialogue}
-                title='Create Game'
-                loading={request.isLoading()}
-                onSubmit={onSubmit}
-                onClose={() => setShowDialogue(false)}
-            />}
+            {showBanner && (
+                <Alert
+                    severity='warning'
+                    variant='outlined'
+                    action={
+                        <Box>
+                            {dismissable && (
+                                <Button onClick={() => setShowBanner(false)}>
+                                    Dismiss
+                                </Button>
+                            )}
+                            <Button onClick={() => setShowDialogue(true)}>Save</Button>
+                        </Box>
+                    }
+                    onClose={() => setShowBanner(false)}
+                >
+                    <Stack direction='row' alignItems='center'>
+                        <Typography variant='body1'>Analysis not saved</Typography>
+                    </Stack>
+                </Alert>
+            )}
+            {showDialogue && (
+                <SaveGameDialogue
+                    open={showDialogue}
+                    title='Create Game'
+                    loading={request.isLoading()}
+                    onSubmit={onSubmit}
+                    onClose={() => setShowDialogue(false)}
+                />
+            )}
             <RequestSnackbar request={request} />
         </>
     );

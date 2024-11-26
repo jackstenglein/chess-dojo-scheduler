@@ -46,11 +46,11 @@ export default function useSaveGame(): UseSaveGameFields {
 
         onCreateGame(createReq, data);
 
-        if (!isGame(data)) {
+        if (isGame(data)) {
+            request.onSuccess();
+        } else {
             request.onSuccess(`Created ${data.count} games`);
         }
-
-        request.onSuccess();
     };
 
     const updateGame = async (updateReq: UpdateGameRequest) => {
@@ -96,7 +96,7 @@ function onCreateGame(req: CreateGameRequest, data: Game | EditGameResponse) {
         let newUrl = `/games/${game.cohort.replaceAll('+', '%2B')}/${urlSafeId}`;
 
         if (req.directory) {
-            newUrl += `&directory=${req.directory.id}&directoryOwner=${req.directory.owner}`;
+            newUrl += `?directory=${req.directory.id}&directoryOwner=${req.directory.owner}`;
         }
 
         window.location.href = newUrl;
