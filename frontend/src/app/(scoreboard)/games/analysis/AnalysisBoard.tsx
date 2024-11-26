@@ -26,7 +26,7 @@ function parseCreateGameRequest(req: CreateGameRequest | null) {
     return { pgn: '1. a3 h6' };
 }
 
-export default function NewGameBoard() {
+export default function AnalysisBoard() {
     const { stagedCreateGame } = useSaveGame();
 
     const { pgn, fen } = parseCreateGameRequest(stagedCreateGame);

@@ -18,7 +18,7 @@ const ImportGamePage = () => {
 
         stageCreateGame(req);
 
-        window.location.href = '/games/new';
+        window.location.href = '/games/analysis';
     };
 
     return (
