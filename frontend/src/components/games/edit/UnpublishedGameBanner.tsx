@@ -2,23 +2,22 @@ import { toPgnDate } from '@/api/gameApi';
 import { RequestSnackbar } from '@/api/Request';
 import { useChess } from '@/board/pgn/PgnBoard';
 import useGame from '@/context/useGame';
-import { Game } from '@/database/game';
 import useSaveGame from '@/hooks/useSaveGame';
 import {
     GameImportTypes,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
-import { Alert, Button, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import SaveGameDialogue, { SaveGameForm } from './SaveGameDialogue';
 
 interface UnpublishedGameBannerProps {
-    game?: Game;
-    onSaveGame?: (g: Game) => void;
+    dismissable?: boolean;
 }
 
-export function UnpublishedGameBanner(_: UnpublishedGameBannerProps) {
+export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProps) {
     const [showDialogue, setShowDialogue] = useState<boolean>(false);
+    const [showBanner, setShowBanner] = useState<boolean>(true);
     const { game } = useGame();
     const { chess } = useChess();
     const { updateGame, request } = useSaveGame();
@@ -51,17 +50,26 @@ export function UnpublishedGameBanner(_: UnpublishedGameBannerProps) {
 
     return (
         <>
-            <Alert
-                severity='info'
-                variant='outlined'
-                action={<Button onClick={() => setShowDialogue(true)}>Publish</Button>}
-            >
-                <Stack direction='row' alignItems='center'>
-                    <Typography variant='body1'>
-                        This game is hidden. Publish or share its URL.
-                    </Typography>
-                </Stack>
-            </Alert>
+            {showBanner && (
+                <Alert
+                    severity='info'
+                    variant='outlined'
+                    action={
+                        <Box>
+                            {dismissable && (
+                                <Button onClick={() => setShowBanner(false)}>
+                                    Dismiss
+                                </Button>
+                            )}
+                            <Button onClick={() => setShowDialogue(true)}>Publish</Button>
+                        </Box>
+                    }
+                >
+                    <Stack direction='row' alignItems='center'>
+                        <Typography variant='body1'>This game is hidden.</Typography>
+                    </Stack>
+                </Alert>
+            )}
             <SaveGameDialogue
                 open={showDialogue}
                 title='Publish Game'

@@ -65,15 +65,13 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
                     </Stack>
                 </Alert>
             )}
-            {showDialogue && (
-                <SaveGameDialogue
-                    open={showDialogue}
-                    title='Create Game'
-                    loading={request.isLoading()}
-                    onSubmit={onSubmit}
-                    onClose={() => setShowDialogue(false)}
-                />
-            )}
+            <SaveGameDialogue
+                open={showDialogue}
+                title='Create Game'
+                loading={request.isLoading()}
+                onSubmit={onSubmit}
+                onClose={() => setShowDialogue(false)}
+            />
             <RequestSnackbar request={request} />
         </>
     );

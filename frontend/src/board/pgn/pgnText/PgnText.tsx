@@ -39,9 +39,11 @@ const PgnText = () => {
             variant={light ? 'outlined' : 'elevation'}
             sx={{ display: 'flex', flexDirection: 'column' }}
         >
-            {game && game.unlisted === true && <UnpublishedGameBanner />}
-            {unsaved && <UnsavedGameBanner dismissable/>}
-            {!config?.disableEngine && <EngineSection />}
+            <Stack spacing={1}>
+                {game && game.unlisted === true && <UnpublishedGameBanner dismissable />}
+                {unsaved && <UnsavedGameBanner dismissable />}
+                {!config?.disableEngine && <EngineSection />}
+            </Stack>
             <Stack
                 ref={ref}
                 sx={{ overflowY: 'scroll', overflowX: 'clip', flexGrow: 1, width: 1 }}
