@@ -30,7 +30,7 @@ export const ActivityCard = ({ user }: { user: User }) => {
         'minutesSpent',
     );
     const [maxPointsCount, setMaxPointsCount] = useState<number>(1);
-    const [maxHoursCount, setMaxHoursCount] = useState<number>(4 * 60);
+    const [maxHoursCount, setMaxHoursCount] = useState<number>(1 * 60);
     const { entries } = useTimeline(user.username);
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
