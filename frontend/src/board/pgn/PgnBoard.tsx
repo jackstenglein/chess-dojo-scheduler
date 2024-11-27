@@ -16,7 +16,7 @@ import React, {
 } from 'react';
 import { BoardApi } from '../Board';
 import ResizableContainer from './ResizableContainer';
-import { UnderboardTab } from './boardTools/underboard/Underboard';
+import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
 

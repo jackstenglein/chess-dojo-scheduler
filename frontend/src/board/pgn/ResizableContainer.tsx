@@ -6,10 +6,8 @@ import 'react-resizable/css/styles.css';
 import { BoardApi, Chess } from '../Board';
 import KeyboardHandler from './KeyboardHandler';
 import ResizableBoardArea from './ResizableBoardArea';
-import Underboard, {
-    UnderboardApi,
-    UnderboardTab,
-} from './boardTools/underboard/Underboard';
+import Underboard, { UnderboardApi } from './boardTools/underboard/Underboard';
+import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ResizablePgnText } from './pgnText/PgnText';
 import { getNewSizes, getSizes } from './resize';
 

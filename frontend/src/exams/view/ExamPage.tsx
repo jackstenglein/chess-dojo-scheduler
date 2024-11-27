@@ -1,3 +1,4 @@
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import { EventType } from '@jackstenglein/chess';
 import {
     Exam,
@@ -42,7 +43,6 @@ import PgnBoard, {
     useChess,
 } from '../../board/pgn/PgnBoard';
 import { useDebounce } from '../../board/pgn/boardTools/boardButtons/StatusIcon';
-import { DefaultUnderboardTab } from '../../board/pgn/boardTools/underboard/Underboard';
 import { ButtonProps as MoveButtonProps } from '../../board/pgn/pgnText/MoveButton';
 import { getCurrentRating, getNormalizedRating } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
