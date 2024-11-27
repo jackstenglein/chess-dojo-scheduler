@@ -35,30 +35,12 @@ import Settings from './settings/Settings';
 import { ShortcutAction, ShortcutBindings } from './settings/ShortcutAction';
 import { ShareTab } from './share/ShareTab';
 import Tags from './tags/Tags';
-
-export enum DefaultUnderboardTab {
-    Directories = 'directories',
-    Tags = 'tags',
-    Editor = 'editor',
-    Comments = 'comments',
-    Explorer = 'explorer',
-    Clocks = 'clocks',
-    Share = 'share',
-    Settings = 'settings',
-}
-
-export interface DefaultUnderboardTabInfo {
-    name: string;
-    tooltip: string;
-    icon: JSX.Element;
-    shortcut?: ShortcutAction;
-}
-
-export interface CustomUnderboardTab extends Omit<DefaultUnderboardTabInfo, 'shortcut'> {
-    element: JSX.Element;
-}
-
-export type UnderboardTab = DefaultUnderboardTab | CustomUnderboardTab;
+import {
+    CustomUnderboardTab,
+    DefaultUnderboardTab,
+    DefaultUnderboardTabInfo,
+    UnderboardTab,
+} from './underboardTabs';
 
 const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
     [DefaultUnderboardTab.Directories]: {
