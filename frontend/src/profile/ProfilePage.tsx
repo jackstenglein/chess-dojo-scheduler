@@ -28,13 +28,13 @@ import ClubsTab from './clubs/ClubsTab';
 import CoachTab from './coach/CoachTab';
 import { DirectoriesSection } from './directories/DirectoriesSection';
 import { DirectoryCacheProvider } from './directories/DirectoryCache';
-import { ActivityCard } from './info/ActivityCard';
 import { BadgeCard } from './info/BadgeCard';
 import Bio from './info/Bio';
 import CoachChip from './info/CoachChip';
 import CountChip from './info/CountChip';
 import CreatedAtChip from './info/CreatedAtChip';
 import DiscordChip from './info/DiscordChip';
+import { HeatmapCard } from './info/HeatmapCard';
 import InactiveChip from './info/InactiveChip';
 import { RatingsCard } from './info/RatingsCard';
 import TimezoneChip from './info/TimezoneChip';
@@ -317,7 +317,7 @@ const ProfilePage = () => {
             >
                 <Stack spacing={2}>
                     <RatingsCard user={user} />
-                    <ActivityCard user={user} />
+                    <HeatmapCard user={user} />
                     <BadgeCard user={user} />
                 </Stack>
             </Container>
