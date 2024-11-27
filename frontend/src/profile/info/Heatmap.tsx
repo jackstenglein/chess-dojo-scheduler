@@ -51,6 +51,9 @@ const VALID_CATEGORIES = [
     RequirementCategory.NonDojo,
 ];
 
+/** The color of the heatmap in monochrome color mode. */
+const MONOCHROME_COLOR = '#6f02e3';
+
 /**
  * Renders the Heatmap, including the options and legend, for the given timeline entries.
  */
@@ -64,18 +67,14 @@ export function Heatmap({
     onPopOut?: () => void;
 }) {
     const isLight = useLightMode();
-    const { field, colorMode, maxPoints, maxMinutes, weekStartOn } = useHeatmapOptions();
-    const [, setCalendarRef] = useState<HTMLElement | null>(null);
     const { user: viewer } = useAuth();
+    const [, setCalendarRef] = useState<HTMLElement | null>(null);
+    const { field, colorMode, maxPoints, maxMinutes, weekStartOn } = useHeatmapOptions();
+    const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
 
-    const { activities, totalCount, maxCount } = useMemo(() => {
-        return getActivity(
-            entries,
-            field,
-            field === 'dojoPoints' ? maxPoints : maxMinutes,
-            viewer,
-        );
-    }, [field, entries, viewer, maxPoints, maxMinutes]);
+    const { activities, totalCount } = useMemo(() => {
+        return getActivity(entries, field, viewer);
+    }, [field, entries, viewer]);
 
     useEffect(() => {
         const scroller = document.getElementsByClassName(
@@ -88,7 +87,7 @@ export function Heatmap({
 
     return (
         <Stack
-            width={1}
+            maxWidth={1}
             sx={{
                 '& .react-activity-calendar__scroll-container': {
                     paddingTop: '1px',
@@ -105,8 +104,8 @@ export function Heatmap({
                 ref={setCalendarRef}
                 colorScheme={isLight ? 'light' : 'dark'}
                 theme={{
-                    dark: ['#393939', '#6f02e3'],
-                    light: ['#EBEDF0', '#6f02e3'],
+                    dark: ['#393939', MONOCHROME_COLOR],
+                    light: ['#EBEDF0', MONOCHROME_COLOR],
                 }}
                 data={activities}
                 renderBlock={(block, activity) =>
@@ -115,6 +114,8 @@ export function Heatmap({
                             block={block}
                             activity={activity as Activity}
                             field={field}
+                            baseColor={isLight ? '#EBEDF0' : '#393939'}
+                            clamp={clamp}
                         />
                     ) : (
                         <Block
@@ -122,7 +123,7 @@ export function Heatmap({
                             activity={activity as Activity}
                             field={field}
                             baseColor={isLight ? '#EBEDF0' : '#393939'}
-                            clamp={field === 'dojoPoints' ? maxPoints : maxMinutes}
+                            clamp={clamp}
                         />
                     )
                 }
@@ -140,7 +141,7 @@ export function Heatmap({
                     <LegendTooltip
                         block={block}
                         level={level}
-                        maxCount={maxCount}
+                        clamp={clamp}
                         field={field}
                     />
                 )}
@@ -224,19 +225,16 @@ export function CategoryLegend() {
  * Gets a list of activities and the total count for the given parameters.
  * @param entries The timeline entries to extract data from.
  * @param field The field to extract from each timeline entry.
- * @param clamp The max value to use when calculating activity levels.
  * @param viewer The user viewing the site. Used for calculating timezones.
  * @returns A list of activities and the total count.
  */
 export function getActivity(
     entries: TimelineEntry[],
     field: TimelineEntryField,
-    clamp: number,
     viewer?: User,
-): { activities: Activity[]; totalCount: number; maxCount: number } {
+): { activities: Activity[]; totalCount: number } {
     const activities: Record<string, Activity> = {};
     let totalCount = 0;
-    let maxCount = 0;
 
     for (const entry of entries) {
         if (entry[field] < 0 || !VALID_CATEGORIES.includes(entry.requirementCategory)) {
@@ -269,10 +267,6 @@ export function getActivity(
                 (activity.categoryCounts[entry.requirementCategory] ?? 0) + entry[field];
         }
 
-        if (activity.count > maxCount) {
-            maxCount = activity.count;
-        }
-
         totalCount += entry[field];
         activities[dateStr] = activity;
     }
@@ -296,24 +290,11 @@ export function getActivity(
         };
     }
 
-    if (clamp) {
-        maxCount = Math.min(maxCount, clamp);
-    }
-
-    if (maxCount) {
-        for (const activity of Object.values(activities)) {
-            activity.level = Math.ceil(
-                Math.min(maxCount, activity.count) / (maxCount / MAX_LEVEL),
-            );
-        }
-    }
-
     return {
         activities: Object.values(activities).sort((lhs, rhs) =>
             lhs.date.localeCompare(rhs.date),
         ),
         totalCount,
-        maxCount,
     };
 }
 
@@ -403,17 +384,25 @@ function MonochromeBlock({
     block,
     activity,
     field,
+    baseColor,
+    clamp,
 }: {
     block: BlockElement;
     activity: Activity;
     field: TimelineEntryField;
+    baseColor: string;
+    clamp: number;
 }) {
+    const level = calculateLevel(activity.count, clamp);
+    const color = calculateColor([baseColor, MONOCHROME_COLOR], level);
+    const style = color ? { ...block.props.style, fill: color } : block.props.style;
+
     return (
         <Tooltip
             disableInteractive
             title={<BlockTooltip activity={activity} field={field} />}
         >
-            {block}
+            {cloneElement(block, { style })}
         </Tooltip>
     );
 }
@@ -516,23 +505,23 @@ function BlockTooltip({
  * Renders a tooltip for the legend.
  * @param block The block element of the legend.
  * @param level The level of the element.
- * @param maxCount The max count for the activity heatmap.
+ * @param clamp The max count for the activity heatmap.
  * @param field The field (dojo points/minutes) displayed by the heatmap.
  * @returns A tooltip wrapping the block.
  */
 function LegendTooltip({
     block,
     level,
-    maxCount,
+    clamp,
     field,
 }: {
     block: BlockElement;
     level: number;
-    maxCount: number;
+    clamp: number;
     field: TimelineEntryField;
 }) {
     let value = '';
-    const minValue = Math.max(0, (maxCount / (MAX_LEVEL - 1)) * (level - 1));
+    const minValue = Math.max(0, (clamp / (MAX_LEVEL - 1)) * (level - 1));
     if (field === 'minutesSpent') {
         value = formatTime(minValue);
     } else {
@@ -544,7 +533,7 @@ function LegendTooltip({
             value += ' Dojo points';
         }
     } else if (level < MAX_LEVEL) {
-        const maxValue = (maxCount / (MAX_LEVEL - 1)) * level;
+        const maxValue = (clamp / (MAX_LEVEL - 1)) * level;
         if (field === 'minutesSpent') {
             value += ` – ${formatTime(maxValue)}`;
         } else {
