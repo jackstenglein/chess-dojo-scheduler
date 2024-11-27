@@ -32,7 +32,7 @@ interface Activity extends BaseActivity {
 }
 
 const MAX_LEVEL = 4;
-const MIN_DATE = '2023-11-26';
+const MIN_DATE = '2024-01-01';
 
 /**
  * Classical game requirement ID used to render the classical game sword icon.
