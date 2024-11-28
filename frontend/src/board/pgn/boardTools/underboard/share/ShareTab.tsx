@@ -267,6 +267,20 @@ export function ShareTab() {
         );
     };
 
+    const renderLine = () => {
+        return (
+            chess?.renderLine(chess.currentMove(), {
+                skipComments,
+                skipNags,
+                skipDrawables,
+                skipVariations,
+                skipNullMoves,
+                skipHeader,
+                skipClocks,
+            }) || ''
+        );
+    };
+
     const onCopyPgn = () => {
         onCopy('pgn', renderPgn());
     };
@@ -327,6 +341,10 @@ export function ShareTab() {
             console.error('exportPgnPdf: ', err);
             pdfRequest.onFailure(err);
         }
+    };
+
+    const onCopyLine = () => {
+        onCopy('line', renderLine());
     };
 
     const onCloneGame = () => {
@@ -546,6 +564,15 @@ export function ShareTab() {
                     >
                         Download PDF
                     </LoadingButton>
+
+                    <CopyButton
+                        name='line'
+                        startIcon={<ContentPaste />}
+                        onClick={onCopyLine}
+                        copied={copied}
+                    >
+                        Copy Current Line
+                    </CopyButton>
 
                     {user && (
                         <LoadingButton
