@@ -4,8 +4,10 @@ import { isGame } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { useChess } from '@/board/pgn/PgnBoard';
+import { DirectorySelectButton } from '@/components/directories/select/DirectorySelectButton';
 import { getConfig } from '@/config';
 import useGame from '@/context/useGame';
+import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { Chess } from '@jackstenglein/chess';
 import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { PdfExportRequest } from '@jackstenglein/chess-dojo-common/src/pgn/export';
@@ -13,7 +15,6 @@ import {
     Check,
     ContentPaste,
     Download,
-    FolderOutlined,
     Link,
     OpenInNew,
     PictureAsPdf,
@@ -125,6 +126,49 @@ export function ShareTab() {
 
     const pdfRequest = useRequest();
     const cloneRequest = useRequest();
+    const addToFolderRequest = useRequest<string>();
+
+    const onAddToFolder = async (directory: { owner: string; id: string }) => {
+        if (!game) {
+            return true;
+        }
+
+        addToFolderRequest.onStart();
+
+        try {
+            const resp = await api.addDirectoryItems({
+                owner: directory.owner,
+                id: directory.id,
+                games: [
+                    {
+                        owner: game.owner,
+                        ownerDisplayName: game.ownerDisplayName,
+                        createdAt:
+                            game.createdAt ||
+                            game.date.replaceAll('.', '-') ||
+                            new Date().toISOString(),
+                        id: game.id,
+                        cohort: game.cohort,
+                        white: game.headers.White,
+                        black: game.headers.Black,
+                        whiteElo: game.headers.WhiteElo,
+                        blackElo: game.headers.BlackElo,
+                        result: game.headers.Result,
+                    },
+                ],
+            });
+            addToFolderRequest.onSuccess(`Game added to ${resp.data.directory.name}`);
+            trackEvent(EventType.AddDirectoryItems, {
+                count: 1,
+                method: 'share_tab_add_to_folder',
+            });
+            return true;
+        } catch (err) {
+            console.error('addDirectoryItems: ', err);
+            addToFolderRequest.onFailure(err);
+            return false;
+        }
+    };
 
     const onCopy = (name: string, value: string) => {
         copy(value);
@@ -323,6 +367,7 @@ export function ShareTab() {
             <Stack>
                 <RequestSnackbar request={pdfRequest} />
                 <RequestSnackbar request={cloneRequest} />
+                <RequestSnackbar request={addToFolderRequest} showSuccess />
 
                 <Stack
                     direction='row'
@@ -331,9 +376,14 @@ export function ShareTab() {
                     mb={2}
                     justifyContent='center'
                 >
-                    <Button variant='contained' startIcon={<FolderOutlined />}>
-                        Add to Folder
-                    </Button>
+                    {game && (
+                        <DirectoryCacheProvider>
+                            <DirectorySelectButton
+                                request={addToFolderRequest}
+                                onSelect={onAddToFolder}
+                            />
+                        </DirectoryCacheProvider>
+                    )}
 
                     <CopyButton
                         name='url'

@@ -195,6 +195,7 @@ export const UpdateGameSchema = z
         CreateGameSchema.options[6].omit({ directory: true }).merge(updateGame),
         CreateGameSchema.options[7].omit({ directory: true }).merge(updateGame),
         CreateGameSchema.options[8].omit({ directory: true }).merge(updateGame),
+        CreateGameSchema.options[9].omit({ directory: true }).merge(updateGame),
         z
             .object({
                 type: z.undefined(),
