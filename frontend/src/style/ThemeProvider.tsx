@@ -13,13 +13,13 @@ import { ReactNode, useEffect } from 'react';
 export const CategoryColors: Record<RequirementCategory, string> = {
     [RequirementCategory.SuggestedTasks]: '#c27ba0',
     [RequirementCategory.Welcome]: '#c27ba0',
-    [RequirementCategory.Games]: '#F7941F',
-    [RequirementCategory.Tactics]: '#6EC149',
-    [RequirementCategory.Middlegames]: '#5555FA',
-    [RequirementCategory.Endgame]: '#7B5AD1',
-    [RequirementCategory.Opening]: '#C34A4A',
-    [RequirementCategory.Graduation]: '#f44336',
-    [RequirementCategory.NonDojo]: '#cccccc',
+    [RequirementCategory.Games]: '#faa137',
+    [RequirementCategory.Tactics]: '#82e356',
+    [RequirementCategory.Middlegames]: '#5f5ffa',
+    [RequirementCategory.Endgame]: '#916af7',
+    [RequirementCategory.Opening]: '#f05b5b',
+    [RequirementCategory.Graduation]: '#fc6156',
+    [RequirementCategory.NonDojo]: '#dbdbdb',
 };
 
 declare module '@mui/material/styles' {

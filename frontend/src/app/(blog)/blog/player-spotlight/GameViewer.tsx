@@ -2,7 +2,7 @@
 
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
-import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
 import { MUI_LICENSE_KEY } from '@/config';
 import { GameContext } from '@/context/useGame';

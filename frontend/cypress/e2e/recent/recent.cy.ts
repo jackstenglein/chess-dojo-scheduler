@@ -34,7 +34,6 @@ describe('Graduations', () => {
             'New Cohort',
             'Dojo Score',
             'Date',
-            'Comments',
         ];
 
         cy.getBySel('recent-graduates-table')
