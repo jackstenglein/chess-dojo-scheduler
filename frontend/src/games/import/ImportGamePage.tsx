@@ -6,7 +6,7 @@ import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
     const searchParams = useSearchParams();
-    const { stageCreateGame, request } = useSaveGame();
+    const { setStagedGame, request } = useSaveGame();
 
     const onCreate = (req: CreateGameRequest) => {
         if (searchParams.has('directory') && searchParams.has('directoryOwner')) {
@@ -16,7 +16,7 @@ const ImportGamePage = () => {
             };
         }
 
-        stageCreateGame(req);
+        setStagedGame(req);
 
         window.location.href = '/games/analysis';
     };

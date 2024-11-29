@@ -17,16 +17,18 @@ const STAGED_CREATE_GAME_KEY = 'useSaveGame:stageCreateGame';
 export interface UseSaveGameFields {
     createGame: (req: CreateGameRequest) => Promise<void>;
     updateGame: (req: UpdateGameRequest) => Promise<void>;
-    stageCreateGame: (req: CreateGameRequest) => void;
-    stagedCreateGame: CreateGameRequest | null;
+    setStagedGame: (req: CreateGameRequest) => void;
+    stagedGame: CreateGameRequest | null;
     request: Request<string>;
 }
 
 export default function useSaveGame(): UseSaveGameFields {
     const api = useApi();
     const request = useRequest<string>();
-    const [stagedCreateGame, stageCreateGame] =
-        useSessionStorage<CreateGameRequest | null>(STAGED_CREATE_GAME_KEY, null);
+    const [stagedGame, setStagedGame] = useSessionStorage<CreateGameRequest | null>(
+        STAGED_CREATE_GAME_KEY,
+        null,
+    );
     const { game } = useGame();
 
     const createGame = async (createReq: CreateGameRequest) => {
@@ -76,8 +78,8 @@ export default function useSaveGame(): UseSaveGameFields {
     };
 
     return {
-        stagedCreateGame,
-        stageCreateGame,
+        setStagedGame,
+        stagedGame,
         createGame,
         updateGame,
         request,

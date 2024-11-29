@@ -16,7 +16,7 @@ interface UnsavedGameBannerProps {
 export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
     const [showDialogue, setShowDialogue] = useState<boolean>(false);
     const [showBanner, setShowBanner] = useState<boolean>(true);
-    const { createGame, stagedCreateGame, request } = useSaveGame();
+    const { createGame, stagedGame, request } = useSaveGame();
     const { chess } = useChess();
 
     const onSubmit = async (form: SaveGameForm) => {
@@ -30,7 +30,7 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
         chess.setHeader('Date', toPgnDate(form.date) ?? '???.??.??');
 
         const pgnText = chess.pgn.render();
-        const req: CreateGameRequest = stagedCreateGame ?? {
+        const req: CreateGameRequest = stagedGame ?? {
             pgnText,
             type: GameImportTypes.manual,
         };

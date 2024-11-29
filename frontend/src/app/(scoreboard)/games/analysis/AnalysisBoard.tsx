@@ -27,9 +27,9 @@ function parseCreateGameRequest(req: CreateGameRequest | null) {
 }
 
 export default function AnalysisBoard() {
-    const { stagedCreateGame } = useSaveGame();
+    const { stagedGame } = useSaveGame();
 
-    const { pgn, fen } = parseCreateGameRequest(stagedCreateGame);
+    const { pgn, fen } = parseCreateGameRequest(stagedGame);
 
     return (
         <PgnErrorBoundary pgn={pgn}>
