@@ -8,7 +8,7 @@
         "@aws-amplify/adapter-nextjs": "^1.2.30",
         "@dotenvx/dotenvx": "^1.21.1",
         "@emotion/cache": "^11.13.5",
-        "@emotion/react": "^11.13.3",
+        "@emotion/react": "^11.13.5",
         "@emotion/styled": "^11.13.5",
         "@fortawesome/fontawesome-free": "^6.7.1",
         "@fortawesome/fontawesome-svg-core": "^6.7.1",
