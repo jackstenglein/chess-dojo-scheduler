@@ -45,6 +45,7 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
 
         await updateGame(req).then(() => {
             setShowDialogue(false);
+            setShowBanner(false);
         });
     };
 
