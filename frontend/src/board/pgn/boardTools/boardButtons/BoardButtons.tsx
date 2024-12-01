@@ -39,7 +39,7 @@ const BoardButtons = ({
                 <StartButtons />
                 <ControlButtons />
                 {game && isGameOwner ? (
-                    <Stack direction='row' spacing={1}>
+                    <Stack direction='row'>
                         {underboardRef && (
                             <VisibilityIcon game={game} underboardRef={underboardRef} />
                         )}

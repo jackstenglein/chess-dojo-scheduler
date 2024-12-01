@@ -5,16 +5,12 @@ import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
-import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import {
     Box,
-    Card,
-    CardContent,
-    CardHeader,
+    Checkbox,
     Divider,
-    MenuItem,
+    FormControlLabel,
     Stack,
-    TextField,
     Tooltip,
     Typography,
 } from '@mui/material';
@@ -24,21 +20,28 @@ import {
     Activity as BaseActivity,
     BlockElement,
 } from 'react-activity-calendar';
-import { useLocalStorage } from 'usehooks-ts';
-import { useTimeline } from '../activity/useTimeline';
+import { GiCrossedSwords } from 'react-icons/gi';
+import { HeatmapOptions, TimelineEntryField, useHeatmapOptions } from './HeatmapOptions';
 
 interface Activity extends BaseActivity {
     /** The count of the activity by category. */
     categoryCounts?: Partial<Record<RequirementCategory, number>>;
+
+    /** Whether a classical game was played on this date. */
+    gamePlayed?: boolean;
 }
 
-type TimelineEntryField = 'dojoPoints' | 'minutesSpent';
-
 const MAX_LEVEL = 4;
-const MAX_POINTS_COUNT = 10;
-const MAX_HOURS_COUNT = 4 * 60;
 const MIN_DATE = '2024-01-01';
 
+/**
+ * Classical game requirement ID used to render the classical game sword icon.
+ */
+const CLASSICAL_GAMES_REQUIREMENT_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
+
+/**
+ * Valid categories for the heatmap to render.
+ */
 const VALID_CATEGORIES = [
     RequirementCategory.Games,
     RequirementCategory.Tactics,
@@ -48,28 +51,29 @@ const VALID_CATEGORIES = [
     RequirementCategory.NonDojo,
 ];
 
+/** The color of the heatmap in monochrome color mode. */
+const MONOCHROME_COLOR = '#6f02e3';
+
 /**
- * Renders a card showing the user's activity heatmap.
- * @param user The user whose activity will be displayed in the heatmap.
+ * Renders the Heatmap, including the options and legend, for the given timeline entries.
  */
-export const ActivityCard = ({ user }: { user: User }) => {
-    const [field, setField] = useLocalStorage<TimelineEntryField>(
-        'activityHeatmap.field',
-        'minutesSpent',
-    );
-    const { entries } = useTimeline(user.username);
+export function Heatmap({
+    entries,
+    blockSize,
+    onPopOut,
+}: {
+    entries: TimelineEntry[];
+    blockSize?: number;
+    onPopOut?: () => void;
+}) {
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
     const [, setCalendarRef] = useState<HTMLElement | null>(null);
-    const [weekStartOn] = useLocalStorage<WeekDays>('calendarFilters.weekStartOn', 0);
+    const { field, colorMode, maxPoints, maxMinutes, weekStartOn } = useHeatmapOptions();
+    const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
 
-    const { activities, totalCount, maxCount } = useMemo(() => {
-        return getActivity(
-            entries,
-            field,
-            field === 'dojoPoints' ? MAX_POINTS_COUNT : MAX_HOURS_COUNT,
-            viewer,
-        );
+    const { activities, totalCount } = useMemo(() => {
+        return getActivity(entries, field, viewer);
     }, [field, entries, viewer]);
 
     useEffect(() => {
@@ -82,66 +86,95 @@ export const ActivityCard = ({ user }: { user: User }) => {
     });
 
     return (
-        <Card>
-            <CardHeader
-                title={
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <TextField
-                            size='small'
-                            select
-                            value={field}
-                            onChange={(e) =>
-                                setField(e.target.value as TimelineEntryField)
-                            }
-                        >
-                            <MenuItem value='dojoPoints'>Dojo Points</MenuItem>
-                            <MenuItem value='minutesSpent'>Hours Worked</MenuItem>
-                        </TextField>
-                    </div>
-                }
-            />
-            <CardContent
-                sx={{
-                    '& .react-activity-calendar__scroll-container': {
-                        paddingTop: '1px',
-                        paddingBottom: '10px',
-                    },
-                    '& .react-activity-calendar__footer': {
-                        marginLeft: '0 !important',
-                    },
-                }}
-            >
-                <ActivityCalendar
-                    ref={setCalendarRef}
-                    colorScheme={isLight ? 'light' : 'dark'}
-                    theme={{
-                        dark: ['#393939', '#F7941F'],
-                        light: ['#EBEDF0', '#F7941F'],
-                    }}
-                    data={activities}
-                    renderBlock={(block, activity) =>
-                        renderBlock(
-                            block,
-                            activity as Activity,
-                            field,
-                            isLight ? '#EBEDF0' : '#393939',
-                        )
-                    }
-                    labels={{
-                        totalCount:
-                            field === 'dojoPoints'
-                                ? '{{count}} Dojo points in 2024'
-                                : `${formatTime(totalCount)} in 2024`,
-                    }}
-                    totalCount={Math.round(10 * totalCount) / 10}
-                    maxLevel={MAX_LEVEL}
-                    showWeekdayLabels
-                    weekStart={weekStartOn}
-                    renderColorLegend={(block, level) =>
-                        renderLegendTooltip(block, level, maxCount, field)
-                    }
-                />
+        <Stack
+            maxWidth={1}
+            sx={{
+                '& .react-activity-calendar__scroll-container': {
+                    paddingTop: '1px',
+                    paddingBottom: '10px',
+                },
+                '& .react-activity-calendar__footer': {
+                    marginLeft: '0 !important',
+                },
+            }}
+        >
+            <HeatmapOptions onPopOut={onPopOut} />
 
+            <ActivityCalendar
+                ref={setCalendarRef}
+                colorScheme={isLight ? 'light' : 'dark'}
+                theme={{
+                    dark: ['#393939', MONOCHROME_COLOR],
+                    light: ['#EBEDF0', MONOCHROME_COLOR],
+                }}
+                data={activities}
+                renderBlock={(block, activity) =>
+                    colorMode === 'monochrome' ? (
+                        <MonochromeBlock
+                            block={block}
+                            activity={activity as Activity}
+                            field={field}
+                            baseColor={isLight ? '#EBEDF0' : '#393939'}
+                            clamp={clamp}
+                        />
+                    ) : (
+                        <Block
+                            block={block}
+                            activity={activity as Activity}
+                            field={field}
+                            baseColor={isLight ? '#EBEDF0' : '#393939'}
+                            clamp={clamp}
+                        />
+                    )
+                }
+                labels={{
+                    totalCount:
+                        field === 'dojoPoints'
+                            ? '{{count}} Dojo points in 2024'
+                            : `${formatTime(totalCount)} in 2024`,
+                }}
+                totalCount={Math.round(10 * totalCount) / 10}
+                maxLevel={MAX_LEVEL}
+                showWeekdayLabels
+                weekStart={weekStartOn}
+                renderColorLegend={(block, level) => (
+                    <LegendTooltip
+                        block={block}
+                        level={level}
+                        clamp={clamp}
+                        field={field}
+                    />
+                )}
+                blockSize={blockSize}
+            />
+            <CategoryLegend />
+        </Stack>
+    );
+}
+
+/**
+ * Renders the legend for the heatmap categories.
+ */
+export function CategoryLegend() {
+    const { colorMode, setColorMode } = useHeatmapOptions();
+
+    return (
+        <Stack mt={0.5} alignItems='start'>
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        checked={colorMode === 'monochrome'}
+                        onChange={(e) =>
+                            setColorMode(e.target.checked ? 'monochrome' : 'standard')
+                        }
+                        sx={{ '& .MuiSvgIcon-root': { fontSize: '1rem' } }}
+                    />
+                }
+                label='Single Color Mode'
+                slotProps={{ typography: { variant: 'caption' } }}
+            />
+
+            {colorMode !== 'monochrome' && (
                 <Stack
                     direction='row'
                     flexWrap='wrap'
@@ -175,32 +208,36 @@ export const ActivityCard = ({ user }: { user: User }) => {
                             </Stack>
                         );
                     })}
+
+                    <Stack direction='row' alignItems='center' columnGap={0.5}>
+                        <GiCrossedSwords />
+                        <Typography variant='caption' pt='2px'>
+                            Classical Game Played
+                        </Typography>
+                    </Stack>
                 </Stack>
-            </CardContent>
-        </Card>
+            )}
+        </Stack>
     );
-};
+}
 
 /**
  * Gets a list of activities and the total count for the given parameters.
  * @param entries The timeline entries to extract data from.
  * @param field The field to extract from each timeline entry.
- * @param clamp The max value to use when calculating activity levels.
  * @param viewer The user viewing the site. Used for calculating timezones.
  * @returns A list of activities and the total count.
  */
-function getActivity(
+export function getActivity(
     entries: TimelineEntry[],
     field: TimelineEntryField,
-    clamp: number,
     viewer?: User,
-): { activities: Activity[]; totalCount: number; maxCount: number } {
+): { activities: Activity[]; totalCount: number } {
     const activities: Record<string, Activity> = {};
     let totalCount = 0;
-    let maxCount = 0;
 
     for (const entry of entries) {
-        if (entry[field] <= 0 || !VALID_CATEGORIES.includes(entry.requirementCategory)) {
+        if (entry[field] < 0 || !VALID_CATEGORIES.includes(entry.requirementCategory)) {
             continue;
         }
 
@@ -220,14 +257,14 @@ function getActivity(
             categoryCounts: {},
         };
 
+        if (entry.requirementId === CLASSICAL_GAMES_REQUIREMENT_ID) {
+            activity.gamePlayed = true;
+        }
+
         activity.count += entry[field];
         if (activity.categoryCounts) {
             activity.categoryCounts[entry.requirementCategory] =
                 (activity.categoryCounts[entry.requirementCategory] ?? 0) + entry[field];
-        }
-
-        if (activity.count > maxCount) {
-            maxCount = activity.count;
         }
 
         totalCount += entry[field];
@@ -253,24 +290,11 @@ function getActivity(
         };
     }
 
-    if (clamp) {
-        maxCount = Math.min(maxCount, clamp);
-    }
-
-    if (maxCount) {
-        for (const activity of Object.values(activities)) {
-            activity.level = Math.ceil(
-                Math.min(maxCount, activity.count) / (maxCount / MAX_LEVEL),
-            );
-        }
-    }
-
     return {
         activities: Object.values(activities).sort((lhs, rhs) =>
             lhs.date.localeCompare(rhs.date),
         ),
         totalCount,
-        maxCount,
     };
 }
 
@@ -280,19 +304,34 @@ function getActivity(
  * @param activity The activity associated with the block.
  * @param field The field (dojo points/minutes) being displayed.
  * @param baseColor The level 0 color.
+ * @param clamp The maximum count used for determining color level.
  * @returns A block representing the given activity.
  */
-function renderBlock(
-    block: BlockElement,
-    activity: Activity,
-    field: TimelineEntryField,
-    baseColor: string,
-) {
+function Block({
+    block,
+    activity,
+    field,
+    baseColor,
+    clamp,
+}: {
+    block: BlockElement;
+    activity: Activity;
+    field: TimelineEntryField;
+    baseColor: string;
+    clamp: number;
+}) {
     let maxCategory: RequirementCategory | undefined = undefined;
+    let totalCount = 0;
     let maxCount: number | undefined = undefined;
     let color: string | undefined = undefined;
 
-    for (const [category, count] of Object.entries(activity.categoryCounts ?? {})) {
+    for (const category of Object.values(RequirementCategory)) {
+        const count = activity.categoryCounts?.[category as RequirementCategory];
+        if (!count) {
+            continue;
+        }
+
+        totalCount += count;
         if (maxCount === undefined || count > maxCount) {
             maxCategory = category as RequirementCategory;
             maxCount = count;
@@ -300,21 +339,70 @@ function renderBlock(
     }
 
     if (maxCount && maxCategory) {
-        const level = calculateLevel(
-            maxCount,
-            field === 'dojoPoints' ? MAX_POINTS_COUNT : MAX_HOURS_COUNT,
-        );
+        const level = calculateLevel(totalCount, clamp);
         color = calculateColor([baseColor, CategoryColors[maxCategory]], level);
     }
 
     const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
     return (
+        <>
+            {activity.gamePlayed && (
+                <GiCrossedSwords
+                    x={block.props.x}
+                    y={block.props.y}
+                    width={block.props.width}
+                    height={block.props.height}
+                    fontSize={`${block.props.width}px`}
+                />
+            )}
+            <Tooltip
+                key={activity.date}
+                disableInteractive
+                title={<BlockTooltip activity={activity} field={field} />}
+            >
+                {cloneElement(block, {
+                    style: {
+                        ...newStyle,
+                        ...(activity.gamePlayed
+                            ? { fill: 'transparent', stroke: 'transparent' }
+                            : {}),
+                    },
+                })}
+            </Tooltip>
+        </>
+    );
+}
+
+/**
+ * Renders a block in the heatmap for the monochrome view.
+ * @param block The block to render, as passed from React Activity Calendar.
+ * @param activity The activity associated with the block.
+ * @param field The field (dojo points/minutes) being displayed.
+ * @returns A block representing the given activity.
+ */
+function MonochromeBlock({
+    block,
+    activity,
+    field,
+    baseColor,
+    clamp,
+}: {
+    block: BlockElement;
+    activity: Activity;
+    field: TimelineEntryField;
+    baseColor: string;
+    clamp: number;
+}) {
+    const level = calculateLevel(activity.count, clamp);
+    const color = calculateColor([baseColor, MONOCHROME_COLOR], level);
+    const style = color ? { ...block.props.style, fill: color } : block.props.style;
+
+    return (
         <Tooltip
-            key={activity.date}
             disableInteractive
-            title={renderTooltip(activity, field)}
+            title={<BlockTooltip activity={activity} field={field} />}
         >
-            {cloneElement(block, { style: newStyle })}
+            {cloneElement(block, { style })}
         </Tooltip>
     );
 }
@@ -326,21 +414,30 @@ function renderBlock(
  * @param maxCount The max count. Counts >= this value will return MAX_LEVEL.
  */
 function calculateLevel(count: number, maxCount: number): number {
-    for (let i = 1; i <= MAX_LEVEL; i++) {
-        if (count < (maxCount / MAX_LEVEL) * i) {
-            return i - 1;
+    if (count === 0) {
+        return 0;
+    }
+    for (let i = 1; i < MAX_LEVEL; i++) {
+        if (count < (maxCount / (MAX_LEVEL - 1)) * i) {
+            return i;
         }
     }
     return MAX_LEVEL;
 }
 
 /**
- * Renders a tooltip for the given activity and field.
- * @param activity The activity for the given date.
+ * Renders a tooltip for a heatmap block with the given activity and field.
+ * @param activity The activity for the given block.
  * @param field The field (dojo points/minutes) being displayed.
  * @returns A tooltip displaying the activity's breakdown by category.
  */
-function renderTooltip(activity: Activity, field: TimelineEntryField) {
+function BlockTooltip({
+    activity,
+    field,
+}: {
+    activity: Activity;
+    field: TimelineEntryField;
+}) {
     const categories = Object.entries(activity.categoryCounts ?? {}).sort(
         (lhs, rhs) => rhs[1] - lhs[1],
     );
@@ -353,6 +450,22 @@ function renderTooltip(activity: Activity, field: TimelineEntryField) {
                     : `${formatTime(activity.count)} on ${activity.date}`}
             </Typography>
             <Divider sx={{ width: 1 }} />
+            {activity.gamePlayed && (
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    columnGap='1rem'
+                    width={1}
+                >
+                    <Stack direction='row' alignItems='center' columnGap={0.5}>
+                        <GiCrossedSwords />
+                        <Typography variant='caption' pt='2px'>
+                            Classical Game Played
+                        </Typography>
+                    </Stack>
+                </Stack>
+            )}
             {categories.map(([category, count]) => (
                 <Stack
                     key={category}
@@ -392,30 +505,39 @@ function renderTooltip(activity: Activity, field: TimelineEntryField) {
  * Renders a tooltip for the legend.
  * @param block The block element of the legend.
  * @param level The level of the element.
- * @param maxCount The max count for the activity heatmap.
+ * @param clamp The max count for the activity heatmap.
  * @param field The field (dojo points/minutes) displayed by the heatmap.
  * @returns A tooltip wrapping the block.
  */
-function renderLegendTooltip(
-    block: BlockElement,
-    level: number,
-    maxCount: number,
-    field: TimelineEntryField,
-) {
+function LegendTooltip({
+    block,
+    level,
+    clamp,
+    field,
+}: {
+    block: BlockElement;
+    level: number;
+    clamp: number;
+    field: TimelineEntryField;
+}) {
     let value = '';
-    const minValue = (maxCount / MAX_LEVEL) * level;
+    const minValue = Math.max(0, (clamp / (MAX_LEVEL - 1)) * (level - 1));
     if (field === 'minutesSpent') {
         value = formatTime(minValue);
     } else {
-        value = `${minValue}`;
+        value = `${Math.round(minValue * 100) / 100}`;
     }
 
-    if (level < MAX_LEVEL) {
-        const maxValue = (maxCount / MAX_LEVEL) * (level + 1);
+    if (level === 0) {
+        if (field === 'dojoPoints') {
+            value += ' Dojo points';
+        }
+    } else if (level < MAX_LEVEL) {
+        const maxValue = (clamp / (MAX_LEVEL - 1)) * level;
         if (field === 'minutesSpent') {
             value += ` – ${formatTime(maxValue)}`;
         } else {
-            value += ` – ${maxValue} Dojo points`;
+            value += ` – ${Math.round(maxValue * 100) / 100} Dojo points`;
         }
     } else {
         value += '+';

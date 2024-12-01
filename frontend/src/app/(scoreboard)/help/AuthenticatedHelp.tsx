@@ -388,9 +388,9 @@ const AuthenticatedHelp = () => {
                         variant='outlined'
                         sx={{
                             position: 'sticky',
-                            top: 'calc(80px + 32px)',
+                            top: 'calc(var(--navbar-height) + 32px)',
                             overflowY: 'scroll',
-                            height: 'calc(100vh - 80px - 32px - 32px)',
+                            height: 'calc(100vh - var(--navbar-height) - 32px - 32px)',
                         }}
                     >
                         <CardHeader title='Table of Contents' />

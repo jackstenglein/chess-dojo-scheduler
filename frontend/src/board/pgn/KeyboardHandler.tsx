@@ -6,13 +6,14 @@ import { BlockBoardKeyboardShortcuts, useChess } from './PgnBoard';
 import VariationDialog from './VariationDialog';
 import { UnderboardApi } from './boardTools/underboard/Underboard';
 import {
-    BoardKeyBindingsKey,
-    ShortcutAction,
-    defaultKeyBindings,
     keyboardShortcutHandlers,
     matchAction,
     modifierKeys,
 } from './boardTools/underboard/settings/KeyboardShortcuts';
+import {
+    ShortcutAction,
+    ShortcutBindings,
+} from './boardTools/underboard/settings/ShortcutAction';
 import {
     VariationBehavior,
     VariationBehaviorKey,
@@ -30,7 +31,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
         VariationBehavior.Dialog,
     );
     const [variationDialogMove, setVariationDialogMove] = useState<Move | null>(null);
-    const [keyBindings] = useLocalStorage(BoardKeyBindingsKey, defaultKeyBindings);
+    const [keyBindings] = useLocalStorage(ShortcutBindings.key, ShortcutBindings.default);
 
     useEffect(() => {
         if (variationBehavior !== VariationBehavior.Dialog) {
@@ -43,6 +44,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                 EventType.NewVariation,
                 EventType.Initialized,
                 EventType.DeleteMove,
+                EventType.DeleteBeforeMove,
                 EventType.PromoteVariation,
             ],
             handler: () => setVariationDialogMove(null),

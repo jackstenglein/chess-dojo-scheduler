@@ -69,6 +69,7 @@ const Comments: React.FC<CommentsProps> = ({
                     EventType.LegalMove,
                     EventType.NewVariation,
                     EventType.DeleteMove,
+                    EventType.DeleteBeforeMove,
                     EventType.PromoteVariation,
                 ],
                 handler: () => {

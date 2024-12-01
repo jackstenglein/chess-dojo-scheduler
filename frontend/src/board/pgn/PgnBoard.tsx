@@ -17,8 +17,8 @@ import React, {
 import { useLocalStorage } from 'usehooks-ts';
 import { BoardApi } from '../Board';
 import ResizableContainer from './ResizableContainer';
-import { UnderboardTab } from './boardTools/underboard/Underboard';
 import { ShowMoveTimesInPgn } from './boardTools/underboard/settings/ViewerSettings';
+import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
 
@@ -27,6 +27,7 @@ export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
 interface ChessConfig {
     initKey?: string;
     allowMoveDeletion?: boolean;
+    allowDeleteBefore?: boolean;
     disableTakebacks?: Color | 'both';
     disableNullMoves?: boolean;
     disableEngine?: boolean;
@@ -82,6 +83,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             onInitialize: parentOnInitialize,
             initKey,
             allowMoveDeletion,
+            allowDeleteBefore,
             disableTakebacks,
             disableNullMoves: disableNullMovesProp,
             disableEngine,
@@ -115,6 +117,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 config: {
                     initKey,
                     allowMoveDeletion,
+                    allowDeleteBefore,
                     disableTakebacks,
                     disableEngine,
                     showMoveTimes,
@@ -128,6 +131,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 chess,
                 board,
                 allowMoveDeletion,
+                allowDeleteBefore,
                 orientation,
                 toggleOrientation,
                 keydownMap,
