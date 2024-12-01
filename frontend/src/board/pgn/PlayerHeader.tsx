@@ -1,5 +1,5 @@
 import { useLightMode } from '@/style/useLightMode';
-import { Event, EventType, Move, Pgn } from '@jackstenglein/chess';
+import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
 import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -219,7 +219,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                         </Typography>
                     )}
 
-                    <CapturedMaterial move={currentMove} color={color} />
+                    <CapturedMaterial chess={chess} move={currentMove} color={color} />
                 </Stack>
 
                 <Tooltip title={ClockTypeDescriptions[clockCommand]}>
@@ -289,20 +289,25 @@ function EmptyHeader({ type, light }: { type: string; light: boolean }) {
     );
 }
 
-const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
+const CapturedMaterial = ({
+    chess,
     move,
     color,
+}: {
+    chess: Chess;
+    move: Move | null;
+    color: 'w' | 'b';
 }) => {
     const [capturedMaterialBehavior] = useLocalStorage(
         CapturedMaterialBehaviorKey,
         CapturedMaterialBehavior.Difference,
     );
 
-    if (!move || capturedMaterialBehavior === CapturedMaterialBehavior.None) {
+    if (capturedMaterialBehavior === CapturedMaterialBehavior.None) {
         return null;
     }
 
-    const materialDifference = move.materialDifference;
+    const materialDifference = chess.materialDifference(move);
     let displayedMaterialDiff = '';
     if (color === 'w' && materialDifference > 0) {
         displayedMaterialDiff = `+${materialDifference}`;
@@ -312,7 +317,7 @@ const CapturedMaterial: React.FC<{ move: Move | null; color: 'w' | 'b' }> = ({
 
     const pieceTypes =
         color === 'w' ? ['p', 'n', 'b', 'r', 'q'] : ['P', 'N', 'B', 'R', 'Q'];
-    const capturedPieces = getCapturedPieceCounts(move.after);
+    const capturedPieces = getCapturedPieceCounts(move?.after || chess.setUpFen());
 
     if (capturedMaterialBehavior === CapturedMaterialBehavior.Difference) {
         const opposingPieceTypes =

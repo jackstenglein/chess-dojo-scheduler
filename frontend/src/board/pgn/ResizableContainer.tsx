@@ -6,19 +6,20 @@ import 'react-resizable/css/styles.css';
 import { BoardApi, Chess } from '../Board';
 import KeyboardHandler from './KeyboardHandler';
 import ResizableBoardArea from './ResizableBoardArea';
-import Underboard, {
-    UnderboardApi,
-    UnderboardTab,
-} from './boardTools/underboard/Underboard';
+import Underboard, { UnderboardApi } from './boardTools/underboard/Underboard';
+import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ResizablePgnText } from './pgnText/PgnText';
-import { getNewSizes, getSizes } from './resize';
+import { AreaSizes, getNewSizes, getSizes } from './resize';
 
 export const CONTAINER_ID = 'resize-container';
+
+function getParentWidth() {
+    return document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
+}
 
 interface ResizableContainerProps {
     underboardTabs: UnderboardTab[];
     initialUnderboardTab?: string;
-
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
@@ -38,38 +39,45 @@ const ResizableContainer: React.FC<ResizableContainerProps> = ({
     const underboardRef = useRef<UnderboardApi>(null);
     const showUnderboard = underboardTabs.length > 0;
 
-    const parentWidth =
-        document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
-    const [sizes, setSizes] = useState(
-        getSizes(parentWidth, showUnderboard, !showPlayerHeaders),
-    );
+    const [sizes, setSizes] = useState<AreaSizes | null>(null);
 
-    useEffect(() => {
-        setSizes(getSizes(parentWidth, showUnderboard, !showPlayerHeaders));
-    }, [parentWidth, setSizes, showUnderboard, showPlayerHeaders]);
+    const calcSizes = useCallback(() => {
+        const parentWidth = getParentWidth();
+
+        return getSizes(parentWidth, showUnderboard, !showPlayerHeaders);
+    }, [showUnderboard, showPlayerHeaders]);
 
     const onWindowResize = useCallback(() => {
-        const parentWidth =
-            document.getElementById(CONTAINER_ID)?.getBoundingClientRect().width || 0;
-        setSizes(getSizes(parentWidth, showUnderboard, !showPlayerHeaders));
-    }, [setSizes, showUnderboard, showPlayerHeaders]);
+        setSizes(calcSizes());
+    }, [setSizes, calcSizes]);
+
+    useEffect(() => {
+        onWindowResize();
+    }, [setSizes, calcSizes, onWindowResize]);
 
     useWindowSizeEffect(onWindowResize);
 
     const onResize = useCallback(
         (area: 'board' | 'underboard' | 'pgn') => (width: number, height: number) => {
-            setSizes((sizes) =>
-                getNewSizes(
+            setSizes((sizes) => {
+                if (!sizes) {
+                    sizes = calcSizes();
+                }
+                return getNewSizes(
                     {
                         ...sizes,
                         [area]: { ...sizes[area], width, height },
                     },
                     !showPlayerHeaders,
-                ),
-            );
+                );
+            });
         },
-        [setSizes, showPlayerHeaders],
+        [setSizes, calcSizes, showPlayerHeaders],
     );
+
+    if (!sizes) {
+        return null;
+    }
 
     return (
         <Stack

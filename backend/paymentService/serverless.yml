@@ -29,6 +29,10 @@ custom:
 functions:
   webhook:
     handler: webhook/main.go
+    environment:
+      metaPixelId: ${file(../meta-${sls:stage}.yml):pixelId}
+      metaAccessToken: ${file(../meta-${sls:stage}.yml):accessToken}
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
     events:
       - httpApi:
           path: /payment/webhook

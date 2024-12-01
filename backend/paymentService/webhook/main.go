@@ -13,6 +13,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/meta"
 	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService/secrets"
 	stripe "github.com/stripe/stripe-go/v76"
@@ -152,6 +153,11 @@ func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Res
 	if err != nil {
 		return api.Failure(err)
 	}
+
+	if err := meta.PurchaseEvent(checkoutSession); err != nil {
+		log.Errorf("Failed to log Meta event: %v", err)
+	}
+
 	return api.Success(nil)
 }
 

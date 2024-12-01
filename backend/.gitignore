@@ -4,6 +4,7 @@ discord.yml
 wix.yml
 tournament.yml
 openClassicalServiceAccountKey.json
+meta-*.yml
 
 # Data files
 subscribers.csv

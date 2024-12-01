@@ -1,3 +1,4 @@
+import { metaInitiateCheckout } from '@/analytics/meta';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { Course, CoursePurchaseOption } from '@/database/course';
@@ -31,6 +32,7 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({
         }
 
         request.onStart();
+        metaInitiateCheckout([course.id], 'USD', currentPrice);
         api.purchaseCourse(course.type, course.id, purchaseOption.name)
             .then((resp) => {
                 window.location.href = resp.data.url;

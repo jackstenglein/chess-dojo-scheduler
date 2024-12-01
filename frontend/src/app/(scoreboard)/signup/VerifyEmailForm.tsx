@@ -1,3 +1,4 @@
+import { metaCompleteRegistration } from '@/analytics/meta';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
@@ -40,7 +41,10 @@ export const VerifyEmailForm = ({
         submitRequest.onStart();
 
         auth.confirmSignup(username, code)
-            .then(() => auth.signin(email, password))
+            .then(() => {
+                metaCompleteRegistration();
+                return auth.signin(email, password);
+            })
             .catch((err: { message?: string; name?: string }) => {
                 console.dir(err);
                 if (err.message) {

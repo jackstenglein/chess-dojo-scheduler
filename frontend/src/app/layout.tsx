@@ -1,3 +1,4 @@
+import { MetaPixel } from '@/components/analytics/MetaPixel';
 import { getConfig } from '@/config';
 import { Metadata } from 'next';
 
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <link rel='manifest' href='/manifest.json' />
             </head>
             <body>
+                <MetaPixel />
                 <div id='root'>{children}</div>
             </body>
         </html>

@@ -37,7 +37,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(errors.New(400, "Invalid request: body could not be unmarshalled", "")), nil
 	}
 
-	url, err := payment.PurchaseSubscriptionUrl(user, &request)
+	url, err := payment.PurchaseSubscriptionUrl(user, &request, event.RequestContext.HTTP.UserAgent, event.RequestContext.HTTP.SourceIP)
 	if err != nil {
 		return api.Failure(err), nil
 	}

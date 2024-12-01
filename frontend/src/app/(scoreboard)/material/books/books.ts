@@ -664,9 +664,9 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3FuI0bR',
                     },
                     {
-                        title: 'Grandmaster Preparation: Calculation',
-                        author: 'Jacob Aagaard',
-                        link: 'https://amzn.to/3xVl6t3',
+                        title: 'Turbo Charge Your Tactics 1',
+                        author: ' Mykhaylo Oleksiyenko & Vladimir Grabinsky',
+                        link: 'https://www.amazon.com/Turbo-Charge-Your-Tactics-Drive-Improvement/dp/B0CPHYPGCQ',
                     },
                 ],
             },
@@ -684,9 +684,9 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3FuI0bR',
                     },
                     {
-                        title: 'Grandmaster Preparation: Calculation',
-                        author: 'Jacob Aagaard',
-                        link: 'https://amzn.to/3xVl6t3',
+                        title: 'Turbo Charge Your Tactics 1',
+                        author: ' Mykhaylo Oleksiyenko & Vladimir Grabinsky',
+                        link: 'https://www.amazon.com/Turbo-Charge-Your-Tactics-Drive-Improvement/dp/B0CPHYPGCQ',
                     },
                     {
                         title: 'Think Like a Super-GM',
@@ -729,6 +729,11 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
+                        title: 'Grandmaster Preparation: Calculation',
+                        author: 'Jacob Aagaard',
+                        link: 'https://amzn.to/3xVl6t3',
+                    },
+                    {
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
@@ -757,6 +762,11 @@ export const sections: BookSection[] = [
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Grandmaster Preparation: Calculation',
+                        author: 'Jacob Aagaard',
+                        link: 'https://amzn.to/3xVl6t3',
                     },
                     {
                         title: 'Think Like a Super-GM',
@@ -792,6 +802,11 @@ export const sections: BookSection[] = [
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
+                    },
+                    {
+                        title: 'Grandmaster Preparation: Calculation',
+                        author: 'Jacob Aagaard',
+                        link: 'https://amzn.to/3xVl6t3',
                     },
                     {
                         title: 'Think Like a Super-GM',
