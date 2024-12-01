@@ -146,7 +146,7 @@
         "happy-dom": "^15.7.4",
         "nodemon": "^3.1.7",
         "nyc": "^17.1.0",
-        "prettier": "^3.3.3",
+        "prettier": "^3.4.1",
         "prettier-plugin-organize-imports": "^3.2.4",
         "proper-lockfile": "^4.1.2",
         "swc-plugin-coverage-instrument": "^0.0.25",
