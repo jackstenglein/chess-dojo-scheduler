@@ -3,8 +3,6 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { isMissingData, parsePgnDate, toPgnDate } from '@/api/gameApi';
 import { useFreeTier } from '@/auth/Auth';
-import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
-import useGame from '@/context/useGame';
 import { Game, PgnHeaders } from '@/database/game';
 import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '@/games/view/DeleteGameButton';
@@ -41,7 +39,6 @@ interface GameSettingsProps {
 }
 
 const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
-    const { unsaved } = useGame();
     const isFreeTier = useFreeTier();
     const [visibility, setVisibility] = useState(
         game.unlisted ? 'unlisted' : 'published',
@@ -68,7 +65,6 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
     return (
         <Stack spacing={5} mt={1}>
-            {unsaved && <UnsavedGameBanner />}
             <AnnotationWarnings />
 
             <Stack spacing={3}>
