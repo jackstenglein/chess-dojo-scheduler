@@ -52,7 +52,7 @@
         "react-joyride": "^2.9.3",
         "react-markdown": "^9.0.1",
         "react-material-ui-carousel": "^3.4.2",
-        "react-minimal-pie-chart": "^8.4.0",
+        "react-minimal-pie-chart": "^8.4.1",
         "react-resizable": "^3.0.5",
         "react-router-dom": "^6.27.0",
         "react-tooltip": "^4.4.3",
