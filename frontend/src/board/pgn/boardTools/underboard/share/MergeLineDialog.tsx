@@ -7,6 +7,7 @@ import useGame from '@/context/useGame';
 import { GameInfo } from '@/database/game';
 import { usePagination } from '@/hooks/usePagination';
 import { usePgnExportOptions } from '@/hooks/usePgnExportOptions';
+import { Move } from '@jackstenglein/chess';
 import {
     PgnMergeType,
     PgnMergeTypes,
@@ -40,9 +41,11 @@ const mergeTypeLabels = {
 export function MergeLineDialog({
     open,
     onClose,
+    move,
 }: {
     open: boolean;
     onClose: () => void;
+    move?: Move;
 }) {
     const { chess } = useChess();
     const { game } = useGame();
@@ -80,7 +83,14 @@ export function MergeLineDialog({
         if (!chess || !cohort || !id) {
             return;
         }
-        const pgn = chess.renderLine(chess.currentMove(), {
+
+        const renderMove = move || chess.currentMove();
+        if (!renderMove) {
+            request.onFailure({ message: 'Cannot merge line from start position' });
+            return;
+        }
+
+        const pgn = chess.renderLine(move || chess.currentMove(), {
             skipVariations,
             skipNullMoves,
         });
@@ -112,6 +122,15 @@ export function MergeLineDialog({
         window.open(`/games/${cohort}/${id}`, '_blank');
     };
 
+    const handleClose = () => {
+        if (request.isLoading()) {
+            return;
+        }
+        onClose();
+        request.reset();
+        setSelectedRows([]);
+    };
+
     return (
         <>
             <RequestSnackbar request={request} />
@@ -135,12 +154,7 @@ export function MergeLineDialog({
                 }
             />
 
-            <Dialog
-                open={open}
-                onClose={request.isLoading() ? undefined : onClose}
-                fullWidth
-                maxWidth='md'
-            >
+            <Dialog open={open} onClose={handleClose} fullWidth maxWidth='md'>
                 <DialogTitle>Merge Current Line into Game?</DialogTitle>
                 <DialogContent>
                     <FormLabel>Export Options</FormLabel>
@@ -312,7 +326,7 @@ export function MergeLineDialog({
                     </FormGroup>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose} disabled={request.isLoading()}>
+                    <Button onClick={handleClose} disabled={request.isLoading()}>
                         Cancel
                     </Button>
                     <LoadingButton
