@@ -2,7 +2,7 @@ import { UnpublishedGameBanner } from '@/components/games/edit/UnpublishedGameBa
 import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
-import { Card, Stack } from '@mui/material';
+import { Box, Card, Stack } from '@mui/material';
 import React, { useMemo, useRef } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useChess } from '../PgnBoard';
@@ -40,8 +40,16 @@ const PgnText = () => {
             sx={{ display: 'flex', flexDirection: 'column' }}
         >
             <Stack spacing={1}>
-                {game && game.unlisted === true && <UnpublishedGameBanner dismissable />}
-                {unsaved && <UnsavedGameBanner dismissable />}
+                {game && game.unlisted === true && (
+                    <Box mb={1}>
+                        <UnpublishedGameBanner dismissable />
+                    </Box>
+                )}
+                {unsaved && (
+                    <Box mb={1}>
+                        <UnsavedGameBanner dismissable />
+                    </Box>
+                )}
                 {!config?.disableEngine && <EngineSection />}
             </Stack>
             <Stack
