@@ -7,6 +7,7 @@ import { useChess } from '@/board/pgn/PgnBoard';
 import { DirectorySelectButton } from '@/components/directories/select/DirectorySelectButton';
 import { getConfig } from '@/config';
 import useGame from '@/context/useGame';
+import { pgnExportOptions, usePgnExportOptions } from '@/hooks/usePgnExportOptions';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { Chess } from '@jackstenglein/chess';
 import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
@@ -16,6 +17,7 @@ import {
     ContentPaste,
     Download,
     Link,
+    Merge,
     OpenInNew,
     PictureAsPdf,
 } from '@mui/icons-material';
@@ -41,45 +43,9 @@ import {
     PieceStyle,
     PieceStyleKey,
 } from '../settings/ViewerSettings';
+import { MergeLineDialog } from './MergeLineDialog';
 
 const config = getConfig();
-
-const pgnExportOptions = {
-    skipComments: {
-        key: 'export-pgn/skip-comments',
-        default: false,
-    },
-    skipNags: {
-        key: 'export-pgn/skip-nags',
-        default: false,
-    },
-    skipDrawables: {
-        key: 'export-pgn/skip-drawables',
-        default: false,
-    },
-    skipVariations: {
-        key: 'export-pgn/skip-variations',
-        default: false,
-    },
-    skipNullMoves: {
-        key: 'export-pgn/skip-null-moves',
-        default: false,
-    },
-    skipHeader: {
-        key: 'export-pgn/skip-header',
-        default: false,
-    },
-    skipClocks: {
-        key: 'export-pgn/skip-clocks',
-        default: false,
-    },
-    plyBetweenDiagrams: {
-        key: 'export-pgn/ply-between-diagrams',
-        default: 20,
-        min: 8,
-        max: 40,
-    },
-} as const;
 
 export function ShareTab() {
     const { chess, board } = useChess();
@@ -91,38 +57,26 @@ export function ShareTab() {
     const [boardStyle] = useLocalStorage<string>(BoardStyleKey, BoardStyle.Standard);
     const [pieceStyle] = useLocalStorage<string>(PieceStyleKey, PieceStyle.Standard);
 
-    const [skipComments, setSkipComments] = useLocalStorage<boolean>(
-        pgnExportOptions.skipComments.key,
-        pgnExportOptions.skipComments.default,
-    );
-    const [skipNags, setSkipNags] = useLocalStorage<boolean>(
-        pgnExportOptions.skipNags.key,
-        pgnExportOptions.skipNags.default,
-    );
-    const [skipDrawables, setSkipDrawables] = useLocalStorage<boolean>(
-        pgnExportOptions.skipDrawables.key,
-        pgnExportOptions.skipDrawables.default,
-    );
-    const [skipVariations, setSkipVariations] = useLocalStorage<boolean>(
-        pgnExportOptions.skipVariations.key,
-        pgnExportOptions.skipVariations.default,
-    );
-    const [skipNullMoves, setSkipNullMoves] = useLocalStorage<boolean>(
-        pgnExportOptions.skipNullMoves.key,
-        pgnExportOptions.skipNullMoves.default,
-    );
-    const [skipHeader, setSkipHeader] = useLocalStorage<boolean>(
-        pgnExportOptions.skipHeader.key,
-        pgnExportOptions.skipHeader.default,
-    );
-    const [skipClocks, setSkipClocks] = useLocalStorage<boolean>(
-        pgnExportOptions.skipClocks.key,
-        pgnExportOptions.skipClocks.default,
-    );
-    const [plyBetweenDiagrams, setPlyBetweenDiagrams] = useLocalStorage<number>(
-        pgnExportOptions.plyBetweenDiagrams.key,
-        pgnExportOptions.plyBetweenDiagrams.default,
-    );
+    const [showMergeDialog, setShowMergeDialog] = useState(false);
+
+    const {
+        skipComments,
+        setSkipComments,
+        skipNags,
+        setSkipNags,
+        skipDrawables,
+        setSkipDrawables,
+        skipVariations,
+        setSkipVariations,
+        skipNullMoves,
+        setSkipNullMoves,
+        skipHeader,
+        setSkipHeader,
+        skipClocks,
+        setSkipClocks,
+        plyBetweenDiagrams,
+        setPlyBetweenDiagrams,
+    } = usePgnExportOptions();
 
     const pdfRequest = useRequest();
     const cloneRequest = useRequest();
@@ -574,6 +528,14 @@ export function ShareTab() {
                         Copy Current Line
                     </CopyButton>
 
+                    <LoadingButton
+                        variant='contained'
+                        startIcon={<Merge />}
+                        onClick={() => setShowMergeDialog(true)}
+                    >
+                        Merge Current Line
+                    </LoadingButton>
+
                     {user && (
                         <LoadingButton
                             variant='contained'
@@ -585,6 +547,11 @@ export function ShareTab() {
                     )}
                 </Stack>
             </Stack>
+
+            <MergeLineDialog
+                open={showMergeDialog}
+                onClose={() => setShowMergeDialog(false)}
+            />
         </CardContent>
     );
 }
