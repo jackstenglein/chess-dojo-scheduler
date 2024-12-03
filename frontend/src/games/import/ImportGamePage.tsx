@@ -6,9 +6,9 @@ import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
     const searchParams = useSearchParams();
-    const { setStagedGame, request } = useSaveGame();
+    const { setStagedGame, createGame, request } = useSaveGame();
 
-    const onCreate = (req: CreateGameRequest) => {
+    const onCreate = async (req: CreateGameRequest) => {
         if (searchParams.has('directory') && searchParams.has('directoryOwner')) {
             req.directory = {
                 owner: searchParams.get('directoryOwner') || '',
@@ -16,9 +16,12 @@ const ImportGamePage = () => {
             };
         }
 
-        setStagedGame(req);
-
-        window.location.href = '/games/analysis';
+        if (req.pgnText) {
+            setStagedGame(req);
+            window.location.href = '/games/analysis';
+        } else {
+            await createGame(req);
+        }
     };
 
     return (

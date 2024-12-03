@@ -19,11 +19,7 @@ function parseCreateGameRequest(req: CreateGameRequest | null) {
         return { pgn: req.pgnText };
     }
 
-    if (req.type === 'startingPosition') {
-        return { fen: FEN_STARTING };
-    }
-
-    return { pgn: '1. a3 h6' };
+    return { fen: FEN_STARTING };
 }
 
 export default function AnalysisBoard() {
