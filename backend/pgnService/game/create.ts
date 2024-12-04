@@ -15,6 +15,7 @@ import {
 import {
     CreateGameRequest,
     CreateGameSchema,
+    GameImportTypes,
     GameOrientation,
     GameOrientations,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
@@ -38,13 +39,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { getLichessChapter, getLichessGame, getLichessStudy, splitPgns } from './lichess';
-import {
-    Game,
-    GameImportHeaders,
-    GameImportType,
-    isValidDate,
-    isValidResult,
-} from './types';
+import { Game, GameImportHeaders, isValidDate, isValidResult } from './types';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const usersTable = process.env.stage + '-users';
@@ -177,24 +172,25 @@ export function getUserInfo(event: any): { username: string; email: string } {
  */
 export async function getPgnTexts(request: CreateGameRequest): Promise<string[]> {
     switch (request.type) {
-        case GameImportType.LichessChapter:
+        case GameImportTypes.lichessChapter:
             return [await getLichessChapter(request.url)];
-        case GameImportType.LichessGame:
+        case GameImportTypes.lichessGame:
             return request.pgnText
                 ? [request.pgnText]
                 : [await getLichessGame(request.url)];
-        case GameImportType.LichessStudy:
+        case GameImportTypes.lichessStudy:
             return await getLichessStudy(request.url);
-        case GameImportType.ChesscomGame:
+        case GameImportTypes.chesscomGame:
             return request.pgnText
                 ? [request.pgnText]
                 : [await getChesscomGame(request.url)];
-        case GameImportType.ChesscomAnalysis:
+        case GameImportTypes.chesscomAnalysis:
             return [await getChesscomAnalysis(request.url)];
 
-        case GameImportType.Editor:
-        case GameImportType.StartingPosition:
-        case GameImportType.Fen:
+        case GameImportTypes.editor:
+        case GameImportTypes.startingPosition:
+        case GameImportTypes.fen:
+        case GameImportTypes.clone:
             if (request.pgnText === undefined) {
                 throw new ApiError({
                     statusCode: 400,
@@ -204,7 +200,7 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
             }
             return [request.pgnText];
 
-        case GameImportType.Manual:
+        case GameImportTypes.manual:
             if (request.pgnText === undefined) {
                 throw new ApiError({
                     statusCode: 400,
@@ -214,11 +210,6 @@ export async function getPgnTexts(request: CreateGameRequest): Promise<string[]>
             }
             return splitPgns(request.pgnText).map(cleanupChessbasePgn);
     }
-
-    throw new ApiError({
-        statusCode: 400,
-        publicMessage: `Invalid request: type ${request.type} not supported`,
-    });
 }
 
 /**

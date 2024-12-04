@@ -16,7 +16,7 @@
         "@fortawesome/free-regular-svg-icons": "^6.7.1",
         "@fortawesome/free-solid-svg-icons": "^6.7.1",
         "@fortawesome/react-fontawesome": "^0.2.0",
-        "@jackstenglein/chess": "^2.2.7",
+        "@jackstenglein/chess": "^2.2.8",
         "@jackstenglein/chess-dojo-common": "file:../common",
         "@mui/base": "^5.0.0-beta.63",
         "@mui/icons-material": "^6.1.9",

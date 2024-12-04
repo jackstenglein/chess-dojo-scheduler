@@ -98,18 +98,6 @@ export interface GameUpdate {
     timelineId?: string;
 }
 
-export enum GameImportType {
-    LichessChapter = 'lichessChapter',
-    LichessStudy = 'lichessStudy',
-    LichessGame = 'lichessGame',
-    ChesscomGame = 'chesscomGame',
-    ChesscomAnalysis = 'chesscomAnalysis',
-    Editor = 'editor',
-    Manual = 'manual',
-    StartingPosition = 'startingPosition',
-    Fen = 'fen',
-}
-
 export interface GameImportHeaders {
     white: string;
     black: string;
