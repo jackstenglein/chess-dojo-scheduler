@@ -1,5 +1,5 @@
 import { User } from '@/database/user';
-import { useTimeline } from '@/profile/activity/useTimeline';
+import { useTimelineContext } from '@/profile/activity/useTimeline';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { Close } from '@mui/icons-material';
 import { Card, CardContent, Dialog, DialogContent, IconButton } from '@mui/material';
@@ -32,7 +32,7 @@ export function getBlockSize() {
  * @param user The user whose activity will be displayed in the heatmap.
  */
 export const HeatmapCard = ({ user }: { user: User }) => {
-    const { entries } = useTimeline(user.username);
+    const { entries } = useTimelineContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
 
