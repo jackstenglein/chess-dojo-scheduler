@@ -61,20 +61,13 @@ export default function useSaveGame(): UseSaveGameFields {
         }
 
         request.onStart();
-        let data: Game | EditGameResponse | undefined;
         try {
-            const response = await api.updateGame(game.cohort, game.id, updateReq);
-            data = response.data;
+            await api.updateGame(game.cohort, game.id, updateReq);
+            request.onSuccess();
         } catch (err) {
             console.error('updateGame ', err);
             request.onFailure(err);
         }
-
-        if (!data) {
-            return;
-        }
-
-        request.onSuccess();
     };
 
     return {
