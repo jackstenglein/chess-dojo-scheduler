@@ -16,7 +16,7 @@ const ImportGamePage = () => {
             };
         }
 
-        if (req.pgnText) {
+        if (req.pgnText || req.type === 'startingPosition') {
             setStagedGame(req);
             window.location.href = '/games/analysis';
         } else {
