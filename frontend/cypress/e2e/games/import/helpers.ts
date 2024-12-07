@@ -12,13 +12,6 @@ export function deleteCurrentGame() {
 }
 
 /**
- * Cancel the missing-data preflight
- */
-export function cancelPreflight() {
-    cy.getBySel('cancel-preflight').click();
-}
-
-/**
  * Verifies that the game currently open in the browser has the provided
  * attributes.
  * @param white The name of the player with white.

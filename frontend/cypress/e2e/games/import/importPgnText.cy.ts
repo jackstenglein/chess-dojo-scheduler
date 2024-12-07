@@ -1,5 +1,4 @@
 import {
-    cancelPreflight,
     clickImport,
     deleteCurrentGame,
     gameUrlRegex,
@@ -40,7 +39,6 @@ describe('Import Games Page - PGN Text', () => {
     it('submits from manual entry (headers only)', () => {
         cy.fixture<string>('games/pgns/headers-only.txt').then((pgn) => {
             importPgnText(pgn);
-            cancelPreflight();
             verifyGame({ white: 'bestieboots', black: 'test2' });
             deleteCurrentGame();
         });
@@ -49,7 +47,6 @@ describe('Import Games Page - PGN Text', () => {
     it('submits from manual entry (moves only)', () => {
         cy.fixture<string>('games/pgns/moves-only.txt').then((pgn) => {
             importPgnText(pgn);
-            cancelPreflight();
             verifyGame({ lastMove: 'a4' });
             deleteCurrentGame();
         });

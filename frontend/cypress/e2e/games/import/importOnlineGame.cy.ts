@@ -1,5 +1,4 @@
 import {
-    cancelPreflight,
     clickImport,
     deleteCurrentGame,
     gameUrlRegex,
@@ -88,7 +87,6 @@ describe('Import Games Page - Import Online Games', () => {
 
     it('submits from a Lichess chapter URL with missing headers successfully', () => {
         importUrl(testUrls.lichessChapterMissingData);
-        cancelPreflight();
         cy.tick(1000); // Necessary when using cy.clock with modals: https://stackoverflow.com/a/71974637
 
         verifyGame({
@@ -117,7 +115,6 @@ describe('Import Games Page - Import Online Games', () => {
         importUrl(testUrls.chesscomAnalysisA);
 
         // This particular analysis is missing headers
-        cancelPreflight();
         cy.tick(1000); // Necessary when using cy.clock with modals: https://stackoverflow.com/a/71974637
 
         verifyGame({
