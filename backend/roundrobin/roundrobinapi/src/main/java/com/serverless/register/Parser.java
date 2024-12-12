@@ -31,6 +31,27 @@ public class Parser {
         return roundsList;
     }
 
+    /**
+     * Split string list array list.
+     *
+     * @param input the input
+     * @return the array list
+     */
+    public static ArrayList<ArrayList<String>> splitStringList(List<String> input) {
+        ArrayList<ArrayList<String>> result = new ArrayList<>();
+
+        for (String s : input) {
+            // Split by comma and trim each element
+            String[] splitArray = s.split(",\\s*");
+
+            // Convert the array to an ArrayList and add it to the result list
+            ArrayList<String> splitList = new ArrayList<>(Arrays.asList(splitArray));
+            result.add(splitList);
+        }
+
+        return result;
+    }
+
 
 
 }

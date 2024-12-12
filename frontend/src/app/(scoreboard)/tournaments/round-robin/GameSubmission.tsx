@@ -25,8 +25,7 @@ import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
 import {
     cohorts,
     fetchTournamentData,
-    fetchTournamentIds,
-    TournamentData,
+    TournamentId,
 } from './roundRobinApi';
 
 /**
@@ -38,8 +37,8 @@ export const GameSubmission = () => {
         ROUND_ROBIN_COHORT_KEY,
         0,
     );
-    const [tournamentIds, setTournamentIds] = useState<string[]>([]);
-    const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
+    
+    const [tournamentData, setTournamentData] = useState<TournamentId>();
     const [loading, setLoading] = useState<boolean>(false);
     const displayIcon =
         selectedCohort !== 0 ? `${selectedCohort}-${selectedCohort + 100}` : '0-300';
@@ -51,26 +50,26 @@ export const GameSubmission = () => {
     useEffect(() => {
         if (selectedCohort !== 0) {
             setLoading(true);
-            fetchTournamentIds(selectedCohort)
-                .then(setTournamentIds)
+            fetchTournamentData(selectedCohort)
+                .then(setTournamentData)
                 .catch(console.error)
                 .finally(() => setLoading(false));
         }
     }, [selectedCohort]);
 
-    useEffect(() => {
-        if (tournamentIds.length > 0) {
-            setLoading(true);
-            setTournamentData([]);
-            Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
-                .then((data) => {
-                    console.log('Fetched Tournament Data:', data);
-                    setTournamentData((prevData) => [...prevData, ...data]);
-                })
-                .catch(console.error)
-                .finally(() => setLoading(false));
-        }
-    }, [tournamentIds]);
+    // useEffect(() => {
+    //     if (tournamentIds.length > 0) {
+    //         setLoading(true);
+    //         setTournamentData([]);
+    //         Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
+    //             .then((data) => {
+    //                 console.log('Fetched Tournament Data:', data);
+    //                 setTournamentData((prevData) => [...prevData, ...data]);
+    //             })
+    //             .catch(console.error)
+    //             .finally(() => setLoading(false));
+    //     }
+    // }, [tournamentIds]);
 
     const renderIcon = (url: string) => {
         if (url.includes('lichess')) {
@@ -120,9 +119,9 @@ export const GameSubmission = () => {
                 <Box display='flex' justifyContent='center' alignItems='center'>
                     <CircularProgress />
                 </Box>
-            ) : tournamentData.length > 0 ? (
+            ) : tournamentData?.tournaments !== undefined ? (
                 <Box sx={{ mb: 3 }}>
-                    {tournamentData.map((tournament, idx) => (
+                    {tournamentData?.tournaments.map((tournament, idx) => (
                         <TableContainer sx={{ mt: 2 }} component={Card} key={idx}>
                             <Table>
                                 <TableHead>
@@ -138,8 +137,8 @@ export const GameSubmission = () => {
                                                     tooltip=''
                                                     size={25}
                                                 />{' '}
-                                                {tournament.tournamentname} Game
-                                                Submissions
+                                                {tournament.name} Game
+                                                Submissions {tournament.gameSub.length} # Games played
                                             </Typography>
                                         </TableCell>
                                     </TableRow>

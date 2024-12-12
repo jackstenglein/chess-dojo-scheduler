@@ -26,8 +26,8 @@ import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
 import {
     cohorts,
     fetchTournamentData,
-    fetchTournamentIds,
     TournamentData,
+    TournamentId
 } from './roundRobinApi';
 
 /**
@@ -39,8 +39,7 @@ export const Crosstable = () => {
         ROUND_ROBIN_COHORT_KEY,
         0,
     );
-    const [tournamentIds, setTournamentIds] = useState<string[]>([]);
-    const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
+    const [tournamentData, setTournamentData] = useState<TournamentId>();
     const [loading, setLoading] = useState<boolean>(false);
     const [showLeaderboard, setShowLeaderboard] = useState<Record<string, boolean>>({});
     const displayIcon =
@@ -60,27 +59,27 @@ export const Crosstable = () => {
     useEffect(() => {
         if (selectedCohort !== 0) {
             setLoading(true);
-            fetchTournamentIds(selectedCohort)
-                .then(setTournamentIds)
+            fetchTournamentData(selectedCohort)
+                .then(setTournamentData)
                 .catch(console.error)
                 .finally(() => setLoading(false));
         }
     }, [selectedCohort]);
 
-    useEffect(() => {
-        if (tournamentIds.length > 0) {
-            setLoading(true);
-            setTournamentData([]);
-            Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
-                .then((data) => {
-                    setTournamentData((prevData) => [...prevData, ...data]);
-                })
-                .catch(console.error)
-                .finally(() => setLoading(false));
-        } else {
-            setTournamentData([]); // Reset if no tournament IDs
-        }
-    }, [tournamentIds]);
+    // useEffect(() => {
+    //     if (tournamentIds.length > 0) {
+    //         setLoading(true);
+    //         setTournamentData([]);
+    //         Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
+    //             .then((data) => {
+    //                 setTournamentData((prevData) => [...prevData, ...data]);
+    //             })
+    //             .catch(console.error)
+    //             .finally(() => setLoading(false));
+    //     } else {
+    //         setTournamentData([]); // Reset if no tournament IDs
+    //     }
+    // }, [tournamentIds]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -119,9 +118,9 @@ export const Crosstable = () => {
                 </Box>
             ) : (
                 <>
-                    {tournamentData.length > 0 ? (
+                    {tournamentData?.tournaments !== undefined ? (
                         <Box sx={{ mb: 3 }}>
-                            {tournamentData.map((tournament, idx) => (
+                            {tournamentData?.tournaments.map((tournament, idx) => (
                                 <Card key={idx} sx={{ mb: 4, p: 2 }}>
                                     <Box
                                         sx={{
@@ -140,8 +139,8 @@ export const Crosstable = () => {
                                                 tooltip=''
                                                 size={25}
                                             />{' '}
-                                            {tournament.tournamentname}{' '}
-                                            {showLeaderboard[tournament.info]
+                                            {tournament.name}{' '}
+                                            {showLeaderboard[tournament.id]
                                                 ? 'Leaderboard'
                                                 : 'Crosstable'}{' '}
                                             {tournament.players.length < 8
@@ -153,21 +152,21 @@ export const Crosstable = () => {
                                         <Button
                                             variant='contained'
                                             startIcon={
-                                                showLeaderboard[tournament.info] ? (
+                                                showLeaderboard[tournament.id] ? (
                                                     <TableChartIcon />
                                                 ) : (
                                                     <LeaderboardIcon />
                                                 )
                                             }
-                                            onClick={() => toggleView(tournament.info)}
+                                            onClick={() => toggleView(tournament.id)}
                                         >
-                                            {showLeaderboard[tournament.info]
+                                            {showLeaderboard[tournament.id]
                                                 ? 'Crosstable'
                                                 : 'Leaderboard'}
                                         </Button>
                                     </Box>
 
-                                    {showLeaderboard[tournament.info] ? (
+                                    {showLeaderboard[tournament.id] ? (
                                         tournament.leaderboard && tournament.scores ? (
                                             <TableContainer sx={{ mt: 2 }}>
                                                 <Table>
@@ -210,7 +209,7 @@ export const Crosstable = () => {
                                                 No leaderboard data available.
                                             </Typography>
                                         )
-                                    ) : tournament.crosstable && tournament.players ? (
+                                    ) : tournament.crosstabledata && tournament.players ? (
                                         <TableContainer sx={{ mt: 2 }}>
                                             <Table>
                                                 <TableHead>
@@ -226,7 +225,7 @@ export const Crosstable = () => {
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
-                                                    {tournament.crosstable.map(
+                                                    {tournament.crosstabledata.map(
                                                         (row, rowIndex) => (
                                                             <TableRow key={rowIndex}>
                                                                 <TableCell>

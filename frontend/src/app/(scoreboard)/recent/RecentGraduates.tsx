@@ -266,6 +266,7 @@ const RecentGraduates = () => {
                     columns={graduateTableColumns}
                     rows={graduations}
                     getRowId={(row: Graduation) => row.username}
+                    
                     getRowHeight={() => 'auto'}
                     sx={{
                         width: 1,

@@ -1,22 +1,21 @@
 import { getConfig } from '@/config';
 import axios from 'axios';
 
-/**
- * The Round Robin Info API response
- */
-export interface TournamentData {
-    info: string; // tournament id
-    tournamentname: string; // name
-    pairs: string[][]; // pairings
-    message: string; // success message
+export interface RoundRobinModel {
+    id: string; // tournament id
+    name: string; // name
+    pairingdata: string[][]; // pairings
     desc: string; // tournament desc
-    crosstable: string[][]; // raw crosstable data
+    crosstabledata: string[][]; // raw crosstable data
     crosstableString: string; // debugging crosstable string
     leaderboard: string[]; // leaderboard
     players: string[]; // players
     gameSub: string[]; // game submissions
-    statusCode: number; // status code
     scores: number[]; // leaderboard scores
+    tc: number; // time control
+    inc: number; // time increment 
+    fen: string; // fen
+    status: string; // tournament status
 }
 
 
@@ -27,8 +26,8 @@ interface RoundRobinApi{
 /**
  * The Round Robin Tournament ID API response
  */
-interface TournamentId {
-    ids: string[]; // list of tournament ids in string
+export interface TournamentId {
+    tournaments: RoundRobinModel[]; // list of tournament ids in string
     message: string; // success/error message
 }
 
@@ -60,38 +59,16 @@ export const cohorts = [
 const endpoint = getConfig().api.roundRobinUrl;
 
 /**
- * method to fetch tournament ids for given cohort start value
- * @param cohortValue int type of cohort value
- * @returns list of tournament ids
- */
-
-export const fetchTournamentIds = async (cohortValue: number): Promise<string[]> => {
-    try {
-        const response = await axios.get<TournamentId>(`${endpoint}/tournamentid`, {
-            params: {
-                'cohort-start': cohortValue,
-            },
-        });
-
-        const ids: string[] = response.data.ids;
-        return ids ?? [];
-    } catch (error) {
-        console.error('Error fetching tournament IDs:', error);
-        throw error;
-    }
-};
-
-/**
  * method to fetch round robin tournament data from given tournament id
  * @param id string tournament id
  * @returns tournamentData object
  */
 
-export const fetchTournamentData = async (id: string): Promise<TournamentData> => {
+export const fetchTournamentData = async (cohortValue: number): Promise<TournamentId> => {
     try {
-        const response = await axios.get<TournamentData>(`${endpoint}/info`, {
+        const response = await axios.get<TournamentId>(`${endpoint}/Prod/tournamentid`, {
             params: {
-                tournamentid: id,
+                'cohort-start': cohortValue,
             },
         });
 
