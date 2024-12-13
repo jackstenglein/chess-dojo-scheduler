@@ -9,15 +9,15 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
-import SaveGameDialogue, { SaveGameForm } from './SaveGameDialogue';
+import SaveGameDialog, { SaveGameForm } from './SaveGameDialog';
 
 interface UnpublishedGameBannerProps {
     dismissable?: boolean;
 }
 
 export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProps) {
-    const [showDialogue, setShowDialogue] = useState<boolean>(false);
-    const [showBanner, setShowBanner] = useState<boolean>(true);
+    const [showDialog, setShowDialog] = useState(false);
+    const [showBanner, setShowBanner] = useState(true);
     const { game } = useGame();
     const { chess } = useChess();
     const { updateGame, request } = useSaveGame();
@@ -44,7 +44,7 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
         };
 
         await updateGame(req).then(() => {
-            setShowDialogue(false);
+            setShowDialog(false);
             setShowBanner(false);
         });
     };
@@ -62,21 +62,23 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
                                     Dismiss
                                 </Button>
                             )}
-                            <Button onClick={() => setShowDialogue(true)}>Publish</Button>
+                            <Button onClick={() => setShowDialog(true)}>Publish</Button>
                         </Box>
                     }
                 >
                     <Stack direction='row' alignItems='center'>
-                        <Typography variant='body1'>This game is hidden.</Typography>
+                        <Typography variant='body1'>
+                            This game is not published
+                        </Typography>
                     </Stack>
                 </Alert>
             )}
-            <SaveGameDialogue
-                open={showDialogue}
+            <SaveGameDialog
+                open={showDialog}
                 title='Publish Game'
                 loading={request.isLoading()}
                 onSubmit={onSubmit}
-                onClose={() => setShowDialogue(false)}
+                onClose={() => setShowDialog(false)}
             />
             <RequestSnackbar request={request} />
         </>

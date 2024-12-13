@@ -8,14 +8,14 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
-import SaveGameDialogue, { SaveGameForm } from './SaveGameDialogue';
+import SaveGameDialog, { SaveGameForm } from './SaveGameDialog';
 
 interface UnsavedGameBannerProps {
     dismissable?: boolean;
 }
 export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
-    const [showDialogue, setShowDialogue] = useState<boolean>(false);
-    const [showBanner, setShowBanner] = useState<boolean>(true);
+    const [showDialog, setShowDialog] = useState(false);
+    const [showBanner, setShowBanner] = useState(true);
     const { createGame, stagedGame, request } = useSaveGame();
     const { chess } = useChess();
 
@@ -38,7 +38,7 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
         req.pgnText = pgnText;
 
         await createGame(req).then(() => {
-            setShowDialogue(false);
+            setShowDialog(false);
         });
     };
 
@@ -55,22 +55,22 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
                                     Dismiss
                                 </Button>
                             )}
-                            <Button onClick={() => setShowDialogue(true)}>Save</Button>
+                            <Button onClick={() => setShowDialog(true)}>Save</Button>
                         </Box>
                     }
-                    onClose={() => setShowBanner(false)}
                 >
                     <Stack direction='row' alignItems='center'>
-                        <Typography variant='body1'>Analysis not saved</Typography>
+                        <Typography>Analysis not saved</Typography>
                     </Stack>
                 </Alert>
             )}
-            <SaveGameDialogue
-                open={showDialogue}
-                title='Create Game'
+            <SaveGameDialog
+                open={showDialog}
+                title='Save Analysis'
                 loading={request.isLoading()}
                 onSubmit={onSubmit}
-                onClose={() => setShowDialogue(false)}
+                onClose={() => setShowDialog(false)}
+                skippable
             />
             <RequestSnackbar request={request} />
         </>

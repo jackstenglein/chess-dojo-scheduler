@@ -1,6 +1,7 @@
 import { parsePgnDate, stripTagValue } from '@/api/gameApi';
 import { useChess } from '@/board/pgn/PgnBoard';
-import { GameResult } from '@/database/game';
+import { GameResult, isGameResult } from '@/database/game';
+import { GameOrientations } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -38,30 +39,32 @@ export interface SaveGameForm {
     orientation: 'white' | 'black';
 }
 
-interface SaveGameDialogueProps {
+interface SaveGameDialogProps {
     children?: React.ReactNode;
     loading?: boolean;
+    skippable?: boolean;
     open: boolean;
     title: string;
     onClose: () => void;
     onSubmit: (details: SaveGameForm) => void;
 }
 
-export default function SaveGameDialogue({
+export default function SaveGameDialog({
     children,
     loading,
+    skippable,
     open,
     title,
     onClose,
     onSubmit,
-}: SaveGameDialogueProps) {
+}: SaveGameDialogProps) {
     const { chess, orientation: initialOrientation } = useChess();
 
     const [form, setForm] = useState<SaveGameForm>({
         white: '',
         black: '',
-        orientation: 'white',
-        result: '*',
+        orientation: GameOrientations.white,
+        result: '',
         date: null,
     });
     const [errors, setErrors] = useState<Partial<FormError>>({});
@@ -72,9 +75,9 @@ export default function SaveGameDialogue({
             ...oldForm,
             white: initialTags?.White ?? '',
             black: initialTags?.Black ?? '',
-            result: initialTags?.Result ?? '*',
+            result: initialTags?.Result ?? '',
             date: parsePgnDate(initialTags?.Date?.value),
-            orientation: initialOrientation ?? 'white',
+            orientation: initialOrientation ?? GameOrientations.white,
         }));
     }, [initialTags, initialOrientation]);
 
@@ -88,17 +91,21 @@ export default function SaveGameDialogue({
     const submit = () => {
         const newErrors: Partial<FormError> = {};
 
-        if (stripTagValue(form.white) === '') {
-            newErrors.white = 'This field is required';
-        }
-        if (stripTagValue(form.black) === '') {
-            newErrors.black = 'This field is required';
-        }
-        if (!form.result || form.result === GameResult.Incomplete) {
-            newErrors.result = 'This field is required';
-        }
-        if (!form.date?.isValid) {
-            newErrors.date = 'This field is required';
+        if (!skippable) {
+            if (stripTagValue(form.white) === '') {
+                newErrors.white = 'This field is required';
+            }
+            if (stripTagValue(form.black) === '') {
+                newErrors.black = 'This field is required';
+            }
+            if (!isGameResult(form.result)) {
+                newErrors.result = 'This field is required';
+            }
+            if (!form.date?.isValid) {
+                newErrors.date = 'This field is required';
+            }
+        } else if (form.date && !form.date.isValid) {
+            newErrors.date = 'Invalid date';
         }
 
         setErrors(newErrors);
@@ -110,7 +117,7 @@ export default function SaveGameDialogue({
     };
 
     return (
-        <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='lg'>
+        <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='md'>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <DialogContentText>
@@ -129,7 +136,8 @@ export default function SaveGameDialogue({
                         <Grid2
                             size={{
                                 xs: 12,
-                                sm: 'grow',
+                                sm: 6,
+                                md: 'grow',
                             }}
                         >
                             <TextField
@@ -146,7 +154,8 @@ export default function SaveGameDialogue({
                         <Grid2
                             size={{
                                 xs: 12,
-                                sm: 'grow',
+                                sm: 6,
+                                md: 'grow',
                             }}
                         >
                             <TextField
@@ -163,13 +172,14 @@ export default function SaveGameDialogue({
                         <Grid2
                             size={{
                                 xs: 12,
-                                sm: 'grow',
+                                sm: 6,
+                                md: 2,
                             }}
                         >
                             <TextField
                                 select
                                 data-cy='result'
-                                label='Game Result'
+                                label='Result'
                                 value={form.result}
                                 onChange={(e) => onChangeField('result', e.target.value)}
                                 error={!!errors.result}
@@ -179,13 +189,17 @@ export default function SaveGameDialogue({
                                 <MenuItem value={GameResult.White}>White Won</MenuItem>
                                 <MenuItem value={GameResult.Draw}>Draw</MenuItem>
                                 <MenuItem value={GameResult.Black}>Black Won</MenuItem>
+                                <MenuItem value={GameResult.Incomplete}>
+                                    Analysis
+                                </MenuItem>
                             </TextField>
                         </Grid2>
 
                         <Grid2
                             size={{
                                 xs: 12,
-                                sm: 'grow',
+                                sm: 6,
+                                md: 3,
                             }}
                         >
                             <DatePicker
@@ -201,9 +215,6 @@ export default function SaveGameDialogue({
                                         error: !!errors.date,
                                         helperText: errors.date,
                                         fullWidth: true,
-                                    },
-                                    field: {
-                                        clearable: true,
                                     },
                                 }}
                             />
@@ -241,7 +252,7 @@ export default function SaveGameDialogue({
                 </Button>
                 <LoadingButton
                     data-cy='save-dialogue-button'
-                    onClick={() => submit()}
+                    onClick={submit}
                     loading={loading}
                 >
                     Submit

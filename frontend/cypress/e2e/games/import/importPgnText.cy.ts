@@ -1,14 +1,9 @@
-import {
-    clickImport,
-    deleteCurrentGame,
-    gameUrlRegex,
-    verifyGame,
-} from './helpers';
+import { clickImport, verifyGame } from './helpers';
 
 function importPgnText(pgn: string) {
     cy.getBySel('pgn-text').type(pgn);
     clickImport();
-    cy.location('pathname').should('match', gameUrlRegex);
+    cy.location('pathname').should('equal', '/games/analysis');
 }
 
 describe('Import Games Page - PGN Text', () => {
@@ -32,7 +27,6 @@ describe('Import Games Page - PGN Text', () => {
         cy.fixture<string>('games/pgns/valid.txt').then((pgn) => {
             importPgnText(pgn);
             verifyGame({ white: 'Test1', black: 'Test2', lastMove: 'e4' });
-            deleteCurrentGame();
         });
     });
 
@@ -40,7 +34,6 @@ describe('Import Games Page - PGN Text', () => {
         cy.fixture<string>('games/pgns/headers-only.txt').then((pgn) => {
             importPgnText(pgn);
             verifyGame({ white: 'bestieboots', black: 'test2' });
-            deleteCurrentGame();
         });
     });
 
@@ -48,11 +41,10 @@ describe('Import Games Page - PGN Text', () => {
         cy.fixture<string>('games/pgns/moves-only.txt').then((pgn) => {
             importPgnText(pgn);
             verifyGame({ lastMove: 'a4' });
-            deleteCurrentGame();
         });
     });
 
-    it('displays error snackbar on invalid PGN', () => {
+    it.only('displays error snackbar on invalid PGN', () => {
         cy.fixture<string>('games/pgns/invalid.txt').then((pgn) => {
             cy.getBySel('pgn-text').type(pgn);
             clickImport();

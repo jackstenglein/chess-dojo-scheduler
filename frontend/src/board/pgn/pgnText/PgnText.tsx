@@ -2,7 +2,7 @@ import { UnpublishedGameBanner } from '@/components/games/edit/UnpublishedGameBa
 import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
-import { Box, Card, Stack } from '@mui/material';
+import { Card, Stack } from '@mui/material';
 import React, { useMemo, useRef } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useChess } from '../PgnBoard';
@@ -34,33 +34,26 @@ const PgnText = () => {
     };
 
     return (
-        <Card
-            data-cy='pgn-text'
-            variant={light ? 'outlined' : 'elevation'}
-            sx={{ display: 'flex', flexDirection: 'column' }}
-        >
-            <Stack spacing={1}>
-                {game && game.unlisted === true && (
-                    <Box mb={1}>
-                        <UnpublishedGameBanner dismissable />
-                    </Box>
-                )}
-                {unsaved && (
-                    <Box mb={1}>
-                        <UnsavedGameBanner dismissable />
-                    </Box>
-                )}
-                {!config?.disableEngine && <EngineSection />}
-            </Stack>
-            <Stack
-                ref={ref}
-                sx={{ overflowY: 'scroll', overflowX: 'clip', flexGrow: 1, width: 1 }}
+        <Stack spacing={1}>
+            {game && game.unlisted === true && <UnpublishedGameBanner dismissable />}
+            {unsaved && <UnsavedGameBanner dismissable />}
+
+            <Card
+                data-cy='pgn-text'
+                variant={light ? 'outlined' : 'elevation'}
+                sx={{ display: 'flex', flexDirection: 'column' }}
             >
-                <GameComment />
-                <Variation handleScroll={handleScroll} />
-                <Result />
-            </Stack>
-        </Card>
+                {!config?.disableEngine && <EngineSection />}
+                <Stack
+                    ref={ref}
+                    sx={{ overflowY: 'scroll', overflowX: 'clip', flexGrow: 1, width: 1 }}
+                >
+                    <GameComment />
+                    <Variation handleScroll={handleScroll} />
+                    <Result />
+                </Stack>
+            </Card>
+        </Stack>
     );
 };
 

@@ -14,10 +14,8 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
 import { BoardApi } from '../Board';
 import ResizableContainer from './ResizableContainer';
-import { ShowMoveTimesInPgn } from './boardTools/underboard/settings/ViewerSettings';
 import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
@@ -31,7 +29,7 @@ interface ChessConfig {
     disableTakebacks?: Color | 'both';
     disableNullMoves?: boolean;
     disableEngine?: boolean;
-    showMoveTimes?: boolean;
+    showElapsedMoveTimes?: boolean;
 }
 
 interface ChessContextType {
@@ -87,6 +85,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             disableTakebacks,
             disableNullMoves: disableNullMovesProp,
             disableEngine,
+            showElapsedMoveTimes,
             slots,
         },
         ref,
@@ -98,10 +97,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
         const [orientation, setOrientation] = useState(startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
-        const [showMoveTimes] = useLocalStorage<boolean>(
-            ShowMoveTimesInPgn.Key,
-            ShowMoveTimesInPgn.Default,
-        );
 
         const toggleOrientation = useCallback(() => {
             if (board) {
@@ -120,7 +115,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                     allowDeleteBefore,
                     disableTakebacks,
                     disableEngine,
-                    showMoveTimes,
+                    showElapsedMoveTimes,
                 },
                 toggleOrientation,
                 keydownMap,
@@ -139,7 +134,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 disableTakebacks,
                 disableEngine,
                 initKey,
-                showMoveTimes,
+                showElapsedMoveTimes,
             ],
         );
 

@@ -1,5 +1,4 @@
 import { useReconcile } from '@/board/Board';
-import useGame from '@/context/useGame';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
@@ -24,6 +23,7 @@ import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long
 import { useLocalStorage } from 'usehooks-ts';
 import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
 import { DeletePrompt, useDeletePrompt } from '../boardTools/underboard/DeletePrompt';
+import { ShowMoveTimesInPgn } from '../boardTools/underboard/settings/ViewerSettings';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
 
@@ -263,7 +263,6 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     forceShowPly,
     handleScroll,
 }) => {
-    const { game } = useGame();
     const { chess, config } = useChess();
     const reconcile = useReconcile();
     const ref = useRef<HTMLButtonElement>(null);
@@ -271,7 +270,11 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
     const [, setForceRender] = useState(0);
 
-    const showMoveTimes = config?.showMoveTimes;
+    const [viewerShowMoveTimes] = useLocalStorage(
+        ShowMoveTimesInPgn.Key,
+        ShowMoveTimesInPgn.Default,
+    );
+    const showMoveTimes = viewerShowMoveTimes && config?.showElapsedMoveTimes;
 
     const onClickMove = useCallback(
         (move: Move | null) => {
@@ -400,7 +403,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         );
     }
 
-    const moveTime = showMoveTimes && game ? getMoveTime(chess, move) : undefined;
+    const moveTime = showMoveTimes ? getMoveTime(chess, move) : undefined;
 
     return (
         <Grid2 key={`move-${move.ply}`} size={5}>

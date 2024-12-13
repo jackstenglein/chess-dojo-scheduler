@@ -1,6 +1,6 @@
 'use server';
 
-import { Chess, Square } from '@jackstenglein/chess';
+import { CandidateMove, Chess } from '@jackstenglein/chess';
 import tcn from '@savi2w/chess-tcn';
 import axios from 'axios';
 import { Browser, BrowserErrorCaptureEnum } from 'happy-dom';
@@ -76,14 +76,15 @@ function getPathSegment(url: string | undefined, idx: number): PgnImportResult<s
  * @returns The PGN of the Lichess game.
  */
 export async function getLichessGame(url?: string): Promise<PgnImportResult<string>> {
-    // Lichess has a weird URL format for games, where the players get a special game ID
-    // with extra characters at the end. Fetching this special game ID from the API results
-    // in a 404, whereas truncating to only the first 8 characters will return the game.
-    const { data: gameId, error } = getPathSegment(url, 0);
+    const { data, error } = getPathSegment(url, 0);
     if (error) {
         return { error };
     }
 
+    // Lichess has a weird URL format for games, where the players get a special game ID
+    // with extra characters at the end. Fetching this special game ID from the API results
+    // in a 404, whereas truncating to only the first 8 characters will return the game.
+    const gameId = data?.substring(0, 8);
     try {
         const exportUrl = `https://lichess.org/game/export/${gameId}?evals=0&clocks=1`;
         const response = await axios.get<string>(exportUrl, {
@@ -362,7 +363,7 @@ export async function getChesscomGame(
         const clk = msToClk(timestamp);
         const move = tcn.decode(encodedMove);
 
-        game.move({ from: move.from as Square, to: move.to as Square });
+        game.move(move as CandidateMove);
         game.setComment(`[%clk ${clk}]`);
     });
 

@@ -33,25 +33,19 @@ export default function useSaveGame(): UseSaveGameFields {
 
     const createGame = async (createReq: CreateGameRequest) => {
         request.onStart();
-        let data: Game | EditGameResponse | undefined;
         try {
             const response = await api.createGame(createReq);
-            data = response.data;
+            onCreateGame(createReq, response.data);
+
+            if (isGame(response.data)) {
+                request.onSuccess();
+            } else {
+                request.onSuccess(`Created ${response.data.count} games`);
+            }
+            setStagedGame(null);
         } catch (err) {
             console.error('CreateGame ', err);
             request.onFailure(err);
-        }
-
-        if (!data) {
-            return;
-        }
-
-        onCreateGame(createReq, data);
-
-        if (isGame(data)) {
-            request.onSuccess();
-        } else {
-            request.onSuccess(`Created ${data.count} games`);
         }
     };
 

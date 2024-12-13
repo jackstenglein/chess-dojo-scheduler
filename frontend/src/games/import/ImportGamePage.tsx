@@ -1,4 +1,6 @@
+import { RequestSnackbar } from '@/api/Request';
 import useSaveGame from '@/hooks/useSaveGame';
+import { Chess } from '@jackstenglein/chess';
 import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Container } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
@@ -17,19 +19,24 @@ const ImportGamePage = () => {
         }
 
         if (req.pgnText || req.type === 'startingPosition') {
-            setStagedGame(req);
-            window.location.href = '/games/analysis';
+            try {
+                new Chess({ pgn: req.pgnText });
+                setStagedGame(req);
+                window.location.href = '/games/analysis';
+            } catch (err) {
+                console.error('setStagedGame: ', err);
+                request.onFailure({ message: 'Invalid PGN' });
+            }
         } else {
             await createGame(req);
         }
     };
 
     return (
-        <>
-            <Container maxWidth='lg' sx={{ py: 5 }}>
-                <ImportWizard onSubmit={onCreate} loading={request.isLoading()} />
-            </Container>
-        </>
+        <Container maxWidth='lg' sx={{ py: 5 }}>
+            <ImportWizard onSubmit={onCreate} loading={request.isLoading()} />
+            <RequestSnackbar request={request} />
+        </Container>
     );
 };
 

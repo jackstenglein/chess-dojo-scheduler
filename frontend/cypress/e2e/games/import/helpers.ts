@@ -36,8 +36,6 @@ export function verifyGame({
     lastMoveEmt?: string;
     orientation?: 'white' | 'black';
 }) {
-    cy.location('pathname').should('match', gameUrlRegex);
-
     if (white) {
         cy.getBySel(
             orientation === 'black' ? 'player-header-header' : 'player-header-footer',

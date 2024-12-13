@@ -1,4 +1,4 @@
-import { clickImport, deleteCurrentGame, gameUrlRegex } from './helpers';
+import { clickImport } from './helpers';
 
 describe('Import Games Page - Custom Position', () => {
     beforeEach(() => {
@@ -14,9 +14,7 @@ describe('Import Games Page - Custom Position', () => {
     it('submits with default FEN', () => {
         clickImport();
 
-        cy.location('pathname').should('match', gameUrlRegex);
-
-        deleteCurrentGame();
+        cy.location('pathname').should('equal', '/games/analysis');
     });
 
     it('submits with custom FEN', () => {
@@ -27,11 +25,9 @@ describe('Import Games Page - Custom Position', () => {
         cy.getBySel('position-entry').type('{enter}');
         clickImport();
 
-        cy.location('pathname').should('match', gameUrlRegex);
+        cy.location('pathname').should('equal', '/games/analysis');
 
         cy.getBySel('underboard-button-tags').click();
         cy.contains(fen);
-
-        deleteCurrentGame();
     });
 });
