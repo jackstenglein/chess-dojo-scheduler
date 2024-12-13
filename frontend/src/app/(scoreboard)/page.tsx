@@ -6,7 +6,7 @@ import Sensei from '@/landing/Sensei';
 import Testimonials from '@/landing/Testimonials';
 import WhatsIncluded from '@/landing/WhatsIncluded';
 import LoadingPage from '@/loading/LoadingPage';
-import { Alert, Box, Button, Container, Grid2, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Grid2, Stack, Typography } from '@mui/material';
 import { Hub } from 'aws-amplify/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -47,12 +47,6 @@ const LandingPage = ({
                     mb: { xs: 4, md: 0 },
                 }}
             >
-                <Alert severity='warning' variant='outlined' sx={{ mb: 5 }}>
-                    Due to an Amazon Web Services outage, sign in is currently failing for
-                    many users. If you experience this issue, please try again later. We
-                    apologize for the inconvenience.
-                </Alert>
-
                 <Grid2 container rowSpacing={4} columnSpacing={2}>
                     <Grid2
                         justifyContent='center'
