@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface FormError {
     white: string;
@@ -37,22 +37,28 @@ export interface SaveGameForm {
     date: DateTime | null;
     result: string;
     orientation: 'white' | 'black';
+    publish?: boolean;
+}
+
+export enum SaveGameDialogType {
+    Save = 'save',
+    Publish = 'publish',
 }
 
 interface SaveGameDialogProps {
+    type: SaveGameDialogType;
     children?: React.ReactNode;
     loading?: boolean;
-    skippable?: boolean;
     open: boolean;
     title: string;
     onClose: () => void;
-    onSubmit: (details: SaveGameForm) => void;
+    onSubmit: (details: SaveGameForm) => Promise<void>;
 }
 
 export default function SaveGameDialog({
+    type,
     children,
     loading,
-    skippable,
     open,
     title,
     onClose,
@@ -60,6 +66,7 @@ export default function SaveGameDialog({
 }: SaveGameDialogProps) {
     const { chess, orientation: initialOrientation } = useChess();
 
+    const [selectedButton, setSelectedButton] = useState('');
     const [form, setForm] = useState<SaveGameForm>({
         white: '',
         black: '',
@@ -88,10 +95,10 @@ export default function SaveGameDialog({
         setForm((oldForm) => ({ ...oldForm, [key]: value }));
     }
 
-    const submit = () => {
+    const submit = (publish?: boolean) => {
         const newErrors: Partial<FormError> = {};
 
-        if (!skippable) {
+        if (publish) {
             if (stripTagValue(form.white) === '') {
                 newErrors.white = 'This field is required';
             }
@@ -113,11 +120,64 @@ export default function SaveGameDialog({
             return;
         }
 
-        onSubmit(form);
+        setSelectedButton(publish ? 'publish' : 'save');
+        void onSubmit({ ...form, publish }).then(() => setSelectedButton(''));
     };
 
     return (
         <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth='md'>
+            <SaveGameDialogBody
+                title={title}
+                form={form}
+                onChangeField={onChangeField}
+                errors={errors}
+            >
+                {children}
+            </SaveGameDialogBody>
+            <DialogActions>
+                <Button data-cy='cancel-preflight' onClick={onClose} disabled={loading}>
+                    Cancel
+                </Button>
+
+                {type === SaveGameDialogType.Save && (
+                    <LoadingButton
+                        data-cy='save-dialogue-button'
+                        onClick={() => submit(false)}
+                        loading={loading && selectedButton === 'save'}
+                        disabled={loading && selectedButton !== 'save'}
+                    >
+                        Save
+                    </LoadingButton>
+                )}
+
+                <LoadingButton
+                    data-cy='publish-dialogue-button'
+                    onClick={() => submit(true)}
+                    loading={loading && selectedButton === 'publish'}
+                    disabled={loading && selectedButton !== 'publish'}
+                >
+                    {type === SaveGameDialogType.Save ? 'Save & Publish' : 'Publish'}
+                </LoadingButton>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+function SaveGameDialogBody({
+    title,
+    children,
+    form,
+    onChangeField,
+    errors,
+}: {
+    title: string;
+    children?: ReactNode;
+    form: SaveGameForm;
+    onChangeField: (key: keyof SaveGameForm, value: string | DateTime | null) => void;
+    errors: Partial<FormError>;
+}) {
+    return (
+        <>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <DialogContentText>
@@ -246,18 +306,6 @@ export default function SaveGameDialog({
                     </Grid2>
                 </Stack>
             </DialogContent>
-            <DialogActions>
-                <Button data-cy='cancel-preflight' onClick={onClose} disabled={loading}>
-                    Cancel
-                </Button>
-                <LoadingButton
-                    data-cy='save-dialogue-button'
-                    onClick={submit}
-                    loading={loading}
-                >
-                    Submit
-                </LoadingButton>
-            </DialogActions>
-        </Dialog>
+        </>
     );
 }

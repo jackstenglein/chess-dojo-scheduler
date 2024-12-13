@@ -42,6 +42,9 @@ const onlineGameSchema = z.object({
             id: z.string(),
         })
         .optional(),
+
+    /** Whether to publish the game when creating it. */
+    publish: z.boolean().optional(),
 });
 
 const pgnTextSchema = z.object({
@@ -58,6 +61,9 @@ const pgnTextSchema = z.object({
             id: z.string(),
         })
         .optional(),
+    
+    /** Whether to publish the game when creating it. */
+    publish: z.boolean().optional(),
 });
 
 /** Verifies a request to create a game. */

@@ -8,7 +8,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
-import SaveGameDialog, { SaveGameForm } from './SaveGameDialog';
+import SaveGameDialog, { SaveGameDialogType, SaveGameForm } from './SaveGameDialog';
 
 interface UnsavedGameBannerProps {
     dismissable?: boolean;
@@ -36,6 +36,7 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
         };
 
         req.pgnText = pgnText;
+        req.publish = form.publish;
 
         await createGame(req).then(() => {
             setShowDialog(false);
@@ -65,12 +66,12 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
                 </Alert>
             )}
             <SaveGameDialog
+                type={SaveGameDialogType.Save}
                 open={showDialog}
                 title='Save Analysis'
                 loading={request.isLoading()}
                 onSubmit={onSubmit}
                 onClose={() => setShowDialog(false)}
-                skippable
             />
             <RequestSnackbar request={request} />
         </>

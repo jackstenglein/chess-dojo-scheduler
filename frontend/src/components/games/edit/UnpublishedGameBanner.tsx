@@ -9,7 +9,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
-import SaveGameDialog, { SaveGameForm } from './SaveGameDialog';
+import SaveGameDialog, { SaveGameDialogType, SaveGameForm } from './SaveGameDialog';
 
 interface UnpublishedGameBannerProps {
     dismissable?: boolean;
@@ -74,6 +74,7 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
                 </Alert>
             )}
             <SaveGameDialog
+                type={SaveGameDialogType.Publish}
                 open={showDialog}
                 title='Publish Game'
                 loading={request.isLoading()}

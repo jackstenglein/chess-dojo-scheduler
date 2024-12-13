@@ -4,6 +4,7 @@ import {
     BatchWriteItemCommand,
     DynamoDBClient,
     GetItemCommand,
+    PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
@@ -39,7 +40,13 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { getLichessChapter, getLichessGame, getLichessStudy, splitPgns } from './lichess';
-import { Game, GameImportHeaders, isValidDate, isValidResult } from './types';
+import {
+    Game,
+    GameImportHeaders,
+    isMissingData,
+    isValidDate,
+    isValidResult,
+} from './types';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const usersTable = process.env.stage + '-users';
@@ -96,6 +103,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             request.directory
                 ? `${request.directory.owner}/${request.directory.id}`
                 : undefined,
+            request.publish,
         );
         if (games.length === 0) {
             throw new ApiError({
@@ -112,6 +120,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 request.directory.id,
                 games,
             );
+        }
+
+        if (request.publish) {
+            for (const game of games) {
+                await createTimelineEntry(game);
+            }
         }
 
         if (games.length === 1) {
@@ -317,13 +331,19 @@ function convertEmt(pgn: string): string {
  * @param user The user owning the new Games.
  * @param pgnTexts The PGNs to convert.
  * @param directory The directory to place the Games into.
+ * @param publish Whether the game should be published or not.
  * @returns A list of new Games.
  */
-function getGames(user: User, pgnTexts: string[], directory?: string): Game[] {
+function getGames(
+    user: User,
+    pgnTexts: string[],
+    directory?: string,
+    publish?: boolean,
+): Game[] {
     const games: Game[] = [];
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
-        games.push(getGame(user, pgnTexts[i], undefined, directory));
+        games.push(getGame(user, pgnTexts[i], undefined, directory, publish));
     }
     return games;
 }
@@ -348,6 +368,7 @@ export function isFairyChess(pgnText: string) {
  * @param pgnText The PGN to convert.
  * @param headers The import headers which will be applied to the Game's headers.
  * @param directory The directory to place the Game into.
+ * @param publish Whether the game should be published or not.
  * @returns A new Game object.
  */
 export function getGame(
@@ -355,6 +376,7 @@ export function getGame(
     pgnText: string,
     headers?: GameImportHeaders,
     directory?: string,
+    publish?: boolean,
 ): Game {
     // We do not support variants due to current limitations with
     // @JackStenglein/pgn-parser
@@ -393,10 +415,26 @@ export function getGame(
             chess.setHeader('Result', '*');
         }
 
+        if (publish) {
+            const missingDataErr = isMissingData({
+                white: chess.header().tags.White,
+                black: chess.header().tags.Black,
+                result: chess.header().tags.Result,
+                date: chess.header().tags.Date?.value,
+            });
+            if (missingDataErr) {
+                throw new ApiError({
+                    statusCode: 400,
+                    publicMessage: `Published games can not be missing data: ${missingDataErr}`,
+                    privateMessage: 'publish requested, but game was missing data',
+                });
+            }
+        }
+
         const now = new Date();
         const uploadDate = now.toISOString().slice(0, '2024-01-01'.length);
 
-        return {
+        const game: Game = {
             cohort: user?.dojoCohort || '',
             id: `${uploadDate.replaceAll('-', '.')}_${uuidv4()}`,
             white: chess.header().tags.White?.toLowerCase() || '?',
@@ -412,9 +450,16 @@ export function getGame(
             orientation: getDefaultOrientation(chess, user),
             comments: [],
             positionComments: {},
-            unlisted: true,
+            unlisted: !publish,
             directories: directory ? [directory] : undefined,
         };
+
+        if (publish) {
+            game.publishedAt = game.createdAt;
+            game.timelineId = `${game.publishedAt.split('T')[0]}_${uuidv4()}`;
+        }
+
+        return game;
     } catch (err) {
         throw new ApiError({
             statusCode: 400,
@@ -529,5 +574,37 @@ async function addGamesToDirectory(owner: string, id: string, games: Game[]) {
         await addDirectoryItems(owner, id, directoryItems);
     } catch (err) {
         console.error('Failed to add games to directory: ', err);
+    }
+}
+
+/**
+ * Creates a timeline entry for the given Game.
+ * @param game The game to create the timeline entry for.
+ */
+export async function createTimelineEntry(game: Game) {
+    try {
+        await dynamo.send(
+            new PutItemCommand({
+                Item: marshall({
+                    owner: game.owner,
+                    id: game.timelineId,
+                    ownerDisplayName: game.ownerDisplayName,
+                    requirementId: 'GameSubmission',
+                    requirementName: 'GameSubmission',
+                    scoreboardDisplay: 'HIDDEN',
+                    cohort: game.cohort,
+                    createdAt: game.publishedAt,
+                    gameInfo: {
+                        id: game.id,
+                        headers: game.headers,
+                    },
+                    dojoPoints: 1,
+                    reactions: {},
+                }),
+                TableName: timelineTable,
+            }),
+        );
+    } catch (err) {
+        console.error('Failed to create timeline entry: ', err);
     }
 }
