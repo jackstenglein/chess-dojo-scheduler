@@ -104,6 +104,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 ? `${request.directory.owner}/${request.directory.id}`
                 : undefined,
             request.publish,
+            request.orientation,
         );
         if (games.length === 0) {
             throw new ApiError({
@@ -339,11 +340,14 @@ function getGames(
     pgnTexts: string[],
     directory?: string,
     publish?: boolean,
+    orientation?: GameOrientation,
 ): Game[] {
     const games: Game[] = [];
     for (let i = 0; i < pgnTexts.length; i++) {
         console.log('Parsing game %d: %s', i + 1, pgnTexts[i]);
-        games.push(getGame(user, pgnTexts[i], undefined, directory, publish));
+        games.push(
+            getGame(user, pgnTexts[i], undefined, directory, publish, orientation),
+        );
     }
     return games;
 }
@@ -369,6 +373,7 @@ export function isFairyChess(pgnText: string) {
  * @param headers The import headers which will be applied to the Game's headers.
  * @param directory The directory to place the Game into.
  * @param publish Whether the game should be published or not.
+ * @param orientation The default orientation of the game. If excluded, it is inferred from the player names.
  * @returns A new Game object.
  */
 export function getGame(
@@ -377,6 +382,7 @@ export function getGame(
     headers?: GameImportHeaders,
     directory?: string,
     publish?: boolean,
+    orientation?: GameOrientation,
 ): Game {
     // We do not support variants due to current limitations with
     // @JackStenglein/pgn-parser
@@ -447,7 +453,7 @@ export function getGame(
             ownerPreviousCohort: user?.previousCohort || '',
             headers: chess.header().valueMap(),
             pgn: chess.renderPgn(),
-            orientation: getDefaultOrientation(chess, user),
+            orientation: orientation || getDefaultOrientation(chess, user),
             comments: [],
             positionComments: {},
             unlisted: !publish,

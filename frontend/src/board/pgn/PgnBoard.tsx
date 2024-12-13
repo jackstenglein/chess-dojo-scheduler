@@ -95,7 +95,9 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
 
         const disableNullMoves = disableNullMovesProp ?? !game;
         const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
-        const [orientation, setOrientation] = useState(startOrientation);
+        const [orientation, setOrientation] = useState(
+            game?.orientation || startOrientation,
+        );
         const keydownMap = useRef<Record<string, boolean>>({});
 
         const toggleOrientation = useCallback(() => {
@@ -149,6 +151,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         const gameOrientation = game?.orientation || startOrientation || 'white';
         useEffect(() => {
             if (gameOrientation !== board?.state.orientation) {
+                setOrientation(gameOrientation);
                 toggleOrientation();
             }
         }, [gameOrientation, board, toggleOrientation]);

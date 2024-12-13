@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 interface FormError {
     white: string;
@@ -65,28 +65,17 @@ export default function SaveGameDialog({
     onSubmit,
 }: SaveGameDialogProps) {
     const { chess, orientation: initialOrientation } = useChess();
+    const initialTags = chess?.pgn.header.tags;
 
     const [selectedButton, setSelectedButton] = useState('');
     const [form, setForm] = useState<SaveGameForm>({
-        white: '',
-        black: '',
-        orientation: GameOrientations.white,
-        result: '',
-        date: null,
+        white: initialTags?.White ?? '',
+        black: initialTags?.Black ?? '',
+        result: initialTags?.Result ?? '',
+        date: parsePgnDate(initialTags?.Date?.value),
+        orientation: initialOrientation ?? GameOrientations.white,
     });
     const [errors, setErrors] = useState<Partial<FormError>>({});
-    const initialTags = chess?.pgn.header.tags;
-
-    useEffect(() => {
-        setForm((oldForm) => ({
-            ...oldForm,
-            white: initialTags?.White ?? '',
-            black: initialTags?.Black ?? '',
-            result: initialTags?.Result ?? '',
-            date: parsePgnDate(initialTags?.Date?.value),
-            orientation: initialOrientation ?? GameOrientations.white,
-        }));
-    }, [initialTags, initialOrientation]);
 
     function onChangeField(
         key: keyof SaveGameForm,

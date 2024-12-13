@@ -37,6 +37,7 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
 
         req.pgnText = pgnText;
         req.publish = form.publish;
+        req.orientation = form.orientation;
 
         await createGame(req).then(() => {
             setShowDialog(false);
@@ -65,14 +66,16 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
                     </Stack>
                 </Alert>
             )}
-            <SaveGameDialog
-                type={SaveGameDialogType.Save}
-                open={showDialog}
-                title='Save Analysis'
-                loading={request.isLoading()}
-                onSubmit={onSubmit}
-                onClose={() => setShowDialog(false)}
-            />
+            {showDialog && (
+                <SaveGameDialog
+                    type={SaveGameDialogType.Save}
+                    open={showDialog}
+                    title='Save Analysis'
+                    loading={request.isLoading()}
+                    onSubmit={onSubmit}
+                    onClose={() => setShowDialog(false)}
+                />
+            )}
             <RequestSnackbar request={request} />
         </>
     );

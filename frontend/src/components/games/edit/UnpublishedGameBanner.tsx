@@ -41,6 +41,7 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
             unlisted: false,
             pgnText: chess.renderPgn(),
             type: GameImportTypes.manual,
+            orientation: form.orientation,
         };
 
         await updateGame(req).then(() => {
@@ -73,14 +74,16 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
                     </Stack>
                 </Alert>
             )}
-            <SaveGameDialog
-                type={SaveGameDialogType.Publish}
-                open={showDialog}
-                title='Publish Game'
-                loading={request.isLoading()}
-                onSubmit={onSubmit}
-                onClose={() => setShowDialog(false)}
-            />
+            {showDialog && (
+                <SaveGameDialog
+                    type={SaveGameDialogType.Publish}
+                    open={showDialog}
+                    title='Publish Game'
+                    loading={request.isLoading()}
+                    onSubmit={onSubmit}
+                    onClose={() => setShowDialog(false)}
+                />
+            )}
             <RequestSnackbar request={request} />
         </>
     );
