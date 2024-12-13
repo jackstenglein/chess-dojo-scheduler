@@ -2,7 +2,7 @@ import { useReconcile } from '@/board/Board';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
-import { Backspace, Help } from '@mui/icons-material';
+import { Backspace, Help, Merge } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,6 +24,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
 import { DeletePrompt, useDeletePrompt } from '../boardTools/underboard/DeletePrompt';
 import { ShowMoveTimesInPgn } from '../boardTools/underboard/settings/ViewerSettings';
+import { MergeLineDialog } from '../boardTools/underboard/share/MergeLineDialog';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
 
@@ -182,6 +183,7 @@ interface MoveMenuProps {
 const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
     const { chess, config } = useChess();
     const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
+    const [showMerge, setShowMerge] = useState(false);
 
     if (!chess) {
         return null;
@@ -205,38 +207,49 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
         <>
             <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
                 <MenuList>
-                    <MenuItem
-                        disabled={chess.isInMainline(move)}
-                        onClick={onMakeMainline}
-                    >
-                        <ListItemIcon>
-                            <CheckIcon />
-                        </ListItemIcon>
-                        <ListItemText>Make main line</ListItemText>
-                    </MenuItem>
+                    {config?.allowMoveDeletion && (
+                        <>
+                            <MenuItem
+                                disabled={chess.isInMainline(move)}
+                                onClick={onMakeMainline}
+                            >
+                                <ListItemIcon>
+                                    <CheckIcon />
+                                </ListItemIcon>
+                                <ListItemText>Make main line</ListItemText>
+                            </MenuItem>
 
-                    <MenuItem disabled={!canPromote} onClick={onPromote}>
-                        <ListItemIcon>
-                            <ArrowUpwardIcon />
-                        </ListItemIcon>
-                        <ListItemText>Move variation up</ListItemText>
-                    </MenuItem>
+                            <MenuItem disabled={!canPromote} onClick={onPromote}>
+                                <ListItemIcon>
+                                    <ArrowUpwardIcon />
+                                </ListItemIcon>
+                                <ListItemText>Move variation up</ListItemText>
+                            </MenuItem>
 
-                    <MenuItem onClick={() => onDelete(move, 'after')}>
-                        <ListItemIcon>
-                            <DeleteIcon />
-                        </ListItemIcon>
-                        <ListItemText>Delete from here</ListItemText>
-                    </MenuItem>
+                            <MenuItem onClick={() => onDelete(move, 'after')}>
+                                <ListItemIcon>
+                                    <DeleteIcon />
+                                </ListItemIcon>
+                                <ListItemText>Delete from here</ListItemText>
+                            </MenuItem>
 
-                    <MenuItem
-                        disabled={!canDeleteBefore}
-                        onClick={() => onDelete(move, 'before')}
-                    >
+                            <MenuItem
+                                disabled={!canDeleteBefore}
+                                onClick={() => onDelete(move, 'before')}
+                            >
+                                <ListItemIcon>
+                                    <Backspace />
+                                </ListItemIcon>
+                                <ListItemText>Delete before here</ListItemText>
+                            </MenuItem>
+                        </>
+                    )}
+
+                    <MenuItem onClick={() => setShowMerge(true)}>
                         <ListItemIcon>
-                            <Backspace />
+                            <Merge />
                         </ListItemIcon>
-                        <ListItemText>Delete before here</ListItemText>
+                        <ListItemText>Merge Line into Game</ListItemText>
                     </MenuItem>
                 </MenuList>
             </Menu>
@@ -244,6 +257,11 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
             {deleteAction && (
                 <DeletePrompt deleteAction={deleteAction} onClose={onCloseDelete} />
             )}
+            <MergeLineDialog
+                open={showMerge}
+                onClose={() => setShowMerge(false)}
+                move={move}
+            />
         </>
     );
 };
@@ -347,21 +365,17 @@ const MoveButton: React.FC<MoveButtonProps> = ({
         }
     }, [move, chess, setIsCurrentMove, firstMove, handleScroll]);
 
-    const allowMoveDeletion = config?.allowMoveDeletion;
-
     const onRightClick = useCallback(
         (
             event:
                 | React.MouseEvent<HTMLButtonElement>
                 | LongPressReactEvents<HTMLButtonElement>,
         ) => {
-            if (allowMoveDeletion) {
-                event.preventDefault();
-                event.stopPropagation();
-                setMenuAnchorEl(event.currentTarget || event.target);
-            }
+            event.preventDefault();
+            event.stopPropagation();
+            setMenuAnchorEl(event.currentTarget || event.target);
         },
-        [setMenuAnchorEl, allowMoveDeletion],
+        [setMenuAnchorEl],
     );
 
     const handleMenuClose = () => {
