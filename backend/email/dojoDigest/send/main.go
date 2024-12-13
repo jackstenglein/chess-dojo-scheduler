@@ -71,7 +71,7 @@ func main() {
 		}
 		total++
 
-		email := strings.TrimSpace(rec[2])
+		email := strings.ToLower(strings.TrimSpace(rec[2]))
 		if unsubcribers[email] {
 			skipped++
 			continue
@@ -130,7 +130,7 @@ func getUnsubscribers() map[string]bool {
 			log.Fatal(err)
 		}
 
-		email := strings.TrimSpace(rec[1])
+		email := strings.ToLower(strings.TrimSpace(rec[1]))
 		result[email] = true
 	}
 
