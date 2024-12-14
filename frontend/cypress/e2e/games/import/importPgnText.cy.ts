@@ -44,7 +44,7 @@ describe('Import Games Page - PGN Text', () => {
         });
     });
 
-    it.only('displays error snackbar on invalid PGN', () => {
+    it('displays error snackbar on invalid PGN', () => {
         cy.fixture<string>('games/pgns/invalid.txt').then((pgn) => {
             cy.getBySel('pgn-text').type(pgn);
             clickImport();
