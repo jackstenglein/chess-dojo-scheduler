@@ -34,7 +34,7 @@ const PgnText = () => {
     };
 
     return (
-        <Stack spacing={1}>
+        <Stack spacing={1} maxHeight={1}>
             {game && game.unlisted === true && <UnpublishedGameBanner dismissable />}
             {unsaved && <UnsavedGameBanner dismissable />}
 
