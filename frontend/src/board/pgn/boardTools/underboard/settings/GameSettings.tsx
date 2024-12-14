@@ -27,7 +27,7 @@ import {
     Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
@@ -39,15 +39,19 @@ interface GameSettingsProps {
 }
 
 const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
+    const initialVisibility = game.unlisted ? 'unlisted' : 'published';
+    const initialOrientation = game.orientation ?? GameOrientations.white;
+
     const isFreeTier = useFreeTier();
-    const [visibility, setVisibility] = useState(
-        game.unlisted ? 'unlisted' : 'published',
-    );
-    const [orientation, setOrientation] = useState<GameOrientation>(
-        game.orientation ?? GameOrientations.white,
-    );
+    const [visibility, setVisibility] = useState(initialVisibility);
+    const [orientation, setOrientation] = useState<GameOrientation>(initialOrientation);
     const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setVisibility(initialVisibility);
+        setOrientation(initialOrientation);
+    }, [initialVisibility, initialOrientation, setVisibility, setOrientation]);
 
     const headersChanged = Object.entries(game.headers).some(
         ([name, value]) => value !== headers[name],

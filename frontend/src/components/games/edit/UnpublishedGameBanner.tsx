@@ -18,7 +18,7 @@ interface UnpublishedGameBannerProps {
 export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProps) {
     const [showDialog, setShowDialog] = useState(false);
     const [showBanner, setShowBanner] = useState(true);
-    const { game } = useGame();
+    const { game, onUpdateGame } = useGame();
     const { chess } = useChess();
     const { updateGame, request } = useSaveGame();
 
@@ -45,6 +45,7 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
         };
 
         await updateGame(req).then(() => {
+            onUpdateGame?.({ ...game, unlisted: false, orientation: form.orientation });
             setShowDialog(false);
             setShowBanner(false);
         });
