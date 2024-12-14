@@ -1,3 +1,6 @@
+import { UnpublishedGameBanner } from '@/components/games/edit/UnpublishedGameBanner';
+import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
+import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import { Card, Stack } from '@mui/material';
 import React, { useMemo, useRef } from 'react';
@@ -14,6 +17,7 @@ const PgnText = () => {
     const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
     const { config } = useChess();
+    const { unsaved, game } = useGame();
 
     const handleScroll = (child: HTMLElement | null) => {
         const scrollParent = ref.current;
@@ -30,21 +34,26 @@ const PgnText = () => {
     };
 
     return (
-        <Card
-            data-cy='pgn-text'
-            variant={light ? 'outlined' : 'elevation'}
-            sx={{ display: 'flex', flexDirection: 'column' }}
-        >
-            {!config?.disableEngine && <EngineSection />}
-            <Stack
-                ref={ref}
-                sx={{ overflowY: 'scroll', overflowX: 'clip', flexGrow: 1, width: 1 }}
+        <Stack spacing={1} maxHeight={1}>
+            {game && game.unlisted === true && <UnpublishedGameBanner dismissable />}
+            {unsaved && <UnsavedGameBanner dismissable />}
+
+            <Card
+                data-cy='pgn-text'
+                variant={light ? 'outlined' : 'elevation'}
+                sx={{ display: 'flex', flexDirection: 'column' }}
             >
-                <GameComment />
-                <Variation handleScroll={handleScroll} />
-                <Result />
-            </Stack>
-        </Card>
+                {!config?.disableEngine && <EngineSection />}
+                <Stack
+                    ref={ref}
+                    sx={{ overflowY: 'scroll', overflowX: 'clip', flexGrow: 1, width: 1 }}
+                >
+                    <GameComment />
+                    <Variation handleScroll={handleScroll} />
+                    <Result />
+                </Stack>
+            </Card>
+        </Stack>
     );
 };
 
