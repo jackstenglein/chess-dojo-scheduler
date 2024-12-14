@@ -62,9 +62,8 @@ const SupportTicket = () => {
                     days for us to get back to you. Thank you for your patience.
                     <br />
                     <br />
-                    Your ticket has been submitted with ID <strong>
-                        {request.data}
-                    </strong>. You have been CC'd on the support email.
+                    Your ticket has been submitted with ID <strong>{request.data}</strong>
+                    . You have been CC'd on the support email.
                 </Typography>
             </Stack>
         );

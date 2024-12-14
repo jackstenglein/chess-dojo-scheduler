@@ -6,7 +6,6 @@ import {
     BatchStatementRequest,
     ConditionalCheckFailedException,
     DeleteItemCommand,
-    PutItemCommand,
     UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
@@ -27,6 +26,7 @@ import {
 import { directoryTable } from 'chess-dojo-directory-service/database';
 import { v4 as uuidv4 } from 'uuid';
 import {
+    createTimelineEntry,
     dynamo,
     gamesTable,
     getGame,
@@ -35,13 +35,7 @@ import {
     success,
     timelineTable,
 } from './create';
-import {
-    Game,
-    GameImportHeaders,
-    GameUpdate,
-    isPublishableResult,
-    isValidDate,
-} from './types';
+import { Game, GameUpdate, isMissingData } from './types';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -136,50 +130,6 @@ async function getGameUpdate(request: UpdateGameRequest): Promise<GameUpdate> {
 }
 
 /**
- * Strip pgn player name tag values (i.e. the tags White and Black). As a convention, chess.com and others
- * use question marks as placeholders for unknown values in PGN tags. In places, we have
- * adopted this convention. Therefore, in order to tell if a name is truly empty, handling the case
- * where the name value may be a placeholder, we must account for this convention.
- * @param value the name to strip
- * @returns the stripped name
- */
-function stripPlayerNameHeader(value?: string): string {
-    return value?.trim().replaceAll('?', '') ?? '';
-}
-
-/**
- * Returns whether the game headers are missing data needed to publish
- * @param game The game to check for publishability
- * @returns An error message if the update is missing data.
- */
-function isMissingData({
-    white,
-    black,
-    result,
-    date,
-}: Partial<GameImportHeaders>): string {
-    const strippedWhite = stripPlayerNameHeader(white);
-    if (!strippedWhite) {
-        return `invalid White header: '${white}'`;
-    }
-
-    const strippedBlack = stripPlayerNameHeader(black);
-    if (!strippedBlack) {
-        return `invalid Black header: '${black}'`;
-    }
-
-    if (!isValidDate(date)) {
-        return `invalid Date header. Date must be in format YYYY.MM.DD`;
-    }
-
-    if (!isPublishableResult(result)) {
-        return `invalid Result header: '${result}'`;
-    }
-
-    return '';
-}
-
-/**
  * Saves the provided GameUpdate in the database.
  * @param owner The user making the update request.
  * @param cohort The cohort the Game is in.
@@ -259,38 +209,6 @@ function getUpdateParams(params: { [key: string]: any }) {
             { removeUndefinedValues: true },
         ),
     };
-}
-
-/**
- * Creates a timeline entry for the given Game.
- * @param game The game to create the timeline entry for.
- */
-async function createTimelineEntry(game: Game) {
-    try {
-        await dynamo.send(
-            new PutItemCommand({
-                Item: marshall({
-                    owner: game.owner,
-                    id: game.timelineId,
-                    ownerDisplayName: game.ownerDisplayName,
-                    requirementId: 'GameSubmission',
-                    requirementName: 'GameSubmission',
-                    scoreboardDisplay: 'HIDDEN',
-                    cohort: game.cohort,
-                    createdAt: game.publishedAt,
-                    gameInfo: {
-                        id: game.id,
-                        headers: game.headers,
-                    },
-                    dojoPoints: 1,
-                    reactions: {},
-                }),
-                TableName: timelineTable,
-            }),
-        );
-    } catch (err) {
-        console.error('Failed to create timeline entry: ', err);
-    }
 }
 
 /**
