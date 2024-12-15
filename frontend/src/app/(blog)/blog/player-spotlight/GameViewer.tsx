@@ -49,6 +49,7 @@ export const GameViewer = ({ cohort, id }: { cohort: string; id: string }) => {
                     DefaultUnderboardTab.Explorer,
                     DefaultUnderboardTab.Clocks,
                 ]}
+                showElapsedMoveTimes
             />
         </GameContext.Provider>
     );

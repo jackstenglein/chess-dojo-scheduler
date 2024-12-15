@@ -150,6 +150,7 @@ const GamePage = () => {
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
                         allowDeleteBefore={request.data?.owner === user?.username}
+                        showElapsedMoveTimes
                         slots={{
                             moveButtonExtras: EngineMoveButtonExtras,
                         }}
