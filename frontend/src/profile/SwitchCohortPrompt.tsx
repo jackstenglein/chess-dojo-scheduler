@@ -1,7 +1,6 @@
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Alert, Button, Snackbar } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
 import { useAuth } from '../auth/Auth';
 import {
     getCurrentRating,
@@ -24,54 +23,49 @@ export function SwitchCohortPrompt() {
     }, [user, setShowGraduation, setShowDemotion]);
 
     return (
-        <>
-            <Outlet />
-            <Snackbar
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                open={
-                    (showGraduation && !hideGraduation) || (showDemotion && !hideDemotion)
+        <Snackbar
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            open={(showGraduation && !hideGraduation) || (showDemotion && !hideDemotion)}
+            onClose={
+                showGraduation
+                    ? () => setHideGraduation(true)
+                    : () => setHideDemotion(true)
+            }
+            autoHideDuration={showGraduation ? 6000 : 7000}
+        >
+            <Alert
+                variant='filled'
+                severity={showGraduation ? 'success' : 'error'}
+                action={
+                    showGraduation ? (
+                        <Button
+                            color='inherit'
+                            size='small'
+                            href='/profile'
+                            endIcon={<NavigateNextIcon />}
+                        >
+                            Profile
+                        </Button>
+                    ) : (
+                        <Button
+                            color='inherit'
+                            size='small'
+                            href='/profile/edit'
+                            endIcon={<NavigateNextIcon />}
+                        >
+                            Settings
+                        </Button>
+                    )
                 }
-                onClose={
-                    showGraduation
-                        ? () => setHideGraduation(true)
-                        : () => setHideDemotion(true)
-                }
-                autoHideDuration={showGraduation ? 6000 : 7000}
+                sx={{ width: 1 }}
             >
-                <Alert
-                    variant='filled'
-                    severity={showGraduation ? 'success' : 'error'}
-                    action={
-                        showGraduation ? (
-                            <Button
-                                color='inherit'
-                                size='small'
-                                href='/profile'
-                                endIcon={<NavigateNextIcon />}
-                            >
-                                Profile
-                            </Button>
-                        ) : (
-                            <Button
-                                color='inherit'
-                                size='small'
-                                href='/profile/edit'
-                                endIcon={<NavigateNextIcon />}
-                            >
-                                Settings
-                            </Button>
-                        )
-                    }
-                    sx={{ width: 1 }}
-                >
-                    {showGraduation
-                        ? `Congrats on reaching ${getCurrentRating(
-                              user,
-                          )}! Go to your profile to
+                {showGraduation
+                    ? `Congrats on reaching ${getCurrentRating(
+                          user,
+                      )}! Go to your profile to
                     officially graduate!`
-                        : `Your rating has been less than your cohort's minimum rating for 90 days. We recommend moving down a cohort in your settings.`}
-                </Alert>
-            </Snackbar>
-        </>
+                    : `Your rating has been less than your cohort's minimum rating for 90 days. We recommend moving down a cohort in your settings.`}
+            </Alert>
+        </Snackbar>
     );
 }
