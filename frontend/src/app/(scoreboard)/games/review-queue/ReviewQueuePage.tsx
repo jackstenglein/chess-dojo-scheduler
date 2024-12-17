@@ -4,6 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { isValidDate } from '@/calendar/eventEditor/useEventEditor';
 import { RenderPlayersCell, RenderResult } from '@/components/games/list/GameListItem';
+import { ONE_WEEK_IN_MS } from '@/components/time/time';
 import { CustomPagination } from '@/components/ui/CustomPagination';
 import { GameInfo, GameReviewType } from '@/database/game';
 import { usePagination } from '@/hooks/usePagination';
@@ -19,8 +20,6 @@ import {
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
-
-export const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 
 const columns: GridColDef<GameInfo>[] = [
     {
@@ -125,7 +124,7 @@ const columns: GridColDef<GameInfo>[] = [
             if (!isValidDate(d)) {
                 return '';
             }
-            return new Date(d.getTime() + ONE_WEEK)
+            return new Date(d.getTime() + ONE_WEEK_IN_MS)
                 .toISOString()
                 .split('T')[0]
                 .replaceAll('-', '.');

@@ -1,9 +1,9 @@
+import { ONE_WEEK_IN_MS } from '@/components/time/time';
 import { LoadingButton } from '@mui/lab';
 import { Link, Stack, Typography } from '@mui/material';
 import NextLink from 'next/link';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import { ONE_WEEK } from '../../../../../app/(scoreboard)/games/review-queue/ReviewQueuePage';
 import { useAuth } from '../../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
 import { displayGameReviewType, Game } from '../../../../../database/game';
@@ -36,7 +36,7 @@ const GameReviewDetails: React.FC<AdminSettingsProps> = ({ game, onSaveGame }) =
         user?.timeFormat,
     );
     const reviewDeadline = toDojoDateString(
-        new Date(requestDate.getTime() + ONE_WEEK),
+        new Date(requestDate.getTime() + ONE_WEEK_IN_MS),
         user?.timezoneOverride,
     );
 
