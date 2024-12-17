@@ -1,14 +1,9 @@
-'use client';
-
-import dynamic from 'next/dynamic';
 import { useReportWebVitals } from 'next/web-vitals';
 import ReactGA from 'react-ga4';
 
-const App = dynamic(() => import('@/App'), { ssr: false });
-
 ReactGA.initialize('G-9VPNTDELD2');
 
-export function ClientOnly() {
+export function WebVitals() {
     useReportWebVitals(({ id, name, value }) => {
         ReactGA.event({
             category: 'Web Vitals',
@@ -22,6 +17,4 @@ export function ClientOnly() {
             transport: 'beacon',
         });
     });
-
-    return <App />;
 }

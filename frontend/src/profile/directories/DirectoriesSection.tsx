@@ -3,7 +3,7 @@ import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { NavigationMenu } from '@/components/directories/navigation/NavigationMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
-import { useSearchParams } from '@/hooks/useSearchParams';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import {
     compareRoles,
@@ -67,7 +67,9 @@ export const DirectoriesSection = ({
     sx,
 }: DirectoriesSectionProps) => {
     const api = useApi();
-    const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
+    const { searchParams, updateSearchParams } = useNextSearchParams({
+        directory: 'home',
+    });
 
     const [columnVisibility, setColumnVisibility] =
         useLocalStorage<GridColumnVisibilityModel>(

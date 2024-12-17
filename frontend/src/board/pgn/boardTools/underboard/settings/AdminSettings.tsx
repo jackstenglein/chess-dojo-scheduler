@@ -2,10 +2,10 @@ import { LoadingButton } from '@mui/lab';
 import { Link, Stack, Typography } from '@mui/material';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
+import { ONE_WEEK } from '../../../../../app/(scoreboard)/games/review-queue/ReviewQueuePage';
 import { useAuth } from '../../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
 import { displayGameReviewType, Game } from '../../../../../database/game';
-import { ONE_WEEK } from '../../../../../games/review/ReviewQueuePage';
 import Avatar from '../../../../../profile/Avatar';
 
 interface AdminSettingsProps {

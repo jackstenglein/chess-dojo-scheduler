@@ -1,3 +1,5 @@
+'use client';
+
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { isMissingData } from '@/api/gameApi';

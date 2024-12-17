@@ -1,3 +1,5 @@
+'use client';
+
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { isValidDate } from '@/calendar/eventEditor/useEventEditor';
@@ -130,7 +132,7 @@ const columns: GridColDef<GameInfo>[] = [
     },
 ];
 
-const ReviewQueuePage = () => {
+export function ReviewQueuePage() {
     const router = useRouter();
     const api = useApi();
     const search = useCallback(
@@ -211,6 +213,4 @@ const ReviewQueuePage = () => {
             />
         </Container>
     );
-};
-
-export default ReviewQueuePage;
+}

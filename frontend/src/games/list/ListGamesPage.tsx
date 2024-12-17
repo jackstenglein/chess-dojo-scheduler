@@ -1,3 +1,5 @@
+'use client';
+
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';

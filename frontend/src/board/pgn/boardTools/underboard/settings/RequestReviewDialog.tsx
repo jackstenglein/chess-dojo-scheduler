@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { ListGamesResponse } from '../../../../../api/gameApi';
+import { ONE_WEEK } from '../../../../../app/(scoreboard)/games/review-queue/ReviewQueuePage';
 import { useAuth } from '../../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
 import {
@@ -30,7 +31,6 @@ import {
     GameReviewType,
     displayGameReviewType,
 } from '../../../../../database/game';
-import { ONE_WEEK } from '../../../../../games/review/ReviewQueuePage';
 import Avatar from '../../../../../profile/Avatar';
 
 const estimatedReviewDate = new Date(new Date().getTime() + ONE_WEEK);

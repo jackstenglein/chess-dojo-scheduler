@@ -1,3 +1,5 @@
+'use client';
+
 import { RequestSnackbar } from '@/api/Request';
 import useSaveGame from '@/hooks/useSaveGame';
 import { Chess } from '@jackstenglein/chess';
