@@ -14,6 +14,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import NextLink from 'next/link';
 import { useMemo } from 'react';
 
 export function NewsfeedListPage() {
@@ -87,7 +88,9 @@ export function NewsfeedListPage() {
                             >
                                 <Typography variant='h6'>Graduations</Typography>
 
-                                <Link href='/recent'>View All</Link>
+                                <Link component={NextLink} href='/recent'>
+                                    View All
+                                </Link>
                             </Stack>
 
                             <NewsfeedList initialNewsfeedIds={['GRADUATIONS']} />

@@ -3,6 +3,7 @@ import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
 import { Link, Stack, Typography } from '@mui/material';
+import NextLink from 'next/link';
 
 interface OwnerFieldProps {
     title: string;
@@ -26,7 +27,7 @@ const OwnerField: React.FC<OwnerFieldProps> = ({ title, event }) => {
                     displayName={event.ownerDisplayName}
                     size={25}
                 />
-                <Link href={`/profile/${event.owner}`}>
+                <Link component={NextLink} href={`/profile/${event.owner}`}>
                     <Typography variant='body1'>
                         {event.ownerDisplayName} ({event.ownerCohort})
                     </Typography>

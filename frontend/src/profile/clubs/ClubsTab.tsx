@@ -5,6 +5,7 @@ import { ListClubItem } from '@/components/clubs/ClubGrid';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { Link, Stack, Typography } from '@mui/material';
+import NextLink from 'next/link';
 
 interface ClubsTabProps {
     /** The user whose joined clubs will be displayed. */
@@ -36,7 +37,11 @@ const ClubsTab: React.FC<ClubsTabProps> = ({ user }) => {
                     <>
                         <Typography>You have not joined any clubs yet.</Typography>
                         <Typography>
-                            Go to the <Link href='/clubs'>Clubs page</Link> to join some!
+                            Go to the{' '}
+                            <Link component={NextLink} href='/clubs'>
+                                Clubs page
+                            </Link>{' '}
+                            to join some!
                         </Typography>
                     </>
                 ) : (

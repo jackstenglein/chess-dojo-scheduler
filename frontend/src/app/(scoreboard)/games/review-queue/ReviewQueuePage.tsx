@@ -16,6 +16,7 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
@@ -49,7 +50,7 @@ const columns: GridColDef<GameInfo>[] = [
                         displayName={params.row.ownerDisplayName}
                         size={32}
                     />
-                    <Link href={`/profile/${params.row.owner}`}>
+                    <Link component={NextLink} href={`/profile/${params.row.owner}`}>
                         {params.row.ownerDisplayName}
                     </Link>
                 </Stack>

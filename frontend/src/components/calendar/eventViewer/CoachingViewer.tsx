@@ -8,7 +8,7 @@ import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { LoadingButton } from '@mui/lab';
 import { Alert, Button, Stack, Typography } from '@mui/material';
-import RouterLink from 'next/link';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import Field from './Field';
 import OwnerField from './OwnerField';
@@ -108,7 +108,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             {isOwner || isParticipant ? (
                 <Button
-                    component={RouterLink}
+                    component={NextLink}
                     variant='contained'
                     href={`/meeting/${event.id}`}
                     color='success'

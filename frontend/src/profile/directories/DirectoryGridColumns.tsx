@@ -13,6 +13,7 @@ import {
 import { Folder, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
+import NextLink from 'next/link';
 import Avatar from '../Avatar';
 
 export const publicColumns: GridColDef<DirectoryItem>[] = [
@@ -141,7 +142,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
                         displayName={item.metadata.ownerDisplayName}
                         size={32}
                     />
-                    <Link href={`/profile/${item.metadata.owner}`}>
+                    <Link component={NextLink} href={`/profile/${item.metadata.owner}`}>
                         {item.metadata.ownerDisplayName}
                     </Link>
                 </Stack>

@@ -41,7 +41,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import RouterLink from 'next/link';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import NotificationSettingsEditor from './NotificationSettingsEditor';
@@ -546,7 +546,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
                                 </LoadingButton>
 
                                 <Button
-                                    component={RouterLink}
+                                    component={NextLink}
                                     variant='contained'
                                     color='error'
                                     disableElevation
@@ -745,7 +745,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
                                                     <>
                                                         Learn how to find your DWZ ID{' '}
                                                         <Link
-                                                            component={RouterLink}
+                                                            component={NextLink}
                                                             href='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
                                                         >
                                                             here

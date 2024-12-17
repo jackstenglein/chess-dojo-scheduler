@@ -43,7 +43,7 @@ import {
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
-import RouterLink from 'next/link';
+import NextLink from 'next/link';
 import { useEffect } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
@@ -170,7 +170,7 @@ function AuthProfilePage({
                             <Stack direction='row' spacing={2}>
                                 <GraduationDialog />
                                 <Button
-                                    component={RouterLink}
+                                    component={NextLink}
                                     id='edit-profile-button'
                                     variant='contained'
                                     startIcon={<Edit />}

@@ -22,6 +22,7 @@ import {
     GridRenderCellParams,
     GridRowModel,
 } from '@mui/x-data-grid-pro';
+import NextLink from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
 
 const AllColumns: GridColDef<User>[] = [
@@ -43,7 +44,9 @@ const AllColumns: GridColDef<User>[] = [
                         displayName={params.value}
                         size={32}
                     />
-                    <Link href={`/profile/${params.row.username}`}>{params.value}</Link>
+                    <Link component={NextLink} href={`/profile/${params.row.username}`}>
+                        {params.value}
+                    </Link>
                 </Stack>
             );
         },

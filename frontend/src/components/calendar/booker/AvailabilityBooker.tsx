@@ -34,6 +34,7 @@ import {
 import { TransitionProps } from '@mui/material/transitions';
 import { TimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import Field from '../eventViewer/Field';
@@ -284,6 +285,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                         />
                                         <Link
                                             key={p.username}
+                                            component={NextLink}
                                             href={`/profile/${p.username}`}
                                         >
                                             <Typography variant='body1'>

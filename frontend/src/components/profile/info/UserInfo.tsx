@@ -3,6 +3,7 @@ import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import WarningIcon from '@mui/icons-material/Warning';
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
+import NextLink from 'next/link';
 
 interface UserInfoProps {
     user: User;
@@ -24,7 +25,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, linkUsername }) => {
                 >
                     <Typography variant='h4'>
                         {linkUsername ? (
-                            <Link href={`/profile/${user.username}`}>
+                            <Link component={NextLink} href={`/profile/${user.username}`}>
                                 {user.displayName}
                             </Link>
                         ) : (

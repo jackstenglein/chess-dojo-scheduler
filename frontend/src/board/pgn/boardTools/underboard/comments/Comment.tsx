@@ -26,6 +26,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import NextLink from 'next/link';
 import React, { useState } from 'react';
 import Replies from './Replies';
 import ReplyEditor from './ReplyEditor';
@@ -345,6 +346,7 @@ const CommentInfo: React.FC<CommentProps> = ({ comment }) => {
             />
             <Stack direction='row' spacing={1} alignItems='center'>
                 <Link
+                    component={NextLink}
                     href={`/profile/${comment.owner.username}`}
                     sx={{ textDecoration: 'none' }}
                 >

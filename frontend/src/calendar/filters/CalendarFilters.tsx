@@ -34,6 +34,7 @@ import MuiAccordionSummary, {
 } from '@mui/material/AccordionSummary';
 import { Theme, styled } from '@mui/material/styles';
 import { DateTime } from 'luxon';
+import NextLink from 'next/link';
 import React, { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import TimezoneFilter from './TimezoneFilter';
@@ -364,6 +365,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         <Stack data-cy='calendar-filters' spacing={{ xs: 3, sm: 4 }}>
             {meetingCount > 0 && (
                 <Link
+                    component={NextLink}
                     href='/meeting'
                     sx={{
                         alignSelf: 'center',

@@ -9,6 +9,7 @@ import LoadingPage from '@/loading/LoadingPage';
 import Scoreboard from '@/scoreboard/Scoreboard';
 import { Container, Link } from '@mui/material';
 import { GridToolbarContainer } from '@mui/x-data-grid-pro';
+import NextLink from 'next/link';
 import { useEffect } from 'react';
 
 export function ClubScoreboardPage({ id }: { id: string }) {
@@ -70,7 +71,7 @@ export function ClubScoreboardPage({ id }: { id: string }) {
 function CustomToolbar({ id }: { id?: string }) {
     return (
         <GridToolbarContainer>
-            <Link href={`/clubs/${id}`} sx={{ mt: 0.5, ml: 0.5 }}>
+            <Link component={NextLink} href={`/clubs/${id}`} sx={{ mt: 0.5, ml: 0.5 }}>
                 Go to Club
             </Link>
         </GridToolbarContainer>

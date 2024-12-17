@@ -23,6 +23,7 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { LicenseInfo } from '@mui/x-license';
+import NextLink from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
 LicenseInfo.setLicenseKey(MUI_LICENSE_KEY);
@@ -90,7 +91,9 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
                         displayName={params.value}
                         size={32}
                     />
-                    <Link href={`/profile/${params.row.username}`}>{params.value}</Link>
+                    <Link component={NextLink} href={`/profile/${params.row.username}`}>
+                        {params.value}
+                    </Link>
                 </Stack>
             );
         },

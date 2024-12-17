@@ -13,7 +13,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import RouterLink from 'next/link';
+import NextLink from 'next/link';
 import { ReactNode } from 'react';
 
 interface TacticsScoreCardProps {
@@ -175,7 +175,7 @@ function getTooltip(
 
 const LinkIf = ({ to, children }: { to?: string; children: ReactNode }) => {
     return to ? (
-        <Link component={RouterLink} href={to}>
+        <Link component={NextLink} href={to}>
             {children}
         </Link>
     ) : (

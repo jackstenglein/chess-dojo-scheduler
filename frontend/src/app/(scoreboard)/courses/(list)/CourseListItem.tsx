@@ -15,6 +15,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { CourseFilters } from './CourseFilters';
@@ -105,6 +106,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                     <Typography variant='body2'>
                         By{' '}
                         <Link
+                            component={NextLink}
                             href={`/profile/${course.owner}`}
                             onClick={(e) => e.stopPropagation()}
                         >

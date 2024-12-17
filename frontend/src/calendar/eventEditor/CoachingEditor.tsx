@@ -12,7 +12,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import RouterLink from 'next/link';
+import NextLink from 'next/link';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
@@ -170,7 +170,7 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                 variant='filled'
                 action={
                     <Button
-                        component={RouterLink}
+                        component={NextLink}
                         color='inherit'
                         size='small'
                         href='/coach'

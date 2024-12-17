@@ -1,5 +1,6 @@
 import { Chapter, Course } from '@/database/course';
 import { Card, CardContent, Link } from '@mui/material';
+import NextLink from 'next/link';
 
 interface ChapterContentsProps {
     chapter: Chapter;
@@ -10,7 +11,11 @@ const ChapterContents: React.FC<ChapterContentsProps> = ({ chapter, index }) => 
     return (
         <ol>
             {chapter.modules.map((m, idx) => (
-                <Link key={m.name} href={`?chapter=${index}&module=${idx}`}>
+                <Link
+                    key={m.name}
+                    component={NextLink}
+                    href={`?chapter=${index}&module=${idx}`}
+                >
                     <li>{m.name}</li>
                 </Link>
             ))}

@@ -12,6 +12,7 @@ import {
     GridRowModel,
 } from '@mui/x-data-grid-pro';
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
+import NextLink from 'next/link';
 import { useMemo, useState } from 'react';
 import { useFreeTier } from '../auth/Auth';
 import { isGraduation } from '../database/graduation';
@@ -79,7 +80,10 @@ const displayNameColumn: GridColDef<ScoreboardRow> = {
                     displayName={params.value}
                     size={32}
                 />
-                <Link href={`/profile/${params.row.username.replace('#pinned', '')}`}>
+                <Link
+                    component={NextLink}
+                    href={`/profile/${params.row.username.replace('#pinned', '')}`}
+                >
                     {params.value}
                 </Link>
             </Stack>

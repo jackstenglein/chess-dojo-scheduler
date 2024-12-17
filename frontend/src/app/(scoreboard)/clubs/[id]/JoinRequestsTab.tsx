@@ -15,6 +15,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import NextLink from 'next/link';
 
 interface JoinRequestsTabProps {
     club: ClubDetails;
@@ -134,7 +135,10 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                     />
 
                     <Stack>
-                        <Link href={`/profile/${joinRequest.username}`}>
+                        <Link
+                            component={NextLink}
+                            href={`/profile/${joinRequest.username}`}
+                        >
                             {joinRequest.displayName}
                         </Link>
                         <Typography color='text.secondary'>

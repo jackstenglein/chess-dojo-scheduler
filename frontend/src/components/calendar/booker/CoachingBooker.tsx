@@ -17,7 +17,7 @@ import {
     Toolbar,
     Typography,
 } from '@mui/material';
-import RouterLink from 'next/link';
+import NextLink from 'next/link';
 import Field from '../eventViewer/Field';
 import OwnerField from '../eventViewer/OwnerField';
 import ParticipantsList from '../eventViewer/ParticipantsList';
@@ -82,7 +82,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     </Typography>
                     <Button
                         data-cy='cancel-button'
-                        component={RouterLink}
+                        component={NextLink}
                         color='error'
                         href={'/calendar'}
                         disabled={request.status === RequestStatus.Loading}

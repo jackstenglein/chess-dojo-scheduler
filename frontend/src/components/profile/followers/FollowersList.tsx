@@ -7,6 +7,7 @@ import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
 import { LoadingButton } from '@mui/lab';
 import { Link, Stack, Typography } from '@mui/material';
+import NextLink from 'next/link';
 import React, { useEffect } from 'react';
 
 export const FollowersList = ({
@@ -125,7 +126,10 @@ const FollowerListItem: React.FC<FollowerListItemProps> = ({
                     fontSize={{ xs: '0.76rem', sm: '0.98rem' }}
                 />
 
-                <Link href={`/profile/${isFollowing ? entry.poster : entry.follower}`}>
+                <Link
+                    component={NextLink}
+                    href={`/profile/${isFollowing ? entry.poster : entry.follower}`}
+                >
                     {isFollowing ? entry.posterDisplayName : entry.followerDisplayName}
                 </Link>
             </Stack>

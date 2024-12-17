@@ -10,6 +10,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
+import NextLink from 'next/link';
 
 export const MastersCohort = 'masters';
 export const MastersOwnerDisplayName = 'Masters DB';
@@ -265,7 +266,9 @@ export function RenderOwner({
             alignItems='center'
             onClick={(e) => e.stopPropagation()}
         >
-            <Link href={`/profile/${owner}`}>{ownerDisplayName}</Link>
+            <Link component={NextLink} href={`/profile/${owner}`}>
+                {ownerDisplayName}
+            </Link>
         </Stack>
     );
 }

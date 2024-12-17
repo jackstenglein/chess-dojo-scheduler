@@ -19,6 +19,7 @@ import {
     Typography,
 } from '@mui/material';
 import { AxiosResponse } from 'axios';
+import NextLink from 'next/link';
 import { useEffect, useState } from 'react';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
@@ -316,7 +317,10 @@ const CompletedDialogContent: React.FC<{ game: Game }> = ({ game }) => {
                             username={review.reviewer?.username}
                             displayName={review.reviewer?.displayName}
                         />
-                        <Link href={`/profile/${review.reviewer?.username}`}>
+                        <Link
+                            component={NextLink}
+                            href={`/profile/${review.reviewer?.username}`}
+                        >
                             {review.reviewer?.displayName} ({review.reviewer?.cohort})
                         </Link>
                     </Stack>

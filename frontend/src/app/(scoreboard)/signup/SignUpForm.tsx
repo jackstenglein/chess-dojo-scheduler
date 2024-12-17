@@ -7,6 +7,7 @@ import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle, Email as EmailIcon, Lock as LockIcon } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { InputAdornment, Link, Stack, TextField, Typography } from '@mui/material';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import GoogleButton from 'react-google-button';
@@ -188,7 +189,7 @@ export const SignUpForm = () => {
                 />
                 <Typography variant='body2' component='div' gutterBottom>
                     Already have an account?{' '}
-                    <Link href='/signin' data-cy='signin-button'>
+                    <Link component={NextLink} href='/signin' data-cy='signin-button'>
                         Sign In
                     </Link>
                 </Typography>

@@ -54,6 +54,7 @@ import {
     Typography,
     useMediaQuery,
 } from '@mui/material';
+import NextLink from 'next/link';
 import React, { useState } from 'react';
 import { AuthStatus, useAuth } from '../auth/Auth';
 import { hasCreatedProfile } from '../database/user';
@@ -65,6 +66,7 @@ import UnauthenticatedMenu, {
 export const Logo = () => {
     return (
         <Link
+            component={NextLink}
             href='/'
             sx={{
                 height: '100%',

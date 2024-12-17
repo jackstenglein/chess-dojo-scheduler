@@ -26,6 +26,7 @@ import {
     Typography,
     useTheme,
 } from '@mui/material';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
@@ -322,7 +323,12 @@ const Description: React.FC<{ description: string }> = ({ description }) => {
                     p: (props) => <Typography>{props.children}</Typography>,
                     pre: (props) => <>{props.children}</>,
                     a: (props) => (
-                        <Link href={props.href} target='_blank' rel='noreferrer'>
+                        <Link
+                            component={NextLink}
+                            href={props.href || ''}
+                            target='_blank'
+                            rel='noreferrer'
+                        >
                             {props.children}
                         </Link>
                     ),
