@@ -50,7 +50,6 @@ export default function AnalysisBoard() {
                         DefaultUnderboardTab.Editor,
                         DefaultUnderboardTab.Explorer,
                         DefaultUnderboardTab.Clocks,
-                        DefaultUnderboardTab.Share,
                         DefaultUnderboardTab.Settings,
                     ]}
                     allowMoveDeletion={true}
