@@ -2,7 +2,7 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
 import { NextRequireAuth } from '@/components/auth/NextRequireAuth';
 import { Game, GameInfo } from '@/database/game';

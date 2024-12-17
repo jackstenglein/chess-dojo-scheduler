@@ -19,4 +19,6 @@ export function WebVitals() {
             transport: 'beacon',
         });
     });
+
+    return null;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
 import PgnErrorBoundaryNavigator from '@/games/view/PgnErrorBoundary';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
