@@ -15,6 +15,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import { CourseFilters } from './CourseFilters';
 
@@ -36,6 +37,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
     const api = useApi();
     const request = useRequest();
     const isAccessible = isPurchased || (course.includedWithSubscription && !isFreeTier);
+    const router = useRouter();
 
     if (!preview && filters) {
         if (!filters.categories[course.type]) {
@@ -80,7 +82,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
             window.location.href,
         )
             .then((resp) => {
-                window.location.href = resp.data.url;
+                router.push(resp.data.url);
                 request.onSuccess();
             })
             .catch((err) => {

@@ -26,6 +26,7 @@ import {
     GridToolbarDensitySelector,
     GridToolbarFilterButton,
 } from '@mui/x-data-grid-pro';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { AddButton } from './AddButton';
@@ -70,6 +71,7 @@ export const DirectoriesSection = ({
     const { searchParams, updateSearchParams } = useNextSearchParams({
         directory: 'home',
     });
+    const router = useRouter();
 
     const [columnVisibility, setColumnVisibility] =
         useLocalStorage<GridColumnVisibilityModel>(
@@ -132,6 +134,7 @@ export const DirectoriesSection = ({
     if (!directory) {
         return <NotFoundPage />;
     }
+
     const onClickRow = (params: GridRowParams<DirectoryItem>) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
             updateSearchParams({
@@ -142,10 +145,12 @@ export const DirectoriesSection = ({
                         : directory.owner,
             });
         } else {
-            window.location.href = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
-                '?',
-                '%3F',
-            )}?directory=${directory.id}&directoryOwner=${directory.owner}`;
+            router.push(
+                `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
+                    '?',
+                    '%3F',
+                )}?directory=${directory.id}&directoryOwner=${directory.owner}`,
+            );
         }
     };
 

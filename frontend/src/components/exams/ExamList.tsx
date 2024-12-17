@@ -26,6 +26,7 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 interface CohortRangeExams {
@@ -306,6 +307,7 @@ export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [upsellOpen, setUpsellOpen] = useState(false);
     const isFreeTier = useFreeTier();
+    const router = useRouter();
 
     const examColumns = useMemo(() => {
         const examColumns: GridColDef<ExamInfo>[] = [
@@ -344,7 +346,7 @@ export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
 
     const onClickRow = (params: GridRowParams<ExamInfo>) => {
         if (params.row.exam.answers[user?.username || '']) {
-            window.location.href = `/tests/${params.row.exam.type}/${params.row.id}/exam`;
+            router.push(`/tests/${params.row.exam.type}/${params.row.id}/exam`);
             return;
         }
 
@@ -358,7 +360,7 @@ export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);
         } else {
-            window.location.href = `/tests/${params.row.exam.type}/${params.row.id}`;
+            router.push(`/tests/${params.row.exam.type}/${params.row.id}`);
         }
     };
 

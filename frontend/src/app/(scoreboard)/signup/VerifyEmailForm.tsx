@@ -7,6 +7,7 @@ import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export const VerifyEmailForm = ({
@@ -19,6 +20,7 @@ export const VerifyEmailForm = ({
     password: string;
 }) => {
     const auth = useAuth();
+    const router = useRouter();
 
     const [code, setCode] = useState('');
     const [codeError, setCodeError] = useState<string>();
@@ -27,7 +29,7 @@ export const VerifyEmailForm = ({
     const codeRequest = useRequest<string>();
 
     if (auth.status === AuthStatus.Authenticated) {
-        window.location.href = '/profile';
+        router.push('/profile');
         return;
     }
 

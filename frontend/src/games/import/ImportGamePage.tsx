@@ -5,12 +5,13 @@ import useSaveGame from '@/hooks/useSaveGame';
 import { Chess } from '@jackstenglein/chess';
 import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Container } from '@mui/material';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ImportWizard from './ImportWizard';
 
 const ImportGamePage = () => {
     const searchParams = useSearchParams();
     const { setStagedGame, createGame, request } = useSaveGame();
+    const router = useRouter();
 
     const onCreate = async (req: CreateGameRequest) => {
         if (searchParams.has('directory') && searchParams.has('directoryOwner')) {
@@ -24,7 +25,7 @@ const ImportGamePage = () => {
             try {
                 new Chess({ pgn: req.pgnText });
                 setStagedGame(req);
-                window.location.href = '/games/analysis';
+                router.push('/games/analysis');
             } catch (err) {
                 console.error('setStagedGame: ', err);
                 request.onFailure({ message: 'Invalid PGN' });

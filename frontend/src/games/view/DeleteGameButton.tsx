@@ -9,6 +9,7 @@ import {
     IconButton,
     Tooltip,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
@@ -27,6 +28,7 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
     const api = useApi();
     const request = useRequest();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const router = useRouter();
 
     const onDelete = () => {
         request.onStart();
@@ -36,7 +38,7 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
                     dojo_cohort: game.cohort,
                 });
                 request.onSuccess();
-                window.location.href = '/profile?view=games';
+                router.push('/profile?view=games');
             })
             .catch((err) => {
                 console.error(err);

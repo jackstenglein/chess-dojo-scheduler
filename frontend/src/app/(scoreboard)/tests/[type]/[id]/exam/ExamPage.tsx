@@ -100,6 +100,7 @@ export function ExamPage({ type, id }: { type: ExamType; id: string }) {
 }
 
 function AuthExamPage({ type, id }: { type: ExamType; id: string }) {
+    const router = useRouter();
     const { request, exam, answer } = useExam({ type, id });
     const inProgress = !answer || answer.attempts.slice(-1)[0].inProgress;
 
@@ -126,7 +127,7 @@ function AuthExamPage({ type, id }: { type: ExamType; id: string }) {
     }
 
     if (!exam) {
-        window.location.href = '/tests';
+        router.push('/tests');
         return null;
     }
 

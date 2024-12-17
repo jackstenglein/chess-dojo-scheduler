@@ -26,6 +26,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 const CANCELATION_DEADLINE = 24 * 1000 * 60 * 60; // 24 hours
 
@@ -97,6 +98,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
     const { user } = useAuth();
     const checkoutRequest = useRequest();
     const api = useApi();
+    const router = useRouter();
 
     if (!user) {
         return <LoadingPage />;
@@ -118,8 +120,8 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
     }
 
     const onCancel = (event: Event) => {
-        window.location.href = '/calendar';
         cache.events.put(event);
+        router.push('/calendar');
     };
 
     const start = new Date(meeting.bookedStartTime || meeting.startTime);
@@ -296,7 +298,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                     </CardContent>
                 </Card>
 
-                <MeetingMessages />
+                <MeetingMessages meetingId={meetingId} />
             </Stack>
         </Container>
     );

@@ -11,6 +11,7 @@ import { SubscriptionStatus, User, dojoCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 export function displayEvent(event: Event, viewer?: User): boolean {
     if (event.type !== EventType.Coaching) {
@@ -83,6 +84,7 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
     const viewer = useAuth().user;
     const api = useApi();
     const request = useRequest();
+    const router = useRouter();
 
     if (!displayEvent(event, viewer)) {
         return null;
@@ -93,7 +95,7 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
 
     const onBook = () => {
         if (!viewer) {
-            window.location.href = '/signup';
+            router.push('/signup');
             return;
         }
 

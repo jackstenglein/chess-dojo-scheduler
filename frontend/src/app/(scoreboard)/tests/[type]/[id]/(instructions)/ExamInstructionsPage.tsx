@@ -18,6 +18,7 @@ import {
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Button, Container, Stack, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 export function ExamInstructionsPage({ type, id }: { type: ExamType; id: string }) {
     const { user, status } = useAuth();
@@ -41,6 +42,7 @@ function AuthExamInstructionPage({
 }) {
     const { request, exam } = useExam({ type, id });
     const answerRequest = useRequest<ExamAnswer>();
+    const router = useRouter();
 
     if (request.isLoading() || !request.isSent()) {
         return <LoadingPage />;
@@ -55,7 +57,7 @@ function AuthExamInstructionPage({
     }
 
     if (!exam) {
-        window.location.href = '/tests';
+        router.push('/tests');
         return null;
     }
 

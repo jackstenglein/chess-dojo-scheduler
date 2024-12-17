@@ -5,14 +5,16 @@ import { useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
 import LoadingPage from '@/loading/LoadingPage';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function StripeCancelationPage({ meetingId }: { meetingId: string }) {
     const api = useApi();
     const request = useRequest();
     const cache = useCache();
-    const { user } = useAuth();
     const put = cache.events.put;
+    const { user } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
         if (user && meetingId && !request.isSent()) {
@@ -21,14 +23,14 @@ export function StripeCancelationPage({ meetingId }: { meetingId: string }) {
                 .then((resp) => {
                     request.onSuccess();
                     put(resp.data);
-                    window.location.href = '/calendar';
+                    router.push('/calendar');
                 })
                 .catch((err) => {
                     console.error(err);
                     request.onFailure(err);
                 });
         }
-    }, [request, api, meetingId, put, user]);
+    }, [request, api, meetingId, put, user, router]);
 
     return <LoadingPage />;
 }

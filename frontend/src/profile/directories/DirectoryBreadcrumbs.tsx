@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { useSearchParams } from '@/hooks/useSearchParams';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { SHARED_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { MoreHoriz, NavigateNext } from '@mui/icons-material';
 import {
@@ -34,7 +34,7 @@ export const DirectoryBreadcrumbs = ({
     variant?: TypographyOwnProps['variant'];
 }) => {
     const { user } = useAuth();
-    const { updateSearchParams } = useSearchParams();
+    const { updateSearchParams } = useNextSearchParams();
     const currentBreadcrumbs = useBreadcrumbs(owner, id, currentProfile);
     const [menuAnchor, setMenuAnchor] = useState<HTMLElement>();
 

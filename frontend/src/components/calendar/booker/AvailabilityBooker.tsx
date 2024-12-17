@@ -34,6 +34,7 @@ import {
 import { TransitionProps } from '@mui/material/transitions';
 import { TimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import Field from '../eventViewer/Field';
 import OwnerField from '../eventViewer/OwnerField';
@@ -56,6 +57,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
     const api = useApi();
     const cache = useCache();
     const user = useAuth().user;
+    const router = useRouter();
 
     const [selectedType, setSelectedType] = useState<AvailabilityType | null>(null);
     const [startTime, setStartTime] = useState<DateTime | null>(null);
@@ -83,8 +85,6 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
     const maxStartStr = toDojoTimeString(maxStartTime, timezone, timeFormat);
 
     const confirmSoloBooking = () => {
-        console.log('confirm solo booking: ', startTime);
-
         const newErrors: Record<string, string> = {};
 
         if (selectedType === null) {
@@ -124,7 +124,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                 });
                 request.onSuccess();
                 cache.events.put(response.data.event);
-                window.location.href = `/meeting/${response.data.event.id}`;
+                router.push(`/meeting/${response.data.event.id}`);
             })
             .catch((err) => {
                 console.error(err);
@@ -145,7 +145,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                 });
                 request.onSuccess();
                 cache.events.put(response.data.event);
-                window.location.href = `/meeting/${response.data.event.id}`;
+                router.push(`/meeting/${response.data.event.id}`);
             })
             .catch((err) => {
                 console.error(err);

@@ -10,6 +10,8 @@ import {
     CreateGameRequest,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { useRouter } from 'next/navigation';
 import { useSessionStorage } from 'usehooks-ts';
 
 const STAGED_CREATE_GAME_KEY = 'useSaveGame:stageCreateGame';
@@ -30,12 +32,13 @@ export default function useSaveGame(): UseSaveGameFields {
         null,
     );
     const { game } = useGame();
+    const router = useRouter();
 
     const createGame = async (createReq: CreateGameRequest) => {
         request.onStart();
         try {
             const response = await api.createGame(createReq);
-            onCreateGame(createReq, response.data);
+            onCreateGame(createReq, response.data, router);
 
             if (isGame(response.data)) {
                 request.onSuccess();
@@ -73,7 +76,11 @@ export default function useSaveGame(): UseSaveGameFields {
     };
 }
 
-function onCreateGame(req: CreateGameRequest, data: Game | EditGameResponse) {
+function onCreateGame(
+    req: CreateGameRequest,
+    data: Game | EditGameResponse,
+    router: AppRouterInstance,
+) {
     if (isGame(data)) {
         const game = data;
         trackEvent(EventType.SubmitGame, {
@@ -88,13 +95,13 @@ function onCreateGame(req: CreateGameRequest, data: Game | EditGameResponse) {
             newUrl += `?directory=${req.directory.id}&directoryOwner=${req.directory.owner}`;
         }
 
-        window.location.href = newUrl;
+        router.push(newUrl);
     } else {
         const count = data.count;
         trackEvent(EventType.SubmitGame, {
             count: count,
             method: req.type,
         });
-        window.location.href = '/profile?view=games';
+        router.push('/profile?view=games');
     }
 }

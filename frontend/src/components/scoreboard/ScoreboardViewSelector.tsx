@@ -8,6 +8,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import SearchIcon from '@mui/icons-material/Search';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { MenuItem, TextField } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 const NO_CLUBS: string[] = [];
 
@@ -34,9 +35,10 @@ const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({
 }) => {
     const { user } = useAuth();
     const { clubs } = useClubs(user?.clubs || NO_CLUBS);
+    const router = useRouter();
 
     const defaultOnChange = (value: string) => {
-        window.location.href = `/scoreboard/${value}`;
+        router.push(`/scoreboard/${value}`);
     };
 
     return (

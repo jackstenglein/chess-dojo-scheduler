@@ -7,6 +7,7 @@ import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle, Email as EmailIcon, Lock as LockIcon } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { InputAdornment, Link, Stack, TextField, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import GoogleButton from 'react-google-button';
 import { VerifyEmailForm } from './VerifyEmailForm';
@@ -18,6 +19,7 @@ enum SignUpStep {
 
 export const SignUpForm = () => {
     const auth = useAuth();
+    const router = useRouter();
     const { searchParams } = useNextSearchParams();
     const redirectUri = searchParams.get('redirectUri');
 
@@ -30,7 +32,7 @@ export const SignUpForm = () => {
     const request = useRequest();
 
     if (auth.status === AuthStatus.Authenticated) {
-        window.location.href = '/profile';
+        router.push('/profile');
         return;
     }
 
