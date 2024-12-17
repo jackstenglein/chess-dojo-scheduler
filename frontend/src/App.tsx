@@ -14,7 +14,6 @@ import {
     useNavigate,
 } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
-import NotFoundPage from './NotFoundPage';
 import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
 import { MUI_LICENSE_KEY } from './config';
@@ -57,8 +56,6 @@ const router = createBrowserRouter(
                     <Route index element={<GamePage />} />
                 </Route>
             </Route>
-
-            <Route path='*' element={<NotFoundPage />} />
         </Route>,
     ),
 );
