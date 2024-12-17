@@ -81,17 +81,13 @@ describe('Calendar Page', () => {
 
         cy.getBySel('upsell-alert')
             .contains('View Prices')
-            .should(
-                'have.attr',
-                'href',
-                '/prices?redirect=http%3A%2F%2Flocalhost%3A3000%2Fcalendar',
-            );
+            .should('have.attr', 'href', '/prices?redirect=/calendar');
 
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
         cy.getBySel('upsell-dialog')
             .contains('View Prices')
-            .should('have.attr', 'href', '/prices');
+            .should('have.attr', 'href', '/prices?redirect=/calendar');
     });
 
     it('displays correct events for tournament filters', () => {

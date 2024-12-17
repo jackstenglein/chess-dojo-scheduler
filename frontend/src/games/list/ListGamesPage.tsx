@@ -2,13 +2,14 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
-import { useFreeTier } from '@/auth/Auth';
+import { useAuth, useFreeTier } from '@/auth/Auth';
 import GameTable from '@/components/games/list/GameTable';
 import { GameInfo } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { usePagination } from '@/hooks/usePagination';
+import LoadingPage from '@/loading/LoadingPage';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
@@ -40,6 +41,7 @@ const ListGamesPage = () => {
     const [reviewQueueLabel, setReviewQueueLabel] = useState('');
     const contextMenu = useDataGridContextMenu();
     const router = useRouter();
+    const { user } = useAuth();
 
     useEffect(() => {
         api.listGamesForReview()
@@ -59,7 +61,9 @@ const ListGamesPage = () => {
     const { pageSize, setPageSize, request, data, onSearch } = pagination;
 
     const onClick = ({ cohort, id }: GameInfo) => {
-        router.push(`${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`);
+        router.push(
+            `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`,
+        );
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
@@ -68,14 +72,14 @@ const ListGamesPage = () => {
         }
     };
 
-    const onImport = () => {
-        router.push('import');
-    };
-
     const onDownloadDatabase = () => {
         setUpsellAction(RestrictedAction.DownloadDatabase);
         setUpsellDialogOpen(true);
     };
+
+    if (!user) {
+        return <LoadingPage />;
+    }
 
     if (isFreeTier && type === 'player') {
         return (
@@ -145,7 +149,8 @@ const ListGamesPage = () => {
                             data-cy='import-game-button'
                             id='import-game-button'
                             variant='contained'
-                            onClick={onImport}
+                            component={NextLink}
+                            href='/games/import'
                             color='success'
                             startIcon={
                                 <Icon

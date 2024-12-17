@@ -46,7 +46,7 @@ describe('Memorize Games Tab', () => {
     it('should restrict free tier users', () => {
         cy.interceptApi('GET', '/user', { fixture: 'auth/freeUser.json' });
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
-        cy.visit('/material?view=memorizeGames');
+        cy.visit('/material/memorizegames');
 
         cy.getBySel('pgn-selector-item').should('have.length', 3);
         cy.getBySel('upsell-message').should('be.visible');

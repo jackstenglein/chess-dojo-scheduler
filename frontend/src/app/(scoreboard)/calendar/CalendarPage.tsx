@@ -24,6 +24,7 @@ import {
     TimeControlType,
 } from '@/database/event';
 import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import Icon, { icons } from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
@@ -439,7 +440,6 @@ export default function CalendarPage() {
     useEffect(() => {
         const timezone =
             filters.timezone === DefaultTimezone ? undefined : filters.timezone;
-        console.log('Setting timezone: ', timezone);
         calendarRef.current?.scheduler.handleState(timezone, 'timeZone');
     }, [calendarRef, filters.timezone]);
 
@@ -490,6 +490,10 @@ export default function CalendarPage() {
             'day',
         );
     }, [calendarRef, weekStartOn, minHour, maxHour]);
+
+    if (!user) {
+        return <LoadingPage />;
+    }
 
     return (
         <Container sx={{ py: 3 }} maxWidth={false}>

@@ -28,7 +28,7 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
     const request = useRequest<Game>();
     const featureRequest = useRequest();
     const updateRequest = useRequest<Game>();
-    const user = useAuth().user;
+    const { user } = useAuth();
     const { searchParams, updateSearchParams } = useNextSearchParams({
         firstLoad: 'false',
     });
