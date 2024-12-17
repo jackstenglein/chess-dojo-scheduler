@@ -28,7 +28,7 @@ import {
 import { TimelineEntry } from '../../database/timeline';
 import { User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import { useTimeline } from '../activity/useTimeline';
+import { useTimelineContext } from '../activity/useTimeline';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -300,7 +300,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     const request = useRequest<AxiosResponse<User>>();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
-    const { entries, request: timelineRequest } = useTimeline(user?.username);
+    const { entries, request: timelineRequest } = useTimelineContext();
 
     const isTimeOnly =
         requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
