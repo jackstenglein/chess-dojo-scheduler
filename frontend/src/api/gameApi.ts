@@ -3,6 +3,7 @@ import {
     GameHeader,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import axios, { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { getConfig } from '../config';
@@ -199,6 +200,15 @@ export interface GameApiContextType {
      * @returns An AxiosResponse containing the updated game.
      */
     markReviewed: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
+
+    /**
+     * Merges a PGN into an existing game.
+     * @param request The request to merge the PGN.
+     * @returns The cohort and id of the updated game.
+     */
+    mergePgn: (
+        request: PgnMergeRequest,
+    ) => Promise<AxiosResponse<Pick<Game, 'cohort' | 'id'>>>;
 }
 
 export interface EditGameResponse {
@@ -574,6 +584,18 @@ export function markReviewed(idToken: string, cohort: string, id: string) {
         { cohort, id, reviewed: true },
         { headers: { Authorization: `Bearer ${idToken}` } },
     );
+}
+
+/**
+ * Sends an API request to merge a PGN into an existing game.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to merge the PGN.
+ * @returns An AxiosResponse containing the cohort and id of the updated game.
+ */
+export function mergePgn(idToken: string, request: PgnMergeRequest) {
+    return axios.post<Pick<Game, 'cohort' | 'id'>>(`${BASE_URL}/game/merge`, request, {
+        headers: { Authorization: `Bearer ${idToken}` },
+    });
 }
 
 /**

@@ -2,16 +2,15 @@
 
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
-import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
+import { MUI_LICENSE_KEY } from '@/config';
 import { GameContext } from '@/context/useGame';
 import { Game } from '@/database/game';
 import { LicenseInfo } from '@mui/x-license';
 import { useEffect } from 'react';
 
-LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
-);
+LicenseInfo.setLicenseKey(MUI_LICENSE_KEY);
 
 export const GameViewer = ({ cohort, id }: { cohort: string; id: string }) => {
     const api = useApi();
@@ -50,6 +49,7 @@ export const GameViewer = ({ cohort, id }: { cohort: string; id: string }) => {
                     DefaultUnderboardTab.Explorer,
                     DefaultUnderboardTab.Clocks,
                 ]}
+                showElapsedMoveTimes
             />
         </GameContext.Provider>
     );

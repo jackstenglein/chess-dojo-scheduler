@@ -1,3 +1,4 @@
+import { metaLead } from '@/analytics/meta';
 import { Box, Container, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import { useState } from 'react';
 import PricingPage from '../../app/(scoreboard)/prices/PricingPage';
@@ -74,12 +75,17 @@ const ProfileCreatorPage = () => {
 
     const Form = steps[activeStep].form;
 
+    const onFreeTier = () => {
+        setShowPricingPage(false);
+        metaLead();
+    };
+
     if (
         showPricingPage &&
         user.subscriptionStatus !== SubscriptionStatus.Subscribed &&
         activeStep === 0
     ) {
-        return <PricingPage onFreeTier={() => setShowPricingPage(false)} />;
+        return <PricingPage onFreeTier={onFreeTier} />;
     }
 
     return (

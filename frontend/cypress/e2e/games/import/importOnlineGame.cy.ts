@@ -1,10 +1,4 @@
-import {
-    cancelPreflight,
-    clickImport,
-    deleteCurrentGame,
-    gameUrlRegex,
-    verifyGame,
-} from './helpers';
+import { clickImport, verifyGame } from './helpers';
 
 const testUrls = {
     lichessChapter: 'https://lichess.org/study/W67VW7nM/3wugVXBW',
@@ -24,7 +18,7 @@ const testUrls = {
 function importUrl(url: string) {
     cy.getBySel('online-game-url').type(url);
     clickImport();
-    cy.location('pathname').should('match', gameUrlRegex);
+    cy.location('pathname').should('equal', '/games/analysis');
 }
 
 describe('Import Games Page - Import Online Games', () => {
@@ -53,7 +47,6 @@ describe('Import Games Page - Import Online Games', () => {
     it('submits from Lichess chapter URL', () => {
         importUrl(testUrls.lichessChapter);
         verifyGame({ white: 'Test1', black: 'Test2', lastMove: 'e4', lastMoveEmt: '0' });
-        deleteCurrentGame();
     });
 
     it('submits from Lichess game URL', () => {
@@ -68,7 +61,6 @@ describe('Import Games Page - Import Online Games', () => {
             },
             lastMoveEmt: '00:17',
         });
-        deleteCurrentGame();
     });
 
     it('submits from Lichess game URL without color', () => {
@@ -83,19 +75,16 @@ describe('Import Games Page - Import Online Games', () => {
             },
             lastMoveEmt: '00:17',
         });
-        deleteCurrentGame();
     });
 
     it('submits from a Lichess chapter URL with missing headers successfully', () => {
         importUrl(testUrls.lichessChapterMissingData);
-        cancelPreflight();
         cy.tick(1000); // Necessary when using cy.clock with modals: https://stackoverflow.com/a/71974637
 
         verifyGame({
             lastMove: 'd4',
             lastMoveEmt: '0',
         });
-        deleteCurrentGame();
     });
 
     it('submits from Chess.com game URL', () => {
@@ -110,22 +99,18 @@ describe('Import Games Page - Import Online Games', () => {
             },
             lastMoveEmt: '00:00',
         });
-        deleteCurrentGame();
     });
 
     it('submits from Chess.com annotations URL (type A)', () => {
         importUrl(testUrls.chesscomAnalysisA);
 
         // This particular analysis is missing headers
-        cancelPreflight();
         cy.tick(1000); // Necessary when using cy.clock with modals: https://stackoverflow.com/a/71974637
 
         verifyGame({
             lastMove: 'Nxb6',
             lastMoveEmt: '0',
         });
-
-        deleteCurrentGame();
     });
 
     it('submits from Chess.com annotations URL (type B)', () => {
@@ -136,7 +121,6 @@ describe('Import Games Page - Import Online Games', () => {
             lastMove: 'e4',
             lastMoveEmt: '0',
         });
-        deleteCurrentGame();
     });
 
     it('submits from Chess.com analysis URL', () => {
@@ -151,7 +135,6 @@ describe('Import Games Page - Import Online Games', () => {
             },
             lastMoveEmt: '00:48',
         });
-        deleteCurrentGame();
     });
 
     if (cy.dojo.env('cognito_username') === 'jackstenglein+test@gmail.com') {
@@ -167,13 +150,11 @@ describe('Import Games Page - Import Online Games', () => {
                 },
                 lastMoveEmt: '00:01',
             });
-            deleteCurrentGame();
         });
     } else {
         it('submits from Chess.com recent game', () => {
             cy.getBySel('recent-game-chesscomGame').should('exist').click();
             verifyGame({});
-            deleteCurrentGame();
         });
     }
 
@@ -190,6 +171,5 @@ describe('Import Games Page - Import Online Games', () => {
             lastMoveEmt: '00:01',
             orientation: 'black',
         });
-        deleteCurrentGame();
     });
 });

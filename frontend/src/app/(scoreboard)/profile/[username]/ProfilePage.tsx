@@ -4,13 +4,13 @@ import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
-import { ActivityCard } from '@/components/profile/info/ActivityCard';
 import { BadgeCard } from '@/components/profile/info/BadgeCard';
 import Bio from '@/components/profile/info/Bio';
 import CoachChip from '@/components/profile/info/CoachChip';
 import CountChip from '@/components/profile/info/CountChip';
 import CreatedAtChip from '@/components/profile/info/CreatedAtChip';
 import DiscordChip from '@/components/profile/info/DiscordChip';
+import { HeatmapCard } from '@/components/profile/info/HeatmapCard';
 import InactiveChip from '@/components/profile/info/InactiveChip';
 import { RatingsCard } from '@/components/profile/info/RatingsCard';
 import TimezoneChip from '@/components/profile/info/TimezoneChip';
@@ -336,7 +336,7 @@ function AuthProfilePage({
             >
                 <Stack spacing={2}>
                     <RatingsCard user={user} />
-                    <ActivityCard user={user} />
+                    <HeatmapCard user={user} />
                     <BadgeCard user={user} />
                 </Stack>
             </Container>

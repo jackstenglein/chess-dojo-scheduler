@@ -11,7 +11,7 @@ import PgnBoard, {
     useChess,
 } from '@/board/pgn/PgnBoard';
 import { useDebounce } from '@/board/pgn/boardTools/boardButtons/StatusIcon';
-import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from '@/board/pgn/pgnText/MoveButton';
 import { getCurrentRating, getNormalizedRating } from '@/database/user';
 import Instructions from '@/exams/instructions/Instructions';

@@ -1,6 +1,7 @@
 import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
+import { NavigationMenu } from '@/components/directories/navigation/NavigationMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useSearchParams } from '@/hooks/useSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
@@ -33,7 +34,6 @@ import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { adminColumns, publicColumns } from './DirectoryGridColumns';
-import { NavigationMenu } from './navigation/NavigationMenu';
 import { ShareButton } from './share/ShareButton';
 
 const pageSizeOptions = [10, 25, 50, 100] as const;

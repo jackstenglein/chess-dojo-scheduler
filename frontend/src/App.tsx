@@ -17,6 +17,7 @@ import ErrorBoundary from './ErrorBoundary';
 import NotFoundPage from './NotFoundPage';
 import LandingPage from './app/(scoreboard)/page';
 import { RequireAuth } from './auth/Auth';
+import { MUI_LICENSE_KEY } from './config';
 import EditGamePage from './games/edit/EditGamePage';
 import ImportGamePage from './games/import/ImportGamePage';
 import ListGamesPage from './games/list/ListGamesPage';
@@ -25,9 +26,7 @@ import GamePage from './games/view/GamePage';
 import { SwitchCohortPrompt } from './profile/SwitchCohortPrompt';
 import { TutorialProvider } from './tutorial/TutorialContext';
 
-LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
-);
+LicenseInfo.setLicenseKey(MUI_LICENSE_KEY);
 
 const router = createBrowserRouter(
     createRoutesFromElements(
