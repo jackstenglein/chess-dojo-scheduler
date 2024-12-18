@@ -10,7 +10,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { useLocation } from 'react-router-dom';
+import NextLink from 'next/link';
 
 export const MastersCohort = 'masters';
 export const MastersOwnerDisplayName = 'Masters DB';
@@ -166,19 +166,11 @@ export function RenderGameResultStack({ result }: { result: string | undefined }
 }
 
 export function BlackIcon() {
-    const light = useLightMode();
-    const location = useLocation();
-
-    let blackIconColor = 'grey.800';
-    if (!light && location.pathname.match(/games\/.+/)) {
-        blackIconColor = 'common.black';
-    }
-
     return (
         <CircleIcon
             sx={{
                 fontSize: { xs: '0.75rem', sm: 'initial' },
-                color: blackIconColor,
+                color: 'grey.700',
             }}
         />
     );
@@ -274,7 +266,9 @@ export function RenderOwner({
             alignItems='center'
             onClick={(e) => e.stopPropagation()}
         >
-            <Link href={`/profile/${owner}`}>{ownerDisplayName}</Link>
+            <Link component={NextLink} href={`/profile/${owner}`}>
+                {ownerDisplayName}
+            </Link>
         </Stack>
     );
 }

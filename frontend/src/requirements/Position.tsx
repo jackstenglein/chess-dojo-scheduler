@@ -1,3 +1,9 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import Board from '@/board/Board';
+import { getLigaIconBasedOnTimeControl } from '@/components/calendar/eventViewer/LigaTournamentViewer';
+import { Position as PositionModel } from '@/database/requirement';
+import Icon from '@/style/Icon';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { LoadingButton } from '@mui/lab';
@@ -16,12 +22,6 @@ import axios from 'axios';
 import copy from 'copy-to-clipboard';
 import { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { EventType, trackEvent } from '../analytics/events';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import Board from '../board/Board';
-import { getLigaIconBasedOnTimeControl } from '../calendar/eventViewer/LigaTournamentViewer';
-import { Position as PositionModel } from '../database/requirement';
-import Icon from '../style/Icon';
 
 export function turnColor(fen: string): 'white' | 'black' {
     const turn = fen.split(' ')[1];

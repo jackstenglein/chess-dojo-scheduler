@@ -27,8 +27,8 @@ import {
     Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
@@ -46,7 +46,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
     const [visibility, setVisibility] = useState(initialVisibility);
     const [orientation, setOrientation] = useState<GameOrientation>(initialOrientation);
     const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
-    const navigate = useNavigate();
+    const router = useRouter();
 
     useEffect(() => {
         setVisibility(initialVisibility);
@@ -173,7 +173,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
                 <Button
                     variant='outlined'
-                    onClick={() => navigate('edit', { state: { game } })}
+                    onClick={() => router.push(`/games/${game.cohort}/${game.id}/edit`)}
                 >
                     Replace PGN
                 </Button>

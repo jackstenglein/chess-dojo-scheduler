@@ -1,4 +1,5 @@
 import { Container, Divider, Link, Stack, Typography } from '@mui/material';
+import NextLink from 'next/link';
 
 export default function InfoPage() {
     return (
@@ -35,7 +36,9 @@ export default function InfoPage() {
                     <Divider sx={{ mb: 1 }} />
                     <Typography>
                         If the tournament is accepting registrations, then the{' '}
-                        <Link href='/tournaments/open-classical'>Tournament Page</Link>{' '}
+                        <Link component={NextLink} href='/tournaments/open-classical'>
+                            Tournament Page
+                        </Link>{' '}
                         will contain a register button. Complete the form with all
                         relevant information. Please ensure your form has been submitted
                         successfully. We cannot accept late registrations. If you miss the
@@ -49,7 +52,9 @@ export default function InfoPage() {
                     <Divider sx={{ mb: 1 }} />
                     <Typography>
                         Once the tournament begins, pairings will be posted on the{' '}
-                        <Link href='/tournaments/open-classical'>Tournament Page</Link>{' '}
+                        <Link component={NextLink} href='/tournaments/open-classical'>
+                            Tournament Page
+                        </Link>{' '}
                         every week, no later than Tuesday at 12:00am EST. The pairings
                         will include your and your partner's Lichess and Discord usernames
                         so that you can contact each other to schedule your game. It is up
@@ -90,7 +95,10 @@ export default function InfoPage() {
                         for submitting the game result. In the case of a draw, you'll have
                         to decide which one of you will submit the game. Please do not
                         submit the game twice. Navigate to the{' '}
-                        <Link href='/tournaments/open-classical/submit-results'>
+                        <Link
+                            component={NextLink}
+                            href='/tournaments/open-classical/submit-results'
+                        >
                             Result Submission Page
                         </Link>{' '}
                         and fill in all relevant information. Please ensure your form
@@ -138,8 +146,10 @@ export default function InfoPage() {
                     <Divider sx={{ mb: 1 }} />
                     <Typography>
                         To view the standings for any round you can navigate to the{' '}
-                        <Link href='/tournaments/open-classical'>Tournament Page</Link>.
-                        At the end of the 7 rounds, winners will be announced.
+                        <Link component={NextLink} href='/tournaments/open-classical'>
+                            Tournament Page
+                        </Link>
+                        . At the end of the 7 rounds, winners will be announced.
                     </Typography>
                 </Stack>
             </Stack>

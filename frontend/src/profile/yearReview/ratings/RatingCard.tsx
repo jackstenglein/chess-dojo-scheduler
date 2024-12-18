@@ -1,3 +1,11 @@
+import {
+    getChartData,
+    getMemberLink,
+    primaryAxis,
+    secondaryAxes,
+} from '@/components/profile/stats/RatingCard';
+import { RatingSystem, formatRatingSystem, getNormalizedRating } from '@/database/user';
+import { YearReviewRatingData } from '@/database/yearReview';
 import { ArrowDownward, ArrowUpward, Help, OpenInNew } from '@mui/icons-material';
 import {
     Box,
@@ -5,24 +13,13 @@ import {
     CardContent,
     Chip,
     Grid2,
+    Link,
     Stack,
     Tooltip,
     Typography,
 } from '@mui/material';
 import { useMemo } from 'react';
 import { Chart } from 'react-charts';
-import {
-    RatingSystem,
-    formatRatingSystem,
-    getNormalizedRating,
-} from '../../../database/user';
-import { YearReviewRatingData } from '../../../database/yearReview';
-import {
-    getChartData,
-    getMemberLink,
-    primaryAxis,
-    secondaryAxes,
-} from '../../stats/RatingCard';
 
 interface RatingCardProps {
     cohort: string;
@@ -52,7 +49,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                     >
                                         {data.username}
                                     </Typography>
-                                    <a
+                                    <Link
                                         target='_blank'
                                         rel='noopener noreferrer'
                                         href={getMemberLink(system, data.username)}
@@ -61,7 +58,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                             color='primary'
                                             sx={{ fontSize: '1rem', ml: '3px' }}
                                         />
-                                    </a>
+                                    </Link>
                                 </>
                             )}
                         </Stack>

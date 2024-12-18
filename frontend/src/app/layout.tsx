@@ -1,4 +1,5 @@
 import { MetaPixel } from '@/components/analytics/MetaPixel';
+import { WebVitals } from '@/components/analytics/WebVitals';
 import { getConfig } from '@/config';
 import { Metadata } from 'next';
 
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body>
                 <MetaPixel />
+                <WebVitals />
                 <div id='root'>{children}</div>
             </body>
         </html>

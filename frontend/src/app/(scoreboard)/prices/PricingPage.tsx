@@ -33,7 +33,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     }
 
     if (user?.subscriptionStatus === SubscriptionStatus.Subscribed) {
-        window.location.href = '/profile';
+        router.push('/profile');
         return;
     }
 

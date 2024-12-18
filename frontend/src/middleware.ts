@@ -30,6 +30,10 @@ const unauthenticatedPaths = [
     /^\/forgot-password$/,
 ];
 
+const authenticatedRedirects: [RegExp, string][] = [
+    [/^\/dojodigest\/unsubscribe$/, '/profile/edit#notifications-email'],
+];
+
 const legacyRoutes = [
     { oldPath: '/books-by-rating', newPath: '/material/books' },
     { oldPath: '/books', newPath: '/material/books' },
@@ -71,6 +75,14 @@ export async function middleware(request: NextRequest) {
             }
         },
     });
+
+    if (authenticated) {
+        for (const [path, redirect] of authenticatedRedirects) {
+            if (pathname.match(path)) {
+                return NextResponse.redirect(new URL(redirect, request.url));
+            }
+        }
+    }
 
     let unauthenticatedPath = false;
     for (const path of unauthenticatedPaths) {

@@ -1,3 +1,4 @@
+import { ONE_WEEK_IN_MS } from '@/components/time/time';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -19,6 +20,7 @@ import {
     Typography,
 } from '@mui/material';
 import { AxiosResponse } from 'axios';
+import NextLink from 'next/link';
 import { useEffect, useState } from 'react';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
@@ -30,10 +32,9 @@ import {
     GameReviewType,
     displayGameReviewType,
 } from '../../../../../database/game';
-import { ONE_WEEK } from '../../../../../games/review/ReviewQueuePage';
 import Avatar from '../../../../../profile/Avatar';
 
-const estimatedReviewDate = new Date(new Date().getTime() + ONE_WEEK);
+const estimatedReviewDate = new Date(new Date().getTime() + ONE_WEEK_IN_MS);
 
 interface RequestReviewDialogProps {
     /** The game to request a review for. */
@@ -316,7 +317,10 @@ const CompletedDialogContent: React.FC<{ game: Game }> = ({ game }) => {
                             username={review.reviewer?.username}
                             displayName={review.reviewer?.displayName}
                         />
-                        <Link href={`/profile/${review.reviewer?.username}`}>
+                        <Link
+                            component={NextLink}
+                            href={`/profile/${review.reviewer?.username}`}
+                        >
                             {review.reviewer?.displayName} ({review.reviewer?.cohort})
                         </Link>
                     </Stack>
@@ -390,7 +394,7 @@ const PendingDialogContent: React.FC<{ game: Game }> = ({ game }) => {
     const timeStr = toDojoTimeString(date, user?.timezoneOverride, user?.timeFormat);
 
     const reviewDeadline = toDojoDateString(
-        new Date(date.getTime() + ONE_WEEK),
+        new Date(date.getTime() + ONE_WEEK_IN_MS),
         user?.timezoneOverride,
     );
 

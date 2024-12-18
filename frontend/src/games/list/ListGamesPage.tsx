@@ -1,7 +1,20 @@
+'use client';
+
 import { useApi } from '@/api/Api';
+import { RequestSnackbar } from '@/api/Request';
+import { useAuth, useFreeTier } from '@/auth/Auth';
 import GameTable from '@/components/games/list/GameTable';
+import ListGamesTutorial from '@/components/tutorial/ListGamesTutorial';
+import { GameInfo } from '@/database/game';
+import { RequirementCategory } from '@/database/requirement';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { usePagination } from '@/hooks/usePagination';
+import LoadingPage from '@/loading/LoadingPage';
+import Icon from '@/style/Icon';
+import UpsellAlert from '@/upsell/UpsellAlert';
+import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
+import UpsellPage from '@/upsell/UpsellPage';
 import {
     Badge,
     Button,
@@ -13,29 +26,22 @@ import {
     Typography,
 } from '@mui/material';
 import { GridPaginationModel } from '@mui/x-data-grid-pro';
+import NextLink from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
-import { RequestSnackbar } from '../../api/Request';
-import { useFreeTier } from '../../auth/Auth';
-import { GameInfo } from '../../database/game';
-import { RequirementCategory } from '../../database/requirement';
-import Icon from '../../style/Icon';
-import UpsellAlert from '../../upsell/UpsellAlert';
-import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
-import UpsellPage from '../../upsell/UpsellPage';
-import ListGamesTutorial from './ListGamesTutorial';
 import { ListItemContextMenu } from './ListItemContextMenu';
 import SearchFilters from './SearchFilters';
 
 const ListGamesPage = () => {
-    const navigate = useNavigate();
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [upsellAction, setUpsellAction] = useState('');
-    const type = useSearchParams()[0].get('type') || '';
+    const type = useNextSearchParams().searchParams.get('type') || '';
     const api = useApi();
     const [reviewQueueLabel, setReviewQueueLabel] = useState('');
     const contextMenu = useDataGridContextMenu();
+    const router = useRouter();
+    const { user } = useAuth();
 
     useEffect(() => {
         api.listGamesForReview()
@@ -55,7 +61,9 @@ const ListGamesPage = () => {
     const { pageSize, setPageSize, request, data, onSearch } = pagination;
 
     const onClick = ({ cohort, id }: GameInfo) => {
-        navigate(`${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`);
+        router.push(
+            `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`,
+        );
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
@@ -64,14 +72,14 @@ const ListGamesPage = () => {
         }
     };
 
-    const onImport = () => {
-        navigate('import');
-    };
-
     const onDownloadDatabase = () => {
         setUpsellAction(RestrictedAction.DownloadDatabase);
         setUpsellDialogOpen(true);
     };
+
+    if (!user) {
+        return <LoadingPage />;
+    }
 
     if (isFreeTier && type === 'player') {
         return (
@@ -141,7 +149,8 @@ const ListGamesPage = () => {
                             data-cy='import-game-button'
                             id='import-game-button'
                             variant='contained'
-                            onClick={onImport}
+                            component={NextLink}
+                            href='/games/import'
                             color='success'
                             startIcon={
                                 <Icon
@@ -164,7 +173,7 @@ const ListGamesPage = () => {
                         <Stack spacing={0.5}>
                             <Stack direction='row' spacing={1}>
                                 <Typography variant='body2' alignSelf='start'>
-                                    <Link component={RouterLink} to='/games/review-queue'>
+                                    <Link component={NextLink} href='/games/review-queue'>
                                         <Icon
                                             name='line'
                                             color='primary'

@@ -18,7 +18,7 @@ import {
     signInWithRedirect,
     SignUpOutput,
 } from 'aws-amplify/auth';
-import { AxiosError, AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import {
     createContext,
     ReactNode,
@@ -27,26 +27,15 @@ import {
     useEffect,
     useState,
 } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { EventType, setUser as setAnalyticsUser, trackEvent } from '../analytics/events';
-import { useApi } from '../api/Api';
 import { syncPurchases } from '../api/paymentApi';
-import { useRequest } from '../api/Request';
 import { getUser } from '../api/userApi';
 import {
     clearCheckoutSessionIds,
     getAllCheckoutSessionIds,
 } from '../app/(scoreboard)/courses/localStorage';
-import {
-    CognitoUser,
-    hasCreatedProfile,
-    parseUser,
-    SubscriptionStatus,
-    User,
-} from '../database/user';
-import LoadingPage from '../loading/LoadingPage';
-import ProfileCreatorPage from '../profile/creator/ProfileCreatorPage';
+import { CognitoUser, parseUser, SubscriptionStatus, User } from '../database/user';
 
 const config = getConfig();
 Amplify.configure(
@@ -270,10 +259,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signout = async () => {
         try {
-            await amplifySignOut();
             trackEvent(EventType.Logout);
-            setUser(undefined);
-            setStatus(AuthStatus.Unauthenticated);
+            await amplifySignOut();
+            window.location.href = '/';
         } catch (err) {
             console.error('Error signing out: ', err);
         }
@@ -299,59 +287,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-/**
- * A React component that renders an Outlet only if the current user is signed in and has a completed profile.
- * If the user is not signed in, then they are redirected to the landing page. If the user is signed in, but
- * has not completed their profile, the profile editor page is rendered regardless of the current route.
- */
-export function RequireAuth() {
-    const auth = useAuth();
-    const user = auth.user;
-    const api = useApi();
-    const request = useRequest();
-    const location = useLocation();
-
-    useEffect(() => {
-        if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
-            request.onStart();
-            console.log('Checking user access');
-            api.checkUserAccess()
-                .then(() => {
-                    request.onSuccess();
-                    auth.updateUser({
-                        subscriptionStatus: SubscriptionStatus.Subscribed,
-                    });
-                })
-                .catch((err: AxiosError) => {
-                    console.log('Check user access error: ', err);
-                    request.onFailure(err);
-                    if (err.response?.status === 403) {
-                        auth.updateUser({
-                            subscriptionStatus: SubscriptionStatus.FreeTier,
-                        });
-                    }
-                });
-        }
-    }, [auth, request, api]);
-
-    if (auth.status === AuthStatus.Loading) {
-        return <LoadingPage />;
-    }
-
-    if (auth.status === AuthStatus.Unauthenticated || !user) {
-        return (
-            <Navigate
-                to={`/?redirectUri=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
-                replace
-            />
-        );
-    }
-
-    if (!hasCreatedProfile(user)) {
-        return <ProfileCreatorPage />;
-    }
-
-    return <Outlet />;
 }

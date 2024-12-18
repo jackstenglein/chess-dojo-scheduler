@@ -6,7 +6,6 @@ import {
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { useApi } from '../../api/Api';
 import { useRequest } from '../../api/Request';
 import { Requirement } from '../../database/requirement';
@@ -23,8 +22,7 @@ import {
  * params. The page is expected to have type and id params.
  * @returns The type, id, request, exam and answer.
  */
-export function useExam() {
-    const { type, id } = useParams<{ type: ExamType; id: string }>();
+export function useExam({ type, id }: { type: ExamType; id: string }) {
     const api = useApi();
     const request = useRequest<{ exam: Exam; answer?: ExamAnswer }>();
 

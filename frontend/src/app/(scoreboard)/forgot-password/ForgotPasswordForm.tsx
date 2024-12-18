@@ -7,6 +7,7 @@ import { AccountCircle } from '@mui/icons-material';
 import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import { LoadingButton } from '@mui/lab';
 import { Button, InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import NextLink from 'next/link';
 import { useState } from 'react';
 
 const googleSigninMessage =
@@ -180,6 +181,7 @@ const StartStep: React.FC<StartStepProps> = ({
                 data-cy='cancel-button'
                 variant='text'
                 sx={{ textTransform: 'none' }}
+                component={NextLink}
                 href='/signin'
             >
                 Cancel
@@ -316,7 +318,12 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
                 Reset Password
             </LoadingButton>
 
-            <Button variant='text' sx={{ textTransform: 'none' }} href='/signin'>
+            <Button
+                variant='text'
+                sx={{ textTransform: 'none' }}
+                component={NextLink}
+                href='/signin'
+            >
                 Cancel
             </Button>
         </>
@@ -338,6 +345,7 @@ const SuccessStep = () => {
 
             <Button
                 variant='contained'
+                component={NextLink}
                 href='/signin'
                 fullWidth
                 sx={{
