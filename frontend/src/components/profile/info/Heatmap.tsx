@@ -139,6 +139,7 @@ export function Heatmap({
                 weekStart={weekStartOn}
                 renderColorLegend={(block, level) => (
                     <LegendTooltip
+                        key={level}
                         block={block}
                         level={level}
                         clamp={clamp}

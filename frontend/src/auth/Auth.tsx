@@ -259,10 +259,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signout = async () => {
         try {
-            await amplifySignOut();
             trackEvent(EventType.Logout);
-            setUser(undefined);
-            setStatus(AuthStatus.Unauthenticated);
+            await amplifySignOut();
+            window.location.href = '/';
         } catch (err) {
             console.error('Error signing out: ', err);
         }
@@ -289,56 +288,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-// /**
-//  * A React component that renders an Outlet only if the current user is signed in and has a completed profile.
-//  * If the user is not signed in, then they are redirected to the landing page. If the user is signed in, but
-//  * has not completed their profile, the profile editor page is rendered regardless of the current route.
-//  */
-// export function RequireAuth() {
-//     const auth = useAuth();
-//     const user = auth.user;
-//     const api = useApi();
-//     const request = useRequest();
-
-//     useEffect(() => {
-//         if (auth.status === AuthStatus.Authenticated && !request.isSent()) {
-//             request.onStart();
-//             console.log('Checking user access');
-//             api.checkUserAccess()
-//                 .then(() => {
-//                     request.onSuccess();
-//                     auth.updateUser({
-//                         subscriptionStatus: SubscriptionStatus.Subscribed,
-//                     });
-//                 })
-//                 .catch((err: AxiosError) => {
-//                     console.log('Check user access error: ', err);
-//                     request.onFailure(err);
-//                     if (err.response?.status === 403) {
-//                         auth.updateUser({
-//                             subscriptionStatus: SubscriptionStatus.FreeTier,
-//                         });
-//                     }
-//                 });
-//         }
-//     }, [auth, request, api]);
-
-//     if (auth.status === AuthStatus.Loading) {
-//         return <LoadingPage />;
-//     }
-
-//     if (auth.status === AuthStatus.Unauthenticated || !user) {
-//         return (
-//             <Navigate
-//                 to={`/?redirectUri=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
-//                 replace
-//             />
-//         );
-//     }
-
-//     if (!hasCreatedProfile(user)) {
-//         return <ProfileCreatorPage />;
-//     }
-
-// }

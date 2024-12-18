@@ -18,7 +18,7 @@ import TimezoneChip from '@/components/profile/info/TimezoneChip';
 import UserInfo from '@/components/profile/info/UserInfo';
 import StatsTab from '@/components/profile/stats/StatsTab';
 import { FollowerEntry } from '@/database/follower';
-import { User } from '@/database/user';
+import { hasCreatedProfile, User } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import GamesTab from '@/profile/GamesTab';
@@ -26,6 +26,7 @@ import GraduationDialog from '@/profile/GraduationDialog';
 import ActivityTab from '@/profile/activity/ActivityTab';
 import ClubsTab from '@/profile/clubs/ClubsTab';
 import CoachTab from '@/profile/coach/CoachTab';
+import ProfileCreatorPage from '@/profile/creator/ProfileCreatorPage';
 import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import ProgressTab from '@/profile/progress/ProgressTab';
@@ -106,6 +107,10 @@ function AuthProfilePage({
     }, [api, currentUserProfile, followRequest, username]);
 
     const user = currentUserProfile ? currentUser : request.data;
+
+    if (currentUserProfile && !hasCreatedProfile(currentUser)) {
+        return <ProfileCreatorPage />;
+    }
 
     if (!user && (!request.isSent() || request.isLoading())) {
         return <LoadingPage />;
