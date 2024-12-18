@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo } from 'react';
-import ReactJoyride, { CallBackProps, Step } from 'react-joyride';
-
 import { useApi } from '@/api/Api';
 import { useAuth } from '@/auth/Auth';
-import { useTutorial } from './TutorialContext';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { useCallback, useMemo } from 'react';
+import ReactJoyride, { CallBackProps, Step } from 'react-joyride';
 import { TutorialName } from './tutorialNames';
 import TutorialTooltip from './TutorialTooltip';
 
@@ -14,37 +13,36 @@ interface TutorialProps {
 }
 
 const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
-    const user = useAuth().user;
+    const { searchParams, updateSearchParams } = useNextSearchParams();
+    const { user, updateUser } = useAuth();
     const api = useApi();
-    const darkMode = !user?.enableLightMode;
-    const { tutorialState, setTutorialState } = useTutorial();
 
-    useEffect(() => {
-        if (!user?.tutorials?.[name] && tutorialState.activeTutorial !== name) {
-            setTutorialState({ activeTutorial: name });
-        }
-    }, [user, name, tutorialState, setTutorialState]);
+    const darkMode = !user?.enableLightMode;
 
     const callback = useCallback(
         (state: CallBackProps) => {
             if (state.status === 'finished' || state.action === 'close') {
-                setTutorialState({});
+                const tutorials = {
+                    ...user?.tutorials,
+                    [name]: true,
+                };
+                updateUser({ tutorials });
                 api.updateUser({
-                    tutorials: {
-                        ...user?.tutorials,
-                        [name]: true,
-                    },
+                    tutorials,
                 }).catch((err: unknown) => console.error('completeTutorial: ', err));
+                updateSearchParams({ tutorial: '' });
             }
         },
-        [setTutorialState, api, user?.tutorials, name],
+        [api, user?.tutorials, name, updateUser, updateSearchParams],
     );
 
-    const activeTutorial = tutorialState.activeTutorial;
+    const run =
+        (user && !user.tutorials?.[name]) || searchParams.get('tutorial') === 'true';
+
     const Joyride = useMemo(
         () => (
             <ReactJoyride
-                run={activeTutorial === name}
+                run={run}
                 continuous
                 steps={steps}
                 tooltipComponent={TutorialTooltip}
@@ -59,7 +57,7 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
                 callback={callback}
             />
         ),
-        [activeTutorial, callback, darkMode, steps, name, zIndex],
+        [run, callback, darkMode, steps, zIndex],
     );
 
     return Joyride;

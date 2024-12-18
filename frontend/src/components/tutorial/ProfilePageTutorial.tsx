@@ -1,7 +1,6 @@
 import { Step } from 'react-joyride';
-
-import Tutorial from '../../tutorial/Tutorial';
-import { TutorialName } from '../../tutorial/tutorialNames';
+import Tutorial from './Tutorial';
+import { TutorialName } from './tutorialNames';
 
 const steps: Step[] = [
     {
@@ -32,9 +31,9 @@ const steps: Step[] = [
     },
     {
         target: '#cohort-score-card',
-        title: 'Cohort Score',
+        title: 'Cohort Progress',
         content:
-            "The cohort score card lets you see at a glance how much progress you've made in your cohort tasks, both overall and by category.",
+            "Here you can see at a glance how much progress you've made in your cohort tasks, both overall and by category.",
     },
     {
         target: '#Welcome-to-the-Dojo-header',
@@ -58,7 +57,7 @@ const steps: Step[] = [
         target: '#graduate-button',
         title: 'Graduating',
         content:
-            "When your rating climbs high enough, use this button to graduate. You don't need to complete all of the tasks for your cohort before graduating. Graduating will move you to the next cohort and create a graduation record on the Recent page. Jesse will review one of your games in the next graduation show, so try to submit at least one game analysis before graduating!",
+            "When your rating climbs high enough, use this button to graduate and move to the next cohort. You don't need to complete all of the tasks for your cohort before graduating. Jesse will review one of your games in the next graduation show, so try to submit at least one annotated game before graduating!",
     },
     {
         target: '#edit-profile-button',

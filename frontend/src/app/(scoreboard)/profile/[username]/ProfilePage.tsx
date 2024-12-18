@@ -17,6 +17,7 @@ import { RatingsCard } from '@/components/profile/info/RatingsCard';
 import TimezoneChip from '@/components/profile/info/TimezoneChip';
 import UserInfo from '@/components/profile/info/UserInfo';
 import StatsTab from '@/components/profile/stats/StatsTab';
+import ProfilePageTutorial from '@/components/tutorial/ProfilePageTutorial';
 import { FollowerEntry } from '@/database/follower';
 import { hasCreatedProfile, User } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
@@ -30,7 +31,6 @@ import ProfileCreatorPage from '@/profile/creator/ProfileCreatorPage';
 import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import ProgressTab from '@/profile/progress/ProgressTab';
-import ProfilePageTutorial from '@/profile/tutorials/ProfilePageTutorial';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
     Edit,

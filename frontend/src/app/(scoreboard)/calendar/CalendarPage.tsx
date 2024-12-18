@@ -4,7 +4,6 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useEvents } from '@/api/cache/Cache';
 import { useAuth, useFreeTier } from '@/auth/Auth';
-import CalendarTutorial from '@/calendar/CalendarTutorial';
 import { getTimeZonedDate } from '@/calendar/displayDate';
 import EventEditor from '@/calendar/eventEditor/EventEditor';
 import {
@@ -15,6 +14,7 @@ import {
 } from '@/calendar/filters/CalendarFilters';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
+import CalendarTutorial from '@/components/tutorial/CalendarTutorial';
 import {
     AvailabilityType,
     CalendarSessionType,

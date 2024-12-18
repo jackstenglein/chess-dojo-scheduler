@@ -1,6 +1,7 @@
 'use client';
 
 import {
+    Button,
     Card,
     CardContent,
     CardHeader,
@@ -499,18 +500,14 @@ const AuthenticatedHelp = () => {
                             </Typography>
                         </Stack>
 
-                        {/* <Stack>
+                        <Stack>
                             <Typography variant='h5'>Tutorials</Typography>
                             <Divider />
                             <ul>
                                 <li>
                                     <Button
-                                        onClick={() =>
-                                            onTutorial(
-                                                '/profile',
-                                                TutorialName.ProfilePage,
-                                            )
-                                        }
+                                        component={NextLink}
+                                        href='/profile?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >
                                         Launch Profile Page Tutorial
@@ -518,12 +515,8 @@ const AuthenticatedHelp = () => {
                                 </li>
                                 <li>
                                     <Button
-                                        onClick={() =>
-                                            onTutorial(
-                                                '/scoreboard',
-                                                TutorialName.ScoreboardPage,
-                                            )
-                                        }
+                                        component={NextLink}
+                                        href='/scoreboard?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >
                                         Launch Scoreboard Page Tutorial
@@ -531,12 +524,8 @@ const AuthenticatedHelp = () => {
                                 </li>
                                 <li>
                                     <Button
-                                        onClick={() =>
-                                            onTutorial(
-                                                '/calendar',
-                                                TutorialName.CalendarPage,
-                                            )
-                                        }
+                                        component={NextLink}
+                                        href='/calendar?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >
                                         Launch Calendar Page Tutorial
@@ -544,19 +533,15 @@ const AuthenticatedHelp = () => {
                                 </li>
                                 <li>
                                     <Button
-                                        onClick={() =>
-                                            onTutorial(
-                                                '/games',
-                                                TutorialName.ListGamesPage,
-                                            )
-                                        }
+                                        component={NextLink}
+                                        href='/games?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >
                                         Launch Games Page Tutorial
                                     </Button>
                                 </li>
                             </ul>
-                        </Stack> */}
+                        </Stack>
 
                         {helpSections.map((section) => (
                             <Stack

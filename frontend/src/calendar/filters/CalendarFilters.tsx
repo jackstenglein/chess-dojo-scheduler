@@ -382,7 +382,6 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
             >
                 {!forceExpansion && (
                     <AccordionSummary
-                        id='dojo-calendar-filters'
                         aria-controls='dojocalendar-content'
                         forceExpansion={forceExpansion}
                     >
@@ -404,7 +403,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                             Reset Filters
                         </Button>
 
-                        <Stack>
+                        <Stack data-cy='calendar-filters-selectors'>
                             <Typography variant='h6' color='text.secondary'>
                                 <Icon
                                     name='eventCheck'

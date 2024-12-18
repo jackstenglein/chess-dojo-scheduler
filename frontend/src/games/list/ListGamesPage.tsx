@@ -4,6 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth, useFreeTier } from '@/auth/Auth';
 import GameTable from '@/components/games/list/GameTable';
+import ListGamesTutorial from '@/components/tutorial/ListGamesTutorial';
 import { GameInfo } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
@@ -28,7 +29,6 @@ import { GridPaginationModel } from '@mui/x-data-grid-pro';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import ListGamesTutorial from './ListGamesTutorial';
 import { ListItemContextMenu } from './ListItemContextMenu';
 import SearchFilters from './SearchFilters';
 

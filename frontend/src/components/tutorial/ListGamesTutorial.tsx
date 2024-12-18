@@ -1,7 +1,6 @@
 import { Step } from 'react-joyride';
-
-import Tutorial from '../../tutorial/Tutorial';
-import { TutorialName } from '../../tutorial/tutorialNames';
+import Tutorial from './Tutorial';
+import { TutorialName } from './tutorialNames';
 
 const steps: Step[] = [
     {
@@ -14,15 +13,14 @@ const steps: Step[] = [
     },
     {
         target: '#import-game-button',
-        title: 'Submitting a Game',
+        title: 'Analyzing a Game',
         content:
-            'To submit a game, click this button. You can import games from Lichess studies or manually input a PGN.',
+            'To analyze a game, click this button. You can import games from a variety of sources, and you can choose to keep them private if you want.',
     },
     {
         target: '.MuiDataGrid-row',
-        title: 'Submitted Games',
-        content:
-            'Submitted games appear in this table. Click on a row to view that game.',
+        title: 'Public Games',
+        content: 'Public games appear in this table. Click on a row to view that game.',
     },
     {
         target: '#search-by-cohort',
