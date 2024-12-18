@@ -4,6 +4,7 @@ import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import { SwitchCohortPrompt } from '@/components/profile/SwitchCohortPrompt';
 import { BadgeCard } from '@/components/profile/info/BadgeCard';
 import Bio from '@/components/profile/info/Bio';
 import CoachChip from '@/components/profile/info/CoachChip';
@@ -323,6 +324,7 @@ function AuthProfilePage({
                 {currentUserProfile && (
                     <>
                         <ProfilePageTutorial />
+                        <SwitchCohortPrompt />
                     </>
                 )}
             </Container>
