@@ -20,6 +20,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import NextLink from 'next/link';
 import React, { useMemo, useState } from 'react';
 
 interface SparringRequirementProps {
@@ -200,7 +201,11 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                                         {subsection.hidden > 1 ? 's' : ''} by upgrading to
                                         a full account
                                     </Typography>
-                                    <Button variant='outlined' href='/prices'>
+                                    <Button
+                                        variant='outlined'
+                                        component={NextLink}
+                                        href='/prices'
+                                    >
                                         View Prices
                                     </Button>
                                 </Stack>

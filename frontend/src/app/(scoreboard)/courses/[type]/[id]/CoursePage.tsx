@@ -18,6 +18,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import NextLink from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../../localStorage';
 import Contents from './Contents';
@@ -103,7 +104,12 @@ export const CoursePage = ({ params }: { params: { type: string; id: string } })
                     variant='filled'
                     sx={{ mb: 4 }}
                     action={
-                        <Button href='/signup' size='small' color='inherit'>
+                        <Button
+                            component={NextLink}
+                            href='/signup'
+                            size='small'
+                            color='inherit'
+                        >
                             Create Account
                         </Button>
                     }
@@ -136,6 +142,7 @@ export const CoursePage = ({ params }: { params: { type: string; id: string } })
                         {prevModule && (
                             <Button
                                 variant='contained'
+                                component={NextLink}
                                 href={`/courses/${params.type}/${params.id}?chapter=${prevModule.chapterIndex}&module=${prevModule.moduleIndex}`}
                             >
                                 Previous: {prevModule.name}
@@ -145,6 +152,7 @@ export const CoursePage = ({ params }: { params: { type: string; id: string } })
                         {nextModule && (
                             <Button
                                 variant='contained'
+                                component={NextLink}
                                 href={`/courses/${params.type}/${params.id}?chapter=${nextModule.chapterIndex}&module=${nextModule.moduleIndex}`}
                             >
                                 Next: {nextModule.name}

@@ -26,6 +26,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const CANCELATION_DEADLINE = 24 * 1000 * 60 * 60; // 24 hours
@@ -135,7 +136,12 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
         return (
             <Container maxWidth='md' sx={{ py: 4 }}>
                 <Typography>This meeting has not been booked yet.</Typography>
-                <Button href='/calendar' variant='contained' sx={{ mt: 2 }}>
+                <Button
+                    component={NextLink}
+                    href='/calendar'
+                    variant='contained'
+                    sx={{ mt: 2 }}
+                >
                     Return to Calendar
                 </Button>
             </Container>

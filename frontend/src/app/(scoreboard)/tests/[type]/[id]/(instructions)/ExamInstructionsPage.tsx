@@ -18,6 +18,7 @@ import {
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Button, Container, Stack, Typography } from '@mui/material';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export function ExamInstructionsPage({ type, id }: { type: ExamType; id: string }) {
@@ -120,13 +121,18 @@ function AuthExamInstructionPage({
                     </Typography>
 
                     <Stack direction='row' spacing={2} mt={3}>
-                        <Button variant='contained' href={`/tests/${type}/${id}/exam`}>
+                        <Button
+                            variant='contained'
+                            component={NextLink}
+                            href={`/tests/${type}/${id}/exam`}
+                        >
                             Begin Test
                         </Button>
 
                         {user?.isAdmin && (
                             <Button
                                 variant='outlined'
+                                component={NextLink}
                                 href={`/tests/${type}/${id}/stats`}
                             >
                                 View Stats

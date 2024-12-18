@@ -11,6 +11,7 @@ import { SubscriptionStatus, User, dojoCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export function displayEvent(event: Event, viewer?: User): boolean {
@@ -132,7 +133,11 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
                 sx={{ pb: 0 }}
                 action={
                     isOwner || isParticipant ? (
-                        <Button variant='contained' href={`/meeting/${event.id}`}>
+                        <Button
+                            variant='contained'
+                            component={NextLink}
+                            href={`/meeting/${event.id}`}
+                        >
                             View Details
                         </Button>
                     ) : (

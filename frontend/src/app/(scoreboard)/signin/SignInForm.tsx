@@ -6,6 +6,7 @@ import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle, Lock } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Button, InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import NextLink from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import GoogleButton from 'react-google-button';
@@ -146,6 +147,7 @@ export const SignInForm = () => {
                         data-cy='signup-button'
                         variant='text'
                         sx={{ textTransform: 'none' }}
+                        component={NextLink}
                         href='/signup'
                     >
                         Sign Up
@@ -154,6 +156,7 @@ export const SignInForm = () => {
                         data-cy='forgot-password-button'
                         variant='text'
                         sx={{ textTransform: 'none', alignSelf: 'end' }}
+                        component={NextLink}
                         href='/forgot-password'
                     >
                         Reset Password

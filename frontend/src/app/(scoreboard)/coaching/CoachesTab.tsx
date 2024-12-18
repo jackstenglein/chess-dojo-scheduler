@@ -11,6 +11,7 @@ import { User, compareCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import { Card, CardActionArea, CardContent, Stack } from '@mui/material';
+import NextLink from 'next/link';
 import React, { useEffect } from 'react';
 
 const CoachesTab = () => {
@@ -100,7 +101,7 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
 
     return (
         <Card key={coach.username}>
-            <CardActionArea href={`/profile/${coach.username}`}>
+            <CardActionArea LinkComponent={NextLink} href={`/profile/${coach.username}`}>
                 <CardContent>
                     <Stack spacing={4}>
                         <Stack
