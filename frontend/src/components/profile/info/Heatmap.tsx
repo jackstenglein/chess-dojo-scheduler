@@ -73,6 +73,13 @@ export function Heatmap({
     const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
 
     const { activities, totalCount } = useMemo(() => {
+        return {
+            activities: [
+                { date: MIN_DATE, count: 0, level: 0, categoryCounts: {} },
+                { date: '2024-12-31', count: 0, level: 0, categoryCounts: {} },
+            ],
+            totalCount: 0,
+        };
         return getActivity(entries, field, viewer);
     }, [field, entries, viewer]);
 
