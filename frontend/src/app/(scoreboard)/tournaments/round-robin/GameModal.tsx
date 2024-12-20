@@ -39,7 +39,8 @@ const GameModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
             <DialogTitle>Submit Your Round Robin Game </DialogTitle>
             <DialogContent>
                 <Typography variant='body1' gutterBottom>
-                    Input your Lichess.org or Chess.com game URL, this game submission is optional.
+                    Input your Lichess.org or Chess.com game URL, this game submission is
+                    optional.
                 </Typography>
                 <TextField
                     fullWidth

@@ -1,4 +1,11 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { PawnIcon } from '@/style/ChessIcons';
+import {
+    AlarmOn as AlarmOnIcon,
+    CalendarMonth as CalendarIcon,
+} from '@mui/icons-material';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import {
     Box,
     Card,
@@ -22,16 +29,7 @@ import { useEffect, useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { useLocalStorage } from 'usehooks-ts';
 import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
-import {
-    cohorts,
-    fetchTournamentData,
-    TournamentId,
-} from './roundRobinApi';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import { CalendarMonth as CalendarIcon } from '@mui/icons-material';
-import { AlarmOn as AlarmOnIcon } from '@mui/icons-material';
-import { PawnIcon } from '@/style/ChessIcons';
+import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
 /**
  * handles the viewer for game submission
  * @returns the UI for game submission
@@ -41,7 +39,7 @@ export const GameSubmission = () => {
         ROUND_ROBIN_COHORT_KEY,
         0,
     );
-    
+
     const [tournamentData, setTournamentData] = useState<TournamentId>();
     const [loading, setLoading] = useState<boolean>(false);
     const displayIcon =
@@ -60,8 +58,6 @@ export const GameSubmission = () => {
                 .finally(() => setLoading(false));
         }
     }, [selectedCohort]);
-
-
 
     const renderIcon = (url: string) => {
         if (url.includes('lichess')) {
@@ -131,93 +127,85 @@ export const GameSubmission = () => {
                                                 />{' '}
                                                 {tournament.name} {'Games'}
                                                 {tournament.waiting ? (
-                                                            <>
-                                                                <HourglassEmptyIcon
-                                                                    sx={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                    color='primary'
-                                                                />
-                                                                <span
-                                                                    style={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                >
-                                                                    Waiting
-                                                                </span>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <AlarmOnIcon
-                                                                    sx={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                    color='primary'
-                                                                />
-                                                                <span
-                                                                    style={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                >
-                                                                    Active
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                        <PeopleAltIcon
+                                                    <>
+                                                        <HourglassEmptyIcon
                                                             sx={{
                                                                 verticalAlign: 'middle',
                                                                 marginLeft: '0.4em',
                                                             }}
                                                             color='primary'
-                                                        />{' '}
-                                                        {tournament.players.length} {''}
-                                                        <>
-                                                        <PawnIcon sx={{
-                                                                verticalAlign: 'middle',
-                                                                marginLeft: '0.4em',
-                                                            }}
-                                                            color='primary'/>
+                                                        />
                                                         <span
-                                                                    style={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                >
-                                                                    {tournament.gameSub.length}
-                                                                </span>
-                                                        </> 
-                                                        <CalendarIcon
+                                                            style={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                        >
+                                                            Waiting
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <AlarmOnIcon
                                                             sx={{
                                                                 verticalAlign: 'middle',
                                                                 marginLeft: '0.4em',
                                                             }}
                                                             color='primary'
-                                                        />{' '}
-                                                        {
-                                                            new Date(tournament.startdate)
-                                                                .toISOString()
-                                                                .split('T')[0]
-                                                        }{' '}
-                                                        - {''}
-                                                        {
-                                                            new Date(tournament.enddate)
-                                                                .toISOString()
-                                                                .split('T')[0]
-                                                        }
+                                                        />
+                                                        <span
+                                                            style={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                        >
+                                                            Active
+                                                        </span>
+                                                    </>
+                                                )}
+                                                <PeopleAltIcon
+                                                    sx={{
+                                                        verticalAlign: 'middle',
+                                                        marginLeft: '0.4em',
+                                                    }}
+                                                    color='primary'
+                                                />{' '}
+                                                {tournament.players.length} {''}
+                                                <>
+                                                    <PawnIcon
+                                                        sx={{
+                                                            verticalAlign: 'middle',
+                                                            marginLeft: '0.4em',
+                                                        }}
+                                                        color='primary'
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            verticalAlign: 'middle',
+                                                            marginLeft: '0.4em',
+                                                        }}
+                                                    >
+                                                        {tournament.gameSub.length}
+                                                    </span>
+                                                </>
+                                                <CalendarIcon
+                                                    sx={{
+                                                        verticalAlign: 'middle',
+                                                        marginLeft: '0.4em',
+                                                    }}
+                                                    color='primary'
+                                                />{' '}
+                                                {
+                                                    new Date(tournament.startdate)
+                                                        .toISOString()
+                                                        .split('T')[0]
+                                                }{' '}
+                                                - {''}
+                                                {
+                                                    new Date(tournament.enddate)
+                                                        .toISOString()
+                                                        .split('T')[0]
+                                                }
                                             </Typography>
                                         </TableCell>
                                     </TableRow>

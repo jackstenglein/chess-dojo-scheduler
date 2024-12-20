@@ -1,4 +1,5 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { PawnIcon } from '@/style/ChessIcons';
 import { CalendarMonth as CalendarIcon } from '@mui/icons-material';
 import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import Circle from '@mui/icons-material/Circle';
@@ -25,7 +26,6 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
-import { PawnIcon } from '@/style/ChessIcons';
 export const ROUND_ROBIN_COHORT_KEY = 'ROUND_ROBIN_COHORT';
 
 export const PairingsPage = () => {
@@ -191,23 +191,27 @@ export const PairingsPage = () => {
                                                         />{' '}
                                                         {tournament.players.length} {''}
                                                         <>
-                                                        <PawnIcon sx={{
-                                                                verticalAlign: 'middle',
-                                                                marginLeft: '0.4em',
-                                                            }}
-                                                            color='primary'/>
-                                                        <span
-                                                                    style={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                >
-                                                                    {tournament.gameSub.length}
-                                                                </span>
-                                                        </>    
-                                                        
+                                                            <PawnIcon
+                                                                sx={{
+                                                                    verticalAlign:
+                                                                        'middle',
+                                                                    marginLeft: '0.4em',
+                                                                }}
+                                                                color='primary'
+                                                            />
+                                                            <span
+                                                                style={{
+                                                                    verticalAlign:
+                                                                        'middle',
+                                                                    marginLeft: '0.4em',
+                                                                }}
+                                                            >
+                                                                {
+                                                                    tournament.gameSub
+                                                                        .length
+                                                                }
+                                                            </span>
+                                                        </>
                                                         <CalendarIcon
                                                             sx={{
                                                                 verticalAlign: 'middle',
