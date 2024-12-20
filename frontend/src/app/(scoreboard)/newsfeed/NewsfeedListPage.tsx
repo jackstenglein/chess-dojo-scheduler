@@ -59,7 +59,8 @@ export function NewsfeedListPage() {
                     <Stack spacing={3}>
                         <Typography variant='h6'>Newsfeed</Typography>
 
-                        {clubRequest.isLoading() || !clubRequest.isSent() ? (
+                        {clubs.length === 0 &&
+                        (clubRequest.isLoading() || !clubRequest.isSent()) ? (
                             <LoadingPage />
                         ) : (
                             <NewsfeedList
