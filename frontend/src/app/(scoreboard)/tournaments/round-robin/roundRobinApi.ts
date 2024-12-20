@@ -1,6 +1,6 @@
 import { getConfig } from '@/config';
 import axios from 'axios';
-const hashMap: { [key: string]: number } = {};
+
 export interface RoundRobinModel {
     id: string; // tournament id
     name: string; // name
