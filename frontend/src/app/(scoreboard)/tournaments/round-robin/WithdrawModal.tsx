@@ -21,7 +21,7 @@ const WithdrawModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
 
     const handleSubmit = async () => {
         try {
-            const message = await withdrawUser(user.discordUsername, user.displayName);
+            const message = await withdrawUser(user.displayName, user.displayName);
             alert(message);
             onClose();
         } catch (error) {

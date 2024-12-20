@@ -23,13 +23,12 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
-import {
-    cohorts,
-    fetchTournamentData,
-    TournamentData,
-    TournamentId
-} from './roundRobinApi';
-
+import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import { CalendarMonth as CalendarIcon } from '@mui/icons-material';
+import { AlarmOn as AlarmOnIcon } from '@mui/icons-material';
+import { PawnIcon } from '@/style/ChessIcons';
 /**
  * handles the crosstable UI menu
  * @returns display tournament crosstables
@@ -65,21 +64,6 @@ export const Crosstable = () => {
                 .finally(() => setLoading(false));
         }
     }, [selectedCohort]);
-
-    // useEffect(() => {
-    //     if (tournamentIds.length > 0) {
-    //         setLoading(true);
-    //         setTournamentData([]);
-    //         Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
-    //             .then((data) => {
-    //                 setTournamentData((prevData) => [...prevData, ...data]);
-    //             })
-    //             .catch(console.error)
-    //             .finally(() => setLoading(false));
-    //     } else {
-    //         setTournamentData([]); // Reset if no tournament IDs
-    //     }
-    // }, [tournamentIds]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -143,11 +127,94 @@ export const Crosstable = () => {
                                             {showLeaderboard[tournament.id]
                                                 ? 'Leaderboard'
                                                 : 'Crosstable'}{' '}
-                                            {tournament.players.length < 8
-                                                ? '[Registration Open]'
-                                                : '[Tournament Started]'}{' '}
-                                            {'Size: '}
-                                            {tournament.players.length}
+                                            {tournament.waiting ? (
+                                                            <>
+                                                                <HourglassEmptyIcon
+                                                                    sx={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                    color='primary'
+                                                                />
+                                                                <span
+                                                                    style={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                >
+                                                                    Waiting
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <AlarmOnIcon
+                                                                    sx={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                    color='primary'
+                                                                />
+                                                                <span
+                                                                    style={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                >
+                                                                    Active
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                        <PeopleAltIcon
+                                                            sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'
+                                                        />{' '}
+                                                        {tournament.players.length} {''}
+                                                        <>
+                                                        <PawnIcon sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'/>
+                                                        <span
+                                                                    style={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                >
+                                                                    {tournament.gameSub.length}
+                                                                </span>
+                                                        </> 
+                                                        <CalendarIcon
+                                                            sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'
+                                                        />{' '}
+                                                        {
+                                                            new Date(tournament.startdate)
+                                                                .toISOString()
+                                                                .split('T')[0]
+                                                        }{' '}
+                                                        - {''}
+                                                        {
+                                                            new Date(tournament.enddate)
+                                                                .toISOString()
+                                                                .split('T')[0]
+                                                        }
                                         </Typography>
                                         <Button
                                             variant='contained'
@@ -167,7 +234,7 @@ export const Crosstable = () => {
                                     </Box>
 
                                     {showLeaderboard[tournament.id] ? (
-                                        tournament.leaderboard && tournament.scores ? (
+                                        !tournament.waiting ? (
                                             <TableContainer sx={{ mt: 2 }}>
                                                 <Table>
                                                     <TableHead>
@@ -178,9 +245,9 @@ export const Crosstable = () => {
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
-                                                        {tournament.leaderboard.map(
-                                                            (player, index) => (
-                                                                <TableRow key={index}>
+                                                        {Object.entries(tournament.scoremap).map(
+                                                            ([player, score], index) => (
+                                                                <TableRow key={player}>
                                                                     <TableCell>
                                                                         {index + 1}
                                                                     </TableCell>
@@ -188,12 +255,7 @@ export const Crosstable = () => {
                                                                         {player}
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        {
-                                                                            tournament
-                                                                                .scores[
-                                                                                index
-                                                                            ]
-                                                                        }
+                                                                        {score}
                                                                     </TableCell>
                                                                 </TableRow>
                                                             ),
@@ -209,7 +271,8 @@ export const Crosstable = () => {
                                                 No leaderboard data available.
                                             </Typography>
                                         )
-                                    ) : tournament.crosstabledata && tournament.players ? (
+                                    ) : tournament.crosstabledata &&
+                                      tournament.players ? (
                                         <TableContainer sx={{ mt: 2 }}>
                                             <Table>
                                                 <TableHead>

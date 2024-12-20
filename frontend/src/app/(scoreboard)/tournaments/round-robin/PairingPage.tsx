@@ -1,5 +1,9 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { CalendarMonth as CalendarIcon } from '@mui/icons-material';
+import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import Circle from '@mui/icons-material/Circle';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import {
     Box,
     Card,
@@ -21,6 +25,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
+import { PawnIcon } from '@/style/ChessIcons';
 export const ROUND_ROBIN_COHORT_KEY = 'ROUND_ROBIN_COHORT';
 
 export const PairingsPage = () => {
@@ -51,20 +56,6 @@ export const PairingsPage = () => {
                 .finally(() => setLoading(false));
         }
     }, [selectedCohort]);
-
-    // useEffect(() => {
-    //     if (tournamentIds.length > 0) {
-    //         setLoading(true);
-    //         setTournamentData([]);
-    //         Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
-    //             .then((data) => {
-    //                 console.log('Fetched Tournament Data:', data);
-    //                 setTournamentData((prevData) => [...prevData, ...data]);
-    //             })
-    //             .catch(console.error)
-    //             .finally(() => setLoading(false));
-    //     }
-    // }, [tournamentIds]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -133,7 +124,7 @@ export const PairingsPage = () => {
                                                 <TableCell>
                                                     <Typography
                                                         variant='h6'
-                                                        textAlign={'center'}
+                                                        textAlign='center'
                                                     >
                                                         <CohortIcon
                                                             cohort={displayIcon}
@@ -143,14 +134,98 @@ export const PairingsPage = () => {
                                                             }}
                                                             tooltip=''
                                                             size={25}
-                                                        />{' '}
+                                                        />
                                                         {tournament.name} Tournament
                                                         Pairings{' '}
-                                                        {tournament.players.length < 8
-                                                            ? '[Registration Open]'
-                                                            : '[Tournament Started]'}{' '}
-                                                        {'Size: '}
-                                                        {tournament.players.length}
+                                                        {tournament.waiting ? (
+                                                            <>
+                                                                <HourglassEmptyIcon
+                                                                    sx={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                    color='primary'
+                                                                />
+                                                                <span
+                                                                    style={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                >
+                                                                    Waiting
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <AlarmOnIcon
+                                                                    sx={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                    color='primary'
+                                                                />
+                                                                <span
+                                                                    style={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                >
+                                                                    Active
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                        <PeopleAltIcon
+                                                            sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'
+                                                        />{' '}
+                                                        {tournament.players.length} {''}
+                                                        <>
+                                                        <PawnIcon sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'/>
+                                                        <span
+                                                                    style={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                >
+                                                                    {tournament.gameSub.length}
+                                                                </span>
+                                                        </>    
+                                                        
+                                                        <CalendarIcon
+                                                            sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'
+                                                        />{' '}
+                                                        {
+                                                            new Date(tournament.startdate)
+                                                                .toISOString()
+                                                                .split('T')[0]
+                                                        }{' '}
+                                                        - {''}
+                                                        {
+                                                            new Date(tournament.enddate)
+                                                                .toISOString()
+                                                                .split('T')[0]
+                                                        }
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
