@@ -4,8 +4,8 @@ import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function StripeCancelationPage({ meetingId }: { meetingId: string }) {

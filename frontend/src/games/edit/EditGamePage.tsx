@@ -1,12 +1,12 @@
 'use client';
 
+import { useRouter } from '@/hooks/useRouter';
 import {
     CreateGameRequest,
     GameHeader,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';

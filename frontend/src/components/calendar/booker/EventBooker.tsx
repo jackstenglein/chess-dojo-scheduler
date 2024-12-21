@@ -2,9 +2,9 @@
 
 import { useCache } from '@/api/cache/Cache';
 import { EventType } from '@/database/event';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { Alert, Snackbar } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import AvailabilityBooker from './AvailabilityBooker';
 import CoachingBooker from './CoachingBooker';
 

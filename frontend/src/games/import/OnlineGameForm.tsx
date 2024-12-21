@@ -23,6 +23,7 @@ import {
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { RenderPlayers } from '@/components/games/list/GameListItem';
+import { Link } from '@/components/navigation/Link';
 import { isCohortInRange, RatingSystem } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import {
@@ -38,12 +39,10 @@ import {
     DialogContent,
     DialogTitle,
     Grid2,
-    Link,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 import { useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { ImportButton } from './ImportButton';
@@ -320,11 +319,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                     ) : (
                         <Typography variant='body2'>
                             To list recent games, add your Chess.com or Lichess username
-                            to your{' '}
-                            <Link component={NextLink} href='/profile/edit#ratings'>
-                                profile
-                            </Link>
-                            .
+                            to your <Link href='/profile/edit#ratings'>profile</Link>.
                         </Typography>
                     )}
                 </Stack>

@@ -1,6 +1,6 @@
+import { Link } from '@/components/navigation/Link';
 import { TimelineEntry } from '@/database/timeline';
-import { Link, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
+import { Stack, Typography } from '@mui/material';
 
 interface GameNewsfeedItemProps {
     entry: TimelineEntry;
@@ -15,7 +15,6 @@ const GameNewsfeedItem: React.FC<GameNewsfeedItemProps> = ({ entry }) => {
             <Typography mt={1}>
                 Published a{' '}
                 <Link
-                    component={NextLink}
                     href={`/games/${entry.cohort.replaceAll(
                         '+',
                         '%2B',

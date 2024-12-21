@@ -1,6 +1,8 @@
 'use client';
 
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
+import { useRouter } from '@/hooks/useRouter';
 import JoinToday from '@/landing/JoinToday';
 import Sensei from '@/landing/Sensei';
 import Testimonials from '@/landing/Testimonials';
@@ -8,8 +10,6 @@ import WhatsIncluded from '@/landing/WhatsIncluded';
 import LoadingPage from '@/loading/LoadingPage';
 import { Box, Button, Container, Grid2, Stack, Typography } from '@mui/material';
 import { Hub } from 'aws-amplify/utils';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 const LandingPage = ({
@@ -91,7 +91,7 @@ const LandingPage = ({
                             <Stack direction='row' spacing={3}>
                                 <Button
                                     variant='contained'
-                                    component={NextLink}
+                                    component={Link}
                                     href='/signup'
                                     sx={{
                                         fontSize: '1rem',
@@ -105,7 +105,7 @@ const LandingPage = ({
                                 </Button>
                                 <Button
                                     variant='outlined'
-                                    component={NextLink}
+                                    component={Link}
                                     href={`/signin${searchParams?.redirectUri ? `?redirectUri=${searchParams.redirectUri.toString()}` : ''}`}
                                     sx={{
                                         fontSize: '1rem',

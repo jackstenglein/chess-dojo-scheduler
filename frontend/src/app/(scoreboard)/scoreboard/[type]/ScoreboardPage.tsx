@@ -9,13 +9,13 @@ import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelect
 import ScoreboardTutorial from '@/components/tutorial/ScoreboardTutorial';
 import { Graduation } from '@/database/graduation';
 import { dojoCohorts, User } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import GraduationChips from '@/scoreboard/GraduationChips';
 import Scoreboard from '@/scoreboard/Scoreboard';
 import { ScoreboardRow } from '@/scoreboard/scoreboardData';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import { Container, Stack, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function ScoreboardPage({ type }: { type?: string }) {

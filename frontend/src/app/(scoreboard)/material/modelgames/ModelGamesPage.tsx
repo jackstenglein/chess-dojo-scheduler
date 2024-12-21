@@ -13,7 +13,7 @@ import CohortIcon from '@/scoreboard/CohortIcon';
 import { Search } from '@mui/icons-material';
 import { Box, CardContent, MenuItem, TextField, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import PgnSelector from '../../courses/[type]/[id]/PgnSelector';
+import PgnSelector from '../../courses/[type]/[id]/[chapter]/[module]/PgnSelector';
 
 export function ModelGamesPage() {
     return <NextRequireAuth Component={AuthModelGamesPage} />;

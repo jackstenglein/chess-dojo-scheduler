@@ -4,12 +4,12 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { GetClubResponse } from '@/api/clubApi';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
 import LoadingPage from '@/loading/LoadingPage';
 import Scoreboard from '@/scoreboard/Scoreboard';
-import { Container, Link } from '@mui/material';
+import { Container } from '@mui/material';
 import { GridToolbarContainer } from '@mui/x-data-grid-pro';
-import NextLink from 'next/link';
 import { useEffect } from 'react';
 
 export function ClubScoreboardPage({ id }: { id: string }) {
@@ -71,7 +71,7 @@ export function ClubScoreboardPage({ id }: { id: string }) {
 function CustomToolbar({ id }: { id?: string }) {
     return (
         <GridToolbarContainer>
-            <Link component={NextLink} href={`/clubs/${id}`} sx={{ mt: 0.5, ml: 0.5 }}>
+            <Link href={`/clubs/${id}`} sx={{ mt: 0.5, ml: 0.5 }}>
                 Go to Club
             </Link>
         </GridToolbarContainer>

@@ -4,6 +4,7 @@ import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { displayPrice } from '@/app/(scoreboard)/courses/(list)/CourseListItem';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import { Event } from '@/database/event';
 import { TimeFormat, dojoCohorts } from '@/database/user';
 import Icon from '@/style/Icon';
@@ -17,7 +18,6 @@ import {
     Toolbar,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 import Field from '../eventViewer/Field';
 import OwnerField from '../eventViewer/OwnerField';
 import ParticipantsList from '../eventViewer/ParticipantsList';
@@ -82,7 +82,7 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                     </Typography>
                     <Button
                         data-cy='cancel-button'
-                        component={NextLink}
+                        component={Link}
                         color='error'
                         href={'/calendar'}
                         disabled={request.status === RequestStatus.Loading}

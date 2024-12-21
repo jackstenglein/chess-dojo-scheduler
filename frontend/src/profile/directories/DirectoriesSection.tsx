@@ -4,6 +4,7 @@ import { useRequest } from '@/api/Request';
 import { NavigationMenu } from '@/components/directories/navigation/NavigationMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import {
     compareRoles,
@@ -26,7 +27,6 @@ import {
     GridToolbarDensitySelector,
     GridToolbarFilterButton,
 } from '@mui/x-data-grid-pro';
-import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { AddButton } from './AddButton';

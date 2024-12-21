@@ -1,7 +1,7 @@
+import { Link } from '@/components/navigation/Link';
 import { ONE_WEEK_IN_MS } from '@/components/time/time';
 import { LoadingButton } from '@mui/lab';
-import { Link, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
+import { Stack, Typography } from '@mui/material';
 import { useApi } from '../../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { useAuth } from '../../../../../auth/Auth';
@@ -61,10 +61,7 @@ const GameReviewDetails: React.FC<AdminSettingsProps> = ({ game, onSaveGame }) =
                             username={review.reviewer?.username}
                             displayName={review.reviewer?.displayName}
                         />
-                        <Link
-                            component={NextLink}
-                            href={`/profile/${review.reviewer?.username}`}
-                        >
+                        <Link href={`/profile/${review.reviewer?.username}`}>
                             {review.reviewer?.displayName} ({review.reviewer?.cohort})
                         </Link>
                     </Stack>

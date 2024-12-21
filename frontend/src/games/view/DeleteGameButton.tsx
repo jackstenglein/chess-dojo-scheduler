@@ -1,3 +1,4 @@
+import { useRouter } from '@/hooks/useRouter';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -9,7 +10,6 @@ import {
     IconButton,
     Tooltip,
 } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';

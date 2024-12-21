@@ -6,12 +6,12 @@ import { EditGameResponse, isGame } from '@/api/gameApi';
 import { Request, useRequest } from '@/api/Request';
 import useGame from '@/context/useGame';
 import { Game } from '@/database/game';
+import { useRouter } from '@/hooks/useRouter';
 import {
     CreateGameRequest,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import { useRouter } from 'next/navigation';
 import { useSessionStorage } from 'usehooks-ts';
 
 const STAGED_CREATE_GAME_KEY = 'useSaveGame:stageCreateGame';

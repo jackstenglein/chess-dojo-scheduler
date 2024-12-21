@@ -5,8 +5,8 @@ import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
-import { Box, Link, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
+import { Box, Stack, Typography } from '@mui/material';
+import { Link } from '../navigation/Link';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;
@@ -51,7 +51,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
 
                 <Stack>
                     <Typography>
-                        <Link component={NextLink} href={`/profile/${entry.owner}`}>
+                        <Link href={`/profile/${entry.owner}`}>
                             {entry.ownerDisplayName}
                         </Link>
                         <CohortIcon

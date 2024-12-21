@@ -8,8 +8,10 @@ import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import Field from '@/components/calendar/eventViewer/Field';
 import ParticipantsList from '@/components/calendar/eventViewer/ParticipantsList';
+import { Link } from '@/components/navigation/Link';
 import { Event, EventStatus, EventType, getDisplayString } from '@/database/event';
 import { User, dojoCohorts } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import CancelMeetingButton from '@/meeting/CancelMeetingButton';
 import MeetingMessages from '@/meeting/MeetingMessages';
@@ -26,8 +28,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 
 const CANCELATION_DEADLINE = 24 * 1000 * 60 * 60; // 24 hours
 
@@ -137,7 +137,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
             <Container maxWidth='md' sx={{ py: 4 }}>
                 <Typography>This meeting has not been booked yet.</Typography>
                 <Button
-                    component={NextLink}
+                    component={Link}
                     href='/calendar'
                     variant='contained'
                     sx={{ mt: 2 }}

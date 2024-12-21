@@ -7,10 +7,12 @@ import {
     InProgressExam,
 } from '@/app/(scoreboard)/tests/[type]/[id]/exam/ExamPage';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { displayExamType } from '@/database/exam';
 import { User } from '@/database/user';
 import Instructions from '@/exams/instructions/Instructions';
 import { useExam } from '@/exams/view/exam';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import {
     Exam,
@@ -18,8 +20,6 @@ import {
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Button, Container, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export function ExamInstructionsPage({ type, id }: { type: ExamType; id: string }) {
     const { user, status } = useAuth();
@@ -123,7 +123,7 @@ function AuthExamInstructionPage({
                     <Stack direction='row' spacing={2} mt={3}>
                         <Button
                             variant='contained'
-                            component={NextLink}
+                            component={Link}
                             href={`/tests/${type}/${id}/exam`}
                         >
                             Begin Test
@@ -132,7 +132,7 @@ function AuthExamInstructionPage({
                         {user?.isAdmin && (
                             <Button
                                 variant='outlined'
-                                component={NextLink}
+                                component={Link}
                                 href={`/tests/${type}/${id}/stats`}
                             >
                                 View Stats

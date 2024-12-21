@@ -4,6 +4,7 @@ import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { SwitchCohortPrompt } from '@/components/profile/SwitchCohortPrompt';
 import { BadgeCard } from '@/components/profile/info/BadgeCard';
 import Bio from '@/components/profile/info/Bio';
@@ -45,7 +46,6 @@ import {
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
-import NextLink from 'next/link';
 import { useEffect } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
@@ -176,7 +176,7 @@ function AuthProfilePage({
                             <Stack direction='row' spacing={2}>
                                 <GraduationDialog />
                                 <Button
-                                    component={NextLink}
+                                    component={Link}
                                     id='edit-profile-button'
                                     variant='contained'
                                     startIcon={<Edit />}

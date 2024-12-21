@@ -1,6 +1,7 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { RenderPlayers, RenderResult } from '@/components/games/list/GameListItem';
+import { Link } from '@/components/navigation/Link';
 import { MastersCohort, MastersOwnerDisplayName } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -11,9 +12,8 @@ import {
     DirectoryVisibility,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Folder, Visibility, VisibilityOff } from '@mui/icons-material';
-import { Link, Stack, Tooltip, Typography } from '@mui/material';
+import { Stack, Tooltip, Typography } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
-import NextLink from 'next/link';
 import Avatar from '../Avatar';
 
 export const publicColumns: GridColDef<DirectoryItem>[] = [
@@ -142,7 +142,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
                         displayName={item.metadata.ownerDisplayName}
                         size={32}
                     />
-                    <Link component={NextLink} href={`/profile/${item.metadata.owner}`}>
+                    <Link href={`/profile/${item.metadata.owner}`}>
                         {item.metadata.ownerDisplayName}
                     </Link>
                 </Stack>

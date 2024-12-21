@@ -2,20 +2,13 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import { MUI_LICENSE_KEY } from '@/config';
 import { Graduation } from '@/database/graduation';
 import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import {
-    Divider,
-    FormControl,
-    Link,
-    MenuItem,
-    Select,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Divider, FormControl, MenuItem, Select, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -23,7 +16,6 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { LicenseInfo } from '@mui/x-license';
-import NextLink from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
 LicenseInfo.setLicenseKey(MUI_LICENSE_KEY);
@@ -91,9 +83,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
                         displayName={params.value}
                         size={32}
                     />
-                    <Link component={NextLink} href={`/profile/${params.row.username}`}>
-                        {params.value}
-                    </Link>
+                    <Link href={`/profile/${params.row.username}`}>{params.value}</Link>
                 </Stack>
             );
         },

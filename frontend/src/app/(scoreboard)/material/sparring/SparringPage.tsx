@@ -3,6 +3,7 @@
 import { RequestSnackbar } from '@/api/Request';
 import { useRequirements } from '@/api/cache/requirements';
 import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { Requirement } from '@/database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
@@ -20,7 +21,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 import React, { useMemo, useState } from 'react';
 
 interface SparringRequirementProps {
@@ -203,7 +203,7 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                                     </Typography>
                                     <Button
                                         variant='outlined'
-                                        component={NextLink}
+                                        component={Link}
                                         href='/prices'
                                     >
                                         View Prices

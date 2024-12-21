@@ -1,5 +1,5 @@
+import { Link } from '@/components/navigation/Link';
 import { Alert, Button } from '@mui/material';
-import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 
 interface UpsellAlertProps {
@@ -16,7 +16,7 @@ const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
             variant='filled'
             action={
                 <Button
-                    component={NextLink}
+                    component={Link}
                     color='inherit'
                     href={`/prices?redirect=${pathname}`}
                     size='small'

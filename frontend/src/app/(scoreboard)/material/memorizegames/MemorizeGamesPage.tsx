@@ -2,7 +2,7 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import PgnSelector from '@/app/(scoreboard)/courses/[type]/[id]/PgnSelector';
+import PgnSelector from '@/app/(scoreboard)/courses/[type]/[id]/[chapter]/[module]/PgnSelector';
 import { useFreeTier } from '@/auth/Auth';
 import PgnBoard from '@/board/pgn/PgnBoard';
 import PuzzleBoard from '@/board/puzzle/PuzzleBoard';

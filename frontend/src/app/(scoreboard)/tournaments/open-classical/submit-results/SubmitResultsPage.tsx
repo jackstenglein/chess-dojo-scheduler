@@ -3,6 +3,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -15,7 +16,6 @@ import {
     Typography,
 } from '@mui/material';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface LichessGameResponse {

@@ -4,6 +4,7 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import useGame from '@/context/useGame';
 import { PositionComment } from '@/database/game';
 import Avatar from '@/profile/Avatar';
@@ -20,13 +21,11 @@ import {
     DialogTitle,
     Divider,
     IconButton,
-    Link,
     Stack,
     TextField,
     Tooltip,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 import React, { useState } from 'react';
 import Replies from './Replies';
 import ReplyEditor from './ReplyEditor';
@@ -346,7 +345,6 @@ const CommentInfo: React.FC<CommentProps> = ({ comment }) => {
             />
             <Stack direction='row' spacing={1} alignItems='center'>
                 <Link
-                    component={NextLink}
                     href={`/profile/${comment.owner.username}`}
                     sx={{ textDecoration: 'none' }}
                 >

@@ -5,9 +5,9 @@ import { useAuth } from '@/auth/Auth';
 import { ExamType } from '@/database/exam';
 import ExamStatistics from '@/exams/view/ExamStatistics';
 import { useExam } from '@/exams/view/exam';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { Box, Container } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function AdminStatsPage({ type, id }: { type: ExamType; id: string }) {

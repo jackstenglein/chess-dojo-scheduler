@@ -1,4 +1,5 @@
 import { Course } from '@/database/course';
+import { useRouter } from '@/hooks/useRouter';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import {
     Alert,
@@ -9,7 +10,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import PurchaseOption from './PurchaseOption';
 
 interface PurchaseCoursePageProps {

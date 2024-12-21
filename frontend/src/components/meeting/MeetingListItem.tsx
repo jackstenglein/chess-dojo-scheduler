@@ -8,11 +8,10 @@ import {
     CardContent,
     CardHeader,
     Chip,
-    Link,
     Stack,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
+import { Link } from '../navigation/Link';
 
 function getTitle(event: Event): string {
     if (event.coaching) {
@@ -74,10 +73,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
                                 displayName={opponent.displayName}
                                 size={25}
                             />
-                            <Link
-                                component={NextLink}
-                                href={`/profile/${opponent.username}`}
-                            >
+                            <Link href={`/profile/${opponent.username}`}>
                                 <Typography variant='subtitle1'>
                                     {opponent.displayName} ({opponent.cohort})
                                 </Typography>

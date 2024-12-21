@@ -1,4 +1,5 @@
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { Event, EventStatus } from '@/database/event';
 import { User, dojoCohorts } from '@/database/user';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
@@ -12,7 +13,6 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
@@ -169,12 +169,7 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                 severity='error'
                 variant='filled'
                 action={
-                    <Button
-                        component={NextLink}
-                        color='inherit'
-                        size='small'
-                        href='/coach'
-                    >
+                    <Button component={Link} color='inherit' size='small' href='/coach'>
                         Open Portal
                     </Button>
                 }

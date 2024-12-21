@@ -1,5 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import {
     RatingSystem,
     User,
@@ -12,13 +13,11 @@ import {
     Button,
     Checkbox,
     FormControlLabel,
-    Link,
     MenuItem,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 import { useState } from 'react';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
@@ -63,12 +62,7 @@ export function getHelperText(rs: RatingSystem): React.ReactNode | undefined {
             return (
                 <>
                     Learn how to find your DWZ ID{' '}
-                    <Link
-                        component={NextLink}
-                        href='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
-                    >
-                        here
-                    </Link>
+                    <Link href='/help#How%20do%20I%20find%20my%20DWZ%20ID?'>here</Link>
                 </>
             );
 

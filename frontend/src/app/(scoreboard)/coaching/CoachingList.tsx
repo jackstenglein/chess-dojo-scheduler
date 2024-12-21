@@ -6,13 +6,13 @@ import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import Field from '@/components/calendar/eventViewer/Field';
 import OwnerField from '@/components/calendar/eventViewer/OwnerField';
 import PriceField from '@/components/calendar/eventViewer/PriceField';
+import { Link } from '@/components/navigation/Link';
 import { Event, EventStatus, EventType } from '@/database/event';
 import { SubscriptionStatus, User, dojoCohorts } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export function displayEvent(event: Event, viewer?: User): boolean {
     if (event.type !== EventType.Coaching) {
@@ -135,7 +135,7 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
                     isOwner || isParticipant ? (
                         <Button
                             variant='contained'
-                            component={NextLink}
+                            component={Link}
                             href={`/meeting/${event.id}`}
                         >
                             View Details

@@ -1,6 +1,7 @@
 import { useClubs } from '@/api/cache/clubs';
 import { useAuth } from '@/auth/Auth';
 import { dojoCohorts } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Groups } from '@mui/icons-material';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
@@ -8,7 +9,6 @@ import LanguageIcon from '@mui/icons-material/Language';
 import SearchIcon from '@mui/icons-material/Search';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { MenuItem, TextField } from '@mui/material';
-import { useRouter } from 'next/navigation';
 
 const NO_CLUBS: string[] = [];
 

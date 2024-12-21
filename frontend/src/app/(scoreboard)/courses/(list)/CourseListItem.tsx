@@ -1,7 +1,9 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import { Course, CoursePurchaseOption } from '@/database/course';
 import { getCohortRange } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { LoadingButton } from '@mui/lab';
@@ -11,12 +13,9 @@ import {
     CardActions,
     CardContent,
     Chip,
-    Link,
     Stack,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 import React from 'react';
 import { CourseFilters } from './CourseFilters';
 
@@ -106,7 +105,6 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                     <Typography variant='body2'>
                         By{' '}
                         <Link
-                            component={NextLink}
                             href={`/profile/${course.owner}`}
                             onClick={(e) => e.stopPropagation()}
                         >

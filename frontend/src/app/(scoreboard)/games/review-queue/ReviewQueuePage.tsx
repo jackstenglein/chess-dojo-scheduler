@@ -4,12 +4,14 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { isValidDate } from '@/calendar/eventEditor/useEventEditor';
 import { RenderPlayersCell, RenderResult } from '@/components/games/list/GameListItem';
+import { Link } from '@/components/navigation/Link';
 import { ONE_WEEK_IN_MS } from '@/components/time/time';
 import { CustomPagination } from '@/components/ui/CustomPagination';
 import { GameInfo, GameReviewType } from '@/database/game';
 import { usePagination } from '@/hooks/usePagination';
+import { useRouter } from '@/hooks/useRouter';
 import Avatar from '@/profile/Avatar';
-import { Container, Link, Stack, Typography } from '@mui/material';
+import { Container, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,
@@ -17,8 +19,6 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
 const columns: GridColDef<GameInfo>[] = [
@@ -49,7 +49,7 @@ const columns: GridColDef<GameInfo>[] = [
                         displayName={params.row.ownerDisplayName}
                         size={32}
                     />
-                    <Link component={NextLink} href={`/profile/${params.row.owner}`}>
+                    <Link href={`/profile/${params.row.owner}`}>
                         {params.row.ownerDisplayName}
                     </Link>
                 </Stack>

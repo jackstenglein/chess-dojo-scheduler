@@ -1,4 +1,5 @@
 import { EventType, trackEvent } from '@/analytics/events';
+import { Link } from '@/components/navigation/Link';
 import {
     Button,
     Dialog,
@@ -7,7 +8,6 @@ import {
     DialogContentText,
     DialogTitle,
 } from '@mui/material';
-import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -95,7 +95,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => onClose(false)}>Cancel</Button>
-                <Button component={NextLink} href={`/prices?redirect=${pathname}`}>
+                <Button component={Link} href={`/prices?redirect=${pathname}`}>
                     View Prices
                 </Button>
             </DialogActions>

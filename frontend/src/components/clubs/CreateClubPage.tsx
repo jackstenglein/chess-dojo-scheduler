@@ -8,6 +8,7 @@ import {
     encodeFileToBase64,
 } from '@/app/(scoreboard)/profile/edit/ProfileEditorPage';
 import { ClubDetails } from '@/database/club';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { ClubAvatar } from '@/profile/Avatar';
 import { Delete, Upload } from '@mui/icons-material';
@@ -24,7 +25,6 @@ import {
     Typography,
 } from '@mui/material';
 import { AxiosResponse } from 'axios';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export const CreateClubPage = ({ id }: { id: string }) => {

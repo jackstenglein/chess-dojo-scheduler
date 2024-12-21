@@ -1,6 +1,7 @@
+import { Link } from '@/components/navigation/Link';
 import HelpIcon from '@mui/icons-material/Help';
 import PushPinIcon from '@mui/icons-material/PushPin';
-import { Link, Stack, Tooltip } from '@mui/material';
+import { Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
     GridActionsCellItem,
@@ -12,7 +13,6 @@ import {
     GridRowModel,
 } from '@mui/x-data-grid-pro';
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
-import NextLink from 'next/link';
 import { useMemo, useState } from 'react';
 import { useFreeTier } from '../auth/Auth';
 import { isGraduation } from '../database/graduation';
@@ -80,10 +80,7 @@ const displayNameColumn: GridColDef<ScoreboardRow> = {
                     displayName={params.value}
                     size={32}
                 />
-                <Link
-                    component={NextLink}
-                    href={`/profile/${params.row.username.replace('#pinned', '')}`}
-                >
+                <Link href={`/profile/${params.row.username.replace('#pinned', '')}`}>
                     {params.value}
                 </Link>
             </Stack>

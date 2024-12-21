@@ -2,19 +2,12 @@
 
 import { useClubs } from '@/api/cache/clubs';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import NewsfeedList from '@/components/newsfeed/NewsfeedList';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
-import {
-    Container,
-    Divider,
-    Grid2 as Grid,
-    Link,
-    Stack,
-    Typography,
-} from '@mui/material';
-import NextLink from 'next/link';
+import { Container, Divider, Grid2 as Grid, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 
 export function NewsfeedListPage() {
@@ -89,9 +82,7 @@ export function NewsfeedListPage() {
                             >
                                 <Typography variant='h6'>Graduations</Typography>
 
-                                <Link component={NextLink} href='/recent'>
-                                    View All
-                                </Link>
+                                <Link href='/recent'>View All</Link>
                             </Stack>
 
                             <NewsfeedList initialNewsfeedIds={['GRADUATIONS']} />

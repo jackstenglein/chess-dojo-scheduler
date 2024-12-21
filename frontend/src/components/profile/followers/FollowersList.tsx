@@ -2,12 +2,12 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { ListFollowersResponse } from '@/api/userApi';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { FollowerEntry } from '@/database/follower';
 import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
 import { LoadingButton } from '@mui/lab';
-import { Link, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
+import { Stack, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
 
 export const FollowersList = ({
@@ -126,10 +126,7 @@ const FollowerListItem: React.FC<FollowerListItemProps> = ({
                     fontSize={{ xs: '0.76rem', sm: '0.98rem' }}
                 />
 
-                <Link
-                    component={NextLink}
-                    href={`/profile/${isFollowing ? entry.poster : entry.follower}`}
-                >
+                <Link href={`/profile/${isFollowing ? entry.poster : entry.follower}`}>
                     {isFollowing ? entry.posterDisplayName : entry.followerDisplayName}
                 </Link>
             </Stack>

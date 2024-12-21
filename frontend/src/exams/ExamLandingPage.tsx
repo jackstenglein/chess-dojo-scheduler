@@ -1,3 +1,4 @@
+import { Link } from '@/components/navigation/Link';
 import { KingIcon, QueenIcon, RookIcon } from '@/style/ChessIcons';
 import {
     Card,
@@ -11,7 +12,6 @@ import {
     Typography,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import NextLink from 'next/link';
 
 /**
  * Renders a simple landing page that directs users to the different types of exams
@@ -71,7 +71,7 @@ const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) =>
                 sx={{ opacity: disabled ? 0.8 : 1, height: 1 }}
             >
                 <CardActionArea
-                    component={NextLink}
+                    component={Link}
                     disabled={disabled}
                     href={href}
                     sx={{ height: 1 }}

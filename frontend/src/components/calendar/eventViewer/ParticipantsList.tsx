@@ -1,10 +1,10 @@
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { Event } from '@/database/event';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Warning } from '@mui/icons-material';
-import { Link, Stack, Tooltip, Typography } from '@mui/material';
-import NextLink from 'next/link';
+import { Stack, Tooltip, Typography } from '@mui/material';
 
 interface ParticipantsListProps {
     event: Event;
@@ -30,7 +30,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                         displayName={event.ownerDisplayName}
                         size={25}
                     />
-                    <Link component={NextLink} href={`/profile/${event.owner}`}>
+                    <Link href={`/profile/${event.owner}`}>
                         <Typography variant='body1'>
                             {event.ownerDisplayName} ({event.ownerCohort})
                         </Typography>
@@ -53,7 +53,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
                             displayName={p.displayName}
                             size={25}
                         />
-                        <Link component={NextLink} href={`/profile/${p.username}`}>
+                        <Link href={`/profile/${p.username}`}>
                             <Typography variant='body1'>
                                 {p.displayName} ({p.cohort})
                             </Typography>

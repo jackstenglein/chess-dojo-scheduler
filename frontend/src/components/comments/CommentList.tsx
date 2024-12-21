@@ -1,9 +1,9 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import { Comment } from '@/database/game';
 import Avatar from '@/profile/Avatar';
-import { Link, Paper, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
+import { Paper, Stack, Typography } from '@mui/material';
 
 interface CommentListProps {
     comments: Comment[] | null;
@@ -29,7 +29,7 @@ const CommentList: React.FC<CommentListProps> = ({
     return (
         <Stack spacing={2} width={1} alignItems='start' mb={2}>
             {hiddenComments > 0 && viewCommentsLink && (
-                <Link component={NextLink} href={viewCommentsLink} sx={{ pl: '52px' }}>
+                <Link href={viewCommentsLink} sx={{ pl: '52px' }}>
                     View {hiddenComments} earlier comment{hiddenComments !== 1 ? 's' : ''}
                 </Link>
             )}
@@ -64,7 +64,7 @@ const CommentListItem: React.FC<CommentListItemProps> = ({ comment }) => {
             <Stack>
                 <Paper elevation={2} sx={{ px: '12px', py: '8px', borderRadius: '6px' }}>
                     <Stack>
-                        <Link component={NextLink} href={`/profile/${comment.owner}`}>
+                        <Link href={`/profile/${comment.owner}`}>
                             <Typography variant='subtitle1' color='text.secondary'>
                                 {comment.ownerDisplayName} ({comment.ownerCohort})
                             </Typography>

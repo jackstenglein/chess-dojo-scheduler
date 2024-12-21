@@ -1,8 +1,8 @@
+import { Link } from '@/components/navigation/Link';
 import { OpenInNew } from '@mui/icons-material';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { LoadingButton } from '@mui/lab';
 import { Button, Divider, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
 import { useApi } from '../../../../api/Api';
 import { RequestSnackbar, useRequest } from '../../../../api/Request';
 import { SubscriptionStatus, User } from '../../../../database/user';
@@ -53,7 +53,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
             {isFreeTier ? (
                 <>
                     <Typography>Subscription Status: Free Tier</Typography>
-                    <Button variant='contained' component={NextLink} href='/prices'>
+                    <Button variant='contained' component={Link} href='/prices'>
                         View Prices
                     </Button>
                 </>

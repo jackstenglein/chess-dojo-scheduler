@@ -1,6 +1,6 @@
 import { Container } from '@mui/material';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/hooks/useRouter';
 import UpsellDialog, { UpsellDialogProps } from './UpsellDialog';
 
 interface UpsellPageProps extends Omit<UpsellDialogProps, 'open' | 'onClose'> {

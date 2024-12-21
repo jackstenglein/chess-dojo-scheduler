@@ -7,9 +7,11 @@ import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
 import { LocationChip } from '@/components/clubs/LocationChip';
 import { MemberCountChip } from '@/components/clubs/MemberCountChip';
 import { UrlChip } from '@/components/clubs/UrlChip';
+import { Link } from '@/components/navigation/Link';
 import NewsfeedList from '@/components/newsfeed/NewsfeedList';
 import { ClubDetails } from '@/database/club';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { ClubAvatar } from '@/profile/Avatar';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
@@ -18,7 +20,6 @@ import {
     Box,
     Button,
     Container,
-    Link,
     Snackbar,
     Stack,
     Tab,
@@ -26,8 +27,6 @@ import {
     Typography,
     useTheme,
 } from '@mui/material';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -323,12 +322,7 @@ const Description: React.FC<{ description: string }> = ({ description }) => {
                     p: (props) => <Typography>{props.children}</Typography>,
                     pre: (props) => <>{props.children}</>,
                     a: (props) => (
-                        <Link
-                            component={NextLink}
-                            href={props.href || ''}
-                            target='_blank'
-                            rel='noreferrer'
-                        >
+                        <Link href={props.href || ''} target='_blank' rel='noreferrer'>
                             {props.children}
                         </Link>
                     ),

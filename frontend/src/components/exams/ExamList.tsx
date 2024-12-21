@@ -5,6 +5,7 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
 import { toDojoDateString } from '@/calendar/displayDate';
 import { isCohortInRange } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { Exam, ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
@@ -26,7 +27,6 @@ import {
     GridRenderCellParams,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
-import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 interface CohortRangeExams {

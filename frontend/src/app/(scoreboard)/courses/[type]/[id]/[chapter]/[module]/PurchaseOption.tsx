@@ -7,7 +7,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { LoadingButton } from '@mui/lab';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { displayPrice } from '../../(list)/CourseListItem';
+import { displayPrice } from '../../../../(list)/CourseListItem';
 
 interface PurchaseOptionProps {
     course: Course;

@@ -1,6 +1,6 @@
+import { Link } from '@/components/navigation/Link';
 import PersonIcon from '@mui/icons-material/Person';
-import { Chip, Link } from '@mui/material';
-import NextLink from 'next/link';
+import { Chip } from '@mui/material';
 
 interface CountChipProps {
     count: number;
@@ -11,7 +11,7 @@ interface CountChipProps {
 
 const CountChip: React.FC<CountChipProps> = ({ count, label, singularLabel, link }) => {
     return (
-        <Link component={NextLink} href={link}>
+        <Link href={link}>
             <Chip
                 label={`${count} ${count === 1 ? singularLabel || label : label}`}
                 variant='outlined'

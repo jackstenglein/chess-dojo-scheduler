@@ -1,9 +1,9 @@
 import { AvailabilityType, Event, getDisplayString } from '@/database/event';
 import { dojoCohorts } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Button, Stack } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import React from 'react';
 import Field from './Field';
 import OwnerField from './OwnerField';

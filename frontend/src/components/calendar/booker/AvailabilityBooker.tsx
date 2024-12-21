@@ -8,8 +8,10 @@ import {
     toDojoDateString,
     toDojoTimeString,
 } from '@/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import { AvailabilityType, Event, getDisplayString } from '@/database/event';
 import { TimeFormat } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
@@ -23,7 +25,6 @@ import {
     FormControlLabel,
     FormHelperText,
     FormLabel,
-    Link,
     Radio,
     RadioGroup,
     Slide,
@@ -34,8 +35,6 @@ import {
 import { TransitionProps } from '@mui/material/transitions';
 import { TimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import Field from '../eventViewer/Field';
 import OwnerField from '../eventViewer/OwnerField';
@@ -285,7 +284,6 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                         />
                                         <Link
                                             key={p.username}
-                                            component={NextLink}
                                             href={`/profile/${p.username}`}
                                         >
                                             <Typography variant='body1'>

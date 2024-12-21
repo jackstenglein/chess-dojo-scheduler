@@ -2,12 +2,12 @@
 
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle } from '@mui/icons-material';
 import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import { LoadingButton } from '@mui/lab';
 import { Button, InputAdornment, Stack, TextField, Typography } from '@mui/material';
-import NextLink from 'next/link';
 import { useState } from 'react';
 
 const googleSigninMessage =
@@ -181,7 +181,7 @@ const StartStep: React.FC<StartStepProps> = ({
                 data-cy='cancel-button'
                 variant='text'
                 sx={{ textTransform: 'none' }}
-                component={NextLink}
+                component={Link}
                 href='/signin'
             >
                 Cancel
@@ -321,7 +321,7 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
             <Button
                 variant='text'
                 sx={{ textTransform: 'none' }}
-                component={NextLink}
+                component={Link}
                 href='/signin'
             >
                 Cancel
@@ -345,7 +345,7 @@ const SuccessStep = () => {
 
             <Button
                 variant='contained'
-                component={NextLink}
+                component={Link}
                 href='/signin'
                 fullWidth
                 sx={{

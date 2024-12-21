@@ -1,19 +1,11 @@
 import { useRequirements } from '@/api/cache/requirements';
+import { Link } from '@/components/navigation/Link';
 import { RequirementCategory } from '@/database/requirement';
 import { ALL_COHORTS, User } from '@/database/user';
 import { calculateTacticsRating } from '@/exams/view/exam';
 import Icon from '@/style/Icon';
 import { FiberManualRecord, FiberManualRecordOutlined } from '@mui/icons-material';
-import {
-    Card,
-    CardContent,
-    Grid2,
-    Link,
-    Stack,
-    Tooltip,
-    Typography,
-} from '@mui/material';
-import NextLink from 'next/link';
+import { Card, CardContent, Grid2, Stack, Tooltip, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
 interface TacticsScoreCardProps {
@@ -174,11 +166,5 @@ function getTooltip(
 }
 
 const LinkIf = ({ to, children }: { to?: string; children: ReactNode }) => {
-    return to ? (
-        <Link component={NextLink} href={to}>
-            {children}
-        </Link>
-    ) : (
-        children
-    );
+    return to ? <Link href={to}>{children}</Link> : children;
 };

@@ -1,21 +1,19 @@
+import { Link } from '@/components/navigation/Link';
 import { Chapter, Course } from '@/database/course';
-import { Card, CardContent, Link } from '@mui/material';
-import NextLink from 'next/link';
+import { Card, CardContent } from '@mui/material';
 
 interface ChapterContentsProps {
+    type: string;
+    id: string;
     chapter: Chapter;
     index: number;
 }
 
-const ChapterContents: React.FC<ChapterContentsProps> = ({ chapter, index }) => {
+const ChapterContents = ({ type, id, chapter, index }: ChapterContentsProps) => {
     return (
         <ol>
             {chapter.modules.map((m, idx) => (
-                <Link
-                    key={m.name}
-                    component={NextLink}
-                    href={`?chapter=${index}&module=${idx}`}
-                >
+                <Link key={m.name} href={`/courses/${type}/${id}/${index}/${idx}`}>
                     <li>{m.name}</li>
                 </Link>
             ))}
@@ -40,14 +38,24 @@ const Contents: React.FC<ContentsProps> = ({ course }) => {
                         {course.chapters.map((c, idx) => (
                             <li key={idx}>
                                 {c.name}
-                                <ChapterContents chapter={c} index={idx} />
+                                <ChapterContents
+                                    type={course.type}
+                                    id={course.id}
+                                    chapter={c}
+                                    index={idx}
+                                />
                             </li>
                         ))}
                     </ol>
                 )}
 
                 {course.chapters.length === 1 && (
-                    <ChapterContents chapter={course.chapters[0]} index={0} />
+                    <ChapterContents
+                        type={course.type}
+                        id={course.id}
+                        chapter={course.chapters[0]}
+                        index={0}
+                    />
                 )}
             </CardContent>
         </Card>

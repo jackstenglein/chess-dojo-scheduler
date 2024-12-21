@@ -5,6 +5,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { DefaultTimezone, TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
+import { Link } from '@/components/navigation/Link';
 import {
     Rating,
     RatingSystem,
@@ -12,6 +13,7 @@ import {
     dojoCohorts,
     formatRatingSystem,
 } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import Avatar from '@/profile/Avatar';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
@@ -35,14 +37,11 @@ import {
     FormLabel,
     Grid,
     Grid2,
-    Link,
     MenuItem,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import NotificationSettingsEditor from './NotificationSettingsEditor';
 import SubscriptionManager from './SubscriptionManager';
@@ -546,7 +545,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
                                 </LoadingButton>
 
                                 <Button
-                                    component={NextLink}
+                                    component={Link}
                                     variant='contained'
                                     color='error'
                                     disableElevation
@@ -744,10 +743,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
                                                 rs.label === 'DWZ ID' ? (
                                                     <>
                                                         Learn how to find your DWZ ID{' '}
-                                                        <Link
-                                                            component={NextLink}
-                                                            href='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
-                                                        >
+                                                        <Link href='/help#How%20do%20I%20find%20my%20DWZ%20ID?'>
                                                             here
                                                         </Link>
                                                     </>

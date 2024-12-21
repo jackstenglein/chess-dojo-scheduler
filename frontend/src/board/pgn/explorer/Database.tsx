@@ -1,5 +1,6 @@
 import { Request } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
     ExplorerMove,
@@ -22,7 +23,6 @@ import FunctionsIcon from '@mui/icons-material/Functions';
 import {
     Box,
     Grid2,
-    Link,
     MenuItem,
     Stack,
     TextField,
@@ -39,7 +39,6 @@ import {
     GridRowModel,
     GridRowParams,
 } from '@mui/x-data-grid-pro';
-import NextLink from 'next/link';
 import { useMemo } from 'react';
 import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
@@ -423,7 +422,6 @@ function Database<T>({
             {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
                 <Grid2 display='flex' justifyContent='center' size={12}>
                     <Link
-                        component={NextLink}
                         href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
                         target='_blank'
                         rel='noopener'

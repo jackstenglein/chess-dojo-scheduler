@@ -2,14 +2,14 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { Event, EventStatus } from '@/database/event';
 import { dojoCohorts } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { LoadingButton } from '@mui/lab';
 import { Alert, Button, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 import Field from './Field';
 import OwnerField from './OwnerField';
 import ParticipantsList from './ParticipantsList';
@@ -108,7 +108,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
 
             {isOwner || isParticipant ? (
                 <Button
-                    component={NextLink}
+                    component={Link}
                     variant='contained'
                     href={`/meeting/${event.id}`}
                     color='success'

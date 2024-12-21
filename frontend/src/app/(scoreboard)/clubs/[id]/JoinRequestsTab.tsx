@@ -3,6 +3,7 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { GetClubResponse } from '@/api/clubApi';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import { ClubDetails, ClubJoinRequest, ClubJoinRequestStatus } from '@/database/club';
 import Avatar from '@/profile/Avatar';
 import { Block, Check } from '@mui/icons-material';
@@ -10,12 +11,10 @@ import {
     CircularProgress,
     Divider,
     IconButton,
-    Link,
     Stack,
     Tooltip,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 
 interface JoinRequestsTabProps {
     club: ClubDetails;
@@ -135,10 +134,7 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                     />
 
                     <Stack>
-                        <Link
-                            component={NextLink}
-                            href={`/profile/${joinRequest.username}`}
-                        >
+                        <Link href={`/profile/${joinRequest.username}`}>
                             {joinRequest.displayName}
                         </Link>
                         <Typography color='text.secondary'>

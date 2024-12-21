@@ -8,11 +8,11 @@ import { User } from '@/database/user';
 import { ListItemContextMenu } from '@/games/list/ListItemContextMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
+import { useRouter } from '@/hooks/useRouter';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import { Button, Stack } from '@mui/material';
 import { GridPaginationModel, GridRowParams } from '@mui/x-data-grid-pro';
-import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
 interface GamesTabProps {

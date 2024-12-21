@@ -1,3 +1,4 @@
+import { Link } from '@/components/navigation/Link';
 import { PgnHeaders } from '@/database/game';
 import { Header } from '@jackstenglein/chess';
 import { type Tags as PgnParserTags } from '@jackstenglein/pgn-parser';
@@ -12,7 +13,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 
 type PermissiveHeaders = PgnParserTags | Record<string, undefined> | PgnHeaders;
 
@@ -112,7 +112,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                         Unlock {hiddenCount} more game
                         {hiddenCount > 1 ? 's' : ''} by upgrading to a full account
                     </Typography>
-                    <Button variant='outlined' component={NextLink} href='/prices'>
+                    <Button variant='outlined' component={Link} href='/prices'>
                         View Prices
                     </Button>
                 </Stack>

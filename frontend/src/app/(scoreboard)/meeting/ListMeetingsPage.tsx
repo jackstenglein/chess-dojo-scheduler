@@ -4,10 +4,10 @@ import { RequestSnackbar } from '@/api/Request';
 import { useEvents } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
 import MeetingListItem from '@/components/meeting/MeetingListItem';
+import { Link } from '@/components/navigation/Link';
 import { Event } from '@/database/event';
 import LoadingPage from '@/loading/LoadingPage';
 import { Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
 
 const ONE_HOUR = 3600000;
 
@@ -55,7 +55,7 @@ export const ListMeetingsPage = () => {
                             Looks like you don't have any meetings. Go to the calendar and
                             schedule one now!
                         </Typography>
-                        <Button variant='contained' component={NextLink} href='/calendar'>
+                        <Button variant='contained' component={Link} href='/calendar'>
                             Go to Calendar
                         </Button>
                     </>

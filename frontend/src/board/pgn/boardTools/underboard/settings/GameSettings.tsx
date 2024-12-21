@@ -6,6 +6,7 @@ import { useFreeTier } from '@/auth/Auth';
 import { Game, PgnHeaders } from '@/database/game';
 import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '@/games/view/DeleteGameButton';
+import { useRouter } from '@/hooks/useRouter';
 import {
     GameHeader,
     GameImportTypes,
@@ -27,7 +28,6 @@ import {
     Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';

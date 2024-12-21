@@ -5,6 +5,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { GetCourseResponse } from '@/api/courseApi';
 import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { Course } from '@/database/course';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
@@ -18,24 +19,24 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { getCheckoutSessionId, setCheckoutSessionId } from '../../localStorage';
+import { getCheckoutSessionId, setCheckoutSessionId } from '../../../../localStorage';
 import Contents from './Contents';
 import Module from './Module';
 import PurchaseCoursePage from './PurchaseCoursePage';
 
-export const CoursePage = ({ params }: { params: { type: string; id: string } }) => {
+export const CoursePage = ({
+    params,
+}: {
+    params: { type: string; id: string; chapter?: string; module?: string };
+}) => {
     const auth = useAuth();
     const anonymousUser = auth.user === undefined;
     const isFreeTier = useFreeTier();
     const api = useApi();
     const request = useRequest<GetCourseResponse>();
-    const { searchParams } = useNextSearchParams({
-        chapter: '0',
-        module: '0',
-    });
 
+    const { searchParams } = useNextSearchParams();
     const [checkoutId, setCheckoutId] = useState(searchParams.get('checkout') || '');
 
     useEffect(() => {
@@ -68,13 +69,13 @@ export const CoursePage = ({ params }: { params: { type: string; id: string } })
         }
     }, [anonymousUser, params.id, checkoutId]);
 
-    const chapterIndex = parseInt(searchParams.get('chapter') || '0');
+    const chapterIndex = parseInt(params.chapter || '0');
     const { course, isBlocked } = request.data || {};
     const chapter = useMemo(() => {
         return course?.chapters ? course.chapters[chapterIndex] : undefined;
     }, [course, chapterIndex]);
 
-    const moduleIndex = parseInt(searchParams.get('module') || '0');
+    const moduleIndex = parseInt(params.module || '0');
     const courseModule = useMemo(() => {
         if (moduleIndex >= 0 && moduleIndex < (chapter?.modules.length || 0)) {
             return chapter?.modules[moduleIndex];
@@ -105,7 +106,7 @@ export const CoursePage = ({ params }: { params: { type: string; id: string } })
                     sx={{ mb: 4 }}
                     action={
                         <Button
-                            component={NextLink}
+                            component={Link}
                             href='/signup'
                             size='small'
                             color='inherit'
@@ -142,8 +143,8 @@ export const CoursePage = ({ params }: { params: { type: string; id: string } })
                         {prevModule && (
                             <Button
                                 variant='contained'
-                                component={NextLink}
-                                href={`/courses/${params.type}/${params.id}?chapter=${prevModule.chapterIndex}&module=${prevModule.moduleIndex}`}
+                                component={Link}
+                                href={`/courses/${params.type}/${params.id}/${prevModule.chapterIndex}/${prevModule.moduleIndex}`}
                             >
                                 Previous: {prevModule.name}
                             </Button>
@@ -152,8 +153,8 @@ export const CoursePage = ({ params }: { params: { type: string; id: string } })
                         {nextModule && (
                             <Button
                                 variant='contained'
-                                component={NextLink}
-                                href={`/courses/${params.type}/${params.id}?chapter=${nextModule.chapterIndex}&module=${nextModule.moduleIndex}`}
+                                component={Link}
+                                href={`/courses/${params.type}/${params.id}/${nextModule.chapterIndex}/${nextModule.moduleIndex}`}
                             >
                                 Next: {nextModule.name}
                             </Button>

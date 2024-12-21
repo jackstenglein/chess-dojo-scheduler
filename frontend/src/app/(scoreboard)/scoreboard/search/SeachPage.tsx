@@ -2,6 +2,7 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
 import { RatingSystem, User } from '@/database/user';
 import Avatar from '@/profile/Avatar';
@@ -11,7 +12,6 @@ import {
     FormControl,
     FormControlLabel,
     FormHelperText,
-    Link,
     Stack,
     TextField,
     Typography,
@@ -22,7 +22,6 @@ import {
     GridRenderCellParams,
     GridRowModel,
 } from '@mui/x-data-grid-pro';
-import NextLink from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
 
 const AllColumns: GridColDef<User>[] = [
@@ -44,9 +43,7 @@ const AllColumns: GridColDef<User>[] = [
                         displayName={params.value}
                         size={32}
                     />
-                    <Link component={NextLink} href={`/profile/${params.row.username}`}>
-                        {params.value}
-                    </Link>
+                    <Link href={`/profile/${params.row.username}`}>{params.value}</Link>
                 </Stack>
             );
         },

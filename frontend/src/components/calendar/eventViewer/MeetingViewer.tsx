@@ -1,8 +1,8 @@
+import { Link } from '@/components/navigation/Link';
 import { Event, getDisplayString } from '@/database/event';
 import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Button, Stack, Typography } from '@mui/material';
-import NextLink from 'next/link';
 import Field from './Field';
 import ParticipantsList from './ParticipantsList';
 
@@ -58,7 +58,7 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
             </Stack>
 
             <Button
-                component={NextLink}
+                component={Link}
                 variant='contained'
                 href={`/meeting/${event.id}`}
                 startIcon={<Icon name='eye' />}

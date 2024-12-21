@@ -26,6 +26,7 @@ import {
     getOrientation,
     useExam,
 } from '@/exams/view/exam';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { EventType } from '@jackstenglein/chess';
 import {
@@ -59,7 +60,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCountdown } from 'react-countdown-circle-timer';
 

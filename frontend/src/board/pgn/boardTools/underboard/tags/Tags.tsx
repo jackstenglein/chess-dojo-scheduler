@@ -1,9 +1,10 @@
 import { isValidDate, stripTagValue } from '@/api/gameApi';
+import { Link } from '@/components/navigation/Link';
 import { Game, MastersCohort } from '@/database/game';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { EventType, PgnDate, PgnTime, TimeControl } from '@jackstenglein/chess';
-import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, Box, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridCellParams,
@@ -13,7 +14,6 @@ import {
     GridRenderCellParams,
     GridRenderEditCellParams,
 } from '@mui/x-data-grid-pro';
-import NextLink from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useChess } from '../../../PgnBoard';
 import { EditDateCell } from './DateEditor';
@@ -52,10 +52,7 @@ const columns: GridColDef<TagRow>[] = [
                             displayName={params.row.value.displayName}
                             size={28}
                         />
-                        <Link
-                            component={NextLink}
-                            href={`/profile/${params.row.value.username}`}
-                        >
+                        <Link href={`/profile/${params.row.value.username}`}>
                             <Typography variant='body2'>
                                 {params.row.value.displayName}
                             </Typography>
@@ -68,7 +65,6 @@ const columns: GridColDef<TagRow>[] = [
             if (params.row.name === 'Cohort' && typeof params.row.value === 'string') {
                 return (
                     <Link
-                        component={NextLink}
                         href={`/games/?type=cohort&cohort=${encodeURIComponent(
                             params.row.value,
                         )}`}

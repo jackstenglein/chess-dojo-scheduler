@@ -1,5 +1,6 @@
 import { useEvents } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
     AvailabilityType,
@@ -19,14 +20,7 @@ import Icon from '@/style/Icon';
 import { DayHours } from '@aldabil/react-scheduler/types';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
-import {
-    Button,
-    Link,
-    Stack,
-    SvgIconOwnProps,
-    Typography,
-    useMediaQuery,
-} from '@mui/material';
+import { Button, Stack, SvgIconOwnProps, Typography, useMediaQuery } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary, {
@@ -34,7 +28,6 @@ import MuiAccordionSummary, {
 } from '@mui/material/AccordionSummary';
 import { Theme, styled } from '@mui/material/styles';
 import { DateTime } from 'luxon';
-import NextLink from 'next/link';
 import React, { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import TimezoneFilter from './TimezoneFilter';
@@ -365,7 +358,6 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         <Stack data-cy='calendar-filters' spacing={{ xs: 3, sm: 4 }}>
             {meetingCount > 0 && (
                 <Link
-                    component={NextLink}
                     href='/meeting'
                     sx={{
                         alignSelf: 'center',
