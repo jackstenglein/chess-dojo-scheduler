@@ -58,7 +58,7 @@ export const cohorts = [
 ];
 
 const endpoint = getConfig().api.roundRobinUrl;
-const localendpoint = 'replace-with-endpoint/Prod/player';
+const localendpoint = 'insertendpoint/Prod/player/';
 /**
  * method to fetch round robin tournament data from given tournament id
  * @param id string tournament id
@@ -67,7 +67,7 @@ const localendpoint = 'replace-with-endpoint/Prod/player';
 
 export const fetchTournamentData = async (cohortValue: number): Promise<TournamentId> => {
     try {
-        const response = await axios.get<TournamentId>(`${endpoint}/Prod/tournamentid`, {
+        const response = await axios.get<TournamentId>(endpoint + `/Prod/tournamentid`, {
             params: {
                 'cohort-start': cohortValue,
             },
