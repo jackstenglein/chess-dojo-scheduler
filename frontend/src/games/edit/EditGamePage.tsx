@@ -1,14 +1,15 @@
+'use client';
+
+import { useRouter } from '@/hooks/useRouter';
 import {
     CreateGameRequest,
     GameHeader,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Game } from '../../database/game';
 import ImportWizard from '../import/ImportWizard';
 
 interface PreflightData {
@@ -16,12 +17,10 @@ interface PreflightData {
     headers: GameHeader;
 }
 
-const EditGamePage = () => {
+const EditGamePage = ({ cohort, id }: { cohort: string; id: string }) => {
     const api = useApi();
     const request = useRequest<PreflightData>();
-    const { cohort, id } = useParams();
-    const navigate = useNavigate();
-    const game: Game | undefined = (useLocation().state as { game?: Game })?.game;
+    const router = useRouter();
 
     const onEdit = (remoteGame?: CreateGameRequest, headers?: GameHeader) => {
         if (!cohort || !id || !remoteGame) {
@@ -32,7 +31,6 @@ const EditGamePage = () => {
             ...remoteGame,
             cohort,
             id,
-            unlisted: game?.unlisted,
             headers,
         };
 
@@ -43,17 +41,13 @@ const EditGamePage = () => {
                     method: req.type,
                     dojo_cohort: cohort,
                 });
-                navigate(`/games/${cohort}/${id}?firstLoad=true`);
+                router.push(`/games/${cohort}/${id}?firstLoad=true`);
             })
             .catch((err) => {
                 console.error('updateGame: ', err);
                 request.onFailure(err);
             });
     };
-
-    if (!game) {
-        return <Navigate to='..' replace />;
-    }
 
     return (
         <Container maxWidth='md' sx={{ py: 5 }}>

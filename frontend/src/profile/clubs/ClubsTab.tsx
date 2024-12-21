@@ -2,9 +2,10 @@ import { useClubs } from '@/api/cache/clubs';
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { ListClubItem } from '@/components/clubs/ClubGrid';
+import { Link } from '@/components/navigation/Link';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import { Link, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
 interface ClubsTabProps {
     /** The user whose joined clubs will be displayed. */

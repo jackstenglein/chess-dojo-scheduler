@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { CoursePage } from './CoursePage';
+import { CoursePage } from './[chapter]/[module]/CoursePage';
 
 export function generateStaticParams() {
     return [

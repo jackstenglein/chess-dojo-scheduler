@@ -3,11 +3,13 @@ import { useApi } from '@/api/Api';
 import { Request, RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
-import Field from '@/calendar/eventViewer/Field';
-import OwnerField from '@/calendar/eventViewer/OwnerField';
-import PriceField from '@/calendar/eventViewer/PriceField';
+import Field from '@/components/calendar/eventViewer/Field';
+import OwnerField from '@/components/calendar/eventViewer/OwnerField';
+import PriceField from '@/components/calendar/eventViewer/PriceField';
+import { Link } from '@/components/navigation/Link';
 import { Event, EventStatus, EventType } from '@/database/event';
 import { SubscriptionStatus, User, dojoCohorts } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
@@ -83,6 +85,7 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
     const viewer = useAuth().user;
     const api = useApi();
     const request = useRequest();
+    const router = useRouter();
 
     if (!displayEvent(event, viewer)) {
         return null;
@@ -93,7 +96,7 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
 
     const onBook = () => {
         if (!viewer) {
-            window.location.href = '/signup';
+            router.push('/signup');
             return;
         }
 
@@ -130,7 +133,11 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
                 sx={{ pb: 0 }}
                 action={
                     isOwner || isParticipant ? (
-                        <Button variant='contained' href={`/meeting/${event.id}`}>
+                        <Button
+                            variant='contained'
+                            component={Link}
+                            href={`/meeting/${event.id}`}
+                        >
                             View Details
                         </Button>
                     ) : (

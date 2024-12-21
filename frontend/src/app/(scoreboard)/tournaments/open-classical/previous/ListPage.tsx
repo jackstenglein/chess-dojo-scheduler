@@ -2,9 +2,10 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import { OpenClassical } from '@/database/tournament';
 import LoadingPage from '@/loading/LoadingPage';
-import { Container, Link, Stack, Typography } from '@mui/material';
+import { Container, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 
 const ListPage = () => {

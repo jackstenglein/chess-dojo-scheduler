@@ -8,6 +8,7 @@ import { User } from '@/database/user';
 import { ListItemContextMenu } from '@/games/list/ListItemContextMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
+import { useRouter } from '@/hooks/useRouter';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import { Button, Stack } from '@mui/material';
@@ -23,6 +24,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
     const contextMenu = useDataGridContextMenu();
+    const router = useRouter();
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user.username, startKey),
@@ -33,10 +35,12 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const { request, data, pageSize, setPageSize } = pagination;
 
     const onClickRow = (params: GridRowParams<GameInfo>) => {
-        window.location.href = `/games/${params.row.cohort.replaceAll(
-            '+',
-            '%2B',
-        )}/${params.row.id.replaceAll('?', '%3F')}`;
+        router.push(
+            `/games/${params.row.cohort.replaceAll(
+                '+',
+                '%2B',
+            )}/${params.row.id.replaceAll('?', '%3F')}`,
+        );
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
@@ -46,7 +50,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     };
 
     const onSubmit = () => {
-        window.location.href = '/games/import';
+        router.push('/games/import');
     };
 
     return (

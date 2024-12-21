@@ -1,13 +1,11 @@
+import NotFoundPage from '@/NotFoundPage';
+import { useRequest } from '@/api/Request';
+import { getYearReview } from '@/api/yearReviewApi';
+import { YearReview } from '@/database/yearReview';
+import LoadingPage from '@/loading/LoadingPage';
 import { ExpandMore } from '@mui/icons-material';
 import { Container, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-
-import NotFoundPage from '../../NotFoundPage';
-import { useRequest } from '../../api/Request';
-import { getYearReview } from '../../api/yearReviewApi';
-import { YearReview } from '../../database/yearReview';
-import LoadingPage from '../../loading/LoadingPage';
 import Avatar from '../Avatar';
 import DojoPointSection from './DojoPointSection';
 import GameSection from './GameSection';
@@ -19,8 +17,7 @@ export interface SectionProps {
     review: YearReview;
 }
 
-const YearReviewPage = () => {
-    const { username, year } = useParams();
+const YearReviewPage = ({ username, year }: { username: string; year: string }) => {
     const request = useRequest<YearReview>();
 
     useEffect(() => {

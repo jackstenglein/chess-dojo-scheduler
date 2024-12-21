@@ -1,5 +1,13 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { useAuth, useFreeTier } from '@/auth/Auth';
 import { MastersCohort } from '@/database/game';
+import { RequirementCategory } from '@/database/requirement';
+import { dojoCohorts } from '@/database/user';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { SearchFunc } from '@/hooks/usePagination';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import Icon from '@/style/Icon';
 import { Folder } from '@mui/icons-material';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { LoadingButton } from '@mui/lab';
@@ -23,18 +31,6 @@ import { styled } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-    Link as RouterLink,
-    URLSearchParamsInit,
-    useSearchParams,
-} from 'react-router-dom';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { useFreeTier, useRequiredAuth } from '../../auth/Auth';
-import { RequirementCategory } from '../../database/requirement';
-import { dojoCohorts } from '../../database/user';
-import CohortIcon from '../../scoreboard/CohortIcon';
-import Icon from '../../style/Icon';
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -479,8 +475,7 @@ const SearchByPosition: React.FC<SearchByPositionProps> = ({
                 </Typography>
             ) : (
                 <LoadingButton
-                    component={RouterLink}
-                    to={`/games/explorer?fen=${fen}`}
+                    href={`/games/explorer?fen=${fen}`}
                     disabled={isLoading}
                     variant='outlined'
                     startIcon={<Icon name='explore' color='primary' />}
@@ -521,11 +516,11 @@ interface SearchFiltersProps {
 }
 
 const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) => {
-    const { user } = useRequiredAuth();
+    const { user } = useAuth();
     const api = useApi();
 
-    const [searchParams, setSearchParams] = useSearchParams({
-        cohort: user.dojoCohort,
+    const { searchParams, setSearchParams } = useNextSearchParams({
+        cohort: user?.dojoCohort || '',
         player: '',
         color: 'either',
         eco: '',
@@ -562,7 +557,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
 
     // Submitted variables that should be searched on
     const type = searchParams.get('type') || SearchType.Cohort;
-    const cohort = searchParams.get('cohort') || user.dojoCohort;
+    const cohort = searchParams.get('cohort') || user?.dojoCohort || '';
     const player = searchParams.get('player') || '';
     const color = searchParams.get('color') || 'either';
     const eco = searchParams.get('eco') || '';
@@ -606,8 +601,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
 
     const searchByOwner = useCallback(
         (startKey: string) =>
-            api.listGamesByOwner(user.username, startKey, startDateStr, endDateStr),
-        [api, user.username, startDateStr, endDateStr],
+            api.listGamesByOwner(user?.username, startKey, startDateStr, endDateStr),
+        [api, user?.username, startDateStr, endDateStr],
     );
 
     const searchByOpening = useCallback(
@@ -656,7 +651,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     ]);
 
     // Functions that change the search params
-    const onSetSearchParams = (params: URLSearchParamsInit) => {
+    const onSetSearchParams = (params: Record<string, string>) => {
         trackEvent(EventType.SearchGames, params);
         setSearchParams(params);
     };

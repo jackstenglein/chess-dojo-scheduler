@@ -23,6 +23,7 @@ import {
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { RenderPlayers } from '@/components/games/list/GameListItem';
+import { Link } from '@/components/navigation/Link';
 import { isCohortInRange, RatingSystem } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import {
@@ -38,7 +39,6 @@ import {
     DialogContent,
     DialogTitle,
     Grid2,
-    Link,
     Stack,
     TextField,
     Typography,

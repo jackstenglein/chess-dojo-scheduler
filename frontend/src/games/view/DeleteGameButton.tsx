@@ -1,3 +1,4 @@
+import { useRouter } from '@/hooks/useRouter';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -27,6 +28,7 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
     const api = useApi();
     const request = useRequest();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const router = useRouter();
 
     const onDelete = () => {
         request.onStart();
@@ -36,7 +38,7 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
                     dojo_cohort: game.cohort,
                 });
                 request.onSuccess();
-                window.location.href = '/profile?view=games';
+                router.push('/profile?view=games');
             })
             .catch((err) => {
                 console.error(err);

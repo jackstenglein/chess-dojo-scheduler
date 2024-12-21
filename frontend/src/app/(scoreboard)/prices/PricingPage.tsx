@@ -7,10 +7,10 @@ import { AuthStatus, useAuth } from '@/auth/Auth';
 import { getConfig } from '@/config';
 import { SubscriptionStatus } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import PriceMatrix from '@/upsell/PriceMatrix';
 import { Container, Grid2, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const config = getConfig();
@@ -33,7 +33,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     }
 
     if (user?.subscriptionStatus === SubscriptionStatus.Subscribed) {
-        window.location.href = '/profile';
+        router.push('/profile');
         return;
     }
 

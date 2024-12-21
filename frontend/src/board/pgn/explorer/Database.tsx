@@ -1,11 +1,28 @@
+import { Request } from '@/api/Request';
+import { useFreeTier } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
+import {
+    ExplorerMove,
+    ExplorerPosition,
+    ExplorerResult,
+    LichessExplorerMove,
+    LichessExplorerPosition,
+    getGameCount,
+    getResultCount,
+    isExplorerMove,
+    isExplorerPosition,
+} from '@/database/explorer';
+import { dojoCohorts, getCohortRange } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import Icon from '@/style/Icon';
+import UpsellAlert from '@/upsell/UpsellAlert';
 import { FEN } from '@jackstenglein/chess';
 import { Help, QuestionMark } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import {
     Box,
     Grid2,
-    Link,
     MenuItem,
     Stack,
     TextField,
@@ -23,23 +40,6 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
-import { Request } from '../../../api/Request';
-import { useFreeTier } from '../../../auth/Auth';
-import {
-    ExplorerMove,
-    ExplorerPosition,
-    ExplorerResult,
-    LichessExplorerMove,
-    LichessExplorerPosition,
-    getGameCount,
-    getResultCount,
-    isExplorerMove,
-    isExplorerPosition,
-} from '../../../database/explorer';
-import { dojoCohorts, getCohortRange } from '../../../database/user';
-import LoadingPage from '../../../loading/LoadingPage';
-import Icon from '../../../style/Icon';
-import UpsellAlert from '../../../upsell/UpsellAlert';
 import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
 import { ExplorerDatabaseType } from './Explorer';

@@ -4,19 +4,11 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString } from '@/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import { OpenClassical } from '@/database/tournament';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
-import {
-    Button,
-    Container,
-    Link,
-    MenuItem,
-    Stack,
-    TextField,
-    Typography,
-} from '@mui/material';
-import NextLink from 'next/link';
+import { Button, Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import React, { useCallback, useEffect } from 'react';
 import EntrantsTable from './EntrantsTable';
 import PairingsTable from './PairingsTable';
@@ -69,20 +61,15 @@ const DetailsPage = () => {
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
                 <Stack>
                     <Typography variant='h4'>Open Classical</Typography>
-                    <Link component={NextLink} href='/tournaments/open-classical/info'>
-                        Rules and Info
-                    </Link>
-                    <Link
-                        component={NextLink}
-                        href='/tournaments/open-classical/previous'
-                    >
+                    <Link href='/tournaments/open-classical/info'>Rules and Info</Link>
+                    <Link href='/tournaments/open-classical/previous'>
                         Previous Tournaments
                     </Link>
                 </Stack>
 
                 {(user?.isAdmin || user?.isTournamentAdmin) && (
                     <Button
-                        component={NextLink}
+                        component={Link}
                         variant='contained'
                         href='/tournaments/open-classical/admin'
                     >
@@ -141,7 +128,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     <Button
                         variant='contained'
                         href='/tournaments/open-classical/register'
-                        component={NextLink}
+                        component={Link}
                     >
                         Register
                     </Button>
@@ -152,7 +139,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     complete.{' '}
                     <Link
                         href='/tournaments/open-classical/submit-results'
-                        component={NextLink}
+                        component={Link}
                     >
                         Submit Results
                     </Link>

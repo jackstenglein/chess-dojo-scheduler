@@ -4,6 +4,7 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import useGame from '@/context/useGame';
 import { PositionComment } from '@/database/game';
 import Avatar from '@/profile/Avatar';
@@ -20,7 +21,6 @@ import {
     DialogTitle,
     Divider,
     IconButton,
-    Link,
     Stack,
     TextField,
     Tooltip,

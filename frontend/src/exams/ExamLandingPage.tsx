@@ -1,3 +1,5 @@
+import { Link } from '@/components/navigation/Link';
+import { KingIcon, QueenIcon, RookIcon } from '@/style/ChessIcons';
 import {
     Card,
     CardActionArea,
@@ -10,8 +12,6 @@ import {
     Typography,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import { Link } from 'react-router-dom';
-import { KingIcon, QueenIcon, RookIcon } from '../style/ChessIcons';
 
 /**
  * Renders a simple landing page that directs users to the different types of exams
@@ -73,7 +73,7 @@ const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) =>
                 <CardActionArea
                     component={Link}
                     disabled={disabled}
-                    to={href}
+                    href={href}
                     sx={{ height: 1 }}
                 >
                     <CardContent>

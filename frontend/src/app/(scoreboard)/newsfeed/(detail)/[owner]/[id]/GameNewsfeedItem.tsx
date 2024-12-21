@@ -1,5 +1,6 @@
+import { Link } from '@/components/navigation/Link';
 import { TimelineEntry } from '@/database/timeline';
-import { Link, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
 interface GameNewsfeedItemProps {
     entry: TimelineEntry;

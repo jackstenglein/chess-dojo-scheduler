@@ -3,10 +3,10 @@
 import { useFreeTier } from '@/auth/Auth';
 import { useClubFilters } from '@/hooks/useClubFilters';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { useRouter } from '@/hooks/useRouter';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { TabContext, TabPanel } from '@mui/lab';
 import { Box, Button, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AllClubsTab } from './AllClubsTab';
 import { MyClubsTab } from './MyClubsTab';

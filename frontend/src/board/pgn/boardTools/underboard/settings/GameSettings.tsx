@@ -6,6 +6,7 @@ import { useFreeTier } from '@/auth/Auth';
 import { Game, PgnHeaders } from '@/database/game';
 import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '@/games/view/DeleteGameButton';
+import { useRouter } from '@/hooks/useRouter';
 import {
     GameHeader,
     GameImportTypes,
@@ -28,7 +29,6 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
@@ -46,7 +46,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
     const [visibility, setVisibility] = useState(initialVisibility);
     const [orientation, setOrientation] = useState<GameOrientation>(initialOrientation);
     const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
-    const navigate = useNavigate();
+    const router = useRouter();
 
     useEffect(() => {
         setVisibility(initialVisibility);
@@ -173,7 +173,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
                 <Button
                     variant='outlined'
-                    onClick={() => navigate('edit', { state: { game } })}
+                    onClick={() => router.push(`/games/${game.cohort}/${game.id}/edit`)}
                 >
                     Replace PGN
                 </Button>
