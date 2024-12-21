@@ -1,14 +1,23 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { isGame } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
 import { useChess } from '@/board/pgn/PgnBoard';
+import { DirectorySelectButton } from '@/components/directories/select/DirectorySelectButton';
 import { getConfig } from '@/config';
 import useGame from '@/context/useGame';
+import { pgnExportOptions, usePgnExportOptions } from '@/hooks/usePgnExportOptions';
+import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { Chess } from '@jackstenglein/chess';
+import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { PdfExportRequest } from '@jackstenglein/chess-dojo-common/src/pgn/export';
 import {
     Check,
     ContentPaste,
     Download,
     Link,
+    Merge,
     OpenInNew,
     PictureAsPdf,
 } from '@mui/icons-material';
@@ -34,87 +43,86 @@ import {
     PieceStyle,
     PieceStyleKey,
 } from '../settings/ViewerSettings';
+import { MergeLineDialog } from './MergeLineDialog';
 
 const config = getConfig();
-
-const pgnExportOptions = {
-    skipComments: {
-        key: 'export-pgn/skip-comments',
-        default: false,
-    },
-    skipNags: {
-        key: 'export-pgn/skip-nags',
-        default: false,
-    },
-    skipDrawables: {
-        key: 'export-pgn/skip-drawables',
-        default: false,
-    },
-    skipVariations: {
-        key: 'export-pgn/skip-variations',
-        default: false,
-    },
-    skipNullMoves: {
-        key: 'export-pgn/skip-null-moves',
-        default: false,
-    },
-    skipHeader: {
-        key: 'export-pgn/skip-header',
-        default: false,
-    },
-    skipClocks: {
-        key: 'export-pgn/skip-clocks',
-        default: false,
-    },
-    plyBetweenDiagrams: {
-        key: 'export-pgn/ply-between-diagrams',
-        default: 20,
-        min: 8,
-        max: 40,
-    },
-} as const;
 
 export function ShareTab() {
     const { chess, board } = useChess();
     const { game } = useGame();
     const [copied, setCopied] = useState('');
+    const api = useApi();
+    const { user } = useAuth();
 
     const [boardStyle] = useLocalStorage<string>(BoardStyleKey, BoardStyle.Standard);
     const [pieceStyle] = useLocalStorage<string>(PieceStyleKey, PieceStyle.Standard);
 
-    const [skipComments, setSkipComments] = useLocalStorage<boolean>(
-        pgnExportOptions.skipComments.key,
-        pgnExportOptions.skipComments.default,
-    );
-    const [skipNags, setSkipNags] = useLocalStorage<boolean>(
-        pgnExportOptions.skipNags.key,
-        pgnExportOptions.skipNags.default,
-    );
-    const [skipDrawables, setSkipDrawables] = useLocalStorage<boolean>(
-        pgnExportOptions.skipDrawables.key,
-        pgnExportOptions.skipDrawables.default,
-    );
-    const [skipVariations, setSkipVariations] = useLocalStorage<boolean>(
-        pgnExportOptions.skipVariations.key,
-        pgnExportOptions.skipVariations.default,
-    );
-    const [skipNullMoves, setSkipNullMoves] = useLocalStorage<boolean>(
-        pgnExportOptions.skipNullMoves.key,
-        pgnExportOptions.skipNullMoves.default,
-    );
-    const [skipHeader, setSkipHeader] = useLocalStorage<boolean>(
-        pgnExportOptions.skipHeader.key,
-        pgnExportOptions.skipHeader.default,
-    );
-    const [skipClocks, setSkipClocks] = useLocalStorage<boolean>(
-        pgnExportOptions.skipClocks.key,
-        pgnExportOptions.skipClocks.default,
-    );
-    const [plyBetweenDiagrams, setPlyBetweenDiagrams] = useLocalStorage<number>(
-        pgnExportOptions.plyBetweenDiagrams.key,
-        pgnExportOptions.plyBetweenDiagrams.default,
-    );
+    const [showMergeDialog, setShowMergeDialog] = useState(false);
+
+    const {
+        skipComments,
+        setSkipComments,
+        skipNags,
+        setSkipNags,
+        skipDrawables,
+        setSkipDrawables,
+        skipVariations,
+        setSkipVariations,
+        skipNullMoves,
+        setSkipNullMoves,
+        skipHeader,
+        setSkipHeader,
+        skipClocks,
+        setSkipClocks,
+        plyBetweenDiagrams,
+        setPlyBetweenDiagrams,
+    } = usePgnExportOptions();
+
     const pdfRequest = useRequest();
+    const cloneRequest = useRequest();
+    const addToFolderRequest = useRequest<string>();
+
+    const onAddToFolder = async (directory: { owner: string; id: string }) => {
+        if (!game) {
+            return true;
+        }
+
+        addToFolderRequest.onStart();
+
+        try {
+            const resp = await api.addDirectoryItems({
+                owner: directory.owner,
+                id: directory.id,
+                games: [
+                    {
+                        owner: game.owner,
+                        ownerDisplayName: game.ownerDisplayName,
+                        createdAt:
+                            game.createdAt ||
+                            game.date.replaceAll('.', '-') ||
+                            new Date().toISOString(),
+                        id: game.id,
+                        cohort: game.cohort,
+                        white: game.headers.White,
+                        black: game.headers.Black,
+                        whiteElo: game.headers.WhiteElo,
+                        blackElo: game.headers.BlackElo,
+                        result: game.headers.Result,
+                    },
+                ],
+            });
+            addToFolderRequest.onSuccess(`Game added to ${resp.data.directory.name}`);
+            trackEvent(EventType.AddDirectoryItems, {
+                count: 1,
+                method: 'share_tab_add_to_folder',
+            });
+            return true;
+        } catch (err) {
+            console.error('addDirectoryItems: ', err);
+            addToFolderRequest.onFailure(err);
+            return false;
+        }
+    };
 
     const onCopy = (name: string, value: string) => {
         copy(value);
@@ -138,7 +146,7 @@ export function ShareTab() {
         }
 
         const fen = chess.fen();
-        const params = new URLSearchParams({
+        const newParams: Record<string, string> = {
             fen,
             orientation: board?.state.orientation || 'white',
             white: getPlayer(chess, 'White', 'WhiteElo'),
@@ -149,8 +157,11 @@ export function ShareTab() {
             theme: boardStyle.toLowerCase(),
             piece:
                 pieceStyle === PieceStyle.ThreeD ? 'standard' : pieceStyle.toLowerCase(),
-        });
-
+        };
+        if (!newParams.lastMove) {
+            delete newParams.lastMove;
+        }
+        const params = new URLSearchParams(newParams);
         const url = `${config.api.baseUrl}/public/pgn-export/image?${params.toString()}`;
         window.open(url, '_blank');
     };
@@ -196,9 +207,8 @@ export function ShareTab() {
         }
     };
 
-    const onCopyPgn = () => {
-        onCopy(
-            'pgn',
+    const renderPgn = () => {
+        return (
             chess?.renderPgn({
                 skipComments,
                 skipNags,
@@ -207,8 +217,26 @@ export function ShareTab() {
                 skipNullMoves,
                 skipHeader,
                 skipClocks,
-            }) || '',
+            }) || ''
         );
+    };
+
+    const renderLine = () => {
+        return (
+            chess?.renderLine(chess.currentMove(), {
+                skipComments,
+                skipNags,
+                skipDrawables,
+                skipVariations,
+                skipNullMoves,
+                skipHeader,
+                skipClocks,
+            }) || ''
+        );
+    };
+
+    const onCopyPgn = () => {
+        onCopy('pgn', renderPgn());
     };
 
     const onDownloadPgn = () => {
@@ -216,15 +244,7 @@ export function ShareTab() {
             return;
         }
 
-        const pgn = chess.renderPgn({
-            skipComments,
-            skipNags,
-            skipDrawables,
-            skipVariations,
-            skipNullMoves,
-            skipHeader,
-            skipClocks,
-        });
+        const pgn = renderPgn();
         const white = getPlayer(chess, 'White', 'WhiteElo');
         const black = getPlayer(chess, 'Black', 'BlackElo');
 
@@ -277,10 +297,49 @@ export function ShareTab() {
         }
     };
 
+    const onCopyLine = () => {
+        onCopy('line', renderLine());
+    };
+
+    const onCloneGame = () => {
+        if (!chess) {
+            return;
+        }
+
+        cloneRequest.onStart();
+        chess.setHeader('ClonedFrom', window.location.href);
+        const pgn = renderPgn();
+        chess.setHeader('ClonedFrom');
+
+        api.createGame({ pgnText: pgn, type: GameImportTypes.clone })
+            .then((resp) => {
+                if (isGame(resp.data)) {
+                    const urlSafeCohort = resp.data.cohort.replaceAll('+', '%2B');
+                    window
+                        .open(
+                            `${config.baseUrl}/games/${urlSafeCohort}/${resp.data.id}`,
+                            '_blank',
+                        )
+                        ?.focus();
+                    trackEvent(EventType.SubmitGame, {
+                        count: 1,
+                        method: GameImportTypes.clone,
+                    });
+                }
+                cloneRequest.onSuccess();
+            })
+            .catch((err) => {
+                console.error('createGame: ', err);
+                cloneRequest.onFailure(err);
+            });
+    };
+
     return (
         <CardContent>
             <Stack>
                 <RequestSnackbar request={pdfRequest} />
+                <RequestSnackbar request={cloneRequest} />
+                <RequestSnackbar request={addToFolderRequest} showSuccess />
 
                 <Stack
                     direction='row'
@@ -289,6 +348,15 @@ export function ShareTab() {
                     mb={2}
                     justifyContent='center'
                 >
+                    {game && (
+                        <DirectoryCacheProvider>
+                            <DirectorySelectButton
+                                request={addToFolderRequest}
+                                onSelect={onAddToFolder}
+                            />
+                        </DirectoryCacheProvider>
+                    )}
+
                     <CopyButton
                         name='url'
                         startIcon={<Link />}
@@ -450,8 +518,40 @@ export function ShareTab() {
                     >
                         Download PDF
                     </LoadingButton>
+
+                    <CopyButton
+                        name='line'
+                        startIcon={<ContentPaste />}
+                        onClick={onCopyLine}
+                        copied={copied}
+                    >
+                        Copy Current Line
+                    </CopyButton>
+
+                    <LoadingButton
+                        variant='contained'
+                        startIcon={<Merge />}
+                        onClick={() => setShowMergeDialog(true)}
+                    >
+                        Merge Current Line
+                    </LoadingButton>
+
+                    {user && (
+                        <LoadingButton
+                            variant='contained'
+                            loading={cloneRequest.isLoading()}
+                            onClick={onCloneGame}
+                        >
+                            Clone Game
+                        </LoadingButton>
+                    )}
                 </Stack>
             </Stack>
+
+            <MergeLineDialog
+                open={showMergeDialog}
+                onClose={() => setShowMergeDialog(false)}
+            />
         </CardContent>
     );
 }

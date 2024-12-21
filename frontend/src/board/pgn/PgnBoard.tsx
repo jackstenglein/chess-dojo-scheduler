@@ -16,7 +16,7 @@ import React, {
 } from 'react';
 import { BoardApi } from '../Board';
 import ResizableContainer from './ResizableContainer';
-import { UnderboardTab } from './boardTools/underboard/Underboard';
+import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
 
@@ -29,6 +29,7 @@ interface ChessConfig {
     disableTakebacks?: Color | 'both';
     disableNullMoves?: boolean;
     disableEngine?: boolean;
+    showElapsedMoveTimes?: boolean;
 }
 
 interface ChessContextType {
@@ -38,6 +39,7 @@ interface ChessContextType {
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
+    orientation?: 'white' | 'black';
 }
 
 export const ChessContext = createContext<ChessContextType>({});
@@ -83,6 +85,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             disableTakebacks,
             disableNullMoves: disableNullMovesProp,
             disableEngine,
+            showElapsedMoveTimes,
             slots,
         },
         ref,
@@ -92,7 +95,9 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
 
         const disableNullMoves = disableNullMovesProp ?? !game;
         const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
-        const [, setOrientation] = useState(startOrientation);
+        const [orientation, setOrientation] = useState(
+            game?.orientation || startOrientation,
+        );
         const keydownMap = useRef<Record<string, boolean>>({});
 
         const toggleOrientation = useCallback(() => {
@@ -112,22 +117,26 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                     allowDeleteBefore,
                     disableTakebacks,
                     disableEngine,
+                    showElapsedMoveTimes,
                 },
                 toggleOrientation,
                 keydownMap,
                 slots,
+                orientation,
             }),
             [
                 chess,
                 board,
                 allowMoveDeletion,
                 allowDeleteBefore,
+                orientation,
                 toggleOrientation,
                 keydownMap,
                 slots,
                 disableTakebacks,
                 disableEngine,
                 initKey,
+                showElapsedMoveTimes,
             ],
         );
 
@@ -142,6 +151,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         const gameOrientation = game?.orientation || startOrientation || 'white';
         useEffect(() => {
             if (gameOrientation !== board?.state.orientation) {
+                setOrientation(gameOrientation);
                 toggleOrientation();
             }
         }, [gameOrientation, board, toggleOrientation]);

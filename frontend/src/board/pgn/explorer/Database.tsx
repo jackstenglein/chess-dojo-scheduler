@@ -23,7 +23,6 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { Request } from '../../../api/Request';
 import { useFreeTier } from '../../../auth/Auth';
 import {
@@ -423,8 +422,7 @@ function Database<T>({
             {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
                 <Grid2 display='flex' justifyContent='center' size={12}>
                     <Link
-                        component={RouterLink}
-                        to={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
+                        href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
                         target='_blank'
                         rel='noopener'
                     >

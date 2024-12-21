@@ -8,10 +8,12 @@ import { ChevronLeft, ChevronRight, Home, PeopleAlt } from '@mui/icons-material'
 import {
     CSSObject,
     Divider,
+    IconButton,
     ListItemButton,
     ListItemIcon,
     ListItemText,
     List as MuiList,
+    Stack,
     Theme,
     Tooltip,
     styled,
@@ -95,12 +97,16 @@ export const NavigationMenu = ({
     owner,
     enabled,
     defaultValue,
+    horizontal,
+    onClick,
 }: {
     namespace: string;
     id: string;
     owner: string;
     enabled?: boolean;
     defaultValue?: boolean;
+    horizontal?: boolean;
+    onClick?: (value: { owner: string; id: string }) => void;
 }) => {
     const { user } = useAuth();
     const { updateSearchParams } = useSearchParams();
@@ -117,17 +123,54 @@ export const NavigationMenu = ({
         return null;
     }
 
+    const handleClick = (id: string) => () => {
+        if (onClick) {
+            onClick({ owner: user.username, id });
+        } else {
+            updateSearchParams({
+                directory: id,
+                directoryOwner: user.username,
+            });
+        }
+    };
+
+    if (horizontal) {
+        return (
+            <Stack direction='row' flexWrap='wrap'>
+                <Tooltip title='Home' disableInteractive>
+                    <IconButton
+                        onClick={handleClick(HOME_DIRECTORY_ID)}
+                        color={
+                            id === HOME_DIRECTORY_ID && owner === user.username
+                                ? 'primary'
+                                : undefined
+                        }
+                    >
+                        <Home />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title='Shared with Me' disableInteractive>
+                    <IconButton
+                        onClick={handleClick(SHARED_DIRECTORY_ID)}
+                        color={
+                            id === SHARED_DIRECTORY_ID && owner === user.username
+                                ? 'primary'
+                                : undefined
+                        }
+                    >
+                        <PeopleAlt />
+                    </IconButton>
+                </Tooltip>
+            </Stack>
+        );
+    }
+
     return (
         <List dense disablePadding open={open}>
             <Tooltip title={open ? '' : 'Home'} disableInteractive>
                 <ListItemButton
                     selected={id === HOME_DIRECTORY_ID && owner === user.username}
-                    onClick={() =>
-                        updateSearchParams({
-                            directory: HOME_DIRECTORY_ID,
-                            directoryOwner: user.username,
-                        })
-                    }
+                    onClick={handleClick(HOME_DIRECTORY_ID)}
                 >
                     <ListItemIcon>
                         <Home />
@@ -139,12 +182,7 @@ export const NavigationMenu = ({
             <Tooltip title={open ? '' : 'Shared with Me'} disableInteractive>
                 <ListItemButton
                     selected={id === SHARED_DIRECTORY_ID && owner === user.username}
-                    onClick={() =>
-                        updateSearchParams({
-                            directory: SHARED_DIRECTORY_ID,
-                            directoryOwner: user.username,
-                        })
-                    }
+                    onClick={handleClick(SHARED_DIRECTORY_ID)}
                 >
                     <ListItemIcon>
                         <PeopleAlt />

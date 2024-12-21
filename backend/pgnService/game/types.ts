@@ -98,18 +98,6 @@ export interface GameUpdate {
     timelineId?: string;
 }
 
-export enum GameImportType {
-    LichessChapter = 'lichessChapter',
-    LichessStudy = 'lichessStudy',
-    LichessGame = 'lichessGame',
-    ChesscomGame = 'chesscomGame',
-    ChesscomAnalysis = 'chesscomAnalysis',
-    Editor = 'editor',
-    Manual = 'manual',
-    StartingPosition = 'startingPosition',
-    Fen = 'fen',
-}
-
 export interface GameImportHeaders {
     white: string;
     black: string;
@@ -118,6 +106,50 @@ export interface GameImportHeaders {
 }
 
 const dateRegex = /^\d{4}\.\d{2}\.\d{2}$/;
+
+/**
+ * Strip pgn player name tag values (i.e. the tags White and Black). As a convention, chess.com and others
+ * use question marks as placeholders for unknown values in PGN tags. In places, we have
+ * adopted this convention. Therefore, in order to tell if a name is truly empty, handling the case
+ * where the name value may be a placeholder, we must account for this convention.
+ * @param value the name to strip
+ * @returns the stripped name
+ */
+function stripPlayerNameHeader(value?: string): string {
+    return value?.trim().replaceAll('?', '') ?? '';
+}
+
+/**
+ * Returns whether the game headers are missing data needed to publish
+ * @param game The game to check for publishability
+ * @returns An error message if the update is missing data.
+ */
+export function isMissingData({
+    white,
+    black,
+    result,
+    date,
+}: Partial<GameImportHeaders>): string {
+    const strippedWhite = stripPlayerNameHeader(white);
+    if (!strippedWhite) {
+        return `invalid White header: '${white}'`;
+    }
+
+    const strippedBlack = stripPlayerNameHeader(black);
+    if (!strippedBlack) {
+        return `invalid Black header: '${black}'`;
+    }
+
+    if (!isValidDate(date)) {
+        return `invalid Date header. Date must be in format YYYY.MM.DD`;
+    }
+
+    if (!isValidResult(result)) {
+        return `invalid Result header: '${result}'`;
+    }
+
+    return '';
+}
 
 /**
  * Returns true if the given date string is a valid PGN date.
@@ -152,20 +184,9 @@ export function isValidDate(date?: string): boolean {
 
 /**
  * Returns true if the given result is a valid PGN result.
- *
- * WARNING: do not confuse this function with isPublishableResult.
  * @param result The result to check.
  * @returns True if the given result is valid.
  */
 export function isValidResult(result?: string): boolean {
-    return isPublishableResult(result) || result === '*';
-}
-
-/**
- * Returns true if the given result can be published on a game.
- * @param result The result to check.
- * @returns True if the given result is publishable.
- */
-export function isPublishableResult(result?: string): boolean {
-    return result === '1-0' || result === '0-1' || result === '1/2-1/2';
+    return result === '1-0' || result === '0-1' || result === '1/2-1/2' || result === '*';
 }

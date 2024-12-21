@@ -3,7 +3,7 @@ import { useApi } from '@/api/Api';
 import { isMissingData } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/Underboard';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
 import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
 import { GameContext } from '@/context/useGame';
@@ -150,6 +150,7 @@ const GamePage = () => {
                         ]}
                         allowMoveDeletion={request.data?.owner === user?.username}
                         allowDeleteBefore={request.data?.owner === user?.username}
+                        showElapsedMoveTimes
                         slots={{
                             moveButtonExtras: EngineMoveButtonExtras,
                         }}

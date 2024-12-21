@@ -17,7 +17,7 @@ import (
 )
 
 const sheetId = "1Z83rWOA6xvIoNHoh0NK1j16shXDtoTHOj4mRSMG0x8Y"
-const sheetRange = "Sheet1"
+const sheetRange = "Unsubscribers"
 
 var media = database.S3
 var stage = os.Getenv("stage")
