@@ -3,7 +3,6 @@ package com.serverless.withdraw;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
-import com.serverless.game.GameState;
 import com.serverless.game.Platform;
 import com.serverless.register.RegisterManager;
 import com.serverless.roundrobin.LeaderboardCalculator;
@@ -12,7 +11,6 @@ import com.serverless.roundrobin.RoundRobinException;
 import com.serverless.roundrobin.RoundRobinManager;
 import org.bson.Document;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class WithdrawManager {

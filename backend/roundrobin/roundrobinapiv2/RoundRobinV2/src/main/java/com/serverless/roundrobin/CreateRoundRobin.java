@@ -52,7 +52,7 @@ public class CreateRoundRobin {
                 .append("enddate", futureDate) // end date + 3 months ISO date
                 .append("scores", new ArrayList<Double>()) // the scores for the leaderboard
                 .append("waiting", true) // check if its waiting list or not
-                .append("scoremap", new Document())
+                .append("scoremap", new Document()) // leaderboard hashmappa
                 .append("game-submissions", new ArrayList<String>()); // game list
 
 

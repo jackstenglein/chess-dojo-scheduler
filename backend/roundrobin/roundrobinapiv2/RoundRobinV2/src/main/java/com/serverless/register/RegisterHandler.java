@@ -3,7 +3,6 @@ package com.serverless.register;
 import com.mongodb.client.MongoCollection;
 import com.serverless.roundrobin.CohortRange;
 import com.serverless.roundrobin.RoundRobinException;
-import io.github.sornerol.chess.pubapi.exception.ChessComPubApiException;
 import org.bson.Document;
 import java.io.IOException;
 
@@ -22,7 +21,6 @@ public class RegisterHandler {
 
     }
 
-
     public String playerRegister(String discordID, String discordName, int startCohort, String lichessName, String chessComName, String dojoUsername) throws IOException, RoundRobinException {
 
         if(dojoUsername.equalsIgnoreCase("null") || dojoUsername.equalsIgnoreCase("")){
@@ -35,6 +33,10 @@ public class RegisterHandler {
 
         String nonDiscordUserName = discordName.equalsIgnoreCase("null") || discordName.equalsIgnoreCase("") ? dojoUsername : discordName;
         String nonDiscordUserID = discordID.equalsIgnoreCase("null") || discordID.equalsIgnoreCase("") ? dojoUsername : discordID;
+
+        if(actions.alreadyRegisteredInTournament(RRcollection, nonDiscordUserName)){
+            return "You have already registered in a tournament and hit max tournament registration limit!";
+        }
 
         actions.addPlayerToDB(nonDiscordUserID, nonDiscordUserName, lichessName, chessComName, this.RRplayerCollection);
 
@@ -52,4 +54,3 @@ public class RegisterHandler {
 
     }
 }
-

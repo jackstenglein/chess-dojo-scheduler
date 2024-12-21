@@ -77,7 +77,7 @@ public class RoundRobinManager {
 
         Document searchAmb = null;
         LeaderboardCalculator calculator = new LeaderboardCalculator(RRcollection, RRplayercollection);
-        // this is wrong this only works for 1 tournament not for N tournaments
+        
         switch (platform){
             case LICHESS -> searchAmb = performGeneralSearch(RRplayercollection, "Lichessname", username);
             case CHESSCOM -> searchAmb = performGeneralSearch(RRplayercollection, "Chesscomname", username);

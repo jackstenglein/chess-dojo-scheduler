@@ -1,36 +1,20 @@
 package com.serverless.roundrobin;
 
-
-
-import chariot.Client;
-import com.mongodb.client.MongoCollection;
-import org.bson.Document;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+
 
 public class RoundRobin {
     private final List<String> players;
     private final String tournamentName;
     private final String desc;
-    private final int gameTimeControl;
-    private final int gameTimeControlIncrement;
-    private final CohortRange cohortRange;
     private final PairingBuilder builder = new PairingBuilder();
-    private final HashMap<String, String> mapper = new HashMap<>();
-    private final MongoCollection<Document> RRplayercollection;
-
-
-    public RoundRobin(List<String> players, String name, String desc, CohortRange cohort, MongoCollection<Document> RRplayercollection){
+    
+    
+    public RoundRobin(List<String> players, String name, String desc){
         this.players = players;
         this.tournamentName = name;
         this.desc = desc;
-        this.gameTimeControl = cohort.getTimeControl();
-        this.gameTimeControlIncrement = cohort.getTimeIncrement();
-        this.cohortRange = cohort;
-        this.RRplayercollection = RRplayercollection;
     }
 
 

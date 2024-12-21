@@ -17,6 +17,10 @@ public class RegisterManager {
     private final CreateRoundRobin create = new CreateRoundRobin(MAX_PLAYER_SIZE);
     private final RoundRobinManager manager = new RoundRobinManager();
 
+    public boolean alreadyRegisteredInTournament(MongoCollection<Document> RRcollection, String Discordname){
+        Document finder = manager.performGeneralSearch(RRcollection, "players", Discordname);
+        return finder != null;
+    }
 
     public void addPlayerToDB(String DiscordID, String DiscordName, String Lichessname, String Chesscomname, MongoCollection<Document> RRplayerCollection){
         createNewPlayer(Lichessname, Chesscomname, DiscordName, DiscordID, 0.0, RRplayerCollection);
@@ -48,6 +52,11 @@ public class RegisterManager {
             if(doc.getList("players", String.class).contains(tarUsername)){
                 continue;
             }
+
+            if(!doc.getBoolean("waiting")){
+                continue;
+            }
+
             if(doc.getList("players", String.class).isEmpty()){
                 return doc;
             }
@@ -101,8 +110,7 @@ public class RegisterManager {
             try{
 
                 RoundRobin roundRobin = new RoundRobin(tournamentDoc.getList("players", String.class), tournamentDoc.getString("name"),
-                        tournamentDoc.getString("desc"), CohortRange.findCohortRange(tournamentDoc.getInteger("cohort-start"),
-                        tournamentDoc.getInteger("cohort-end")), RRplayercollection);
+                        tournamentDoc.getString("desc"));
 
                 String pairings = roundRobin.createTournamentPairings();
 
@@ -134,6 +142,7 @@ public class RegisterManager {
                     openTourney,
                     Updates.set("status", "running")
             );
+            
         }else{
             throw new RoundRobinException("Invalid ID, can't open unknown tournament!");
         }
@@ -225,3 +234,4 @@ public class RegisterManager {
 
 
 }
+
