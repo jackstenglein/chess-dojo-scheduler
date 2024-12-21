@@ -1,16 +1,12 @@
 import {
+    Box,
+    Button,
     Divider,
     List,
     ListItem,
     ListItemIcon,
     ListItemText,
-    Paper,
     Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableRow,
     Typography,
 } from '@mui/material';
 
@@ -18,18 +14,28 @@ import { AccessTime, HelpOutline } from '@mui/icons-material';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupIcon from '@mui/icons-material/Group';
-import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
-import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
+import { useState } from 'react';
+import GameModal from './GameModal';
+import RegisterModal from './RegisterModal';
+import WithdrawModal from './WithdrawModal';
 
 const faqs = [
     {
+        question: 'Is there a registration period for Dojo Round robins?',
+        answer: 'yes, the registration for the tournament starts 1 week before the tournament start date, the tournament season start every 3 months.',
+    },
+    {
         question: 'How do I register for the Dojo Round Robin?',
         answer: 'Use the /register command in the Dojo Training Program Discord to join the tournament in your cohort.',
+    },
+    {
+        question: 'I just graduated from my cohort, can I play 1 level up?',
+        answer: 'Yes players are allowed to play 1 level down and 1 level up so even if you graduate you can stay in the tournament cohort when you registered. This can be done by changing cohort roles in training program Discord in #roles channel',
     },
     {
         question: 'What are the time controls for different cohorts?',
@@ -37,7 +43,12 @@ const faqs = [
     },
     {
         question: 'When do the tournaments start?',
-        answer: "The tournaments start after registration period ends, and when there are atleast 10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @Alex Dodd on Discord about tournaments starting. ",
+        answer: "The tournaments start after registration period ends, and when there are atleast 8-10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @DojoSystem on Discord about tournaments starting.",
+    },
+    {
+        question:
+            'My cohort tournament pairings and crosstable are not showing, why is that?',
+        answer: "There are less than 5 players so the tournament pairings can't be generated, please invite your friends or ask around so more people can sign up and the tournament can start!",
     },
     {
         question:
@@ -55,6 +66,10 @@ const faqs = [
     {
         question: 'I just played a game, do I have to submit the game somewhere?',
         answer: 'No! The system will automatically find your games and track the crosstables, however if you suspect your game scores are not up to date, or there is wrong game URL in game panel please contact @Alex Dodd or @Noobmaster',
+    },
+    {
+        question: 'I played a game but I do not see scores coming in why is that?',
+        answer: 'The scores take time to be calculated usually occur end of day, there can be also a problem with account verification, if you and your opponent played on Chess.com but you only connected your account with Lichess using /verify the scores would be neglected as you did not connect your Chess.com account. So always connect the account you and your opponent are playing on.',
     },
     {
         question: 'What happens if I suspect someone of cheating?',
@@ -87,6 +102,16 @@ const FAQSection = () => (
  * @returns the info page
  */
 export const InfoPage = () => {
+    const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
+    const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
+    const [isGameModalOpen, setGameModalOpen] = useState(false);
+
+    const handleOpenRegisterModal = () => setRegisterModalOpen(true);
+    const handleCloseRegisterModal = () => setRegisterModalOpen(false);
+    const handleOpenWithdrawModal = () => setWithdrawModalOpen(true);
+    const handleCloseWithdrawModal = () => setWithdrawModalOpen(false);
+    const handleOpenGameModal = () => setGameModalOpen(true);
+    const handleCloseGameModal = () => setGameModalOpen(false);
     return (
         <Stack spacing={2}>
             <Typography variant='h5' textAlign='center' color='text.secondary'>
@@ -137,42 +162,44 @@ export const InfoPage = () => {
 2000+: 90+30'
                     />
                 </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <NotInterestedIcon sx={{ color: 'text.secondary' }} />
-                    </ListItemIcon>
-                    <ListItemText primary='Strict anti-cheat measures in place to allow players to learn and grow in the game they love.' />
-                </ListItem>
             </List>
 
-            <Typography variant='h6' color='text.secondary'>
-                <HelpCenterIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
-                Registration Info
-            </Typography>
+            <Box textAlign='left'>
+                <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleOpenRegisterModal}
+                >
+                    Register
+                </Button>
+                <Button
+                    sx={{ ml: 1 }}
+                    variant='contained'
+                    color='primary'
+                    onClick={handleOpenWithdrawModal}
+                >
+                    Withdraw
+                </Button>
 
-            <List>
-                <ListItem>
-                    <ListItemIcon>
-                        <SiLichess fontSize={25} />
-                    </ListItemIcon>
-                    <ListItemText primary='Connect your Lichess account to your Discord in the training program Discord with /verify' />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <SiChessdotcom fontSize={25} style={{ color: '#81b64c' }} />
-                    </ListItemIcon>
-                    <ListItemText primary='Connect your Chess.com account to your Discord in the training program Discord with /verifychesscom' />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <SiDiscord fontSize={25} style={{ color: '#5865f2' }} />
-                    </ListItemIcon>
-                    <ListItemText primary='Head over to #roles and pick round robin role, then go to #round-robin-player-commands channel to register via /register to automatically get placed in your own cohort Dojo round robin tournament!' />
-                </ListItem>
-            </List>
+                <Button
+                    sx={{ ml: 1 }}
+                    variant='contained'
+                    color='primary'
+                    onClick={handleOpenGameModal}
+                >
+                    Submit Game
+                </Button>
+            </Box>
+
+            <RegisterModal
+                open={isRegisterModalOpen}
+                onClose={handleCloseRegisterModal}
+            />
+            <WithdrawModal
+                open={isWithdrawModalOpen}
+                onClose={handleCloseWithdrawModal}
+            />
+            <GameModal open={isGameModalOpen} onClose={handleCloseGameModal} />
 
             <Divider />
 
@@ -244,47 +271,6 @@ export const InfoPage = () => {
             <Divider />
 
             <FAQSection />
-
-            <Typography variant='h6' color='text.secondary'>
-                <SiDiscord
-                    style={{ verticalAlign: 'middle', marginRight: 9, color: '#5865f2' }}
-                />
-                Discord Info
-            </Typography>
-
-            <Typography>
-                The registration for Dojo Round Robin is only available in the Dojo
-                Training Program Discord
-            </Typography>
-
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>/verify</TableCell>
-                            <TableCell>Connect your Discord to Lichess account</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>/verifychesscom</TableCell>
-                            <TableCell>
-                                Connect your Discord to Chess.com account
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>/register</TableCell>
-                            <TableCell>
-                                Register for upcoming round robin tournament in your
-                                cohort
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>/withdraw</TableCell>
-                            <TableCell> Withdraw from running round robin </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <Divider />
         </Stack>
     );
 };

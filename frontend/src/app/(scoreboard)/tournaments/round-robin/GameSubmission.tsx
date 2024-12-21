@@ -1,4 +1,11 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { PawnIcon } from '@/style/ChessIcons';
+import {
+    AlarmOn as AlarmOnIcon,
+    CalendarMonth as CalendarIcon,
+} from '@mui/icons-material';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import {
     Box,
     Card,
@@ -22,13 +29,7 @@ import { useEffect, useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { useLocalStorage } from 'usehooks-ts';
 import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
-import {
-    cohorts,
-    fetchTournamentData,
-    fetchTournamentIds,
-    TournamentData,
-} from './roundRobinApi';
-
+import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
 /**
  * handles the viewer for game submission
  * @returns the UI for game submission
@@ -38,8 +39,8 @@ export const GameSubmission = () => {
         ROUND_ROBIN_COHORT_KEY,
         0,
     );
-    const [tournamentIds, setTournamentIds] = useState<string[]>([]);
-    const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
+
+    const [tournamentData, setTournamentData] = useState<TournamentId>();
     const [loading, setLoading] = useState<boolean>(false);
     const displayIcon =
         selectedCohort !== 0 ? `${selectedCohort}-${selectedCohort + 100}` : '0-300';
@@ -51,26 +52,12 @@ export const GameSubmission = () => {
     useEffect(() => {
         if (selectedCohort !== 0) {
             setLoading(true);
-            fetchTournamentIds(selectedCohort)
-                .then(setTournamentIds)
+            fetchTournamentData(selectedCohort)
+                .then(setTournamentData)
                 .catch(console.error)
                 .finally(() => setLoading(false));
         }
     }, [selectedCohort]);
-
-    useEffect(() => {
-        if (tournamentIds.length > 0) {
-            setLoading(true);
-            setTournamentData([]);
-            Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
-                .then((data) => {
-                    console.log('Fetched Tournament Data:', data);
-                    setTournamentData((prevData) => [...prevData, ...data]);
-                })
-                .catch(console.error)
-                .finally(() => setLoading(false));
-        }
-    }, [tournamentIds]);
 
     const renderIcon = (url: string) => {
         if (url.includes('lichess')) {
@@ -120,9 +107,9 @@ export const GameSubmission = () => {
                 <Box display='flex' justifyContent='center' alignItems='center'>
                     <CircularProgress />
                 </Box>
-            ) : tournamentData.length > 0 ? (
+            ) : tournamentData?.tournaments !== undefined ? (
                 <Box sx={{ mb: 3 }}>
-                    {tournamentData.map((tournament, idx) => (
+                    {tournamentData?.tournaments.map((tournament, idx) => (
                         <TableContainer sx={{ mt: 2 }} component={Card} key={idx}>
                             <Table>
                                 <TableHead>
@@ -138,8 +125,87 @@ export const GameSubmission = () => {
                                                     tooltip=''
                                                     size={25}
                                                 />{' '}
-                                                {tournament.tournamentname} Game
-                                                Submissions
+                                                {tournament.name} {'Games'}
+                                                {tournament.waiting ? (
+                                                    <>
+                                                        <HourglassEmptyIcon
+                                                            sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'
+                                                        />
+                                                        <span
+                                                            style={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                        >
+                                                            Waiting
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <AlarmOnIcon
+                                                            sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'
+                                                        />
+                                                        <span
+                                                            style={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                        >
+                                                            Active
+                                                        </span>
+                                                    </>
+                                                )}
+                                                <PeopleAltIcon
+                                                    sx={{
+                                                        verticalAlign: 'middle',
+                                                        marginLeft: '0.4em',
+                                                    }}
+                                                    color='primary'
+                                                />{' '}
+                                                {tournament.players.length} {''}
+                                                <>
+                                                    <PawnIcon
+                                                        sx={{
+                                                            verticalAlign: 'middle',
+                                                            marginLeft: '0.4em',
+                                                        }}
+                                                        color='primary'
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            verticalAlign: 'middle',
+                                                            marginLeft: '0.4em',
+                                                        }}
+                                                    >
+                                                        {tournament.gameSub.length}
+                                                    </span>
+                                                </>
+                                                <CalendarIcon
+                                                    sx={{
+                                                        verticalAlign: 'middle',
+                                                        marginLeft: '0.4em',
+                                                    }}
+                                                    color='primary'
+                                                />{' '}
+                                                {
+                                                    new Date(tournament.startdate)
+                                                        .toISOString()
+                                                        .split('T')[0]
+                                                }{' '}
+                                                - {''}
+                                                {
+                                                    new Date(tournament.enddate)
+                                                        .toISOString()
+                                                        .split('T')[0]
+                                                }
                                             </Typography>
                                         </TableCell>
                                     </TableRow>

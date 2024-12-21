@@ -1,5 +1,10 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { PawnIcon } from '@/style/ChessIcons';
+import { CalendarMonth as CalendarIcon } from '@mui/icons-material';
+import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import Circle from '@mui/icons-material/Circle';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import {
     Box,
     Card,
@@ -20,13 +25,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import {
-    cohorts,
-    fetchTournamentData,
-    fetchTournamentIds,
-    TournamentData,
-} from './roundRobinApi';
-
+import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
 export const ROUND_ROBIN_COHORT_KEY = 'ROUND_ROBIN_COHORT';
 
 export const PairingsPage = () => {
@@ -35,8 +34,7 @@ export const PairingsPage = () => {
         0,
     );
     const [selectedRound, setSelectedRound] = useState<number>(1);
-    const [tournamentIds, setTournamentIds] = useState<string[]>([]);
-    const [tournamentData, setTournamentData] = useState<TournamentData[]>([]);
+    const [tournamentData, setTournamentData] = useState<TournamentId>();
     const [loading, setLoading] = useState<boolean>(false);
     const displayIcon =
         selectedCohort !== 0 ? `${selectedCohort}-${selectedCohort + 100}` : '0-300';
@@ -52,26 +50,12 @@ export const PairingsPage = () => {
     useEffect(() => {
         if (selectedCohort !== 0) {
             setLoading(true);
-            fetchTournamentIds(selectedCohort)
-                .then(setTournamentIds)
+            fetchTournamentData(selectedCohort)
+                .then(setTournamentData)
                 .catch(console.error)
                 .finally(() => setLoading(false));
         }
     }, [selectedCohort]);
-
-    useEffect(() => {
-        if (tournamentIds.length > 0) {
-            setLoading(true);
-            setTournamentData([]);
-            Promise.all(tournamentIds.map((id) => fetchTournamentData(id)))
-                .then((data) => {
-                    console.log('Fetched Tournament Data:', data);
-                    setTournamentData((prevData) => [...prevData, ...data]);
-                })
-                .catch(console.error)
-                .finally(() => setLoading(false));
-        }
-    }, [tournamentIds]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -126,13 +110,13 @@ export const PairingsPage = () => {
                 </Box>
             ) : (
                 <>
-                    {tournamentData.length > 0 && tournamentIds.length > 0 ? (
+                    {tournamentData?.tournaments !== undefined ? (
                         <Box sx={{ mb: 3 }}>
-                            {tournamentData.map((tournament) => (
+                            {tournamentData?.tournaments.map((tournament) => (
                                 <TableContainer
                                     sx={{ mt: 2 }}
                                     component={Card}
-                                    key={tournament.info}
+                                    key={tournament.id}
                                 >
                                     <Table>
                                         <TableHead>
@@ -140,7 +124,7 @@ export const PairingsPage = () => {
                                                 <TableCell>
                                                     <Typography
                                                         variant='h6'
-                                                        textAlign={'center'}
+                                                        textAlign='center'
                                                     >
                                                         <CohortIcon
                                                             cohort={displayIcon}
@@ -150,56 +134,146 @@ export const PairingsPage = () => {
                                                             }}
                                                             tooltip=''
                                                             size={25}
+                                                        />
+                                                        {tournament.name} Tournament
+                                                        Pairings{' '}
+                                                        {tournament.waiting ? (
+                                                            <>
+                                                                <HourglassEmptyIcon
+                                                                    sx={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                    color='primary'
+                                                                />
+                                                                <span
+                                                                    style={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                >
+                                                                    Waiting
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <AlarmOnIcon
+                                                                    sx={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                    color='primary'
+                                                                />
+                                                                <span
+                                                                    style={{
+                                                                        verticalAlign:
+                                                                            'middle',
+                                                                        marginLeft:
+                                                                            '0.4em',
+                                                                    }}
+                                                                >
+                                                                    Active
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                        <PeopleAltIcon
+                                                            sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'
                                                         />{' '}
-                                                        {tournament.tournamentname}{' '}
-                                                        Tournament Pairings{' '}
-                                                        {tournament.players.length < 10
-                                                            ? '[Registration Open]'
-                                                            : '[Tournament Started]'}{' '}
-                                                        {'Size: '}
-                                                        {tournament.players.length}
+                                                        {tournament.players.length} {''}
+                                                        <>
+                                                            <PawnIcon
+                                                                sx={{
+                                                                    verticalAlign:
+                                                                        'middle',
+                                                                    marginLeft: '0.4em',
+                                                                }}
+                                                                color='primary'
+                                                            />
+                                                            <span
+                                                                style={{
+                                                                    verticalAlign:
+                                                                        'middle',
+                                                                    marginLeft: '0.4em',
+                                                                }}
+                                                            >
+                                                                {
+                                                                    tournament.gameSub
+                                                                        .length
+                                                                }
+                                                            </span>
+                                                        </>
+                                                        <CalendarIcon
+                                                            sx={{
+                                                                verticalAlign: 'middle',
+                                                                marginLeft: '0.4em',
+                                                            }}
+                                                            color='primary'
+                                                        />{' '}
+                                                        {
+                                                            new Date(tournament.startdate)
+                                                                .toISOString()
+                                                                .split('T')[0]
+                                                        }{' '}
+                                                        - {''}
+                                                        {
+                                                            new Date(tournament.enddate)
+                                                                .toISOString()
+                                                                .split('T')[0]
+                                                        }
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {tournament.pairs?.[selectedRound - 1] ? (
-                                                tournament.pairs[selectedRound - 1]?.map(
-                                                    (pair, index) => (
-                                                        <TableRow key={index}>
-                                                            <TableCell>
-                                                                <Typography
-                                                                    textAlign={'center'}
-                                                                >
-                                                                    {
-                                                                        <Circle
-                                                                            sx={{
-                                                                                verticalAlign:
-                                                                                    'middle',
-                                                                                marginRight: 3,
-                                                                                color: 'white',
-                                                                            }}
-                                                                        />
-                                                                    }{' '}
-                                                                    {pair.replaceAll(
-                                                                        '**',
-                                                                        '',
-                                                                    )}{' '}
-                                                                    {
-                                                                        <Circle
-                                                                            sx={{
-                                                                                verticalAlign:
-                                                                                    'middle',
-                                                                                marginLeft: 1,
-                                                                                color: 'grey',
-                                                                            }}
-                                                                        />
-                                                                    }
-                                                                </Typography>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ),
-                                                )
+                                            {tournament.pairingdata?.[
+                                                selectedRound - 1
+                                            ] ? (
+                                                tournament.pairingdata[
+                                                    selectedRound - 1
+                                                ]?.map((pair, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell>
+                                                            <Typography
+                                                                textAlign={'center'}
+                                                            >
+                                                                {
+                                                                    <Circle
+                                                                        sx={{
+                                                                            verticalAlign:
+                                                                                'middle',
+                                                                            marginRight: 3,
+                                                                            color: 'white',
+                                                                        }}
+                                                                    />
+                                                                }{' '}
+                                                                {pair.replaceAll(
+                                                                    '**',
+                                                                    '',
+                                                                )}{' '}
+                                                                {
+                                                                    <Circle
+                                                                        sx={{
+                                                                            verticalAlign:
+                                                                                'middle',
+                                                                            marginLeft: 1,
+                                                                            color: 'grey',
+                                                                        }}
+                                                                    />
+                                                                }
+                                                            </Typography>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
                                             ) : (
                                                 <TableRow>
                                                     <TableCell colSpan={2}>

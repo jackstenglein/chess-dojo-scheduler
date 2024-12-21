@@ -1,29 +1,34 @@
 import { getConfig } from '@/config';
 import axios from 'axios';
 
-/**
- * The Round Robin Info API response
- */
-export interface TournamentData {
-    info: string; // tournament id
-    tournamentname: string; // name
-    pairs: string[][]; // pairings
-    message: string; // success message
+export interface RoundRobinModel {
+    id: string; // tournament id
+    name: string; // name
+    pairingdata: string[][]; // pairings
     desc: string; // tournament desc
-    crosstable: string[][]; // raw crosstable data
-    crosstableString: string; // debugging crosstable string
-    leaderboard: string[]; // leaderboard
+    crosstabledata: string[][]; // raw crosstable data
     players: string[]; // players
     gameSub: string[]; // game submissions
-    statusCode: number; // status code
-    scores: number[]; // leaderboard scores
+    tc: number; // time control
+    inc: number; // time increment 
+    fen: string; // fen yea we can run chess960 tournaments lol
+    status: string; // tournament status
+    startdate: Date; // start date of tournament 
+    enddate: Date; // end date of tournament
+    waiting: boolean; // is waiting list?
+    scoremap: {[key: string]: number }; // hashmappa for leaderboard (joma tech reference)
+}
+
+
+interface RoundRobinApi{
+    message: string;
 }
 
 /**
  * The Round Robin Tournament ID API response
  */
-interface TournamentId {
-    ids: string[]; // list of tournament ids in string
+export interface TournamentId {
+    tournaments: RoundRobinModel[]; // list of tournament ids in string
     message: string; // success/error message
 }
 
@@ -53,40 +58,18 @@ export const cohorts = [
 ];
 
 const endpoint = getConfig().api.roundRobinUrl;
-
-/**
- * method to fetch tournament ids for given cohort start value
- * @param cohortValue int type of cohort value
- * @returns list of tournament ids
- */
-
-export const fetchTournamentIds = async (cohortValue: number): Promise<string[]> => {
-    try {
-        const response = await axios.get<TournamentId>(`${endpoint}/tournamentid`, {
-            params: {
-                'cohort-start': cohortValue,
-            },
-        });
-
-        const ids: string[] = response.data.ids;
-        return ids ?? [];
-    } catch (error) {
-        console.error('Error fetching tournament IDs:', error);
-        throw error;
-    }
-};
-
+const localendpoint = 'insertendpoint/Prod/player/';
 /**
  * method to fetch round robin tournament data from given tournament id
  * @param id string tournament id
  * @returns tournamentData object
  */
 
-export const fetchTournamentData = async (id: string): Promise<TournamentData> => {
+export const fetchTournamentData = async (cohortValue: number): Promise<TournamentId> => {
     try {
-        const response = await axios.get<TournamentData>(`${endpoint}/info`, {
+        const response = await axios.get<TournamentId>(endpoint + `/Prod/tournamentid`, {
             params: {
-                tournamentid: id,
+                'cohort-start': cohortValue,
             },
         });
 
@@ -96,3 +79,62 @@ export const fetchTournamentData = async (id: string): Promise<TournamentData> =
         throw error;
     }
 };
+
+
+export const registerUser = async (cohortValue: number, discordName: string, discordId: string, lichessName: string, chessComName: string, dojoUsername: string): Promise<string> => {
+    try {
+        const response = await axios.get<RoundRobinApi>(`${localendpoint}`, {
+            params: {
+                'mode': 'register',
+                'cohortstart': cohortValue,
+                'discordname': discordName,
+                'discordid': discordId,
+                'lichessname': lichessName,
+                'chesscomname': chessComName,
+                'dojousername': dojoUsername
+            },
+        });
+
+        return response.data.message;
+    } catch (error) {
+        console.error('Round robin user registration error!', error);
+        throw error;
+    }
+};
+
+export const withdrawUser = async (discordName: string, dojoUsername: string): Promise<string> => {
+    try {
+        const response = await axios.get<RoundRobinApi>(`${localendpoint}`, {
+            params: {
+                'mode': 'withdraw',
+                'discordname': discordName,
+                'dojousername': dojoUsername
+            },
+        });
+
+        return response.data.message;
+    } catch (error) {
+        console.error('Round robin user withdraw error!', error);
+        throw error;
+    }
+};
+
+
+export const submitGameFromUser = async (discordName: string, dojoUsername: string, gameURL: string): Promise<string> => {
+    try {
+        const response = await axios.get<RoundRobinApi>(`${localendpoint}`, {
+            params: {
+                'mode': 'game',
+                'discordname': discordName,
+                'dojousername': dojoUsername,
+                'gameurl': gameURL,
+            },
+        });
+
+        return response.data.message;
+    } catch (error) {
+        console.error('Round robin user game submission error!', error);
+        throw error;
+    }
+};
+
