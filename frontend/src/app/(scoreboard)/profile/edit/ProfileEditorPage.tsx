@@ -21,7 +21,6 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SaveIcon from '@mui/icons-material/Save';
-import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import UploadIcon from '@mui/icons-material/Upload';
 import { LoadingButton } from '@mui/lab';
@@ -269,8 +268,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
         user.notificationSettings,
     );
 
-    const [enableLightMode, setEnableLightMode] = useState(user.enableLightMode);
-
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>();
     const [profilePictureData, setProfilePictureData] = useState<string>();
 
@@ -315,8 +312,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
             ratings: getRatingsFromEditors(ratingEditors),
 
             notificationSettings,
-
-            enableLightMode,
         },
         profilePictureData,
     );
@@ -471,19 +466,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
                                         }}
                                     />
                                     Notifications
-                                </Link>
-                                <Link
-                                    href='#user-interface'
-                                    onClick={scrollToId('user-interface')}
-                                >
-                                    <SettingsSuggestIcon
-                                        fontSize='small'
-                                        sx={{
-                                            verticalAlign: 'middle',
-                                            marginRight: '0.2em',
-                                        }}
-                                    />
-                                    UI Setting
                                 </Link>
                                 <Link
                                     href='#subscription'
@@ -854,41 +836,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             notificationSettings={notificationSettings}
                             setNotificationSettings={setNotificationSettings}
                         />
-
-                        <Stack spacing={2}>
-                            <Stack
-                                id='user-interface'
-                                sx={{
-                                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
-                                }}
-                            >
-                                <Typography variant='h5'>
-                                    <SettingsSuggestIcon
-                                        style={{
-                                            verticalAlign: 'middle',
-                                            marginRight: '0.1em',
-                                        }}
-                                    />{' '}
-                                    UI Setting
-                                </Typography>
-                                <Divider />
-                            </Stack>
-
-                            <Stack>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={enableLightMode}
-                                            onChange={(event) =>
-                                                setEnableLightMode(event.target.checked)
-                                            }
-                                        />
-                                    }
-                                    label='Enable Light Mode (Warning: experimental, some UI elements may be hard to view)'
-                                    sx={{ mb: 1.5 }}
-                                />
-                            </Stack>
-                        </Stack>
 
                         <SubscriptionManager user={user} />
                     </Stack>
