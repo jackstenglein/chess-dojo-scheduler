@@ -1,5 +1,6 @@
 import { LoadingButton } from '@mui/lab';
 import { Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
@@ -30,6 +31,8 @@ function getReferralSource(source: string): string {
 const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevStep }) => {
     const api = useApi();
     const request = useRequest();
+    const redirectUri = useSearchParams().get('redirectUri');
+    const router = useRouter();
 
     const [referralSource, setReferralSource] = useState(
         getReferralSource(user.referralSource),
@@ -64,6 +67,9 @@ const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevSte
             hasCreatedProfile: true,
         })
             .then(() => {
+                if (redirectUri) {
+                    router.push(decodeURIComponent(redirectUri));
+                }
                 trackEvent(EventType.CreateProfile);
             })
             .catch((err) => {

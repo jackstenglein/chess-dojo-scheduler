@@ -10,7 +10,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { Scores } from './ExamPage';
+import { Scores } from '../../app/(scoreboard)/tests/[type]/[id]/exam/ExamPage';
 import { ExamPgnSelectorProps, formatTime } from './ExamPgnSelector';
 
 interface CompletedExamPgnSelectorProps

@@ -5,7 +5,8 @@ import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
-import { Box, Link, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
+import { Link } from '../navigation/Link';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;

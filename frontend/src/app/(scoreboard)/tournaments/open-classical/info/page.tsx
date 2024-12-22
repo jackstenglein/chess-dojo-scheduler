@@ -1,4 +1,5 @@
-import { Container, Divider, Link, Stack, Typography } from '@mui/material';
+import { Link } from '@/components/navigation/Link';
+import { Container, Divider, Stack, Typography } from '@mui/material';
 
 export default function InfoPage() {
     return (

@@ -1,7 +1,9 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import { Course, CoursePurchaseOption } from '@/database/course';
 import { getCohortRange } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { LoadingButton } from '@mui/lab';
@@ -11,7 +13,6 @@ import {
     CardActions,
     CardContent,
     Chip,
-    Link,
     Stack,
     Typography,
 } from '@mui/material';
@@ -36,6 +37,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
     const api = useApi();
     const request = useRequest();
     const isAccessible = isPurchased || (course.includedWithSubscription && !isFreeTier);
+    const router = useRouter();
 
     if (!preview && filters) {
         if (!filters.categories[course.type]) {
@@ -80,7 +82,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
             window.location.href,
         )
             .then((resp) => {
-                window.location.href = resp.data.url;
+                router.push(resp.data.url);
                 request.onSuccess();
             })
             .catch((err) => {

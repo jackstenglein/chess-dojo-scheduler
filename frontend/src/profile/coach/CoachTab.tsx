@@ -9,11 +9,11 @@ import {
 } from '@mui/material';
 import { useCallback } from 'react';
 
+import Bio from '@/components/profile/info/Bio';
 import { displayEvent } from '../../app/(scoreboard)/coaching/CoachingList';
 import UpcomingSessions from '../../app/(scoreboard)/coaching/UpcomingSessions';
 import { Event } from '../../database/event';
 import { User } from '../../database/user';
-import Bio from '../info/Bio';
 
 interface CoachTabProps {
     user: User;

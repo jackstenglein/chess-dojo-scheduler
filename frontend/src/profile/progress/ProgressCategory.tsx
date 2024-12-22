@@ -15,8 +15,6 @@ import { useFreeTier } from '../../auth/Auth';
 import { CustomTask, Requirement, RequirementCategory } from '../../database/requirement';
 import { User } from '../../database/user';
 import Icon from '../../style/Icon';
-import { useTutorial } from '../../tutorial/TutorialContext';
-import { TutorialName } from '../../tutorial/tutorialNames';
 import ProgressItem from './ProgressItem';
 
 export interface Category {
@@ -37,19 +35,7 @@ interface ProgressCategoryProps {
     color?: SvgIconOwnProps['color'];
 }
 
-const TutorialProgressCategory: React.FC<ProgressCategoryProps> = (props) => {
-    const { tutorialState } = useTutorial();
-
-    const forceExpand = useMemo(() => {
-        return tutorialState.activeTutorial === TutorialName.ProfilePage;
-    }, [tutorialState.activeTutorial]);
-
-    return (
-        <DefaultProgressCategory {...props} expanded={forceExpand || props.expanded} />
-    );
-};
-
-const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
+const ProgressCategory: React.FC<ProgressCategoryProps> = ({
     c,
     expanded,
     toggleExpand,
@@ -163,13 +149,6 @@ const DefaultProgressCategory: React.FC<ProgressCategoryProps> = ({
             </AccordionDetails>
         </Accordion>
     );
-};
-
-const ProgressCategory: React.FC<ProgressCategoryProps> = (props) => {
-    if (props.c.name === 'Welcome to the Dojo') {
-        return <TutorialProgressCategory {...props} />;
-    }
-    return <DefaultProgressCategory {...props} />;
 };
 
 export default ProgressCategory;

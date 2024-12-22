@@ -51,11 +51,13 @@ export const ListItemContextMenu = ({
                 </MenuItem>
             </Menu>
 
-            <AddToDirectoryDialog
-                open={directoryPickerOpen}
-                game={game}
-                onClose={handleClose}
-            />
+            {directoryPickerOpen && (
+                <AddToDirectoryDialog
+                    open={directoryPickerOpen}
+                    game={game}
+                    onClose={handleClose}
+                />
+            )}
         </DirectoryCacheProvider>
     );
 };

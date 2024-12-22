@@ -3,6 +3,7 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { GetClubResponse } from '@/api/clubApi';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import { ClubDetails, ClubJoinRequest, ClubJoinRequestStatus } from '@/database/club';
 import Avatar from '@/profile/Avatar';
 import { Block, Check } from '@mui/icons-material';
@@ -10,7 +11,6 @@ import {
     CircularProgress,
     Divider,
     IconButton,
-    Link,
     Stack,
     Tooltip,
     Typography,

@@ -1,10 +1,10 @@
 'use client';
 
 import { useEvents } from '@/api/cache/Cache';
-import { CustomEventRenderer } from '@/calendar/CalendarPage';
-import ProcessedEventViewer from '@/calendar/eventViewer/ProcessedEventViewer';
+import { CustomEventRenderer } from '@/app/(scoreboard)/calendar/CalendarPage';
 import { Filters, getHours, useFilters } from '@/calendar/filters/CalendarFilters';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
 import {
     Event,
     EventType,
@@ -204,7 +204,7 @@ const CalendarTab = () => {
                     viewerExtraComponent={(_, event) => (
                         <ProcessedEventViewer processedEvent={event} />
                     )}
-                    events={[]}
+                    events={processedEvents}
                     timeZone={
                         filters.timezone === DefaultTimezone
                             ? undefined

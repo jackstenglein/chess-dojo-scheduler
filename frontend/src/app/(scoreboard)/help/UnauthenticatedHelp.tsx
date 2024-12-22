@@ -1,3 +1,4 @@
+import { Link } from '@/components/navigation/Link';
 import { RatingSystem, formatRatingSystem } from '@/database/user';
 import {
     Card,
@@ -6,7 +7,6 @@ import {
     Container,
     Divider,
     Grid2,
-    Link,
     Stack,
     Typography,
 } from '@mui/material';
