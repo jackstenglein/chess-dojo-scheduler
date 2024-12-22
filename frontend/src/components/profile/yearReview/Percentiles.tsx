@@ -24,7 +24,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
                     sm: 4,
                 }}
             >
-                <Stack alignItems='end'>
+                <Stack alignItems='center'>
                     <Stack spacing={0.5} direction='row' alignItems='center'>
                         <Typography variant='caption' color='text.secondary'>
                             Percentile
@@ -60,7 +60,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
                     sm: 4,
                 }}
             >
-                <Stack alignItems='end'>
+                <Stack alignItems='center'>
                     <Stack spacing={0.5} direction='row' alignItems='center'>
                         <Typography variant='caption' color='text.secondary'>
                             Cohort Percentile

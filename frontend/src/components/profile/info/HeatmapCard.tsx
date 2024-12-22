@@ -10,9 +10,9 @@ const BLOCK_COLUMNS = 53;
 const BLOCK_MARGIN = 4;
 const DIALOG_PADDING = 124;
 const LABEL_WIDTH = 30;
-const MIN_BLOCK_SIZE = 12;
+export const MIN_BLOCK_SIZE = 12;
 
-function getBlockSize() {
+export function getBlockSize() {
     const parentWidth = document
         .getElementsByTagName('html')[0]
         ?.getBoundingClientRect().width;

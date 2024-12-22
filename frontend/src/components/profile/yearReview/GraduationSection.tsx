@@ -1,16 +1,15 @@
+import { compareCohorts } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { Stack, Typography } from '@mui/material';
+import { SectionProps } from './section';
 
-import { compareCohorts } from '../../database/user';
-import CohortIcon from '../../scoreboard/CohortIcon';
-import { SectionProps } from './YearReviewPage';
-
-const GraduationSection: React.FC<SectionProps> = ({ review }) => {
+const GraduationSection = ({ review }: SectionProps) => {
     if (!review.graduations || review.graduations.length === 0) {
         return null;
     }
 
-    const value = review.graduations.length;
-    const isPlural = value !== 1;
+    const count = review.graduations.length;
+    const isPlural = count !== 1;
 
     const sorted = [...new Set(review.graduations)].sort(compareCohorts);
 
@@ -22,7 +21,7 @@ const GraduationSection: React.FC<SectionProps> = ({ review }) => {
                 fontSize='clamp(16px,3vw,32px)'
                 textAlign='center'
             >
-                In 2023, you graduated {value} time{isPlural ? 's' : ''}!
+                In {review.period}, you graduated {count} time{isPlural ? 's' : ''}!
             </Typography>
 
             <Typography

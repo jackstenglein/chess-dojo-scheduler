@@ -26,9 +26,16 @@ interface RatingCardProps {
     system: RatingSystem;
     data: YearReviewRatingData;
     dark: boolean;
+    period: string;
 }
 
-const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) => {
+const RatingCard: React.FC<RatingCardProps> = ({
+    cohort,
+    system,
+    data,
+    dark,
+    period,
+}) => {
     const historyData = useMemo(
         () => getChartData(data.history, data.currentRating.value),
         [data],
@@ -56,7 +63,11 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                     >
                                         <OpenInNew
                                             color='primary'
-                                            sx={{ fontSize: '1rem', ml: '3px' }}
+                                            sx={{
+                                                fontSize: '1rem',
+                                                ml: '3px',
+                                                mt: '4px',
+                                            }}
                                         />
                                     </Link>
                                 </>
@@ -79,9 +90,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                             md: 'grow',
                         }}
                     >
-                        <Stack alignItems={{ xs: 'start', sm: 'end' }}>
+                        <Stack alignItems={{ xs: 'start', sm: 'center' }}>
                             <Typography variant='caption' color='text.secondary'>
-                                Jan 1, 2023
+                                Jan 1, {period}
                             </Typography>
 
                             <Typography
@@ -105,9 +116,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                             md: 'grow',
                         }}
                     >
-                        <Stack alignItems='end'>
+                        <Stack alignItems={{ xs: 'end', sm: 'center' }}>
                             <Typography variant='caption' color='text.secondary'>
-                                Dec 25, 2023
+                                Dec 25, {period}
                             </Typography>
                             <Typography
                                 sx={{
@@ -130,7 +141,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                             md: 'grow',
                         }}
                     >
-                        <Stack alignItems={{ xs: 'start', sm: 'end' }}>
+                        <Stack alignItems={{ xs: 'start', sm: 'center' }}>
                             <Typography variant='caption' color='text.secondary'>
                                 Change
                             </Typography>
@@ -185,7 +196,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                     md: 'grow',
                                 }}
                             >
-                                <Stack alignItems='end'>
+                                <Stack alignItems={{ xs: 'end', sm: 'center' }}>
                                     <Stack
                                         spacing={0.5}
                                         direction='row'
@@ -233,7 +244,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                     md: 'grow',
                                 }}
                             >
-                                <Stack alignItems={{ xs: 'start', sm: 'end' }}>
+                                <Stack alignItems={{ xs: 'start', sm: 'center' }}>
                                     <Stack
                                         spacing={0.5}
                                         direction='row'
@@ -286,7 +297,7 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark }) =
                                     md: 'grow',
                                 }}
                             >
-                                <Stack alignItems='end'>
+                                <Stack alignItems={{ xs: 'end', sm: 'center' }}>
                                     <Stack
                                         spacing={0.5}
                                         direction='row'
