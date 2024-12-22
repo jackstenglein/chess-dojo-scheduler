@@ -1,4 +1,4 @@
-import { tournamentsClock } from '../tournaments/util';
+import { tournamentsClock } from '../util';
 
 describe('Event Editor', () => {
     beforeEach(() => {

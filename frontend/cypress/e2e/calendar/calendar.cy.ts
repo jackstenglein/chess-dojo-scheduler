@@ -1,42 +1,6 @@
-/**
- * Returns the most recent Sunday before the given date.
- * @param d The date to get the Sunday for.
- * @returns The most recent Sunday before the given date.
- */
-function getSunday(d: Date): Date {
-    const day = d.getDay();
-    const diff = d.getDate() - day;
-    return new Date(d.setDate(diff));
-}
+import { dateMapper, Event } from '../util';
 
-/**
- * Returns a new date created by adding the given number of days to d.
- * @param d The date to add days to.
- * @param count The number of days to add.
- * @returns A new date with the number of days added to d.
- */
-function addDays(d: Date, count: number): Date {
-    const result = new Date(d);
-    result.setDate(d.getDate() + count);
-    return result;
-}
-
-const sunday = getSunday(new Date());
-
-const dateMapper: Record<string, string> = {
-    '2023-09-10': sunday.toISOString().slice(0, 10),
-    '2023-09-11': addDays(sunday, 1).toISOString().slice(0, 10),
-    '2023-09-12': addDays(sunday, 2).toISOString().slice(0, 10),
-    '2023-09-13': addDays(sunday, 3).toISOString().slice(0, 10),
-    '2023-09-14': addDays(sunday, 4).toISOString().slice(0, 10),
-    '2023-09-15': addDays(sunday, 5).toISOString().slice(0, 10),
-    '2023-09-16': addDays(sunday, 6).toISOString().slice(0, 10),
-};
-
-interface Event {
-    startTime: string;
-    endTime: string;
-}
+const ALL_EVENTS_COUNT = 23;
 
 describe('Calendar Page', () => {
     beforeEach(() => {
@@ -91,12 +55,12 @@ describe('Calendar Page', () => {
     });
 
     it('displays correct events for tournament filters', () => {
-        cy.get('.rs__event__item').should('have.length', 26);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
 
         cy.getBySel('dojoliga-tournaments').click();
         cy.get('.MuiPopover-root').contains('Rapid').click();
         cy.get('.MuiPopover-root').contains('Classical').click();
-        cy.get('.rs__event__item').should('have.length', 12);
+        cy.get('.rs__event__item').should('have.length', 10);
 
         cy.get('.MuiPopover-root').contains('Rapid').click();
         cy.get('.MuiPopover-root').contains('Classical').click();
@@ -104,35 +68,35 @@ describe('Calendar Page', () => {
     });
 
     it('displays correct events for dojo events filter', () => {
-        cy.get('.rs__event__item').should('have.length', 26);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
 
         cy.getBySel('my-dojo-calendar').click();
         cy.get('.MuiPopover-root').contains('Availabilities').click();
         cy.get('.MuiPopover-root').contains('Meetings').click();
         cy.get('.MuiPopover-root').contains('Coaching Sessions').click();
-        cy.get('.rs__event__item').should('have.length', 25);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT - 1);
     });
 
     it('displays correct events for meeting types filter', () => {
-        cy.get('.rs__event__item').should('have.length', 26);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
 
         cy.getBySel('calendar-filters').contains('All Types').click();
         cy.get('.MuiPopover-root').contains('All Types').click();
-        cy.get('.rs__event__item').should('have.length', 24);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT - 2);
 
         cy.get('.MuiPopover-root').contains('Classical Game').click();
-        cy.get('.rs__event__item').should('have.length', 26);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
     });
 
     it('displays correct events for cohort filter', () => {
-        cy.get('.rs__event__item').should('have.length', 26);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
 
         cy.getBySel('calendar-filters').contains('All Cohorts').click();
         cy.get('.MuiPopover-root').contains('All Cohorts').click();
-        cy.get('.rs__event__item').should('have.length', 24);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT - 2);
 
         cy.get('.MuiPopover-root').contains('1500-1600').click();
-        cy.get('.rs__event__item').should('have.length', 26);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
     });
 
     it('displays correct content for availability', () => {

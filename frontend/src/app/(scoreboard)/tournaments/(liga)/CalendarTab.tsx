@@ -102,6 +102,8 @@ const CalendarTab = () => {
         return getProcessedEvents(filters, events);
     }, [filters, events]);
 
+    console.log('Processed Events: ', processedEvents);
+
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(processedEvents, 'events');
     }, [processedEvents, calendarRef]);
@@ -160,6 +162,8 @@ const CalendarTab = () => {
         );
     }, [calendarRef, minHour, maxHour]);
 
+    console.log('EVENTS: ', events);
+
     return (
         <Grid2 container spacing={2}>
             <Grid2 size={{ xs: 12, md: 2.5 }}>
@@ -204,7 +208,7 @@ const CalendarTab = () => {
                     viewerExtraComponent={(_, event) => (
                         <ProcessedEventViewer processedEvent={event} />
                     )}
-                    events={[]}
+                    events={processedEvents}
                     timeZone={
                         filters.timezone === DefaultTimezone
                             ? undefined
