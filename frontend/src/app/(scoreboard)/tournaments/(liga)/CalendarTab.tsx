@@ -102,8 +102,6 @@ const CalendarTab = () => {
         return getProcessedEvents(filters, events);
     }, [filters, events]);
 
-    console.log('Processed Events: ', processedEvents);
-
     useEffect(() => {
         calendarRef.current?.scheduler.handleState(processedEvents, 'events');
     }, [processedEvents, calendarRef]);
@@ -161,8 +159,6 @@ const CalendarTab = () => {
             'day',
         );
     }, [calendarRef, minHour, maxHour]);
-
-    console.log('EVENTS: ', events);
 
     return (
         <Grid2 container spacing={2}>
