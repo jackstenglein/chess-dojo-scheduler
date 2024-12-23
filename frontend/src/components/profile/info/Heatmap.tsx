@@ -142,8 +142,8 @@ export function Heatmap({
                 labels={{
                     totalCount:
                         field === 'dojoPoints'
-                            ? `{{count}} Dojo points in ${description}`
-                            : `${formatTime(totalCount)} in ${description}`,
+                            ? `{{count}} Dojo points ${description}`
+                            : `${formatTime(totalCount)} ${description}`,
                 }}
                 totalCount={Math.round(10 * totalCount) / 10}
                 maxLevel={MAX_LEVEL}
@@ -258,10 +258,10 @@ function getActivity(
             continue;
         }
 
-        if (
-            (entry.date || entry.createdAt) < minDate ||
-            (entry.date || entry.createdAt) > maxDate
-        ) {
+        if ((entry.date || entry.createdAt).slice(0, 10) > maxDate) {
+            continue;
+        }
+        if ((entry.date || entry.createdAt) < minDate) {
             break;
         }
 

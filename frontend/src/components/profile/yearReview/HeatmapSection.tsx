@@ -28,7 +28,7 @@ export function HeatmapSection({ review }: SectionProps) {
         <Heatmap
             entries={entries}
             blockSize={blockSize}
-            description={review.period}
+            description={`in ${review.period}`}
             minDate={`${review.period}-01-01`}
             maxDate={endDateByPeriod[review.period]}
         />

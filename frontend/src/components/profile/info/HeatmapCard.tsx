@@ -6,7 +6,7 @@ import { Card, CardContent, Dialog, DialogContent, IconButton } from '@mui/mater
 import { useCallback, useEffect, useState } from 'react';
 import { Heatmap } from './Heatmap';
 
-const BLOCK_COLUMNS = 53;
+const BLOCK_COLUMNS = 54;
 const BLOCK_MARGIN = 4;
 const DIALOG_PADDING = 124;
 const LABEL_WIDTH = 30;
@@ -52,7 +52,7 @@ export const HeatmapCard = ({ user }: { user: User }) => {
                     <Heatmap
                         entries={entries}
                         onPopOut={() => setIsModalOpen(true)}
-                        description='the past year'
+                        description=''
                     />
                 </CardContent>
             </Card>
@@ -89,7 +89,7 @@ export const HeatmapCard = ({ user }: { user: User }) => {
                     <Heatmap
                         entries={entries}
                         blockSize={blockSize}
-                        description='the past year'
+                        description='in the past year'
                     />
                 </DialogContent>
             </Dialog>
