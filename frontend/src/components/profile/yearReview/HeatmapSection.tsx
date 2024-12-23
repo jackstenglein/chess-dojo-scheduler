@@ -12,7 +12,10 @@ const endDateByPeriod: Record<string, string> = {
 
 export function HeatmapSection({ review }: SectionProps) {
     const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
+
+    console.log('useTime: ', review.username);
     const { entries } = useTimeline(review.username);
+    console.log('Entries: ', entries);
 
     const resizeDialogBlocks = useCallback(() => {
         setBlockSize(getBlockSize());
