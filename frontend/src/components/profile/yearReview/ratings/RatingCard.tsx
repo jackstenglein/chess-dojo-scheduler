@@ -21,6 +21,11 @@ import {
 import { useMemo } from 'react';
 import { Chart } from 'react-charts';
 
+const endDateByPeriod: Record<string, string> = {
+    '2024': 'Dec 23, 2024',
+    '2023': 'Dec 25, 2023',
+};
+
 interface RatingCardProps {
     cohort: string;
     system: RatingSystem;
@@ -118,7 +123,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                     >
                         <Stack alignItems={{ xs: 'end', sm: 'center' }}>
                             <Typography variant='caption' color='text.secondary'>
-                                Dec 25, {period}
+                                {endDateByPeriod[period]}
                             </Typography>
                             <Typography
                                 sx={{
