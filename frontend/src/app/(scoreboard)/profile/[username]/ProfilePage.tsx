@@ -170,7 +170,8 @@ function AuthProfilePage({
                         <Button
                             size='small'
                             color='inherit'
-                            onClick={() => router.push('/profile/postmortem')}
+                            href={`/profile/${username}/postmortem/2024`}
+                            component={Link}
                         >
                             Open
                         </Button>
