@@ -11,7 +11,7 @@ export function PostmortemRedirect() {
 
     useEffect(() => {
         if (user) {
-            router.push(`/profile/${user.username}/postmortem/2024`);
+            router.replace(`/profile/${user.username}/postmortem/2024`);
         }
     }, [user, router]);
 

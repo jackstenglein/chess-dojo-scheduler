@@ -22,7 +22,6 @@ import ProfilePageTutorial from '@/components/tutorial/ProfilePageTutorial';
 import { FollowerEntry } from '@/database/follower';
 import { hasCreatedProfile, User } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
-import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import GamesTab from '@/profile/GamesTab';
 import GraduationDialog from '@/profile/GraduationDialog';
@@ -72,7 +71,6 @@ function AuthProfilePage({
     const auth = useAuth();
     const request = useRequest<User>();
     const followRequest = useRequest<FollowerEntry>();
-    const router = useRouter();
 
     const currentUserProfile = !username || username === currentUser?.username;
 
@@ -170,7 +168,7 @@ function AuthProfilePage({
                         <Button
                             size='small'
                             color='inherit'
-                            href={`/profile/${username}/postmortem/2024`}
+                            href={`/profile/${user.username}/postmortem/2024`}
                             component={Link}
                         >
                             Open
