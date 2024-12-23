@@ -6,6 +6,8 @@ import com.mongodb.ServerApi;
 import com.mongodb.ServerApiVersion;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Updates;
+import com.serverless.roundrobin.CohortRange;
+import com.serverless.roundrobin.CreateRoundRobin;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterAll;
@@ -104,6 +106,8 @@ public class Integrationtest {
 
     @Test
     public void testRegisterPlayer() {
+        CreateRoundRobin roundRobin = new CreateRoundRobin(10);
+        roundRobin.createNewRoundRobinTournament(CohortRange.COHORT_300_400, false, RRcollection);
         given()
                 .contentType(ContentType.JSON)
                 .queryParam("mode", "register")
@@ -118,7 +122,24 @@ public class Integrationtest {
                 .then()
                 .statusCode(200)
                 .body("message", equalTo("Registration Successful! You be notified when the Round Robin starts!")); // Example assertion
+    }
 
+    @Test
+    public void testRegisterPlayerEmptyList() {
+        given()
+                .contentType(ContentType.JSON)
+                .queryParam("mode", "register")
+                .queryParam("discordname", "intetestuser11")
+                .queryParam("discordid", "intetestuser11")
+                .queryParam("lichessname", "yoyothisislichesstest11")
+                .queryParam("chesscomname", "yoyoyothisiscctes11t")
+                .queryParam("cohortstart", 400)
+                .queryParam("dojousername", "intetestuser11")
+                .when()
+                .get("/player")
+                .then()
+                .statusCode(200)
+                .body("message", equalTo("Registration Successful! You be notified when the Round Robin starts!")); // Example assertion
     }
 
     @Test

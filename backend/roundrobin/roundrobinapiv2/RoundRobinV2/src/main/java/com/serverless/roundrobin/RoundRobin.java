@@ -3,21 +3,32 @@ package com.serverless.roundrobin;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * This class manages the round-robin pairing for a tournament.
+ */
 public class RoundRobin {
     private final List<String> players;
     private final String tournamentName;
     private final String desc;
     private final PairingBuilder builder = new PairingBuilder();
-    
-    
+
+    /**
+     * Constructor for RoundRobin.
+     * @param players List of players.
+     * @param name Name of the tournament.
+     * @param desc Description of the tournament.
+     */
     public RoundRobin(List<String> players, String name, String desc){
         this.players = players;
         this.tournamentName = name;
         this.desc = desc;
     }
 
-
+    /**
+     * Generates the round-robin pairs for the tournament.
+     * @return The list of round-robin pairs.
+     * @throws RoundRobinException If the number of players is less than 3.
+     */
     public List<List<String>> generateRoundRobinPairs() throws RoundRobinException {
 
             int numPlayers = players.size();
@@ -70,7 +81,11 @@ public class RoundRobin {
 
     }
 
-
+    /**
+     * Generates the string representation of the round-robin pairings.
+     * @return The string representation of the round-robin pairings.
+     * @throws RoundRobinException If the number of players is less than 3.
+     */
     private String getPairingsString() throws RoundRobinException {
 
         StringBuilder builder = new StringBuilder();
@@ -86,6 +101,11 @@ public class RoundRobin {
     }
 
 
+    /**
+     * Creates the tournament pairings.
+     * @return The string representation of the tournament pairings.
+     * @throws RoundRobinException If the number of players is less than 3.
+     */
     public String createTournamentPairings() throws RoundRobinException {
         return getPairingsString();
     }

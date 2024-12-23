@@ -111,7 +111,6 @@ class RegisterHandlerTest {
         CohortRange cohort = CohortRange.COHORT_1900_2000;
 
         createRoundRobin.createNewRoundRobinTournament(cohort, false, RRcollection);
-
         for(int i = 0; i < 10; i++){
             PlayerData playern = data.getRandomPlayerAllDifferent(cohort.getStart());
             System.out.println(playern);
@@ -121,12 +120,12 @@ class RegisterHandlerTest {
             assertTrue(mesg.toLowerCase().contains("success"));
         }
 
-        PlayerData playern = data.getRandomPlayerAllDifferent(cohort.getStart());
-        System.out.println(playern);
         RegisterHandler registerDesk = new RegisterHandler(RRplayercollection, RRcollection);
-        String mesg = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(), playern.getCohort(), playern.getLichessname(), playern.getChesscomname(), playern.getDojoUsername());
-        System.out.println(mesg);
-        assertTrue(mesg.toLowerCase().contains("success"));
+        String message = registerDesk.playerRegister("sameplayer", "sameplayer", cohort.getStart(), "sameplayer", "sameplayer", "sameplayer");
+        assertTrue(message.toLowerCase().contains("success"));
+        String messageerr = registerDesk.playerRegister("sameplayer", "sameplayer", cohort.getStart(), "sameplayer", "sameplayer", "sameplayer");
+        assertEquals("You have already registered in a tournament and hit max tournament registration limit!", messageerr);
+
 
     }
 
@@ -195,9 +194,11 @@ class RegisterHandlerTest {
                 PlayerData playern = data.getRandomPartialCCNullData(cohort.getStart());
                 System.out.println(playern);
                 String mesg = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(), playern.getCohort(), playern.getLichessname(), playern.getChesscomname(), playern.getDojoUsername());
-                assertTrue(mesg.contains("success"));
+                System.out.println(mesg);
+                assertFalse(mesg.contains("success"));
             }
         }catch (Exception e){
+            System.out.println(e.getMessage());
             assertEquals("The following cohort ranges [2200, 2300, 2100] Round Robin tournaments is filled", e.getMessage());
         }
     }
@@ -235,9 +236,6 @@ class RegisterHandlerTest {
         RRplayercollection.deleteMany(new Document());
         RRcollection.deleteMany(new Document());
     }
-
-
-
 
 
 }

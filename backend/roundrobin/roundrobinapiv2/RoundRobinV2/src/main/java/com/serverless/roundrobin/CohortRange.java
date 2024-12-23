@@ -1,6 +1,9 @@
 package com.serverless.roundrobin;
 
 
+/**
+ * This enum represents the range of ratings for a cohort.
+ */
 public enum CohortRange {
     COHORT_0_300(0, 300, 0, 1250),
     COHORT_300_400(300, 400, 1250, 1310),
@@ -32,7 +35,13 @@ public enum CohortRange {
     private final int LichessConvertStart;
     private final int LichessConvertEnd;
 
-
+    /**
+     * Constructor for CohortRange.
+     * @param start The start of the cohort range.
+     * @param end The end of the cohort range.
+     * @param LiStart The start of the Lichess conversion range.
+     * @param LiEnd The end of the Lichess conversion range.
+     */
     CohortRange(int start, int end, int LiStart, int LiEnd) {
         this.start = start;
         this.end = end;
@@ -42,90 +51,39 @@ public enum CohortRange {
     }
 
 
+    /**
+     * Gets the start of the cohort range.
+     * @return The start of the cohort range.
+     */
     public int getStart() {
         return start;
     }
 
+    /**
+     * Gets the end of the cohort range.
+     * @return The end of the cohort range.
+     */
     public int getEnd() {
         return end;
     }
 
+    /**
+     * Checks if a target is within a given range.
+     * @param lowerBound The lower bound of the range.
+     * @param upperBound The upper
+     * @param target The target value.
+     * @return True if the target is within the range, false otherwise.
+     */
 
-    public boolean isInRange(int lowerBound, int upperBound, int target) {
+    public static boolean isInRange(int lowerBound, int upperBound, int target) {
         return target >= lowerBound && target <= upperBound;
     }
 
 
-    public int getChessComRapidConversionStart(){
-        switch(getStart()){
-            case 0 -> {
-                return 0;
-            }
-            case 1900 -> {
-                return 2165;
-            }
-            case 2000 -> {
-                return 2275;
-            }
-            case 2100 -> {
-                return 2360;
-            }
-            case 2200 -> {
-                return 2425;
-            }
-            case 2300 -> {
-                return 2485;
-            }
-            case 2400 -> {
-                return 2550;
-            }
-            default -> {
-                return getStart() + 250;
-            }
-        }
-    }
-
-
-    public int getChessComRapidConversionEnd(){
-        switch (getStart()){
-            case 0 -> {
-                return 550;
-            }
-            case 1800 -> {
-                return 2165;
-            }
-            case 1900 -> {
-                return 2275;
-            }
-            case 2000 -> {
-                return 2360;
-            }
-            case 2100 -> {
-                return 2425;
-            }
-            case 2200 -> {
-                return 2485;
-            }
-            case 2300 -> {
-                return 2550;
-            }
-            default -> {
-                return getChessComRapidConversionStart() + 100;
-            }
-        }
-    }
-
-
-    public int getLichessClassicalConversionStart(){
-        return LichessConvertStart;
-
-    }
-
-    public int getLichessClassicalConversionEnd(){
-        return LichessConvertEnd;
-    }
-
-
+    /**
+     * Gets the time control of a tournament for this cohort
+     * @return The time control of the tournament.
+     */
     public int getTimeControl(){
         if(getStart() <= 700){
             return 30;
@@ -142,6 +100,10 @@ public enum CohortRange {
         return -1;
     }
 
+    /**
+     * Gets the time increment of a tournament for this cohort
+     * @return The time increment of the tournament.
+     */
     public int getTimeIncrement(){
         if(getStart() <= 700){
             return 0;
@@ -156,12 +118,22 @@ public enum CohortRange {
         return -1;
     }
 
+    /**
+     * gets the String representation of the cohort range.
+     * @return The string representation of the cohort range.
+     */
     @Override
     public String toString() {
         return String.format("COHORT_%d_%d", start, end);
     }
 
 
+    /**
+     * Finds the cohort range given the start and end values.
+     * @param start The start of the cohort range.
+     * @param end The end of the cohort range.
+     * @return The cohort range.
+     */
     public static CohortRange findCohortRange(int start, int end) {
         for (CohortRange cohort : CohortRange.values()) {
             if (cohort.getStart() == start && cohort.getEnd() == end) {
@@ -169,56 +141,6 @@ public enum CohortRange {
             }
         }
         return null;
-    }
-
-    public static CohortRange getCohortRangeForLichessRating(int LichessRating){
-        for(CohortRange cohort: CohortRange.values()){
-            if(cohort.isLichessClassicalCohortRatingInRange(LichessRating)){
-                return cohort;
-            }
-        }
-        return null;
-    }
-
-    public static CohortRange getCohortRangeForChessComRating(int ChessComRating){
-        for(CohortRange cohort: CohortRange.values()){
-            if(cohort.isChessComRapidCohortRatingInRange(ChessComRating)){
-                return cohort;
-            }
-        }
-
-        return null;
-    }
-
-
-
-    public static CohortRange getMaxCohortPerPlatform(int ChessComRating, int LichessRating){
-
-        CohortRange LichessCohort = getCohortRangeForLichessRating(LichessRating);
-        CohortRange ChessComCohort = getCohortRangeForChessComRating(ChessComRating);
-
-        if(LichessCohort != null && ChessComCohort != null){
-            if(LichessCohort.getStart() == ChessComCohort.getStart() && LichessCohort.getEnd() == ChessComCohort.getEnd()){
-                return LichessCohort;
-            }else if(LichessCohort.getStart() > ChessComCohort.getStart() && LichessCohort.getEnd() > ChessComCohort.getEnd()){
-                return LichessCohort;
-            }else if(ChessComCohort.getStart() > LichessCohort.getStart() && ChessComCohort.getEnd() > LichessCohort.getEnd()){
-                return ChessComCohort;
-            }
-        }
-
-        return null;
-
-    }
-
-
-    public boolean isLichessClassicalCohortRatingInRange(int LichessRating){
-        return isInRange(getLichessClassicalConversionStart(), getLichessClassicalConversionEnd(), LichessRating);
-    }
-
-
-    public boolean isChessComRapidCohortRatingInRange(int ChessComRating){
-        return isInRange(getChessComRapidConversionStart(), getChessComRapidConversionEnd(), ChessComRating);
     }
 
 

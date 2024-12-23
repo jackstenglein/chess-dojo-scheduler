@@ -5,11 +5,11 @@ import java.util.Random;
 public class SampleData {
 
     private static final String[] ADJECTIVES = {
-            "Swift", "Lazy", "Brave", "Clever", "Mighty", "Gentle", "Happy", "Shiny", "Quiet", "Fierce"
+            "Swift12", "Lazy21", "Brave12", "Clever21", "Mighty12", "Gentle21", "Happy12", "Shiny21", "Quiet12", "Fierce21"
     };
 
     private static final String[] NOUNS = {
-            "Tiger", "Eagle", "Panda", "Wolf", "Phoenix", "Bear", "Falcon", "Shark", "Dragon", "Lion"
+            "Tiger", "Eagle", "Panda", "Wolf", "Phoenix", "Bear", "Falcon", "Shark", "Dragon", "Lion", "Elephant", "Hawk", "Panther", "Cheetah", "Gorilla", "Rhino", "Cobra", "Fox", "Jaguar", "Leopard", "Owl", "Raven", "Viper", "Badger", "Bison", "Coyote", "Crab", "Crow", "Dolphin", "Giraffe", "Horse", "Kangaroo", "Koala", "Lemur", "Lobster", "Moose", "Otter", "Penguin", "Polar bear", "Raccoon", "Seal", "Sloth", "Walrus", "Whale", "Zebra"
     };
 
     public static void main(String[] args) {

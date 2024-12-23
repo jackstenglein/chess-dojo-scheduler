@@ -9,7 +9,6 @@ import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -24,7 +23,6 @@ public class GameHandlerTest {
     static MongoCollection<Document> RRcollection = null;
 
     static MongoCollection<Document> RRplayercollection = null;
-
 
     public static final Dotenv dotenv = Dotenv.load();
 

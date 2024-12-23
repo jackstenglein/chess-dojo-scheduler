@@ -1,6 +1,8 @@
 package com.serverless.game;
 
-
+/**
+ * This enum represents the platforms that the game can be played on.
+ */
 public enum Platform {
 
 
@@ -8,7 +10,11 @@ public enum Platform {
     CHESSCOM,
     DISCORD;
 
-
+    /**
+     * Returns the platform based on the URL.
+     * @param url The URL of the game.
+     * @return The platform of the game.
+     */
     public static Platform fromURL(String url){
         if(url.contains("https://lichess.org/")){
             return LICHESS;
@@ -19,6 +25,10 @@ public enum Platform {
         return null;
     }
 
+    /**
+     * Returns the name of the platform.
+     * @return The name of the platform.
+     */
     public String getName(){
         switch (this){
             case LICHESS -> {
@@ -33,6 +43,10 @@ public enum Platform {
     }
 
 
+    /**
+     * Returns the MongoDB field name for the player based on the platform.
+     * @return The field name for the player.
+     */
     public String getPlayerField() {
         switch (this){
             case LICHESS -> {

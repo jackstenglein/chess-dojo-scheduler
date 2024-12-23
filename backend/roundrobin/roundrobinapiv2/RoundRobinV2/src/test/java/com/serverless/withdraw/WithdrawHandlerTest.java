@@ -104,7 +104,6 @@ public class WithdrawHandlerTest {
         assertTrue(message.contains("capa_a") && message.toLowerCase().contains("success"));
     }
 
-// This will throw error if data isn't loaded properly 
 //    @Test
 //    void withdrawtest2(){
 //        WithdrawHandler withdrawHandler = new WithdrawHandler(RRplayercollection, RRcollection, "falk312", "falk312");

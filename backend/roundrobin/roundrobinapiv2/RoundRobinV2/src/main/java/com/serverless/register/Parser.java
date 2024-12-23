@@ -7,15 +7,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The type Parser.
+ * This class contains methods for parsing data for crosstable and pairings
  */
 public class Parser {
 
     /**
-     * Gets pairings in list format.
-     *
-     * @param pair the pair
-     * @return the pairings in list format
+     * Gets the crosstable in list format.
+     * @param pair The crosstable string.
+     * @return The crosstable in list format.
      */
     public static ArrayList<String> getPairingsInListFormat(String pair)  {
 
@@ -33,19 +32,17 @@ public class Parser {
     }
 
     /**
-     * Split string list array list.
-     *
-     * @param input the input
-     * @return the array list
+     * Splits a list of strings into a list of lists of strings.
+     * @param input The list of strings to split.
+     * @return The list of lists of strings.
      */
     public static ArrayList<ArrayList<String>> splitStringList(List<String> input) {
         ArrayList<ArrayList<String>> result = new ArrayList<>();
 
         for (String s : input) {
-            // Split by comma and trim each element
+
             String[] splitArray = s.split(",\\s*");
 
-            // Convert the array to an ArrayList and add it to the result list
             ArrayList<String> splitList = new ArrayList<>(Arrays.asList(splitArray));
             result.add(splitList);
         }

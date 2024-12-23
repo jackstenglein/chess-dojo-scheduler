@@ -1,6 +1,5 @@
 package com.serverless.register;
 
-import chariot.Client;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
@@ -17,15 +16,37 @@ public class RegisterManager {
     private final CreateRoundRobin create = new CreateRoundRobin(MAX_PLAYER_SIZE);
     private final RoundRobinManager manager = new RoundRobinManager();
 
+    /**
+     * Checks if the player is already registered in a tournament.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param Discordname The Discord name of the player.
+     * @return True if the player is already registered in a tournament, false otherwise.
+     */
     public boolean alreadyRegisteredInTournament(MongoCollection<Document> RRcollection, String Discordname){
-        Document finder = manager.performGeneralSearch(RRcollection, "players", Discordname);
-        return finder != null;
+       return manager.getRegisteredPlayerTournamentID(RRcollection, Discordname) != null;
     }
 
+    /**
+     * Adds a player to the player database.
+     * @param DiscordID The Discord ID of the player.
+     * @param DiscordName The Discord name of the player.
+     * @param Lichessname The Lichess account name of the player.
+     * @param Chesscomname The Chess.com account name of the player.
+     * @param RRplayerCollection The MongoDB collection for player data.
+     */
     public void addPlayerToDB(String DiscordID, String DiscordName, String Lichessname, String Chesscomname, MongoCollection<Document> RRplayerCollection){
         createNewPlayer(Lichessname, Chesscomname, DiscordName, DiscordID, 0.0, RRplayerCollection);
     }
 
+    /**
+     * Creates a new player in the player database.
+     * @param Lichessname The Lichess account name of the player.
+     * @param Chesscomname The Chess.com account name of the player.
+     * @param DiscordName The Discord name of the player.
+     * @param DiscordID The Discord ID of the player.
+     * @param score The score of the player.
+     * @param RRplayercollection The MongoDB collection for player data.
+     */
     private void createNewPlayer(String Lichessname, String Chesscomname, String DiscordName, String DiscordID, double score, MongoCollection<Document> RRplayercollection){
         Document document = new Document("Lichessname", Lichessname)
                 .append("Chesscomname", Chesscomname)
@@ -43,6 +64,13 @@ public class RegisterManager {
     }
 
 
+    /**
+     * Retrieves the tournament document for a given start cohort.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param startCohort The starting cohort of the tournament.
+     * @param tarUsername The username of the player.
+     * @return The document representing the tournament.
+     */
     private Document getTournamentDocInternal(MongoCollection<Document> RRcollection, int startCohort, String tarUsername){
         Document query = new Document("cohort-start", startCohort);
         FindIterable<Document> finder = RRcollection.find(query);
@@ -70,6 +98,13 @@ public class RegisterManager {
     }
 
 
+    /**
+     * Retrieves the tournament document for a given start cohort.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param startCohort The starting cohort of the tournament.
+     * @param tarUsername The username of the player.
+     * @return The document representing the tournament.
+     */
     public Document getTournamentDocForStartCohort(MongoCollection<Document> RRcollection, int startCohort, String tarUsername){
         Document targetDoc = getTournamentDocInternal(RRcollection, startCohort, tarUsername);
         Document targetDown = getTournamentDocInternal(RRcollection, startCohort - 100, tarUsername);
@@ -84,6 +119,14 @@ public class RegisterManager {
         return targetUp;
     }
 
+    /**
+     * Retrieves the tournament ID for a given start cohort.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param cohortRange The cohort range of the tournament.
+     * @param tarUsername The username of the player.
+     * @return The ID of the tournament.
+     * @throws RoundRobinException If the tournament is filled.
+     */
     public String getTournamentIDForStartCohort(MongoCollection<Document> RRcollection, CohortRange cohortRange, String tarUsername) throws RoundRobinException{
         Document eligibleDoc = getTournamentDocForStartCohort(RRcollection, cohortRange.getStart(), tarUsername);
 
@@ -94,6 +137,13 @@ public class RegisterManager {
         }
     }
 
+    /**
+     * Pushes the pairings for a running tournament.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param pairings The pairings for the tournament.
+     * @param tournamentID The ID of the tournament.
+     * @throws RoundRobinException If an error occurs during pairing.
+     */
     public void pushPairingForRunningTournament(MongoCollection<Document> RRcollection, String pairings, String tournamentID) throws RoundRobinException{
         RRcollection.updateOne(
                 new Document("tournamentId", tournamentID),
@@ -101,7 +151,14 @@ public class RegisterManager {
         );
     }
 
-
+    /**
+     * Generates the pairings for a tournament.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param RRplayercollection The MongoDB collection for player data.
+     * @param tournamentID The ID of the tournament.
+     * @return The status message.
+     * @throws RoundRobinException  If an error occurs during pairing.
+     */
     public String getRoundRobinPairingsInternally(MongoCollection<Document> RRcollection, MongoCollection<Document> RRplayercollection, String tournamentID) throws RoundRobinException {
 
         Document tournamentDoc = manager.getTournamentIDDoc(RRcollection, tournamentID);
@@ -128,6 +185,12 @@ public class RegisterManager {
 
     }
 
+    /**
+     * Opens a tournament for calculation.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param tournamentID The ID of the tournament.
+     * @throws RoundRobinException If an error occurs during opening the tournament
+     */
     public void openTournamentToCalculation(MongoCollection<Document> RRcollection, String tournamentID) throws RoundRobinException {
 
         Document openTourney = manager.getTournamentIDDoc(RRcollection, tournamentID);
@@ -142,13 +205,21 @@ public class RegisterManager {
                     openTourney,
                     Updates.set("status", "running")
             );
-            
         }else{
             throw new RoundRobinException("Invalid ID, can't open unknown tournament!");
         }
 
     }
 
+    /**
+     * Adds a player to a tournament via simple algo
+     * @param tourneyID The document representing the tournament.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param RRplayercollection The MongoDB collection for player data.
+     * @param tournamentID The ID of the tournament.
+     * @param username The username of the player.
+     * @throws RoundRobinException If an error occurs during player addition.
+     */
     public void addPlayerToTournamentSimpleAlgo(Document tourneyID, MongoCollection<Document> RRcollection, MongoCollection<Document> RRplayercollection,String tournamentID, String username) throws RoundRobinException {
         List<String> currentPlayerCount = tourneyID.getList("players", String.class);
         if(!(currentPlayerCount.size() <= MAX_PLAYER_SIZE)) {
@@ -158,7 +229,7 @@ public class RegisterManager {
         }
 
         RoundRobinCrosstable crosstable = new RoundRobinCrosstable(RRcollection, RRplayercollection, tournamentID);
-        LeaderboardCalculator calculator = new LeaderboardCalculator(RRcollection, RRplayercollection);
+        LeaderboardCalculator calculator = new LeaderboardCalculator(RRcollection);
 
         UpdateResult result = RRcollection.updateOne(
                 new Document("tournamentId", tournamentID),
@@ -203,7 +274,6 @@ public class RegisterManager {
                     new Document("tournamentId", tournamentID),
                     Updates.set("scoremap", new Document(scoreMap))
             );
-            System.out.println("leaving updating");
 
             CohortRange sameRange = CohortRange.findCohortRange(tourneyID.getInteger("cohort-start"), tourneyID.getInteger("cohort-end"));
             create.createNewRoundRobinTournament(sameRange, false, RRcollection);
@@ -216,6 +286,14 @@ public class RegisterManager {
         }
     }
 
+    /**
+     * Adds a player to a running tournament with safety net
+     * @param playerUsername The username of the player.
+     * @param RRcollection The MongoDB collection for tournament data.
+     * @param RRplayercollection The MongoDB collection for player data.
+     * @param tournamentID The ID of the tournament.
+     * @throws RoundRobinException If an error occurs during player addition.
+     */
     public void addPlayerToRunningTournament(String playerUsername, MongoCollection<Document> RRcollection, MongoCollection<Document> RRplayercollection ,String tournamentID) throws RoundRobinException {
 
         Document firstActiveTournament = manager.getTournamentIDDoc(RRcollection, tournamentID);
@@ -232,6 +310,4 @@ public class RegisterManager {
 
 
 
-
 }
-
