@@ -32,7 +32,6 @@ interface Activity extends BaseActivity {
 }
 
 const MAX_LEVEL = 4;
-const MIN_DATE = '2024-01-01';
 
 /**
  * Classical game requirement ID used to render the classical game sword icon.
@@ -59,12 +58,18 @@ const MONOCHROME_COLOR = '#6f02e3';
  */
 export function Heatmap({
     entries,
+    description,
     blockSize,
     onPopOut,
+    minDate,
+    maxDate,
 }: {
     entries: TimelineEntry[];
+    description: string;
     blockSize?: number;
     onPopOut?: () => void;
+    minDate?: string;
+    maxDate?: string;
 }) {
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
@@ -72,9 +77,16 @@ export function Heatmap({
     const { field, colorMode, maxPoints, maxMinutes, weekStartOn } = useHeatmapOptions();
     const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
 
+    if (!maxDate) {
+        maxDate = new Date().toISOString().split('T')[0];
+    }
+    if (!minDate) {
+        minDate = `${parseInt(maxDate.split('-')[0]) - 1}${maxDate.slice(4)}`;
+    }
+
     const { activities, totalCount } = useMemo(() => {
-        return getActivity(entries, field, viewer);
-    }, [field, entries, viewer]);
+        return getActivity(entries, field, minDate, maxDate, viewer);
+    }, [field, entries, minDate, maxDate, viewer]);
 
     useEffect(() => {
         const scroller = document.getElementsByClassName(
@@ -130,8 +142,8 @@ export function Heatmap({
                 labels={{
                     totalCount:
                         field === 'dojoPoints'
-                            ? '{{count}} Dojo points in 2024'
-                            : `${formatTime(totalCount)} in 2024`,
+                            ? `{{count}} Dojo points in ${description}`
+                            : `${formatTime(totalCount)} in ${description}`,
                 }}
                 totalCount={Math.round(10 * totalCount) / 10}
                 maxLevel={MAX_LEVEL}
@@ -226,12 +238,16 @@ export function CategoryLegend() {
  * Gets a list of activities and the total count for the given parameters.
  * @param entries The timeline entries to extract data from.
  * @param field The field to extract from each timeline entry.
+ * @param minDate The minimum allowed date for the heatmap.
+ * @param maxDate The maximum allowed date for the heatmap.
  * @param viewer The user viewing the site. Used for calculating timezones.
  * @returns A list of activities and the total count.
  */
 export function getActivity(
     entries: TimelineEntry[],
     field: TimelineEntryField,
+    minDate: string,
+    maxDate: string,
     viewer?: User,
 ): { activities: Activity[]; totalCount: number } {
     const activities: Record<string, Activity> = {};
@@ -242,7 +258,10 @@ export function getActivity(
             continue;
         }
 
-        if ((entry.date || entry.createdAt) < MIN_DATE) {
+        if (
+            (entry.date || entry.createdAt) < minDate ||
+            (entry.date || entry.createdAt) > maxDate
+        ) {
             break;
         }
 
@@ -272,19 +291,18 @@ export function getActivity(
         activities[dateStr] = activity;
     }
 
-    if (!activities[MIN_DATE]) {
-        activities[MIN_DATE] = {
-            date: MIN_DATE,
+    if (!activities[minDate]) {
+        activities[minDate] = {
+            date: minDate,
             count: 0,
             level: 0,
             categoryCounts: {},
         };
     }
 
-    const endDate = new Date().toISOString().split('T')[0];
-    if (!activities[endDate]) {
-        activities[endDate] = {
-            date: endDate,
+    if (!activities[maxDate]) {
+        activities[maxDate] = {
+            date: maxDate,
             count: 0,
             level: 0,
             categoryCounts: {},

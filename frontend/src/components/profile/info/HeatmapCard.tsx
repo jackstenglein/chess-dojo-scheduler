@@ -10,9 +10,9 @@ const BLOCK_COLUMNS = 53;
 const BLOCK_MARGIN = 4;
 const DIALOG_PADDING = 124;
 const LABEL_WIDTH = 30;
-const MIN_BLOCK_SIZE = 12;
+export const MIN_BLOCK_SIZE = 12;
 
-function getBlockSize() {
+export function getBlockSize() {
     const parentWidth = document
         .getElementsByTagName('html')[0]
         ?.getBoundingClientRect().width;
@@ -49,7 +49,11 @@ export const HeatmapCard = ({ user }: { user: User }) => {
         <>
             <Card>
                 <CardContent sx={{ position: 'relative' }}>
-                    <Heatmap entries={entries} onPopOut={() => setIsModalOpen(true)} />
+                    <Heatmap
+                        entries={entries}
+                        onPopOut={() => setIsModalOpen(true)}
+                        description='the past year'
+                    />
                 </CardContent>
             </Card>
 
@@ -82,7 +86,11 @@ export const HeatmapCard = ({ user }: { user: User }) => {
                         alignItems: 'center',
                     }}
                 >
-                    <Heatmap entries={entries} blockSize={blockSize} />
+                    <Heatmap
+                        entries={entries}
+                        blockSize={blockSize}
+                        description='the past year'
+                    />
                 </DialogContent>
             </Dialog>
         </>

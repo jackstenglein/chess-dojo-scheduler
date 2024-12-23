@@ -1,24 +1,17 @@
+import { useAuth } from '@/auth/Auth';
+import { RatingSystem, formatRatingSystem } from '@/database/user';
+import { YearReviewRatingData } from '@/database/yearReview';
 import { Stack, Typography } from '@mui/material';
-
-import { useAuth } from '../../../auth/Auth';
-import { toDojoDateString } from '../../../calendar/displayDate';
-import { RatingSystem, formatRatingSystem } from '../../../database/user';
-import { YearReviewRatingData } from '../../../database/yearReview';
-import { SectionProps } from '../YearReviewPage';
+import { SectionProps } from '../section';
 import RatingCard from './RatingCard';
 
 function getDescription(
     system: RatingSystem,
     data: YearReviewRatingData,
-    dojoMemberSince: string,
 ): React.ReactNode {
     const current = data.currentRating.value;
 
-    let preamble =
-        dojoMemberSince !== ''
-            ? `You've been a member of the Dojo since ${dojoMemberSince}. Since then, `
-            : 'In the past year, ';
-    preamble += `your ${formatRatingSystem(system)} rating `;
+    const preamble = `This year, your ${formatRatingSystem(system)} rating `;
 
     let main;
 
@@ -74,7 +67,7 @@ function getDescription(
     );
 }
 
-const RatingsSection: React.FC<SectionProps> = ({ review }) => {
+const RatingsSection = ({ review }: SectionProps) => {
     const viewer = useAuth().user;
     const dark = !viewer?.enableLightMode;
 
@@ -87,16 +80,6 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
               (data) => data[0] === RatingSystem.Custom,
           )[0]?.[1]
         : undefined;
-
-    const userJoinedAt = review.userJoinedAt;
-    let dojoMemberSince = '';
-
-    if (userJoinedAt && userJoinedAt > '2023-01-01') {
-        dojoMemberSince = `${toDojoDateString(
-            new Date(userJoinedAt),
-            viewer?.timezoneOverride,
-        )}.`;
-    }
 
     return (
         <Stack alignItems='center'>
@@ -116,11 +99,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                         fontSize='clamp(16px,18px,30px)'
                         textAlign='center'
                     >
-                        {getDescription(
-                            preferred[0] as RatingSystem,
-                            preferred[1],
-                            dojoMemberSince,
-                        )}
+                        {getDescription(preferred[0] as RatingSystem, preferred[1])}
                     </Typography>
 
                     <RatingCard
@@ -128,6 +107,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                         system={preferred[0] as RatingSystem}
                         data={preferred[1]}
                         dark={dark}
+                        period={review.period}
                     />
 
                     <Typography
@@ -139,7 +119,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                     </Typography>
 
                     <Stack width={1} spacing={5}>
-                        {Object.entries(review.ratings).map(([system, data]) => {
+                        {Object.entries(review.ratings || {}).map(([system, data]) => {
                             if (
                                 system === preferred[0] ||
                                 system === RatingSystem.Custom
@@ -153,6 +133,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                                     system={system as RatingSystem}
                                     data={data}
                                     dark={dark}
+                                    period={review.period}
                                 />
                             );
                         })}
@@ -163,6 +144,7 @@ const RatingsSection: React.FC<SectionProps> = ({ review }) => {
                                 system={RatingSystem.Custom}
                                 data={customRatingData}
                                 dark={dark}
+                                period={review.period}
                             />
                         )}
                     </Stack>

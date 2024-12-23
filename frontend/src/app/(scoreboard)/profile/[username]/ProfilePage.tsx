@@ -45,7 +45,7 @@ import {
     Timeline,
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
-import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
+import { Alert, Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { useEffect } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
@@ -161,6 +161,24 @@ function AuthProfilePage({
         >
             <Container maxWidth='md' sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}>
                 <RequestSnackbar request={followRequest} />
+
+                <Alert
+                    severity='info'
+                    action={
+                        <Button
+                            size='small'
+                            color='inherit'
+                            href={`/profile/${user.username}/postmortem/2024`}
+                            component={Link}
+                        >
+                            Open
+                        </Button>
+                    }
+                    variant='outlined'
+                    sx={{ mb: 4 }}
+                >
+                    Your 2024 postmortem is now available!
+                </Alert>
 
                 <Stack>
                     <Stack

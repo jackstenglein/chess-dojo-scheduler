@@ -1,3 +1,5 @@
+import { useAuth } from '@/auth/Auth';
+import { formatTime } from '@/database/requirement';
 import { CategoryColors } from '@/style/ThemeProvider';
 import {
     Box,
@@ -10,8 +12,6 @@ import {
 } from '@mui/material';
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
-import { useAuth } from '../../auth/Auth';
-import { formatTime } from '../../database/requirement';
 import {
     Datum,
     getCategoryData,
@@ -20,7 +20,7 @@ import {
     primaryAxis,
 } from './DojoPointSection';
 import Percentiles from './Percentiles';
-import { SectionProps } from './YearReviewPage';
+import { SectionProps } from './section';
 
 const secondaryAxes: AxisOptions<Datum>[] = [
     {
@@ -32,7 +32,7 @@ const secondaryAxes: AxisOptions<Datum>[] = [
     },
 ];
 
-const TimeSection: React.FC<SectionProps> = ({ review }) => {
+const TimeSection = ({ review }: SectionProps) => {
     const viewer = useAuth().user;
     const dark = !viewer?.enableLightMode;
 
@@ -64,7 +64,7 @@ const TimeSection: React.FC<SectionProps> = ({ review }) => {
                                 sm: 4,
                             }}
                         >
-                            <Stack alignItems='end'>
+                            <Stack alignItems='center'>
                                 <Typography variant='caption' color='text.secondary'>
                                     Total Time
                                 </Typography>

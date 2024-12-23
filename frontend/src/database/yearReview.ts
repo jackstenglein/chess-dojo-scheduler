@@ -6,8 +6,8 @@ export interface YearReview {
     currentCohort: string;
     displayName: string;
     userJoinedAt: string;
-    ratings: Record<RatingSystem, YearReviewRatingData>;
-    graduations: string[];
+    ratings?: Record<RatingSystem, YearReviewRatingData>;
+    graduations?: string[];
     total: YearReviewData;
 }
 
@@ -31,13 +31,17 @@ export interface YearReviewData {
     minutesSpent: YearReviewDataSection;
     games: {
         total: YearReviewDataPoint;
-        byPeriod: Record<string, number>;
+        win?: YearReviewDataPoint;
+        draw?: YearReviewDataPoint;
+        loss?: YearReviewDataPoint;
+        analysis?: YearReviewDataPoint;
+        byPeriod?: Record<string, number>;
     };
 }
 
 export interface YearReviewDataSection {
     total: YearReviewDataPoint;
-    byPeriod: Record<string, number>;
-    byCategory: Record<string, number>;
-    byTask: Record<string, number>;
+    byPeriod?: Record<string, number>;
+    byCategory?: Record<string, number>;
+    byTask?: Record<string, number>;
 }

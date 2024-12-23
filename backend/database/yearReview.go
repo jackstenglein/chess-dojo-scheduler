@@ -19,21 +19,25 @@ type YearReviewIntData struct {
 
 type YearReviewGamesData struct {
 	Total    YearReviewIntData `dynamodbav:"total" json:"total"`
-	ByPeriod map[string]int    `dynamodbav:"byPeriod" json:"byPeriod"`
+	Win      YearReviewIntData `dynamodbav:"win" json:"win"`
+	Draw     YearReviewIntData `dynamodbav:"draw" json:"draw"`
+	Loss     YearReviewIntData `dynamodbav:"loss" json:"loss"`
+	Analysis YearReviewIntData `dynamodbav:"analysis" json:"analysis"`
+	ByPeriod map[string]int    `dynamodbav:"byPeriod,omitempty" json:"byPeriod,omitempty"`
 }
 
 type YearReviewDojoPoints struct {
 	Total      YearReviewFloatData `dynamodbav:"total" json:"total"`
-	ByPeriod   map[string]float32  `dynamodbav:"byPeriod" json:"byPeriod"`
-	ByCategory map[string]float32  `dynamodbav:"byCategory" json:"byCategory"`
-	ByTask     map[string]float32  `dynamodbav:"byTask" json:"byTask"`
+	ByPeriod   map[string]float32  `dynamodbav:"byPeriod,omitempty" json:"byPeriod,omitempty"`
+	ByCategory map[string]float32  `dynamodbav:"byCategory,omitempty" json:"byCategory,omitempty"`
+	ByTask     map[string]float32  `dynamodbav:"byTask,omitempty" json:"byTask,omitempty"`
 }
 
 type YearReviewMinutesSpent struct {
 	Total      YearReviewIntData `dynamodbav:"total" json:"total"`
-	ByPeriod   map[string]int    `dynamodbav:"byPeriod" json:"byPeriod"`
-	ByCategory map[string]int    `dynamodbav:"byCategory" json:"byCategory"`
-	ByTask     map[string]int    `dynamodbav:"byTask" json:"byTask"`
+	ByPeriod   map[string]int    `dynamodbav:"byPeriod,omitempty" json:"byPeriod,omitempty"`
+	ByCategory map[string]int    `dynamodbav:"byCategory,omitempty" json:"byCategory,omitempty"`
+	ByTask     map[string]int    `dynamodbav:"byTask,omitempty" json:"byTask,omitempty"`
 }
 
 type YearReviewData struct {

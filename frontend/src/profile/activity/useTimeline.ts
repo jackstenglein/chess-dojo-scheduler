@@ -22,6 +22,7 @@ export function useTimeline(owner?: string): UseTimelineResponse {
             request.onStart();
             api.listUserTimeline(owner, startKey)
                 .then((res) => {
+                    console.log('listUserTimeline: ', res);
                     request.onSuccess();
                     setEntries(
                         entries
