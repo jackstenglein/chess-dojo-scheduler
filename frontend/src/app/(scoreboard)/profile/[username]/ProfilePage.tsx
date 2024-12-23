@@ -22,6 +22,7 @@ import ProfilePageTutorial from '@/components/tutorial/ProfilePageTutorial';
 import { FollowerEntry } from '@/database/follower';
 import { hasCreatedProfile, User } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import GamesTab from '@/profile/GamesTab';
 import GraduationDialog from '@/profile/GraduationDialog';
@@ -45,7 +46,7 @@ import {
     Timeline,
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
-import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
+import { Alert, Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { useEffect } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
@@ -71,6 +72,7 @@ function AuthProfilePage({
     const auth = useAuth();
     const request = useRequest<User>();
     const followRequest = useRequest<FollowerEntry>();
+    const router = useRouter();
 
     const currentUserProfile = !username || username === currentUser?.username;
 
@@ -161,6 +163,23 @@ function AuthProfilePage({
         >
             <Container maxWidth='md' sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}>
                 <RequestSnackbar request={followRequest} />
+
+                <Alert
+                    severity='info'
+                    action={
+                        <Button
+                            size='small'
+                            color='inherit'
+                            onClick={() => router.push('/profile/postmortem')}
+                        >
+                            Open
+                        </Button>
+                    }
+                    variant='outlined'
+                    sx={{ mb: 4 }}
+                >
+                    Your 2024 postmortem is now available!
+                </Alert>
 
                 <Stack>
                     <Stack
