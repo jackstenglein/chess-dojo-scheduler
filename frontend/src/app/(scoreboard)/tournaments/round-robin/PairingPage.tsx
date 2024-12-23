@@ -1,10 +1,5 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { PawnIcon } from '@/style/ChessIcons';
-import { CalendarMonth as CalendarIcon } from '@mui/icons-material';
-import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import Circle from '@mui/icons-material/Circle';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import {
     Box,
     Card,
@@ -26,6 +21,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
+import { TournamentEntry } from './TournamentEntry';
 export const ROUND_ROBIN_COHORT_KEY = 'ROUND_ROBIN_COHORT';
 
 export const PairingsPage = () => {
@@ -122,115 +118,22 @@ export const PairingsPage = () => {
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell>
-                                                    <Typography
-                                                        variant='h6'
-                                                        textAlign='center'
-                                                    >
-                                                        <CohortIcon
-                                                            cohort={displayIcon}
-                                                            sx={{
-                                                                marginRight: '0.6em',
-                                                                verticalAlign: 'middle',
-                                                            }}
-                                                            tooltip=''
-                                                            size={25}
-                                                        />
-                                                        {tournament.name} Tournament
-                                                        Pairings{' '}
-                                                        {tournament.waiting ? (
-                                                            <>
-                                                                <HourglassEmptyIcon
-                                                                    sx={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                    color='primary'
-                                                                />
-                                                                <span
-                                                                    style={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                >
-                                                                    Waiting
-                                                                </span>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <AlarmOnIcon
-                                                                    sx={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                    color='primary'
-                                                                />
-                                                                <span
-                                                                    style={{
-                                                                        verticalAlign:
-                                                                            'middle',
-                                                                        marginLeft:
-                                                                            '0.4em',
-                                                                    }}
-                                                                >
-                                                                    Active
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                        <PeopleAltIcon
-                                                            sx={{
-                                                                verticalAlign: 'middle',
-                                                                marginLeft: '0.4em',
-                                                            }}
-                                                            color='primary'
-                                                        />{' '}
-                                                        {tournament.players.length} {''}
-                                                        <>
-                                                            <PawnIcon
-                                                                sx={{
-                                                                    verticalAlign:
-                                                                        'middle',
-                                                                    marginLeft: '0.4em',
-                                                                }}
-                                                                color='primary'
-                                                            />
-                                                            <span
-                                                                style={{
-                                                                    verticalAlign:
-                                                                        'middle',
-                                                                    marginLeft: '0.4em',
-                                                                }}
-                                                            >
-                                                                {
-                                                                    tournament.gameSub
-                                                                        .length
-                                                                }
-                                                            </span>
-                                                        </>
-                                                        <CalendarIcon
-                                                            sx={{
-                                                                verticalAlign: 'middle',
-                                                                marginLeft: '0.4em',
-                                                            }}
-                                                            color='primary'
-                                                        />{' '}
-                                                        {
-                                                            new Date(tournament.startdate)
-                                                                .toISOString()
-                                                                .split('T')[0]
-                                                        }{' '}
-                                                        - {''}
-                                                        {
-                                                            new Date(tournament.enddate)
-                                                                .toISOString()
-                                                                .split('T')[0]
+                                                    <TournamentEntry
+                                                        cohort={displayIcon}
+                                                        waiting={tournament.waiting}
+                                                        startdate={tournament.startdate}
+                                                        enddate={tournament.enddate}
+                                                        entryName={tournament.name}
+                                                        pannelName='Pairings'
+                                                        playerCount={
+                                                            tournament.players.length
                                                         }
-                                                    </Typography>
+                                                        gameCount={
+                                                            tournament.gameSub.length
+                                                        }
+                                                        tc={tournament.tc}
+                                                        inc={tournament.inc}
+                                                    />
                                                 </TableCell>
                                             </TableRow>
                                         </TableHead>

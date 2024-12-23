@@ -1,12 +1,5 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { PawnIcon } from '@/style/ChessIcons';
-import {
-    AlarmOn as AlarmOnIcon,
-    CalendarMonth as CalendarIcon,
-} from '@mui/icons-material';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import {
     Box,
@@ -31,6 +24,7 @@ import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
 import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
+import { TournamentEntry } from './TournamentEntry';
 /**
  * handles the crosstable UI menu
  * @returns display tournament crosstables
@@ -115,101 +109,18 @@ export const Crosstable = () => {
                                             alignItems: 'center',
                                         }}
                                     >
-                                        <Typography variant='h6'>
-                                            <CohortIcon
-                                                cohort={displayIcon}
-                                                sx={{
-                                                    marginRight: '0.6em',
-                                                    verticalAlign: 'middle',
-                                                }}
-                                                tooltip=''
-                                                size={25}
-                                            />{' '}
-                                            {tournament.name}{' '}
-                                            {showLeaderboard[tournament.id]
-                                                ? 'Leaderboard'
-                                                : 'Crosstable'}{' '}
-                                            {tournament.waiting ? (
-                                                <>
-                                                    <HourglassEmptyIcon
-                                                        sx={{
-                                                            verticalAlign: 'middle',
-                                                            marginLeft: '0.4em',
-                                                        }}
-                                                        color='primary'
-                                                    />
-                                                    <span
-                                                        style={{
-                                                            verticalAlign: 'middle',
-                                                            marginLeft: '0.4em',
-                                                        }}
-                                                    >
-                                                        Waiting
-                                                    </span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <AlarmOnIcon
-                                                        sx={{
-                                                            verticalAlign: 'middle',
-                                                            marginLeft: '0.4em',
-                                                        }}
-                                                        color='primary'
-                                                    />
-                                                    <span
-                                                        style={{
-                                                            verticalAlign: 'middle',
-                                                            marginLeft: '0.4em',
-                                                        }}
-                                                    >
-                                                        Active
-                                                    </span>
-                                                </>
-                                            )}
-                                            <PeopleAltIcon
-                                                sx={{
-                                                    verticalAlign: 'middle',
-                                                    marginLeft: '0.4em',
-                                                }}
-                                                color='primary'
-                                            />{' '}
-                                            {tournament.players.length} {''}
-                                            <>
-                                                <PawnIcon
-                                                    sx={{
-                                                        verticalAlign: 'middle',
-                                                        marginLeft: '0.4em',
-                                                    }}
-                                                    color='primary'
-                                                />
-                                                <span
-                                                    style={{
-                                                        verticalAlign: 'middle',
-                                                        marginLeft: '0.4em',
-                                                    }}
-                                                >
-                                                    {tournament.gameSub.length}
-                                                </span>
-                                            </>
-                                            <CalendarIcon
-                                                sx={{
-                                                    verticalAlign: 'middle',
-                                                    marginLeft: '0.4em',
-                                                }}
-                                                color='primary'
-                                            />{' '}
-                                            {
-                                                new Date(tournament.startdate)
-                                                    .toISOString()
-                                                    .split('T')[0]
-                                            }{' '}
-                                            - {''}
-                                            {
-                                                new Date(tournament.enddate)
-                                                    .toISOString()
-                                                    .split('T')[0]
-                                            }
-                                        </Typography>
+                                        <TournamentEntry
+                                            cohort={displayIcon}
+                                            waiting={tournament.waiting}
+                                            startdate={tournament.startdate}
+                                            enddate={tournament.enddate}
+                                            entryName={tournament.name}
+                                            pannelName='Crosstable'
+                                            playerCount={tournament.players.length}
+                                            gameCount={tournament.gameSub.length}
+                                            tc={tournament.tc}
+                                            inc={tournament.inc}
+                                        />
                                         <Button
                                             variant='contained'
                                             startIcon={

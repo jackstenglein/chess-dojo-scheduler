@@ -1,6 +1,7 @@
 import { useAuth } from '@/auth/Auth';
 import {
     Button,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -16,47 +17,89 @@ const GameModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
     const { user } = useAuth();
 
     if (!user) {
-        return;
+        return null;
     }
+
     const [gameURL, setGameURL] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
     const handleSubmit = async () => {
+        setLoading(true);
         try {
             const message = await submitGameFromUser(
                 user.discordUsername,
                 user.displayName,
                 gameURL,
             );
-            alert(message);
-            onClose();
+            setFeedbackMessage(message);
         } catch (error) {
-            alert('An error occurred while registering. Please try again.');
+            setFeedbackMessage(
+                'An error occurred while submitting the game. Please try again, make sure the game you submitted you actually played',
+            );
+        } finally {
+            setLoading(false);
         }
     };
 
+    const handleClose = () => {
+        setFeedbackMessage(null); // Reset feedback message when closing
+        onClose();
+    };
+
     return (
-        <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Submit Your Round Robin Game </DialogTitle>
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>
+                {feedbackMessage ? 'Submission Feedback' : 'Submit Your Round Robin Game'}
+            </DialogTitle>
             <DialogContent>
-                <Typography variant='body1' gutterBottom>
-                    Input your Lichess.org or Chess.com game URL, this game submission is
-                    optional.
-                </Typography>
-                <TextField
-                    fullWidth
-                    margin='normal'
-                    label='Game URL'
-                    value={gameURL}
-                    onChange={(e) => setGameURL(e.target.value)}
-                />
+                {loading ? (
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '150px',
+                        }}
+                    >
+                        <CircularProgress />
+                    </div>
+                ) : feedbackMessage ? (
+                    <Typography variant='body1'>{feedbackMessage}</Typography>
+                ) : (
+                    <>
+                        <Typography variant='body1' gutterBottom>
+                            Input your Lichess.org or Chess.com game URL.
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            margin='normal'
+                            label='Game URL'
+                            value={gameURL}
+                            onChange={(e) => setGameURL(e.target.value)}
+                        />
+                    </>
+                )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color='warning'>
-                    Cancel
-                </Button>
-                <Button onClick={handleSubmit} color='success'>
-                    Submit
-                </Button>
+                {!loading && (
+                    <>
+                        {feedbackMessage ? (
+                            <Button onClick={handleClose} color='primary'>
+                                Close
+                            </Button>
+                        ) : (
+                            <>
+                                <Button onClick={onClose} color='warning'>
+                                    Cancel
+                                </Button>
+                                <Button onClick={handleSubmit} color='success'>
+                                    Submit
+                                </Button>
+                            </>
+                        )}
+                    </>
+                )}
             </DialogActions>
         </Dialog>
     );

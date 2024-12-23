@@ -1,11 +1,4 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { PawnIcon } from '@/style/ChessIcons';
-import {
-    AlarmOn as AlarmOnIcon,
-    CalendarMonth as CalendarIcon,
-} from '@mui/icons-material';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import {
     Box,
     Card,
@@ -30,6 +23,7 @@ import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { useLocalStorage } from 'usehooks-ts';
 import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
 import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
+import { TournamentEntry } from './TournamentEntry';
 /**
  * handles the viewer for game submission
  * @returns the UI for game submission
@@ -115,98 +109,18 @@ export const GameSubmission = () => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>
-                                            <Typography variant='h6' textAlign={'center'}>
-                                                <CohortIcon
-                                                    cohort={displayIcon}
-                                                    sx={{
-                                                        marginRight: '0.6em',
-                                                        verticalAlign: 'middle',
-                                                    }}
-                                                    tooltip=''
-                                                    size={25}
-                                                />{' '}
-                                                {tournament.name} {'Games'}
-                                                {tournament.waiting ? (
-                                                    <>
-                                                        <HourglassEmptyIcon
-                                                            sx={{
-                                                                verticalAlign: 'middle',
-                                                                marginLeft: '0.4em',
-                                                            }}
-                                                            color='primary'
-                                                        />
-                                                        <span
-                                                            style={{
-                                                                verticalAlign: 'middle',
-                                                                marginLeft: '0.4em',
-                                                            }}
-                                                        >
-                                                            Waiting
-                                                        </span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <AlarmOnIcon
-                                                            sx={{
-                                                                verticalAlign: 'middle',
-                                                                marginLeft: '0.4em',
-                                                            }}
-                                                            color='primary'
-                                                        />
-                                                        <span
-                                                            style={{
-                                                                verticalAlign: 'middle',
-                                                                marginLeft: '0.4em',
-                                                            }}
-                                                        >
-                                                            Active
-                                                        </span>
-                                                    </>
-                                                )}
-                                                <PeopleAltIcon
-                                                    sx={{
-                                                        verticalAlign: 'middle',
-                                                        marginLeft: '0.4em',
-                                                    }}
-                                                    color='primary'
-                                                />{' '}
-                                                {tournament.players.length} {''}
-                                                <>
-                                                    <PawnIcon
-                                                        sx={{
-                                                            verticalAlign: 'middle',
-                                                            marginLeft: '0.4em',
-                                                        }}
-                                                        color='primary'
-                                                    />
-                                                    <span
-                                                        style={{
-                                                            verticalAlign: 'middle',
-                                                            marginLeft: '0.4em',
-                                                        }}
-                                                    >
-                                                        {tournament.gameSub.length}
-                                                    </span>
-                                                </>
-                                                <CalendarIcon
-                                                    sx={{
-                                                        verticalAlign: 'middle',
-                                                        marginLeft: '0.4em',
-                                                    }}
-                                                    color='primary'
-                                                />{' '}
-                                                {
-                                                    new Date(tournament.startdate)
-                                                        .toISOString()
-                                                        .split('T')[0]
-                                                }{' '}
-                                                - {''}
-                                                {
-                                                    new Date(tournament.enddate)
-                                                        .toISOString()
-                                                        .split('T')[0]
-                                                }
-                                            </Typography>
+                                            <TournamentEntry
+                                                cohort={displayIcon}
+                                                waiting={tournament.waiting}
+                                                startdate={tournament.startdate}
+                                                enddate={tournament.enddate}
+                                                entryName={tournament.name}
+                                                pannelName='Games'
+                                                playerCount={tournament.players.length}
+                                                gameCount={tournament.gameSub.length}
+                                                tc={tournament.tc}
+                                                inc={tournament.inc}
+                                            />
                                         </TableCell>
                                     </TableRow>
                                 </TableHead>

@@ -20,7 +20,7 @@ export interface RoundRobinModel {
 }
 
 
-interface RoundRobinApi{
+interface RoundRobinPlayerApi{
     message: string;
 }
 
@@ -58,7 +58,7 @@ export const cohorts = [
 ];
 
 const endpoint = getConfig().api.roundRobinUrl;
-const localendpoint = 'insertendpoint/Prod/player/';
+const localendpoint = 'endpoint/Prod/player';
 /**
  * method to fetch round robin tournament data from given tournament id
  * @param id string tournament id
@@ -83,7 +83,7 @@ export const fetchTournamentData = async (cohortValue: number): Promise<Tourname
 
 export const registerUser = async (cohortValue: number, discordName: string, discordId: string, lichessName: string, chessComName: string, dojoUsername: string): Promise<string> => {
     try {
-        const response = await axios.get<RoundRobinApi>(`${localendpoint}`, {
+        const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
             params: {
                 'mode': 'register',
                 'cohortstart': cohortValue,
@@ -104,7 +104,7 @@ export const registerUser = async (cohortValue: number, discordName: string, dis
 
 export const withdrawUser = async (discordName: string, dojoUsername: string): Promise<string> => {
     try {
-        const response = await axios.get<RoundRobinApi>(`${localendpoint}`, {
+        const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
             params: {
                 'mode': 'withdraw',
                 'discordname': discordName,
@@ -122,7 +122,7 @@ export const withdrawUser = async (discordName: string, dojoUsername: string): P
 
 export const submitGameFromUser = async (discordName: string, dojoUsername: string, gameURL: string): Promise<string> => {
     try {
-        const response = await axios.get<RoundRobinApi>(`${localendpoint}`, {
+        const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
             params: {
                 'mode': 'game',
                 'discordname': discordName,

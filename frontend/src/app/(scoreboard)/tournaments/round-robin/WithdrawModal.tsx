@@ -1,13 +1,14 @@
 import { useAuth } from '@/auth/Auth';
 import {
     Button,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     Typography,
 } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
 import { withdrawUser } from './roundRobinApi';
 
 import { RegisterModalProps } from './RegisterModal';
@@ -16,36 +17,77 @@ const WithdrawModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
     const { user } = useAuth();
 
     if (!user) {
-        return;
+        return null;
     }
 
+    const [loading, setLoading] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
     const handleSubmit = async () => {
+        setLoading(true);
         try {
             const message = await withdrawUser(user.displayName, user.displayName);
-            alert(message);
-            onClose();
+            setFeedbackMessage(message);
         } catch (error) {
-            alert('An error occurred while withdrawing. Please try again.');
+            setFeedbackMessage('An error occurred while withdrawing. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
+    const handleClose = () => {
+        setFeedbackMessage(null);
+        onClose();
+    };
+
     return (
-        <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Withdraw from Round Robin tournament</DialogTitle>
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>
+                {feedbackMessage
+                    ? 'Withdrawal Feedback'
+                    : 'Withdraw from Round Robin Tournament'}
+            </DialogTitle>
             <DialogContent>
-                <Typography variant='body1' gutterBottom>
-                    Are you sure you sure you want to withdraw? If you withdraw all
-                    opponents you played will get 1 point win, and your old games scores
-                    won't count
-                </Typography>
+                {loading ? (
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '150px',
+                        }}
+                    >
+                        <CircularProgress />
+                    </div>
+                ) : feedbackMessage ? (
+                    <Typography>{feedbackMessage}</Typography>
+                ) : (
+                    <Typography variant='body1' gutterBottom>
+                        Are you sure you want to withdraw? If you withdraw, all opponents
+                        you played will get 1 point win, and your old game scores won't
+                        count.
+                    </Typography>
+                )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color='warning'>
-                    No
-                </Button>
-                <Button onClick={handleSubmit} color='success'>
-                    Yes
-                </Button>
+                {!loading && (
+                    <>
+                        {feedbackMessage ? (
+                            <Button onClick={handleClose} color='primary'>
+                                Close
+                            </Button>
+                        ) : (
+                            <>
+                                <Button onClick={onClose} color='warning'>
+                                    No
+                                </Button>
+                                <Button onClick={handleSubmit} color='success'>
+                                    Yes
+                                </Button>
+                            </>
+                        )}
+                    </>
+                )}
             </DialogActions>
         </Dialog>
     );
