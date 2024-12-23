@@ -18,12 +18,20 @@ type YearReviewIntData struct {
 }
 
 type YearReviewGamesData struct {
-	Total    YearReviewIntData `dynamodbav:"total" json:"total"`
+	Total     YearReviewIntData `dynamodbav:"total" json:"total"`
+	Published YearReviewIntData `dynamodbav:"published" json:"published"`
+
 	Win      YearReviewIntData `dynamodbav:"win" json:"win"`
 	Draw     YearReviewIntData `dynamodbav:"draw" json:"draw"`
 	Loss     YearReviewIntData `dynamodbav:"loss" json:"loss"`
 	Analysis YearReviewIntData `dynamodbav:"analysis" json:"analysis"`
-	ByPeriod map[string]int    `dynamodbav:"byPeriod,omitempty" json:"byPeriod,omitempty"`
+
+	WinHidden      int `dynamodbav:"winHidden" json:"winHidden"`
+	DrawHidden     int `dynamodbav:"drawHidden" json:"drawHidden"`
+	LossHidden     int `dynamodbav:"lossHidden" json:"lossHidden"`
+	AnalysisHidden int `dynamodbav:"analysisHidden" json:"analysisHidden"`
+
+	ByPeriod map[string]int `dynamodbav:"byPeriod,omitempty" json:"byPeriod,omitempty"`
 }
 
 type YearReviewDojoPoints struct {

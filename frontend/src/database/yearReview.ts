@@ -31,10 +31,15 @@ export interface YearReviewData {
     minutesSpent: YearReviewDataSection;
     games: {
         total: YearReviewDataPoint;
+        published: YearReviewDataPoint;
         win?: YearReviewDataPoint;
         draw?: YearReviewDataPoint;
         loss?: YearReviewDataPoint;
         analysis?: YearReviewDataPoint;
+        winHidden?: number;
+        drawHidden?: number;
+        lossHidden?: number;
+        analysisHidden?: number;
         byPeriod?: Record<string, number>;
     };
 }

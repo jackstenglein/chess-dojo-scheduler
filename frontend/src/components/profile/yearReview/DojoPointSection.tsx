@@ -60,7 +60,7 @@ export function getCategoryData(
     ];
 }
 
-const months: Record<string, string> = {
+export const months: Record<string, string> = {
     Jan: '01',
     Feb: '02',
     Mar: '03',
