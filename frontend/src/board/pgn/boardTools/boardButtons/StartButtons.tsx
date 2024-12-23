@@ -3,17 +3,17 @@ import { IconButton, Menu, MenuItem, Stack, Tooltip } from '@mui/material';
 import copy from 'copy-to-clipboard';
 import React, { useEffect, useState } from 'react';
 
-import { useChess } from '../../PgnBoard';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
-import { usePathname } from 'next/navigation';
 import { EventType as ChessEventType } from '@jackstenglein/chess';
+import { usePathname } from 'next/navigation';
+import { useChess } from '../../PgnBoard';
 
 const StartButtons = () => {
     const { chess } = useChess();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [copied, setCopied] = useState('');
-    const {searchParams} = useNextSearchParams();
+    const { searchParams } = useNextSearchParams();
     const router = useRouter();
     const pathname = usePathname();
 
@@ -41,18 +41,22 @@ const StartButtons = () => {
                 ChessEventType.LegalMove,
             ],
             handler: () => {
-                const fen = chess.currentMove()?.fen
+                const fen = chess.currentMove()?.fen;
                 if (!fen) {
                     return;
                 }
 
                 const params = new URLSearchParams(searchParams);
-                params.set("fen", fen);
+                params.set('fen', fen);
 
                 const url = `${pathname}?${params.toString()}`;
-                window.history.replaceState({ ...window.history.state, as: url, url, }, '',url);
-            }
-        }
+                window.history.replaceState(
+                    { ...window.history.state, as: url, url },
+                    '',
+                    url,
+                );
+            },
+        };
 
         chess.addObserver(observer);
 
