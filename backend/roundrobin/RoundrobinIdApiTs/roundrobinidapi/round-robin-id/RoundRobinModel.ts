@@ -1,6 +1,9 @@
 
 import { Document as doc } from "mongodb";
 
+/**
+ * This interface the structure of Round robin tournaments and all info that is needed to show on the site
+ */
 export interface RoundRobinModel {
     id: string; // tournament id
     name: string; // name

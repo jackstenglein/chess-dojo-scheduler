@@ -3,14 +3,22 @@ import { MongoClient } from 'mongodb';
 import { RoundRobinIdFinder } from './RoundRobinIdFinder';
 import { RoundRobinModel } from './RoundRobinModel';
 
-// MongoDB Connection Setup
+/**
+ * This API represents getting the tournament data and showing it on the UI
+ */
+
+// MongoDB Connection Setup data, Collection_name can point to rr-tournaments-beta for beta testing 
 const CONNECTION_STRING = process.env.MongoConnect || '';
 const DATABASE_NAME = 'Lisebot-database';
 const COLLECTION_NAME = 'rr-tournaments ';
 
-// MongoDB client
+
 let mongoClient: MongoClient;
 
+/**
+ * This method connects to given MongoDB 
+ * @returns MongoClient promise
+ */
 async function getMongoClient(): Promise<MongoClient> {
     if (!mongoClient) {
         mongoClient = new MongoClient(CONNECTION_STRING);
@@ -19,7 +27,9 @@ async function getMongoClient(): Promise<MongoClient> {
     return mongoClient;
 }
 
-// Response interface
+/**
+ * The api response definiton it contains a list of tournaments and a message
+ */
 interface Response {
     tournaments: RoundRobinModel[];
     message: string;
@@ -82,7 +92,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     }
 };
 
-// Helper function to create error responses
+/**
+ * Helper method that creates error responses
+ * @param message exception message
+ * @returns ApiGatewayProxyResult Error reponse 
+ */
 function createErrorResponse(message: string): APIGatewayProxyResult {
     return {
         statusCode: 400,
