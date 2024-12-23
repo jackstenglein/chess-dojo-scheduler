@@ -142,8 +142,8 @@ export function Heatmap({
                 labels={{
                     totalCount:
                         field === 'dojoPoints'
-                            ? `{{count}} Dojo points in ${description}`
-                            : `${formatTime(totalCount)} in ${description}`,
+                            ? `{{count}} Dojo points ${description}`
+                            : `${formatTime(totalCount)} ${description}`,
                 }}
                 totalCount={Math.round(10 * totalCount) / 10}
                 maxLevel={MAX_LEVEL}
@@ -243,7 +243,7 @@ export function CategoryLegend() {
  * @param viewer The user viewing the site. Used for calculating timezones.
  * @returns A list of activities and the total count.
  */
-export function getActivity(
+function getActivity(
     entries: TimelineEntry[],
     field: TimelineEntryField,
     minDate: string,
@@ -258,10 +258,10 @@ export function getActivity(
             continue;
         }
 
-        if (
-            (entry.date || entry.createdAt) < minDate ||
-            (entry.date || entry.createdAt) > maxDate
-        ) {
+        if ((entry.date || entry.createdAt).slice(0, 10) > maxDate) {
+            continue;
+        }
+        if ((entry.date || entry.createdAt) < minDate) {
             break;
         }
 
