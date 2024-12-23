@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"runtime/debug"
 	"strconv"
@@ -15,6 +16,7 @@ const PERIOD = "2024"
 const START_DATE = PERIOD + "-01-01"
 const END_DATE = PERIOD + "-12-31"
 const PREFERRED = "preferred"
+const ACTIVE_DEADLINE = PERIOD + "-09-31"
 
 var repository = database.DynamoDB
 
@@ -23,6 +25,7 @@ type percentileTrackers struct {
 	dojoPoints map[database.DojoCohort][]float32
 	timeSpent  map[database.DojoCohort][]float32
 	games      map[database.DojoCohort][]float32
+	published  map[database.DojoCohort][]float32
 	win        map[database.DojoCohort][]float32
 	loss       map[database.DojoCohort][]float32
 	draw       map[database.DojoCohort][]float32
@@ -36,6 +39,7 @@ var percentiles = percentileTrackers{
 	dojoPoints: map[database.DojoCohort][]float32{},
 	timeSpent:  map[database.DojoCohort][]float32{},
 	games:      map[database.DojoCohort][]float32{},
+	published:  map[database.DojoCohort][]float32{},
 	win:        map[database.DojoCohort][]float32{},
 	loss:       map[database.DojoCohort][]float32{},
 	draw:       map[database.DojoCohort][]float32{},
@@ -50,58 +54,58 @@ func main() {
 		}
 	}()
 
-	// requirements, err := fetchRequirements()
-	// if err != nil {
-	// 	log.Errorf("Failed to get requirements: %v", err)
-	// 	os.Exit(1)
-	// }
-	// dojoRequirements := make(map[string]*database.Requirement)
-	// for _, r := range requirements {
-	// 	dojoRequirements[r.Id] = r
-	// }
-
-	// var reviews []*database.YearReview
-	// log.Debug("Scanning users")
-
-	// var users []*database.User
-	// var startKey = ""
-	// for ok := true; ok; ok = startKey != "" {
-	// 	users, startKey, err = repository.ScanUsers(startKey)
-	// 	if err != nil {
-	// 		log.Errorf("Failed to scan users: %v", err)
-	// 		os.Exit(1)
-	// 	}
-
-	// 	log.Infof("Processing %d users", len(users))
-	// 	for _, u := range users {
-	// 		review, err := processUser(u, dojoRequirements)
-	// 		if err != nil {
-	// 			log.Errorf("Failed to process user %s: %v", u.Username, err)
-	// 		} else if review != nil {
-	// 			reviews = append(reviews, review)
-	// 		}
-	// 	}
-	// }
-
-	// log.Debugf("Calculating percentiles for %d reviews", len(reviews))
-	// for _, review := range reviews {
-	// 	setPercentiles(review)
-	// }
-
-	reviews, err := readFromFile()
+	requirements, err := fetchRequirements()
 	if err != nil {
+		log.Errorf("Failed to get requirements: %v", err)
 		os.Exit(1)
 	}
+	dojoRequirements := make(map[string]*database.Requirement)
+	for _, r := range requirements {
+		dojoRequirements[r.Id] = r
+	}
+
+	var reviews []*database.YearReview
+	log.Debug("Scanning users")
+
+	var users []*database.User
+	var startKey = ""
+	for ok := true; ok; ok = startKey != "" {
+		users, startKey, err = repository.ScanUsers(startKey)
+		if err != nil {
+			log.Errorf("Failed to scan users: %v", err)
+			os.Exit(1)
+		}
+
+		log.Infof("Processing %d users", len(users))
+		for _, u := range users {
+			review, err := processUser(u, dojoRequirements)
+			if err != nil {
+				log.Errorf("Failed to process user %s: %v", u.Username, err)
+			} else if review != nil {
+				reviews = append(reviews, review)
+			}
+		}
+	}
+
+	log.Debugf("Calculating percentiles for %d reviews", len(reviews))
+	for _, review := range reviews {
+		setPercentiles(review)
+	}
+
+	// reviews, err := readFromFile()
+	// if err != nil {
+	// 	os.Exit(1)
+	// }
 
 	log.Debugf("Saving %d reviews", len(reviews))
-	// jsonData, err := json.MarshalIndent(reviews, "", "  ")
-	// if err != nil {
-	// 	log.Errorf("Failed to Marshal reviews: %v", err)
-	// }
-	// err = os.WriteFile("reviews.json", jsonData, 0644)
-	// if err != nil {
-	// 	log.Errorf("Failed to write JSON file: %v", err)
-	// }
+	jsonData, err := json.MarshalIndent(reviews, "", "  ")
+	if err != nil {
+		log.Errorf("Failed to Marshal reviews: %v", err)
+	}
+	err = os.WriteFile("reviews-dev.json", jsonData, 0644)
+	if err != nil {
+		log.Errorf("Failed to write JSON file: %v", err)
+	}
 
 	success, err := repository.PutYearReviews(reviews)
 	if err != nil {
@@ -147,6 +151,10 @@ func fetchRequirements() ([]*database.Requirement, error) {
 	}
 	log.Debugf("Got %d requirements\n", len(requirements))
 	return requirements, nil
+}
+
+func isUserActive(user *database.User) bool {
+	return user.UpdatedAt >= ACTIVE_DEADLINE
 }
 
 func processUser(user *database.User, dojoRequirements map[string]*database.Requirement) (*database.YearReview, error) {
@@ -196,12 +204,13 @@ func initializeYearReviewData() *database.YearReviewData {
 			ByTask:     map[string]int{},
 		},
 		Games: database.YearReviewGamesData{
-			Total:    database.YearReviewIntData{},
-			Win:      database.YearReviewIntData{},
-			Draw:     database.YearReviewIntData{},
-			Loss:     database.YearReviewIntData{},
-			Analysis: database.YearReviewIntData{},
-			ByPeriod: map[string]int{},
+			Total:     database.YearReviewIntData{},
+			Published: database.YearReviewIntData{},
+			Win:       database.YearReviewIntData{},
+			Draw:      database.YearReviewIntData{},
+			Loss:      database.YearReviewIntData{},
+			Analysis:  database.YearReviewIntData{},
+			ByPeriod:  map[string]int{},
 		},
 	}
 }
@@ -260,13 +269,16 @@ func processRatings(user *database.User, review *database.YearReview) {
 		if percentiles.ratings[string(rs)] == nil {
 			percentiles.ratings[string(rs)] = make(map[database.DojoCohort][]float32)
 		}
-		percentiles.ratings[string(rs)][database.AllCohorts] = append(percentiles.ratings[string(rs)][database.AllCohorts], float32(currentRating))
-		percentiles.ratings[string(rs)][user.DojoCohort] = append(percentiles.ratings[string(rs)][user.DojoCohort], float32(currentRating))
 
-		if isPreferred {
-			normalizedRating := getNormalizedRating(currentRating, rs)
-			percentiles.ratings[PREFERRED][database.AllCohorts] = append(percentiles.ratings[PREFERRED][database.AllCohorts], normalizedRating)
-			percentiles.ratings[PREFERRED][user.DojoCohort] = append(percentiles.ratings[PREFERRED][user.DojoCohort], normalizedRating)
+		if isUserActive(user) {
+			percentiles.ratings[string(rs)][database.AllCohorts] = append(percentiles.ratings[string(rs)][database.AllCohorts], float32(currentRating))
+			percentiles.ratings[string(rs)][user.DojoCohort] = append(percentiles.ratings[string(rs)][user.DojoCohort], float32(currentRating))
+
+			if isPreferred {
+				normalizedRating := getNormalizedRating(currentRating, rs)
+				percentiles.ratings[PREFERRED][database.AllCohorts] = append(percentiles.ratings[PREFERRED][database.AllCohorts], normalizedRating)
+				percentiles.ratings[PREFERRED][user.DojoCohort] = append(percentiles.ratings[PREFERRED][user.DojoCohort], normalizedRating)
+			}
 		}
 	}
 }
@@ -305,43 +317,78 @@ func processGames(user *database.User, review *database.YearReview) error {
 		for _, g := range games {
 			month := strings.Split(strings.Split(g.Id, "_")[0], ".")[1]
 			review.Total.Games.Total.Value += 1
-			review.Total.Games.ByPeriod[month] += 1
+
+			if g.Unlisted {
+				review.Total.Games.ByPeriod[fmt.Sprintf("%s-hidden", month)] += 1
+			} else {
+				review.Total.Games.Published.Value += 1
+				review.Total.Games.ByPeriod[month] += 1
+			}
 
 			result := g.Headers["Result"]
 			if result == "1/2-1/2" {
-				review.Total.Games.Draw.Value += 1
+				if g.Unlisted {
+					review.Total.Games.DrawHidden += 1
+				} else {
+					review.Total.Games.Draw.Value += 1
+				}
 			} else if result == "1-0" {
 				if g.Orientation == "black" {
-					review.Total.Games.Loss.Value += 1
+					if g.Unlisted {
+						review.Total.Games.LossHidden += 1
+					} else {
+						review.Total.Games.Loss.Value += 1
+					}
 				} else {
-					review.Total.Games.Win.Value += 1
+					if g.Unlisted {
+						review.Total.Games.WinHidden += 1
+					} else {
+						review.Total.Games.Win.Value += 1
+					}
 				}
 			} else if result == "0-1" {
 				if g.Orientation == "black" {
-					review.Total.Games.Win.Value += 1
+					if g.Unlisted {
+						review.Total.Games.WinHidden += 1
+					} else {
+						review.Total.Games.Win.Value += 1
+					}
 				} else {
-					review.Total.Games.Loss.Value += 1
+					if g.Unlisted {
+						review.Total.Games.LossHidden += 1
+					} else {
+						review.Total.Games.Loss.Value += 1
+					}
 				}
 			} else {
-				review.Total.Games.Analysis.Value += 1
+				if g.Unlisted {
+					review.Total.Games.AnalysisHidden += 1
+				} else {
+					review.Total.Games.Analysis.Value += 1
+				}
 			}
 		}
 	}
 
-	percentiles.games[database.AllCohorts] = append(percentiles.games[database.AllCohorts], float32(review.Total.Games.Total.Value))
-	percentiles.games[user.DojoCohort] = append(percentiles.games[user.DojoCohort], float32(review.Total.Games.Total.Value))
+	if isUserActive(user) {
+		percentiles.games[database.AllCohorts] = append(percentiles.games[database.AllCohorts], float32(review.Total.Games.Total.Value))
+		percentiles.games[user.DojoCohort] = append(percentiles.games[user.DojoCohort], float32(review.Total.Games.Total.Value))
 
-	percentiles.win[database.AllCohorts] = append(percentiles.win[database.AllCohorts], float32(review.Total.Games.Win.Value))
-	percentiles.win[user.DojoCohort] = append(percentiles.win[user.DojoCohort], float32(review.Total.Games.Win.Value))
+		percentiles.published[database.AllCohorts] = append(percentiles.published[database.AllCohorts], float32(review.Total.Games.Published.Value))
+		percentiles.published[user.DojoCohort] = append(percentiles.published[user.DojoCohort], float32(review.Total.Games.Published.Value))
 
-	percentiles.draw[database.AllCohorts] = append(percentiles.draw[database.AllCohorts], float32(review.Total.Games.Draw.Value))
-	percentiles.draw[user.DojoCohort] = append(percentiles.draw[user.DojoCohort], float32(review.Total.Games.Draw.Value))
+		percentiles.win[database.AllCohorts] = append(percentiles.win[database.AllCohorts], float32(review.Total.Games.Win.Value))
+		percentiles.win[user.DojoCohort] = append(percentiles.win[user.DojoCohort], float32(review.Total.Games.Win.Value))
 
-	percentiles.loss[database.AllCohorts] = append(percentiles.loss[database.AllCohorts], float32(review.Total.Games.Loss.Value))
-	percentiles.loss[user.DojoCohort] = append(percentiles.loss[user.DojoCohort], float32(review.Total.Games.Loss.Value))
+		percentiles.draw[database.AllCohorts] = append(percentiles.draw[database.AllCohorts], float32(review.Total.Games.Draw.Value))
+		percentiles.draw[user.DojoCohort] = append(percentiles.draw[user.DojoCohort], float32(review.Total.Games.Draw.Value))
 
-	percentiles.analysis[database.AllCohorts] = append(percentiles.analysis[database.AllCohorts], float32(review.Total.Games.Analysis.Value))
-	percentiles.analysis[user.DojoCohort] = append(percentiles.analysis[user.DojoCohort], float32(review.Total.Games.Analysis.Value))
+		percentiles.loss[database.AllCohorts] = append(percentiles.loss[database.AllCohorts], float32(review.Total.Games.Loss.Value))
+		percentiles.loss[user.DojoCohort] = append(percentiles.loss[user.DojoCohort], float32(review.Total.Games.Loss.Value))
+
+		percentiles.analysis[database.AllCohorts] = append(percentiles.analysis[database.AllCohorts], float32(review.Total.Games.Analysis.Value))
+		percentiles.analysis[user.DojoCohort] = append(percentiles.analysis[user.DojoCohort], float32(review.Total.Games.Analysis.Value))
+	}
 
 	return nil
 }
@@ -390,11 +437,13 @@ func processTimeline(user *database.User, review *database.YearReview, requireme
 		}
 	}
 
-	percentiles.timeSpent[database.AllCohorts] = append(percentiles.timeSpent[database.AllCohorts], float32(review.Total.MinutesSpent.Total.Value))
-	percentiles.timeSpent[user.DojoCohort] = append(percentiles.timeSpent[user.DojoCohort], float32(review.Total.MinutesSpent.Total.Value))
+	if isUserActive(user) {
+		percentiles.timeSpent[database.AllCohorts] = append(percentiles.timeSpent[database.AllCohorts], float32(review.Total.MinutesSpent.Total.Value))
+		percentiles.timeSpent[user.DojoCohort] = append(percentiles.timeSpent[user.DojoCohort], float32(review.Total.MinutesSpent.Total.Value))
 
-	percentiles.dojoPoints[database.AllCohorts] = append(percentiles.dojoPoints[database.AllCohorts], review.Total.DojoPoints.Total.Value)
-	percentiles.dojoPoints[user.DojoCohort] = append(percentiles.dojoPoints[user.DojoCohort], review.Total.DojoPoints.Total.Value)
+		percentiles.dojoPoints[database.AllCohorts] = append(percentiles.dojoPoints[database.AllCohorts], review.Total.DojoPoints.Total.Value)
+		percentiles.dojoPoints[user.DojoCohort] = append(percentiles.dojoPoints[user.DojoCohort], review.Total.DojoPoints.Total.Value)
+	}
 
 	return nil
 }

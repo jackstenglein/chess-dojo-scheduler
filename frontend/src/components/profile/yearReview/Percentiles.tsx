@@ -30,7 +30,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
                             Percentile
                         </Typography>
                         <Tooltip
-                            title={`The percent of Dojo members whose ${description} is below yours`}
+                            title={`The percent of Dojo members active in the past 3 months whose ${description} is below yours`}
                         >
                             <Help
                                 fontSize='inherit'
@@ -66,7 +66,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
                             Cohort Percentile
                         </Typography>
                         <Tooltip
-                            title={`The percent of members in the ${cohort} cohort whose ${description} is below yours`}
+                            title={`The percent of members in the ${cohort} cohort active in the past 3 months whose ${description} is below yours`}
                         >
                             <Help
                                 fontSize='inherit'
