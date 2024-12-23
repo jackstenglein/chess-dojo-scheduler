@@ -168,7 +168,7 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 				"username": user.Username,
 			},
 		},
-		PaymentMethodCollection: stripe.String(string(stripe.CheckoutSessionPaymentMethodCollectionIfRequired)),
+		PaymentMethodCollection: stripe.String(string(stripe.CheckoutSessionPaymentMethodCollectionAlways)),
 	}
 
 	if user.PaymentInfo.GetCustomerId() != "" {
