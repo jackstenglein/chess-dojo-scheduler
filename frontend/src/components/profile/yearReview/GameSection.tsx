@@ -25,22 +25,22 @@ const GameSection = ({ review }: SectionProps) => {
                 data: [
                     {
                         primary: 'Analysis',
-                        secondary: data.analysis.value,
+                        secondary: data.analysis?.value || 0,
                         style: { fill: 'var(--mui-palette-primary-dark)' },
                     },
                     {
                         primary: 'Loss',
-                        secondary: data.loss.value,
+                        secondary: data.loss?.value || 0,
                         style: { fill: 'var(--mui-palette-error-main' },
                     },
                     {
                         primary: 'Draw',
-                        secondary: data.draw.value,
+                        secondary: data.draw?.value || 0,
                         style: { fill: 'var(--mui-palette-warning-light)' },
                     },
                     {
                         primary: 'Win',
-                        secondary: data.win.value,
+                        secondary: data.win?.value || 0,
                         style: { fill: 'var(--mui-palette-success-main)' },
                     },
                 ],
