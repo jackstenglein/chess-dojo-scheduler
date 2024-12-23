@@ -38,10 +38,16 @@ const StartButtons = () => {
                 ChessEventType.DeleteBeforeMove,
                 ChessEventType.PromoteVariation,
                 ChessEventType.UpdateHeader,
+                ChessEventType.LegalMove,
             ],
             handler: () => {
+                const fen = chess.currentMove()?.fen
+                if (!fen) {
+                    return;
+                }
+
                 const params = new URLSearchParams(searchParams);
-                params.set("fen", chess.fen());
+                params.set("fen", fen);
 
                 const url = `${pathname}?${params.toString()}`;
                 window.history.replaceState({ ...window.history.state, as: url, url, }, '',url);
