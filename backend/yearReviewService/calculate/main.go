@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
+	"runtime/debug"
 	"strconv"
 	"strings"
 
@@ -41,45 +43,66 @@ var percentiles = percentileTrackers{
 }
 
 func main() {
-	requirements, err := fetchRequirements()
+	defer func() {
+		if x := recover(); x != nil {
+			log.Debugf("%T: %+v", x, x)
+			log.Debugf("%s\n", debug.Stack())
+		}
+	}()
+
+	// requirements, err := fetchRequirements()
+	// if err != nil {
+	// 	log.Errorf("Failed to get requirements: %v", err)
+	// 	os.Exit(1)
+	// }
+	// dojoRequirements := make(map[string]*database.Requirement)
+	// for _, r := range requirements {
+	// 	dojoRequirements[r.Id] = r
+	// }
+
+	// var reviews []*database.YearReview
+	// log.Debug("Scanning users")
+
+	// var users []*database.User
+	// var startKey = ""
+	// for ok := true; ok; ok = startKey != "" {
+	// 	users, startKey, err = repository.ScanUsers(startKey)
+	// 	if err != nil {
+	// 		log.Errorf("Failed to scan users: %v", err)
+	// 		os.Exit(1)
+	// 	}
+
+	// 	log.Infof("Processing %d users", len(users))
+	// 	for _, u := range users {
+	// 		review, err := processUser(u, dojoRequirements)
+	// 		if err != nil {
+	// 			log.Errorf("Failed to process user %s: %v", u.Username, err)
+	// 		} else if review != nil {
+	// 			reviews = append(reviews, review)
+	// 		}
+	// 	}
+	// }
+
+	// log.Debugf("Calculating percentiles for %d reviews", len(reviews))
+	// for _, review := range reviews {
+	// 	setPercentiles(review)
+	// }
+
+	reviews, err := readFromFile()
 	if err != nil {
-		log.Errorf("Failed to get requirements: %v", err)
 		os.Exit(1)
-	}
-	dojoRequirements := make(map[string]*database.Requirement)
-	for _, r := range requirements {
-		dojoRequirements[r.Id] = r
-	}
-
-	var reviews []*database.YearReview
-	log.Debug("Scanning users")
-
-	var users []*database.User
-	var startKey = ""
-	for ok := true; ok; ok = startKey != "" {
-		users, startKey, err = repository.ScanUsers(startKey)
-		if err != nil {
-			log.Errorf("Failed to scan users: %v", err)
-			os.Exit(1)
-		}
-
-		log.Infof("Processing %d users", len(users))
-		for _, u := range users {
-			review, err := processUser(u, dojoRequirements)
-			if err != nil {
-				log.Errorf("Failed to process user %s: %v", u.Username, err)
-			} else if review != nil {
-				reviews = append(reviews, review)
-			}
-		}
-	}
-
-	log.Debugf("Calculating percentiles for %d reviews", len(reviews))
-	for _, review := range reviews {
-		setPercentiles(review)
 	}
 
 	log.Debugf("Saving %d reviews", len(reviews))
+	// jsonData, err := json.MarshalIndent(reviews, "", "  ")
+	// if err != nil {
+	// 	log.Errorf("Failed to Marshal reviews: %v", err)
+	// }
+	// err = os.WriteFile("reviews.json", jsonData, 0644)
+	// if err != nil {
+	// 	log.Errorf("Failed to write JSON file: %v", err)
+	// }
+
 	success, err := repository.PutYearReviews(reviews)
 	if err != nil {
 		log.Errorf("Error while saving. Only %d saved. %v", success, err)
@@ -88,6 +111,24 @@ func main() {
 	}
 
 	printTotalDojoStats(reviews)
+}
+
+func readFromFile() ([]*database.YearReview, error) {
+	file, err := os.ReadFile("reviews.json")
+	if err != nil {
+		log.Errorf("Failed to read file: %v", err)
+		return nil, nil
+	}
+
+	// Unmarshal the JSON data into a struct
+	var data []*database.YearReview
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		log.Errorf("Failed to unmarshal: %v", err)
+		return nil, nil
+	}
+
+	return data, nil
 }
 
 func fetchRequirements() ([]*database.Requirement, error) {
@@ -123,6 +164,7 @@ func processUser(user *database.User, dojoRequirements map[string]*database.Requ
 		UserJoinedAt:  user.CreatedAt,
 		Ratings:       map[database.RatingSystem]*database.YearReviewRatingData{},
 		Total:         *initializeYearReviewData(),
+		Graduations:   []database.DojoCohort{},
 	}
 
 	processRatings(user, &yearReview)
@@ -306,7 +348,6 @@ func processGames(user *database.User, review *database.YearReview) error {
 
 func processTimeline(user *database.User, review *database.YearReview, requirements map[string]*database.Requirement) error {
 	var timeline []*database.TimelineEntry
-	var usedTimeline = make([]*database.TimelineEntry, 0)
 	var startKey = ""
 	var err error
 
@@ -346,12 +387,8 @@ func processTimeline(user *database.User, review *database.YearReview, requireme
 			review.Total.DojoPoints.ByPeriod[month] += points
 			review.Total.DojoPoints.ByCategory[t.RequirementCategory] += points
 			review.Total.DojoPoints.ByTask[requirementName] += points
-
-			usedTimeline = append(usedTimeline, t)
 		}
 	}
-
-	review.Timeline = usedTimeline
 
 	percentiles.timeSpent[database.AllCohorts] = append(percentiles.timeSpent[database.AllCohorts], float32(review.Total.MinutesSpent.Total.Value))
 	percentiles.timeSpent[user.DojoCohort] = append(percentiles.timeSpent[user.DojoCohort], float32(review.Total.MinutesSpent.Total.Value))

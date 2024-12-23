@@ -66,8 +66,6 @@ type YearReview struct {
 
 	Graduations []DojoCohort `dynamodbav:"graduations" json:"graduations"`
 
-	Timeline []*TimelineEntry `dynamodbav:"timeline,omitempty" json:"timeline,omitempty"`
-
 	Total YearReviewData `dynamodbav:"total" json:"total"`
 }
 

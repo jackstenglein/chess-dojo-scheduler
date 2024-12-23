@@ -1,4 +1,3 @@
-import { TimelineEntry } from './timeline';
 import { RatingHistory, RatingSystem } from './user';
 
 export interface YearReview {
@@ -10,7 +9,6 @@ export interface YearReview {
     ratings?: Record<RatingSystem, YearReviewRatingData>;
     graduations?: string[];
     total: YearReviewData;
-    timeline?: TimelineEntry[];
 }
 
 export interface YearReviewRatingData {

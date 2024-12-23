@@ -49,7 +49,11 @@ export const HeatmapCard = ({ user }: { user: User }) => {
         <>
             <Card>
                 <CardContent sx={{ position: 'relative' }}>
-                    <Heatmap entries={entries} onPopOut={() => setIsModalOpen(true)} />
+                    <Heatmap
+                        entries={entries}
+                        onPopOut={() => setIsModalOpen(true)}
+                        description='the past year'
+                    />
                 </CardContent>
             </Card>
 
@@ -82,7 +86,11 @@ export const HeatmapCard = ({ user }: { user: User }) => {
                         alignItems: 'center',
                     }}
                 >
-                    <Heatmap entries={entries} blockSize={blockSize} />
+                    <Heatmap
+                        entries={entries}
+                        blockSize={blockSize}
+                        description='the past year'
+                    />
                 </DialogContent>
             </Dialog>
         </>
