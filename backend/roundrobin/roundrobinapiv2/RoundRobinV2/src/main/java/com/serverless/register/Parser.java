@@ -13,10 +13,11 @@ public class Parser {
 
     /**
      * Gets the crosstable in list format.
+     * 
      * @param pair The crosstable string.
      * @return The crosstable in list format.
      */
-    public static ArrayList<String> getPairingsInListFormat(String pair)  {
+    public static ArrayList<String> getPairingsInListFormat(String pair) {
 
         Pattern pattern = Pattern.compile("\\*\\*Round \\d+:\\*\\* \\[(.*?)\\]", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(pair);
@@ -33,6 +34,7 @@ public class Parser {
 
     /**
      * Splits a list of strings into a list of lists of strings.
+     * 
      * @param input The list of strings to split.
      * @return The list of lists of strings.
      */
@@ -49,7 +51,5 @@ public class Parser {
 
         return result;
     }
-
-
 
 }

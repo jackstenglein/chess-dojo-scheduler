@@ -22,7 +22,6 @@ import java.util.Map;
 
 public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-    
     private static final String CONNECTION_STRING = System.getenv("CONNECTION_STRING");
     private static final boolean IS_BETA = System.getenv("ENV").equalsIgnoreCase("beta");
 
@@ -43,9 +42,11 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     }
 
     /**
-     * Handles the incoming request and routes it to the appropriate handler based on the mode.
+     * Handles the incoming request and routes it to the appropriate handler based
+     * on the mode.
+     * 
      * @param requestEvent The incoming request event.
-     * @param context The Lambda context.
+     * @param context      The Lambda context.
      * @return The response event.
      */
     @Override
@@ -77,6 +78,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     /**
      * Handles the registration of a player.
+     * 
      * @param queryParams The query parameters from the request.
      * @return The registration status message.
      * @throws Exception If an error occurs during registration.
@@ -89,34 +91,38 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
                 Integer.parseInt(queryParams.get("cohortstart")),
                 queryParams.get("lichessname"),
                 queryParams.get("chesscomname"),
-                queryParams.get("dojousername")
-        );
+                queryParams.get("dojousername"));
     }
 
     /**
      * Handles the withdrawal of a player.
+     * 
      * @param queryParams The query parameters from the request.
      * @return The withdrawal status message.
      * @throws Exception If an error occurs during withdrawal.
      */
     private String handleWithdraw(Map<String, String> queryParams) throws Exception {
-        WithdrawHandler handler = new WithdrawHandler(RRplayercollection, RRcollection, queryParams.get("discordname"), queryParams.get("dojousername"));
+        WithdrawHandler handler = new WithdrawHandler(RRplayercollection, RRcollection, queryParams.get("discordname"),
+                queryParams.get("dojousername"));
         return handler.playerWithdraw();
     }
 
     /**
      * Handles the submission of a game.
+     * 
      * @param queryParams The query parameters from the request.
      * @return The game submission status message.
      * @throws Exception If an error occurs during game submission.
      */
     private String handleGame(Map<String, String> queryParams) throws Exception {
-        GameHandler handler = new GameHandler(RRplayercollection, RRcollection, queryParams.get("discordname"), queryParams.get("dojousername"), queryParams.get("gameurl"));
+        GameHandler handler = new GameHandler(RRplayercollection, RRcollection, queryParams.get("discordname"),
+                queryParams.get("dojousername"), queryParams.get("gameurl"));
         return handler.handleGameRequest();
     }
 
     /**
      * Creates a successful response event.
+     * 
      * @param message The message to include in the response.
      * @return The response event.
      */
@@ -126,13 +132,13 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         response.setBody("{\"message\": \"" + message + "\"}");
         response.setHeaders(Map.of(
                 "Content-Type", "application/json",
-                "Access-Control-Allow-Origin", "*"
-        ));
+                "Access-Control-Allow-Origin", "*"));
         return response;
     }
 
     /**
      * Creates an error response event.
+     * 
      * @param errorMessage The error message to include in the response.
      * @return The response event.
      */
@@ -142,8 +148,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         response.setBody("{\"message\": \"" + errorMessage + "\"}");
         response.setHeaders(Map.of(
                 "Content-Type", "application/json",
-                "Access-Control-Allow-Origin", "*"
-        ));
+                "Access-Control-Allow-Origin", "*"));
         return response;
     }
 }

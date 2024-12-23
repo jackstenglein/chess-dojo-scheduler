@@ -51,9 +51,9 @@ class RegisterHandlerTest {
 
         RRplayercollection = database.getCollection("rr-players-beta");
 
-        if(RRcollection.countDocuments() > 1 && RRplayercollection.countDocuments() > 1){
+        if (RRcollection.countDocuments() > 1 && RRplayercollection.countDocuments() > 1) {
             System.out.println("Data loaded");
-        }else{
+        } else {
 
             MongoCollection<Document> sourceCollectiont = database.getCollection("rr-tournaments ");
             MongoCollection<Document> targetCollectiont = database.getCollection("rr-tournaments-beta");
@@ -95,13 +95,13 @@ class RegisterHandlerTest {
                 System.out.println("Source collection is empty.");
             }
 
-
         }
 
     }
 
     /**
      * Create test sample test tournament
+     * 
      * @throws IOException
      * @throws RoundRobinException
      */
@@ -111,41 +111,48 @@ class RegisterHandlerTest {
         CohortRange cohort = CohortRange.COHORT_1900_2000;
 
         createRoundRobin.createNewRoundRobinTournament(cohort, false, RRcollection);
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             PlayerData playern = data.getRandomPlayerAllDifferent(cohort.getStart());
             System.out.println(playern);
             RegisterHandler registerDesk = new RegisterHandler(RRplayercollection, RRcollection);
-            String mesg = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(), playern.getCohort(), playern.getLichessname(), playern.getChesscomname(), playern.getDojoUsername());
+            String mesg = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(),
+                    playern.getCohort(), playern.getLichessname(), playern.getChesscomname(),
+                    playern.getDojoUsername());
             System.out.println(mesg);
             assertTrue(mesg.toLowerCase().contains("success"));
         }
 
         RegisterHandler registerDesk = new RegisterHandler(RRplayercollection, RRcollection);
-        String message = registerDesk.playerRegister("sameplayer", "sameplayer", cohort.getStart(), "sameplayer", "sameplayer", "sameplayer");
+        String message = registerDesk.playerRegister("sameplayer", "sameplayer", cohort.getStart(), "sameplayer",
+                "sameplayer", "sameplayer");
         assertTrue(message.toLowerCase().contains("success"));
-        String messageerr = registerDesk.playerRegister("sameplayer", "sameplayer", cohort.getStart(), "sameplayer", "sameplayer", "sameplayer");
-        assertEquals("You have already registered in a tournament and hit max tournament registration limit!", messageerr);
-
+        String messageerr = registerDesk.playerRegister("sameplayer", "sameplayer", cohort.getStart(), "sameplayer",
+                "sameplayer", "sameplayer");
+        assertEquals("You have already registered in a tournament and hit max tournament registration limit!",
+                messageerr);
 
     }
 
     /**
      * Test null string data should get IO exception
+     * 
      * @throws IOException
      * @throws RoundRobinException
      */
     @Test
     void registertest2() throws IOException, RoundRobinException {
-        try{
+        try {
             CreateRoundRobin createRoundRobin = new CreateRoundRobin(10);
             CohortRange cohort = CohortRange.COHORT_700_800;
 
             createRoundRobin.createNewRoundRobinTournament(cohort, false, RRcollection);
-            for(int i = 0; i < 10; i++){
+            for (int i = 0; i < 10; i++) {
                 PlayerData playern = data.getRandomPlayerNullData(cohort.getStart());
                 System.out.println(playern);
                 RegisterHandler registerDesk = new RegisterHandler(RRplayercollection, RRcollection);
-                String message = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(), playern.getCohort(), playern.getLichessname(), playern.getChesscomname(), playern.getDojoUsername());
+                String message = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(),
+                        playern.getCohort(), playern.getLichessname(), playern.getChesscomname(),
+                        playern.getDojoUsername());
 
             }
         } catch (Exception e) {
@@ -155,87 +162,99 @@ class RegisterHandlerTest {
 
     /**
      * Test empty data should get IO exception
+     * 
      * @throws IOException
      * @throws RoundRobinException
      */
     @Test
     void registertest3() throws IOException, RoundRobinException {
-        try{
+        try {
             CreateRoundRobin createRoundRobin = new CreateRoundRobin(10);
             CohortRange cohort = CohortRange.COHORT_700_800;
 
             createRoundRobin.createNewRoundRobinTournament(cohort, false, RRcollection);
-            for(int i = 0; i < 10; i++){
+            for (int i = 0; i < 10; i++) {
                 PlayerData playern = data.getRandomPlayerEmptyData(cohort.getStart());
                 System.out.println(playern);
                 RegisterHandler registerDesk = new RegisterHandler(RRplayercollection, RRcollection);
-                String message = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(), playern.getCohort(), playern.getLichessname(), playern.getChesscomname(), playern.getDojoUsername());
-                //assertTrue(message.contains("success"));
+                String message = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(),
+                        playern.getCohort(), playern.getLichessname(), playern.getChesscomname(),
+                        playern.getDojoUsername());
+                // assertTrue(message.contains("success"));
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             assertEquals("Lichess or Chess.com account name must be provided", e.getMessage());
         }
     }
 
     /**
      * Create half of running tournament
+     * 
      * @throws IOException
      * @throws RoundRobinException
      */
     @Test
     void registertest4() throws IOException, RoundRobinException {
-        try{
+        try {
             CreateRoundRobin createRoundRobin = new CreateRoundRobin(10);
             CohortRange cohort = CohortRange.COHORT_2200_2300;
             RegisterHandler registerDesk = new RegisterHandler(RRplayercollection, RRcollection);
 
-            //createRoundRobin.createNewRoundRobinTournament(cohort, false, RRcollection);
-            for(int i = 0; i < 7; i++){
+            // createRoundRobin.createNewRoundRobinTournament(cohort, false, RRcollection);
+            for (int i = 0; i < 7; i++) {
                 PlayerData playern = data.getRandomPartialCCNullData(cohort.getStart());
                 System.out.println(playern);
-                String mesg = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(), playern.getCohort(), playern.getLichessname(), playern.getChesscomname(), playern.getDojoUsername());
+                String mesg = registerDesk.playerRegister(playern.getDiscordid(), playern.getDiscordname(),
+                        playern.getCohort(), playern.getLichessname(), playern.getChesscomname(),
+                        playern.getDojoUsername());
                 System.out.println(mesg);
                 assertFalse(mesg.contains("success"));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            assertEquals("The following cohort ranges [2200, 2300, 2100] Round Robin tournaments is filled", e.getMessage());
+            assertEquals("The following cohort ranges [2200, 2300, 2100] Round Robin tournaments is filled",
+                    e.getMessage());
         }
     }
 
     /**
      * Should get tournament is filled up exception
+     * 
      * @throws IOException
      * @throws RoundRobinException
      */
     @Test
     void registertest5() throws IOException, RoundRobinException {
-        try{
+        try {
             CohortRange cohort = CohortRange.COHORT_1900_2000;
 
             RegisterHandler registerDesk = new RegisterHandler(RRplayercollection, RRcollection);
 
-            PlayerData playerweak = data.getRandomPlayerAllDifferent(cohort.getStart()-300);
+            PlayerData playerweak = data.getRandomPlayerAllDifferent(cohort.getStart() - 300);
 
-            String message = registerDesk.playerRegister(playerweak.getDiscordid(), playerweak.getDiscordname(), playerweak.getCohort(), playerweak.getLichessname(), playerweak.getChesscomname(), playerweak.getDojoUsername());
+            String message = registerDesk.playerRegister(playerweak.getDiscordid(), playerweak.getDiscordname(),
+                    playerweak.getCohort(), playerweak.getLichessname(), playerweak.getChesscomname(),
+                    playerweak.getDojoUsername());
 
             System.out.println(message);
 
-            PlayerData playerStrong = data.getRandomPartialLichessNullData(cohort.getStart()+300);
+            PlayerData playerStrong = data.getRandomPartialLichessNullData(cohort.getStart() + 300);
 
-            String message2 = registerDesk.playerRegister(playerStrong.getDiscordid(), playerStrong.getDiscordname(), playerStrong.getCohort(), playerStrong.getLichessname(), playerStrong.getChesscomname(), playerweak.getDojoUsername());
+            String message2 = registerDesk.playerRegister(playerStrong.getDiscordid(), playerStrong.getDiscordname(),
+                    playerStrong.getCohort(), playerStrong.getLichessname(), playerStrong.getChesscomname(),
+                    playerweak.getDojoUsername());
 
             System.out.println(message2);
-        }catch (Exception e){
-            assertEquals("The following cohort ranges [1600, 1700, 1500] Round Robin tournaments is filled", e.getMessage());
+        } catch (Exception e) {
+            assertEquals("The following cohort ranges [1600, 1700, 1500] Round Robin tournaments is filled",
+                    e.getMessage());
         }
     }
 
     @AfterAll
-    static void tearDown(){
+    static void tearDown() {
         RRplayercollection.deleteMany(new Document());
         RRcollection.deleteMany(new Document());
     }
-
 
 }

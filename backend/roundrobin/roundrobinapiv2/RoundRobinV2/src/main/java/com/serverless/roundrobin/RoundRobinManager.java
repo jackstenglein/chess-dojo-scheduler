@@ -26,7 +26,8 @@ public class RoundRobinManager {
     }
 
     /**
-     * Performs a general search in the specified collection based on a key-value pair.
+     * Performs a general search in the specified collection based on a key-value
+     * pair.
      *
      * @param collection The MongoDB collection to search in.
      * @param key        The key to search for.
@@ -39,14 +40,15 @@ public class RoundRobinManager {
     }
 
     /**
-     * Retrieves the tournament document for a registered player based on their name.
+     * Retrieves the tournament document for a registered player based on their
+     * name.
      *
      * @param RRcollection The MongoDB collection for tournament data.
      * @param playerName   The name of the player.
      * @return The document representing the tournament.
      */
     public Document getRegisteredPlayerTournamentID(MongoCollection<Document> RRcollection, String playerName) {
-        return performGeneralSearch(RRcollection,"players", playerName);
+        return performGeneralSearch(RRcollection, "players", playerName);
     }
 
     /**
@@ -56,11 +58,11 @@ public class RoundRobinManager {
      * @param gameInfo     The information about the game.
      * @param tournamentID The ID of the tournament.
      */
-    public void pushGameSubmissionForRunningTournament(MongoCollection<Document> RRcollection, String gameInfo, String tournamentID) {
+    public void pushGameSubmissionForRunningTournament(MongoCollection<Document> RRcollection, String gameInfo,
+            String tournamentID) {
         RRcollection.updateOne(
                 new Document("tournamentId", tournamentID),
-                Updates.push("game-submissions", gameInfo)
-        );
+                Updates.push("game-submissions", gameInfo));
     }
 
     /**
@@ -71,7 +73,8 @@ public class RoundRobinManager {
      * @return A list of game submissions.
      * @throws RoundRobinException If the tournament ID is invalid.
      */
-    public List<String> getGameSubmissionsFromRunningTournament(MongoCollection<Document> RRcollection, String tournamentID) throws RoundRobinException {
+    public List<String> getGameSubmissionsFromRunningTournament(MongoCollection<Document> RRcollection,
+            String tournamentID) throws RoundRobinException {
         Document tournamentDoc = getTournamentIDDoc(RRcollection, tournamentID);
 
         if (tournamentDoc != null) {
@@ -86,14 +89,15 @@ public class RoundRobinManager {
     /**
      * Pushes the player score to the leaderboard.
      *
-     * @param username          The username of the player.
+     * @param username           The username of the player.
      * @param RRplayercollection The MongoDB collection for player data.
-     * @param RRcollection      The MongoDB collection for tournament data.
-     * @param platform          The platform on which the game was played.
-     * @param newScore          The new score to be added.
-     * @param tid               The ID of the tournament.
+     * @param RRcollection       The MongoDB collection for tournament data.
+     * @param platform           The platform on which the game was played.
+     * @param newScore           The new score to be added.
+     * @param tid                The ID of the tournament.
      */
-    public void pushPlayerScore(String username, MongoCollection<Document> RRplayercollection, MongoCollection<Document> RRcollection, Platform platform, double newScore, String tid) {
+    public void pushPlayerScore(String username, MongoCollection<Document> RRplayercollection,
+            MongoCollection<Document> RRcollection, Platform platform, double newScore, String tid) {
         Document searchAmb = null;
         LeaderboardCalculator calculator = new LeaderboardCalculator(RRcollection);
 
@@ -114,10 +118,10 @@ public class RoundRobinManager {
      * @param crosstableList The cross table list to be added.
      * @param tournamentID   The ID of the tournament.
      */
-    public void pushCrossTableList(MongoCollection<Document> RRcollection, ArrayList<ArrayList<String>> crosstableList, String tournamentID) {
+    public void pushCrossTableList(MongoCollection<Document> RRcollection, ArrayList<ArrayList<String>> crosstableList,
+            String tournamentID) {
         RRcollection.updateOne(
                 new Document("tournamentId", tournamentID),
-                Updates.set("crosstable-data", crosstableList)
-        );
+                Updates.set("crosstable-data", crosstableList));
     }
 }

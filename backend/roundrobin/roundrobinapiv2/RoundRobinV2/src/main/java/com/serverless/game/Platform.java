@@ -5,20 +5,20 @@ package com.serverless.game;
  */
 public enum Platform {
 
-
     LICHESS,
     CHESSCOM,
     DISCORD;
 
     /**
      * Returns the platform based on the URL.
+     * 
      * @param url The URL of the game.
      * @return The platform of the game.
      */
-    public static Platform fromURL(String url){
-        if(url.contains("https://lichess.org/")){
+    public static Platform fromURL(String url) {
+        if (url.contains("https://lichess.org/")) {
             return LICHESS;
-        }else if(url.contains("https://www.chess.com/game/live/")){
+        } else if (url.contains("https://www.chess.com/game/live/")) {
             return CHESSCOM;
         }
 
@@ -27,28 +27,29 @@ public enum Platform {
 
     /**
      * Returns the name of the platform.
+     * 
      * @return The name of the platform.
      */
-    public String getName(){
-        switch (this){
+    public String getName() {
+        switch (this) {
             case LICHESS -> {
                 return "Lichess.org";
             }
 
             case CHESSCOM -> {
-                return  "Chess.com";
+                return "Chess.com";
             }
         }
         return null;
     }
 
-
     /**
      * Returns the MongoDB field name for the player based on the platform.
+     * 
      * @return The field name for the player.
      */
     public String getPlayerField() {
-        switch (this){
+        switch (this) {
             case LICHESS -> {
                 return "Lichessname";
             }

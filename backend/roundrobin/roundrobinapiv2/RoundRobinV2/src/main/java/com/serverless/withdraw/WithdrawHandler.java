@@ -16,12 +16,14 @@ public class WithdrawHandler {
 
     /**
      * Constructor for WithdrawHandler.
+     * 
      * @param rRplayerCollection The MongoDB collection for player data.
-     * @param rRcollection The MongoDB collection for tournament data.
-     * @param discordname The Discord username of the player.
-     * @param dojoUsername The Dojo username of the player.
+     * @param rRcollection       The MongoDB collection for tournament data.
+     * @param discordname        The Discord username of the player.
+     * @param dojoUsername       The Dojo username of the player.
      */
-    public WithdrawHandler(MongoCollection<Document> rRplayerCollection, MongoCollection<Document> rRcollection, String discordname, String dojoUsername) {
+    public WithdrawHandler(MongoCollection<Document> rRplayerCollection, MongoCollection<Document> rRcollection,
+            String discordname, String dojoUsername) {
         this.RRplayerCollection = rRplayerCollection;
         this.RRcollection = rRcollection;
         Discordname = discordname;
@@ -30,18 +32,19 @@ public class WithdrawHandler {
 
     /**
      * Withdraws a player from a tournament via the API.
+     * 
      * @return The result of the withdrawal operation.
      */
-    public String playerWithdraw(){
+    public String playerWithdraw() {
 
-        try{
+        try {
             String nonDiscordUser = Discordname.equalsIgnoreCase("null") ? dojoUsername : Discordname;
             Document getTournamentId = actions.getRegisteredPlayerTournamentID(RRcollection, nonDiscordUser);
-            if(getTournamentId != null) {
+            if (getTournamentId != null) {
                 String tournamentId = getTournamentId.getString("tournamentId");
                 actions.removePlayerToRunningTournament(nonDiscordUser, RRcollection, RRplayerCollection, tournamentId);
                 return "Successfully withdrew the player: " + nonDiscordUser;
-            }else{
+            } else {
                 return "Player not found in active tournaments!";
             }
 
@@ -50,6 +53,5 @@ public class WithdrawHandler {
         }
 
     }
-
 
 }

@@ -9,6 +9,7 @@ public class Response {
 
 	/**
 	 * Gets the message of the response.
+	 * 
 	 * @return
 	 */
 	public String getMessage() {
@@ -17,6 +18,7 @@ public class Response {
 
 	/**
 	 * Sets the message of the response.
+	 * 
 	 * @param message The message to set.
 	 */
 	public void setMessage(String message) {

@@ -1,5 +1,8 @@
 package com.serverless.playerdata;
 
+/**
+ * This class represents a player data that will be used for registration in OOP manner
+ */
 public class PlayerData {
 
     private final String dojoUsername;

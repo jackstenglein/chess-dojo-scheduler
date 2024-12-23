@@ -1,4 +1,5 @@
 package com.serverless.game;
+
 import chariot.Client;
 import chariot.model.Enums;
 import com.mongodb.client.MongoCollection;
@@ -8,7 +9,8 @@ import com.serverless.roundrobin.UpdatePlayerScores;
 import org.bson.Document;
 
 /**
- * This class implements the strategy for calculating the result of a game played on Lichess.
+ * This class implements the strategy for calculating the result of a game
+ * played on Lichess.
  */
 public class LichessStrategy implements CalculateResultStrategy {
 
@@ -23,12 +25,13 @@ public class LichessStrategy implements CalculateResultStrategy {
     /**
      * Creates a new LichessStrategy object.
      *
-     * @param gameURL The URL of the game.
-     * @param players The MongoDB collection for player data.
-     * @param tournaments The MongoDB collection for tournament data.
+     * @param gameURL            The URL of the game.
+     * @param players            The MongoDB collection for player data.
+     * @param tournaments        The MongoDB collection for tournament data.
      * @param targetTournamentID The ID of the target tournament.
      */
-    public LichessStrategy(String gameURL, MongoCollection<Document> players, MongoCollection<Document> tournaments, String targetTournamentID){
+    public LichessStrategy(String gameURL, MongoCollection<Document> players, MongoCollection<Document> tournaments,
+            String targetTournamentID) {
         this.gameURL = gameURL;
         this.updateAction = new UpdatePlayerScores();
         this.RRplayercollection = players;
@@ -40,7 +43,7 @@ public class LichessStrategy implements CalculateResultStrategy {
     /**
      * Checks if the game URL is valid.
      *
-     * @param link The URL of the game.
+     * @param link   The URL of the game.
      * @param client The Lichess client.
      * @return The game ID if the URL is valid, otherwise null.
      */
@@ -83,7 +86,7 @@ public class LichessStrategy implements CalculateResultStrategy {
         String player2 = client.games().byGameId(gameID).get().players().black().name().toLowerCase().trim();
         GameState gameState = null;
 
-        if(c != null) {
+        if (c != null) {
 
             String winnerColor = client.games().byGameId(gameID).get().winner().asPref().toString();
 
@@ -91,15 +94,15 @@ public class LichessStrategy implements CalculateResultStrategy {
                 case "white" -> gameState = GameState.WHITE_WON;
                 case "black" -> gameState = GameState.BLACK_WON;
             }
-        }else{
+        } else {
             gameState = GameState.DRAW;
 
         }
 
-        updateAction.updatePlayerScore(player1.toLowerCase(), player2.toLowerCase(), platform, gameState, RRplayercollection, RRcollection, tournamentID);
+        updateAction.updatePlayerScore(player1.toLowerCase(), player2.toLowerCase(), platform, gameState,
+                RRplayercollection, RRcollection, tournamentID);
         crosstableGen.updateCrossTableScores(player1.toLowerCase(), player2.toLowerCase(), gameState, platform);
         updateAction.submitGameURL(RRcollection, gameURL, tournamentID);
 
     }
 }
-

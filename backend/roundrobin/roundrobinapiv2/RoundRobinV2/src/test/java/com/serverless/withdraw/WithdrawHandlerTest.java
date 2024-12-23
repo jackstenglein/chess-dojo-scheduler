@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class WithdrawHandlerTest {
 
     static MongoCollection<Document> RRcollection = null;
@@ -47,9 +46,9 @@ public class WithdrawHandlerTest {
 
         RRplayercollection = database.getCollection("rr-players-beta");
 
-        if(RRcollection.countDocuments() > 1 && RRplayercollection.countDocuments() > 1){
+        if (RRcollection.countDocuments() > 1 && RRplayercollection.countDocuments() > 1) {
             System.out.println("Data loaded");
-        }else{
+        } else {
 
             MongoCollection<Document> sourceCollectiont = database.getCollection("rr-tournaments ");
             MongoCollection<Document> targetCollectiont = database.getCollection("rr-tournaments-beta");
@@ -91,36 +90,32 @@ public class WithdrawHandlerTest {
                 System.out.println("Source collection is empty.");
             }
 
-
         }
 
     }
 
     @Test
-    void withdrawtest1(){
+    void withdrawtest1() {
         WithdrawHandler withdrawHandler = new WithdrawHandler(RRplayercollection, RRcollection, "capa_a", "capa_a");
         String message = withdrawHandler.playerWithdraw();
         System.out.println(message);
         assertTrue(message.contains("capa_a") && message.toLowerCase().contains("success"));
     }
 
-//    @Test
-//    void withdrawtest2(){
-//        WithdrawHandler withdrawHandler = new WithdrawHandler(RRplayercollection, RRcollection, "falk312", "falk312");
-//        String message = withdrawHandler.playerWithdraw();
-//        System.out.println(message);
-//        assertEquals("Successfully withdrew the player: falk312", message);
-//
-//    }
-
-
+    // @Test
+    // void withdrawtest2(){
+    // WithdrawHandler withdrawHandler = new WithdrawHandler(RRplayercollection,
+    // RRcollection, "falk312", "falk312");
+    // String message = withdrawHandler.playerWithdraw();
+    // System.out.println(message);
+    // assertEquals("Successfully withdrew the player: falk312", message);
+    //
+    // }
 
     @AfterAll
-    static void tearDown(){
+    static void tearDown() {
         RRplayercollection.deleteMany(new Document());
         RRcollection.deleteMany(new Document());
     }
-
-
 
 }

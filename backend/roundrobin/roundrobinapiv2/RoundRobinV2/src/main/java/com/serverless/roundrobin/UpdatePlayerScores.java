@@ -6,7 +6,8 @@ import com.serverless.game.Platform;
 import org.bson.Document;
 
 /**
- * This class handles updating player scores and submitting game URLs for a round-robin tournament.
+ * This class handles updating player scores and submitting game URLs for a
+ * round-robin tournament.
  */
 public class UpdatePlayerScores {
 
@@ -21,16 +22,19 @@ public class UpdatePlayerScores {
     /**
      * Updates the scores of two players based on the game state.
      *
-     * @param player1username   The username of the first player.
-     * @param player2username   The username of the second player.
-     * @param platform          The platform on which the game was played.
-     * @param state             The state of the game (e.g., WHITE_WON, BLACK_WON, DRAW).
+     * @param player1username    The username of the first player.
+     * @param player2username    The username of the second player.
+     * @param platform           The platform on which the game was played.
+     * @param state              The state of the game (e.g., WHITE_WON, BLACK_WON,
+     *                           DRAW).
      * @param RRplayercollection The MongoDB collection for player data.
-     * @param RRcollection      The MongoDB collection for tournament data.
-     * @param tournamentID      The ID of the tournament.
+     * @param RRcollection       The MongoDB collection for tournament data.
+     * @param tournamentID       The ID of the tournament.
      * @throws RoundRobinException If the tournament ID is invalid.
      */
-    public void updatePlayerScore(String player1username, String player2username, Platform platform, GameState state, MongoCollection<Document> RRplayercollection, MongoCollection<Document> RRcollection, String tournamentID) throws RoundRobinException {
+    public void updatePlayerScore(String player1username, String player2username, Platform platform, GameState state,
+            MongoCollection<Document> RRplayercollection, MongoCollection<Document> RRcollection, String tournamentID)
+            throws RoundRobinException {
         Document activeTournament = actions.getTournamentIDDoc(RRcollection, tournamentID);
         if (activeTournament == null) {
             throw new RoundRobinException("Invalid Tournament ID!");
@@ -45,8 +49,10 @@ public class UpdatePlayerScores {
                 player2Score = 0.5;
             }
         }
-        actions.pushPlayerScore(player1username, RRplayercollection, RRcollection, platform, player1Score, tournamentID);
-        actions.pushPlayerScore(player2username, RRplayercollection, RRcollection, platform, player2Score, tournamentID);
+        actions.pushPlayerScore(player1username, RRplayercollection, RRcollection, platform, player1Score,
+                tournamentID);
+        actions.pushPlayerScore(player2username, RRplayercollection, RRcollection, platform, player2Score,
+                tournamentID);
     }
 
     /**

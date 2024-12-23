@@ -12,8 +12,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 /**
- * This class implements the strategy for calculating the result of a game played on Chess.com.
+ * This class implements the strategy for calculating the result of a game
+ * played on Chess.com.
  */
 public class ChessComStrategy implements CalculateResultStrategy {
 
@@ -30,15 +32,17 @@ public class ChessComStrategy implements CalculateResultStrategy {
 
     /**
      * Creates a new ChessComStrategy object.
-     * @param gameURL The URL of the game.
-     * @param player The player name.
+     * 
+     * @param gameURL            The URL of the game.
+     * @param player             The player name.
      * @param rRplayercollection The MongoDB collection for player data.
-     * @param rRcollection The MongoDB collection for tournament data.
-     * @param tournamentID The ID of the tournament.
-     * @param start The start date of the tournament.
-     * @param end The end date of the tournament.
+     * @param rRcollection       The MongoDB collection for tournament data.
+     * @param tournamentID       The ID of the tournament.
+     * @param start              The start date of the tournament.
+     * @param end                The end date of the tournament.
      */
-    public ChessComStrategy(String gameURL, String player, MongoCollection<Document> rRplayercollection, MongoCollection<Document> rRcollection, String tournamentID, Date start, Date end) {
+    public ChessComStrategy(String gameURL, String player, MongoCollection<Document> rRplayercollection,
+            MongoCollection<Document> rRcollection, String tournamentID, Date start, Date end) {
         this.gameURL = gameURL;
         this.player = player;
         this.updateAction = new UpdatePlayerScores();
@@ -50,10 +54,10 @@ public class ChessComStrategy implements CalculateResultStrategy {
         this.crosstableGen = new RoundRobinCrosstable(RRcollection, RRplayercollection, tournamentID);
     }
 
-
     /**
      * Calculates the result of the game played on Chess.com.
-     * This method retrieves the game result from the Chess.com API and updates the player scores accordingly
+     * This method retrieves the game result from the Chess.com API and updates the
+     * player scores accordingly
      */
     @Override
     public void calculateGameResult() {
@@ -62,13 +66,14 @@ public class ChessComStrategy implements CalculateResultStrategy {
         calendar.setTime(startDate);
         calendar.add(Calendar.MONTH, 1);
         Date futureDate = calendar.getTime();
-        Date[] duration = {startDate, futureDate, endDate};
+        Date[] duration = { startDate, futureDate, endDate };
 
         for (Date gameDate : duration) {
             try {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(gameDate);
-                List<ArchiveGame> games = client.getMonthlyArchiveForPlayer(player, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1)
+                List<ArchiveGame> games = client
+                        .getMonthlyArchiveForPlayer(player, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1)
                         .getGames().stream().filter(s -> s.getUrl().equalsIgnoreCase(gameURL)).toList();
 
                 if (!games.isEmpty()) {
@@ -83,7 +88,8 @@ public class ChessComStrategy implements CalculateResultStrategy {
                         default -> null;
                     };
 
-                    updateAction.updatePlayerScore(player1, player2, platform, gameState, RRplayercollection, RRcollection, tournamentID);
+                    updateAction.updatePlayerScore(player1, player2, platform, gameState, RRplayercollection,
+                            RRcollection, tournamentID);
                     crosstableGen.updateCrossTableScores(player1, player2, gameState, platform);
                     updateAction.submitGameURL(RRcollection, gameURL, tournamentID);
                     break;
@@ -96,6 +102,7 @@ public class ChessComStrategy implements CalculateResultStrategy {
 
     /**
      * Extracts the result of the game from the PGN.
+     * 
      * @param pgn The PGN of the game.
      * @return The result of the game.
      */

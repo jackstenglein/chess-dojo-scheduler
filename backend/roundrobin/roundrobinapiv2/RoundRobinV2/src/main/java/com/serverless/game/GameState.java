@@ -15,6 +15,4 @@ public enum GameState {
 
     DRAW
 
-
 }
-

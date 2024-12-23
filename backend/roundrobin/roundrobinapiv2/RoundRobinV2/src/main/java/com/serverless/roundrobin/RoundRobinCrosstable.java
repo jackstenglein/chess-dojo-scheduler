@@ -23,11 +23,12 @@ public class RoundRobinCrosstable {
     /**
      * Constructor for RoundRobinCrosstable.
      *
-     * @param RRtournament      MongoDB collection for the tournament.
+     * @param RRtournament       MongoDB collection for the tournament.
      * @param RRplayercollection MongoDB collection for the players.
-     * @param tournamentID      ID of the tournament.
+     * @param tournamentID       ID of the tournament.
      */
-    public RoundRobinCrosstable(MongoCollection<Document> RRtournament, MongoCollection<Document> RRplayercollection, String tournamentID) {
+    public RoundRobinCrosstable(MongoCollection<Document> RRtournament, MongoCollection<Document> RRplayercollection,
+            String tournamentID) {
         this.RRtournament = RRtournament;
         this.RRplayercollection = RRplayercollection;
         this.tournamentID = tournamentID;
@@ -72,7 +73,8 @@ public class RoundRobinCrosstable {
      * @param players    List of player names.
      * @param actualList List of ArrayLists representing the cross table.
      */
-    private void buildCrossTableBodyArrayList(StringBuilder builder, List<String> players, List<ArrayList<String>> actualList) {
+    private void buildCrossTableBodyArrayList(StringBuilder builder, List<String> players,
+            List<ArrayList<String>> actualList) {
         for (int i = 0; i < players.size(); i++) {
             builder.append(String.format("%-" + COLUMN_WIDTH + "s", players.get(i)));
             for (int j = 0; j < players.size(); j++) {
@@ -111,7 +113,8 @@ public class RoundRobinCrosstable {
      * @return List of ArrayLists representing the cross table.
      */
     private List<ArrayList<String>> getTournamentCrosstable() {
-        List<?> rawList = actions.getTournamentIDDoc(RRtournament, tournamentID).getList("crosstable-data", ArrayList.class);
+        List<?> rawList = actions.getTournamentIDDoc(RRtournament, tournamentID).getList("crosstable-data",
+                ArrayList.class);
         List<ArrayList<String>> tournamentCrosstable = new ArrayList<>();
 
         for (Object obj : rawList) {
@@ -128,18 +131,21 @@ public class RoundRobinCrosstable {
     /**
      * Updates the scores in the cross table based on the game state.
      *
-     * @param player1   Name of the first player.
-     * @param player2   Name of the second player.
-     * @param state     State of the game.
-     * @param platform  Platform on which the game was played.
+     * @param player1  Name of the first player.
+     * @param player2  Name of the second player.
+     * @param state    State of the game.
+     * @param platform Platform on which the game was played.
      */
     public void updateCrossTableScores(String player1, String player2, GameState state, Platform platform) {
         List<ArrayList<String>> actualList = getTournamentCrosstable();
-        String player1Discord = actions.performGeneralSearch(RRplayercollection, platform.getPlayerField(), player1).getString("Discordname");
-        String player2Discord = actions.performGeneralSearch(RRplayercollection, platform.getPlayerField(), player2).getString("Discordname");
+        String player1Discord = actions.performGeneralSearch(RRplayercollection, platform.getPlayerField(), player1)
+                .getString("Discordname");
+        String player2Discord = actions.performGeneralSearch(RRplayercollection, platform.getPlayerField(), player2)
+                .getString("Discordname");
         List<String> players = actions.getTournamentIDDoc(RRtournament, tournamentID).getList("players", String.class);
 
-        if (!players.contains(player1Discord) || !players.contains(player2Discord) || state == null || player1.equalsIgnoreCase(player2)) {
+        if (!players.contains(player1Discord) || !players.contains(player2Discord) || state == null
+                || player1.equalsIgnoreCase(player2)) {
             System.out.println("Invalid player names! Can't update the cross table!");
             return;
         }
@@ -191,7 +197,8 @@ public class RoundRobinCrosstable {
      */
     public void withdrawPlayer(int currentSize, int playerIndex) throws RoundRobinException {
         if (currentSize <= 3) {
-            throw new RoundRobinException("Can't withdraw player as base limit is reached, please withdraw after a while");
+            throw new RoundRobinException(
+                    "Can't withdraw player as base limit is reached, please withdraw after a while");
         }
 
         List<ArrayList<String>> actualList = getTournamentCrosstable();

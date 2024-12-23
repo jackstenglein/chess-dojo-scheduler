@@ -9,7 +9,8 @@ import org.bson.Document;
 import java.io.IOException;
 
 /**
- * This class handles the submission of a game to the round-robin tournament via API.
+ * This class handles the submission of a game to the round-robin tournament via
+ * API.
  */
 public class GameHandler {
 
@@ -23,13 +24,15 @@ public class GameHandler {
 
     /**
      * Constructor for GameHandler.
+     * 
      * @param rRplayerCollection The MongoDB collection for player data.
-     * @param rRcollection The MongoDB collection for tournament data.
-     * @param discordName The Discord username of the player.
-     * @param dojoUsername The Dojo username of the player.
-     * @param gameURL The URL of the game to be submitted.
+     * @param rRcollection       The MongoDB collection for tournament data.
+     * @param discordName        The Discord username of the player.
+     * @param dojoUsername       The Dojo username of the player.
+     * @param gameURL            The URL of the game to be submitted.
      */
-    public GameHandler(MongoCollection<Document> rRplayerCollection, MongoCollection<Document> rRcollection, String discordName, String dojoUsername, String gameURL) {
+    public GameHandler(MongoCollection<Document> rRplayerCollection, MongoCollection<Document> rRcollection,
+            String discordName, String dojoUsername, String gameURL) {
         this.RRplayerCollection = rRplayerCollection;
         this.RRcollection = rRcollection;
         this.discordName = discordName;
@@ -39,6 +42,7 @@ public class GameHandler {
 
     /**
      * Handles the submission of a game to the round-robin tournament via the API.
+     * 
      * @return The result of the game submission operation.
      */
     public String handleGameRequest() {
@@ -54,7 +58,8 @@ public class GameHandler {
                 return "Invalid game URL, games must be Lichess/Chess.com game";
             }
 
-            String platformUsername = actions.performGeneralSearch(RRplayerCollection, "Discordname", dbPlayerName).getString(platform.getPlayerField());
+            String platformUsername = actions.performGeneralSearch(RRplayerCollection, "Discordname", dbPlayerName)
+                    .getString(platform.getPlayerField());
             Document registeredTournament = actions.getRegisteredPlayerTournamentID(RRcollection, dbPlayerName);
 
             if (registeredTournament == null) {
@@ -68,8 +73,11 @@ public class GameHandler {
             }
 
             switch (platform) {
-                case LICHESS -> context.submitGame(new LichessStrategy(gameURL, RRplayerCollection, RRcollection, tournamentID));
-                case CHESSCOM -> context.submitGame(new ChessComStrategy(gameURL, platformUsername.toLowerCase().trim(), RRplayerCollection, RRcollection, tournamentID, registeredTournament.getDate("startdate"), registeredTournament.getDate("enddate")));
+                case LICHESS ->
+                    context.submitGame(new LichessStrategy(gameURL, RRplayerCollection, RRcollection, tournamentID));
+                case CHESSCOM -> context.submitGame(new ChessComStrategy(gameURL, platformUsername.toLowerCase().trim(),
+                        RRplayerCollection, RRcollection, tournamentID, registeredTournament.getDate("startdate"),
+                        registeredTournament.getDate("enddate")));
             }
 
             new LeaderboardCalculator(RRcollection).calculateAndUpdateLeaderboard(tournamentID);

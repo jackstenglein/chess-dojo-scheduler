@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-
-
 public class Integrationtest {
 
     static MongoCollection<Document> RRcollection = null;
@@ -55,22 +53,19 @@ public class Integrationtest {
 
         RestAssured.baseURI = "http://127.0.0.1:3000";
 
-        if(RRcollection.countDocuments() > 1 && RRplayercollection.countDocuments() > 1){
+        if (RRcollection.countDocuments() > 1 && RRplayercollection.countDocuments() > 1) {
             System.out.println("Data loaded");
-        }else{
+        } else {
 
             MongoCollection<Document> sourceCollectiont = database.getCollection("rr-tournaments ");
             MongoCollection<Document> targetCollectiont = database.getCollection("rr-tournaments-beta");
 
-
             FindIterable<Document> documentst = sourceCollectiont.find();
-
 
             List<Document> documentListt = new ArrayList<>();
             for (Document doc : documentst) {
                 documentListt.add(doc);
             }
-
 
             if (!documentListt.isEmpty()) {
                 targetCollectiont.insertMany(documentListt);
@@ -82,15 +77,12 @@ public class Integrationtest {
             MongoCollection<Document> sourceCollection = database.getCollection("rr-players");
             MongoCollection<Document> targetCollection = database.getCollection("rr-players-beta");
 
-
             FindIterable<Document> documents = sourceCollection.find();
-
 
             List<Document> documentList = new ArrayList<>();
             for (Document doc : documents) {
                 documentList.add(doc);
             }
-
 
             if (!documentList.isEmpty()) {
                 targetCollection.insertMany(documentList);
@@ -98,7 +90,6 @@ public class Integrationtest {
             } else {
                 System.out.println("Source collection is empty.");
             }
-
 
         }
 
@@ -121,7 +112,8 @@ public class Integrationtest {
                 .get("/player")
                 .then()
                 .statusCode(200)
-                .body("message", equalTo("Registration Successful! You be notified when the Round Robin starts!")); // Example assertion
+                .body("message", equalTo("Registration Successful! You be notified when the Round Robin starts!")); // Example
+                                                                                                                    // assertion
     }
 
     @Test
@@ -139,7 +131,8 @@ public class Integrationtest {
                 .get("/player")
                 .then()
                 .statusCode(200)
-                .body("message", equalTo("Registration Successful! You be notified when the Round Robin starts!")); // Example assertion
+                .body("message", equalTo("Registration Successful! You be notified when the Round Robin starts!")); // Example
+                                                                                                                    // assertion
     }
 
     @Test
@@ -176,7 +169,6 @@ public class Integrationtest {
                 .statusCode(400);
     }
 
-
     @Test
     public void testWithdrawPlayer() {
         given()
@@ -188,16 +180,14 @@ public class Integrationtest {
                 .get("/player")
                 .then()
                 .statusCode(200)
-                .body("message", equalTo( "Successfully withdrew the player: " + "intetestuser1"));
+                .body("message", equalTo("Successfully withdrew the player: " + "intetestuser1"));
     }
-
 
     @Test
     public void testSubmitGame() {
         RRcollection.updateOne(
                 new Document("players", "capa_a"),
-                Updates.pull("game-submissions", "https://lichess.org/u7Vmvq2N")
-        );
+                Updates.pull("game-submissions", "https://lichess.org/u7Vmvq2N"));
         given()
                 .contentType(ContentType.JSON)
                 .queryParam("mode", "game")
@@ -208,19 +198,14 @@ public class Integrationtest {
                 .get("/player")
                 .then()
                 .statusCode(200)
-                .body("message", equalTo("Successfully computed the scores for the game URL: " + "https://lichess.org/u7Vmvq2N"));
+                .body("message", equalTo(
+                        "Successfully computed the scores for the game URL: " + "https://lichess.org/u7Vmvq2N"));
     }
 
     @AfterAll
-    static void tearDown(){
+    static void tearDown() {
         RRplayercollection.deleteMany(new Document());
         RRcollection.deleteMany(new Document());
     }
-
-
-
-
-
-
 
 }

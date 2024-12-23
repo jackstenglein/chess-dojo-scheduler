@@ -1,6 +1,5 @@
 package com.serverless.roundrobin;
 
-
 /**
  * This enum represents the range of ratings for a cohort.
  */
@@ -37,10 +36,11 @@ public enum CohortRange {
 
     /**
      * Constructor for CohortRange.
-     * @param start The start of the cohort range.
-     * @param end The end of the cohort range.
+     * 
+     * @param start   The start of the cohort range.
+     * @param end     The end of the cohort range.
      * @param LiStart The start of the Lichess conversion range.
-     * @param LiEnd The end of the Lichess conversion range.
+     * @param LiEnd   The end of the Lichess conversion range.
      */
     CohortRange(int start, int end, int LiStart, int LiEnd) {
         this.start = start;
@@ -50,9 +50,9 @@ public enum CohortRange {
 
     }
 
-
     /**
      * Gets the start of the cohort range.
+     * 
      * @return The start of the cohort range.
      */
     public int getStart() {
@@ -61,6 +61,7 @@ public enum CohortRange {
 
     /**
      * Gets the end of the cohort range.
+     * 
      * @return The end of the cohort range.
      */
     public int getEnd() {
@@ -69,9 +70,10 @@ public enum CohortRange {
 
     /**
      * Checks if a target is within a given range.
+     * 
      * @param lowerBound The lower bound of the range.
      * @param upperBound The upper
-     * @param target The target value.
+     * @param target     The target value.
      * @return True if the target is within the range, false otherwise.
      */
 
@@ -79,21 +81,21 @@ public enum CohortRange {
         return target >= lowerBound && target <= upperBound;
     }
 
-
     /**
      * Gets the time control of a tournament for this cohort
+     * 
      * @return The time control of the tournament.
      */
-    public int getTimeControl(){
-        if(getStart() <= 700){
+    public int getTimeControl() {
+        if (getStart() <= 700) {
             return 30;
-        } else if(isInRange(800, 1100, start)){
+        } else if (isInRange(800, 1100, start)) {
             return 30;
-        } else if(isInRange(1200, 1500, start)){
+        } else if (isInRange(1200, 1500, start)) {
             return 45;
-        } else if(isInRange(1600, 1900, start)){
+        } else if (isInRange(1600, 1900, start)) {
             return 60;
-        } else if (isInRange(2000, 2300, start)){
+        } else if (isInRange(2000, 2300, start)) {
             return 90;
         }
 
@@ -102,16 +104,17 @@ public enum CohortRange {
 
     /**
      * Gets the time increment of a tournament for this cohort
+     * 
      * @return The time increment of the tournament.
      */
-    public int getTimeIncrement(){
-        if(getStart() <= 700){
+    public int getTimeIncrement() {
+        if (getStart() <= 700) {
             return 0;
-        } else if(isInRange(800, 1200, start)){
+        } else if (isInRange(800, 1200, start)) {
             return 30;
-        } else if(isInRange(1200, 1600, start)){
+        } else if (isInRange(1200, 1600, start)) {
             return 30;
-        } else if(isInRange(1600, 2300, start)){
+        } else if (isInRange(1600, 2300, start)) {
             return 30;
         }
 
@@ -120,6 +123,7 @@ public enum CohortRange {
 
     /**
      * gets the String representation of the cohort range.
+     * 
      * @return The string representation of the cohort range.
      */
     @Override
@@ -127,11 +131,11 @@ public enum CohortRange {
         return String.format("COHORT_%d_%d", start, end);
     }
 
-
     /**
      * Finds the cohort range given the start and end values.
+     * 
      * @param start The start of the cohort range.
-     * @param end The end of the cohort range.
+     * @param end   The end of the cohort range.
      * @return The cohort range.
      */
     public static CohortRange findCohortRange(int start, int end) {
@@ -142,6 +146,5 @@ public enum CohortRange {
         }
         return null;
     }
-
 
 }

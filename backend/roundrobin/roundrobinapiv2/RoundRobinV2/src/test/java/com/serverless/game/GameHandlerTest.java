@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GameHandlerTest {
 
-
     static MongoCollection<Document> RRcollection = null;
 
     static MongoCollection<Document> RRplayercollection = null;
@@ -47,22 +46,19 @@ public class GameHandlerTest {
 
         RRplayercollection = database.getCollection("rr-players-beta");
 
-        if(RRcollection.countDocuments() > 1 && RRplayercollection.countDocuments() > 1){
+        if (RRcollection.countDocuments() > 1 && RRplayercollection.countDocuments() > 1) {
             System.out.println("Data loaded");
-        }else{
+        } else {
 
             MongoCollection<Document> sourceCollectiont = database.getCollection("rr-tournaments ");
             MongoCollection<Document> targetCollectiont = database.getCollection("rr-tournaments-beta");
 
-
             FindIterable<Document> documentst = sourceCollectiont.find();
-
 
             List<Document> documentListt = new ArrayList<>();
             for (Document doc : documentst) {
                 documentListt.add(doc);
             }
-
 
             if (!documentListt.isEmpty()) {
                 targetCollectiont.insertMany(documentListt);
@@ -76,12 +72,10 @@ public class GameHandlerTest {
 
             FindIterable<Document> documents = sourceCollection.find();
 
-
             List<Document> documentList = new ArrayList<>();
             for (Document doc : documents) {
                 documentList.add(doc);
             }
-
 
             if (!documentList.isEmpty()) {
                 targetCollection.insertMany(documentList);
@@ -90,51 +84,47 @@ public class GameHandlerTest {
                 System.out.println("Source collection is empty.");
             }
 
-
         }
 
     }
 
     @Test
-    void testLichessGameSubmission(){
+    void testLichessGameSubmission() {
         RRcollection.updateOne(
                 new Document("players", "capa_a"),
-                Updates.pull("game-submissions", "https://lichess.org/u7Vmvq2N")
-        );
-        GameHandler handler = new GameHandler(RRplayercollection, RRcollection, "capa_a", "capa_a", "https://lichess.org/u7Vmvq2N");
+                Updates.pull("game-submissions", "https://lichess.org/u7Vmvq2N"));
+        GameHandler handler = new GameHandler(RRplayercollection, RRcollection, "capa_a", "capa_a",
+                "https://lichess.org/u7Vmvq2N");
         String res = handler.handleGameRequest();
         assertEquals("Successfully computed the scores for the game URL: https://lichess.org/u7Vmvq2N", res);
     }
 
     @Test
-    void testChessComGameSubmission(){
+    void testChessComGameSubmission() {
         RRcollection.updateOne(
                 new Document("players", "capa_a"),
-                Updates.pull("game-submissions", "https://www.chess.com/game/live/125540296097")
-        );
-        GameHandler handler = new GameHandler(RRplayercollection, RRcollection, "capa_a", "capa_a", "https://www.chess.com/game/live/125540296097");
+                Updates.pull("game-submissions", "https://www.chess.com/game/live/125540296097"));
+        GameHandler handler = new GameHandler(RRplayercollection, RRcollection, "capa_a", "capa_a",
+                "https://www.chess.com/game/live/125540296097");
         String res = handler.handleGameRequest();
         System.out.println(res);
-        assertEquals("Successfully computed the scores for the game URL: https://www.chess.com/game/live/125540296097", res);
+        assertEquals("Successfully computed the scores for the game URL: https://www.chess.com/game/live/125540296097",
+                res);
 
     }
 
     @Test
-    void testNotWrongURL(){
-        GameHandler handler = new GameHandler(RRplayercollection, RRcollection, "capa_a", "capa_a", "https://www.chessdojo.club/games/1800-1900/2024.11.17_28489435-0bf3-400f-8259-b37adcb2366f");
+    void testNotWrongURL() {
+        GameHandler handler = new GameHandler(RRplayercollection, RRcollection, "capa_a", "capa_a",
+                "https://www.chessdojo.club/games/1800-1900/2024.11.17_28489435-0bf3-400f-8259-b37adcb2366f");
         String res = handler.handleGameRequest();
         assertEquals("Invalid game URL, games must be Lichess/Chess.com game", res);
     }
 
-
     @AfterAll
-    static void tearDown(){
+    static void tearDown() {
         RRplayercollection.deleteMany(new Document());
         RRcollection.deleteMany(new Document());
     }
-
-
-
-
 
 }

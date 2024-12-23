@@ -8,7 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This class calculates and updates the leaderboard for a round-robin tournament.
+ * This class calculates and updates the leaderboard for a round-robin
+ * tournament.
  */
 public class LeaderboardCalculator {
 
@@ -16,6 +17,7 @@ public class LeaderboardCalculator {
 
     /**
      * Constructor for LeaderboardCalculator.
+     * 
      * @param RRcollection The MongoDB collection for the tournament data.
      */
     public LeaderboardCalculator(MongoCollection<Document> RRcollection) {
@@ -24,50 +26,51 @@ public class LeaderboardCalculator {
 
     /**
      * Removes a player from the tournament.
-     * @param tid The ID of the tournament.
+     * 
+     * @param tid        The ID of the tournament.
      * @param playerName The name of the player to remove.
      */
     public void removePlayer(String tid, String playerName) {
         UpdateResult result = RRcollection.updateOne(
                 new Document("tournamentId", tid),
-                new Document("$unset", new Document("scoremap." + playerName, 0))
-        );
+                new Document("$unset", new Document("scoremap." + playerName, 0)));
         System.out.println("Removed player: " + playerName + ", matched count: " + result.getMatchedCount());
     }
 
     /**
      * Adds a player to the tournament.
-     * @param tid The ID of the tournament.
+     * 
+     * @param tid        The ID of the tournament.
      * @param playerName The name of the player to add.
-     * @param score The initial score of the player.
+     * @param score      The initial score of the player.
      */
 
-    public void addPlayer(String tid, String playerName, double score){
+    public void addPlayer(String tid, String playerName, double score) {
         System.out.println("ADD FUNCTION STARTED");
         UpdateResult result = RRcollection.updateOne(
                 new Document("tournamentId", tid),
-                new Document("$set", new Document("scoremap." + playerName, score))
-        );
+                new Document("$set", new Document("scoremap." + playerName, score)));
         System.out.println("Added player: " + playerName + ", matched count: " + result.getMatchedCount());
     }
 
     /**
      * Updates the score of a player in the tournament.
-     * @param tid The ID of the tournament.
+     * 
+     * @param tid        The ID of the tournament.
      * @param playerName The name of the player.
-     * @param increment The amount to increment the score by.
+     * @param increment  The amount to increment the score by.
      */
 
     public void updatePlayerScore(String tid, String playerName, double increment) {
         UpdateResult result = RRcollection.updateOne(
                 new Document("tournamentId", tid),
-                new Document("$inc", new Document("scoremap." + playerName, increment))
-        );
+                new Document("$inc", new Document("scoremap." + playerName, increment)));
         System.out.println("Updated score for player: " + playerName + ", matched count: " + result.getMatchedCount());
     }
 
     /**
      * Calculates and updates the leaderboard for the tournament.
+     * 
      * @param tid The ID of the tournament.
      */
     public void calculateAndUpdateLeaderboard(String tid) {
@@ -82,9 +85,9 @@ public class LeaderboardCalculator {
                 List<Map.Entry<String, Double>> leaderboard = scoreMap.entrySet()
                         .stream()
                         .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), getDoubleValue(entry.getValue())))
-                        .sorted((entry1, entry2) -> Double.compare(entry2.getValue(), entry1.getValue())) // Sort descending
+                        .sorted((entry1, entry2) -> Double.compare(entry2.getValue(), entry1.getValue())) // Sort
+                                                                                                          // descending
                         .collect(Collectors.toList());
-
 
                 Document newScoreMap = new Document();
                 for (Map.Entry<String, Double> entry : leaderboard) {
@@ -93,8 +96,7 @@ public class LeaderboardCalculator {
 
                 RRcollection.updateOne(
                         new Document("tournamentId", tid),
-                        new Document("$set", new Document("scoremap", newScoreMap))
-                );
+                        new Document("$set", new Document("scoremap", newScoreMap)));
 
                 System.out.println("Leaderboard updated successfully.");
             }
@@ -105,6 +107,7 @@ public class LeaderboardCalculator {
 
     /**
      * Retrieves the double value of an object.
+     * 
      * @param value The object to convert.
      * @return The double value of the object.
      */
@@ -116,7 +119,9 @@ public class LeaderboardCalculator {
     }
 
     /**
-     * Gives free byes to all players in the tournament when someone withdraws from the tournament.
+     * Gives free byes to all players in the tournament when someone withdraws from
+     * the tournament.
+     * 
      * @param tid The ID of the tournament.
      */
     public void giveFreeByesOnWithdraw(String tid) {
@@ -132,6 +137,5 @@ public class LeaderboardCalculator {
             }
         }
     }
-
 
 }
