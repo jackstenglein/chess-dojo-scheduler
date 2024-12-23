@@ -1,18 +1,57 @@
 import { Check, ContentPaste } from '@mui/icons-material';
 import { IconButton, Menu, MenuItem, Stack, Tooltip } from '@mui/material';
 import copy from 'copy-to-clipboard';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useChess } from '../../PgnBoard';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { useRouter } from '@/hooks/useRouter';
+import { usePathname } from 'next/navigation';
+import { EventType as ChessEventType } from '@jackstenglein/chess';
 
 const StartButtons = () => {
     const { chess } = useChess();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [copied, setCopied] = useState('');
+    const {searchParams} = useNextSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
+
+    useEffect(() => {
+        if (!chess) {
+            return;
+        }
+
+        const observer = {
+            types: [
+                ChessEventType.NewVariation,
+                ChessEventType.UpdateComment,
+                ChessEventType.UpdateCommand,
+                ChessEventType.UpdateNags,
+                ChessEventType.Initialized,
+                ChessEventType.UpdateDrawables,
+                ChessEventType.DeleteMove,
+                ChessEventType.DeleteBeforeMove,
+                ChessEventType.PromoteVariation,
+                ChessEventType.UpdateHeader,
+            ],
+            handler: () => {
+                const params = new URLSearchParams(searchParams);
+                params.set("fen", chess.fen());
+
+                const url = `${pathname}?${params.toString()}`;
+                window.history.replaceState({ ...window.history.state, as: url, url, }, '',url);
+            }
+        }
+
+        chess.addObserver(observer);
+
+        return () => chess.removeObserver(observer);
+    }, [chess, pathname, router, searchParams]);
 
     const handleClose = () => {
         setAnchorEl(null);
