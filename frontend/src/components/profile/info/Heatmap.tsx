@@ -243,7 +243,7 @@ export function CategoryLegend() {
  * @param viewer The user viewing the site. Used for calculating timezones.
  * @returns A list of activities and the total count.
  */
-export function getActivity(
+function getActivity(
     entries: TimelineEntry[],
     field: TimelineEntryField,
     minDate: string,

@@ -202,6 +202,9 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/user/{owner}/timeline
+          method: get
     iamRoleStatements:
       - Effect: Allow
         Action:
