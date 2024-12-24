@@ -7,18 +7,17 @@ import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButton
 import { GameContext } from '@/context/useGame';
 import { User } from '@/database/user';
 import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import useSaveGame from '@/hooks/useSaveGame';
 import LoadingPage from '@/loading/LoadingPage';
-import { Chess, FEN } from '@jackstenglein/chess';
+import { Chess, EventType as ChessEventType, FEN } from '@jackstenglein/chess';
 import {
     CreateGameRequest,
     GameOrientation,
     GameOrientations,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Api } from 'chessground/api';
-import { EventType as ChessEventType } from '@jackstenglein/chess';
 import { usePathname } from 'next/navigation';
-import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 
 const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -32,7 +31,9 @@ function parseCreateGameRequest(req: CreateGameRequest | null) {
 export default function AnalysisBoard() {
     const { stagedGame } = useSaveGame();
     const { pgn, fen: initialFen } = parseCreateGameRequest(stagedGame);
-    const { searchParams } = useNextSearchParams({fen: initialFen ?? startingPositionFen});
+    const { searchParams } = useNextSearchParams({
+        fen: initialFen ?? startingPositionFen,
+    });
     const { user, status } = useAuth();
     const pathname = usePathname();
 
@@ -69,7 +70,7 @@ export default function AnalysisBoard() {
         };
 
         chess.addObserver(observer);
-    }
+    };
 
     return (
         <PgnErrorBoundary pgn={pgn}>
@@ -81,7 +82,7 @@ export default function AnalysisBoard() {
             >
                 <PgnBoard
                     pgn={pgn}
-                    fen={searchParams.get("fen") ?? undefined}
+                    fen={searchParams.get('fen') ?? undefined}
                     onInitialize={onInitialize}
                     startOrientation={getDefaultOrientation(pgn, user)}
                     underboardTabs={[
