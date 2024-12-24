@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-    plugins: [react(), tsconfigPaths()],
+    plugins: [tsconfigPaths(), react()],
     test: {
         globals: true,
         environment: 'happy-dom',
@@ -19,7 +19,7 @@ export default defineConfig({
         },
         coverage: {
             provider: "istanbul",
-            include: "src/**"
+            include: ["src/**"],
         }
     },
 });
