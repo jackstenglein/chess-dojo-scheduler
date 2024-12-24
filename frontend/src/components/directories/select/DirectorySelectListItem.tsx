@@ -1,4 +1,4 @@
-import { RenderPlayers } from '@/games/list/GameListItem';
+import { RenderPlayers } from '@/components/games/list/GameListItem';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Directory,
