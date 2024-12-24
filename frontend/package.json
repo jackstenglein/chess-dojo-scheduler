@@ -86,7 +86,8 @@
         "build:development": "$npm_package_config_run_dev -- next build",
         "test": "npm run test:unit && npm run test:cypress",
         "test:unit": "$npm_package_config_run_test -- vitest run",
-        "test:cypress": "cypress run",
+        "test:cypress": "$npm_package_config_run_test -- vitest run",
+        "test:coverage": "$npm_package_config_run_test -- vitest run --coverage",
         "lint": "npm run lint:types && eslint .",
         "lint:cypress": "eslint cypress",
         "lint:fix": "eslint --fix .",
@@ -132,6 +133,7 @@
         "@types/uuid": "^10.0.0",
         "@typescript-eslint/eslint-plugin": "^7.12.0",
         "@typescript-eslint/parser": "^7.12.0",
+        "@vitest/coverage-istanbul": "^2.1.8",
         "babel-plugin-istanbul": "^7.0.0",
         "command-line-args": "^6.0.1",
         "command-line-usage": "^7.0.3",
@@ -153,7 +155,8 @@
         "tsx": "^4.19.2",
         "typescript": "^5.4.5",
         "typescript-eslint": "^8.8.0",
-        "vite-plugin-eslint": "^1.8.1"
+        "vite-plugin-eslint": "^1.8.1",
+        "vitest-tsconfig-paths": "^3.4.1"
     },
     "overrides": {
         "d3-interpolate": "^3.0.1",

@@ -3,7 +3,11 @@
         "baseUrl": ".",
         "target": "ES2015",
         "useDefineForClassFields": true,
-        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable"
+        ],
         "module": "ESNext",
         "esModuleInterop": true,
         "skipLibCheck": true,
@@ -20,8 +24,20 @@
         "allowJs": true,
         "forceConsistentCasingInFileNames": true,
         "incremental": true,
-        "plugins": [{ "name": "next" }],
-        "paths": { "@/*": ["src/*"] }
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ],
+        "paths": {
+            "@/*": [
+                "src/*"
+            ]
+        },
+        "types": [
+            "vitest/globals",
+            "vitest/jsdom"
+        ]
     },
     "include": [
         "src",
@@ -34,5 +50,8 @@
         "./next-env.d.ts",
         ".next/types/**/*.ts"
     ],
-    "exclude": ["node_modules", "src/stockfish/engine/sf17-79.js"]
+    "exclude": [
+        "node_modules",
+        "src/stockfish/engine/sf17-79.js"
+    ]
 }
