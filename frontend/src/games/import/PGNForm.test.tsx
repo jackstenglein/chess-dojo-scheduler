@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render } from '@/test-utils';
 import { expect, it } from 'vitest';
 import { PGNForm } from './PGNForm';
 

@@ -1,8 +1,8 @@
-import { render } from "@testing-library/react";
-import {MetaPixel} from "./MetaPixel";
+import { render } from '@/test-utils';
+import { MetaPixel } from './MetaPixel';
 
-describe("MetaPixel", () => {
-  test("renders", () => {
-    render(<MetaPixel />);
-  });
+describe('MetaPixel', () => {
+    test('renders', () => {
+        render(<MetaPixel />);
+    });
 });
