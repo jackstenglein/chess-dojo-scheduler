@@ -20,6 +20,7 @@ export default defineConfig({
         coverage: {
             provider: "istanbul",
             include: ["src/**"],
+            reportsDirectory: "coverage",
         }
     },
 });

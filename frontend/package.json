@@ -83,6 +83,7 @@
         "build:development": "$npm_package_config_run_dev -- next build",
         "test": "npm run test:unit && npm run test:cypress",
         "test:unit": "$npm_package_config_run_test -- vitest run",
+        "test:list": "$npm_package_config_run_test -- vitest list",
         "test:cypress": "$npm_package_config_run_test -- vitest run",
         "lint": "npm run lint:types && eslint .",
         "lint:cypress": "eslint cypress",

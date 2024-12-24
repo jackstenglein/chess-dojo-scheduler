@@ -34,6 +34,8 @@ export const EnvSchema = z.object({
     baseUrl: z.string(),
     isBeta: z.boolean(),
     metaPixelId: z.string(),
+    cognito_test_username: z.string(),
+    cognito_test_password: z.string(),
 });
 
 export type Config = z.infer<typeof EnvSchema>;
@@ -67,5 +69,7 @@ export function getConfig(): Config {
         baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
         isBeta: process.env.NEXT_PUBLIC_IS_BETA === 'true',
         metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID,
+        cognito_test_username: process.env.AWS_COGNITO_USERNAME,
+        cognito_test_password: process.env.AWS_COGNITO_PASSWORD,
     });
 }

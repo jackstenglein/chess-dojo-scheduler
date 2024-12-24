@@ -1,5 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 
+import { expect } from 'vitest';
+
 vi.mock('next/navigation', async () => {
     const actual = await vi.importActual('next/navigation');
     return {
@@ -14,14 +16,12 @@ vi.mock('next/navigation', async () => {
     };
 });
 
-beforeEach((context) => {
-  ['warn', 'error'].forEach(method => {
-    vi.spyOn(console, method).mockClear()
-  })
+beforeEach(() => {
+  vi.spyOn(console, 'warn').mockClear()
+  vi.spyOn(console, 'error').mockClear()
 })
 
-afterEach((context) => {
-  ['warn', 'error'].forEach(method => {
-    expect(console[method]).not.toHaveBeenCalled()
-  })
+afterEach(() => {
+    expect(console.warn).not.toHaveBeenCalled()
+    expect(console.error).not.toHaveBeenCalled()
 })
