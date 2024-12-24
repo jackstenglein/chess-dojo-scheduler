@@ -1,9 +1,9 @@
 import { useReconcile } from '@/board/Board';
+import { useChess } from '@/board/pgn/PgnBoard';
 import { Chess, Move } from '@jackstenglein/chess';
 import { Button, Dialog, DialogActions, DialogTitle } from '@mui/material';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { useChess } from '../../PgnBoard';
 import { WarnBeforeDelete } from './settings/EditorSettings';
 
 export interface DeleteAction {

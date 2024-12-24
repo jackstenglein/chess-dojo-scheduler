@@ -1,4 +1,9 @@
+import { useFreeTier } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
+import { isGraduation } from '@/database/graduation';
+import { Requirement, ScoreboardDisplay, formatTime } from '@/database/requirement';
+import { User, compareCohorts } from '@/database/user';
+import Avatar from '@/profile/Avatar';
 import HelpIcon from '@mui/icons-material/Help';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import { Stack, Tooltip } from '@mui/material';
@@ -14,11 +19,6 @@ import {
 } from '@mui/x-data-grid-pro';
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
-import { useFreeTier } from '../auth/Auth';
-import { isGraduation } from '../database/graduation';
-import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
-import { User, compareCohorts } from '../database/user';
-import Avatar from '../profile/Avatar';
 import CohortIcon from './CohortIcon';
 import ScoreboardProgress from './ScoreboardProgress';
 import {

@@ -1,7 +1,7 @@
+import { isObject } from '@/database/scoreboard';
 import { Alert, Snackbar } from '@mui/material';
 import { AxiosError } from 'axios';
 import { ReactNode, useCallback, useMemo, useState } from 'react';
-import { isObject } from '../database/scoreboard';
 
 /**
  * RequestStatus defines the different status types that an API request can have.

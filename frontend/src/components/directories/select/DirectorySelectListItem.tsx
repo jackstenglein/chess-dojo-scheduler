@@ -1,3 +1,4 @@
+import { RenderPlayers } from '@/games/list/GameListItem';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Directory,
@@ -7,7 +8,6 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { ChevronRight, Folder } from '@mui/icons-material';
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { RenderPlayers } from '../../games/list/GameListItem';
 
 /**
  * Renders a list item to select directory items. Games are rendered but disabled.

@@ -1,11 +1,11 @@
-import { LichessTablebasePosition } from '@jackstenglein/chess-dojo-common/src/explorer/types';
-import axios, { AxiosResponse } from 'axios';
-import { getConfig } from '../config';
+import { getConfig } from '@/config';
 import {
     ExplorerPosition,
     ExplorerPositionFollower,
     LichessExplorerPosition,
-} from '../database/explorer';
+} from '@/database/explorer';
+import { LichessTablebasePosition } from '@jackstenglein/chess-dojo-common/src/explorer/types';
+import axios, { AxiosResponse } from 'axios';
 
 const BASE_URL = getConfig().api.baseUrl;
 

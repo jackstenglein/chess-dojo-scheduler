@@ -1,3 +1,5 @@
+import { parsePgnDate, stripTagValue, toPgnDate } from '@/api/gameApi';
+import { GameResult, PgnHeaders, isGameResult } from '@/database/game';
 import {
     GameHeader,
     GameOrientation,
@@ -24,8 +26,6 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
-import { parsePgnDate, stripTagValue, toPgnDate } from '../../api/gameApi';
-import { GameResult, PgnHeaders, isGameResult } from '../../database/game';
 
 interface FormHeader {
     white: string;

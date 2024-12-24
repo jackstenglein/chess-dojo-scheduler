@@ -1,4 +1,10 @@
+import { EventType, setUserCohort, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth, useFreeTier } from '@/auth/Auth';
 import { Graduation } from '@/database/graduation';
+import { RatingSystem, shouldPromptGraduation } from '@/database/user';
+import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import SchoolIcon from '@mui/icons-material/School';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -13,12 +19,6 @@ import {
     Tooltip,
 } from '@mui/material';
 import { useState } from 'react';
-import { EventType, setUserCohort, trackEvent } from '../analytics/events';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import { RatingSystem, shouldPromptGraduation } from '../database/user';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import GraduationShareDialog from './GraduationShareDialog';
 
 const GraduationDialog = () => {

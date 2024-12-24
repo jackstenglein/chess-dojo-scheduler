@@ -1,3 +1,19 @@
+import { useRequirements } from '@/api/cache/requirements';
+import {
+    CustomTask,
+    Requirement,
+    RequirementProgress,
+    ScoreboardDisplay,
+    formatTime,
+    getCurrentCount,
+    getTotalTime,
+    isBlocked,
+    isExpired,
+    isRequirement,
+} from '@/database/requirement';
+import { ALL_COHORTS, User } from '@/database/user';
+import RequirementModal from '@/requirements/RequirementModal';
+import ScoreboardProgress, { ProgressText } from '@/scoreboard/ScoreboardProgress';
 import { AddCircle, Lock } from '@mui/icons-material';
 import {
     Box,
@@ -11,22 +27,6 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
-import { useRequirements } from '../../api/cache/requirements';
-import {
-    CustomTask,
-    Requirement,
-    RequirementProgress,
-    ScoreboardDisplay,
-    formatTime,
-    getCurrentCount,
-    getTotalTime,
-    isBlocked,
-    isExpired,
-    isRequirement,
-} from '../../database/requirement';
-import { ALL_COHORTS, User } from '../../database/user';
-import RequirementModal from '../../requirements/RequirementModal';
-import ScoreboardProgress, { ProgressText } from '../../scoreboard/ScoreboardProgress';
 import CustomTaskProgressItem from './CustomTaskProgressItem';
 import ProgressDialog from './ProgressDialog';
 

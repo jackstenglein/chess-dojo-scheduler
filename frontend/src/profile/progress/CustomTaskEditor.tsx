@@ -1,3 +1,13 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import {
+    CustomTask,
+    RequirementCategory,
+    ScoreboardDisplay,
+} from '@/database/requirement';
+import { dojoCohorts } from '@/database/user';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -16,16 +26,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import {
-    CustomTask,
-    RequirementCategory,
-    ScoreboardDisplay,
-} from '../../database/requirement';
-import { dojoCohorts } from '../../database/user';
 
 interface CustomTaskEditorProps {
     task?: CustomTask;

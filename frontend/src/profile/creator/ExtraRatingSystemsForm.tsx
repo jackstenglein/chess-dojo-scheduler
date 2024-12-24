@@ -9,15 +9,15 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 
-import { LoadingButton } from '@mui/lab';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import {
     RatingSystem,
     User,
     getRatingUsername,
     hideRatingUsername,
-} from '../../database/user';
+} from '@/database/user';
+import { LoadingButton } from '@mui/lab';
 import {
     getHelperText,
     getUsernameLabel,

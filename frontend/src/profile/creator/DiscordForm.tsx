@@ -10,11 +10,11 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useFreeTier } from '../../auth/Auth';
-import { User } from '../../database/user';
-import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useFreeTier } from '@/auth/Auth';
+import { User } from '@/database/user';
+import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
 const DiscordForm: React.FC<ProfileCreatorFormProps> = ({

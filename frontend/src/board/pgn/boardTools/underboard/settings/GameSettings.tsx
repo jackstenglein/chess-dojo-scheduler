@@ -3,6 +3,8 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { isMissingData, parsePgnDate, toPgnDate } from '@/api/gameApi';
 import { useFreeTier } from '@/auth/Auth';
+import { useChess } from '@/board/pgn/PgnBoard';
+import AnnotationWarnings from '@/board/pgn/annotations/AnnotationWarnings';
 import { Game, PgnHeaders } from '@/database/game';
 import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '@/games/view/DeleteGameButton';
@@ -29,8 +31,6 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react';
-import { useChess } from '../../../PgnBoard';
-import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
 
 interface GameSettingsProps {

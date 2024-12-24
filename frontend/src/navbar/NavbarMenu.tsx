@@ -1,6 +1,8 @@
 import { useNotifications } from '@/api/cache/Cache';
+import { AuthStatus, useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import NotificationButton from '@/components/notifications/NotificationButton';
+import { hasCreatedProfile } from '@/database/user';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
@@ -55,8 +57,6 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { AuthStatus, useAuth } from '../auth/Auth';
-import { hasCreatedProfile } from '../database/user';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, {
     ExtraSmallMenuUnauthenticated,

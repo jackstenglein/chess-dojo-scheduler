@@ -1,3 +1,13 @@
+import { useApi } from '@/api/Api';
+import { useRequest } from '@/api/Request';
+import { Requirement } from '@/database/requirement';
+import {
+    ALL_COHORTS,
+    User,
+    compareCohorts,
+    isCohortInRange,
+    isCohortLess,
+} from '@/database/user';
 import { Chess, Move } from '@jackstenglein/chess';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import {
@@ -6,16 +16,6 @@ import {
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { useEffect } from 'react';
-import { useApi } from '../../api/Api';
-import { useRequest } from '../../api/Request';
-import { Requirement } from '../../database/requirement';
-import {
-    ALL_COHORTS,
-    User,
-    compareCohorts,
-    isCohortInRange,
-    isCohortLess,
-} from '../../database/user';
 
 /**
  * Fetches the exam and current user's answer based on the current page's

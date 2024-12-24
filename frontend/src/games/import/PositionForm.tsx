@@ -1,4 +1,7 @@
+import { useRequirements } from '@/api/cache/requirements';
+import { useFreeTier } from '@/auth/Auth';
 import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
+import { ALL_COHORTS } from '@/database/user';
 import { Chess } from '@jackstenglein/chess';
 import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import {
@@ -11,9 +14,6 @@ import {
     TextField,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { useRequirements } from '../../api/cache/requirements';
-import { useFreeTier } from '../../auth/Auth';
-import { ALL_COHORTS } from '../../database/user';
 import { BoardEditor } from './BoardEditor';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';

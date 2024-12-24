@@ -1,3 +1,11 @@
+import { getConfig } from '@/config';
+import {
+    Game,
+    GameInfo,
+    GameReviewType,
+    PositionComment,
+    isGameResult,
+} from '@/database/game';
 import {
     CreateGameRequest,
     GameHeader,
@@ -6,14 +14,6 @@ import {
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import axios, { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
-import { getConfig } from '../config';
-import {
-    Game,
-    GameInfo,
-    GameReviewType,
-    PositionComment,
-    isGameResult,
-} from '../database/game';
 
 const BASE_URL = getConfig().api.baseUrl;
 

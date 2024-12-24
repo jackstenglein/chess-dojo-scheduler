@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 
-import { getConfig } from '../config';
-import { Club, ClubDetails, ClubJoinRequestStatus } from '../database/club';
-import { ScoreboardSummary } from '../database/scoreboard';
-import { User } from '../database/user';
+import { getConfig } from '@/config';
+import { Club, ClubDetails, ClubJoinRequestStatus } from '@/database/club';
+import { ScoreboardSummary } from '@/database/scoreboard';
+import { User } from '@/database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 

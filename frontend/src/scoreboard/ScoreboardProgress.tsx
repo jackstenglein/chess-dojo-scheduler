@@ -1,8 +1,8 @@
+import { useAuth } from '@/auth/Auth';
+import { Requirement, formatTime } from '@/database/requirement';
+import ProgressDialog from '@/profile/progress/ProgressDialog';
 import { Box, LinearProgress, LinearProgressProps, Typography } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '../auth/Auth';
-import { Requirement, formatTime } from '../database/requirement';
-import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ProgressTextProps {
     value?: number;

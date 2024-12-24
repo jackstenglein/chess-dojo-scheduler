@@ -1,10 +1,10 @@
-import { Chip, Stack } from '@mui/material';
 import {
     formatRatingSystem,
     getMinRatingBoundary,
     getRatingBoundary,
     RatingSystem,
-} from '../database/user';
+} from '@/database/user';
+import { Chip, Stack } from '@mui/material';
 
 interface GraduationChipsProps {
     cohort: string;

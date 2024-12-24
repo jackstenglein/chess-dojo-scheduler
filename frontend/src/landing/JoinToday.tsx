@@ -1,5 +1,5 @@
+import PriceMatrix from '@/upsell/PriceMatrix';
 import { Grid2, Stack, Typography } from '@mui/material';
-import PriceMatrix from '../upsell/PriceMatrix';
 
 const today = new Date();
 const promoEnd = new Date('2024-06-01');

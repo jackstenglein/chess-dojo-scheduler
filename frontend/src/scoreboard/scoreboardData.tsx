@@ -1,14 +1,12 @@
-import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
-import React, { useState } from 'react';
-import { Graduation, isGraduation } from '../database/graduation';
+import { Graduation, isGraduation } from '@/database/graduation';
 import {
     Requirement,
     ScoreboardDisplay,
     getCurrentCount,
     getCurrentScore,
     getTotalScore,
-} from '../database/requirement';
-import { ScoreboardSummary, isScoreboardSummary } from '../database/scoreboard';
+} from '@/database/requirement';
+import { ScoreboardSummary, isScoreboardSummary } from '@/database/scoreboard';
 import {
     MinutesSpentKey,
     RatingSystem,
@@ -17,8 +15,10 @@ import {
     getNormalizedRating,
     getCurrentRating as getUserCurrentRating,
     getStartRating as getUserStartRating,
-} from '../database/user';
-import RequirementModal from '../requirements/RequirementModal';
+} from '@/database/user';
+import RequirementModal from '@/requirements/RequirementModal';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
+import React, { useState } from 'react';
 import ScoreboardCheck from './ScoreboardCheck';
 import ScoreboardProgress from './ScoreboardProgress';
 

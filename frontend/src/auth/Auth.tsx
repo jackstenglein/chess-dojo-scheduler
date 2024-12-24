@@ -1,6 +1,14 @@
 'use client';
 
+import { EventType, setUser as setAnalyticsUser, trackEvent } from '@/analytics/events';
+import { syncPurchases } from '@/api/paymentApi';
+import { getUser } from '@/api/userApi';
+import {
+    clearCheckoutSessionIds,
+    getAllCheckoutSessionIds,
+} from '@/app/(scoreboard)/courses/localStorage';
 import { getConfig } from '@/config';
+import { CognitoUser, parseUser, SubscriptionStatus, User } from '@/database/user';
 import { Amplify } from 'aws-amplify';
 import {
     confirmSignUp as amplifyConfirmSignUp,
@@ -28,14 +36,6 @@ import {
     useState,
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { EventType, setUser as setAnalyticsUser, trackEvent } from '../analytics/events';
-import { syncPurchases } from '../api/paymentApi';
-import { getUser } from '../api/userApi';
-import {
-    clearCheckoutSessionIds,
-    getAllCheckoutSessionIds,
-} from '../app/(scoreboard)/courses/localStorage';
-import { CognitoUser, parseUser, SubscriptionStatus, User } from '../database/user';
 
 const config = getConfig();
 Amplify.configure(

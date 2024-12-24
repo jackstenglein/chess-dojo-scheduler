@@ -22,12 +22,12 @@ import {
 import copy from 'copy-to-clipboard';
 import React, { useState } from 'react';
 
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useFreeTier } from '@/auth/Auth';
+import { ExplorerPositionFollower } from '@/database/explorer';
+import { dojoCohorts } from '@/database/user';
 import { LoadingButton } from '@mui/lab';
-import { useApi } from '../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../api/Request';
-import { useFreeTier } from '../../../auth/Auth';
-import { ExplorerPositionFollower } from '../../../database/explorer';
-import { dojoCohorts } from '../../../database/user';
 
 interface HeaderProps {
     fen: string;

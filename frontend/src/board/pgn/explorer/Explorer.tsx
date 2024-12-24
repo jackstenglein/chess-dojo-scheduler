@@ -1,13 +1,13 @@
+import { usePosition } from '@/api/cache/positions';
+import { ExplorerPositionFollower } from '@/database/explorer';
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
+import { KingIcon, RookIcon } from '@/style/ChessIcons';
 import { Event, EventType } from '@jackstenglein/chess';
 import { TabContext } from '@mui/lab';
 import { Box, CardContent, Tab, Tabs } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { SiLichess } from 'react-icons/si';
 import { useLocalStorage } from 'usehooks-ts';
-import { usePosition } from '../../../api/cache/positions';
-import { ExplorerPositionFollower } from '../../../database/explorer';
-import { ChessDojoIcon } from '../../../style/ChessDojoIcon';
-import { KingIcon, RookIcon } from '../../../style/ChessIcons';
 import { useChess } from '../PgnBoard';
 import Database from './Database';
 import Header from './Header';

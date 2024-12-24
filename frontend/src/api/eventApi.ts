@@ -1,7 +1,7 @@
+import { getConfig } from '@/config';
+import { Event } from '@/database/event';
+import { User } from '@/database/user';
 import axios, { AxiosResponse } from 'axios';
-import { getConfig } from '../config';
-import { Event } from '../database/event';
-import { User } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 

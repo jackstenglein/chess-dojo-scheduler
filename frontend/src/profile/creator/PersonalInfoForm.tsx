@@ -1,9 +1,9 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import { DefaultTimezone, TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
 import { LoadingButton } from '@mui/lab';
 import { Stack, TextField } from '@mui/material';
 import { useState } from 'react';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
 const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep }) => {

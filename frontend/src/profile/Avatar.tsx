@@ -1,10 +1,10 @@
 import { Avatar as MuiAvatar, SxProps } from '@mui/material';
 
-import { useCache } from '../api/cache/Cache';
-import { getConfig } from '../config';
-import { Club } from '../database/club';
-import { User } from '../database/user';
-import { avatarProps, SxSize } from '../style/style';
+import { useCache } from '@/api/cache/Cache';
+import { getConfig } from '@/config';
+import { Club } from '@/database/club';
+import { User } from '@/database/user';
+import { avatarProps, SxSize } from '@/style/style';
 
 const picturesBucket = getConfig().media.picturesBucket;
 

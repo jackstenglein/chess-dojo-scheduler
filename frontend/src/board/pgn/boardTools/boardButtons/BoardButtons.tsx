@@ -1,9 +1,9 @@
+import { useChess } from '@/board/pgn/PgnBoard';
 import { VisibilityIcon } from '@/components/games/edit/UnpublishedGameBanner';
 import { UnsavedGameIcon } from '@/components/games/edit/UnsavedGameBanner';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import { Box, Paper, Stack } from '@mui/material';
-import { useChess } from '../../PgnBoard';
 import { UnderboardApi } from '../underboard/Underboard';
 import ControlButtons from './ControlButtons';
 import StartButtons from './StartButtons';

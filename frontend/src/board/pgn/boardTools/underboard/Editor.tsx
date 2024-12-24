@@ -1,3 +1,16 @@
+import { useReconcile } from '@/board/Board';
+import {
+    Nag,
+    evalNags,
+    getNagInSet,
+    getNagsInSet,
+    moveNags,
+    nags,
+    positionalNags,
+    setNagInSet,
+    setNagsInSet,
+} from '@/board/pgn/Nag';
+import { BlockBoardKeyboardShortcuts, useChess } from '@/board/pgn/PgnBoard';
 import { Chess, CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { Backspace, Edit } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -20,19 +33,6 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
-import { useReconcile } from '../../../Board';
-import {
-    Nag,
-    evalNags,
-    getNagInSet,
-    getNagsInSet,
-    moveNags,
-    nags,
-    positionalNags,
-    setNagInSet,
-    setNagsInSet,
-} from '../../Nag';
-import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import ClockTextField from './clock/ClockTextField';
 import { TimeControlDescription } from './clock/TimeControlDescription';
 import { DeletePrompt, useDeletePrompt } from './DeletePrompt';

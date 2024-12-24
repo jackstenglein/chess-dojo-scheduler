@@ -1,9 +1,9 @@
+import { useAuth } from '@/auth/Auth';
+import { AvailabilityType, Event, EventType } from '@/database/event';
+import { dojoCohorts } from '@/database/user';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
 import { Frequency, RRule } from 'rrule';
-import { useAuth } from '../../auth/Auth';
-import { AvailabilityType, Event, EventType } from '../../database/event';
-import { dojoCohorts } from '../../database/user';
 
 /**
  * Returns true if the provided object is a valid date.

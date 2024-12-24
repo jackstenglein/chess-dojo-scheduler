@@ -1,12 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
 
-import { getConfig } from '../config';
+import { getConfig } from '@/config';
 import {
     Leaderboard,
     LeaderboardSite,
     OpenClassical,
     TournamentType,
-} from '../database/tournament';
+} from '@/database/tournament';
 
 const BASE_URL = getConfig().api.baseUrl;
 

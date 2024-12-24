@@ -1,5 +1,14 @@
 'use client';
 
+import { useAuth } from '@/auth/Auth';
+import { Club, ClubJoinRequestStatus } from '@/database/club';
+import { Course } from '@/database/course';
+import { Event } from '@/database/event';
+import { GameReviewType, PositionComment } from '@/database/game';
+import { Requirement } from '@/database/requirement';
+import { TimelineEntry } from '@/database/timeline';
+import { LeaderboardSite, TournamentType } from '@/database/tournament';
+import { User } from '@/database/user';
 import {
     AddDirectoryItemsRequestV2,
     CreateDirectoryRequestV2Client,
@@ -20,15 +29,6 @@ import {
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import { DateTime } from 'luxon';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
-import { useAuth } from '../auth/Auth';
-import { Club, ClubJoinRequestStatus } from '../database/club';
-import { Course } from '../database/course';
-import { Event } from '../database/event';
-import { GameReviewType, PositionComment } from '../database/game';
-import { Requirement } from '../database/requirement';
-import { TimelineEntry } from '../database/timeline';
-import { LeaderboardSite, TournamentType } from '../database/tournament';
-import { User } from '../database/user';
 import {
     ClubApiContextType,
     batchGetClubs,

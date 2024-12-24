@@ -1,3 +1,8 @@
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import { useChess } from '@/board/pgn/PgnBoard';
+import ResizeHandle from '@/board/pgn/ResizeHandle';
+import Explorer from '@/board/pgn/explorer/Explorer';
+import { ResizableData } from '@/board/pgn/resize';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import {
@@ -22,11 +27,6 @@ import {
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
-import { AuthStatus, useAuth } from '../../../../auth/Auth';
-import { useChess } from '../../PgnBoard';
-import ResizeHandle from '../../ResizeHandle';
-import Explorer from '../../explorer/Explorer';
-import { ResizableData } from '../../resize';
 import Editor from './Editor';
 import ClockUsage from './clock/ClockUsage';
 import Comments from './comments/Comments';

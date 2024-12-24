@@ -1,5 +1,16 @@
+import { RequestSnackbar } from '@/api/Request';
+import { useRequirements } from '@/api/cache/requirements';
 import { useFreeTier } from '@/auth/Auth';
 import DojoScoreCard from '@/components/profile/stats/DojoScoreCard';
+import {
+    Requirement,
+    RequirementCategory,
+    isBlocked,
+    isComplete,
+} from '@/database/requirement';
+import { ALL_COHORTS, User, dojoCohorts } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
     Button,
@@ -12,17 +23,6 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { RequestSnackbar } from '../../api/Request';
-import { useRequirements } from '../../api/cache/requirements';
-import {
-    Requirement,
-    RequirementCategory,
-    isBlocked,
-    isComplete,
-} from '../../database/requirement';
-import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
-import CohortIcon from '../../scoreboard/CohortIcon';
 import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory, { Category } from './ProgressCategory';
 

@@ -1,6 +1,6 @@
+import { normalizeFen } from '@/database/explorer';
 import { AxiosError } from 'axios';
 import { useEffect, useMemo } from 'react';
-import { normalizeFen } from '../../database/explorer';
 import { useApi } from '../Api';
 import { Request, useRequest } from '../Request';
 import { GetExplorerPositionResult } from '../explorerApi';

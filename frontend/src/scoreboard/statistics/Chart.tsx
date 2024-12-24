@@ -2,7 +2,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import { AxisOptions, Chart as ReactChart } from 'react-charts';
 
-import { useAuth } from '../../auth/Auth';
+import { useAuth } from '@/auth/Auth';
 
 export interface Datum {
     cohort: string;

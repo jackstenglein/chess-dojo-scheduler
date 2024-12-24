@@ -1,5 +1,8 @@
 'use client';
 
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRouter } from '@/hooks/useRouter';
 import {
     CreateGameRequest,
@@ -7,9 +10,6 @@ import {
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
 import ImportWizard from '../import/ImportWizard';
 
 interface PreflightData {

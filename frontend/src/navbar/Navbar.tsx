@@ -1,5 +1,8 @@
 'use client';
 
+import { useEvents } from '@/api/cache/Cache';
+import { useAuth } from '@/auth/Auth';
+import { Event, EventStatus } from '@/database/event';
 import {
     AppBar,
     Container,
@@ -9,9 +12,6 @@ import {
     useMediaQuery,
     useScrollTrigger,
 } from '@mui/material';
-import { useEvents } from '../api/cache/Cache';
-import { useAuth } from '../auth/Auth';
-import { Event, EventStatus } from '../database/event';
 import NavbarMenu from './NavbarMenu';
 
 interface HideOnScrollProps {

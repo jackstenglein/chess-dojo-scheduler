@@ -1,9 +1,9 @@
 import { Button, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 
-import { useAuth } from '../auth/Auth';
-import { CustomTask } from '../database/requirement';
-import CustomTaskEditor from '../profile/progress/CustomTaskEditor';
+import { useAuth } from '@/auth/Auth';
+import { CustomTask } from '@/database/requirement';
+import CustomTaskEditor from '@/profile/progress/CustomTaskEditor';
 import DeleteCustomTaskModal from './DeleteCustomTaskModal';
 
 interface CustomTaskDisplayProps {

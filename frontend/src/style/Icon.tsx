@@ -1,3 +1,12 @@
+import {
+    AvailabilityType,
+    CalendarSessionType,
+    EventType,
+    PositionType,
+    TimeControlType,
+    TournamentType,
+} from '@/database/event';
+import { RequirementCategory } from '@/database/requirement';
 import { EngineName } from '@/stockfish/engine/engine';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -64,15 +73,6 @@ import {
 } from '@mui/icons-material';
 import { SvgIcon, SvgIconProps } from '@mui/material';
 import React, { forwardRef } from 'react';
-import {
-    AvailabilityType,
-    CalendarSessionType,
-    EventType,
-    PositionType,
-    TimeControlType,
-    TournamentType,
-} from '../database/event';
-import { RequirementCategory } from '../database/requirement';
 import { ChessDojoIcon } from './ChessDojoIcon';
 import { RookIcon } from './ChessIcons';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from './SocialMediaIcons';

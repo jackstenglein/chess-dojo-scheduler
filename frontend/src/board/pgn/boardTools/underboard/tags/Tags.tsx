@@ -1,4 +1,5 @@
 import { isValidDate, stripTagValue } from '@/api/gameApi';
+import { useChess } from '@/board/pgn/PgnBoard';
 import { Link } from '@/components/navigation/Link';
 import { Game, MastersCohort } from '@/database/game';
 import Avatar from '@/profile/Avatar';
@@ -15,7 +16,6 @@ import {
     GridRenderEditCellParams,
 } from '@mui/x-data-grid-pro';
 import React, { useEffect, useState } from 'react';
-import { useChess } from '../../../PgnBoard';
 import { EditDateCell } from './DateEditor';
 import { TimeControlGridEditor } from './TimeControlEditor';
 

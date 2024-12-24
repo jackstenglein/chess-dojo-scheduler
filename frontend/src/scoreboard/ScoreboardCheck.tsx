@@ -1,10 +1,10 @@
+import { useAuth } from '@/auth/Auth';
+import { Requirement } from '@/database/requirement';
+import ProgressDialog from '@/profile/progress/ProgressDialog';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { Box } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '../auth/Auth';
-import { Requirement } from '../database/requirement';
-import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ScoreboardCheckProps {
     value: number;
