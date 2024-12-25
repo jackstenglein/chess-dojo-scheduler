@@ -1,7 +1,11 @@
+import { useAuth } from '@/auth/Auth';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Circle from '@mui/icons-material/Circle';
+import OutlinedFlagIcon from '@mui/icons-material/OutlinedFlag';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import {
     Box,
+    Button,
     Card,
     CircularProgress,
     Container,
@@ -20,15 +24,24 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import RegisterModal from './RegisterModal';
 import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
 import { TournamentEntry } from './TournamentEntry';
+import WithdrawModal from './WithdrawModal';
 export const ROUND_ROBIN_COHORT_KEY = 'ROUND_ROBIN_COHORT';
-
 export const PairingsPage = () => {
+    const { user } = useAuth();
+
+    if (!user) {
+        return null;
+    }
+
     const [selectedCohort, setSelectedCohort] = useLocalStorage<number>(
         ROUND_ROBIN_COHORT_KEY,
         0,
     );
+    const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
+    const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
     const [selectedRound, setSelectedRound] = useState<number>(1);
     const [tournamentData, setTournamentData] = useState<TournamentId>();
     const [loading, setLoading] = useState<boolean>(false);
@@ -42,6 +55,13 @@ export const PairingsPage = () => {
     const handleRoundChange = (event: SelectChangeEvent<number>) => {
         setSelectedRound(Number(event.target.value));
     };
+
+    const handleOpenRegisterModal = () => setRegisterModalOpen(true);
+    const handleCloseRegisterModal = () => setRegisterModalOpen(false);
+    const handleOpenWithdrawModal = () => setWithdrawModalOpen(true);
+    const handleCloseWithdrawModal = () => setWithdrawModalOpen(false);
+
+    const checkSameCohort = parseInt(user?.dojoCohort.split('-')[0]) === selectedCohort;
 
     useEffect(() => {
         if (selectedCohort !== 0) {
@@ -133,6 +153,58 @@ export const PairingsPage = () => {
                                                         }
                                                         tc={tournament.tc}
                                                         inc={tournament.inc}
+                                                    />
+                                                    <Box textAlign='right'>
+                                                        {tournament.players.includes(
+                                                            user?.displayName,
+                                                        ) ? (
+                                                            <Button
+                                                                sx={{ ml: 1 }}
+                                                                variant='contained'
+                                                                color='error'
+                                                                startIcon={
+                                                                    <OutlinedFlagIcon />
+                                                                }
+                                                                onClick={
+                                                                    handleOpenWithdrawModal
+                                                                }
+                                                            >
+                                                                Withdraw
+                                                            </Button>
+                                                        ) : checkSameCohort &&
+                                                          tournament.waiting &&
+                                                          !tournamentData?.tournaments.some(
+                                                              (t) =>
+                                                                  t.players.includes(
+                                                                      user?.displayName,
+                                                                  ),
+                                                          ) ? (
+                                                            <Button
+                                                                variant='contained'
+                                                                color='success'
+                                                                onClick={
+                                                                    handleOpenRegisterModal
+                                                                }
+                                                                startIcon={
+                                                                    <PlayArrowIcon />
+                                                                }
+                                                            >
+                                                                Register
+                                                            </Button>
+                                                        ) : (
+                                                            <Box />
+                                                        )}
+                                                    </Box>
+                                                    <RegisterModal
+                                                        open={isRegisterModalOpen}
+                                                        onClose={handleCloseRegisterModal}
+                                                        user={user}
+                                                    />
+                                                    <WithdrawModal
+                                                        open={isWithdrawModalOpen}
+                                                        onClose={handleCloseWithdrawModal}
+                                                        waiting={tournament.waiting}
+                                                        user={user}
                                                     />
                                                 </TableCell>
                                             </TableRow>

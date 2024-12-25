@@ -33,8 +33,8 @@ export const StatPage = () => {
     );
     const [tournamentData, setTournamentData] = useState<TournamentId>();
     const [loading, setLoading] = useState<boolean>(false);
-    const [viewMode, setViewMode] = useState<'count' | 'percentage'>('count'); // Toggle between count and percentage
-    const [displayMode, setDisplayMode] = useState<'graph' | 'list'>('graph'); // Toggle between graph and list views
+    const [viewMode, setViewMode] = useState<'count' | 'percentage'>('count');
+    const [displayMode, setDisplayMode] = useState<'graph' | 'list'>('graph');
 
     const displayIcon =
         selectedCohort !== 0 ? `${selectedCohort}-${selectedCohort + 100}` : '0-300';
@@ -126,7 +126,7 @@ export const StatPage = () => {
                         },
                         { data: draws, label: viewMode === 'count' ? 'Draws' : 'Draw %' },
                     ]}
-                    width={1000}
+                    width={1100}
                     height={400}
                 />
             </Box>
@@ -214,6 +214,7 @@ export const StatPage = () => {
                     onChange={(_e, newViewMode) =>
                         newViewMode && setViewMode(newViewMode)
                     }
+                    size='small'
                     aria-label='view mode toggle'
                 >
                     <ToggleButton value='count'>Count</ToggleButton>
@@ -223,6 +224,7 @@ export const StatPage = () => {
                 <ToggleButtonGroup
                     value={displayMode}
                     exclusive
+                    size='small'
                     onChange={(_e, newDisplayMode) =>
                         newDisplayMode && setDisplayMode(newDisplayMode)
                     }
@@ -257,32 +259,50 @@ export const StatPage = () => {
                             tc={tournament.tc}
                             inc={tournament.inc}
                         />
-                        <Typography variant='subtitle1' textAlign='center' gutterBottom>
-                            Time Elapsed:{' '}
-                            {calculateTimeElapsed(
-                                tournament.startdate,
-                                tournament.enddate,
-                            )}
-                            %{'  '}
-                            Time Remaining{' '}
-                            {calculateTimeRemaining(
-                                tournament.startdate,
-                                tournament.enddate,
-                            )}
-                            % Game completion:{' '}
-                            {calculateGameComp(tournament.players, tournament.gameSub)}%
-                        </Typography>
-                        <Box sx={{ mt: 3 }}>
-                            {displayMode === 'graph'
-                                ? renderLineGraph(
-                                      tournament.players,
-                                      tournament.crosstabledata,
-                                  )
-                                : renderListView(
-                                      tournament.players,
-                                      tournament.crosstabledata,
-                                  )}
-                        </Box>
+
+                        {tournament.waiting ? (
+                            <>
+                                <Typography align='center'>
+                                    {' '}
+                                    No tournament stats available{' '}
+                                </Typography>
+                            </>
+                        ) : (
+                            <Box sx={{ mt: 3 }}>
+                                <Typography
+                                    variant='subtitle1'
+                                    textAlign='center'
+                                    gutterBottom
+                                >
+                                    Time Elapsed:{' '}
+                                    {calculateTimeElapsed(
+                                        tournament.startdate,
+                                        tournament.enddate,
+                                    )}
+                                    %{'  '}
+                                    Time Remaining{' '}
+                                    {calculateTimeRemaining(
+                                        tournament.startdate,
+                                        tournament.enddate,
+                                    )}
+                                    % Game completion:{' '}
+                                    {calculateGameComp(
+                                        tournament.players,
+                                        tournament.gameSub,
+                                    )}
+                                    %
+                                </Typography>
+                                {displayMode === 'graph'
+                                    ? renderLineGraph(
+                                          tournament.players,
+                                          tournament.crosstabledata,
+                                      )
+                                    : renderListView(
+                                          tournament.players,
+                                          tournament.crosstabledata,
+                                      )}
+                            </Box>
+                        )}
                     </Card>
                 ))
             )}

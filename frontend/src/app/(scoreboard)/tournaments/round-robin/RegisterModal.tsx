@@ -1,4 +1,4 @@
-import { useAuth } from '@/auth/Auth';
+import { User } from '@/database/user';
 import {
     Button,
     CircularProgress,
@@ -6,20 +6,29 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    InputAdornment,
+    styled,
     TextField,
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
+import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si'; // Importing react-icons
 import { registerUser } from './roundRobinApi';
 
 export interface RegisterModalProps {
     open: boolean;
     onClose: () => void;
+    user: User;
 }
 
-const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
-    const { user } = useAuth();
 
+const StyledDialog = styled(Dialog)(() => ({
+    '& .MuiPaper-root': {
+        backgroundColor: 'black',
+    },
+}));
+
+const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose, user }) => {
     if (!user) {
         return null;
     }
@@ -31,6 +40,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
     );
     const [loading, setLoading] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
+   
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -57,7 +68,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
     };
 
     return (
-        <Dialog open={open} onClose={handleClose}>
+        <StyledDialog open={open} onClose={handleClose}>
             <DialogTitle>
                 {feedbackMessage
                     ? 'Registration Feedback'
@@ -85,6 +96,13 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
                             label='Lichess Name'
                             value={lichessName}
                             onChange={(e) => setLichessName(e.target.value)}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <SiLichess fontSize={25} />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                         <TextField
                             fullWidth
@@ -92,6 +110,16 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
                             label='Discord Name'
                             value={discordName}
                             onChange={(e) => setDiscordName(e.target.value)}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <SiDiscord
+                                            fontSize={25}
+                                            style={{ color: '#5865f2' }}
+                                        />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                         <TextField
                             fullWidth
@@ -99,6 +127,16 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
                             label='Chess.com Name'
                             value={chessComName}
                             onChange={(e) => setChessComName(e.target.value)}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <SiChessdotcom
+                                            fontSize={25}
+                                            style={{ color: '#81b64c' }}
+                                        />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                     </>
                 )}
@@ -123,7 +161,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
                     </>
                 )}
             </DialogActions>
-        </Dialog>
+        </StyledDialog>
     );
 };
 

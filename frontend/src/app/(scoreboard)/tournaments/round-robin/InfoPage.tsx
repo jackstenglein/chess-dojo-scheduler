@@ -1,6 +1,4 @@
 import {
-    Box,
-    Button,
     Divider,
     List,
     ListItem,
@@ -19,23 +17,21 @@ import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
-import { useState } from 'react';
-import GameModal from './GameModal';
-import RegisterModal from './RegisterModal';
-import WithdrawModal from './WithdrawModal';
+import TimeControlTable from './TimeControlTable';
+
 
 const faqs = [
     {
         question: 'Is there a registration period for Dojo Round robins?',
-        answer: 'yes, the registration for the tournament starts 1 week before the tournament start date, the tournament season start every 3 months.',
+        answer: 'yes, the registration is on rolling basis, meaning as more players sign up, newer tournament registration automatically opens up',
     },
     {
         question: 'How do I register for the Dojo Round Robin?',
-        answer: 'Use the /register command in the Dojo Training Program Discord to join the tournament in your cohort.',
+        answer: 'You can go to pairings tab and hit register',
     },
     {
         question: 'I just graduated from my cohort, can I play 1 level up?',
-        answer: 'Yes players are allowed to play 1 level down and 1 level up so even if you graduate you can stay in the tournament cohort when you registered. This can be done by changing cohort roles in training program Discord in #roles channel',
+        answer: 'Yes, system will take care of that automatically',
     },
     {
         question: 'What are the time controls for different cohorts?',
@@ -43,21 +39,16 @@ const faqs = [
     },
     {
         question: 'When do the tournaments start?',
-        answer: "The tournaments start after registration period ends, and when there are atleast 8-10 players, if 10 players can't be found the tournaments may begin. Look out for offical annoucement from @DojoSystem on Discord about tournaments starting.",
+        answer: "As soon as 10 players have joined",
     },
     {
         question:
             'My cohort tournament pairings and crosstable are not showing, why is that?',
-        answer: "There are less than 5 players so the tournament pairings can't be generated, please invite your friends or ask around so more people can sign up and the tournament can start!",
-    },
-    {
-        question:
-            "When I register for the tournaments the bot doesn't allow me, why is that?",
-        answer: 'Make sure you have verified either of Lichess/Chess.com accounts with /verify or /verifychesscom, also make sure to pick your cohort role in #roles, if an issue still persists contact @Noobmaster or create tech ticket',
+        answer: "The tournament is waiting for at least 10 players to join, when its active it will be in active state",
     },
     {
         question: 'What if I want to withdraw from the tournament?',
-        answer: "You can withdraw from the tournament with /withdraw BUT you can't join back after withdrawing",
+        answer: "You can easily withdraw when tournament didn't start yet, when its started and you have to withdraw your scores will not count",
     },
     {
         question: 'How do I schedule the round games?',
@@ -65,11 +56,11 @@ const faqs = [
     },
     {
         question: 'I just played a game, do I have to submit the game somewhere?',
-        answer: 'No! The system will automatically find your games and track the crosstables, however if you suspect your game scores are not up to date, or there is wrong game URL in game panel please contact @Alex Dodd or @Noobmaster',
+        answer: 'You can submit the game by hitting the submit game button under games tab',
     },
     {
         question: 'I played a game but I do not see scores coming in why is that?',
-        answer: 'The scores take time to be calculated usually occur end of day, there can be also a problem with account verification, if you and your opponent played on Chess.com but you only connected your account with Lichess using /verify the scores would be neglected as you did not connect your Chess.com account. So always connect the account you and your opponent are playing on.',
+        answer: 'Usually scores show automatically show up, if there is error please ping @Jalp',
     },
     {
         question: 'What happens if I suspect someone of cheating?',
@@ -102,16 +93,7 @@ const FAQSection = () => (
  * @returns the info page
  */
 export const InfoPage = () => {
-    const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
-    const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
-    const [isGameModalOpen, setGameModalOpen] = useState(false);
-
-    const handleOpenRegisterModal = () => setRegisterModalOpen(true);
-    const handleCloseRegisterModal = () => setRegisterModalOpen(false);
-    const handleOpenWithdrawModal = () => setWithdrawModalOpen(true);
-    const handleCloseWithdrawModal = () => setWithdrawModalOpen(false);
-    const handleOpenGameModal = () => setGameModalOpen(true);
-    const handleCloseGameModal = () => setGameModalOpen(false);
+    
     return (
         <Stack spacing={2}>
             <Typography variant='h5' textAlign='center' color='text.secondary'>
@@ -155,52 +137,11 @@ export const InfoPage = () => {
                         <AccessTime sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText
-                        primary='Play classical time control games recommended by Training program for your cohort: Under 800: 30+0
-800-1200: 30+30
-1200+: 45+30
-1600+: 60+30
-2000+: 90+30'
+                        primary='Play classical time control games recommended by Training program for your cohort'
                     />
                 </ListItem>
             </List>
-
-            <Box textAlign='left'>
-                <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={handleOpenRegisterModal}
-                >
-                    Register
-                </Button>
-                <Button
-                    sx={{ ml: 1 }}
-                    variant='contained'
-                    color='primary'
-                    onClick={handleOpenWithdrawModal}
-                >
-                    Withdraw
-                </Button>
-
-                <Button
-                    sx={{ ml: 1 }}
-                    variant='contained'
-                    color='primary'
-                    onClick={handleOpenGameModal}
-                >
-                    Submit Game
-                </Button>
-            </Box>
-
-            <RegisterModal
-                open={isRegisterModalOpen}
-                onClose={handleCloseRegisterModal}
-            />
-            <WithdrawModal
-                open={isWithdrawModalOpen}
-                onClose={handleCloseWithdrawModal}
-            />
-            <GameModal open={isGameModalOpen} onClose={handleCloseGameModal} />
-
+            <TimeControlTable />
             <Divider />
 
             <Typography variant='h6' color='text.secondary'>

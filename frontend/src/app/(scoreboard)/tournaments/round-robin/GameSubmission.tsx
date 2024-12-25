@@ -3,6 +3,7 @@ import {
     getChesscomGame,
     getLichessGame,
 } from '@/app/(scoreboard)/games/analysis/server';
+import { useAuth } from '@/auth/Auth';
 import useSaveGame from '@/hooks/useSaveGame';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Chess } from '@jackstenglein/chess';
@@ -36,6 +37,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { useLocalStorage } from 'usehooks-ts';
+import GameModal from './GameModal';
 import { ROUND_ROBIN_COHORT_KEY } from './PairingPage';
 import { cohorts, fetchTournamentData, TournamentId } from './roundRobinApi';
 import { TournamentEntry } from './TournamentEntry';
@@ -44,11 +46,20 @@ import { TournamentEntry } from './TournamentEntry';
  * @returns the UI for game submission
  */
 export const GameSubmission = () => {
+    const [isGameModalOpen, setGameModalOpen] = useState(false);
+    const handleOpenGameModal = () => setGameModalOpen(true);
+    const handleCloseGameModal = () => setGameModalOpen(false);
     const [analyzingSubmission, setAnalyzingSubmission] = useState<string | null>(null);
     const searchParams = useSearchParams();
     const { setStagedGame, createGame, request } = useSaveGame();
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedTournamentGames, setSelectedTournamentGames] = useState<string[]>([]);
+
+    const { user } = useAuth();
+
+    if (!user) {
+        return null;
+    }
 
     const onCreate = async (req: CreateGameRequest) => {
         if (searchParams.has('directory') && searchParams.has('directoryOwner')) {
@@ -198,6 +209,28 @@ export const GameSubmission = () => {
                                                 gameCount={tournament.gameSub.length}
                                                 tc={tournament.tc}
                                                 inc={tournament.inc}
+                                            />
+                                            <Box textAlign='right'>
+                                                {!tournament.waiting &&
+                                                tournament.players.includes(
+                                                    user?.displayName,
+                                                ) ? (
+                                                    <Button
+                                                        sx={{ ml: 1 }}
+                                                        variant='contained'
+                                                        color='success'
+                                                        onClick={handleOpenGameModal}
+                                                    >
+                                                        Submit Game
+                                                    </Button>
+                                                ) : (
+                                                    <Box />
+                                                )}
+                                            </Box>
+                                            <GameModal
+                                                open={isGameModalOpen}
+                                                onClose={handleCloseGameModal}
+                                                user={user}
                                             />
                                         </TableCell>
                                     </TableRow>

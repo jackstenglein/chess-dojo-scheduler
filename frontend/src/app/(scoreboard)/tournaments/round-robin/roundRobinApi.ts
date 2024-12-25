@@ -10,17 +10,16 @@ export interface RoundRobinModel {
     players: string[]; // players
     gameSub: string[]; // game submissions
     tc: number; // time control
-    inc: number; // time increment 
+    inc: number; // time increment
     fen: string; // fen yea we can run chess960 tournaments lol
     status: string; // tournament status
-    startdate: Date; // start date of tournament 
+    startdate: Date; // start date of tournament
     enddate: Date; // end date of tournament
     waiting: boolean; // is waiting list?
-    scoremap: {[key: string]: number }; // hashmappa for leaderboard (joma tech reference)
+    scoremap: { [key: string]: number }; // hashmappa for leaderboard (joma tech reference)
 }
 
-
-interface RoundRobinPlayerApi{
+interface RoundRobinPlayerApi {
     message: string;
 }
 
@@ -58,7 +57,8 @@ export const cohorts = [
 ];
 
 const endpoint = getConfig().api.roundRobinUrl;
-const localendpoint = 'endpoint/Prod/player';
+const localendpoint =
+    'endpoint/Prod/player';
 /**
  * method to fetch round robin tournament data from given tournament id
  * @param id string tournament id
@@ -80,18 +80,24 @@ export const fetchTournamentData = async (cohortValue: number): Promise<Tourname
     }
 };
 
-
-export const registerUser = async (cohortValue: number, discordName: string, discordId: string, lichessName: string, chessComName: string, dojoUsername: string): Promise<string> => {
+export const registerUser = async (
+    cohortValue: number,
+    discordName: string,
+    discordId: string,
+    lichessName: string,
+    chessComName: string,
+    dojoUsername: string,
+): Promise<string> => {
     try {
         const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
             params: {
-                'mode': 'register',
-                'cohortstart': cohortValue,
-                'discordname': discordName,
-                'discordid': discordId,
-                'lichessname': lichessName,
-                'chesscomname': chessComName,
-                'dojousername': dojoUsername
+                mode: 'register',
+                cohortstart: cohortValue,
+                discordname: discordName,
+                discordid: discordId,
+                lichessname: lichessName,
+                chesscomname: chessComName,
+                dojousername: dojoUsername,
             },
         });
 
@@ -102,13 +108,16 @@ export const registerUser = async (cohortValue: number, discordName: string, dis
     }
 };
 
-export const withdrawUser = async (discordName: string, dojoUsername: string): Promise<string> => {
+export const withdrawUser = async (
+    discordName: string,
+    dojoUsername: string,
+): Promise<string> => {
     try {
         const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
             params: {
-                'mode': 'withdraw',
-                'discordname': discordName,
-                'dojousername': dojoUsername
+                mode: 'withdraw',
+                discordname: discordName,
+                dojousername: dojoUsername,
             },
         });
 
@@ -119,15 +128,18 @@ export const withdrawUser = async (discordName: string, dojoUsername: string): P
     }
 };
 
-
-export const submitGameFromUser = async (discordName: string, dojoUsername: string, gameURL: string): Promise<string> => {
+export const submitGameFromUser = async (
+    discordName: string,
+    dojoUsername: string,
+    gameURL: string,
+): Promise<string> => {
     try {
         const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
             params: {
-                'mode': 'game',
-                'discordname': discordName,
-                'dojousername': dojoUsername,
-                'gameurl': gameURL,
+                mode: 'game',
+                discordname: discordName,
+                dojousername: dojoUsername,
+                gameurl: gameURL,
             },
         });
 
@@ -137,4 +149,3 @@ export const submitGameFromUser = async (discordName: string, dojoUsername: stri
         throw error;
     }
 };
-

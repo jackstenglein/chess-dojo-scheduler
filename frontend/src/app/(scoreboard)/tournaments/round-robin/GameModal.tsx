@@ -1,4 +1,3 @@
-import { useAuth } from '@/auth/Auth';
 import {
     Button,
     CircularProgress,
@@ -13,9 +12,7 @@ import React, { useState } from 'react';
 import { RegisterModalProps } from './RegisterModal';
 import { submitGameFromUser } from './roundRobinApi';
 
-const GameModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
-    const { user } = useAuth();
-
+const GameModal: React.FC<RegisterModalProps> = ({ open, onClose, user }) => {
     if (!user) {
         return null;
     }
@@ -43,7 +40,7 @@ const GameModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
     };
 
     const handleClose = () => {
-        setFeedbackMessage(null); // Reset feedback message when closing
+        setFeedbackMessage(null);
         onClose();
     };
 

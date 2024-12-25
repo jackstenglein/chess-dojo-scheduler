@@ -1,4 +1,3 @@
-import { useAuth } from '@/auth/Auth';
 import {
     Button,
     CircularProgress,
@@ -13,9 +12,16 @@ import { withdrawUser } from './roundRobinApi';
 
 import { RegisterModalProps } from './RegisterModal';
 
-const WithdrawModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
-    const { user } = useAuth();
+interface WithdrawModalProps extends RegisterModalProps {
+    waiting: boolean;
+}
 
+const WithdrawModal: React.FC<WithdrawModalProps> = ({
+    open,
+    onClose,
+    user,
+    waiting,
+}) => {
     if (!user) {
         return null;
     }
@@ -63,9 +69,9 @@ const WithdrawModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
                     <Typography>{feedbackMessage}</Typography>
                 ) : (
                     <Typography variant='body1' gutterBottom>
-                        Are you sure you want to withdraw? If you withdraw, all opponents
-                        you played will get 1 point win, and your old game scores won't
-                        count.
+                        {waiting
+                            ? 'Are you sure you want to withdraw? You would not be able to join back if this one becomes active again!'
+                            : 'Are you sure you want to withdraw? If you withdraw, all opponents you played will get 1 point win, and your old game scores would not count'}
                     </Typography>
                 )}
             </DialogContent>
