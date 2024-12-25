@@ -121,8 +121,12 @@ export const Crosstable = () => {
                                             tc={tournament.tc}
                                             inc={tournament.inc}
                                         />
+                                        <>
+                                        {tournament.waiting} 
+
                                         <Button
                                             variant='contained'
+                                            disabled={tournament.waiting}
                                             startIcon={
                                                 showLeaderboard[tournament.id] ? (
                                                     <TableChartIcon />
@@ -136,6 +140,8 @@ export const Crosstable = () => {
                                                 ? 'Crosstable'
                                                 : 'Leaderboard'}
                                         </Button>
+
+                                        </>
                                     </Box>
 
                                     {showLeaderboard[tournament.id] ? (

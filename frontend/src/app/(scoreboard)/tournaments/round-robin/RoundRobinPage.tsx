@@ -12,7 +12,8 @@ import { Crosstable } from './CrosstablePage';
 import { GameSubmission } from './GameSubmission';
 import { InfoPage } from './InfoPage';
 import { PairingsPage } from './PairingPage';
-
+import TimelineIcon from '@mui/icons-material/Timeline';
+import { StatPage } from './GameStatPage';
 /**
  * Renders a tab panel.
  * @param index the int index value
@@ -60,6 +61,7 @@ export const RoundRobinPage = () => {
                     <Tab label='Pairings' icon={<GroupIcon />} />
                     <Tab label='Crosstable' icon={<TableChartIcon />} />
                     <Tab label='Games' icon={<PawnIcon />} />
+                    <Tab label='Stats' icon={<TimelineIcon/>} />
                 </Tabs>
             </Box>
             <TabPanel value={tabValue} index={0}>
@@ -73,6 +75,9 @@ export const RoundRobinPage = () => {
             </TabPanel>
             <TabPanel value={tabValue} index={3}>
                 <GameSubmission />
+            </TabPanel>
+            <TabPanel value={tabValue} index={4}>
+                <StatPage />
             </TabPanel>
         </Container>
     );
