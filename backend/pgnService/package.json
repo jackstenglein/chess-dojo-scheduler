@@ -7,7 +7,7 @@
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.436.0",
         "@aws-sdk/util-dynamodb": "^3.436.0",
-        "@jackstenglein/chess": "^2.2.3",
+        "@jackstenglein/chess": "^2.2.8",
         "@jackstenglein/chess-dojo-common": "file:../../common",
         "@savi2w/chess-tcn": "^1.0.0",
         "chess-dojo-directory-service": "file:../directoryService",

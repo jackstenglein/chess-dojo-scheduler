@@ -51,6 +51,7 @@ const AnnotationWarnings = () => {
                     EventType.NewVariation,
                     EventType.UpdateComment,
                     EventType.DeleteMove,
+                    EventType.DeleteBeforeMove,
                     EventType.UpdateNags,
                 ],
                 handler: () => {

@@ -1,13 +1,14 @@
 'use client';
 
+import { Link } from '@/components/navigation/Link';
 import {
+    Button,
     Card,
     CardContent,
     CardHeader,
     Container,
     Divider,
     Grid2,
-    Link,
     Stack,
     Typography,
 } from '@mui/material';
@@ -388,9 +389,9 @@ const AuthenticatedHelp = () => {
                         variant='outlined'
                         sx={{
                             position: 'sticky',
-                            top: 'calc(80px + 32px)',
+                            top: 'calc(var(--navbar-height) + 32px)',
                             overflowY: 'scroll',
-                            height: 'calc(100vh - 80px - 32px - 32px)',
+                            height: 'calc(100vh - var(--navbar-height) - 32px - 32px)',
                         }}
                     >
                         <CardHeader title='Table of Contents' />
@@ -450,18 +451,14 @@ const AuthenticatedHelp = () => {
                             </Typography>
                         </Stack>
 
-                        {/* <Stack>
+                        <Stack>
                             <Typography variant='h5'>Tutorials</Typography>
                             <Divider />
                             <ul>
                                 <li>
                                     <Button
-                                        onClick={() =>
-                                            onTutorial(
-                                                '/profile',
-                                                TutorialName.ProfilePage,
-                                            )
-                                        }
+                                        component={Link}
+                                        href='/profile?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >
                                         Launch Profile Page Tutorial
@@ -469,12 +466,8 @@ const AuthenticatedHelp = () => {
                                 </li>
                                 <li>
                                     <Button
-                                        onClick={() =>
-                                            onTutorial(
-                                                '/scoreboard',
-                                                TutorialName.ScoreboardPage,
-                                            )
-                                        }
+                                        component={Link}
+                                        href='/scoreboard?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >
                                         Launch Scoreboard Page Tutorial
@@ -482,12 +475,8 @@ const AuthenticatedHelp = () => {
                                 </li>
                                 <li>
                                     <Button
-                                        onClick={() =>
-                                            onTutorial(
-                                                '/calendar',
-                                                TutorialName.CalendarPage,
-                                            )
-                                        }
+                                        component={Link}
+                                        href='/calendar?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >
                                         Launch Calendar Page Tutorial
@@ -495,19 +484,15 @@ const AuthenticatedHelp = () => {
                                 </li>
                                 <li>
                                     <Button
-                                        onClick={() =>
-                                            onTutorial(
-                                                '/games',
-                                                TutorialName.ListGamesPage,
-                                            )
-                                        }
+                                        component={Link}
+                                        href='/games?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >
                                         Launch Games Page Tutorial
                                     </Button>
                                 </li>
                             </ul>
-                        </Stack> */}
+                        </Stack>
 
                         {helpSections.map((section) => (
                             <Stack

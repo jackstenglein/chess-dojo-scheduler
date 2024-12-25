@@ -221,24 +221,16 @@ export interface ListUserTimelineResponse {
 
 /**
  * listUserTimeline returns a list of the provided user's timeline entries
- * @param idToken The id token of the current signed-in user.
  * @param owner The username to fetch timeline entries for.
  * @param startKey The optional start key to use when searching.
  * @returns A ListUserTimelineResponse
  */
-export async function listUserTimeline(
-    idToken: string,
-    owner: string,
-    startKey?: string,
-) {
+export async function listUserTimeline(owner: string, startKey?: string) {
     const params = { startKey };
     const resp = await axios.get<ListUserTimelineResponse>(
-        `${BASE_URL}/user/${owner}/timeline`,
+        `${BASE_URL}/public/user/${owner}/timeline`,
         {
             params,
-            headers: {
-                Authorization: 'Bearer ' + idToken,
-            },
         },
     );
     return resp.data;

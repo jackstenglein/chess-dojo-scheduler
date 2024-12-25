@@ -227,6 +227,25 @@ functions:
           - dynamodb:PartiQLUpdate
         Resource: ${param:UsersTableArn}
 
+  mergePgn:
+    handler: game/mergePgn.handler
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+    events:
+      - httpApi:
+          path: /game/merge
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:GamesTableArn}
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

@@ -1,3 +1,5 @@
+import { VisibilityIcon } from '@/components/games/edit/UnpublishedGameBanner';
+import { UnsavedGameIcon } from '@/components/games/edit/UnsavedGameBanner';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import { Box, Paper, Stack } from '@mui/material';
@@ -6,7 +8,6 @@ import { UnderboardApi } from '../underboard/Underboard';
 import ControlButtons from './ControlButtons';
 import StartButtons from './StartButtons';
 import StatusIcon from './StatusIcon';
-import { VisibilityIcon } from './VisibilityIcon';
 
 const BoardButtons = ({
     underboardRef,
@@ -14,7 +15,7 @@ const BoardButtons = ({
     underboardRef?: React.RefObject<UnderboardApi>;
 }) => {
     const light = useLightMode();
-    const { game, isOwner: isGameOwner } = useGame();
+    const { game, isOwner: isGameOwner, unsaved } = useGame();
     const { chess } = useChess();
 
     return (
@@ -39,12 +40,12 @@ const BoardButtons = ({
                 <StartButtons />
                 <ControlButtons />
                 {game && isGameOwner ? (
-                    <Stack direction='row' spacing={1}>
-                        {underboardRef && (
-                            <VisibilityIcon game={game} underboardRef={underboardRef} />
-                        )}
+                    <Stack direction='row'>
+                        <VisibilityIcon underboardRef={underboardRef} />
                         <StatusIcon game={game} />
                     </Stack>
+                ) : unsaved ? (
+                    <UnsavedGameIcon />
                 ) : (
                     <Box sx={{ width: '40px' }}></Box>
                 )}

@@ -2,26 +2,23 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
+import { MUI_LICENSE_KEY } from '@/config';
 import { Graduation } from '@/database/graduation';
 import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { Divider, FormControl, MenuItem, Select, Stack, Typography } from '@mui/material';
 import {
-    Divider,
-    FormControl,
-    Link,
-    MenuItem,
-    Select,
-    Stack,
-    Typography,
-} from '@mui/material';
-import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
+    DataGridPro,
+    GridColDef,
+    GridRenderCellParams,
+    GridRowParams,
+} from '@mui/x-data-grid-pro';
 import { LicenseInfo } from '@mui/x-license';
 import { useEffect, useMemo, useState } from 'react';
 
-LicenseInfo.setLicenseKey(
-    '54bc84a7ecb1e4bb301846936cb75a56Tz03ODMxNixFPTE3MzExMDQzNDQwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
-);
+LicenseInfo.setLicenseKey(MUI_LICENSE_KEY);
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];
@@ -77,6 +74,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         field: 'displayName',
         headerName: 'Name',
         minWidth: 200,
+        flex: 1,
         renderCell: (params: GridRenderCellParams<Graduation, string>) => {
             return (
                 <Stack direction='row' spacing={1} alignItems='center'>
@@ -96,6 +94,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         align: 'center',
         headerAlign: 'center',
         minWidth: 150,
+        flex: 1,
         valueGetter: (_value, row) => {
             if (row.graduationCohorts && row.graduationCohorts.length > 0) {
                 return row.graduationCohorts;
@@ -127,6 +126,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         minWidth: 150,
         headerAlign: 'center',
         align: 'center',
+        flex: 1,
         valueGetter: (_value, row) => {
             return parseInt(row.previousCohort.split('-')[0]);
         },
@@ -144,6 +144,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         minWidth: 150,
         headerAlign: 'center',
         align: 'center',
+        flex: 1,
         valueGetter: (_value, row) => {
             return parseInt(row.newCohort.replaceAll('+', '').split('-')[0]);
         },
@@ -160,6 +161,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         headerName: 'Dojo Score',
         headerAlign: 'center',
         align: 'center',
+        flex: 1,
         valueFormatter: (value) => Math.round(value * 100) / 100,
         renderCell: (params) => (
             <Stack height='30px' justifyContent='center'>
@@ -172,6 +174,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         headerName: 'Date',
         headerAlign: 'center',
         align: 'center',
+        flex: 1,
         valueFormatter: (value) => new Date(value).toLocaleDateString(),
         renderCell: (params) => (
             <Stack height='30px' justifyContent='center'>
@@ -179,14 +182,22 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
             </Stack>
         ),
     },
-    {
-        field: 'comments',
-        headerName: 'Comments',
-        headerAlign: 'center',
-        align: 'center',
-        minWidth: 250,
-    },
 ];
+
+function DetailPanelContent(params: GridRowParams<Graduation>) {
+    if (!params.row.comments) {
+        return null;
+    }
+    return (
+        <Typography mx={2} my={1}>
+            {params.row.comments}
+        </Typography>
+    );
+}
+
+function getDetailPanelHeight(): 'auto' {
+    return 'auto';
+}
 
 const RecentGraduates = () => {
     const api = useApi();
@@ -290,7 +301,12 @@ const RecentGraduates = () => {
                         sorting: {
                             sortModel: [{ field: 'newCohort', sort: 'asc' }],
                         },
+                        detailPanel: {
+                            expandedRowIds: graduations.map((g) => g.username),
+                        },
                     }}
+                    getDetailPanelContent={DetailPanelContent}
+                    getDetailPanelHeight={getDetailPanelHeight}
                     pagination
                     autoHeight
                 />

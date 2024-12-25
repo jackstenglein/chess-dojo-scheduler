@@ -109,5 +109,11 @@ export const ClubAvatar: React.FC<ClubAvatarProps> = ({
             url += `?${imageBypass}`;
         }
     }
-    return <MuiAvatar src={url} {...avatarProps(name || '', size, fontSize)} />;
+    return (
+        <MuiAvatar
+            src={url}
+            {...avatarProps(name || '', size, fontSize)}
+            imgProps={{ crossOrigin: 'anonymous' }}
+        />
+    );
 };

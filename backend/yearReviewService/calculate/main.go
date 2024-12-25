@@ -1,15 +1,19 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
+	"runtime/debug"
+	"strconv"
 	"strings"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const START_DATE = "2023-01-01"
-const END_DATE = "2023-12-31"
+const PERIOD = "2024"
+const START_DATE = PERIOD + "-01-01"
+const END_DATE = PERIOD + "-12-31"
 const PREFERRED = "preferred"
 
 var repository = database.DynamoDB
@@ -19,6 +23,10 @@ type percentileTrackers struct {
 	dojoPoints map[database.DojoCohort][]float32
 	timeSpent  map[database.DojoCohort][]float32
 	games      map[database.DojoCohort][]float32
+	win        map[database.DojoCohort][]float32
+	loss       map[database.DojoCohort][]float32
+	draw       map[database.DojoCohort][]float32
+	analysis   map[database.DojoCohort][]float32
 }
 
 var percentiles = percentileTrackers{
@@ -28,54 +36,99 @@ var percentiles = percentileTrackers{
 	dojoPoints: map[database.DojoCohort][]float32{},
 	timeSpent:  map[database.DojoCohort][]float32{},
 	games:      map[database.DojoCohort][]float32{},
+	win:        map[database.DojoCohort][]float32{},
+	loss:       map[database.DojoCohort][]float32{},
+	draw:       map[database.DojoCohort][]float32{},
+	analysis:   map[database.DojoCohort][]float32{},
 }
 
 func main() {
-	requirements, err := fetchRequirements()
+	defer func() {
+		if x := recover(); x != nil {
+			log.Debugf("%T: %+v", x, x)
+			log.Debugf("%s\n", debug.Stack())
+		}
+	}()
+
+	// requirements, err := fetchRequirements()
+	// if err != nil {
+	// 	log.Errorf("Failed to get requirements: %v", err)
+	// 	os.Exit(1)
+	// }
+	// dojoRequirements := make(map[string]*database.Requirement)
+	// for _, r := range requirements {
+	// 	dojoRequirements[r.Id] = r
+	// }
+
+	// var reviews []*database.YearReview
+	// log.Debug("Scanning users")
+
+	// var users []*database.User
+	// var startKey = ""
+	// for ok := true; ok; ok = startKey != "" {
+	// 	users, startKey, err = repository.ScanUsers(startKey)
+	// 	if err != nil {
+	// 		log.Errorf("Failed to scan users: %v", err)
+	// 		os.Exit(1)
+	// 	}
+
+	// 	log.Infof("Processing %d users", len(users))
+	// 	for _, u := range users {
+	// 		review, err := processUser(u, dojoRequirements)
+	// 		if err != nil {
+	// 			log.Errorf("Failed to process user %s: %v", u.Username, err)
+	// 		} else if review != nil {
+	// 			reviews = append(reviews, review)
+	// 		}
+	// 	}
+	// }
+
+	// log.Debugf("Calculating percentiles for %d reviews", len(reviews))
+	// for _, review := range reviews {
+	// 	setPercentiles(review)
+	// }
+
+	reviews, err := readFromFile()
 	if err != nil {
-		log.Errorf("Failed to get requirements: %v", err)
 		os.Exit(1)
-	}
-	dojoRequirements := make(map[string]*database.Requirement)
-	for _, r := range requirements {
-		dojoRequirements[r.Id] = r
-	}
-
-	var reviews []*database.YearReview
-	log.Debug("Scanning users")
-
-	var users []*database.User
-	var startKey = ""
-	for ok := true; ok; ok = startKey != "" {
-		users, startKey, err = repository.ScanUsers(startKey)
-		if err != nil {
-			log.Errorf("Failed to scan users: %v", err)
-			os.Exit(1)
-		}
-
-		log.Infof("Processing %d users", len(users))
-		for _, u := range users {
-			review, err := processUser(u, dojoRequirements)
-			if err != nil {
-				log.Errorf("Failed to process user %s: %v", u.Username, err)
-			} else if review != nil {
-				reviews = append(reviews, review)
-			}
-		}
-	}
-
-	log.Debugf("Calculating percentiles for %d reviews", len(reviews))
-	for _, review := range reviews {
-		setPercentiles(review)
 	}
 
 	log.Debugf("Saving %d reviews", len(reviews))
+	// jsonData, err := json.MarshalIndent(reviews, "", "  ")
+	// if err != nil {
+	// 	log.Errorf("Failed to Marshal reviews: %v", err)
+	// }
+	// err = os.WriteFile("reviews.json", jsonData, 0644)
+	// if err != nil {
+	// 	log.Errorf("Failed to write JSON file: %v", err)
+	// }
+
 	success, err := repository.PutYearReviews(reviews)
 	if err != nil {
 		log.Errorf("Error while saving. Only %d saved. %v", success, err)
 	} else {
 		log.Debugf("Saved %d reviews", success)
 	}
+
+	printTotalDojoStats(reviews)
+}
+
+func readFromFile() ([]*database.YearReview, error) {
+	file, err := os.ReadFile("reviews.json")
+	if err != nil {
+		log.Errorf("Failed to read file: %v", err)
+		return nil, nil
+	}
+
+	// Unmarshal the JSON data into a struct
+	var data []*database.YearReview
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		log.Errorf("Failed to unmarshal: %v", err)
+		return nil, nil
+	}
+
+	return data, nil
 }
 
 func fetchRequirements() ([]*database.Requirement, error) {
@@ -105,12 +158,13 @@ func processUser(user *database.User, dojoRequirements map[string]*database.Requ
 
 	yearReview := database.YearReview{
 		Username:      user.Username,
+		Period:        PERIOD,
+		CurrentCohort: user.DojoCohort,
 		DisplayName:   user.DisplayName,
 		UserJoinedAt:  user.CreatedAt,
-		Period:        "2023",
-		CurrentCohort: user.DojoCohort,
 		Ratings:       map[database.RatingSystem]*database.YearReviewRatingData{},
 		Total:         *initializeYearReviewData(),
+		Graduations:   []database.DojoCohort{},
 	}
 
 	processRatings(user, &yearReview)
@@ -143,6 +197,10 @@ func initializeYearReviewData() *database.YearReviewData {
 		},
 		Games: database.YearReviewGamesData{
 			Total:    database.YearReviewIntData{},
+			Win:      database.YearReviewIntData{},
+			Draw:     database.YearReviewIntData{},
+			Loss:     database.YearReviewIntData{},
+			Analysis: database.YearReviewIntData{},
 			ByPeriod: map[string]int{},
 		},
 	}
@@ -206,8 +264,9 @@ func processRatings(user *database.User, review *database.YearReview) {
 		percentiles.ratings[string(rs)][user.DojoCohort] = append(percentiles.ratings[string(rs)][user.DojoCohort], float32(currentRating))
 
 		if isPreferred {
-			percentiles.ratings[PREFERRED][database.AllCohorts] = append(percentiles.ratings[PREFERRED][database.AllCohorts], normalizeToFide(currentRating, rs))
-			percentiles.ratings[PREFERRED][user.DojoCohort] = append(percentiles.ratings[PREFERRED][user.DojoCohort], normalizeToFide(currentRating, rs))
+			normalizedRating := getNormalizedRating(currentRating, rs)
+			percentiles.ratings[PREFERRED][database.AllCohorts] = append(percentiles.ratings[PREFERRED][database.AllCohorts], normalizedRating)
+			percentiles.ratings[PREFERRED][user.DojoCohort] = append(percentiles.ratings[PREFERRED][user.DojoCohort], normalizedRating)
 		}
 	}
 }
@@ -224,7 +283,9 @@ func processGraduations(user *database.User, review *database.YearReview) error 
 		}
 
 		for _, grad := range graduations {
-			review.Graduations = append(review.Graduations, grad.PreviousCohort)
+			if grad.CreatedAt >= START_DATE {
+				review.Graduations = append(review.Graduations, grad.PreviousCohort)
+			}
 		}
 	}
 	return nil
@@ -236,7 +297,7 @@ func processGames(user *database.User, review *database.YearReview) error {
 	var err error
 
 	for ok := true; ok; ok = startKey != "" {
-		games, startKey, err = repository.ListGamesByOwner(true, user.Username, "", "", startKey)
+		games, startKey, err = repository.ListGamesByOwner(true, user.Username, strings.ReplaceAll(START_DATE, "-", "."), strings.ReplaceAll(END_DATE, "-", "."), startKey)
 		if err != nil {
 			return err
 		}
@@ -245,11 +306,42 @@ func processGames(user *database.User, review *database.YearReview) error {
 			month := strings.Split(strings.Split(g.Id, "_")[0], ".")[1]
 			review.Total.Games.Total.Value += 1
 			review.Total.Games.ByPeriod[month] += 1
+
+			result := g.Headers["Result"]
+			if result == "1/2-1/2" {
+				review.Total.Games.Draw.Value += 1
+			} else if result == "1-0" {
+				if g.Orientation == "black" {
+					review.Total.Games.Loss.Value += 1
+				} else {
+					review.Total.Games.Win.Value += 1
+				}
+			} else if result == "0-1" {
+				if g.Orientation == "black" {
+					review.Total.Games.Win.Value += 1
+				} else {
+					review.Total.Games.Loss.Value += 1
+				}
+			} else {
+				review.Total.Games.Analysis.Value += 1
+			}
 		}
 	}
 
 	percentiles.games[database.AllCohorts] = append(percentiles.games[database.AllCohorts], float32(review.Total.Games.Total.Value))
 	percentiles.games[user.DojoCohort] = append(percentiles.games[user.DojoCohort], float32(review.Total.Games.Total.Value))
+
+	percentiles.win[database.AllCohorts] = append(percentiles.win[database.AllCohorts], float32(review.Total.Games.Win.Value))
+	percentiles.win[user.DojoCohort] = append(percentiles.win[user.DojoCohort], float32(review.Total.Games.Win.Value))
+
+	percentiles.draw[database.AllCohorts] = append(percentiles.draw[database.AllCohorts], float32(review.Total.Games.Draw.Value))
+	percentiles.draw[user.DojoCohort] = append(percentiles.draw[user.DojoCohort], float32(review.Total.Games.Draw.Value))
+
+	percentiles.loss[database.AllCohorts] = append(percentiles.loss[database.AllCohorts], float32(review.Total.Games.Loss.Value))
+	percentiles.loss[user.DojoCohort] = append(percentiles.loss[user.DojoCohort], float32(review.Total.Games.Loss.Value))
+
+	percentiles.analysis[database.AllCohorts] = append(percentiles.analysis[database.AllCohorts], float32(review.Total.Games.Analysis.Value))
+	percentiles.analysis[user.DojoCohort] = append(percentiles.analysis[user.DojoCohort], float32(review.Total.Games.Analysis.Value))
 
 	return nil
 }
@@ -266,6 +358,10 @@ func processTimeline(user *database.User, review *database.YearReview, requireme
 		}
 
 		for _, t := range timeline {
+			if t.RequirementCategory == "" {
+				continue
+			}
+
 			date := t.Id[0:10]
 			if date < START_DATE || date > END_DATE {
 				continue
@@ -279,7 +375,7 @@ func processTimeline(user *database.User, review *database.YearReview, requireme
 
 			requirementName := t.RequirementName
 			if requirementName == "GameSubmission" {
-				requirementName = "Annotated Games"
+				requirementName = "Annotate Games"
 			}
 
 			review.Total.MinutesSpent.Total.Value += t.MinutesSpent
@@ -357,6 +453,37 @@ func setPercentiles(review *database.YearReview) {
 
 	review.Total.Games.Total.Percentile = calculatePercentile(percentiles.games[database.AllCohorts], float32(review.Total.Games.Total.Value))
 	review.Total.Games.Total.CohortPercentile = calculatePercentile(percentiles.games[review.CurrentCohort], float32(review.Total.Games.Total.Value))
+
+	review.Total.Games.Win.Percentile = calculatePercentile(percentiles.win[database.AllCohorts], float32(review.Total.Games.Win.Value))
+	review.Total.Games.Win.CohortPercentile = calculatePercentile(percentiles.win[review.CurrentCohort], float32(review.Total.Games.Win.Value))
+
+	review.Total.Games.Draw.Percentile = calculatePercentile(percentiles.draw[database.AllCohorts], float32(review.Total.Games.Draw.Value))
+	review.Total.Games.Draw.CohortPercentile = calculatePercentile(percentiles.draw[review.CurrentCohort], float32(review.Total.Games.Draw.Value))
+
+	review.Total.Games.Loss.Percentile = calculatePercentile(percentiles.loss[database.AllCohorts], float32(review.Total.Games.Loss.Value))
+	review.Total.Games.Loss.CohortPercentile = calculatePercentile(percentiles.loss[review.CurrentCohort], float32(review.Total.Games.Loss.Value))
+
+	review.Total.Games.Analysis.Percentile = calculatePercentile(percentiles.analysis[database.AllCohorts], float32(review.Total.Games.Analysis.Value))
+	review.Total.Games.Analysis.CohortPercentile = calculatePercentile(percentiles.analysis[review.CurrentCohort], float32(review.Total.Games.Analysis.Value))
+}
+
+func printTotalDojoStats(reviews []*database.YearReview) {
+	games := 0
+	dojoPoints := float32(0)
+	minutesSpent := 0
+	graduations := 0
+
+	for _, r := range reviews {
+		games += r.Total.Games.Total.Value
+		dojoPoints += r.Total.DojoPoints.Total.Value
+		minutesSpent += r.Total.MinutesSpent.Total.Value
+		graduations += len(r.Graduations)
+	}
+
+	log.Debugf("Total Games: %v", games)
+	log.Debugf("Total Dojo Points: %v", dojoPoints)
+	log.Debugf("Total Minutes Spent: %v", minutesSpent)
+	log.Debugf("Total Graduations: %v", graduations)
 }
 
 func calculatePercentile(dataset []float32, value float32) float32 {
@@ -373,10 +500,7 @@ func calculatePercentile(dataset []float32, value float32) float32 {
 	return float32(lower) / float32(len(dataset)) * 100
 }
 
-func normalizeToFide(rating int, ratingSystem database.RatingSystem) float32 {
-	if ratingSystem == database.Fide {
-		return float32(rating)
-	}
+func getNormalizedRating(rating int, ratingSystem database.RatingSystem) float32 {
 	if ratingSystem == database.Custom {
 		return -1
 	}
@@ -390,8 +514,14 @@ func normalizeToFide(rating int, ratingSystem database.RatingSystem) float32 {
 		if x2 >= rating {
 			x1 := getMinRatingBoundary(cohort, ratingSystem)
 
-			y2 := getRatingBoundary(cohort, database.Fide)
-			y1 := getMinRatingBoundary(cohort, database.Fide)
+			y1, y2 := getCohortRangeInt(cohort)
+
+			if y1 == -1 {
+				y1 = 0
+			}
+			if y2 == -1 {
+				y2 = 0
+			}
 
 			result := (float32(y2-y1)/float32(x2-x1))*float32(rating-x1) + float32(y1)
 			return result
@@ -435,247 +565,290 @@ func getMinRatingBoundary(cohort database.DojoCohort, ratingSystem database.Rati
 	return getRatingBoundary(database.Cohorts[cohortIdx-1], ratingSystem)
 }
 
+func getCohortRangeInt(cohort database.DojoCohort) (int, int) {
+	strCohort := strings.ReplaceAll(string(cohort), "+", "")
+	tokens := strings.Split(strCohort, "-")
+
+	minCohort, err := strconv.Atoi(tokens[0])
+	if err != nil {
+		return -1, -1
+	}
+
+	if len(tokens) < 2 {
+		return minCohort, 2500
+	}
+
+	maxCohort, err := strconv.Atoi((tokens[1]))
+	if err != nil {
+		return minCohort, 2500
+	}
+
+	return minCohort, maxCohort
+}
+
 var ratingBoundaries = map[database.DojoCohort]map[database.RatingSystem]int{
 	"0-300": {
 		database.Chesscom: 550,
-		database.Lichess:  1035,
-		database.Fide:     300,
+		database.Lichess:  1250,
+		database.Fide:     0,
 		database.Uscf:     350,
-		database.Ecf:      300,
-		database.Cfc:      425,
-		database.Dwz:      300,
-		database.Acf:      0,
+		database.Ecf:      400,
+		database.Cfc:      350,
+		database.Dwz:      450,
+		database.Acf:      300,
+		database.Knsb:     400,
 		database.Custom:   -1,
 	},
 	"300-400": {
 		database.Chesscom: 650,
-		database.Lichess:  1100,
-		database.Fide:     400,
-		database.Uscf:     450,
-		database.Ecf:      400,
-		database.Cfc:      525,
-		database.Dwz:      400,
-		database.Acf:      0,
+		database.Lichess:  1310,
+		database.Fide:     0,
+		database.Uscf:     460,
+		database.Ecf:      625,
+		database.Cfc:      460,
+		database.Dwz:      540,
+		database.Acf:      395,
+		database.Knsb:     600,
 		database.Custom:   -1,
 	},
 	"400-500": {
 		database.Chesscom: 750,
-		database.Lichess:  1165,
-		database.Fide:     500,
-		database.Uscf:     550,
-		database.Ecf:      500,
-		database.Cfc:      625,
-		database.Dwz:      500,
-		database.Acf:      105,
+		database.Lichess:  1370,
+		database.Fide:     0,
+		database.Uscf:     570,
+		database.Ecf:      850,
+		database.Cfc:      570,
+		database.Dwz:      630,
+		database.Acf:      490,
+		database.Knsb:     800,
 		database.Custom:   -1,
 	},
 	"500-600": {
 		database.Chesscom: 850,
-		database.Lichess:  1225,
-		database.Fide:     600,
-		database.Uscf:     650,
-		database.Ecf:      600,
-		database.Cfc:      725,
-		database.Dwz:      600,
-		database.Acf:      240,
+		database.Lichess:  1435,
+		database.Fide:     0,
+		database.Uscf:     680,
+		database.Ecf:      1000,
+		database.Cfc:      680,
+		database.Dwz:      725,
+		database.Acf:      585,
+		database.Knsb:     1000,
 		database.Custom:   -1,
 	},
 	"600-700": {
 		database.Chesscom: 950,
-		database.Lichess:  1290,
-		database.Fide:     700,
-		database.Uscf:     750,
-		database.Ecf:      700,
-		database.Cfc:      825,
-		database.Dwz:      700,
-		database.Acf:      370,
+		database.Lichess:  1500,
+		database.Fide:     0,
+		database.Uscf:     790,
+		database.Ecf:      1130,
+		database.Cfc:      780,
+		database.Dwz:      815,
+		database.Acf:      680,
+		database.Knsb:     1140,
 		database.Custom:   -1,
 	},
 	"700-800": {
 		database.Chesscom: 1050,
-		database.Lichess:  1350,
-		database.Fide:     800,
-		database.Uscf:     850,
-		database.Ecf:      800,
-		database.Cfc:      925,
-		database.Dwz:      800,
-		database.Acf:      500,
+		database.Lichess:  1550,
+		database.Fide:     0,
+		database.Uscf:     900,
+		database.Ecf:      1210,
+		database.Cfc:      880,
+		database.Dwz:      920,
+		database.Acf:      775,
+		database.Knsb:     1280,
 		database.Custom:   -1,
 	},
 	"800-900": {
 		database.Chesscom: 1150,
-		database.Lichess:  1415,
-		database.Fide:     900,
-		database.Uscf:     950,
-		database.Ecf:      900,
-		database.Cfc:      1025,
-		database.Dwz:      900,
-		database.Acf:      630,
+		database.Lichess:  1600,
+		database.Fide:     0,
+		database.Uscf:     1010,
+		database.Ecf:      1270,
+		database.Cfc:      980,
+		database.Dwz:      1025,
+		database.Acf:      870,
+		database.Knsb:     1400,
 		database.Custom:   -1,
 	},
 	"900-1000": {
-		database.Fide:     1000,
-		database.Uscf:     1050,
+		database.Fide:     1450,
+		database.Uscf:     1120,
 		database.Chesscom: 1250,
-		database.Lichess:  1475,
-		database.Ecf:      1000,
-		database.Cfc:      1125,
-		database.Dwz:      1000,
-		database.Acf:      760,
+		database.Lichess:  1665,
+		database.Ecf:      1325,
+		database.Cfc:      1090,
+		database.Dwz:      1110,
+		database.Acf:      990,
+		database.Knsb:     1450,
 		database.Custom:   -1,
 	},
 	"1000-1100": {
-		database.Fide:     1100,
-		database.Uscf:     1150,
+		database.Fide:     1500,
+		database.Uscf:     1230,
 		database.Chesscom: 1350,
-		database.Lichess:  1575,
-		database.Ecf:      1100,
-		database.Cfc:      1225,
-		database.Dwz:      1100,
-		database.Acf:      890,
+		database.Lichess:  1730,
+		database.Ecf:      1390,
+		database.Cfc:      1200,
+		database.Dwz:      1185,
+		database.Acf:      1100,
+		database.Knsb:     1500,
 		database.Custom:   -1,
 	},
 	"1100-1200": {
-		database.Fide:     1200,
-		database.Uscf:     1250,
+		database.Fide:     1550,
+		database.Uscf:     1330,
 		database.Chesscom: 1450,
-		database.Lichess:  1675,
-		database.Ecf:      1200,
-		database.Cfc:      1325,
-		database.Dwz:      1200,
-		database.Acf:      1015,
+		database.Lichess:  1795,
+		database.Ecf:      1455,
+		database.Cfc:      1300,
+		database.Dwz:      1260,
+		database.Acf:      1210,
+		database.Knsb:     1550,
 		database.Custom:   -1,
 	},
 	"1200-1300": {
-		database.Fide:     1300,
-		database.Uscf:     1350,
+		database.Fide:     1600,
+		database.Uscf:     1420,
 		database.Chesscom: 1550,
-		database.Lichess:  1750,
-		database.Ecf:      1300,
-		database.Cfc:      1425,
-		database.Dwz:      1300,
-		database.Acf:      1145,
+		database.Lichess:  1850,
+		database.Ecf:      1535,
+		database.Cfc:      1390,
+		database.Dwz:      1335,
+		database.Acf:      1320,
+		database.Knsb:     1600,
 		database.Custom:   -1,
 	},
 	"1300-1400": {
-		database.Fide:     1400,
-		database.Uscf:     1450,
+		database.Fide:     1650,
+		database.Uscf:     1510,
 		database.Chesscom: 1650,
-		database.Lichess:  1825,
-		database.Ecf:      1400,
-		database.Cfc:      1525,
-		database.Dwz:      1400,
-		database.Acf:      1270,
+		database.Lichess:  1910,
+		database.Ecf:      1595,
+		database.Cfc:      1480,
+		database.Dwz:      1410,
+		database.Acf:      1415,
+		database.Knsb:     1650,
 		database.Custom:   -1,
 	},
 	"1400-1500": {
-		database.Fide:     1500,
-		database.Uscf:     1550,
+		database.Fide:     1700,
+		database.Uscf:     1600,
 		database.Chesscom: 1750,
-		database.Lichess:  1900,
-		database.Ecf:      1500,
-		database.Cfc:      1625,
-		database.Dwz:      1500,
-		database.Acf:      1400,
+		database.Lichess:  1970,
+		database.Ecf:      1665,
+		database.Cfc:      1570,
+		database.Dwz:      1480,
+		database.Acf:      1510,
+		database.Knsb:     1700,
 		database.Custom:   -1,
 	},
 	"1500-1600": {
-		database.Fide:     1600,
-		database.Uscf:     1650,
+		database.Fide:     1750,
+		database.Uscf:     1675,
 		database.Chesscom: 1850,
-		database.Lichess:  2000,
-		database.Ecf:      1600,
-		database.Cfc:      1725,
-		database.Dwz:      1600,
-		database.Acf:      1525,
+		database.Lichess:  2030,
+		database.Ecf:      1735,
+		database.Cfc:      1645,
+		database.Dwz:      1560,
+		database.Acf:      1605,
+		database.Knsb:     1750,
 		database.Custom:   -1,
 	},
 	"1600-1700": {
-		database.Fide:     1700,
-		database.Uscf:     1775,
+		database.Fide:     1800,
+		database.Uscf:     1750,
 		database.Chesscom: 1950,
-		database.Lichess:  2075,
-		database.Ecf:      1700,
-		database.Cfc:      1825,
-		database.Dwz:      1700,
-		database.Acf:      1650,
+		database.Lichess:  2090,
+		database.Ecf:      1805,
+		database.Cfc:      1730,
+		database.Dwz:      1640,
+		database.Acf:      1700,
+		database.Knsb:     1800,
 		database.Custom:   -1,
 	},
 	"1700-1800": {
-		database.Fide:     1800,
-		database.Uscf:     1875,
+		database.Fide:     1850,
+		database.Uscf:     1825,
 		database.Chesscom: 2050,
 		database.Lichess:  2150,
-		database.Ecf:      1800,
-		database.Cfc:      1925,
-		database.Dwz:      1800,
-		database.Acf:      1775,
+		database.Ecf:      1875,
+		database.Cfc:      1825,
+		database.Dwz:      1720,
+		database.Acf:      1790,
+		database.Knsb:     1850,
 		database.Custom:   -1,
 	},
 	"1800-1900": {
-		database.Fide:     1900,
-		database.Uscf:     1975,
-		database.Chesscom: 2150,
+		database.Fide:     1910,
+		database.Uscf:     1930,
+		database.Chesscom: 2165,
 		database.Lichess:  2225,
-		database.Ecf:      1900,
-		database.Cfc:      2025,
-		database.Dwz:      1900,
+		database.Ecf:      1955,
+		database.Cfc:      1925,
+		database.Dwz:      1815,
 		database.Acf:      1900,
+		database.Knsb:     1910,
 		database.Custom:   -1,
 	},
 	"1900-2000": {
 		database.Fide:     2000,
-		database.Uscf:     2100,
-		database.Chesscom: 2250,
-		database.Lichess:  2300,
-		database.Ecf:      2000,
-		database.Cfc:      2125,
-		database.Dwz:      2000,
-		database.Acf:      2020,
+		database.Uscf:     2055,
+		database.Chesscom: 2275,
+		database.Lichess:  2310,
+		database.Ecf:      2065,
+		database.Cfc:      2060,
+		database.Dwz:      1940,
+		database.Acf:      2000,
+		database.Knsb:     2000,
 		database.Custom:   -1,
 	},
 	"2000-2100": {
 		database.Fide:     2100,
-		database.Uscf:     2200,
-		database.Chesscom: 2350,
-		database.Lichess:  2375,
-		database.Ecf:      2100,
-		database.Cfc:      2225,
-		database.Dwz:      2100,
-		database.Acf:      2145,
+		database.Uscf:     2185,
+		database.Chesscom: 2360,
+		database.Lichess:  2370,
+		database.Ecf:      2165,
+		database.Cfc:      2185,
+		database.Dwz:      2070,
+		database.Acf:      2105,
+		database.Knsb:     2100,
 		database.Custom:   -1,
 	},
 	"2100-2200": {
 		database.Fide:     2200,
-		database.Uscf:     2300,
+		database.Uscf:     2290,
 		database.Chesscom: 2425,
-		database.Lichess:  2450,
-		database.Ecf:      2200,
-		database.Cfc:      2325,
-		database.Dwz:      2200,
-		database.Acf:      2265,
+		database.Lichess:  2410,
+		database.Ecf:      2260,
+		database.Cfc:      2290,
+		database.Dwz:      2185,
+		database.Acf:      2215,
+		database.Knsb:     2200,
 		database.Custom:   -1,
 	},
 	"2200-2300": {
 		database.Fide:     2300,
-		database.Uscf:     2400,
-		database.Chesscom: 2525,
-		database.Lichess:  2525,
-		database.Ecf:      2300,
-		database.Cfc:      2425,
-		database.Dwz:      2300,
-		database.Acf:      2390,
+		database.Uscf:     2395,
+		database.Chesscom: 2485,
+		database.Lichess:  2440,
+		database.Ecf:      2360,
+		database.Cfc:      2395,
+		database.Dwz:      2285,
+		database.Acf:      2330,
+		database.Knsb:     2300,
 		database.Custom:   -1,
 	},
 	"2300-2400": {
 		database.Fide:     2400,
 		database.Uscf:     2500,
-		database.Chesscom: 2600,
-		database.Lichess:  2600,
-		database.Ecf:      2400,
-		database.Cfc:      2525,
-		database.Dwz:      2400,
-		database.Acf:      2510,
+		database.Chesscom: 2550,
+		database.Lichess:  2470,
+		database.Ecf:      2460,
+		database.Cfc:      2500,
+		database.Dwz:      2385,
+		database.Acf:      2450,
+		database.Knsb:     2400,
 		database.Custom:   -1,
 	},
 }

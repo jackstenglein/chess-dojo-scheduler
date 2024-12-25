@@ -2,6 +2,7 @@ package database
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -192,7 +193,7 @@ func (repo *dynamoRepository) batchWrite(reqs []*dynamodb.WriteRequest, tableNam
 		return errors.Wrap(500, "Temporary server error", "Failed DynamoDB BatchWriteItem", err)
 	}
 	if len(output.UnprocessedItems) > 0 {
-		return errors.New(500, "Temporary server error", "DynamoDB BatchWriteItem failed to process")
+		return errors.New(500, "Temporary server error", fmt.Sprintf("DynamoDB BatchWriteItem failed to process (%+v): %+v", reqs, output))
 	}
 	return nil
 }

@@ -2,6 +2,7 @@
 
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle, Lock } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -146,6 +147,7 @@ export const SignInForm = () => {
                         data-cy='signup-button'
                         variant='text'
                         sx={{ textTransform: 'none' }}
+                        component={Link}
                         href='/signup'
                     >
                         Sign Up
@@ -154,6 +156,7 @@ export const SignInForm = () => {
                         data-cy='forgot-password-button'
                         variant='text'
                         sx={{ textTransform: 'none', alignSelf: 'end' }}
+                        component={Link}
                         href='/forgot-password'
                     >
                         Reset Password

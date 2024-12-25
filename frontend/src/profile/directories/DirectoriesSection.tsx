@@ -1,8 +1,10 @@
 import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
+import { NavigationMenu } from '@/components/directories/navigation/NavigationMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
-import { useSearchParams } from '@/hooks/useSearchParams';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import {
     compareRoles,
@@ -33,7 +35,6 @@ import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { adminColumns, publicColumns } from './DirectoryGridColumns';
-import { NavigationMenu } from './navigation/NavigationMenu';
 import { ShareButton } from './share/ShareButton';
 
 const pageSizeOptions = [10, 25, 50, 100] as const;
@@ -67,7 +68,10 @@ export const DirectoriesSection = ({
     sx,
 }: DirectoriesSectionProps) => {
     const api = useApi();
-    const { searchParams, updateSearchParams } = useSearchParams({ directory: 'home' });
+    const { searchParams, updateSearchParams } = useNextSearchParams({
+        directory: 'home',
+    });
+    const router = useRouter();
 
     const [columnVisibility, setColumnVisibility] =
         useLocalStorage<GridColumnVisibilityModel>(
@@ -130,6 +134,7 @@ export const DirectoriesSection = ({
     if (!directory) {
         return <NotFoundPage />;
     }
+
     const onClickRow = (params: GridRowParams<DirectoryItem>) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
             updateSearchParams({
@@ -140,10 +145,12 @@ export const DirectoriesSection = ({
                         : directory.owner,
             });
         } else {
-            window.location.href = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
-                '?',
-                '%3F',
-            )}?directory=${directory.id}&directoryOwner=${directory.owner}`;
+            router.push(
+                `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
+                    '?',
+                    '%3F',
+                )}?directory=${directory.id}&directoryOwner=${directory.owner}`,
+            );
         }
     };
 

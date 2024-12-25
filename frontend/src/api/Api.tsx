@@ -17,6 +17,7 @@ import {
     CreateGameRequest,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import { DateTime } from 'luxon';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
@@ -106,6 +107,7 @@ import {
     listGamesByPosition,
     listGamesForReview,
     markReviewed,
+    mergePgn,
     requestReview,
     updateComment,
     updateGame,
@@ -233,7 +235,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getUserPublic,
             getUserSummaries,
             listUserTimeline: (owner: string, startKey?: string) =>
-                listUserTimeline(idToken, owner, startKey),
+                listUserTimeline(owner, startKey),
             listUsersByCohort: (cohort: string, startKey?: string) =>
                 listUsersByCohort(idToken, cohort, startKey),
             searchUsers,
@@ -352,6 +354,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 requestReview(idToken, cohort, id, reviewType),
             markReviewed: (cohort: string, id: string) =>
                 markReviewed(idToken, cohort, id),
+            mergePgn: (request: PgnMergeRequest) => mergePgn(idToken, request),
 
             getRequirement: (id: string) => getRequirement(idToken, id),
             listRequirements: (

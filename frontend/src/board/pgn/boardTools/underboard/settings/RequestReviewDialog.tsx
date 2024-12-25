@@ -1,3 +1,5 @@
+import { Link } from '@/components/navigation/Link';
+import { ONE_WEEK_IN_MS } from '@/components/time/time';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -12,7 +14,6 @@ import {
     FormControlLabel,
     FormHelperText,
     FormLabel,
-    Link,
     Radio,
     RadioGroup,
     Stack,
@@ -30,10 +31,9 @@ import {
     GameReviewType,
     displayGameReviewType,
 } from '../../../../../database/game';
-import { ONE_WEEK } from '../../../../../games/review/ReviewQueuePage';
 import Avatar from '../../../../../profile/Avatar';
 
-const estimatedReviewDate = new Date(new Date().getTime() + ONE_WEEK);
+const estimatedReviewDate = new Date(new Date().getTime() + ONE_WEEK_IN_MS);
 
 interface RequestReviewDialogProps {
     /** The game to request a review for. */
@@ -390,7 +390,7 @@ const PendingDialogContent: React.FC<{ game: Game }> = ({ game }) => {
     const timeStr = toDojoTimeString(date, user?.timezoneOverride, user?.timeFormat);
 
     const reviewDeadline = toDojoDateString(
-        new Date(date.getTime() + ONE_WEEK),
+        new Date(date.getTime() + ONE_WEEK_IN_MS),
         user?.timezoneOverride,
     );
 

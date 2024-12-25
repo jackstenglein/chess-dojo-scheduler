@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+const gameOrientation = z.enum(['white', 'black']);
+
+/** The orientation of a game. */
+export type GameOrientation = z.infer<typeof gameOrientation>;
+
+/** The values for the orientation of a game. */
+export const GameOrientations = gameOrientation.enum;
+
 const onlineGameImportType = z.enum([
     'lichessChapter',
     'lichessStudy',
@@ -16,6 +24,7 @@ const gameImportType = z.enum([
     'manual',
     'startingPosition',
     'fen',
+    'clone',
 ]);
 
 /** The import type of a game. */
@@ -41,6 +50,15 @@ const onlineGameSchema = z.object({
             id: z.string(),
         })
         .optional(),
+
+    /** Whether to publish the game when creating it. */
+    publish: z.boolean().optional(),
+
+    /**
+     * The orientation of the game. If excluded, the orientation is inferred
+     * from the usernames of the players.
+     */
+    orientation: gameOrientation.optional(),
 });
 
 const pgnTextSchema = z.object({
@@ -57,6 +75,15 @@ const pgnTextSchema = z.object({
             id: z.string(),
         })
         .optional(),
+
+    /** Whether to publish the game when creating it. */
+    publish: z.boolean().optional(),
+
+    /**
+     * The orientation of the game. If excluded, the orientation is inferred
+     * from the usernames of the players.
+     */
+    orientation: gameOrientation.optional(),
 });
 
 /** Verifies a request to create a game. */
@@ -123,18 +150,17 @@ export const CreateGameSchema = z.discriminatedUnion('type', [
             type: z.literal(GameImportTypes.fen),
         })
         .merge(pgnTextSchema),
+
+    z
+        .object({
+            /** The import type of the game. */
+            type: z.literal(GameImportTypes.clone),
+        })
+        .merge(pgnTextSchema),
 ]);
 
 /** A request to create a game. */
 export type CreateGameRequest = z.infer<typeof CreateGameSchema>;
-
-const gameOrientation = z.enum(['white', 'black']);
-
-/** The orientation of a game. */
-export type GameOrientation = z.infer<typeof gameOrientation>;
-
-/** The values for the orientation of a game. */
-export const GameOrientations = gameOrientation.enum;
 
 /** Verifies the import header of a game. */
 const gameHeaderSchema = z.object({
@@ -187,6 +213,7 @@ export const UpdateGameSchema = z
         CreateGameSchema.options[6].omit({ directory: true }).merge(updateGame),
         CreateGameSchema.options[7].omit({ directory: true }).merge(updateGame),
         CreateGameSchema.options[8].omit({ directory: true }).merge(updateGame),
+        CreateGameSchema.options[9].omit({ directory: true }).merge(updateGame),
         z
             .object({
                 type: z.undefined(),

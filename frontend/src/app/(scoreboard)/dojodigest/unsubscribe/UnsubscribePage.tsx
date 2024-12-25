@@ -33,11 +33,6 @@ const UnsubscribePage = () => {
         return <LoadingPage />;
     }
 
-    if (auth.status === AuthStatus.Authenticated) {
-        window.location.href = '/profile/edit#notifications-email';
-        return;
-    }
-
     if (request.status === RequestStatus.Success) {
         return (
             <Container maxWidth='md' sx={{ py: 4 }}>

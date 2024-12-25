@@ -1,25 +1,24 @@
-import { LoadingButton } from '@mui/lab';
-import {
-    Button,
-    Checkbox,
-    FormControlLabel,
-    Link,
-    MenuItem,
-    Stack,
-    TextField,
-    Typography,
-} from '@mui/material';
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import {
     RatingSystem,
     User,
     formatRatingSystem,
     getRatingUsername,
     hideRatingUsername,
-} from '../../database/user';
+} from '@/database/user';
+import { LoadingButton } from '@mui/lab';
+import {
+    Button,
+    Checkbox,
+    FormControlLabel,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
+import { useState } from 'react';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
 export function getUsernameLabel(rs: RatingSystem): string {
@@ -63,12 +62,7 @@ export function getHelperText(rs: RatingSystem): React.ReactNode | undefined {
             return (
                 <>
                     Learn how to find your DWZ ID{' '}
-                    <Link
-                        component={RouterLink}
-                        to='/help#How%20do%20I%20find%20my%20DWZ%20ID?'
-                    >
-                        here
-                    </Link>
+                    <Link href='/help#How%20do%20I%20find%20my%20DWZ%20ID?'>here</Link>
                 </>
             );
 

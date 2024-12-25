@@ -3,7 +3,7 @@ import { ListGamesResponse } from '@/api/gameApi';
 import { GameInfo } from '@/database/game';
 import { AxiosResponse } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNextSearchParams } from './useNextSearchParams';
 
 export type SearchFunc = (startKey: string) => Promise<AxiosResponse<ListGamesResponse>>;
 
@@ -30,7 +30,7 @@ export function usePagination(
     const request = useRequest();
     const reset = request.reset;
 
-    const [searchParams, setSearchParams] = useSearchParams({
+    const { searchParams, updateSearchParams } = useNextSearchParams({
         page: `${initialPage}`,
         pageSize: `${initialPageSize}`,
     });
@@ -47,29 +47,17 @@ export function usePagination(
     const onChangePage = useCallback(
         (newPage: number) => {
             reset();
-            setSearchParams((prev) => {
-                prev.set('page', `${newPage}`);
-                return prev;
-            });
+            updateSearchParams({ page: `${newPage}` });
         },
-        [reset, setSearchParams],
+        [reset, updateSearchParams],
     );
 
     const onChangePageSize = useCallback(
         (newPageSize: number) => {
-            setSearchParams((prev) => {
-                const oldPageSize = parseInt(
-                    prev.get('pageSize') || `${initialPageSize}`,
-                );
-                const oldPage = parseInt(prev.get('page') || `${initialPage}`);
-                const newPage = Math.floor((oldPage * oldPageSize) / newPageSize);
-
-                prev.set('page', `${newPage}`);
-                prev.set('pageSize', `${newPageSize}`);
-                return prev;
-            });
+            const newPage = Math.floor((page * pageSize) / newPageSize);
+            updateSearchParams({ page: `${newPage}`, pageSize: `${newPageSize}` });
         },
-        [setSearchParams, initialPage, initialPageSize],
+        [updateSearchParams, page, pageSize],
     );
 
     const onSearch = useCallback(

@@ -6,6 +6,7 @@ import { useFreeTier } from '@/auth/Auth';
 import { Game, PgnHeaders } from '@/database/game';
 import { MissingGameDataPreflight } from '@/games/edit/MissingGameDataPreflight';
 import DeleteGameButton from '@/games/view/DeleteGameButton';
+import { useRouter } from '@/hooks/useRouter';
 import {
     GameHeader,
     GameImportTypes,
@@ -27,8 +28,7 @@ import {
     Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useChess } from '../../../PgnBoard';
 import AnnotationWarnings from '../../../annotations/AnnotationWarnings';
 import RequestReviewDialog from './RequestReviewDialog';
@@ -39,15 +39,19 @@ interface GameSettingsProps {
 }
 
 const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
+    const initialVisibility = game.unlisted ? 'unlisted' : 'published';
+    const initialOrientation = game.orientation ?? GameOrientations.white;
+
     const isFreeTier = useFreeTier();
-    const [visibility, setVisibility] = useState(
-        game.unlisted ? 'unlisted' : 'published',
-    );
-    const [orientation, setOrientation] = useState<GameOrientation>(
-        game.orientation ?? GameOrientations.white,
-    );
+    const [visibility, setVisibility] = useState(initialVisibility);
+    const [orientation, setOrientation] = useState<GameOrientation>(initialOrientation);
     const [headers, setHeaders] = useState<PgnHeaders>(game.headers);
-    const navigate = useNavigate();
+    const router = useRouter();
+
+    useEffect(() => {
+        setVisibility(initialVisibility);
+        setOrientation(initialOrientation);
+    }, [initialVisibility, initialOrientation, setVisibility, setOrientation]);
 
     const headersChanged = Object.entries(game.headers).some(
         ([name, value]) => value !== headers[name],
@@ -169,7 +173,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
                 <Button
                     variant='outlined'
-                    onClick={() => navigate('edit', { state: { game } })}
+                    onClick={() => router.push(`/games/${game.cohort}/${game.id}/edit`)}
                 >
                     Replace PGN
                 </Button>

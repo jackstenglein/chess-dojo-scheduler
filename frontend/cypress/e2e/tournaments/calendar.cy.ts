@@ -1,17 +1,31 @@
-import { tournamentsClock } from './util';
+import { Event, dateMapper } from '../util';
+
+const ALL_EVENTS_COUNT = 19;
 
 describe('Calendar Tab', () => {
     beforeEach(() => {
-        cy.interceptApi('GET', '/calendar', { fixture: 'tournaments/events.json' });
+        cy.fixture('tournaments/events.json').then(({ events }: { events: Event[] }) => {
+            for (const event of events) {
+                const startDate = event.startTime.slice(0, 10);
+                const endDate = event.endTime.slice(0, 10);
+
+                event.startTime = event.startTime.replace(
+                    startDate,
+                    dateMapper[startDate],
+                );
+                event.endTime = event.endTime.replace(endDate, dateMapper[endDate]);
+            }
+
+            cy.interceptApi('GET', '/calendar', { events });
+        });
+
         cy.loginByCognitoApi(
             'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
 
-        cy.clock(tournamentsClock);
         cy.visit('/tournaments?type=calendar');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('has tab selector', () => {
@@ -33,7 +47,7 @@ describe('Calendar Tab', () => {
     });
 
     it('displays correct events for type filters', () => {
-        cy.get('.rs__event__item').should('have.length', 22);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
 
         cy.getBySel('tournament-types').click();
         cy.get('.MuiPopover-root').contains('Arena').click();
@@ -41,15 +55,15 @@ describe('Calendar Tab', () => {
 
         cy.get('.MuiPopover-root').contains('Swiss').click();
         cy.get('.MuiPopover-root').contains('Arena').click();
-        cy.get('.rs__event__item').should('have.length', 14);
+        cy.get('.rs__event__item').should('have.length', 11);
     });
 
     it('displays correct events for time control filters', () => {
-        cy.get('.rs__event__item').should('have.length', 22);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
 
         cy.getBySel('time-controls').click();
         cy.get('.MuiPopover-root').contains('Blitz').click();
-        cy.get('.rs__event__item').should('have.length', 13);
+        cy.get('.rs__event__item').should('have.length', 12);
 
         cy.get('.MuiPopover-root').contains('Blitz').click();
         cy.get('.MuiPopover-root').contains('Rapid').click();
@@ -57,14 +71,14 @@ describe('Calendar Tab', () => {
 
         cy.get('.MuiPopover-root').contains('Rapid').click();
         cy.get('.MuiPopover-root').contains('Classical').click();
-        cy.get('.rs__event__item').should('have.length', 5);
+        cy.get('.rs__event__item').should('have.length', 3);
 
         cy.get('.MuiPopover-root').contains('Rapid').click();
-        cy.get('.rs__event__item').should('have.length', 9);
+        cy.get('.rs__event__item').should('have.length', 7);
     });
 
     it('displays correct events for starting position filters', () => {
-        cy.get('.rs__event__item').should('have.length', 22);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT);
 
         cy.getBySel('starting-position').click();
         cy.get('.MuiPopover-root').contains('Custom').click();
@@ -72,7 +86,7 @@ describe('Calendar Tab', () => {
 
         cy.get('.MuiPopover-root').contains('Standard').click();
         cy.get('.MuiPopover-root').contains('Custom').click();
-        cy.get('.rs__event__item').should('have.length', 21);
+        cy.get('.rs__event__item').should('have.length', ALL_EVENTS_COUNT - 1);
     });
 
     it('displays correct popup for events', () => {
@@ -112,7 +126,6 @@ describe('Calendar Tab', () => {
         cy.get('.MuiPopover-root').contains('Time Control');
         cy.get('.MuiPopover-root').contains('15+5');
 
-        cy.tick(250);
         cy.get('.MuiPopover-root').contains('Position');
         cy.get('.MuiPopover-root').find('cg-board');
     });

@@ -1,4 +1,4 @@
-import { tournamentsClock } from './util';
+import { tournamentsClock } from '../util';
 
 describe('Leaderboard Tab', () => {
     beforeEach(() => {

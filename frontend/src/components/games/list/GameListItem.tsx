@@ -2,15 +2,15 @@ import {
     getIncrement,
     getInitialClock,
 } from '@/board/pgn/boardTools/underboard/clock/ClockUsage';
+import { Link } from '@/components/navigation/Link';
 import { GameInfo, GameResult } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { useLightMode } from '@/style/useLightMode';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { Box, Link, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid-pro';
-import { useLocation } from 'react-router-dom';
 
 export const MastersCohort = 'masters';
 export const MastersOwnerDisplayName = 'Masters DB';
@@ -166,19 +166,11 @@ export function RenderGameResultStack({ result }: { result: string | undefined }
 }
 
 export function BlackIcon() {
-    const light = useLightMode();
-    const location = useLocation();
-
-    let blackIconColor = 'grey.800';
-    if (!light && location.pathname.match(/games\/.+/)) {
-        blackIconColor = 'common.black';
-    }
-
     return (
         <CircleIcon
             sx={{
                 fontSize: { xs: '0.75rem', sm: 'initial' },
-                color: blackIconColor,
+                color: 'grey.700',
             }}
         />
     );
