@@ -5,7 +5,7 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString } from '@/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
-import { OpenClassical } from '@/database/tournament';
+import { getRatingRanges, OpenClassical } from '@/database/tournament';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import { Button, Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
@@ -99,8 +99,9 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
         return null;
     }
 
+    const ratingRangeOptions = getRatingRanges(openClassical);
     const region = searchParams.get('region') || 'A';
-    const ratingRange = searchParams.get('ratingRange') || 'Open';
+    const ratingRange = searchParams.get('ratingRange') || ratingRangeOptions[0];
     const view = searchParams.get('view') || 'standings';
 
     const maxRound =
@@ -172,8 +173,11 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                         flexGrow: 1,
                     }}
                 >
-                    <MenuItem value='Open'>Open</MenuItem>
-                    <MenuItem value='U1800'>U1800</MenuItem>
+                    {ratingRangeOptions.map((opt) => (
+                        <MenuItem key={opt} value={opt}>
+                            {opt}
+                        </MenuItem>
+                    ))}
                 </TextField>
 
                 {!openClassical.acceptingRegistrations && (

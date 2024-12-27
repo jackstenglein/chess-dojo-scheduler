@@ -67,7 +67,7 @@ export default function InfoPage() {
                     </Typography>
                     <ul>
                         <li>Open: 90+30</li>
-                        <li>U1800: 60+30</li>
+                        <li>U1900: 60+30</li>
                     </ul>
                     <Typography>
                         Players may opt to play a different time control than the
