@@ -27,6 +27,9 @@ interface InfoEntryProps extends infoEntry {
     endpoint?: string;
 }
 
+/**
+ * Represents an info entry made of Accordion that can be built for given title, description, button values
+ */
 export const InfoEntryAccordion: React.FC<InfoEntryProps> = ({
     id,
     iconid,

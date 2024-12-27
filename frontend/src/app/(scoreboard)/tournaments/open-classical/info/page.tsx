@@ -71,7 +71,6 @@ export default function InfoPage() {
                         isButton={true}
                     />
 
-
                     <InfoEntryAccordion
                         id='playing-games'
                         iconid={'pawn'}
@@ -93,7 +92,6 @@ export default function InfoPage() {
                                 are allowed if both players agree. If one player cannot
                                 agree to play a rated game they will forfeit the game.'
                     />
-
 
                     <InfoEntryAccordion
                         id={'submitting-results'}
