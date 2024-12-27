@@ -1,7 +1,9 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyHandlerV2, APIGatewayProxyResult } from 'aws-lambda';
 import { MongoClient } from 'mongodb';
 import { RoundRobinIdFinder } from './RoundRobinIdFinder';
 import { RoundRobinModel } from './RoundRobinModel';
+import { ApiError, errToApiGatewayProxyResultV2, parseEvent } from 'chess-dojo-directory-service/api';
+import { FindRoundRobinIdSchema } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 
 /**
  * This API represents getting the tournament data and showing it on the UI
@@ -36,7 +38,14 @@ interface Response {
 }
 
 // Lambda handler
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+    try {
+        console.log('Event: ', event);
+        const request = parseEvent(event, FindRoundRobinIdSchema);
+    } catch (err) {
+        errToApiGatewayProxyResultV2(err);
+    }
+
     const queryParams = event.queryStringParameters || {};
     const startCohortHeader = queryParams['cohort-start'];
     let startCohort: number;
@@ -68,7 +77,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 
         // Fetch tournament IDs
         const roundRobinIdFinder = new RoundRobinIdFinder();
-        console.log("here man");
+        console.log('here man');
         const rrs = await roundRobinIdFinder.getTournamentIdForStartCohort(collection, startCohort);
 
         const response: Response = {
