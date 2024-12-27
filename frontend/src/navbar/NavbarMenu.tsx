@@ -328,6 +328,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                     </Badge>
                 }
                 href={item.href}
+                component={Link}
             >
                 {item.name}
             </Button>

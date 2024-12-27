@@ -1,6 +1,6 @@
 import { Event, dateMapper } from '../util';
 
-const ALL_EVENTS_COUNT = 19;
+const ALL_EVENTS_COUNT = 22;
 
 describe('Calendar Tab', () => {
     beforeEach(() => {
@@ -55,7 +55,7 @@ describe('Calendar Tab', () => {
 
         cy.get('.MuiPopover-root').contains('Swiss').click();
         cy.get('.MuiPopover-root').contains('Arena').click();
-        cy.get('.rs__event__item').should('have.length', 11);
+        cy.get('.rs__event__item').should('have.length', 14);
     });
 
     it('displays correct events for time control filters', () => {
@@ -63,7 +63,7 @@ describe('Calendar Tab', () => {
 
         cy.getBySel('time-controls').click();
         cy.get('.MuiPopover-root').contains('Blitz').click();
-        cy.get('.rs__event__item').should('have.length', 12);
+        cy.get('.rs__event__item').should('have.length', 13);
 
         cy.get('.MuiPopover-root').contains('Blitz').click();
         cy.get('.MuiPopover-root').contains('Rapid').click();
@@ -71,10 +71,10 @@ describe('Calendar Tab', () => {
 
         cy.get('.MuiPopover-root').contains('Rapid').click();
         cy.get('.MuiPopover-root').contains('Classical').click();
-        cy.get('.rs__event__item').should('have.length', 3);
+        cy.get('.rs__event__item').should('have.length', 5);
 
         cy.get('.MuiPopover-root').contains('Rapid').click();
-        cy.get('.rs__event__item').should('have.length', 7);
+        cy.get('.rs__event__item').should('have.length', 9);
     });
 
     it('displays correct events for starting position filters', () => {
