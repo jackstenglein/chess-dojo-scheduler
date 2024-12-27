@@ -20,7 +20,7 @@ export default function AnalysisButton() {
                 />
             }
         >
-            Analysis Board
+            Game Analysis
         </Button>
     );
 }
