@@ -94,7 +94,10 @@
         "lint:types:watch": "tsc --noEmit --watch",
         "cy:parallel": "cypress-parallel -s test:cypress -t 3 --spec $(find cypress/e2e -name '*.cy.ts')",
         "format": "prettier src cypress/e2e --write",
-        "format:check": "prettier src cypress/e2e --check"
+        "format:check": "prettier src cypress/e2e --check",
+        "docs": "npm run docs:build && npm run docs:serve",
+        "docs:serve": "serve -l 8080 docs",
+        "docs:build": "typedoc"
     },
     "config": {
         "run_dev": "dotenvx run --env-file=.env.development.local --env-file=.env.local --env-file=.env.development --env-file=.env",
@@ -137,6 +140,7 @@
         "command-line-usage": "^7.0.3",
         "cypress": "^13.16.0",
         "cypress-parallel": "^0.14.0",
+        "dependency-cruiser": "^16.5.0",
         "eslint": "^8.57.0",
         "eslint-config-next": "^15.0.3",
         "eslint-plugin-cypress": "^3.5.0",
@@ -149,8 +153,11 @@
         "prettier": "^3.4.2",
         "prettier-plugin-organize-imports": "^3.2.4",
         "proper-lockfile": "^4.1.2",
+        "serve": "^14.2.4",
         "swc-plugin-coverage-instrument": "^0.0.25",
         "tsx": "^4.19.2",
+        "typedoc": "^0.27.5",
+        "typedoc-plugin-markdown": "^4.3.3",
         "typescript": "^5.4.5",
         "typescript-eslint": "^8.8.0",
         "vite-plugin-eslint": "^1.8.1"
