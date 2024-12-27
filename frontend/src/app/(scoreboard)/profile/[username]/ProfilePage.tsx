@@ -4,6 +4,7 @@ import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import AnalysisButton from '@/components/games/AnalysisButton';
 import { Link } from '@/components/navigation/Link';
 import { SwitchCohortPrompt } from '@/components/profile/SwitchCohortPrompt';
 import { BadgeCard } from '@/components/profile/info/BadgeCard';
@@ -193,6 +194,7 @@ function AuthProfilePage({
                         {currentUserProfile ? (
                             <Stack direction='row' spacing={2}>
                                 <GraduationDialog />
+                                <AnalysisButton />
                                 <Button
                                     component={Link}
                                     id='edit-profile-button'

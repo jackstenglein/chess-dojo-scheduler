@@ -3,11 +3,11 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth, useFreeTier } from '@/auth/Auth';
+import AnalysisButton from '@/components/games/AnalysisButton';
 import GameTable from '@/components/games/list/GameTable';
 import { Link } from '@/components/navigation/Link';
 import ListGamesTutorial from '@/components/tutorial/ListGamesTutorial';
 import { GameInfo } from '@/database/game';
-import { RequirementCategory } from '@/database/requirement';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { usePagination } from '@/hooks/usePagination';
@@ -17,15 +17,7 @@ import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import UpsellPage from '@/upsell/UpsellPage';
-import {
-    Badge,
-    Button,
-    Container,
-    Divider,
-    Grid2,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Badge, Container, Divider, Grid2, Stack, Typography } from '@mui/material';
 import { GridPaginationModel } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
 import { ListItemContextMenu } from './ListItemContextMenu';
@@ -144,23 +136,7 @@ const ListGamesPage = () => {
 
                 <Grid2 size={{ xs: 12, md: 4, lg: 4 }}>
                     <Stack spacing={4}>
-                        <Button
-                            data-cy='import-game-button'
-                            id='import-game-button'
-                            variant='contained'
-                            component={Link}
-                            href='/games/import'
-                            color='success'
-                            startIcon={
-                                <Icon
-                                    name={RequirementCategory.Games}
-                                    color='inherit'
-                                    sx={{ marginRight: '0.3rem' }}
-                                />
-                            }
-                        >
-                            Analyze a Game
-                        </Button>
+                        <AnalysisButton />
 
                         <Divider />
 
