@@ -62,6 +62,9 @@ import {
     Whatshot,
     ZoomOutMap,
 } from '@mui/icons-material';
+
+import PublishIcon from '@mui/icons-material/Publish';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { SvgIcon, SvgIconProps } from '@mui/material';
 import React, { forwardRef } from 'react';
 import {
@@ -74,7 +77,7 @@ import {
 } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import { ChessDojoIcon } from './ChessDojoIcon';
-import { RookIcon } from './ChessIcons';
+import { PawnIcon, RookIcon } from './ChessIcons';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from './SocialMediaIcons';
 
 export const icons = {
@@ -91,6 +94,8 @@ export const icons = {
     Followers: ThumbUp,
     followers: ThumbUp,
     'All Categories': AllInclusiveRounded,
+    warning: ReportProblemIcon,
+    submit: PublishIcon,
     clubs: Groups,
     search: Search,
     explore: Explore,
@@ -133,6 +138,7 @@ export const icons = {
     'Analyze Own Game': Biotech,
     'Book Study': AutoStories,
     'Rook Endgame Progression': RookIcon,
+    pawn: PawnIcon,
     discord: DiscordIcon,
     twitch: TwitchIcon,
     youtube: YoutubeIcon,

@@ -4,6 +4,10 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import LoadingPage from '@/loading/LoadingPage';
+import EditLocationAltIcon from '@mui/icons-material/EditLocationAlt';
+import EmailIcon from '@mui/icons-material/Email';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -17,6 +21,7 @@ import {
     FormControlLabel,
     FormHelperText,
     FormLabel,
+    InputAdornment,
     Link,
     MenuItem,
     Stack,
@@ -25,11 +30,6 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { SiDiscord, SiLichess } from 'react-icons/si';
-import {InputAdornment} from '@mui/material';
-import EmailIcon from '@mui/icons-material/Email';
-import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
-import EditLocationAltIcon from '@mui/icons-material/EditLocationAlt';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 const RegistrationPage = () => {
     const { user, status } = useAuth();
     const api = useApi();
@@ -140,7 +140,7 @@ const RegistrationPage = () => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position='start'>
-                                    <EmailIcon fontSize={"medium"} color='dojoOrange'/>
+                                    <EmailIcon fontSize={'medium'} color='dojoOrange' />
                                 </InputAdornment>
                             ),
                         }}
@@ -192,7 +192,7 @@ const RegistrationPage = () => {
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position='start'>
-                                <MilitaryTechIcon color='dojoOrange'fontSize='medium'/>
+                                <MilitaryTechIcon color='dojoOrange' fontSize='medium' />
                             </InputAdornment>
                         ),
                     }}
@@ -220,7 +220,10 @@ const RegistrationPage = () => {
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position='start'>
-                                <EditLocationAltIcon color='dojoOrange'fontSize='medium'/>
+                                <EditLocationAltIcon
+                                    color='dojoOrange'
+                                    fontSize='medium'
+                                />
                             </InputAdornment>
                         ),
                     }}
@@ -242,7 +245,7 @@ const RegistrationPage = () => {
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position='start'>
-                                <TrendingUpIcon color='dojoOrange' fontSize='medium'/>
+                                <TrendingUpIcon color='dojoOrange' fontSize='medium' />
                             </InputAdornment>
                         ),
                     }}
