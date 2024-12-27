@@ -58,7 +58,6 @@
         "react-tooltip": "^4.4.3",
         "remark-gfm": "^4.0.0",
         "rrule": "^2.8.1",
-        "serve": "^14.2.4",
         "sharp": "^0.33.5",
         "use-long-press": "^3.2.0",
         "usehooks-ts": "^3.1.0",
@@ -96,7 +95,8 @@
         "cy:parallel": "cypress-parallel -s test:cypress -t 3 --spec $(find cypress/e2e -name '*.cy.ts')",
         "format": "prettier src cypress/e2e --write",
         "format:check": "prettier src cypress/e2e --check",
-        "docs:serve": "serve docs",
+        "docs": "npm run docs:build && npm run docs:serve",
+        "docs:serve": "serve -l 8080 docs",
         "docs:build": "typedoc"
     },
     "config": {
@@ -153,6 +153,7 @@
         "prettier": "^3.4.2",
         "prettier-plugin-organize-imports": "^3.2.4",
         "proper-lockfile": "^4.1.2",
+        "serve": "^14.2.4",
         "swc-plugin-coverage-instrument": "^0.0.25",
         "tsx": "^4.19.2",
         "typedoc": "^0.27.5",
