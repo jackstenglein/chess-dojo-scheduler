@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -69,7 +70,8 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	for key, section := range openClassical.Sections {
 		section.Players = make(map[string]database.OpenClassicalPlayer)
 		section.Rounds = make([]database.OpenClassicalRound, 0)
-		openClassical.Sections[key] = section
+		delete(openClassical.Sections, key)
+		openClassical.Sections[strings.ReplaceAll(key, "U1800", "U1900")] = section
 	}
 
 	if err := repository.SetOpenClassical(openClassical); err != nil {

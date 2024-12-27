@@ -208,7 +208,7 @@ const SubmitResultsPage = () => {
                     helperText={errors.section}
                 >
                     <MenuItem value='Open'>Open</MenuItem>
-                    <MenuItem value='U1800'>U1800</MenuItem>
+                    <MenuItem value='U1900'>U1900</MenuItem>
                 </TextField>
 
                 <TextField
