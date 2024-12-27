@@ -76,7 +76,11 @@ export default function InfoPage() {
                         iconid={'pawn'}
                         title='Playing Games'
                         isList={true}
-                        decList={['Open Classical Timecontrols:','- Open: 90+30', '- U1800: 60+30']}
+                        decList={[
+                            'Open Classical Timecontrols:',
+                            '- Open: 90+30',
+                            '- U1800: 60+30',
+                        ]}
                         desc='Players may opt to play a different time control than the
                                 preferred one only if both players agree. If a time
                                 control is not agreed upon, the preferred time control
