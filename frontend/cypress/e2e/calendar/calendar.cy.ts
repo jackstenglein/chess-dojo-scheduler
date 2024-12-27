@@ -1,6 +1,6 @@
 import { dateMapper, Event } from '../util';
 
-const ALL_EVENTS_COUNT = 23;
+const ALL_EVENTS_COUNT = 26;
 
 describe('Calendar Page', () => {
     beforeEach(() => {
@@ -60,7 +60,7 @@ describe('Calendar Page', () => {
         cy.getBySel('dojoliga-tournaments').click();
         cy.get('.MuiPopover-root').contains('Rapid').click();
         cy.get('.MuiPopover-root').contains('Classical').click();
-        cy.get('.rs__event__item').should('have.length', 10);
+        cy.get('.rs__event__item').should('have.length', 12);
 
         cy.get('.MuiPopover-root').contains('Rapid').click();
         cy.get('.MuiPopover-root').contains('Classical').click();

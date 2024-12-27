@@ -28,7 +28,7 @@ import MuiAccordionSummary, {
 } from '@mui/material/AccordionSummary';
 import { Theme, styled } from '@mui/material/styles';
 import { DateTime } from 'luxon';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import TimezoneFilter from './TimezoneFilter';
 import { DefaultTimezone } from './TimezoneSelector';
@@ -115,6 +115,12 @@ export function useFilters(): Filters {
     const user = useAuth().user;
 
     const [timezone, setTimezone] = useState(user?.timezoneOverride || DefaultTimezone);
+    useEffect(() => {
+        if (user?.timezoneOverride) {
+            setTimezone(user.timezoneOverride);
+        }
+    }, [user?.timezoneOverride, setTimezone]);
+
     const [timeFormat, setTimeFormat] = useState<TimeFormat>(
         user?.timeFormat || TimeFormat.TwelveHour,
     );
