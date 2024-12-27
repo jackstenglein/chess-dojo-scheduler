@@ -44,6 +44,13 @@ const nextConfig = {
 
         return headers;
     },
+    redirects: () => [ 
+        {
+            source: '/games/explorer',
+            destination: '/games/analysis',
+            permanent: true,
+        },
+    ]
 };
 
 const ENGINE_HEADERS = [

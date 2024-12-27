@@ -116,7 +116,7 @@ func checkRequest(req *RegisterRequest) error {
 	if req.Region != "A" && req.Region != "B" {
 		return errors.New(400, fmt.Sprintf("Invalid request: region `%s` is not supported", req.Region), "")
 	}
-	if req.Section != "Open" && req.Section != "U1800" {
+	if req.Section != "Open" && req.Section != "U1900" {
 		return errors.New(400, fmt.Sprintf("Invalid request: section `%s` is not supported", req.Section), "")
 	}
 	if len(req.ByeRequests) > maxByeLength {
@@ -135,8 +135,8 @@ func checkRequest(req *RegisterRequest) error {
 	}
 
 	rating, err := ratings.FetchLichessRating(req.LichessUsername)
-	if req.Section == "U1800" && rating.CurrentRating >= 1800 {
-		return errors.New(400, "Your Lichess rating is above 1800. Please register for the open section instead.", "")
+	if req.Section == "U1900" && rating.CurrentRating >= 1900 {
+		return errors.New(400, "Your Lichess rating is above 1900. Please register for the open section instead.", "")
 	}
 
 	req.LichessRating = rating.CurrentRating

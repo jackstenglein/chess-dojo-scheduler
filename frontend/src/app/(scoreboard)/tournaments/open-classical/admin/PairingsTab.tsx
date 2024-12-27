@@ -1,6 +1,10 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { OpenClassical, OpenClassicalPairing } from '@/database/tournament';
+import {
+    getRatingRanges,
+    OpenClassical,
+    OpenClassicalPairing,
+} from '@/database/tournament';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { Edit } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -80,8 +84,11 @@ const PairingsTab: React.FC<PairingsTabProps> = ({ openClassical, onUpdate }) =>
                         flexGrow: 1,
                     }}
                 >
-                    <MenuItem value='Open'>Open</MenuItem>
-                    <MenuItem value='U1800'>U1800</MenuItem>
+                    {getRatingRanges(openClassical).map((rating) => (
+                        <MenuItem key={rating} value={rating}>
+                            {rating}
+                        </MenuItem>
+                    ))}
                 </TextField>
 
                 <TextField

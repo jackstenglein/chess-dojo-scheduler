@@ -1,6 +1,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import {
+    getRatingRanges,
     OpenClassical,
     OpenClassicalPlayer,
     OpenClassicalPlayerStatus,
@@ -220,8 +221,11 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                         flexGrow: 1,
                     }}
                 >
-                    <MenuItem value='Open'>Open</MenuItem>
-                    <MenuItem value='U1800'>U1800</MenuItem>
+                    {getRatingRanges(openClassical).map((rating) => (
+                        <MenuItem key={rating} value={rating}>
+                            {rating}
+                        </MenuItem>
+                    ))}
                 </TextField>
             </Stack>
 

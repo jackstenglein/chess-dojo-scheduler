@@ -1,6 +1,7 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { useAuth, useFreeTier } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { MastersCohort } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
 import { dojoCohorts } from '@/database/user';
@@ -475,7 +476,8 @@ const SearchByPosition: React.FC<SearchByPositionProps> = ({
                 </Typography>
             ) : (
                 <LoadingButton
-                    href={`/games/explorer?fen=${fen}`}
+                    href={`/games/analysis?fen=${fen}`}
+                    component={Link}
                     disabled={isLoading}
                     variant='outlined'
                     startIcon={<Icon name='explore' color='primary' />}

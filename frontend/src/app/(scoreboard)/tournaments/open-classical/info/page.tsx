@@ -71,6 +71,7 @@ export default function InfoPage() {
                         isButton={true}
                     />
 
+
                     <InfoEntryAccordion
                         id='playing-games'
                         iconid={'pawn'}
@@ -80,6 +81,8 @@ export default function InfoPage() {
                             'Open Classical Timecontrols:',
                             '- Open: 90+30',
                             '- U1800: 60+30',
+                            'Rated games info:',
+                            'Similarly, rated games are preferred, but unrated games are allowed if both players agree. If one player cannot agree to play a rated game they will forfeit the game.',
                         ]}
                         desc='Players may opt to play a different time control than the
                                 preferred one only if both players agree. If a time
@@ -90,6 +93,7 @@ export default function InfoPage() {
                                 are allowed if both players agree. If one player cannot
                                 agree to play a rated game they will forfeit the game.'
                     />
+
 
                     <InfoEntryAccordion
                         id={'submitting-results'}

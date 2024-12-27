@@ -252,7 +252,7 @@ const RegistrationPage = () => {
                     fullWidth
                 >
                     <MenuItem value='Open'>Open</MenuItem>
-                    <MenuItem value='U1800'>U1800 (Lichess)</MenuItem>
+                    <MenuItem value='U1900'>U1900 (Lichess)</MenuItem>
                 </TextField>
 
                 <FormControl error={Boolean(errors.byeRequests)}>
