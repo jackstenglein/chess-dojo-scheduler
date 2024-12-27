@@ -19,8 +19,6 @@ import {
 import { Api } from 'chessground/api';
 import { usePathname } from 'next/navigation';
 
-const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
 function parseCreateGameRequest(req: CreateGameRequest | null) {
     if (req?.pgnText) {
         return { pgn: req.pgnText };
@@ -30,10 +28,8 @@ function parseCreateGameRequest(req: CreateGameRequest | null) {
 
 export default function AnalysisBoard() {
     const { stagedGame } = useSaveGame();
-    const { pgn, fen: initialFen } = parseCreateGameRequest(stagedGame);
-    const { searchParams } = useNextSearchParams({
-        fen: initialFen ?? startingPositionFen,
-    });
+    const { pgn, fen } = parseCreateGameRequest(stagedGame);
+    const { searchParams } = useNextSearchParams();
     const { user, status } = useAuth();
     const pathname = usePathname();
 
@@ -82,13 +78,13 @@ export default function AnalysisBoard() {
             >
                 <PgnBoard
                     pgn={pgn}
-                    fen={searchParams.get('fen') ?? undefined}
+                    fen={searchParams.get('fen') || fen}
                     onInitialize={onInitialize}
                     startOrientation={getDefaultOrientation(pgn, user)}
                     underboardTabs={[
-                        DefaultUnderboardTab.Explorer,
                         DefaultUnderboardTab.Tags,
                         DefaultUnderboardTab.Editor,
+                        DefaultUnderboardTab.Explorer,
                         DefaultUnderboardTab.Clocks,
                         DefaultUnderboardTab.Settings,
                     ]}
