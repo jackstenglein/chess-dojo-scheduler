@@ -24,7 +24,12 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-
+import { SiDiscord, SiLichess } from 'react-icons/si';
+import {InputAdornment} from '@mui/material';
+import EmailIcon from '@mui/icons-material/Email';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import EditLocationAltIcon from '@mui/icons-material/EditLocationAlt';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 const RegistrationPage = () => {
     const { user, status } = useAuth();
     const api = useApi();
@@ -120,7 +125,7 @@ const RegistrationPage = () => {
 
             <Stack spacing={4} alignItems='center'>
                 <Typography variant='h6' alignSelf='start'>
-                    Register for the Open Classical
+                    Register for the Dojo Open Classical
                 </Typography>
 
                 {!user && (
@@ -132,6 +137,13 @@ const RegistrationPage = () => {
                         fullWidth
                         error={Boolean(errors.email)}
                         helperText={errors.email}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <EmailIcon fontSize={"medium"} color='dojoOrange'/>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                 )}
 
@@ -144,6 +156,13 @@ const RegistrationPage = () => {
                     fullWidth
                     error={Boolean(errors.lichessUsername)}
                     helperText={errors.lichessUsername}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position='start'>
+                                <SiLichess fontSize={23} />
+                            </InputAdornment>
+                        ),
+                    }}
                 />
 
                 <TextField
@@ -155,6 +174,13 @@ const RegistrationPage = () => {
                     fullWidth
                     error={Boolean(errors.discordUsername)}
                     helperText={errors.discordUsername}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position='start'>
+                                <SiDiscord fontSize={23} style={{ color: '#5865f2' }} />
+                            </InputAdornment>
+                        ),
+                    }}
                 />
 
                 <TextField
@@ -163,6 +189,13 @@ const RegistrationPage = () => {
                     onChange={(e) => setTitle(e.target.value)}
                     select
                     fullWidth
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position='start'>
+                                <MilitaryTechIcon color='dojoOrange'fontSize='medium'/>
+                            </InputAdornment>
+                        ),
+                    }}
                 >
                     <MenuItem value=''>None</MenuItem>
                     <MenuItem value='GM'>GM</MenuItem>
@@ -184,6 +217,13 @@ const RegistrationPage = () => {
                     onChange={(e) => setRegion(e.target.value)}
                     error={Boolean(errors.region)}
                     helperText={errors.region}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position='start'>
+                                <EditLocationAltIcon color='dojoOrange'fontSize='medium'/>
+                            </InputAdornment>
+                        ),
+                    }}
                     fullWidth
                 >
                     <MenuItem value='A'>Region A (Americas)</MenuItem>
@@ -199,6 +239,13 @@ const RegistrationPage = () => {
                     onChange={(e) => setSection(e.target.value)}
                     error={Boolean(errors.section)}
                     helperText={errors.section}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position='start'>
+                                <TrendingUpIcon color='dojoOrange' fontSize='medium'/>
+                            </InputAdornment>
+                        ),
+                    }}
                     fullWidth
                 >
                     <MenuItem value='Open'>Open</MenuItem>
@@ -230,8 +277,9 @@ const RegistrationPage = () => {
                     variant='contained'
                     loading={request.isLoading()}
                     onClick={onRegister}
+                    color='success'
                 >
-                    Register
+                    Submit
                 </LoadingButton>
             </Stack>
 
