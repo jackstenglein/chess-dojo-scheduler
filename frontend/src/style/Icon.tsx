@@ -62,6 +62,9 @@ import {
     Whatshot,
     ZoomOutMap,
 } from '@mui/icons-material';
+
+import PublishIcon from '@mui/icons-material/Publish';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { SvgIcon, SvgIconProps } from '@mui/material';
 import React, { forwardRef } from 'react';
 import {
@@ -91,6 +94,8 @@ export const icons = {
     Followers: ThumbUp,
     followers: ThumbUp,
     'All Categories': AllInclusiveRounded,
+    warning: ReportProblemIcon,
+    submit: PublishIcon,
     clubs: Groups,
     search: Search,
     explore: Explore,
