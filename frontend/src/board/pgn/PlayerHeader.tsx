@@ -177,6 +177,8 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
         }
     }
 
+    const moveClockText = getMoveClockText(clockCommand, pgn, move);
+
     return (
         <Paper
             data-cy={`player-header-${type}`}
@@ -191,13 +193,14 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
             }}
         >
             <Stack direction='row' spacing={1} justifyContent='space-between'>
-                <Stack direction='row' spacing={1}>
+                <Stack direction='row' spacing={1} overflow='hidden' flexGrow={1}>
                     {playerResult && (
                         <>
                             <Typography
                                 variant='subtitle2'
                                 color='text.secondary'
                                 fontWeight='bold'
+                                whiteSpace='nowrap'
                             >
                                 {playerResult}
                             </Typography>
@@ -209,12 +212,17 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                         variant='subtitle2'
                         color='text.secondary'
                         fontWeight='bold'
+                        whiteSpace='nowrap'
                     >
                         {playerName}
                     </Typography>
 
                     {playerElo && (
-                        <Typography variant='subtitle2' color='text.secondary'>
+                        <Typography
+                            variant='subtitle2'
+                            color='text.secondary'
+                            whiteSpace='nowrap'
+                        >
                             ({playerElo})
                         </Typography>
                     )}
@@ -222,15 +230,18 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                     <CapturedMaterial chess={chess} move={currentMove} color={color} />
                 </Stack>
 
-                <Tooltip title={ClockTypeDescriptions[clockCommand]}>
-                    <Typography
-                        variant='subtitle2'
-                        color='text.secondary'
-                        display='inline'
-                    >
-                        {getMoveClockText(clockCommand, pgn, move)}
-                    </Typography>
-                </Tooltip>
+                {moveClockText && (
+                    <Tooltip title={ClockTypeDescriptions[clockCommand]}>
+                        <Typography
+                            variant='subtitle2'
+                            color='text.secondary'
+                            display='inline'
+                            whiteSpace='nowrap'
+                        >
+                            {moveClockText}
+                        </Typography>
+                    </Tooltip>
+                )}
             </Stack>
         </Paper>
     );
@@ -343,7 +354,7 @@ const CapturedMaterial = ({
                 <Typography
                     variant='body2'
                     color='text.secondary'
-                    sx={{ mt: '2px', ml: '2px' }}
+                    sx={{ mt: '2px', ml: '2px', whiteSpace: 'nowrap' }}
                 >
                     {displayedMaterialDiff}
                 </Typography>
