@@ -73,7 +73,7 @@ export default function InfoPage() {
 
                     <InfoEntryAccordion
                         id='playing-games'
-                        iconid={'pawn'}
+                        iconid={'Rook Endgame Progression'}
                         title='Playing Games'
                         isList={true}
                         decList={[

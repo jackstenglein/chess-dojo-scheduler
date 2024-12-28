@@ -77,7 +77,7 @@ import {
 } from '../database/event';
 import { RequirementCategory } from '../database/requirement';
 import { ChessDojoIcon } from './ChessDojoIcon';
-import { PawnIcon, RookIcon } from './ChessIcons';
+import { RookIcon } from './ChessIcons';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from './SocialMediaIcons';
 
 export const icons = {
@@ -138,7 +138,6 @@ export const icons = {
     'Analyze Own Game': Biotech,
     'Book Study': AutoStories,
     'Rook Endgame Progression': RookIcon,
-    pawn: PawnIcon,
     discord: DiscordIcon,
     twitch: TwitchIcon,
     youtube: YoutubeIcon,
