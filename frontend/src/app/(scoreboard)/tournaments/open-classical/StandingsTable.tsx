@@ -2,6 +2,7 @@ import { OpenClassical, OpenClassicalPlayerStatus } from '@/database/tournament'
 import { Stack, Tooltip, Typography } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
+
 enum Result {
     Win = 'W',
     ForfeitWin = 'Wf',

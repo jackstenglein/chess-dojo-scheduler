@@ -6,7 +6,7 @@ import { AuthStatus, useAuth } from '@/auth/Auth';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { PawnIcon } from '@/style/ChessIcons';
-import { Email, LocationOn, Person, Publish, TrendingUp } from '@mui/icons-material';
+import { Email, LocationOn, Person, TrendingUp } from '@mui/icons-material';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -184,12 +184,14 @@ const SubmitResultsPage = () => {
                             errors.email ||
                             'Please provide the same email addess you used to register for the tournament'
                         }
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position='start'>
-                                    <Email fontSize={'medium'} color='dojoOrange' />
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <Email fontSize='medium' color='dojoOrange' />
+                                    </InputAdornment>
+                                ),
+                            },
                         }}
                     />
                 )}
@@ -203,12 +205,14 @@ const SubmitResultsPage = () => {
                     onChange={(e) => setRegion(e.target.value)}
                     error={Boolean(errors.region)}
                     helperText={errors.region}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <LocationOn fontSize={'medium'} color='dojoOrange' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <LocationOn fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 >
                     <MenuItem value='A'>Region A (Americas)</MenuItem>
@@ -223,12 +227,14 @@ const SubmitResultsPage = () => {
                     value={section}
                     onChange={(e) => setSection(e.target.value)}
                     error={Boolean(errors.section)}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <TrendingUp fontSize={'medium'} color='dojoOrange' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <TrendingUp fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                     helperText={errors.section}
                 >
@@ -243,12 +249,14 @@ const SubmitResultsPage = () => {
                     onChange={(e) => setGameUrl(e.target.value)}
                     onBlur={onBlurGameUrl}
                     error={Boolean(errors.gameUrl)}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <AddLinkIcon fontSize={'medium'} color='dojoOrange' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <AddLinkIcon fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                     helperText={errors.gameUrl || 'Please provide a link to the game'}
                 />
@@ -260,12 +268,14 @@ const SubmitResultsPage = () => {
                     value={white}
                     onChange={(e) => setWhite(e.target.value)}
                     error={Boolean(errors.white)}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <Person fontSize={'medium'} color='dojoOrange' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <Person fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                     helperText={
                         errors.white ||
@@ -279,12 +289,14 @@ const SubmitResultsPage = () => {
                     value={black}
                     onChange={(e) => setBlack(e.target.value)}
                     error={Boolean(errors.black)}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <Person fontSize={'medium'} color='dojoOrange' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <Person fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                     helperText={
                         errors.black ||
@@ -299,12 +311,14 @@ const SubmitResultsPage = () => {
                     required
                     value={result}
                     onChange={(e) => setResult(e.target.value)}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <PawnIcon fontSize={'medium'} color='dojoOrange' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <PawnIcon fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                     error={Boolean(errors.result)}
                     helperText={errors.result}
@@ -346,7 +360,6 @@ const SubmitResultsPage = () => {
                     variant='contained'
                     loading={request.isLoading()}
                     onClick={onSubmit}
-                    startIcon={<Publish />}
                     color='success'
                     sx={{ alignSelf: 'center' }}
                 >

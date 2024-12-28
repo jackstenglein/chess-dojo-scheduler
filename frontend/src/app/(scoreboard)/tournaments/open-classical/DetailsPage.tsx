@@ -27,6 +27,7 @@ import React, { useCallback, useEffect } from 'react';
 import EntrantsTable from './EntrantsTable';
 import PairingsTable from './PairingsTable';
 import StandingsTable from './StandingsTable';
+
 const DetailsPage = () => {
     const api = useApi();
     const request = useRequest<OpenClassical>();
@@ -74,7 +75,6 @@ const DetailsPage = () => {
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
                 <Stack spacing={1}>
                     <Typography variant='h4' alignItems={'center'}>
-                        {' '}
                         Dojo Open Classical
                     </Typography>
                     <Stack direction='row' spacing={1}>
@@ -193,12 +193,14 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     sx={{
                         flexGrow: 1,
                     }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <LocationOn fontSize={'medium'} color='primary' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <LocationOn fontSize='medium' color='primary' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 >
                     <MenuItem value='A'>Region A (Americas)</MenuItem>
@@ -214,12 +216,14 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     sx={{
                         flexGrow: 1,
                     }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <TrendingUp fontSize={'medium'} color='primary' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <TrendingUp fontSize='medium' color='primary' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 >
                     {ratingRangeOptions.map((opt) => (
@@ -238,19 +242,21 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                         sx={{
                             flexGrow: 1,
                         }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position='start'>
-                                    {view.includes('standing') ? (
-                                        <Leaderboard
-                                            fontSize={'medium'}
-                                            color='primary'
-                                        />
-                                    ) : (
-                                        <People fontSize={'medium'} color='primary' />
-                                    )}
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        {view.includes('standing') ? (
+                                            <Leaderboard
+                                                fontSize={'medium'}
+                                                color='primary'
+                                            />
+                                        ) : (
+                                            <People fontSize={'medium'} color='primary' />
+                                        )}
+                                    </InputAdornment>
+                                ),
+                            },
                         }}
                     >
                         <MenuItem value='standings'>Overall Standings</MenuItem>

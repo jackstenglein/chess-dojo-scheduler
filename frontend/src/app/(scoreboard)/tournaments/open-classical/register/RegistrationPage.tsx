@@ -4,7 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import LoadingPage from '@/loading/LoadingPage';
-import EditLocationAltIcon from '@mui/icons-material/EditLocationAlt';
+import { LocationOn } from '@mui/icons-material';
 import EmailIcon from '@mui/icons-material/Email';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -30,6 +30,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { SiDiscord, SiLichess } from 'react-icons/si';
+
 const RegistrationPage = () => {
     const { user, status } = useAuth();
     const api = useApi();
@@ -137,12 +138,14 @@ const RegistrationPage = () => {
                         fullWidth
                         error={Boolean(errors.email)}
                         helperText={errors.email}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position='start'>
-                                    <EmailIcon fontSize={'medium'} color='dojoOrange' />
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <EmailIcon fontSize='medium' color='dojoOrange' />
+                                    </InputAdornment>
+                                ),
+                            },
                         }}
                     />
                 )}
@@ -156,12 +159,14 @@ const RegistrationPage = () => {
                     fullWidth
                     error={Boolean(errors.lichessUsername)}
                     helperText={errors.lichessUsername}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <SiLichess fontSize={23} />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <SiLichess fontSize={23} />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 />
 
@@ -174,12 +179,17 @@ const RegistrationPage = () => {
                     fullWidth
                     error={Boolean(errors.discordUsername)}
                     helperText={errors.discordUsername}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <SiDiscord fontSize={23} style={{ color: '#5865f2' }} />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <SiDiscord
+                                        fontSize={23}
+                                        style={{ color: '#5865f2' }}
+                                    />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 />
 
@@ -189,12 +199,17 @@ const RegistrationPage = () => {
                     onChange={(e) => setTitle(e.target.value)}
                     select
                     fullWidth
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <MilitaryTechIcon color='dojoOrange' fontSize='medium' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <MilitaryTechIcon
+                                        color='dojoOrange'
+                                        fontSize='medium'
+                                    />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 >
                     <MenuItem value=''>None</MenuItem>
@@ -217,15 +232,14 @@ const RegistrationPage = () => {
                     onChange={(e) => setRegion(e.target.value)}
                     error={Boolean(errors.region)}
                     helperText={errors.region}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <EditLocationAltIcon
-                                    color='dojoOrange'
-                                    fontSize='medium'
-                                />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <LocationOn color='dojoOrange' fontSize='medium' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                     fullWidth
                 >
@@ -242,12 +256,17 @@ const RegistrationPage = () => {
                     onChange={(e) => setSection(e.target.value)}
                     error={Boolean(errors.section)}
                     helperText={errors.section}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <TrendingUpIcon color='dojoOrange' fontSize='medium' />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <TrendingUpIcon
+                                        color='dojoOrange'
+                                        fontSize='medium'
+                                    />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                     fullWidth
                 >
@@ -282,7 +301,7 @@ const RegistrationPage = () => {
                     onClick={onRegister}
                     color='success'
                 >
-                    Submit
+                    Register
                 </LoadingButton>
             </Stack>
 
