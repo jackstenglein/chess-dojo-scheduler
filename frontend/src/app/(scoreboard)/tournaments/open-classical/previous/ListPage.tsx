@@ -80,13 +80,7 @@ const ListPage = () => {
                 </Card>
 
                 {request.data?.map((openClassical) => (
-                    <Card
-                        key={openClassical.startsAt}
-                        sx={{
-                            maxWidth: 1200,
-                            mx: 'auto',
-                        }}
-                    >
+                    <Card key={openClassical.startsAt}>
                         <CardActionArea
                             href={`/tournaments/open-classical?tournament=${openClassical.startsAt}`}
                             component={Link}
