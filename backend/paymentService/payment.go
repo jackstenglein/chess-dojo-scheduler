@@ -10,13 +10,13 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService/secrets"
-	"github.com/stripe/stripe-go/v76"
-	"github.com/stripe/stripe-go/v76/account"
-	"github.com/stripe/stripe-go/v76/accountlink"
-	bpsession "github.com/stripe/stripe-go/v76/billingportal/session"
-	"github.com/stripe/stripe-go/v76/checkout/session"
-	"github.com/stripe/stripe-go/v76/loginlink"
-	"github.com/stripe/stripe-go/v76/refund"
+	"github.com/stripe/stripe-go/v81"
+	"github.com/stripe/stripe-go/v81/account"
+	"github.com/stripe/stripe-go/v81/accountlink"
+	bpsession "github.com/stripe/stripe-go/v81/billingportal/session"
+	"github.com/stripe/stripe-go/v81/checkout/session"
+	"github.com/stripe/stripe-go/v81/loginlink"
+	"github.com/stripe/stripe-go/v81/refund"
 )
 
 var frontendHost = os.Getenv("frontendHost")

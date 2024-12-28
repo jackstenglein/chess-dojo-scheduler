@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
-	stripe "github.com/stripe/stripe-go/v76"
+	stripe "github.com/stripe/stripe-go/v81"
 )
 
 var pixelId = os.Getenv("metaPixelId")
