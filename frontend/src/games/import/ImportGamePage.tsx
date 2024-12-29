@@ -7,6 +7,7 @@ import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database
 import { Container } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ImportWizard from './ImportWizard';
+
 const ImportGamePage = () => {
     const searchParams = useSearchParams();
     const { setStagedGame, createGame, request } = useSaveGame();
