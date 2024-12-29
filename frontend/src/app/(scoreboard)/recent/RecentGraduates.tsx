@@ -2,20 +2,13 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import { MUI_LICENSE_KEY } from '@/config';
 import { Graduation } from '@/database/graduation';
 import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import {
-    Divider,
-    FormControl,
-    Link,
-    MenuItem,
-    Select,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Divider, FormControl, MenuItem, Select, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridColDef,

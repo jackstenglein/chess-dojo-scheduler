@@ -2,18 +2,12 @@
 
 import { useClubs } from '@/api/cache/clubs';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import NewsfeedList from '@/components/newsfeed/NewsfeedList';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
-import {
-    Container,
-    Divider,
-    Grid2 as Grid,
-    Link,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Container, Divider, Grid2 as Grid, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 
 export function NewsfeedListPage() {
@@ -58,7 +52,8 @@ export function NewsfeedListPage() {
                     <Stack spacing={3}>
                         <Typography variant='h6'>Newsfeed</Typography>
 
-                        {clubRequest.isLoading() || !clubRequest.isSent() ? (
+                        {user?.clubs?.length &&
+                        (clubRequest.isLoading() || !clubRequest.isSent()) ? (
                             <LoadingPage />
                         ) : (
                             <NewsfeedList

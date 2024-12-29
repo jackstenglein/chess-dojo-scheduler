@@ -2,7 +2,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { OpenClassicalPutPairingsRequest } from '@/api/tournamentApi';
 import { useAuth } from '@/auth/Auth';
-import { OpenClassical } from '@/database/tournament';
+import { getRatingRanges, OpenClassical } from '@/database/tournament';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -160,8 +160,11 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
                             error={Boolean(errors.section)}
                             helperText={errors.section}
                         >
-                            <MenuItem value='Open'>Open</MenuItem>
-                            <MenuItem value='U1800'>U1800</MenuItem>
+                            {getRatingRanges(openClassical).map((rating) => (
+                                <MenuItem key={rating} value={rating}>
+                                    {rating}
+                                </MenuItem>
+                            ))}
                         </TextField>
 
                         <TextField

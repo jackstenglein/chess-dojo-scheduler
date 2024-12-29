@@ -1,5 +1,6 @@
 import { useNotifications } from '@/api/cache/Cache';
-import NotificationButton from '@/notifications/NotificationButton';
+import { Link } from '@/components/navigation/Link';
+import NotificationButton from '@/components/notifications/NotificationButton';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
@@ -44,7 +45,6 @@ import {
     Button,
     Collapse,
     IconButton,
-    Link,
     List,
     ListItemIcon,
     Menu,
@@ -328,6 +328,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                     </Badge>
                 }
                 href={item.href}
+                component={Link}
             >
                 {item.name}
             </Button>
@@ -342,6 +343,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                 sx={{ color: 'white', whiteSpace: 'nowrap' }}
                 startIcon={item.icon}
                 endIcon={item.children ? <ExpandMore /> : undefined}
+                component={item.href ? Link : 'button'}
                 href={item.href}
             >
                 {item.name}
@@ -359,7 +361,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                             onClick={
                                 child.onClick ? handleClick(child.onClick) : undefined
                             }
-                            component={child.href ? 'a' : 'li'}
+                            component={child.href ? Link : 'li'}
                             href={child.href}
                         >
                             {child.icon && <ListItemIcon>{child.icon}</ListItemIcon>}
@@ -383,7 +385,7 @@ export const NavMenuItem: React.FC<{
             <MenuItem
                 key={item.name}
                 onClick={item.children ? item.onClick : undefined}
-                component={item.href ? 'a' : 'li'}
+                component={item.href ? Link : 'li'}
                 href={item.href}
             >
                 <ListItemIcon>{item.icon}</ListItemIcon>
@@ -412,7 +414,7 @@ export const NavMenuItem: React.FC<{
                                     child.onClick ? handleClick(child.onClick) : undefined
                                 }
                                 sx={{ pl: 3 }}
-                                component={child.href ? 'a' : 'li'}
+                                component={child.href ? Link : 'li'}
                                 href={child.href}
                             >
                                 {child.icon ? (
@@ -697,7 +699,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                 onClose={handleClose}
             >
                 {!profileCreated && (
-                    <MenuItem component='a' href='/profile'>
+                    <MenuItem href='/profile'>
                         <ListItemIcon>
                             <Person2Icon />
                         </ListItemIcon>
@@ -707,7 +709,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
 
                 {startItemsJsx}
 
-                <MenuItem component='a' href='/notifications'>
+                <MenuItem href='/notifications'>
                     <ListItemIcon>
                         <Badge
                             badgeContent={notifications.length}
@@ -720,7 +722,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                     <Typography textAlign='center'>Notifications</Typography>
                 </MenuItem>
 
-                <MenuItem component='a' href='/help'>
+                <MenuItem href='/help'>
                     <ListItemIcon>
                         <Help />
                     </ListItemIcon>

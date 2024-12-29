@@ -230,7 +230,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
     }
 
     return (
-        <Stack spacing={3}>
+        <Stack spacing={3} data-cy='newsfeed-list'>
             {newsfeedIdOptions !== undefined && (
                 <MultipleSelectChip
                     selected={newsfeedIds}

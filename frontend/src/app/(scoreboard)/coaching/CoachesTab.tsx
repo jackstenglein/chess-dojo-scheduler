@@ -4,11 +4,12 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { listCoaches } from '@/api/coachApi';
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
+import Bio from '@/components/profile/info/Bio';
+import UserInfo from '@/components/profile/info/UserInfo';
 import { FollowerEntry } from '@/database/follower';
 import { User, compareCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import Bio from '@/profile/info/Bio';
-import UserInfo from '@/profile/info/UserInfo';
 import { LoadingButton } from '@mui/lab';
 import { Card, CardActionArea, CardContent, Stack } from '@mui/material';
 import React, { useEffect } from 'react';
@@ -100,7 +101,7 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
 
     return (
         <Card key={coach.username}>
-            <CardActionArea href={`/profile/${coach.username}`}>
+            <CardActionArea LinkComponent={Link} href={`/profile/${coach.username}`}>
                 <CardContent>
                     <Stack spacing={4}>
                         <Stack

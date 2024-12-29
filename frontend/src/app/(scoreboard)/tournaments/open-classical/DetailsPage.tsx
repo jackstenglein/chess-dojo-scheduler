@@ -4,19 +4,25 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString } from '@/calendar/displayDate';
-import { OpenClassical } from '@/database/tournament';
+import { Link } from '@/components/navigation/Link';
+import { getRatingRanges, OpenClassical } from '@/database/tournament';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
+import { Leaderboard, LocationOn, People, TrendingUp } from '@mui/icons-material';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import InfoIcon from '@mui/icons-material/Info';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PublishIcon from '@mui/icons-material/Publish';
+import RestoreIcon from '@mui/icons-material/Restore';
 import {
     Button,
     Container,
-    Link,
+    InputAdornment,
     MenuItem,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
-import NextLink from 'next/link';
 import React, { useCallback, useEffect } from 'react';
 import EntrantsTable from './EntrantsTable';
 import PairingsTable from './PairingsTable';
@@ -67,23 +73,35 @@ const DetailsPage = () => {
             <RequestSnackbar request={request} />
 
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                <Stack>
-                    <Typography variant='h4'>Open Classical</Typography>
-                    <Link component={NextLink} href='/tournaments/open-classical/info'>
-                        Rules and Info
-                    </Link>
-                    <Link
-                        component={NextLink}
-                        href='/tournaments/open-classical/previous'
-                    >
-                        Previous Tournaments
-                    </Link>
+                <Stack spacing={1}>
+                    <Typography variant='h4' alignItems={'center'}>
+                        Dojo Open Classical
+                    </Typography>
+                    <Stack direction='row' spacing={1}>
+                        <Button
+                            variant='outlined'
+                            startIcon={<InfoIcon />}
+                            href='/tournaments/open-classical/info'
+                            component={Link}
+                        >
+                            Info
+                        </Button>
+                        <Button
+                            variant='outlined'
+                            startIcon={<RestoreIcon />}
+                            href='/tournaments/open-classical/previous'
+                            component={Link}
+                        >
+                            History
+                        </Button>
+                    </Stack>
                 </Stack>
 
                 {(user?.isAdmin || user?.isTournamentAdmin) && (
                     <Button
-                        component={NextLink}
+                        component={Link}
                         variant='contained'
+                        startIcon={<AdminPanelSettingsIcon />}
                         href='/tournaments/open-classical/admin'
                     >
                         Admin Portal
@@ -112,8 +130,9 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
         return null;
     }
 
+    const ratingRangeOptions = getRatingRanges(openClassical);
     const region = searchParams.get('region') || 'A';
-    const ratingRange = searchParams.get('ratingRange') || 'Open';
+    const ratingRange = searchParams.get('ratingRange') || ratingRangeOptions[0];
     const view = searchParams.get('view') || 'standings';
 
     const maxRound =
@@ -140,8 +159,10 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
 
                     <Button
                         variant='contained'
+                        startIcon={<PlayArrowIcon />}
+                        color='success'
                         href='/tournaments/open-classical/register'
-                        component={NextLink}
+                        component={Link}
                     >
                         Register
                     </Button>
@@ -150,12 +171,14 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                 <Typography>
                     Results for each round will be posted after the full round is
                     complete.{' '}
-                    <Link
+                    <Button
+                        variant='text'
+                        startIcon={<PublishIcon />}
                         href='/tournaments/open-classical/submit-results'
-                        component={NextLink}
+                        component={Link}
                     >
                         Submit Results
-                    </Link>
+                    </Button>
                 </Typography>
             ) : (
                 <Typography>Results from the {openClassical.name} tournament:</Typography>
@@ -169,6 +192,15 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     onChange={(e) => updateSearchParams({ region: e.target.value })}
                     sx={{
                         flexGrow: 1,
+                    }}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <LocationOn fontSize='medium' color='primary' />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 >
                     <MenuItem value='A'>Region A (Americas)</MenuItem>
@@ -184,9 +216,21 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                     sx={{
                         flexGrow: 1,
                     }}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <TrendingUp fontSize='medium' color='primary' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                 >
-                    <MenuItem value='Open'>Open</MenuItem>
-                    <MenuItem value='U1800'>U1800</MenuItem>
+                    {ratingRangeOptions.map((opt) => (
+                        <MenuItem key={opt} value={opt}>
+                            {opt}
+                        </MenuItem>
+                    ))}
                 </TextField>
 
                 {!openClassical.acceptingRegistrations && (
@@ -197,6 +241,22 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                         onChange={(e) => updateSearchParams({ view: e.target.value })}
                         sx={{
                             flexGrow: 1,
+                        }}
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        {view.includes('standing') ? (
+                                            <Leaderboard
+                                                fontSize={'medium'}
+                                                color='primary'
+                                            />
+                                        ) : (
+                                            <People fontSize={'medium'} color='primary' />
+                                        )}
+                                    </InputAdornment>
+                                ),
+                            },
                         }}
                     >
                         <MenuItem value='standings'>Overall Standings</MenuItem>

@@ -5,9 +5,7 @@ describe('Model Games Module', () => {
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
-        cy.visit(
-            '/courses/OPENING/b042a392-e285-4466-9bc0-deeecc2ce16c?chapter=0&module=4',
-        );
+        cy.visit('/courses/OPENING/b042a392-e285-4466-9bc0-deeecc2ce16c/0/4');
     });
 
     it('should display PGN selector an board', () => {

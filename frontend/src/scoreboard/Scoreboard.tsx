@@ -1,6 +1,7 @@
+import { Link } from '@/components/navigation/Link';
 import HelpIcon from '@mui/icons-material/Help';
 import PushPinIcon from '@mui/icons-material/PushPin';
-import { Link, Stack, Tooltip } from '@mui/material';
+import { Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
     GridActionsCellItem,

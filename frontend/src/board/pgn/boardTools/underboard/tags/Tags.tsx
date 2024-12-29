@@ -1,9 +1,10 @@
 import { isValidDate, stripTagValue } from '@/api/gameApi';
+import { Link } from '@/components/navigation/Link';
 import { Game, MastersCohort } from '@/database/game';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { EventType, PgnDate, PgnTime, TimeControl } from '@jackstenglein/chess';
-import { Alert, Box, Link, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, Box, Snackbar, Stack, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridCellParams,

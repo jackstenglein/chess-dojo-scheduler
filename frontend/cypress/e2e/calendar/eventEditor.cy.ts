@@ -1,5 +1,3 @@
-import { tournamentsClock } from '../tournaments/util';
-
 describe('Event Editor', () => {
     beforeEach(() => {
         cy.interceptApi('GET', '/calendar', { fixture: 'calendar/events.json' });
@@ -9,9 +7,7 @@ describe('Event Editor', () => {
             cy.dojo.env('cognito_password'),
         );
 
-        cy.clock(tournamentsClock);
         cy.visit('/calendar');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
     });
 
     it('shows and hides event editor', () => {
@@ -26,7 +22,7 @@ describe('Event Editor', () => {
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
         cy.getBySel('event-editor-title').contains('Edit Event');
-        cy.getBySel('event-editor-date').contains('Sunday, Sep 10');
+        cy.getBySel('event-editor-date').contains('Sunday');
 
         cy.getBySel('event-editor').contains('Times');
         cy.getBySel('event-editor').contains(

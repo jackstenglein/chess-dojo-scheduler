@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { Suspense } from 'react';
 import AnalysisBoard from './AnalysisBoard';
 
 export default function Page() {
@@ -10,7 +11,9 @@ export default function Page() {
                 px: 0,
             }}
         >
-            <AnalysisBoard />
+            <Suspense>
+                <AnalysisBoard />
+            </Suspense>
         </Box>
     );
 }

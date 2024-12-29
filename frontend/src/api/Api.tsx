@@ -235,7 +235,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getUserPublic,
             getUserSummaries,
             listUserTimeline: (owner: string, startKey?: string) =>
-                listUserTimeline(idToken, owner, startKey),
+                listUserTimeline(owner, startKey),
             listUsersByCohort: (cohort: string, startKey?: string) =>
                 listUsersByCohort(idToken, cohort, startKey),
             searchUsers,

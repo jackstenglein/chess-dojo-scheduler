@@ -7,14 +7,17 @@ import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButton
 import { GameContext } from '@/context/useGame';
 import { User } from '@/database/user';
 import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import useSaveGame from '@/hooks/useSaveGame';
 import LoadingPage from '@/loading/LoadingPage';
-import { FEN } from '@jackstenglein/chess';
+import { Chess, EventType as ChessEventType, FEN } from '@jackstenglein/chess';
 import {
     CreateGameRequest,
     GameOrientation,
     GameOrientations,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { Api } from 'chessground/api';
+import { usePathname } from 'next/navigation';
 
 function parseCreateGameRequest(req: CreateGameRequest | null) {
     if (req?.pgnText) {
@@ -25,13 +28,45 @@ function parseCreateGameRequest(req: CreateGameRequest | null) {
 
 export default function AnalysisBoard() {
     const { stagedGame } = useSaveGame();
-
     const { pgn, fen } = parseCreateGameRequest(stagedGame);
+    const { searchParams } = useNextSearchParams();
     const { user, status } = useAuth();
+    const pathname = usePathname();
 
     if (status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
+
+    const onInitialize = (_: Api, chess: Chess) => {
+        const observer = {
+            types: [
+                ChessEventType.NewVariation,
+                ChessEventType.UpdateComment,
+                ChessEventType.UpdateCommand,
+                ChessEventType.UpdateNags,
+                ChessEventType.Initialized,
+                ChessEventType.UpdateDrawables,
+                ChessEventType.DeleteMove,
+                ChessEventType.DeleteBeforeMove,
+                ChessEventType.PromoteVariation,
+                ChessEventType.UpdateHeader,
+                ChessEventType.LegalMove,
+            ],
+            handler: () => {
+                const params = new URLSearchParams(searchParams);
+                params.set('fen', chess.fen());
+
+                const url = `${pathname}?${params.toString()}`;
+                window.history.replaceState(
+                    { ...window.history.state, as: url, url },
+                    '',
+                    url,
+                );
+            },
+        };
+
+        chess.addObserver(observer);
+    };
 
     return (
         <PgnErrorBoundary pgn={pgn}>
@@ -43,13 +78,15 @@ export default function AnalysisBoard() {
             >
                 <PgnBoard
                     pgn={pgn}
-                    fen={fen}
+                    fen={searchParams.get('fen') || fen}
+                    onInitialize={onInitialize}
                     startOrientation={getDefaultOrientation(pgn, user)}
                     underboardTabs={[
                         DefaultUnderboardTab.Tags,
                         DefaultUnderboardTab.Editor,
                         DefaultUnderboardTab.Explorer,
                         DefaultUnderboardTab.Clocks,
+                        DefaultUnderboardTab.Share,
                         DefaultUnderboardTab.Settings,
                     ]}
                     allowMoveDeletion={true}
@@ -58,6 +95,7 @@ export default function AnalysisBoard() {
                     slots={{
                         moveButtonExtras: EngineMoveButtonExtras,
                     }}
+                    initialUnderboardTab={DefaultUnderboardTab.Explorer}
                 />
             </GameContext.Provider>
         </PgnErrorBoundary>

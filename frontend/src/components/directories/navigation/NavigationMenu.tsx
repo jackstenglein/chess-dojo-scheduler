@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { useSearchParams } from '@/hooks/useSearchParams';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import {
     HOME_DIRECTORY_ID,
     SHARED_DIRECTORY_ID,
@@ -109,7 +109,7 @@ export const NavigationMenu = ({
     onClick?: (value: { owner: string; id: string }) => void;
 }) => {
     const { user } = useAuth();
-    const { updateSearchParams } = useSearchParams();
+    const { updateSearchParams } = useNextSearchParams();
     const [open, setOpen] = useLocalStorage(
         `/DirectoryNavigationMenu/${namespace}/open`,
         defaultValue ?? false,
