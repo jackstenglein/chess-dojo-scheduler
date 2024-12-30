@@ -9,7 +9,7 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { RegisterModalProps } from './RegisterModal';
+import { RegisterModalProps } from '../../../../components/tournaments/round-robin/RegisterModal';
 import { submitGameFromUser } from './roundRobinApi';
 
 const GameModal: React.FC<RegisterModalProps> = ({ open, onClose, user }) => {

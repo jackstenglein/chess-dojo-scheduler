@@ -1,6 +1,6 @@
-import { RoundRobinModel } from '@/app/(scoreboard)/tournaments/round-robin/roundRobinApi';
 import { TournamentInfo } from '@/components/tournaments/round-robin/TournamentEntry';
 import { PawnIcon } from '@/style/ChessIcons';
+import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { Group, TableChart, Timeline } from '@mui/icons-material';
 import { TabContext, TabPanel } from '@mui/lab';
 import {
@@ -13,12 +13,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { Crosstable } from './Crosstable';
-import { Games } from './Games';
 import { Pairings } from './Pairings';
-import { Stats } from './Stats';
 
 /** Renders a single Round Robin tournament. */
-export function Tournament({ tournament }: { tournament: RoundRobinModel }) {
+export function Tournament({ tournament }: { tournament: RoundRobin }) {
     const [tab, setTab] = useState('crosstable');
 
     return (
@@ -51,13 +49,13 @@ export function Tournament({ tournament }: { tournament: RoundRobinModel }) {
                         <Pairings tournament={tournament} />
                     </TabPanel>
 
-                    <TabPanel value='games' sx={{ px: 0 }}>
+                    {/* <TabPanel value='games' sx={{ px: 0 }}>
                         <Games tournament={tournament} />
                     </TabPanel>
 
                     <TabPanel value='stats' sx={{ px: 0 }}>
                         <Stats tournament={tournament} />
-                    </TabPanel>
+                    </TabPanel> */}
                 </TabContext>
             </CardContent>
         </Card>

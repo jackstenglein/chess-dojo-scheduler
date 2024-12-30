@@ -1,10 +1,8 @@
-import { RoundRobinModel } from '@/app/(scoreboard)/tournaments/round-robin/roundRobinApi';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString } from '@/calendar/displayDate';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { PawnIcon } from '@/style/ChessIcons';
-import Icon from '@/style/Icon';
-import { CalendarMonth, HourglassEmpty } from '@mui/icons-material';
+import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import { CalendarMonth } from '@mui/icons-material';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Chip, Stack, Typography } from '@mui/material';
 
@@ -12,7 +10,7 @@ import { Chip, Stack, Typography } from '@mui/material';
  * Renders the information for the given Round Robin tournament.
  * @param tournament The tournament to render the information for.
  */
-export function TournamentInfo({ tournament }: { tournament: RoundRobinModel }) {
+export function TournamentInfo({ tournament }: { tournament: RoundRobin }) {
     const { user } = useAuth();
 
     return (
@@ -30,15 +28,15 @@ export function TournamentInfo({ tournament }: { tournament: RoundRobinModel }) 
                 {tournament.name}
             </Typography>
 
-            {tournament.waiting && <Chip label='Waiting' icon={<HourglassEmpty />} />}
+            {/* {tournament.waiting && <Chip label='Waiting' icon={<HourglassEmpty />} />} */}
 
             <Chip
-                label={`${tournament.players.length} players`}
+                label={`${Object.values(tournament.players).length} players`}
                 icon={<PeopleAltIcon />}
                 color='secondary'
             />
 
-            <Chip
+            {/* <Chip
                 label={`${tournament.tc}+${tournament.inc} min time control`}
                 icon={<Icon name='Classical' />}
                 color='secondary'
@@ -48,10 +46,10 @@ export function TournamentInfo({ tournament }: { tournament: RoundRobinModel }) 
                 label={`${tournament.gameSub.length}/${(tournament.players.length * (tournament.players.length - 1)) / 2} games played`}
                 icon={<PawnIcon />}
                 color='secondary'
-            />
+            /> */}
 
             <Chip
-                label={`${toDojoDateString(new Date(tournament.startdate), user?.timezoneOverride)} - ${toDojoDateString(new Date(tournament.enddate), user?.timezoneOverride)}`}
+                label={`${toDojoDateString(new Date(tournament.startDate), user?.timezoneOverride)} - ${toDojoDateString(new Date(tournament.endDate), user?.timezoneOverride)}`}
                 icon={<CalendarMonth />}
                 color='secondary'
             />

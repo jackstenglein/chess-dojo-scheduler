@@ -33,7 +33,7 @@ const TabPanel: React.FC<{
  * Renders the round robin tournaments page.
  */
 export const RoundRobinPage = () => {
-    const [tabValue, setTabValue] = useState(0);
+    const [tabValue, setTabValue] = useState(1);
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);

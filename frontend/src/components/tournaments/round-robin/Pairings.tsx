@@ -1,22 +1,25 @@
-import Circle from '@mui/icons-material/Circle';
+import {
+    MAX_ROUND_ROBIN_PLAYERS,
+    RoundRobin,
+} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import {
     MenuItem,
     Stack,
     Table,
     TableBody,
     TableCell,
+    TableHead,
     TableRow,
     TextField,
     Typography,
 } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
-import { RoundRobinModel } from '../../../app/(scoreboard)/tournaments/round-robin/roundRobinApi';
 
 /**
  * Renders the pairings for the given Round Robin tournament.
  * @param tournament The tournament to render the pairings for.
  */
-export function Pairings({ tournament }: { tournament: RoundRobinModel }) {
+export function Pairings({ tournament }: { tournament: RoundRobin }) {
     const [selectedRound, setSelectedRound] = useState<number>(1);
 
     const handleRoundChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +34,7 @@ export function Pairings({ tournament }: { tournament: RoundRobinModel }) {
                 onChange={handleRoundChange}
                 fullWidth
             >
-                {[...Array(9).keys()].map((round) => (
+                {[...Array(MAX_ROUND_ROBIN_PLAYERS - 1).keys()].map((round) => (
                     <MenuItem key={round + 1} value={round + 1}>
                         Round {round + 1}
                     </MenuItem>
@@ -39,31 +42,22 @@ export function Pairings({ tournament }: { tournament: RoundRobinModel }) {
             </TextField>
 
             <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>White</TableCell>
+                        <TableCell>Black</TableCell>
+                    </TableRow>
+                </TableHead>
                 <TableBody>
-                    {tournament.pairingdata?.[selectedRound - 1] ? (
-                        tournament.pairingdata[selectedRound - 1]?.map((pair, index) => (
+                    {tournament.pairings?.[selectedRound - 1] ? (
+                        tournament.pairings[selectedRound - 1].map((pair, index) => (
                             <TableRow key={index}>
                                 <TableCell>
                                     <Typography textAlign={'center'}>
-                                        {
-                                            <Circle
-                                                sx={{
-                                                    verticalAlign: 'middle',
-                                                    marginRight: 3,
-                                                    color: 'white',
-                                                }}
-                                            />
-                                        }{' '}
-                                        {pair.replaceAll('**', '')}{' '}
-                                        {
-                                            <Circle
-                                                sx={{
-                                                    verticalAlign: 'middle',
-                                                    marginLeft: 1,
-                                                    color: 'grey',
-                                                }}
-                                            />
-                                        }
+                                        {tournament.players[pair.white].displayName}
+                                    </Typography>
+                                    <Typography textAlign={'center'}>
+                                        {tournament.players[pair.black].displayName}
                                     </Typography>
                                 </TableCell>
                             </TableRow>

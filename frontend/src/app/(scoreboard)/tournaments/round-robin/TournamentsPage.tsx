@@ -1,13 +1,18 @@
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { listRoundRobins, RoundRobinListResponse } from '@/api/roundRobinApi';
 import { useAuth } from '@/auth/Auth';
 import { Tournament } from '@/components/tournaments/round-robin/Tournament';
+import { Waitlist } from '@/components/tournaments/round-robin/Waitlist';
 import { dojoCohorts } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { Container, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+    RoundRobin,
+    RoundRobinStatuses,
+} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import { Container, MenuItem, Stack, TextField } from '@mui/material';
 import { ChangeEvent, useEffect } from 'react';
-import { fetchTournamentData, TournamentId } from './roundRobinApi';
 
 /** Renders the Round Robin tournaments page. */
 export function TournamentsPage() {
@@ -15,30 +20,51 @@ export function TournamentsPage() {
     const { searchParams, updateSearchParams } = useNextSearchParams({
         cohort: user?.dojoCohort || '0-300',
     });
-    const request = useRequest<TournamentId>();
+    const request = useRequest<RoundRobinListResponse>();
+    const waitlistRequest = useRequest<RoundRobinListResponse>();
 
     const cohort = searchParams.get('cohort') || '0-300';
     useEffect(() => {
         if (!request.isSent()) {
             request.onStart();
 
-            fetchTournamentData(parseInt(cohort))
-                .then(request.onSuccess)
+            listRoundRobins({ cohort, status: RoundRobinStatuses.ACTIVE })
+                .then((resp) => {
+                    request.onSuccess(resp.data);
+                })
                 .catch((err) => {
-                    console.error('fetchTournamentData: ', err);
+                    console.error('listRoundRobins: ', err);
                     request.onFailure(err);
                 });
         }
     }, [request, cohort]);
+
+    useEffect(() => {
+        if (!waitlistRequest.isSent()) {
+            waitlistRequest.onStart();
+
+            listRoundRobins({ cohort, status: RoundRobinStatuses.WAITING })
+                .then((resp) => waitlistRequest.onSuccess(resp.data))
+                .catch((err) => {
+                    console.error('listRoundRobin: ', err);
+                    waitlistRequest.onFailure(err);
+                });
+        }
+    });
 
     const onChangeCohort = (e: ChangeEvent<HTMLInputElement>) => {
         updateSearchParams({ cohort: e.target.value });
         request.reset();
     };
 
+    const onUpdateWaitlist = (waitlist: RoundRobin) => {
+        waitlistRequest.onSuccess({ ...waitlistRequest.data, tournaments: [waitlist] });
+    };
+
     return (
         <Container maxWidth='xl'>
             <RequestSnackbar request={request} />
+            <RequestSnackbar request={waitlistRequest} />
 
             <Stack spacing={4}>
                 <TextField fullWidth select value={cohort} onChange={onChangeCohort}>
@@ -55,14 +81,20 @@ export function TournamentsPage() {
                     ))}
                 </TextField>
 
+                {waitlistRequest.data?.tournaments.map((t) => (
+                    <Waitlist
+                        key={t.startsAt}
+                        tournament={t}
+                        onUpdateWaitlist={onUpdateWaitlist}
+                    />
+                ))}
+
                 {!request.isSent() || request.isLoading() ? (
                     <LoadingPage />
-                ) : request.data?.tournaments.length ? (
-                    request.data.tournaments.map((t) => (
+                ) : (
+                    request.data?.tournaments.map((t) => (
                         <Tournament key={t.id} tournament={t} />
                     ))
-                ) : (
-                    <Typography>No tournaments found</Typography>
                 )}
             </Stack>
         </Container>

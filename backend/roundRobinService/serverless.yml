@@ -1,0 +1,65 @@
+# Deploys the round robin service.
+
+service: chess-dojo-round-robin
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+functions:
+  list:
+    handler: list.handler
+    events:
+      - httpApi:
+          path: /public/tournaments/round-robin
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: ${param:TournamentsTableArn}
+
+  register:
+    handler: register.handler
+    events:
+      - httpApi:
+          path: /tournaments/round-robin/register
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:PutItem
+        Resource: ${param:TournamentsTableArn}
+
+  withdraw:
+    handler: withdraw.handler
+    events:
+      - httpApi:
+          path: /tournaments/round-robin/withdraw
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}

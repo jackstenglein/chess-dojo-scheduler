@@ -355,9 +355,9 @@ class AttributeNotExistsCondition extends Condition {
 }
 
 class EqualityCondition extends Condition {
-    private path: AttributePathTokens;
-    private value: any;
-    private comparator: '=' | '<>' | '<' | '<=' | '>' | '>=';
+    protected path: AttributePathTokens;
+    protected value: any;
+    protected comparator: '=' | '<>' | '<' | '<=' | '>' | '>=';
 
     constructor(
         path: AttributePath,
@@ -386,6 +386,28 @@ class EqualityCondition extends Condition {
         exprAttrValues[valueName] = marshall(this.value, { removeUndefinedValues: true });
 
         return `${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)} ${this.comparator} ${valueName}`;
+    }
+}
+
+class SizeCondition extends EqualityCondition {
+    constructor(
+        path: AttributePath,
+        value: any,
+        comparator: '=' | '<>' | '<' | '<=' | '>' | '>=',
+    ) {
+        super(path, value, comparator);
+    }
+
+    build(
+        exprAttrNames: Record<string, string>,
+        exprAttrValues: Record<string, AttributeValue>,
+        parentAttrIndex = '',
+    ) {
+        const valueName = `:c${parentAttrIndex}${this.attrIndex}`;
+        this.attrIndex++;
+        exprAttrValues[valueName] = marshall(this.value, { removeUndefinedValues: true });
+
+        return `size(${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)}) ${this.comparator} ${valueName}`;
     }
 }
 
@@ -434,4 +456,14 @@ export function equal(path: AttributePath, value: any): Condition {
  */
 export function notEqual(path: AttributePath, value: any): Condition {
     return new EqualityCondition(path, value, '<>');
+}
+
+/**
+ * Returns a condition which verifies that the attribute at the given
+ * path has a size less than the given value.
+ * @param path The path to check.
+ * @param value The value to compare against.
+ */
+export function sizeLessThan(path: AttributePath, value: number): Condition {
+    return new SizeCondition(path, value, '<');
 }
