@@ -1,3 +1,12 @@
+import { PawnIcon } from '@/style/ChessIcons';
+import Icon from '@/style/Icon';
+import { CalendarMonth, HelpOutline } from '@mui/icons-material';
+import GroupIcon from '@mui/icons-material/Group';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import WavingHandIcon from '@mui/icons-material/WavingHand';
 import {
     Divider,
     List,
@@ -7,27 +16,16 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-
-import { AccessTime, HelpOutline } from '@mui/icons-material';
-import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import GroupIcon from '@mui/icons-material/Group';
-import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
-import NotInterestedIcon from '@mui/icons-material/NotInterested';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import WavingHandIcon from '@mui/icons-material/WavingHand';
-import TimeControlTable from './TimeControlTable';
-
+import TimeControlTable from '../../../../components/tournaments/round-robin/TimeControlTable';
 
 const faqs = [
     {
         question: 'Is there a registration period for Dojo Round robins?',
-        answer: 'yes, the registration is on rolling basis, meaning as more players sign up, newer tournament registration automatically opens up',
+        answer: "No, you can register at any time. Once 10 players have registered for your cohort's round robin, the tournament will automatically start.",
     },
     {
         question: 'How do I register for the Dojo Round Robin?',
-        answer: 'You can go to pairings tab and hit register',
+        answer: 'You can go to the pairings tab and hit register.',
     },
     {
         question: 'I just graduated from my cohort, can I play 1 level up?',
@@ -39,12 +37,12 @@ const faqs = [
     },
     {
         question: 'When do the tournaments start?',
-        answer: "As soon as 10 players have joined",
+        answer: 'As soon as 10 players have joined',
     },
     {
         question:
             'My cohort tournament pairings and crosstable are not showing, why is that?',
-        answer: "The tournament is waiting for at least 10 players to join, when its active it will be in active state",
+        answer: 'The tournament is waiting for at least 10 players to join, when its active it will be in active state',
     },
     {
         question: 'What if I want to withdraw from the tournament?',
@@ -89,14 +87,17 @@ const FAQSection = () => (
 );
 
 /**
- * Handles the info page
- * @returns the info page
+ * Renders the Round Robin info page.
  */
 export const InfoPage = () => {
-    
     return (
-        <Stack spacing={2}>
-            <Typography variant='h5' textAlign='center' color='text.secondary'>
+        <Stack>
+            <Typography
+                variant='h5'
+                textAlign='center'
+                color='text.secondary'
+                sx={{ mt: 2 }}
+            >
                 Welcome to the Dojo Round Robin!
                 <WavingHandIcon
                     sx={{ verticalAlign: 'middle', ml: 1 }}
@@ -104,62 +105,62 @@ export const InfoPage = () => {
                 />
             </Typography>
 
-            <Divider />
+            <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
                 <MilitaryTechIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
                 />
-                Dojo Round Robin Info
+                Overview
             </Typography>
             <List>
                 <ListItem>
                     <ListItemIcon>
                         <GroupIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Play your fellow Dojoers in your own cohort' />
+                    <ListItemText primary='Play other members of your cohort' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <AllInclusiveIcon sx={{ color: 'text.secondary' }} />
+                        <PawnIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='Play on either on Chess.com or Lichess' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <EmojiEventsIcon sx={{ color: 'text.secondary' }} />
+                        <CalendarMonth sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Schedule games at your own pace, with 3 months to complete the 9 round games' />
+                    <ListItemText primary='Schedule games at your own pace, with 3 months to complete all 9 games' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
-                        <AccessTime sx={{ color: 'text.secondary' }} />
+                        <Icon name='Classical' sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText
-                        primary='Play classical time control games recommended by Training program for your cohort'
-                    />
+                    <ListItemText primary='Play classical time control games for your cohort, as recommended by the training program:' />
                 </ListItem>
             </List>
             <TimeControlTable />
-            <Divider />
+            <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
                 <LeaderboardIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
                     color='dojoOrange'
                 />
-                Leaderboard Info
+                Leaderboard
             </Typography>
 
-            <Typography>The point system follows FIDE round robin format</Typography>
+            <Typography sx={{ mt: 2, mb: 1 }}>
+                The point system follows the FIDE round robin format:
+            </Typography>
 
             <List>
                 <ListItem>
                     <ListItemIcon>
                         <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='You get 1 point for a win, 0.5 for draw and 0 for a loss' />
+                    <ListItemText primary='You get 1 point for a win, 0.5 for a draw and 0 for a loss' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
@@ -175,6 +176,8 @@ export const InfoPage = () => {
                 </ListItem>
             </List>
 
+            <Divider sx={{ my: 4 }} />
+
             <Typography variant='h6' color='text.secondary'>
                 <NotInterestedIcon
                     sx={{ verticalAlign: 'middle', mr: 1 }}
@@ -183,7 +186,7 @@ export const InfoPage = () => {
                 Anti-cheat Info
             </Typography>
 
-            <Typography>
+            <Typography sx={{ mt: 2, mb: 1 }}>
                 The Dojo takes cheating very seriously and has the following anti-cheat
                 policies:
             </Typography>
@@ -193,13 +196,13 @@ export const InfoPage = () => {
                     <ListItemIcon>
                         <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary="If a player's account gets closed for cheating/fair play violations on Chess.com/Lichess, they are subject to being banned from ChessDojo's Discord server." />
+                    <ListItemText primary="If a player's account gets closed for cheating/fair play violations on Chess.com/Lichess, they are subject to being banned from ChessDojo's tournaments and Discord server." />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
                         <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='If a player is caught cheating but immediately admits wrongdoing and apologizes, based on the severity of their actions they may be given a second chance. However, they will still be prohibited from playing in DojoLiga for at least 3 months' />
+                    <ListItemText primary='If a player is caught cheating but immediately admits wrongdoing and apologizes, based on the severity of their actions they may be given a second chance. However, they will still be prohibited from playing in Dojo tournaments for at least 3 months' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
@@ -209,7 +212,7 @@ export const InfoPage = () => {
                 </ListItem>
             </List>
 
-            <Divider />
+            <Divider sx={{ my: 4 }} />
 
             <FAQSection />
         </Stack>

@@ -2,6 +2,7 @@ import { getConfig } from '@/config';
 import axios from 'axios';
 
 export interface RoundRobinModel {
+    cohort: string;
     id: string; // tournament id
     name: string; // name
     pairingdata: string[][]; // pairings
@@ -13,10 +14,10 @@ export interface RoundRobinModel {
     inc: number; // time increment
     fen: string; // fen yea we can run chess960 tournaments lol
     status: string; // tournament status
-    startdate: Date; // start date of tournament
-    enddate: Date; // end date of tournament
+    startdate: string; // start date of tournament
+    enddate: string; // end date of tournament
     waiting: boolean; // is waiting list?
-    scoremap: { [key: string]: number }; // hashmappa for leaderboard (joma tech reference)
+    scoremap: Record<string, number>; // hashmappa for leaderboard (joma tech reference)
 }
 
 interface RoundRobinPlayerApi {
@@ -57,8 +58,7 @@ export const cohorts = [
 ];
 
 const endpoint = getConfig().api.roundRobinUrl;
-const localendpoint =
-    'endpoint/Prod/player';
+const localendpoint = 'endpoint/Prod/player';
 /**
  * method to fetch round robin tournament data from given tournament id
  * @param id string tournament id
@@ -89,7 +89,7 @@ export const registerUser = async (
     dojoUsername: string,
 ): Promise<string> => {
     try {
-        const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
+        const response = await axios.get<RoundRobinPlayerApi>(localendpoint, {
             params: {
                 mode: 'register',
                 cohortstart: cohortValue,
@@ -113,7 +113,7 @@ export const withdrawUser = async (
     dojoUsername: string,
 ): Promise<string> => {
     try {
-        const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
+        const response = await axios.get<RoundRobinPlayerApi>(localendpoint, {
             params: {
                 mode: 'withdraw',
                 discordname: discordName,
@@ -134,7 +134,7 @@ export const submitGameFromUser = async (
     gameURL: string,
 ): Promise<string> => {
     try {
-        const response = await axios.get<RoundRobinPlayerApi>(`${localendpoint}`, {
+        const response = await axios.get<RoundRobinPlayerApi>(localendpoint, {
             params: {
                 mode: 'game',
                 discordname: discordName,

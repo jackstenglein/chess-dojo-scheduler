@@ -1,19 +1,11 @@
 'use client';
 
-import { PawnIcon } from '@/style/ChessIcons';
-import {
-    Group as GroupIcon,
-    Info as InfoIcon,
-    TableChart as TableChartIcon,
-} from '@mui/icons-material';
+import { Info as InfoIcon, TableChart as TableChartIcon } from '@mui/icons-material';
 import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { useState } from 'react';
-import { Crosstable } from './CrosstablePage';
-import { GameSubmission } from './GameSubmission';
 import { InfoPage } from './InfoPage';
-import { PairingsPage } from './PairingPage';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import { StatPage } from './GameStatPage';
+import { TournamentsPage } from './TournamentsPage';
+
 /**
  * Renders a tab panel.
  * @param index the int index value
@@ -32,7 +24,7 @@ const TabPanel: React.FC<{
             id={`tabpanel-${index}`}
             aria-labelledby={`tab-${index}`}
         >
-            {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+            {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
         </div>
     );
 };
@@ -40,7 +32,6 @@ const TabPanel: React.FC<{
 /**
  * Renders the round robin tournaments page.
  */
-
 export const RoundRobinPage = () => {
     const [tabValue, setTabValue] = useState(0);
 
@@ -57,27 +48,26 @@ export const RoundRobinPage = () => {
                     variant='fullWidth'
                     aria-label='tournament viewer tabs'
                 >
-                    <Tab label='Info' icon={<InfoIcon />} />
-                    <Tab label='Pairings' icon={<GroupIcon />} />
-                    <Tab label='Crosstable' icon={<TableChartIcon />} />
-                    <Tab label='Games' icon={<PawnIcon />} />
-                    <Tab label='Stats' icon={<TimelineIcon/>} />
+                    <Tab
+                        label='Info'
+                        icon={<InfoIcon />}
+                        iconPosition='start'
+                        sx={{ minHeight: '48px' }}
+                    />
+                    <Tab
+                        label='Tournaments'
+                        icon={<TableChartIcon />}
+                        iconPosition='start'
+                        sx={{ minHeight: '48px' }}
+                    />
                 </Tabs>
             </Box>
+
             <TabPanel value={tabValue} index={0}>
                 <InfoPage />
             </TabPanel>
             <TabPanel value={tabValue} index={1}>
-                <PairingsPage />
-            </TabPanel>
-            <TabPanel value={tabValue} index={2}>
-                <Crosstable />
-            </TabPanel>
-            <TabPanel value={tabValue} index={3}>
-                <GameSubmission />
-            </TabPanel>
-            <TabPanel value={tabValue} index={4}>
-                <StatPage />
+                <TournamentsPage />
             </TabPanel>
         </Container>
     );
