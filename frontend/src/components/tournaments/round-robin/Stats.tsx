@@ -1,4 +1,8 @@
 import {
+    RoundRobin,
+    RoundRobinPlayerStatuses,
+} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import {
     Box,
     Stack,
     Table,
@@ -13,13 +17,12 @@ import {
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts';
 import { useState } from 'react';
-import { RoundRobinModel } from '../../../app/(scoreboard)/tournaments/round-robin/roundRobinApi';
 
 /**
  * Renders the stats for the given Round Robin tournament.
  * @param tournament The tournament to render the stats for.
  */
-export function Stats({ tournament }: { tournament: RoundRobinModel }) {
+export function Stats({ tournament }: { tournament: RoundRobin }) {
     const [viewMode, setViewMode] = useState<'count' | 'percentage'>('count');
     const [displayMode, setDisplayMode] = useState<'graph' | 'list'>('graph');
 
@@ -27,14 +30,14 @@ export function Stats({ tournament }: { tournament: RoundRobinModel }) {
         <Stack spacing={3}>
             <Stack>
                 <Typography variant='subtitle1'>
-                    Time Elapsed: {calculateElapsedTime(tournament.startdate)}
+                    Time Elapsed: {calculateElapsedTime(tournament.startDate)}
                 </Typography>
                 <Typography variant='subtitle1'>
-                    Time Remaining: {calculateRemainingTime(tournament.enddate)}
+                    Time Remaining: {calculateRemainingTime(tournament.endDate)}
                 </Typography>
                 <Typography variant='subtitle1'>
-                    Game Completion:{' '}
-                    {calculateGameCompletion(tournament.players, tournament.gameSub)}%
+                    Games Completed: {countCompletedGames(tournament)}/
+                    {countTotalGames(tournament)}
                 </Typography>
             </Stack>
 
@@ -68,17 +71,9 @@ export function Stats({ tournament }: { tournament: RoundRobinModel }) {
 
             <Box>
                 {displayMode === 'graph' ? (
-                    <GraphView
-                        players={tournament.players}
-                        crosstable={tournament.crosstabledata}
-                        viewMode={viewMode}
-                    />
+                    <GraphView tournament={tournament} viewMode={viewMode} />
                 ) : (
-                    <ListView
-                        players={tournament.players}
-                        crosstable={tournament.crosstabledata}
-                        viewMode={viewMode}
-                    />
+                    <ListView tournament={tournament} viewMode={viewMode} />
                 )}
             </Box>
         </Stack>
@@ -136,36 +131,79 @@ function formatTime(milliseconds: number): string {
 }
 
 /**
- * Returns the game completion as a percentage.
- * @param players The players in the tournament.
- * @param games The games in the tournament.
+ * Returns the number of games completed in the tournament. Games
+ * where a player has withdrawn are not counted.
+ * @param tournament The tournament to count the completed games for.
  */
-function calculateGameCompletion(players: string[], games: string[]) {
-    return roundval(games.length, (players.length * (players.length - 1)) / 2);
+export function countCompletedGames(tournament: RoundRobin): number {
+    let count = 0;
+
+    for (const round of tournament.pairings) {
+        for (const pairing of round) {
+            if (
+                pairing.result &&
+                tournament.players[pairing.white].status !==
+                    RoundRobinPlayerStatuses.WITHDRAWN &&
+                tournament.players[pairing.black].status !==
+                    RoundRobinPlayerStatuses.WITHDRAWN
+            ) {
+                count++;
+            }
+        }
+    }
+
+    return count;
 }
 
-const roundval = (start: number, end: number) => {
-    return Math.min((start / end) * 100, 100).toFixed(2);
-};
+/**
+ * Returns the total number of games in the tournament. Games where a player
+ * has withdrawn are not counted.
+ * @param tournament The tournament to count the total number of games for.
+ */
+export function countTotalGames(tournament: RoundRobin): number {
+    let count = 0;
+
+    for (const round of tournament.pairings) {
+        for (const pairing of round) {
+            if (
+                tournament.players[pairing.white].status !==
+                    RoundRobinPlayerStatuses.WITHDRAWN &&
+                tournament.players[pairing.black].status !==
+                    RoundRobinPlayerStatuses.WITHDRAWN
+            ) {
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+/**
+ * Returns the number of active players in the tournament.
+ * @param tournament The tournament to count the active players for.
+ */
+export function countActivePlayers(tournament: RoundRobin): number {
+    return Object.values(tournament.players).filter(
+        (p) => p.status === RoundRobinPlayerStatuses.ACTIVE,
+    ).length;
+}
 
 /**
  * Renders the player's W/D/L counts as a bar graph.
- * @param players The players to include in the table.
- * @param crosstable The crosstable data to calculate W/D/L counts from.
+ * @param tournament The tournament to display.
  * @param viewMode Whether to display counts or percentages.
  */
 function GraphView({
-    players,
-    crosstable,
+    tournament,
     viewMode,
 }: {
-    players: string[];
-    crosstable: string[][];
+    tournament: RoundRobin;
     viewMode: 'count' | 'percentage';
 }) {
-    const playerStats = calculatePlayerStats(players, crosstable);
+    const playerStats = calculatePlayerStats(tournament);
     const playerNames = playerStats.map((stat) => stat.player);
-    const totalGames = players.length - 1;
+    const totalGames = countActivePlayers(tournament) - 1;
 
     const wins =
         viewMode === 'count'
@@ -208,21 +246,18 @@ function GraphView({
 
 /**
  * Renders the players' W/D/L counts as a table.
- * @param players The players to include in the table.
- * @param crosstable The crosstable data to calculate W/D/L counts from.
+ * @param tournament The tournament to display.
  * @param viewMode Whether to display counts or percentages.
  */
 function ListView({
-    players,
-    crosstable,
+    tournament,
     viewMode,
 }: {
-    players: string[];
-    crosstable: string[][];
+    tournament: RoundRobin;
     viewMode: 'count' | 'percentage';
 }) {
-    const playerStats = calculatePlayerStats(players, crosstable);
-    const totalGames = players.length - 1;
+    const playerStats = calculatePlayerStats(tournament);
+    const totalGames = countActivePlayers(tournament) - 1;
 
     return (
         <TableContainer>
@@ -230,9 +265,13 @@ function ListView({
                 <TableHead>
                     <TableRow>
                         <TableCell>Player</TableCell>
-                        <TableCell>{viewMode === 'count' ? 'Wins' : 'Win %'}</TableCell>
-                        <TableCell>{viewMode === 'count' ? 'Draws' : 'Draw %'}</TableCell>
-                        <TableCell>
+                        <TableCell align='center'>
+                            {viewMode === 'count' ? 'Wins' : 'Win %'}
+                        </TableCell>
+                        <TableCell align='center'>
+                            {viewMode === 'count' ? 'Draws' : 'Draw %'}
+                        </TableCell>
+                        <TableCell align='center'>
                             {viewMode === 'count' ? 'Losses' : 'Loss %'}
                         </TableCell>
                     </TableRow>
@@ -241,17 +280,17 @@ function ListView({
                     {playerStats.map((stat, idx) => (
                         <TableRow key={idx}>
                             <TableCell>{stat.player}</TableCell>
-                            <TableCell>
+                            <TableCell align='center'>
                                 {viewMode === 'count'
                                     ? stat.wins
                                     : ((stat.wins / totalGames) * 100).toFixed(2)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell align='center'>
                                 {viewMode === 'count'
                                     ? stat.draws
                                     : ((stat.draws / totalGames) * 100).toFixed(2)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell align='center'>
                                 {viewMode === 'count'
                                     ? stat.losses
                                     : ((stat.losses / totalGames) * 100).toFixed(2)}
@@ -265,21 +304,57 @@ function ListView({
 }
 
 /**
- * Calculates the W/D/L counts for the given players and crosstable.
- * @param players The players to calculate the counts for.
- * @param crosstable The crosstable to calculate the counts for.
+ * Calculates the W/D/L counts for the given tournament. Only active players
+ * are included.
+ * @param tournament The tournament to calculate the counts for.
  * @returns A list of W/D/L counts for each player.
  */
-function calculatePlayerStats(players: string[], crosstable: string[][]) {
-    return players.map((player, index) => {
-        let wins = 0,
-            losses = 0,
-            draws = 0;
-        crosstable[index]?.forEach((result) => {
-            if (result === '1') wins++;
-            else if (result === '0') losses++;
-            else if (result === '1/2') draws++;
+function calculatePlayerStats(tournament: RoundRobin) {
+    const results: Record<string, { wins: number; draws: number; losses: number }> = {};
+
+    for (const round of tournament.pairings) {
+        for (const pairing of round) {
+            if (
+                !pairing.result ||
+                tournament.players[pairing.white].status ===
+                    RoundRobinPlayerStatuses.WITHDRAWN ||
+                tournament.players[pairing.black].status ===
+                    RoundRobinPlayerStatuses.WITHDRAWN
+            ) {
+                continue;
+            }
+
+            const white = results[pairing.white] || { wins: 0, losses: 0, draws: 0 };
+            const black = results[pairing.black] || { wins: 0, losses: 0, draws: 0 };
+            results[pairing.white] = white;
+            results[pairing.black] = black;
+
+            if (pairing.result === '1-0') {
+                white.wins++;
+                black.losses++;
+            } else if (pairing.result === '1/2-1/2') {
+                white.draws++;
+                black.draws++;
+            } else {
+                white.losses++;
+                black.wins++;
+            }
+        }
+    }
+
+    const resultList: { player: string; wins: number; draws: number; losses: number }[] =
+        [];
+
+    for (const username of tournament.playerOrder) {
+        if (tournament.players[username].status === RoundRobinPlayerStatuses.WITHDRAWN) {
+            continue;
+        }
+
+        resultList.push({
+            player: tournament.players[username].displayName,
+            ...(results[username] || { wins: 0, draws: 0, losses: 0 }),
         });
-        return { player, wins, losses, draws };
-    });
+    }
+
+    return resultList;
 }

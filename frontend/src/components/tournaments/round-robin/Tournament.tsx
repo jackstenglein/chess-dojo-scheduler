@@ -1,8 +1,8 @@
 import { useAuth } from '@/auth/Auth';
-import { TournamentInfo } from '@/components/tournaments/round-robin/TournamentEntry';
+import { TournamentInfo } from '@/components/tournaments/round-robin/TournamentInfo';
 import { PawnIcon } from '@/style/ChessIcons';
 import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { Group, TableChart } from '@mui/icons-material';
+import { Group, TableChart, Timeline } from '@mui/icons-material';
 import { TabContext, TabPanel } from '@mui/lab';
 import {
     Button,
@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { Crosstable } from './Crosstable';
 import { Games } from './Games';
 import { Pairings } from './Pairings';
+import { Stats } from './Stats';
 import SubmitGameModal from './SubmitGameModal';
 import { WithdrawModal } from './WithdrawModal';
 
@@ -76,7 +77,7 @@ export function Tournament({
                         />
                         <Tab label='Pairings' value='pairings' icon={<Group />} />
                         <Tab label='Games' value='games' icon={<PawnIcon />} />
-                        {/* <Tab label='Stats' value='stats' icon={<Timeline />} /> */}
+                        <Tab label='Stats' value='stats' icon={<Timeline />} />
                     </Tabs>
 
                     <TabPanel value='crosstable' sx={{ px: 0 }}>
@@ -91,9 +92,9 @@ export function Tournament({
                         <Games tournament={tournament} />
                     </TabPanel>
 
-                    {/* <TabPanel value='stats' sx={{ px: 0 }}>
+                    <TabPanel value='stats' sx={{ px: 0 }}>
                         <Stats tournament={tournament} />
-                    </TabPanel> */}
+                    </TabPanel>
                 </TabContext>
             </CardContent>
 
