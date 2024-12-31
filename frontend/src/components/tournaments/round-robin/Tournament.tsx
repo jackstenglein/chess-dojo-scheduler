@@ -5,7 +5,7 @@ import {
     RoundRobin,
     RoundRobinPlayerStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { Group, TableChart, Timeline } from '@mui/icons-material';
+import { Group, PeopleAlt, TableChart, Timeline } from '@mui/icons-material';
 import { TabContext, TabPanel } from '@mui/lab';
 import {
     Button,
@@ -21,6 +21,7 @@ import { useState } from 'react';
 import { Crosstable } from './Crosstable';
 import { Games } from './Games';
 import { Pairings } from './Pairings';
+import { Players } from './Players';
 import { Stats } from './Stats';
 import SubmitGameModal from './SubmitGameModal';
 import { WithdrawModal } from './WithdrawModal';
@@ -75,6 +76,7 @@ export function Tournament({
                         onChange={(_, t: string) => setTab(t)}
                         sx={{ borderBottom: 1, borderColor: 'divider' }}
                     >
+                        <Tab label='Players' value='players' icon={<PeopleAlt />} />
                         <Tab
                             label='Crosstable'
                             value='crosstable'
@@ -84,6 +86,10 @@ export function Tournament({
                         <Tab label='Games' value='games' icon={<PawnIcon />} />
                         <Tab label='Stats' value='stats' icon={<Timeline />} />
                     </Tabs>
+
+                    <TabPanel value='players' sx={{ px: 0 }}>
+                        <Players tournament={tournament} />
+                    </TabPanel>
 
                     <TabPanel value='crosstable' sx={{ px: 0 }}>
                         <Crosstable tournament={tournament} />

@@ -1,5 +1,4 @@
 import { useAuth } from '@/auth/Auth';
-import { Link } from '@/components/navigation/Link';
 import {
     MAX_ROUND_ROBIN_PLAYERS,
     RoundRobin,
@@ -13,14 +12,10 @@ import {
     CardHeader,
     Chip,
     Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { Players } from './Players';
 import { RegisterModal } from './RegisterModal';
 import { TimeControlChip } from './TimeControlChip';
 import { WithdrawModal } from './WithdrawModal';
@@ -84,38 +79,7 @@ export function Waitlist({
                     players have joined.
                 </Typography>
 
-                {Object.values(tournament.players).length > 0 && (
-                    <Table sx={{ mt: 3 }}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Player</TableCell>
-                                <TableCell align='center'>Lichess Username</TableCell>
-                                <TableCell align='center'>Chess.com Username</TableCell>
-                                <TableCell align='center'>Discord Username</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {Object.values(tournament.players).map((player) => (
-                                <TableRow key={player.username}>
-                                    <TableCell>
-                                        <Link href={`/profile/${player.username}`}>
-                                            {player.displayName}
-                                        </Link>
-                                    </TableCell>
-                                    <TableCell align='center'>
-                                        {player.lichessUsername}
-                                    </TableCell>
-                                    <TableCell align='center'>
-                                        {player.chesscomUsername}
-                                    </TableCell>
-                                    <TableCell align='center'>
-                                        {player.discordUsername}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                )}
+                <Players tournament={tournament} />
             </CardContent>
 
             {user && (
