@@ -48,7 +48,7 @@ export function Tournament({
 
             <CardContent>
                 {user &&
-                    tournament.players[user.username].status ===
+                    tournament.players[user.username]?.status ===
                         RoundRobinPlayerStatuses.ACTIVE && (
                         <Stack direction='row' sx={{ mt: -2, mb: 3 }} gap={1}>
                             <Button
