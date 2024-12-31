@@ -24,7 +24,7 @@ export const RoundRobinRegisterSchema = z.object({
 /** A request to register for a round robin. */
 export type RoundRobinRegisterRequest = z.infer<typeof RoundRobinRegisterSchema>;
 
-/** Verifies a request to wirthdraw from a round robin. */
+/** Verifies a request to withdraw from a round robin. */
 export const RoundRobinWithdrawSchema = z.object({
     /** The cohort of the round robin to withdraw from. */
     cohort: z.string(),
@@ -35,6 +35,21 @@ export const RoundRobinWithdrawSchema = z.object({
 
 /** A request to withdraw from a round robin. */
 export type RoundRobinWithdrawRequest = z.infer<typeof RoundRobinWithdrawSchema>;
+
+/** Verifies a request to submit a game for a round robin. */
+export const RoundRobinSubmitGameSchema = z.object({
+    /** The cohort of the tournament. */
+    cohort: z.string(),
+
+    /** The startsAt field of the tournament. */
+    startsAt: z.string().regex(/^ACTIVE/),
+
+    /** The url of the game to submit. */
+    url: z.string(),
+});
+
+/** A request to submit a game for a round robin. */
+export type RoundRobinSubmitGameRequest = z.infer<typeof RoundRobinSubmitGameSchema>;
 
 const roundRobinStatus = z.enum(['ACTIVE', 'WAITING', 'COMPLETE']);
 
@@ -101,7 +116,8 @@ export interface RoundRobin {
 
     /**
      * The pairings for the tournament. The first level of the array corresponds
-     * to the round number.
+     * to the round number. Once this field is set, the order of the pairings
+     * never changes.
      */
     pairings: RoundRobinPairing[][];
 }
@@ -115,7 +131,7 @@ export interface RoundRobinPairing {
     black: string;
 
     /** The result of the game. */
-    result?: string;
+    result?: '1-0' | '1/2-1/2' | '0-1';
 
     /** The URL of the game. */
     url?: string;

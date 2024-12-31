@@ -63,3 +63,19 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: ${param:TournamentsTableArn}
+
+  submitGame:
+    handler: submitGame.handler
+    events:
+      - httpApi:
+          path: /tournaments/round-robin/submit-game
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: ${param:TournamentsTableArn}

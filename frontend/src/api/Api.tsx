@@ -20,6 +20,7 @@ import {
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import {
     RoundRobinRegisterRequest,
+    RoundRobinSubmitGameRequest,
     RoundRobinWithdrawRequest,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { DateTime } from 'luxon';
@@ -152,6 +153,7 @@ import {
 import {
     RoundRobinApiContextType,
     registerForRoundRobin,
+    submitRoundRobinGame,
     withdrawFromRoundRobin,
 } from './roundRobinApi';
 import { ScoreboardApiContextType, getScoreboard } from './scoreboardApi';
@@ -507,6 +509,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 registerForRoundRobin(idToken, request),
             withdrawFromRoundRobin: (request: RoundRobinWithdrawRequest) =>
                 withdrawFromRoundRobin(idToken, request),
+            submitRoundRobinGame: (request: RoundRobinSubmitGameRequest) =>
+                submitRoundRobinGame(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

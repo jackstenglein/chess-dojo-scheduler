@@ -3,6 +3,7 @@ import {
     RoundRobin,
     RoundRobinListRequest,
     RoundRobinRegisterRequest,
+    RoundRobinSubmitGameRequest,
     RoundRobinWaitlist,
     RoundRobinWithdrawRequest,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
@@ -27,6 +28,15 @@ export interface RoundRobinApiContextType {
      */
     withdrawFromRoundRobin: (
         request: RoundRobinWithdrawRequest,
+    ) => Promise<AxiosResponse<RoundRobin>>;
+
+    /**
+     * Sends a request to submit a game for a round robin tournament.
+     * @param request The request to submit a game for the tournament.
+     * @returns The updated tournament.
+     */
+    submitRoundRobinGame: (
+        request: RoundRobinSubmitGameRequest,
     ) => Promise<AxiosResponse<RoundRobin>>;
 }
 
@@ -56,7 +66,7 @@ export function registerForRoundRobin(
 
 /**
  * Sends a request to withdraw from a round robin tournament.
- * @param idToken The id token of the current signed-in user
+ * @param idToken The id token of the current signed-in user.
  * @param request The request to withdraw from the tournament.
  * @returns The updated tournament.
  */
@@ -66,6 +76,23 @@ export function withdrawFromRoundRobin(
 ) {
     return axios.post<RoundRobin>(
         `${BASE_URL}/tournaments/round-robin/withdraw`,
+        request,
+        { headers: { Authorization: `Bearer ${idToken}` } },
+    );
+}
+
+/**
+ * Sends a request to submit a game for the round robin tournament.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to submit a game for the tournament.
+ * @returns The updated tournament.
+ */
+export function submitRoundRobinGame(
+    idToken: string,
+    request: RoundRobinSubmitGameRequest,
+) {
+    return axios.post<RoundRobin>(
+        `${BASE_URL}/tournaments/round-robin/submit-game`,
         request,
         { headers: { Authorization: `Bearer ${idToken}` } },
     );

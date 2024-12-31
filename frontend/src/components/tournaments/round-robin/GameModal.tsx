@@ -1,10 +1,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { User } from '@/database/user';
-import {
-    RoundRobin,
-    RoundRobinStatuses,
-} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -13,28 +10,32 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    TextField,
 } from '@mui/material';
+import { useState } from 'react';
 
-interface WithdrawModalProps {
+interface GameModalProps {
+    cohort: string;
+    startsAt: string;
     open: boolean;
     onClose: () => void;
     user: User | undefined;
-    cohort: string;
-    startsAt: string;
     onUpdateTournaments: (props: {
         waitlist?: RoundRobin;
         tournament?: RoundRobin;
     }) => void;
 }
 
-export function WithdrawModal({
+export function GameModal({
+    cohort,
+    startsAt,
     open,
     onClose,
     user,
-    cohort,
-    startsAt,
     onUpdateTournaments,
-}: WithdrawModalProps) {
+}: GameModalProps) {
+    const [gameUrl, setGameUrl] = useState('');
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest<string>();
     const api = useApi();
 
@@ -43,20 +44,24 @@ export function WithdrawModal({
     }
 
     const handleSubmit = async () => {
+        if (gameUrl.trim() === '') {
+            setErrors({ gameUrl: 'This field is required ' });
+            return;
+        }
+        setErrors({});
+
         try {
             request.onStart();
-            const resp = await api.withdrawFromRoundRobin({ cohort, startsAt });
-            console.log('withdrawFromRoundRobin: ', resp.data);
-            request.onSuccess('Successfully withdrew from round robin');
-            if (startsAt === RoundRobinStatuses.WAITING) {
-                onUpdateTournaments({ waitlist: resp.data });
-            } else {
-                onUpdateTournaments({ tournament: resp.data });
-            }
-
+            const resp = await api.submitRoundRobinGame({
+                cohort,
+                startsAt,
+                url: gameUrl,
+            });
+            onUpdateTournaments({ tournament: resp.data });
+            request.onSuccess('Game submitted');
             onClose();
         } catch (err) {
-            console.error('withdrawFromRoundRobin: ', err);
+            console.error('submitRoundRobinGame: ', err);
             request.onFailure(err);
         }
     };
@@ -67,23 +72,27 @@ export function WithdrawModal({
 
     return (
         <>
-            <Dialog
-                open={open}
-                onClose={request.isLoading() ? undefined : handleClose}
-                fullWidth
-            >
-                <DialogTitle>Withdraw from Round Robin?</DialogTitle>
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Submit Round Robin Game</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure you want to withdraw?
+                        Input your Lichess or Chess.com game URL.
                     </DialogContentText>
+                    <TextField
+                        fullWidth
+                        label='Game URL'
+                        value={gameUrl}
+                        onChange={(e) => setGameUrl(e.target.value)}
+                        error={!!errors.gameUrl}
+                        helperText={errors.gameUrl}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button disabled={request.isLoading()} onClick={onClose}>
                         Cancel
                     </Button>
                     <LoadingButton loading={request.isLoading()} onClick={handleSubmit}>
-                        Withdraw
+                        Submit
                     </LoadingButton>
                 </DialogActions>
             </Dialog>
@@ -92,3 +101,5 @@ export function WithdrawModal({
         </>
     );
 }
+
+export default GameModal;

@@ -4,8 +4,10 @@
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.637.0",
         "@aws-sdk/util-dynamodb": "^3.614.0",
+        "@jackstenglein/chess": "^2.2.8",
         "@jackstenglein/chess-dojo-common": "file:../../common",
-        "chess-dojo-directory-service": "file:../directoryService"
+        "chess-dojo-directory-service": "file:../directoryService",
+        "chess-dojo-pgn-service": "file:../pgnService"
     },
     "devDependencies": {
         "@types/aws-lambda": "^8.10.125",

@@ -1,3 +1,4 @@
+import { Link } from '@/components/navigation/Link';
 import {
     MAX_ROUND_ROBIN_PLAYERS,
     RoundRobin,
@@ -44,27 +45,45 @@ export function Pairings({ tournament }: { tournament: RoundRobin }) {
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>White</TableCell>
-                        <TableCell>Black</TableCell>
+                        <TableCell align='center'>
+                            <Typography fontWeight='bold'>White</Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                            <Typography fontWeight='bold'>Black</Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                            <Typography fontWeight='bold'>Result</Typography>
+                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {tournament.pairings?.[selectedRound - 1] ? (
                         tournament.pairings[selectedRound - 1].map((pair, index) => (
                             <TableRow key={index}>
-                                <TableCell>
-                                    <Typography textAlign={'center'}>
-                                        {tournament.players[pair.white].displayName}
+                                <TableCell align='center'>
+                                    <Typography>
+                                        <Link href={`/profile/${pair.white}`}>
+                                            {tournament.players[pair.white].displayName}
+                                        </Link>
                                     </Typography>
-                                    <Typography textAlign={'center'}>
-                                        {tournament.players[pair.black].displayName}
+                                </TableCell>
+                                <TableCell align='center'>
+                                    <Typography>
+                                        <Link href={`/profile/${pair.black}`}>
+                                            {tournament.players[pair.black].displayName}
+                                        </Link>
                                     </Typography>
+                                </TableCell>
+                                <TableCell align='center'>
+                                    <Link href={pair.url}>
+                                        <Typography>{pair.result}</Typography>
+                                    </Link>
                                 </TableCell>
                             </TableRow>
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={2}>
+                            <TableCell colSpan={3}>
                                 <Typography textAlign={'center'}>
                                     No pairings available for this round.
                                 </Typography>

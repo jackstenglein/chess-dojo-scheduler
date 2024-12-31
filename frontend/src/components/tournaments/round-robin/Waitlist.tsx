@@ -26,10 +26,13 @@ import { WithdrawModal } from './WithdrawModal';
 
 export function Waitlist({
     tournament,
-    onUpdateWaitlist,
+    onUpdateTournaments,
 }: {
     tournament: RoundRobinWaitlist;
-    onUpdateWaitlist: (waitlist: RoundRobin) => void;
+    onUpdateTournaments: (props: {
+        waitlist?: RoundRobin;
+        tournament?: RoundRobin;
+    }) => void;
 }) {
     const { user } = useAuth();
     const [showRegistration, setShowRegistration] = useState(false);
@@ -119,7 +122,7 @@ export function Waitlist({
                         onClose={() => setShowRegistration(false)}
                         user={user}
                         cohort={tournament.cohort}
-                        onUpdateWaitlist={onUpdateWaitlist}
+                        onUpdateTournaments={onUpdateTournaments}
                     />
 
                     <WithdrawModal
@@ -128,7 +131,7 @@ export function Waitlist({
                         user={user}
                         cohort={tournament.cohort}
                         startsAt={tournament.startsAt}
-                        onUpdateWaitlist={onUpdateWaitlist}
+                        onUpdateTournaments={onUpdateTournaments}
                     />
                 </>
             )}

@@ -1,5 +1,8 @@
 import { Link } from '@/components/navigation/Link';
-import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import {
+    RoundRobin,
+    RoundRobinPairing,
+} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import {
     Table,
     TableBody,
@@ -25,7 +28,7 @@ export function Crosstable({ tournament }: { tournament: RoundRobin }) {
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell align='center'>Player</TableCell>
+                        <TableCell align='center'></TableCell>
                         {tournament.playerOrder.map((username) => (
                             <TableCell key={username} align='center'>
                                 <Link href={`/profile/${username}`}>
@@ -36,27 +39,50 @@ export function Crosstable({ tournament }: { tournament: RoundRobin }) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {tournament.playerOrder.map((username) => (
-                        <TableRow key={username}>
+                    {tournament.playerOrder.map((lhs) => (
+                        <TableRow key={lhs}>
                             <TableCell align='center'>
-                                {tournament.players[username].displayName}
+                                <Link href={`/profile/${lhs}`}>
+                                    {tournament.players[lhs].displayName}
+                                </Link>
                             </TableCell>
-                            {tournament.pairings.map((round, idx) => {
-                                const pairing = round.find(
-                                    (p) => p.white === username || p.black === username,
-                                );
+
+                            {tournament.playerOrder.map((rhs) => {
+                                if (lhs === rhs) {
+                                    return (
+                                        <TableCell key={`${lhs}-${rhs}`} align='center'>
+                                            <Typography variant='h6'>-</Typography>
+                                        </TableCell>
+                                    );
+                                }
+
+                                let pairing: RoundRobinPairing | undefined = undefined;
+                                for (const round of tournament.pairings) {
+                                    for (const p of round) {
+                                        if (
+                                            (p.white === lhs && p.black === rhs) ||
+                                            (p.black === lhs && p.white === rhs)
+                                        ) {
+                                            pairing = p;
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 let result = '';
                                 if (pairing?.result === '1-0') {
-                                    result = pairing.white === username ? '1' : '0';
+                                    result = pairing.white === lhs ? '1' : '0';
                                 } else if (pairing?.result === '0-1') {
-                                    result = pairing.white === username ? '0' : '1';
+                                    result = pairing.white === lhs ? '0' : '1';
                                 } else if (pairing?.result === '1/2-1/2') {
                                     result = '1/2';
                                 }
 
                                 return (
-                                    <TableCell key={idx} align='center'>
-                                        {result}
+                                    <TableCell key={`${lhs}-${rhs}`} align='center'>
+                                        <Typography variant='h6'>
+                                            <Link href={pairing?.url}>{result}</Link>
+                                        </Typography>
                                     </TableCell>
                                 );
                             })}

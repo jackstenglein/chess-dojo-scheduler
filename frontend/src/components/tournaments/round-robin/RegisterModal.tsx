@@ -8,6 +8,7 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
+    DialogContentText,
     DialogTitle,
     InputAdornment,
     TextField,
@@ -15,12 +16,15 @@ import {
 import { useState } from 'react';
 import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
 
-export interface RegisterModalProps {
+interface RegisterModalProps {
     cohort: string;
     open: boolean;
     onClose: () => void;
     user: User | undefined;
-    onUpdateWaitlist: (waitlist: RoundRobin) => void;
+    onUpdateTournaments: (props: {
+        waitlist?: RoundRobin;
+        tournament?: RoundRobin;
+    }) => void;
 }
 
 export function RegisterModal({
@@ -28,7 +32,7 @@ export function RegisterModal({
     open,
     onClose,
     user,
-    onUpdateWaitlist,
+    onUpdateTournaments,
 }: RegisterModalProps) {
     const [lichessUsername, setLichessUsername] = useState(
         user?.ratings.LICHESS?.username || '',
@@ -70,7 +74,10 @@ export function RegisterModal({
             });
             console.log('registerForRoundRobin: ', resp);
             request.onSuccess('Successfully registered for the tournament');
-            onUpdateWaitlist(resp.data.waitlist as RoundRobin);
+            onUpdateTournaments({
+                waitlist: resp.data.waitlist as RoundRobin,
+                tournament: resp.data.tournament,
+            });
             onClose();
         } catch (err) {
             console.error('registerForRoundRobin: ', err);
@@ -83,6 +90,11 @@ export function RegisterModal({
             <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
                 <DialogTitle>Register for the Round Robin?</DialogTitle>
                 <DialogContent>
+                    <DialogContentText sx={{ mb: 1 }}>
+                        To prevent cheating, all games in the tournament must be played
+                        using either the Lichess or Chess.com accounts entered here.
+                    </DialogContentText>
+
                     <TextField
                         fullWidth
                         margin='normal'

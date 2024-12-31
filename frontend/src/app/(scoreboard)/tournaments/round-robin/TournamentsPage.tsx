@@ -24,6 +24,16 @@ export function TournamentsPage() {
     const waitlistRequest = useRequest<RoundRobinListResponse>();
 
     const cohort = searchParams.get('cohort') || '0-300';
+    const reset = request.reset;
+    const waitlistReset = waitlistRequest.reset;
+
+    useEffect(() => {
+        if (cohort) {
+            reset();
+            waitlistReset();
+        }
+    }, [cohort, reset, waitlistReset]);
+
     useEffect(() => {
         if (!request.isSent()) {
             request.onStart();
@@ -57,8 +67,40 @@ export function TournamentsPage() {
         request.reset();
     };
 
-    const onUpdateWaitlist = (waitlist: RoundRobin) => {
-        waitlistRequest.onSuccess({ ...waitlistRequest.data, tournaments: [waitlist] });
+    const onUpdateTournaments = ({
+        waitlist,
+        tournament,
+    }: {
+        waitlist?: RoundRobin;
+        tournament?: RoundRobin;
+    }) => {
+        if (waitlist) {
+            waitlistRequest.onSuccess({
+                ...waitlistRequest.data,
+                tournaments: [waitlist],
+            });
+        }
+        if (tournament) {
+            const idx =
+                request.data?.tournaments.findIndex(
+                    (t) => t.startsAt === tournament.startsAt,
+                ) ?? -1;
+            if (idx < 0) {
+                request.onSuccess({
+                    ...request.data,
+                    tournaments: [...(request.data?.tournaments ?? []), tournament],
+                });
+            } else {
+                request.onSuccess({
+                    ...request.data,
+                    tournaments: [
+                        ...(request.data?.tournaments ?? []).slice(0, idx),
+                        tournament,
+                        ...(request.data?.tournaments ?? []).slice(idx),
+                    ],
+                });
+            }
+        }
     };
 
     return (
@@ -85,7 +127,7 @@ export function TournamentsPage() {
                     <Waitlist
                         key={t.startsAt}
                         tournament={t}
-                        onUpdateWaitlist={onUpdateWaitlist}
+                        onUpdateTournaments={onUpdateTournaments}
                     />
                 ))}
 
@@ -93,7 +135,11 @@ export function TournamentsPage() {
                     <LoadingPage />
                 ) : (
                     request.data?.tournaments.map((t) => (
-                        <Tournament key={t.id} tournament={t} />
+                        <Tournament
+                            key={t.id}
+                            tournament={t}
+                            onUpdateTournaments={onUpdateTournaments}
+                        />
                     ))
                 )}
             </Stack>
