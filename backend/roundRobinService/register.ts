@@ -31,6 +31,7 @@ import {
     sizeLessThan,
     UpdateItemBuilder,
 } from 'chess-dojo-directory-service/database';
+import { v4 as uuid } from 'uuid';
 
 export const tournamentsTable = process.env.stage + '-tournaments';
 const MAX_ATTEMPTS = 3;
@@ -147,8 +148,9 @@ async function startTournament(
         startsAt: `ACTIVE_${startDate.toISOString()}`,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
+        name: generateName(startDate),
     };
-    generatePairings(tournament);
+    setPairings(tournament);
 
     await dynamo.send(
         new PutItemCommand({
@@ -169,11 +171,38 @@ async function startTournament(
 }
 
 /**
- * Generates the pairings using the Berger table for 10 players.
- * See https://handbook.fide.com/chapter/C05Annex1.
- * @param tournament The tournament to generate pairings for.
+ * Generates a round robin tournament name based on the start date.
+ * @param startDate The start date of the tournament.
+ * @returns The generated name.
  */
-function generatePairings(tournament: RoundRobin) {
+function generateName(startDate: Date) {
+    const month = startDate.getUTCMonth() + 1;
+    const year = startDate.getUTCFullYear();
+    const id = uuid().slice(-5);
+
+    if (month >= 12 || month <= 2) {
+        // Dec - Feb
+        return `Winter ${year} ${id}`;
+    }
+    if (month <= 5) {
+        // March - May
+        return `Spring ${year} ${id}`;
+    }
+    if (month <= 8) {
+        // June - Aug
+        return `Summer ${year} ${id}`;
+    }
+    // Sept - Nov
+    return `Fall ${year} ${id}`;
+}
+
+/**
+ * Generates the pairings using the Berger table for 10 players
+ * and sets it on the given tournament.
+ * See https://handbook.fide.com/chapter/C05Annex1.
+ * @param tournament The tournament to generate and set pairings for.
+ */
+function setPairings(tournament: RoundRobin) {
     const players = Object.keys(tournament.players);
     const pairings: RoundRobinPairing[][] = [];
 
@@ -188,6 +217,7 @@ function generatePairings(tournament: RoundRobin) {
         pairings.push(roundPairings);
     }
 
+    tournament.playerOrder = players;
     tournament.pairings = pairings;
 }
 

@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-interface GameModalProps {
+interface SubmitGameModalProps {
     cohort: string;
     startsAt: string;
     open: boolean;
@@ -26,14 +26,14 @@ interface GameModalProps {
     }) => void;
 }
 
-export function GameModal({
+export function SubmitGameModal({
     cohort,
     startsAt,
     open,
     onClose,
     user,
     onUpdateTournaments,
-}: GameModalProps) {
+}: SubmitGameModalProps) {
     const [gameUrl, setGameUrl] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest<string>();
@@ -60,6 +60,7 @@ export function GameModal({
             onUpdateTournaments({ tournament: resp.data });
             request.onSuccess('Game submitted');
             onClose();
+            setGameUrl('');
         } catch (err) {
             console.error('submitRoundRobinGame: ', err);
             request.onFailure(err);
@@ -68,12 +69,18 @@ export function GameModal({
 
     const handleClose = () => {
         onClose();
+        request.reset();
+        setGameUrl('');
     };
 
     return (
         <>
-            <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>Submit Round Robin Game</DialogTitle>
+            <Dialog
+                open={open}
+                onClose={request.isLoading() ? undefined : handleClose}
+                fullWidth
+            >
+                <DialogTitle>Submit Game</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Input your Lichess or Chess.com game URL.
@@ -85,10 +92,11 @@ export function GameModal({
                         onChange={(e) => setGameUrl(e.target.value)}
                         error={!!errors.gameUrl}
                         helperText={errors.gameUrl}
+                        sx={{ mt: 2.5 }}
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button disabled={request.isLoading()} onClick={onClose}>
+                    <Button disabled={request.isLoading()} onClick={handleClose}>
                         Cancel
                     </Button>
                     <LoadingButton loading={request.isLoading()} onClick={handleSubmit}>
@@ -102,4 +110,4 @@ export function GameModal({
     );
 }
 
-export default GameModal;
+export default SubmitGameModal;

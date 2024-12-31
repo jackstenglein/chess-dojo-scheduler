@@ -96,7 +96,7 @@ export function TournamentsPage() {
                     tournaments: [
                         ...(request.data?.tournaments ?? []).slice(0, idx),
                         tournament,
-                        ...(request.data?.tournaments ?? []).slice(idx),
+                        ...(request.data?.tournaments ?? []).slice(idx + 1),
                     ],
                 });
             }
@@ -136,7 +136,7 @@ export function TournamentsPage() {
                 ) : (
                     request.data?.tournaments.map((t) => (
                         <Tournament
-                            key={t.id}
+                            key={t.startsAt}
                             tournament={t}
                             onUpdateTournaments={onUpdateTournaments}
                         />

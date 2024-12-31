@@ -90,14 +90,8 @@ export interface RoundRobin {
     /** The cohort of the round robin. */
     cohort: string;
 
-    /** The id of the round robin. */
-    id: string;
-
     /** The name of the tournament. */
     name: string;
-
-    /** The description of the tournament. */
-    description: string;
 
     /** The start date of the tournament in ISO format. */
     startDate: string;

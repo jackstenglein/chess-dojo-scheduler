@@ -1,10 +1,15 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString } from '@/calendar/displayDate';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import { PawnIcon } from '@/style/ChessIcons';
+import {
+    RoundRobin,
+    RoundRobinPlayerStatuses,
+} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { CalendarMonth } from '@mui/icons-material';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Chip, Stack, Typography } from '@mui/material';
+import { TimeControlChip } from './TimeControlChip';
 
 /**
  * Renders the information for the given Round Robin tournament.
@@ -12,6 +17,15 @@ import { Chip, Stack, Typography } from '@mui/material';
  */
 export function TournamentInfo({ tournament }: { tournament: RoundRobin }) {
     const { user } = useAuth();
+
+    const numPlayers = Object.values(tournament.players).filter(
+        (p) => p.status === RoundRobinPlayerStatuses.ACTIVE,
+    ).length;
+
+    const gamesPlayed = tournament.pairings.reduce(
+        (sum, round) => sum + round.reduce((s, pairing) => s + (pairing.url ? 1 : 0), 0),
+        0,
+    );
 
     return (
         <Stack direction='row' flexWrap='wrap' gap={1} alignItems='center'>
@@ -28,25 +42,19 @@ export function TournamentInfo({ tournament }: { tournament: RoundRobin }) {
                 {tournament.name}
             </Typography>
 
-            {/* {tournament.waiting && <Chip label='Waiting' icon={<HourglassEmpty />} />} */}
-
             <Chip
-                label={`${Object.values(tournament.players).length} players`}
+                label={`${numPlayers} players`}
                 icon={<PeopleAltIcon />}
                 color='secondary'
             />
 
-            {/* <Chip
-                label={`${tournament.tc}+${tournament.inc} min time control`}
-                icon={<Icon name='Classical' />}
-                color='secondary'
-            />
+            <TimeControlChip cohort={tournament.cohort} />
 
             <Chip
-                label={`${tournament.gameSub.length}/${(tournament.players.length * (tournament.players.length - 1)) / 2} games played`}
+                label={`${gamesPlayed}/${(numPlayers * (numPlayers - 1)) / 2} games played`}
                 icon={<PawnIcon />}
                 color='secondary'
-            /> */}
+            />
 
             <Chip
                 label={`${toDojoDateString(new Date(tournament.startDate), user?.timezoneOverride)} - ${toDojoDateString(new Date(tournament.endDate), user?.timezoneOverride)}`}

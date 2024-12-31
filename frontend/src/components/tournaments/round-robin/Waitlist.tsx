@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { RegisterModal } from './RegisterModal';
+import { TimeControlChip } from './TimeControlChip';
 import { WithdrawModal } from './WithdrawModal';
 
 export function Waitlist({
@@ -50,6 +51,8 @@ export function Waitlist({
                             icon={<PeopleAlt />}
                             color='secondary'
                         />
+
+                        <TimeControlChip cohort={tournament.cohort} />
                     </Stack>
                 }
             />

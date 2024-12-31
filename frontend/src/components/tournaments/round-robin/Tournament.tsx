@@ -16,9 +16,9 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { Crosstable } from './Crosstable';
-import GameModal from './GameModal';
 import { Games } from './Games';
 import { Pairings } from './Pairings';
+import SubmitGameModal from './SubmitGameModal';
 import { WithdrawModal } from './WithdrawModal';
 
 /** Renders a single Round Robin tournament. */
@@ -99,7 +99,7 @@ export function Tournament({
 
             {user && (
                 <>
-                    <GameModal
+                    <SubmitGameModal
                         open={showSubmitGame}
                         onClose={() => setShowSubmitGame(false)}
                         user={user}

@@ -21,8 +21,8 @@ import {
     dynamo,
     UpdateItemBuilder,
 } from 'chess-dojo-directory-service/database';
-import { getChesscomGame } from 'chess-dojo-pgn-service/chesscom';
-import { getLichessGame } from 'chess-dojo-pgn-service/lichess';
+import { getChesscomGame } from 'chess-dojo-pgn-service/game/chesscom';
+import { getLichessGame } from 'chess-dojo-pgn-service/game/lichess';
 import { tournamentsTable } from './register';
 
 /**
@@ -184,7 +184,7 @@ async function findPairingPath({
                     white.trim().toLowerCase() === data.white.trim().toLowerCase() &&
                     black.trim().toLowerCase() === data.black.trim().toLowerCase()
                 ) {
-                    return ['pairings', `${round}`, `${i}`];
+                    return ['pairings', round, i];
                 }
             }
         }
