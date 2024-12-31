@@ -1,3 +1,4 @@
+import { Link } from '@/components/navigation/Link';
 import {
     RoundRobin,
     RoundRobinPlayerStatuses,
@@ -237,7 +238,6 @@ function GraphView({
                         label: viewMode === 'count' ? 'Losses' : 'Loss %',
                     },
                 ]}
-                width={1100}
                 height={400}
             />
         </Box>
@@ -264,36 +264,56 @@ function ListView({
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Player</TableCell>
-                        <TableCell align='center'>
-                            {viewMode === 'count' ? 'Wins' : 'Win %'}
+                        <TableCell>
+                            <Typography fontWeight='bold'>Player</Typography>
                         </TableCell>
                         <TableCell align='center'>
-                            {viewMode === 'count' ? 'Draws' : 'Draw %'}
+                            <Typography fontWeight='bold'>
+                                {viewMode === 'count' ? 'Wins' : 'Win %'}
+                            </Typography>
                         </TableCell>
                         <TableCell align='center'>
-                            {viewMode === 'count' ? 'Losses' : 'Loss %'}
+                            <Typography fontWeight='bold'>
+                                {viewMode === 'count' ? 'Draws' : 'Draw %'}
+                            </Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                            <Typography fontWeight='bold'>
+                                {viewMode === 'count' ? 'Losses' : 'Loss %'}
+                            </Typography>
                         </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {playerStats.map((stat, idx) => (
                         <TableRow key={idx}>
-                            <TableCell>{stat.player}</TableCell>
-                            <TableCell align='center'>
-                                {viewMode === 'count'
-                                    ? stat.wins
-                                    : ((stat.wins / totalGames) * 100).toFixed(2)}
+                            <TableCell>
+                                <Typography>
+                                    <Link href={`/profile/${stat.username}`}>
+                                        {stat.player}
+                                    </Link>
+                                </Typography>
                             </TableCell>
                             <TableCell align='center'>
-                                {viewMode === 'count'
-                                    ? stat.draws
-                                    : ((stat.draws / totalGames) * 100).toFixed(2)}
+                                <Typography>
+                                    {viewMode === 'count'
+                                        ? stat.wins
+                                        : ((stat.wins / totalGames) * 100).toFixed(2)}
+                                </Typography>
                             </TableCell>
                             <TableCell align='center'>
-                                {viewMode === 'count'
-                                    ? stat.losses
-                                    : ((stat.losses / totalGames) * 100).toFixed(2)}
+                                <Typography>
+                                    {viewMode === 'count'
+                                        ? stat.draws
+                                        : ((stat.draws / totalGames) * 100).toFixed(2)}
+                                </Typography>
+                            </TableCell>
+                            <TableCell align='center'>
+                                <Typography>
+                                    {viewMode === 'count'
+                                        ? stat.losses
+                                        : ((stat.losses / totalGames) * 100).toFixed(2)}
+                                </Typography>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -342,8 +362,13 @@ function calculatePlayerStats(tournament: RoundRobin) {
         }
     }
 
-    const resultList: { player: string; wins: number; draws: number; losses: number }[] =
-        [];
+    const resultList: {
+        username: string;
+        player: string;
+        wins: number;
+        draws: number;
+        losses: number;
+    }[] = [];
 
     for (const username of tournament.playerOrder) {
         if (tournament.players[username].status === RoundRobinPlayerStatuses.WITHDRAWN) {
@@ -351,6 +376,7 @@ function calculatePlayerStats(tournament: RoundRobin) {
         }
 
         resultList.push({
+            username,
             player: tournament.players[username].displayName,
             ...(results[username] || { wins: 0, draws: 0, losses: 0 }),
         });

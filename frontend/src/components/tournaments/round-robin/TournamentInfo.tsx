@@ -1,6 +1,5 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString } from '@/calendar/displayDate';
-import CohortIcon from '@/scoreboard/CohortIcon';
 import { PawnIcon } from '@/style/ChessIcons';
 import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { CalendarMonth } from '@mui/icons-material';
@@ -22,15 +21,6 @@ export function TournamentInfo({ tournament }: { tournament: RoundRobin }) {
     return (
         <Stack direction='row' flexWrap='wrap' gap={1} alignItems='center'>
             <Typography variant='h4' textAlign='center'>
-                <CohortIcon
-                    cohort={tournament.cohort}
-                    sx={{
-                        marginRight: '0.6em',
-                        verticalAlign: 'middle',
-                    }}
-                    tooltip=''
-                    size={25}
-                />{' '}
                 {tournament.name}
             </Typography>
 
