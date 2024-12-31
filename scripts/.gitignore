@@ -3,3 +3,4 @@
 *.json
 __pycache__/
 log*.txt
+out.txt
