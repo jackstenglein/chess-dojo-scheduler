@@ -75,7 +75,8 @@ export function WithdrawModal({
                 <DialogTitle>Withdraw from Round Robin?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure you want to withdraw?
+                        You will not be able to rejoin, and all your games will be counted
+                        as losses, even those you have already played.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

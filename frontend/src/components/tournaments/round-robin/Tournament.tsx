@@ -1,7 +1,10 @@
 import { useAuth } from '@/auth/Auth';
 import { TournamentInfo } from '@/components/tournaments/round-robin/TournamentInfo';
 import { PawnIcon } from '@/style/ChessIcons';
-import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import {
+    RoundRobin,
+    RoundRobinPlayerStatuses,
+} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { Group, TableChart, Timeline } from '@mui/icons-material';
 import { TabContext, TabPanel } from '@mui/lab';
 import {
@@ -43,25 +46,27 @@ export function Tournament({
             <CardHeader title={<TournamentInfo tournament={tournament} />} />
 
             <CardContent>
-                {user && tournament.players[user.username] && (
-                    <Stack direction='row' sx={{ mt: -2, mb: 3 }} gap={1}>
-                        <Button
-                            variant='contained'
-                            color='success'
-                            onClick={() => setShowSubmitGame(true)}
-                        >
-                            Submit Game
-                        </Button>
+                {user &&
+                    tournament.players[user.username].status ===
+                        RoundRobinPlayerStatuses.ACTIVE && (
+                        <Stack direction='row' sx={{ mt: -2, mb: 3 }} gap={1}>
+                            <Button
+                                variant='contained'
+                                color='success'
+                                onClick={() => setShowSubmitGame(true)}
+                            >
+                                Submit Game
+                            </Button>
 
-                        <Button
-                            variant='contained'
-                            color='error'
-                            onClick={() => setShowWithdraw(true)}
-                        >
-                            Withdraw
-                        </Button>
-                    </Stack>
-                )}
+                            <Button
+                                variant='contained'
+                                color='error'
+                                onClick={() => setShowWithdraw(true)}
+                            >
+                                Withdraw
+                            </Button>
+                        </Stack>
+                    )}
 
                 <TabContext value={tab}>
                     <Tabs

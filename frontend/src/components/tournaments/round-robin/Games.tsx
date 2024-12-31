@@ -2,6 +2,7 @@ import { Link } from '@/components/navigation/Link';
 import {
     RoundRobin,
     RoundRobinPairing,
+    RoundRobinPlayerStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import {
     Table,
@@ -61,6 +62,9 @@ export function Games({ tournament }: { tournament: RoundRobin }) {
                                     <Link href={`/profile/${game.white}`}>
                                         {tournament.players[game.white].displayName}
                                     </Link>
+                                    {tournament.players[game.white].status ===
+                                        RoundRobinPlayerStatuses.WITHDRAWN &&
+                                        ' (Withdrawn)'}
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>
@@ -68,6 +72,9 @@ export function Games({ tournament }: { tournament: RoundRobin }) {
                                     <Link href={`/profile/${game.black}`}>
                                         {tournament.players[game.black].displayName}
                                     </Link>
+                                    {tournament.players[game.black].status ===
+                                        RoundRobinPlayerStatuses.WITHDRAWN &&
+                                        ' (Withdrawn)'}
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>

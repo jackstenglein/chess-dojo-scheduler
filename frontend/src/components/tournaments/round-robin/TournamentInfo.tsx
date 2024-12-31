@@ -2,13 +2,11 @@ import { useAuth } from '@/auth/Auth';
 import { toDojoDateString } from '@/calendar/displayDate';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { PawnIcon } from '@/style/ChessIcons';
-import {
-    RoundRobin,
-    RoundRobinPlayerStatuses,
-} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { CalendarMonth } from '@mui/icons-material';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Chip, Stack, Typography } from '@mui/material';
+import { countActivePlayers, countCompletedGames } from './Stats';
 import { TimeControlChip } from './TimeControlChip';
 
 /**
@@ -18,14 +16,8 @@ import { TimeControlChip } from './TimeControlChip';
 export function TournamentInfo({ tournament }: { tournament: RoundRobin }) {
     const { user } = useAuth();
 
-    const numPlayers = Object.values(tournament.players).filter(
-        (p) => p.status === RoundRobinPlayerStatuses.ACTIVE,
-    ).length;
-
-    const gamesPlayed = tournament.pairings.reduce(
-        (sum, round) => sum + round.reduce((s, pairing) => s + (pairing.url ? 1 : 0), 0),
-        0,
-    );
+    const numPlayers = countActivePlayers(tournament);
+    const gamesPlayed = countCompletedGames(tournament);
 
     return (
         <Stack direction='row' flexWrap='wrap' gap={1} alignItems='center'>

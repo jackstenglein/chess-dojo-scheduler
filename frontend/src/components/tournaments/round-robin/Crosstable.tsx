@@ -2,6 +2,7 @@ import { Link } from '@/components/navigation/Link';
 import {
     RoundRobin,
     RoundRobinPairing,
+    RoundRobinPlayerStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import {
     Table,
@@ -34,62 +35,107 @@ export function Crosstable({ tournament }: { tournament: RoundRobin }) {
                                 <Link href={`/profile/${username}`}>
                                     {tournament.players[username].displayName}
                                 </Link>
+                                {tournament.players[username].status ===
+                                    RoundRobinPlayerStatuses.WITHDRAWN && (
+                                    <>
+                                        <br />
+                                        (Withdrawn)
+                                    </>
+                                )}
                             </TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {tournament.playerOrder.map((lhs) => (
-                        <TableRow key={lhs}>
-                            <TableCell align='center'>
-                                <Link href={`/profile/${lhs}`}>
-                                    {tournament.players[lhs].displayName}
-                                </Link>
-                            </TableCell>
-
-                            {tournament.playerOrder.map((rhs) => {
-                                if (lhs === rhs) {
-                                    return (
-                                        <TableCell key={`${lhs}-${rhs}`} align='center'>
-                                            <Typography variant='h6'>-</Typography>
-                                        </TableCell>
-                                    );
-                                }
-
-                                let pairing: RoundRobinPairing | undefined = undefined;
-                                for (const round of tournament.pairings) {
-                                    for (const p of round) {
-                                        if (
-                                            (p.white === lhs && p.black === rhs) ||
-                                            (p.black === lhs && p.white === rhs)
-                                        ) {
-                                            pairing = p;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                let result = '';
-                                if (pairing?.result === '1-0') {
-                                    result = pairing.white === lhs ? '1' : '0';
-                                } else if (pairing?.result === '0-1') {
-                                    result = pairing.white === lhs ? '0' : '1';
-                                } else if (pairing?.result === '1/2-1/2') {
-                                    result = '1/2';
-                                }
-
-                                return (
-                                    <TableCell key={`${lhs}-${rhs}`} align='center'>
-                                        <Typography variant='h6'>
-                                            <Link href={pairing?.url}>{result}</Link>
-                                        </Typography>
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
+                    {tournament.playerOrder.map((player) => (
+                        <CrosstableRow
+                            key={player}
+                            player={player}
+                            tournament={tournament}
+                        />
                     ))}
                 </TableBody>
             </Table>
         </TableContainer>
+    );
+}
+
+function CrosstableRow({
+    player,
+    tournament,
+}: {
+    player: string;
+    tournament: RoundRobin;
+}) {
+    const withdrawn =
+        tournament.players[player].status === RoundRobinPlayerStatuses.WITHDRAWN;
+
+    return (
+        <TableRow>
+            <TableCell align='center'>
+                <Link href={`/profile/${player}`}>
+                    {tournament.players[player].displayName}
+                </Link>
+                {withdrawn && (
+                    <>
+                        <br />
+                        (Withdrawn)
+                    </>
+                )}
+            </TableCell>
+
+            {tournament.playerOrder.map((opponent) => {
+                if (player === opponent) {
+                    return (
+                        <TableCell key={`${player}-${opponent}`} align='center'>
+                            <Typography variant='h6'>-</Typography>
+                        </TableCell>
+                    );
+                }
+
+                let pairing: RoundRobinPairing | undefined = undefined;
+                for (const round of tournament.pairings) {
+                    for (const p of round) {
+                        if (
+                            (p.white === player && p.black === opponent) ||
+                            (p.black === player && p.white === opponent)
+                        ) {
+                            pairing = p;
+                            break;
+                        }
+                    }
+                }
+
+                let result = '';
+                if (pairing?.result === '1-0') {
+                    result = pairing.white === player ? '1' : '0';
+                } else if (pairing?.result === '0-1') {
+                    result = pairing.white === player ? '0' : '1';
+                } else if (pairing?.result === '1/2-1/2') {
+                    result = '1/2';
+                }
+
+                if (withdrawn) {
+                    result = '0';
+                } else if (
+                    tournament.players[opponent].status ===
+                    RoundRobinPlayerStatuses.WITHDRAWN
+                ) {
+                    result = '1';
+                }
+
+                return (
+                    <TableCell key={`${player}-${opponent}`} align='center'>
+                        <Typography variant='h6'>
+                            {pairing?.url ? (
+                                <Link href={pairing?.url}>{result}</Link>
+                            ) : (
+                                result
+                            )}
+                        </Typography>
+                    </TableCell>
+                );
+            })}
+        </TableRow>
     );
 }
