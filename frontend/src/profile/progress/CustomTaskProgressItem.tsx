@@ -1,13 +1,13 @@
-import EditIcon from '@mui/icons-material/Edit';
-import { Divider, Grid, IconButton, Stack, Typography } from '@mui/material';
-import { useState } from 'react';
 import {
     CustomTask,
     RequirementProgress,
     formatTime,
     getTotalTime,
-} from '../../database/requirement';
-import RequirementModal from '../../requirements/RequirementModal';
+} from '@/database/requirement';
+import RequirementModal from '@/requirements/RequirementModal';
+import EditIcon from '@mui/icons-material/Edit';
+import { Divider, Grid, IconButton, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
 import ProgressDialog from './ProgressDialog';
 
 interface CustomTaskProgressItemProps {

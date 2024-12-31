@@ -1,9 +1,9 @@
 import Board from '@/board/Board';
+import { ChessContext, useChess } from '@/board/pgn/PgnBoard';
 import { EngineInfo, LineEval } from '@/stockfish/engine/engine';
 import { List, Paper, Popper } from '@mui/material';
 import { Key } from 'chessground/types';
 import { useRef, useState } from 'react';
-import { ChessContext, useChess } from '../../PgnBoard';
 import LineEvaluation from './LineEval';
 
 interface HoverMove {

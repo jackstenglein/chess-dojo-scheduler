@@ -1,3 +1,7 @@
+import { Request } from '@/api/Request';
+import { useReconcile } from '@/board/Board';
+import { useChess } from '@/board/pgn/PgnBoard';
+import LoadingPage from '@/loading/LoadingPage';
 import {
     LichessTablebaseCategory,
     LichessTablebaseMove,
@@ -5,10 +9,6 @@ import {
     isInTablebase,
 } from '@jackstenglein/chess-dojo-common/src/explorer/types';
 import { Button, Chip, Stack, Tooltip, Typography, styled } from '@mui/material';
-import { Request } from '../../../api/Request';
-import LoadingPage from '../../../loading/LoadingPage';
-import { useReconcile } from '../../Board';
-import { useChess } from '../PgnBoard';
 import { getBackgroundColor } from './Database';
 
 const TablebaseHeader = styled(Stack)(({ theme }) => ({

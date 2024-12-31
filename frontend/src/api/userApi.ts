@@ -1,11 +1,11 @@
+import { getConfig } from '@/config';
+import { FollowerEntry } from '@/database/follower';
+import { Graduation } from '@/database/graduation';
+import { UserStatistics } from '@/database/statistics';
+import { TimelineEntry } from '@/database/timeline';
+import { User, UserSummary } from '@/database/user';
 import axios, { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
-import { getConfig } from '../config';
-import { FollowerEntry } from '../database/follower';
-import { Graduation } from '../database/graduation';
-import { UserStatistics } from '../database/statistics';
-import { TimelineEntry } from '../database/timeline';
-import { User, UserSummary } from '../database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 

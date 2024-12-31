@@ -1,4 +1,3 @@
-import { CategoryColors } from '@/style/ThemeProvider';
 import {
     CustomTask,
     getCurrentCount,
@@ -7,9 +6,10 @@ import {
     getUnitScore,
     Requirement,
     RequirementCategory,
-} from '../../database/requirement';
-import { TimelineEntry } from '../../database/timeline';
-import { ALL_COHORTS, dojoCohorts, User } from '../../database/user';
+} from '@/database/requirement';
+import { TimelineEntry } from '@/database/timeline';
+import { ALL_COHORTS, dojoCohorts, User } from '@/database/user';
+import { CategoryColors } from '@/style/ThemeProvider';
 import { PieChartData } from './PieChart';
 
 export const ScoreCategories = [

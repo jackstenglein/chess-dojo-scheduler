@@ -1,4 +1,8 @@
+import { useFreeTier } from '@/auth/Auth';
+import { CustomTask, Requirement, RequirementCategory } from '@/database/requirement';
+import { User } from '@/database/user';
 import { ProgressText } from '@/scoreboard/ScoreboardProgress';
+import Icon from '@/style/Icon';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
     Accordion,
@@ -11,10 +15,6 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo } from 'react';
-import { useFreeTier } from '../../auth/Auth';
-import { CustomTask, Requirement, RequirementCategory } from '../../database/requirement';
-import { User } from '../../database/user';
-import Icon from '../../style/Icon';
 import ProgressItem from './ProgressItem';
 
 export interface Category {

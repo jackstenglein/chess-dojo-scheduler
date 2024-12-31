@@ -1,3 +1,10 @@
+import { EventType as AnalyticsEventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useCache } from '@/api/cache/Cache';
+import { useRequiredAuth } from '@/auth/Auth';
+import { Event, EventType } from '@/database/event';
+import Icon from '@/style/Icon';
 import { SchedulerHelpers } from '@aldabil/react-scheduler/types';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
@@ -17,13 +24,6 @@ import {
 } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import { forwardRef } from 'react';
-import { EventType as AnalyticsEventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useCache } from '../../api/cache/Cache';
-import { useRequiredAuth } from '../../auth/Auth';
-import { Event, EventType } from '../../database/event';
-import Icon from '../../style/Icon';
 import AvailabilityEditor, { validateAvailabilityEditor } from './AvailabilityEditor';
 import CoachingEditor, { validateCoachingEditor } from './CoachingEditor';
 import DojoEventEditor, { validateDojoEventEditor } from './DojoEventEditor';

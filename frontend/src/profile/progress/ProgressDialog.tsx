@@ -1,14 +1,14 @@
 import { Dialog, DialogContent, DialogTitle, MenuItem, TextField } from '@mui/material';
 import { useState } from 'react';
 
-import { useAuth } from '../../auth/Auth';
+import { useAuth } from '@/auth/Auth';
 import {
     CustomTask,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
-} from '../../database/requirement';
-import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../../database/user';
+} from '@/database/requirement';
+import { ALL_COHORTS, compareCohorts, dojoCohorts } from '@/database/user';
 import ProgressHistory from './ProgressHistory';
 import ProgressUpdater from './ProgressUpdater';
 

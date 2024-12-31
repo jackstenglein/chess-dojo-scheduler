@@ -1,4 +1,4 @@
-import { TimeFormat } from '../database/user';
+import { TimeFormat } from '@/database/user';
 
 const timezoneOffsets: Record<string, number> = {
     'Etc/GMT+12': 720,

@@ -1,3 +1,4 @@
+import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
 import { Check, Warning } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -20,7 +21,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { ColorFormat } from 'react-countdown-circle-timer';
-import { BlockBoardKeyboardShortcuts } from '../../board/pgn/PgnBoard';
 
 export enum ProblemStatus {
     Unknown = '',

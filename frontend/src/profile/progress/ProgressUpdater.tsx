@@ -13,11 +13,9 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-import { DatePicker } from '@mui/x-date-pickers';
-import { DateTime } from 'luxon';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import {
     CustomTask,
     Requirement,
@@ -25,7 +23,9 @@ import {
     ScoreboardDisplay,
     getCurrentCount,
     isRequirement,
-} from '../../database/requirement';
+} from '@/database/requirement';
+import { DatePicker } from '@mui/x-date-pickers';
+import { DateTime } from 'luxon';
 import InputSlider from './InputSlider';
 
 const NUMBER_REGEX = /^[0-9]*$/;

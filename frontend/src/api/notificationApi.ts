@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
-import { getConfig } from '../config';
-import { Notification } from '../database/notification';
+import { getConfig } from '@/config';
+import { Notification } from '@/database/notification';
 
 const BASE_URL = getConfig().api.baseUrl;
 

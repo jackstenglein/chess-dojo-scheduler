@@ -9,12 +9,12 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Event } from '@/database/event';
 import { Close } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { EventType, trackEvent } from '../analytics/events';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { Event } from '../database/event';
 
 interface CancelMeetingButtonProps {
     meetingId: string;

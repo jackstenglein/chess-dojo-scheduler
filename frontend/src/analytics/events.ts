@@ -1,5 +1,5 @@
+import { User } from '@/database/user';
 import ReactGA from 'react-ga4';
-import { User } from '../database/user';
 
 export enum EventType {
     // Auth events

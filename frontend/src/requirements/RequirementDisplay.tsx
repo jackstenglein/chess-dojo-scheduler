@@ -1,12 +1,6 @@
+import { useRequirements } from '@/api/cache/requirements';
+import { useAuth, useFreeTier } from '@/auth/Auth';
 import ModalTitle from '@/components/ui/ModalTitle';
-import { Edit, Lock, Loop } from '@mui/icons-material';
-import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
-import CheckIcon from '@mui/icons-material/Check';
-import ScoreboardIcon from '@mui/icons-material/Scoreboard';
-import { Box, Button, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
-import React, { useMemo, useState } from 'react';
-import { useRequirements } from '../api/cache/requirements';
-import { useAuth, useFreeTier } from '../auth/Auth';
 import {
     CustomTask,
     Requirement,
@@ -15,9 +9,15 @@ import {
     getUnitScore,
     isComplete,
     isRequirement,
-} from '../database/requirement';
-import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
-import ProgressDialog from '../profile/progress/ProgressDialog';
+} from '@/database/requirement';
+import { ALL_COHORTS, compareCohorts, dojoCohorts } from '@/database/user';
+import ProgressDialog from '@/profile/progress/ProgressDialog';
+import { Edit, Lock, Loop } from '@mui/icons-material';
+import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
+import CheckIcon from '@mui/icons-material/Check';
+import ScoreboardIcon from '@mui/icons-material/Scoreboard';
+import { Box, Button, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import React, { useMemo, useState } from 'react';
 import CustomTaskDisplay from './CustomTaskDisplay';
 import Position from './Position';
 

@@ -1,9 +1,9 @@
 import { metaLead } from '@/analytics/meta';
+import PricingPage from '@/app/(scoreboard)/prices/PricingPage';
+import { useRequiredAuth } from '@/auth/Auth';
+import { SubscriptionStatus, User, dojoCohorts } from '@/database/user';
 import { Box, Container, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import { useState } from 'react';
-import PricingPage from '../../app/(scoreboard)/prices/PricingPage';
-import { useRequiredAuth } from '../../auth/Auth';
-import { SubscriptionStatus, User, dojoCohorts } from '../../database/user';
 import DiscordForm from './DiscordForm';
 import ExtraRatingSystemsForm from './ExtraRatingSystemsForm';
 import PersonalInfoForm from './PersonalInfoForm';

@@ -4,6 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { useReconcile } from '@/board/Board';
+import { useChess } from '@/board/pgn/PgnBoard';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
 import { Game } from '@/database/game';
 import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
@@ -19,7 +20,6 @@ import {
 } from '@mui/material';
 import debounce from 'lodash.debounce';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useChess } from '../../PgnBoard';
 
 export function useDebounce(callback: (...args: any[]) => void, delay = 6000) {
     const ref = useRef<(...args: any[]) => void>();

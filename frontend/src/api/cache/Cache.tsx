@@ -3,6 +3,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 'use client';
 
+import { AuthStatus, useAuth } from '@/auth/Auth';
+import { Club } from '@/database/club';
+import { Event } from '@/database/event';
+import { Notification } from '@/database/notification';
+import { Requirement } from '@/database/requirement';
 import {
     createContext,
     ReactNode,
@@ -13,11 +18,6 @@ import {
     useRef,
     useState,
 } from 'react';
-import { AuthStatus, useAuth } from '../../auth/Auth';
-import { Club } from '../../database/club';
-import { Event } from '../../database/event';
-import { Notification } from '../../database/notification';
-import { Requirement } from '../../database/requirement';
 import { useApi } from '../Api';
 import { GetExplorerPositionResult } from '../explorerApi';
 import { Request, useRequest } from '../Request';

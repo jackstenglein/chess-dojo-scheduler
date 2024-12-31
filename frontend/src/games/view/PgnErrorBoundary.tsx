@@ -1,10 +1,10 @@
 // Based off of https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary
 
+import { EventType, trackEvent } from '@/analytics/events';
+import { useAuth } from '@/auth/Auth';
+import { Game } from '@/database/game';
 import { Button, Container, Stack, Typography } from '@mui/material';
 import React, { Component, ErrorInfo } from 'react';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useAuth } from '../../auth/Auth';
-import { Game } from '../../database/game';
 import DeleteGameButton from './DeleteGameButton';
 
 interface PgnErrorBoundaryProps {

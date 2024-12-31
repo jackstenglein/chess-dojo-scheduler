@@ -1,3 +1,4 @@
+import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
 import { Tags, TimeControl } from '@jackstenglein/chess';
 import { Add, Delete } from '@mui/icons-material';
 import {
@@ -25,7 +26,6 @@ import { GridRenderEditCellParams, useGridApiContext } from '@mui/x-data-grid-pr
 import { TimeField } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
 import { convertSecondsToDateTime } from '../clock/ClockEditor';
 import { TagRow } from './Tags';
 

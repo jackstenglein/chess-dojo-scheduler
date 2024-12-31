@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-import { getConfig } from '../config';
+import { getConfig } from '@/config';
 
 const BASE_URL = getConfig().api.baseUrl;
 

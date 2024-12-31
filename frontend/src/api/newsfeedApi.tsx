@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
-import { getConfig } from '../config';
-import { TimelineEntry } from '../database/timeline';
+import { getConfig } from '@/config';
+import { TimelineEntry } from '@/database/timeline';
 
 const BASE_URL = getConfig().api.baseUrl;
 

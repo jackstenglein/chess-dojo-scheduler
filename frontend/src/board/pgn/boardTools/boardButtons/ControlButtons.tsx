@@ -1,3 +1,5 @@
+import { useReconcile } from '@/board/Board';
+import { useChess } from '@/board/pgn/PgnBoard';
 import { Move } from '@jackstenglein/chess';
 import {
     ChevronLeft,
@@ -8,8 +10,6 @@ import {
 } from '@mui/icons-material';
 import { IconButton, Stack, Tooltip } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
-import { useReconcile } from '../../../Board';
-import { useChess } from '../../PgnBoard';
 import {
     GoToEndButtonBehavior,
     GoToEndButtonBehaviorKey,

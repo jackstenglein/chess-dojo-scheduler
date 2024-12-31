@@ -1,5 +1,6 @@
 import { Request } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';
+import { useReconcile } from '@/board/Board';
 import { Link } from '@/components/navigation/Link';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
@@ -40,7 +41,6 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
-import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
 import { ExplorerDatabaseType } from './Explorer';
 

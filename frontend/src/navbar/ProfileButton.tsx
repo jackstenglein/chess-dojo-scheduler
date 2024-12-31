@@ -1,3 +1,6 @@
+import { useApi } from '@/api/Api';
+import { useAuth } from '@/auth/Auth';
+import Avatar from '@/profile/Avatar';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NightlightIcon from '@mui/icons-material/Nightlight';
@@ -16,9 +19,6 @@ import {
     useColorScheme,
 } from '@mui/material';
 import { useState } from 'react';
-import { useApi } from '../api/Api';
-import { useAuth } from '../auth/Auth';
-import Avatar from '../profile/Avatar';
 
 const ProfileButton = () => {
     const auth = useAuth();

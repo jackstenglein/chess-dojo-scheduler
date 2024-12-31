@@ -2,8 +2,8 @@ import { Dialog, DialogContent, Slide } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import React, { useEffect } from 'react';
 
-import { EventType, trackEvent } from '../analytics/events';
-import { CustomTask, Requirement } from '../database/requirement';
+import { EventType, trackEvent } from '@/analytics/events';
+import { CustomTask, Requirement } from '@/database/requirement';
 import RequirementDisplay from './RequirementDisplay';
 
 const Transition = React.forwardRef(function Transition(

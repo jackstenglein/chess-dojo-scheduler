@@ -1,5 +1,5 @@
+import Icon from '@/style/Icon';
 import { Stack, TextField, Typography } from '@mui/material';
-import Icon from '../../../style/Icon';
 
 interface LocationFormSectionProps {
     subtitle: string;

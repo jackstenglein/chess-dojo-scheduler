@@ -1,8 +1,8 @@
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
+import { ALL_COHORTS, dojoCohorts } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import Icon from '@/style/Icon';
 import { Stack, Typography } from '@mui/material';
-import { ALL_COHORTS, dojoCohorts } from '../../../database/user';
-import CohortIcon from '../../../scoreboard/CohortIcon';
-import Icon from '../../../style/Icon';
 
 interface CohortsFormSectionProps {
     description: string;

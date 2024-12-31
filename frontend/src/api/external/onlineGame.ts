@@ -1,9 +1,9 @@
+import { GameResult } from '@/database/game';
 import {
     GameImportTypes,
     OnlineGameImportType,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { useEffect, useMemo } from 'react';
-import { GameResult } from '../../database/game';
 import {
     ChesscomGame,
     ChesscomGameResult,

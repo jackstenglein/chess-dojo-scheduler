@@ -1,3 +1,4 @@
+import { useReconcile } from '@/board/Board';
 import { EventType, Move } from '@jackstenglein/chess';
 import {
     Alert,
@@ -9,8 +10,6 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-
-import { useReconcile } from '../../Board';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { useChess } from '../PgnBoard';
 import { getWarnings } from './warningRules';

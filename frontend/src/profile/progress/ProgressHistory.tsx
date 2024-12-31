@@ -1,3 +1,16 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import {
+    CustomTask,
+    Requirement,
+    ScoreboardDisplay,
+    isRequirement,
+} from '@/database/requirement';
+import { TimelineEntry } from '@/database/timeline';
+import { User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -15,19 +28,6 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import {
-    CustomTask,
-    Requirement,
-    ScoreboardDisplay,
-    isRequirement,
-} from '../../database/requirement';
-import { TimelineEntry } from '../../database/timeline';
-import { User } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
 import { useTimeline } from '../activity/useTimeline';
 
 const NUMBER_REGEX = /^[0-9]*$/;

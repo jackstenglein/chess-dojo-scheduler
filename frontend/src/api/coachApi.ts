@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-import { getConfig } from '../config';
-import { User } from '../database/user';
+import { getConfig } from '@/config';
+import { User } from '@/database/user';
 
 const BASE_URL = getConfig().api.baseUrl;
 

@@ -1,4 +1,13 @@
+import { useAuth } from '@/auth/Auth';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
+import {
+    ALL_COHORTS,
+    cohortColors,
+    compareCohorts,
+    isCohortInRange,
+    normalizedRatingToCohort,
+} from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { useLightMode } from '@/style/useLightMode';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { Exam } from '@jackstenglein/chess-dojo-common/src/database/exam';
@@ -27,15 +36,6 @@ import {
     lineElementClasses,
 } from '@mui/x-charts';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useAuth } from '../../auth/Auth';
-import {
-    ALL_COHORTS,
-    cohortColors,
-    compareCohorts,
-    isCohortInRange,
-    normalizedRatingToCohort,
-} from '../../database/user';
-import CohortIcon from '../../scoreboard/CohortIcon';
 import { getBestFitCohortRange } from './exam';
 
 export const BEST_FIT_RANGE = 'BEST_FIT_COHORTS';

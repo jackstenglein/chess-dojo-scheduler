@@ -1,6 +1,6 @@
+import { Request } from '@/api/Request';
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
-import { Request } from '../api/Request';
 import SellingPoint, { SellingPointStatus } from './SellingPoint';
 
 interface PriceMatrixProps {

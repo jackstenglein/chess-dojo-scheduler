@@ -1,8 +1,8 @@
+import { parsePgnDate, toPgnDate } from '@/api/gameApi';
 import { PgnDate } from '@jackstenglein/chess';
 import { GridRenderEditCellParams, useGridApiContext } from '@mui/x-data-grid-pro';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
-import { parsePgnDate, toPgnDate } from '../../../../../api/gameApi';
 import { TagRow } from './Tags';
 
 export function EditDateCell(props: GridRenderEditCellParams<TagRow, PgnDate | string>) {

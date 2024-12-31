@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-import { getConfig } from '../config';
-import { Graduation } from '../database/graduation';
+import { getConfig } from '@/config';
+import { Graduation } from '@/database/graduation';
 
 const BASE_URL = getConfig().api.baseUrl;
 

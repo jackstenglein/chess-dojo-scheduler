@@ -1,15 +1,15 @@
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Stack, Typography } from '@mui/material';
 import {
     AvailabilityType,
     Event,
     EventStatus,
     getDefaultNumberOfParticipants,
     getDisplayString,
-} from '../../database/event';
-import { User, dojoCohorts } from '../../database/user';
-import Icon from '../../style/Icon';
+} from '@/database/event';
+import { User, dojoCohorts } from '@/database/user';
+import Icon from '@/style/Icon';
+import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { Stack, Typography } from '@mui/material';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';

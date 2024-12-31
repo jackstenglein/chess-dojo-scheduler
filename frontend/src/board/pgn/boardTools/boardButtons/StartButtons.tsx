@@ -3,7 +3,7 @@ import { IconButton, Menu, MenuItem, Stack, Tooltip } from '@mui/material';
 import copy from 'copy-to-clipboard';
 import React, { useState } from 'react';
 
-import { useChess } from '../../PgnBoard';
+import { useChess } from '@/board/pgn/PgnBoard';
 
 const StartButtons = () => {
     const { chess } = useChess();

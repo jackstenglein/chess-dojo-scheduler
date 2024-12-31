@@ -1,4 +1,5 @@
 import { useReconcile } from '@/board/Board';
+import { useChess } from '@/board/pgn/PgnBoard';
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
@@ -10,7 +11,6 @@ import {
 import { Chess, Color, Move } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
-import { useChess } from '../../PgnBoard';
 
 interface Props {
     line?: LineEval;

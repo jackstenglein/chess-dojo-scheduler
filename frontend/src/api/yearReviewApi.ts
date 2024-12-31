@@ -1,6 +1,6 @@
+import { getConfig } from '@/config';
+import { YearReview } from '@/database/yearReview';
 import axios, { AxiosResponse } from 'axios';
-import { getConfig } from '../config';
-import { YearReview } from '../database/yearReview';
 
 const BASE_URL = getConfig().api.baseUrl;
 

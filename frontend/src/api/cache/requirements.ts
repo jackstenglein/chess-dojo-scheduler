@@ -1,10 +1,10 @@
-import { useEffect, useMemo } from 'react';
 import {
     Requirement,
     ScoreboardDisplay,
     compareRequirements,
-} from '../../database/requirement';
-import { ALL_COHORTS, dojoCohorts } from '../../database/user';
+} from '@/database/requirement';
+import { ALL_COHORTS, dojoCohorts } from '@/database/user';
+import { useEffect, useMemo } from 'react';
 import { useApi } from '../Api';
 import { Request, useRequest } from '../Request';
 import { useCache } from './Cache';

@@ -1,3 +1,5 @@
+import { BoardApi } from '@/board/Board';
+import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
 import { Chess, Move } from '@jackstenglein/chess';
 import { Help } from '@mui/icons-material';
 import {
@@ -16,8 +18,6 @@ import {
 } from '@mui/material';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { BoardApi } from '../../../../Board';
-import { BlockBoardKeyboardShortcuts } from '../../../PgnBoard';
 import { UnderboardApi } from '../Underboard';
 import { DefaultUnderboardTab } from '../underboardTabs';
 import { KeyBinding, ShortcutAction, ShortcutBindings } from './ShortcutAction';

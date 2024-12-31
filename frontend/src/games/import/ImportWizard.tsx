@@ -1,3 +1,5 @@
+import BoardIcon from '@/style/BoardIcon';
+import KingRookIcon from '@/style/KingRookIcon';
 import {
     CreateGameRequest,
     GameImportType,
@@ -18,8 +20,6 @@ import {
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { useState } from 'react';
-import BoardIcon from '../../style/BoardIcon';
-import KingRookIcon from '../../style/KingRookIcon';
 import { OnlineGameForm } from './OnlineGameForm';
 import { PGNForm } from './PGNForm';
 import { PositionForm } from './PositionForm';
