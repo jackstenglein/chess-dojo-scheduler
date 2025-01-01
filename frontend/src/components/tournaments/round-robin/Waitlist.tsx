@@ -1,4 +1,4 @@
-import { useAuth } from '@/auth/Auth';
+import { useAuth, useFreeTier } from '@/auth/Auth';
 import { dojoCohorts } from '@/database/user';
 import {
     MAX_ROUND_ROBIN_PLAYERS,
@@ -32,11 +32,13 @@ export function Waitlist({
     }) => void;
 }) {
     const { user } = useAuth();
+    const isFreeTier = useFreeTier();
     const [showRegistration, setShowRegistration] = useState(false);
     const [showWithdraw, setShowWithdraw] = useState(false);
 
     const canRegister =
         user &&
+        !isFreeTier &&
         !tournament.players[user.username] &&
         Math.abs(
             dojoCohorts.indexOf(user.dojoCohort) - dojoCohorts.indexOf(tournament.cohort),
