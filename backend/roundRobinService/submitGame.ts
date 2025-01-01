@@ -177,8 +177,8 @@ async function findPairingPath({
             const pairing = tournament.pairings[round][i];
 
             if (pairing.white === username || pairing.black === username) {
-                const white = tournament.players[pairing.white][field];
-                const black = tournament.players[pairing.black][field];
+                const white = tournament.players[pairing.white]?.[field];
+                const black = tournament.players[pairing.black]?.[field];
 
                 if (
                     white.trim().toLowerCase() === data.white.trim().toLowerCase() &&
@@ -193,5 +193,6 @@ async function findPairingPath({
     throw new ApiError({
         statusCode: 400,
         publicMessage: `No pairing found for this game. Make sure you play all games under the usernames in the tournament and with the correct colors. Contact support if you are sure the game is correct.`,
+        privateMessage: `Game data: ${JSON.stringify(data, undefined, 2)}`,
     });
 }
