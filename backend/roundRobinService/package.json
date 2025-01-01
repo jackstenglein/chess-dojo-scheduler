@@ -1,0 +1,24 @@
+{
+    "name": "chess-dojo-round-robin-service",
+    "main": "handler.js",
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.637.0",
+        "@aws-sdk/util-dynamodb": "^3.614.0",
+        "@jackstenglein/chess": "^2.2.8",
+        "@jackstenglein/chess-dojo-common": "file:../../common",
+        "chess-dojo-directory-service": "file:../directoryService",
+        "chess-dojo-pgn-service": "file:../pgnService",
+        "uuid": "^11.0.3"
+    },
+    "devDependencies": {
+        "@types/aws-lambda": "^8.10.125",
+        "@types/deep-equal": "^1.0.4",
+        "@types/node": "^18.18.7",
+        "@types/uuid": "^10.0.0",
+        "esbuild": "^0.19.5",
+        "prettier-plugin-organize-imports": "^3.2.4",
+        "serverless": "^3.22.0",
+        "serverless-esbuild": "^1.48.5",
+        "vitest": "^1.6.0"
+    }
+}

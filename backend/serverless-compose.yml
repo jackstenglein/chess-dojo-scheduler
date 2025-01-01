@@ -173,3 +173,10 @@ services:
     path: pgnExport/pdf
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
+
+  roundRobinService:
+    path: roundRobinService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}

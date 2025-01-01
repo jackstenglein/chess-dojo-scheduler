@@ -18,6 +18,11 @@ import {
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
+import {
+    RoundRobinRegisterRequest,
+    RoundRobinSubmitGameRequest,
+    RoundRobinWithdrawRequest,
+} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { DateTime } from 'luxon';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
@@ -145,6 +150,12 @@ import {
     listRequirements,
     setRequirement,
 } from './requirementApi';
+import {
+    RoundRobinApiContextType,
+    registerForRoundRobin,
+    submitRoundRobinGame,
+    withdrawFromRoundRobin,
+} from './roundRobinApi';
 import { ScoreboardApiContextType, getScoreboard } from './scoreboardApi';
 import {
     OpenClassicalPutPairingsRequest,
@@ -206,7 +217,8 @@ export type ApiContextType = UserApiContextType &
     ClubApiContextType &
     ExamApiContextType &
     EmailApiContextType &
-    DirectoryApiContextType;
+    DirectoryApiContextType &
+    RoundRobinApiContextType;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const ApiContext = createContext<ApiContextType>(null!);
@@ -492,6 +504,13 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 removeDirectoryItem(idToken, request),
             moveDirectoryItems: (request: MoveDirectoryItemsRequestV2) =>
                 moveDirectoryItems(idToken, request),
+
+            registerForRoundRobin: (request: RoundRobinRegisterRequest) =>
+                registerForRoundRobin(idToken, request),
+            withdrawFromRoundRobin: (request: RoundRobinWithdrawRequest) =>
+                withdrawFromRoundRobin(idToken, request),
+            submitRoundRobinGame: (request: RoundRobinSubmitGameRequest) =>
+                submitRoundRobinGame(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 
