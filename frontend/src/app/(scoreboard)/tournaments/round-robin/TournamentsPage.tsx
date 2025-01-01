@@ -1,3 +1,5 @@
+'use client';
+
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { listRoundRobins, RoundRobinListResponse } from '@/api/roundRobinApi';
 import { useAuth } from '@/auth/Auth';

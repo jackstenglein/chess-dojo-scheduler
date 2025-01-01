@@ -2,7 +2,7 @@
 
 import { Info as InfoIcon, TableChart as TableChartIcon } from '@mui/icons-material';
 import { Box, Container, Tab, Tabs } from '@mui/material';
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { InfoPage } from './InfoPage';
 import { TournamentsPage } from './TournamentsPage';
 
@@ -67,7 +67,9 @@ export const RoundRobinPage = () => {
                 <InfoPage />
             </TabPanel>
             <TabPanel value={tabValue} index={1}>
-                <TournamentsPage />
+                <Suspense>
+                    <TournamentsPage />
+                </Suspense>
             </TabPanel>
         </Container>
     );
