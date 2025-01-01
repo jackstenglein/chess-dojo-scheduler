@@ -72,7 +72,14 @@ function CrosstableRow({
 
     return (
         <TableRow>
-            <TableCell align='center'>
+            <TableCell
+                align='center'
+                sx={{
+                    borderLeft: '1px solid',
+                    borderRight: '1px solid',
+                    borderColor: 'divider',
+                }}
+            >
                 <Link href={`/profile/${player}`}>
                     {tournament.players[player].displayName}
                 </Link>
@@ -87,9 +94,15 @@ function CrosstableRow({
             {tournament.playerOrder.map((opponent) => {
                 if (player === opponent) {
                     return (
-                        <TableCell key={`${player}-${opponent}`} align='center'>
-                            <Typography variant='h6'>-</Typography>
-                        </TableCell>
+                        <TableCell
+                            key={`${player}-${opponent}`}
+                            align='center'
+                            sx={{
+                                borderRight: '1px solid',
+                                borderColor: 'divider',
+                                backgroundColor: 'divider',
+                            }}
+                        ></TableCell>
                     );
                 }
 
@@ -125,7 +138,11 @@ function CrosstableRow({
                 }
 
                 return (
-                    <TableCell key={`${player}-${opponent}`} align='center'>
+                    <TableCell
+                        key={`${player}-${opponent}`}
+                        align='center'
+                        sx={{ borderRight: '1px solid', borderColor: 'divider' }}
+                    >
                         <Typography variant='h6'>
                             {pairing?.url ? (
                                 <Link href={pairing?.url}>{result}</Link>
