@@ -1,4 +1,5 @@
 import { useAuth } from '@/auth/Auth';
+import { dojoCohorts } from '@/database/user';
 import {
     MAX_ROUND_ROBIN_PLAYERS,
     RoundRobin,
@@ -34,6 +35,13 @@ export function Waitlist({
     const [showRegistration, setShowRegistration] = useState(false);
     const [showWithdraw, setShowWithdraw] = useState(false);
 
+    const canRegister =
+        user &&
+        !tournament.players[user.username] &&
+        Math.abs(
+            dojoCohorts.indexOf(user.dojoCohort) - dojoCohorts.indexOf(tournament.cohort),
+        ) <= 1;
+
     return (
         <Card>
             <CardHeader
@@ -52,7 +60,7 @@ export function Waitlist({
                 }
             />
             <CardContent>
-                {user && !tournament.players[user.username] && (
+                {canRegister && (
                     <Button
                         variant='contained'
                         color='success'
