@@ -176,17 +176,17 @@ async function findPairingPath({
         for (let i = 0; i < tournament.pairings[round].length; i++) {
             const pairing = tournament.pairings[round][i];
 
-            if (pairing.white === username || pairing.black === username) {
-                const white = tournament.players[pairing.white][field];
-                const black = tournament.players[pairing.black][field];
+            // if (pairing.white === username || pairing.black === username) {
+            const white = tournament.players[pairing.white][field];
+            const black = tournament.players[pairing.black][field];
 
-                if (
-                    white.trim().toLowerCase() === data.white.trim().toLowerCase() &&
-                    black.trim().toLowerCase() === data.black.trim().toLowerCase()
-                ) {
-                    return ['pairings', round, i];
-                }
+            if (
+                white.trim().toLowerCase() === data.white.trim().toLowerCase() &&
+                black.trim().toLowerCase() === data.black.trim().toLowerCase()
+            ) {
+                return ['pairings', round, i];
             }
+            // }
         }
     }
 
