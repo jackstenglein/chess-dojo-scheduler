@@ -72,7 +72,7 @@ def convert_tournament(cohort, tournament):
 
     new_tournament = {
         'type': f'ROUND_ROBIN_{cohort}',
-        'startsAt': tournament['startdate'],
+        'startsAt': f'ACTIVE_{tournament["startdate"]}',
         'cohort': cohort,
         'name': f'Winter 2024 {tournament["id"][-5:]}',
         'startDate': tournament['startdate'],
