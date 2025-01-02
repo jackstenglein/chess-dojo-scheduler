@@ -332,7 +332,10 @@ function PieceToggleButtonGroup({
             onChange={(_, value: string) => value && onChange(value)}
             sx={{ justifyContent: 'center' }}
         >
-            <Tooltip title={`Keyboard Shortcut: ${MOVE_KEYBOARD_SHORTCUT}`}>
+            <Tooltip
+                title={`Keyboard Shortcut: ${MOVE_KEYBOARD_SHORTCUT}`}
+                disableInteractive
+            >
                 <ToggleButton
                     value='move'
                     sx={{ width: `${100 / TOGGLE_BUTTON_GROUP_LENGTH}%`, aspectRatio: 1 }}
@@ -342,7 +345,7 @@ function PieceToggleButtonGroup({
             </Tooltip>
 
             {pieces.map((p) => (
-                <Tooltip key={p} title={`Keyboard Shortcut: ${p}`}>
+                <Tooltip key={p} title={`Keyboard Shortcut: ${p}`} disableInteractive>
                     <ToggleButton
                         value={p}
                         sx={{
@@ -356,7 +359,10 @@ function PieceToggleButtonGroup({
                 </Tooltip>
             ))}
 
-            <Tooltip title={`Keyboard Shortcut: ${DELETE_KEYBOARD_SHORTCUT}`}>
+            <Tooltip
+                title={`Keyboard Shortcut: ${DELETE_KEYBOARD_SHORTCUT}`}
+                disableInteractive
+            >
                 <ToggleButton
                     value='delete'
                     sx={{ width: `${100 / TOGGLE_BUTTON_GROUP_LENGTH}%`, aspectRatio: 1 }}
