@@ -1,8 +1,9 @@
 import { useAuth } from '@/auth/Auth';
 import { getTimeZonedDate } from '@/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
-import { TimelineEntry } from '@/database/timeline';
+import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
 import { User } from '@/database/user';
+import CohortIcon, { cohortIcons } from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import {
@@ -29,6 +30,9 @@ interface Activity extends BaseActivity {
 
     /** Whether a classical game was played on this date. */
     gamePlayed?: boolean;
+
+    /** The highest cohort the user graduated from on this date. */
+    graduation?: string;
 }
 
 const MAX_LEVEL = 4;
@@ -42,6 +46,19 @@ const CLASSICAL_GAMES_REQUIREMENT_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
  * Valid categories for the heatmap to render.
  */
 const VALID_CATEGORIES = [
+    RequirementCategory.Games,
+    RequirementCategory.Tactics,
+    RequirementCategory.Middlegames,
+    RequirementCategory.Endgame,
+    RequirementCategory.Opening,
+    RequirementCategory.NonDojo,
+    RequirementCategory.Graduation,
+];
+
+/**
+ * Valid categories for the heatmap tooltip to render.
+ */
+const VALID_TOOLTIP_CATEGORIES = [
     RequirementCategory.Games,
     RequirementCategory.Tactics,
     RequirementCategory.Middlegames,
@@ -280,6 +297,13 @@ function getActivity(
         if (entry.requirementId === CLASSICAL_GAMES_REQUIREMENT_ID) {
             activity.gamePlayed = true;
         }
+        if (
+            entry.requirementId === TimelineSpecialRequirementId.Graduation &&
+            (!activity.graduation ||
+                parseInt(activity.graduation) < parseInt(entry.cohort))
+        ) {
+            activity.graduation = entry.cohort;
+        }
 
         activity.count += entry[field];
         if (activity.categoryCounts) {
@@ -363,16 +387,29 @@ function Block({
     }
 
     const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
+    const icon = Boolean(activity.graduation || activity.gamePlayed);
+
     return (
         <>
-            {activity.gamePlayed && (
-                <GiCrossedSwords
+            {activity.graduation ? (
+                <image
+                    href={cohortIcons[activity.graduation]}
                     x={block.props.x}
                     y={block.props.y}
                     width={block.props.width}
                     height={block.props.height}
-                    fontSize={`${block.props.width}px`}
+                    crossOrigin='anonymous'
                 />
+            ) : (
+                activity.gamePlayed && (
+                    <GiCrossedSwords
+                        x={block.props.x}
+                        y={block.props.y}
+                        width={block.props.width}
+                        height={block.props.height}
+                        fontSize={`${block.props.width}px`}
+                    />
+                )
             )}
             <Tooltip
                 key={activity.date}
@@ -382,9 +419,7 @@ function Block({
                 {cloneElement(block, {
                     style: {
                         ...newStyle,
-                        ...(activity.gamePlayed
-                            ? { fill: 'transparent', stroke: 'transparent' }
-                            : {}),
+                        ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
                     },
                 })}
             </Tooltip>
@@ -457,9 +492,11 @@ function BlockTooltip({
     activity: Activity;
     field: TimelineEntryField;
 }) {
-    const categories = Object.entries(activity.categoryCounts ?? {}).sort(
-        (lhs, rhs) => rhs[1] - lhs[1],
-    );
+    const categories = Object.entries(activity.categoryCounts ?? {})
+        .filter((entry) =>
+            VALID_TOOLTIP_CATEGORIES.includes(entry[0] as RequirementCategory),
+        )
+        .sort((lhs, rhs) => rhs[1] - lhs[1]);
 
     return (
         <Stack alignItems='center'>
@@ -469,6 +506,23 @@ function BlockTooltip({
                     : `${formatTime(activity.count)} on ${activity.date}`}
             </Typography>
             <Divider sx={{ width: 1 }} />
+            {activity.graduation && (
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    columnGap='1rem'
+                    width={1}
+                >
+                    <Stack direction='row' alignItems='center' columnGap={0.5}>
+                        <CohortIcon tooltip='' cohort={activity.graduation} size={12} />
+                        <Typography variant='caption' pt='2px'>
+                            Graduated from {activity.graduation}
+                        </Typography>
+                    </Stack>
+                </Stack>
+            )}
+
             {activity.gamePlayed && (
                 <Stack
                     direction='row'
