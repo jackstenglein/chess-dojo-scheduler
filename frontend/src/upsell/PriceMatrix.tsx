@@ -161,7 +161,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                     Training Program - Yearly
                                 </Typography>
 
-                                <Typography variant='h6'>$100 / year</Typography>
+                                <Typography variant='h6'>$120 / year</Typography>
                             </Stack>
 
                             <Stack spacing={1} flexGrow={1}>
@@ -170,7 +170,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                     status={SellingPointStatus.Included}
                                 />
                                 <SellingPoint
-                                    description='Saves $80 / year compared to monthly membership'
+                                    description='Saves $60 / year compared to monthly membership'
                                     status={SellingPointStatus.Included}
                                 />
                             </Stack>
