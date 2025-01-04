@@ -3,8 +3,11 @@ import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
 import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
 import stockfishImage from './dojo-digest/vol-13/stockfish.png';
 import fileSharingImage from './dojo-digest/vol-14/share-directory.png';
+import heatmap from './dojo-digest/vol-15/Finochess.jpg';
+import freemonth from './dojo-digest/vol-16/freemonth.webp';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
+import worldrapid from './dojo-talks/2024 World Rapid Blitz/2024 Rapid.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
 import ratingConverter from './new-ratings/noseknowsall/ratings-image05.png';
 import olympiadImage from './olympiad-2024/olympiad.jpg';
@@ -23,6 +26,36 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: '2024 World Rapid & Blitz w/ GM Hammer | Dojo Talks',
+        subtitle: 'DojoTalks • January 3, 2025',
+        body: `The sensei are joined by GM Jon Ludvig Hammer to discuss the 2024 World Rapid & Blitz Championship.`,
+        href: '/blog/dojo-talks/2024-World-Rapid-Blitz',
+        image: {
+            src: worldrapid,
+            alt: '',
+        },
+    },
+    {
+        title: 'Free Month at the Dojo',
+        subtitle: 'Dojo Digest Vol 16 • January 1, 2025',
+        body: `Make your New Year’s resolution and join the Dojo for the month of January at no cost!`,
+        href: '/blog/dojo-digest/vol-16',
+        image: {
+            src: freemonth,
+            alt: '',
+        },
+    },
+    {
+        title: 'The Heatmap has evolved',
+        subtitle: 'Dojo Digest Vol 15 • December 1, 2024',
+        body: `The heatmap has evolved! Many thanks to Jalp aka Noobmaster for making a vision into a reality.`,
+        href: '/blog/dojo-digest/vol-15',
+        image: {
+            src: heatmap,
+            alt: '',
+        },
+    },
     {
         title: 'New Folder Sharing and Other Updates',
         subtitle: 'Dojo Digest Vol 14 • November 1, 2024',
