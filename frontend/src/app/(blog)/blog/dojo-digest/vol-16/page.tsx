@@ -1,7 +1,6 @@
 import { Link, Stack, Typography } from '@mui/material';
 import { Metadata } from 'next';
 import Image from 'next/image';
-
 import { Container } from '../../common/Container';
 import { Footer } from '../../common/Footer';
 import { Header } from '../../common/Header';

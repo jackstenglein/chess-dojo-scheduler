@@ -1,5 +1,6 @@
 import { Link, Stack, Typography } from '@mui/material';
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { Container } from '../../common/Container';
 import { Footer } from '../../common/Footer';
 import { Header } from '../../common/Header';
@@ -10,7 +11,7 @@ import roundrobin from './RoundRobin.jpg';
 import sidmandoo from './sidmandoo.jpg';
 
 export const metadata: Metadata = {
-    title: 'The Heatmap has evolved | ChessDojo Blog',
+    title: 'The Heatmap has Evolved | ChessDojo Blog',
     description: `The heatmap has evolved! Many thanks to Jalp aka Noobmaster for making a vision into a reality.`,
     keywords: ['Chess', 'Dojo', 'Training', 'Digest', 'Games', 'Repertoire'],
 };
@@ -37,7 +38,7 @@ export default function DojoDigestVol15() {
                     and{' '}
                     <Link href='https://www.youtube.com/@ChessDojo' target='_blank'>
                         YouTube
-                    </Link>{' '}
+                    </Link>
                     . No engine commentary! Don’t follow a sad engine bar going up and
                     down for reasons unknown! For the duration of the championship, use
                     code WC24 to get a 20% discount on a subscription to the{' '}
@@ -56,7 +57,7 @@ export default function DojoDigestVol15() {
                         href='https://www.chessdojo.club/profile/a01c4934-cf7b-4327-b71d-bb3e0a364a4c?utm_source=newsletter&utm_medium=email&utm_campaign=digest15'
                         target='_blank'
                     >
-                        FinoChess’
+                        FinoChess’s
                     </Link>{' '}
                     heatmap:
                 </Typography>
@@ -111,13 +112,13 @@ export default function DojoDigestVol15() {
                     It’s a beautiful new tournament with a simple idea: the first 10
                     players to sign up from a cohort form a round robin that lasts three
                     months. We already have several cohorts with more than one section!
-                    Below is a look at the 11-1200 cohort tournament already underway.
+                    Below is a look at the 11-1200 cohort tournament already underway.{' '}
                     <Link
                         href='https://www.chessdojo.club/tournaments/round-robin'
                         target='_blank'
                     >
                         Sign up here.
-                    </Link>{' '}
+                    </Link>
                 </Typography>
                 <Stack mt={2} alignItems='center'>
                     <Image

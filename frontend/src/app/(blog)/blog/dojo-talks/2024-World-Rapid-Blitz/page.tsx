@@ -39,7 +39,7 @@ export default function DojoTalks2024WorldRapidBlitz() {
             <iframe
                 width='100%'
                 style={{ aspectRatio: '16 / 9' }}
-                src='https://youtu.be/XDhXhCqVQzM'
+                src='https://www.youtube.com/embed/XDhXhCqVQzM'
                 title='YouTube video player'
                 frameBorder='0'
                 allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen'

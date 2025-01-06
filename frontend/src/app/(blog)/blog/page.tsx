@@ -1,3 +1,4 @@
+import { Link } from '@/components/navigation/Link';
 import {
     Card,
     CardActionArea,
@@ -9,7 +10,6 @@ import {
     Typography,
 } from '@mui/material';
 import Image from 'next/image';
-import Link from 'next/link';
 import items from './items';
 import ShareButton from './shareButton/ShareButton';
 

@@ -7,7 +7,7 @@ import heatmap from './dojo-digest/vol-15/Finochess.jpg';
 import freemonth from './dojo-digest/vol-16/freemonth.webp';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
-import worldrapid from './dojo-talks/2024 World Rapid Blitz/2024 Rapid.png';
+import worldrapid from './dojo-talks/2024-world-rapid-blitz/2024-rapid.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
 import ratingConverter from './new-ratings/noseknowsall/ratings-image05.png';
 import olympiadImage from './olympiad-2024/olympiad.jpg';
@@ -29,8 +29,8 @@ const items: BlogItem[] = [
     {
         title: '2024 World Rapid & Blitz w/ GM Hammer | Dojo Talks',
         subtitle: 'DojoTalks • January 3, 2025',
-        body: `The sensei are joined by GM Jon Ludvig Hammer to discuss the 2024 World Rapid & Blitz Championship.`,
-        href: '/blog/dojo-talks/2024-World-Rapid-Blitz',
+        body: `The senseis are joined by GM Jon Ludvig Hammer to discuss the 2024 World Rapid & Blitz Championship.`,
+        href: '/blog/dojo-talks/2024-world-rapid-blitz',
         image: {
             src: worldrapid,
             alt: '',
