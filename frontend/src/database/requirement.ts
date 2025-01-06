@@ -187,6 +187,7 @@ export interface Requirement {
     blockers?: string[];
 }
 
+
 /** A user's progress on a specific requirement. */
 export interface RequirementProgress {
     /** The id of the requirement. */
@@ -565,4 +566,38 @@ export function isBlocked(
         }
     }
     return { isBlocked: false };
+}
+
+/**
+ * Tasks the user has chosen to pin.
+If the number of selected tasks >= 3, stop. Else continue to step 3.
+Pick the category with the greatest remaining percentage of Dojo points. Choose a unique category that is not already in the selected tasks, if possible. If a task has the "All At Once" flag, use the total Dojo points for that task instead of the remaining points.
+Within that category, pick the task with the greatest remaining percentage of Dojo points (if a task has the "All At Once" flag, use the total Dojo points for that task instead of the remaining points). Add the task to the chosen tasks.
+If the number of chosen tasks >= 3, stop. Else go to step 3.
+*/
+
+export function suggestedAlgo(reqs : Requirement[], ctasks: CustomTask[], user: User){
+   // max selected task count = 3
+   const MAX_TASK_COUNT: number = 3;
+
+   // var suggestedTasks
+   const suggestedTask: Requirement[] = [];
+
+   // hashmap for category, %
+   const categoryPercent: Map<RequirementCategory, number> = new Map();
+   
+   // for each requirement category in user's progress go in and calculate the % percentage of Dojo points remaining 
+   // or use Dojo points for that task insteadn of remaining
+
+   // store in a hashmap category being key, val being %
+
+   // find 3rd, 2nd, 1st max % in this entries remove others? (collisions?)
+
+   // for each entry in entries of category
+
+      // for each task in entry
+
+         // calculate the % percentage of Dojo points remaining or use Dojo points for that task intead of remaining (dups?)
+              
+                    // find Max(task Dojo points % remaining) where count = 3
 }
