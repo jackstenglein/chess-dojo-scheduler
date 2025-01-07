@@ -90,7 +90,10 @@ export interface RoundRobin {
     /** The cohort of the round robin. */
     cohort: string;
 
-    /** The name of the tournament. */
+    /**
+     * The name of the tournament. For a waitlist, this is the number the tournament will have
+     * once created.
+     */
     name: string;
 
     /** The start date of the tournament in ISO format. */
