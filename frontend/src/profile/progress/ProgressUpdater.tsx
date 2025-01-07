@@ -27,6 +27,7 @@ import {
     isRequirement,
 } from '../../database/requirement';
 import InputSlider from './InputSlider';
+import { useTimelineContext } from '../../profile/activity/useTimeline';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -89,6 +90,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     toggleView,
 }) => {
     const api = useApi();
+    const { resetRequest: timelineNewRequest } = useTimelineContext();
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
@@ -170,6 +172,9 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                 setHours('');
                 setMinutes('');
                 request.reset();
+                // The timeline needs to know that the update request is done
+                // So we go get the new activity
+                timelineNewRequest();
             })
             .catch((err) => {
                 console.error('updateUserProgress: ', err);

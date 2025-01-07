@@ -1,3 +1,4 @@
+import React, { createContext, useContext, ReactNode } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../../api/Api';
 import { Request, useRequest } from '../../api/Request';
@@ -11,7 +12,21 @@ export interface UseTimelineResponse {
     onEdit: (i: number, entry: TimelineEntry) => void;
 }
 
-export function useTimeline(owner?: string): UseTimelineResponse {
+const TimelineContext = createContext<UseTimelineResponse | undefined>(undefined);
+export const useTimelineContext = () => {
+    const context = useContext(TimelineContext);
+    if (!context) {
+        throw new Error('useTimelineContext must be used within a TimelineProvider');
+    }
+    return context;
+}
+
+interface TimelineProviderProps {
+    owner: string;
+    children: ReactNode;
+}
+
+export const TimelineProvider: React.FC<TimelineProviderProps> = ({ owner, children }) => {
     const api = useApi();
     const [entries, setEntries] = useState<TimelineEntry[]>([]);
     const [startKey, setStartKey] = useState<string>();
@@ -43,9 +58,15 @@ export function useTimeline(owner?: string): UseTimelineResponse {
     }, [request, api, owner, startKey, entries, setEntries, setStartKey]);
 
     const reset = request.reset;
+
     const onLoadMore = useCallback(() => {
         reset();
     }, [reset]);
+
+    const resetRequest = useCallback(() => {
+        reset();
+        setStartKey(undefined);
+    }, [reset, setStartKey]);
 
     const onEdit = useCallback(
         (i: number, entry: TimelineEntry) => {
@@ -54,11 +75,16 @@ export function useTimeline(owner?: string): UseTimelineResponse {
         [setEntries],
     );
 
-    return {
+    const timelineData = {
         request,
         entries,
         hasMore: startKey !== undefined,
         onLoadMore,
+        resetRequest,
         onEdit,
     };
+
+    return <TimelineContext.Provider value={timelineData}>{children}</TimelineContext.Provider>;
 }
+
+
