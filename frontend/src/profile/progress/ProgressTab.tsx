@@ -19,6 +19,7 @@ import {
     RequirementCategory,
     isBlocked,
     isComplete,
+    suggestedAlgo,
 } from '../../database/requirement';
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
@@ -107,76 +108,77 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     }, [requirements, user, cohort, hideCompleted]);
 
     const suggestedTasks: Category = useMemo(() => {
+        const tasks: Requirement[] = suggestedAlgo(requirements, user, 3);
         const suggestedTasks: Category = {
             name: RequirementCategory.SuggestedTasks,
-            requirements: [],
+            requirements: tasks,
             totalComplete: 0,
-            totalRequirements: 0,
+            totalRequirements: tasks.length,
         };
 
-        const desiredTaskCount = 3;
+        // const desiredTaskCount = 3;
 
-        const requirementsById = Object.fromEntries(requirements.map((r) => [r.id, r]));
+        // const requirementsById = Object.fromEntries(requirements.map((r) => [r.id, r]));
 
-        const recentRequirements = Object.values(user.progress)
-            .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-            .map((progress) => requirementsById[progress.requirementId])
-            .filter(
-                (r) =>
-                    !!r &&
-                    !isComplete(cohort, r, user.progress[r.id]) &&
-                    r.category !== RequirementCategory.NonDojo,
-            );
+        // const recentRequirements = Object.values(user.progress)
+        //     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+        //     .map((progress) => requirementsById[progress.requirementId])
+        //     .filter(
+        //         (r) =>
+        //             !!r &&
+        //             !isComplete(cohort, r, user.progress[r.id]) &&
+        //             r.category !== RequirementCategory.NonDojo,
+        //     );
 
-        suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
+        // suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
 
-        const now = new Date();
-        const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
-        const categoryOffset = daysSinceEpoch % categories.length;
+        // const now = new Date();
+        // const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
+        // const categoryOffset = daysSinceEpoch % categories.length;
 
-        const categoriesOfInterest: RequirementCategory[] = [
-            ...categories.slice(categoryOffset),
-            ...categories.slice(0, categoryOffset),
-        ]
-            .map((c) => c.name)
-            .filter((c) => c !== RequirementCategory.NonDojo);
+        // const categoriesOfInterest: RequirementCategory[] = [
+        //     ...categories.slice(categoryOffset),
+        //     ...categories.slice(0, categoryOffset),
+        // ]
+        //     .map((c) => c.name)
+        //     .filter((c) => c !== RequirementCategory.NonDojo);
 
-        const tasksOfInterest = requirements.filter(
-            (r) =>
-                ((isFreeTier && r.isFree) || !isFreeTier) &&
-                !isComplete(cohort, r, user.progress[r.id]) &&
-                categoriesOfInterest.includes(r.category) &&
-                !isBlocked(cohort, user, r, requirements).isBlocked &&
-                suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
-        );
+        // const tasksOfInterest = requirements.filter(
+        //     (r) =>
+        //         ((isFreeTier && r.isFree) || !isFreeTier) &&
+        //         !isComplete(cohort, r, user.progress[r.id]) &&
+        //         categoriesOfInterest.includes(r.category) &&
+        //         !isBlocked(cohort, user, r, requirements).isBlocked &&
+        //         suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
+        // );
 
-        const tasksByCategory = tasksOfInterest.reduce<Record<string, Requirement[]>>(
-            (acc, req) => {
-                acc[req.category] ??= [];
-                acc[req.category].push(req);
+        // const tasksByCategory = tasksOfInterest.reduce<Record<string, Requirement[]>>(
+        //     (acc, req) => {
+        //         acc[req.category] ??= [];
+        //         acc[req.category].push(req);
 
-                return acc;
-            },
-            {},
-        );
+        //         return acc;
+        //     },
+        //     {},
+        // );
 
-        // Once per task we need, get one task of each category
-        const moreTasks = [
-            ...Array(desiredTaskCount - suggestedTasks.requirements.length).keys(),
-        ].flatMap((n) =>
-            categoriesOfInterest
-                .map((c) => tasksByCategory[c] ?? [])
-                .filter((tasks) => tasks.length > 0)
-                .flatMap((tasks) => tasks[(daysSinceEpoch + n) % tasks.length]),
-        );
+        // // Once per task we need, get one task of each category
+        // const moreTasks = [
+        //     ...Array(desiredTaskCount - suggestedTasks.requirements.length).keys(),
+        // ].flatMap((n) =>
+        //     categoriesOfInterest
+        //         .map((c) => tasksByCategory[c] ?? [])
+        //         .filter((tasks) => tasks.length > 0)
+        //         .flatMap((tasks) => tasks[(daysSinceEpoch + n) % tasks.length]),
+        // );
 
-        // Fill the remaining suggest tasks slots with tasks that rotate day by day.
-        suggestedTasks.requirements = [
-            ...suggestedTasks.requirements,
-            ...moreTasks,
-        ].slice(0, desiredTaskCount);
+        // // Fill the remaining suggest tasks slots with tasks that rotate day by day.
+        // suggestedTasks.requirements = [
+        //     ...suggestedTasks.requirements,
+        //     ...moreTasks,
+        // ].slice(0, desiredTaskCount);
 
-        suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
+        // suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
 
         return suggestedTasks;
     }, [categories, isFreeTier, user, cohort, requirements]);

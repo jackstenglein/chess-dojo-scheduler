@@ -597,7 +597,7 @@ Within that category, pick the task with the greatest remaining percentage of Do
 If the number of chosen tasks >= 3, stop. Else go to step 3.
 */
 
-export function suggestedAlgo(reqs : Requirement[], ctasks: CustomTask[], user: User, currentTaskCount: number){
+export function suggestedAlgo(reqs : Requirement[], user: User, currentTaskCount: number){
 
    // hashmap for category, %
    const categoryPercent: Map<TopDownCategories, number> = new Map();
