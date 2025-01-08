@@ -348,7 +348,7 @@ function AuthProfilePage({
                 >
                     <Stack spacing={2}>
                         <RatingsCard user={user} />
-                        <HeatmapCard user={user} />
+                        <HeatmapCard />
                         <BadgeCard user={user} />
                     </Stack>
                 </Container>
