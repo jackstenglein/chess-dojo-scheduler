@@ -26,8 +26,8 @@ import {
     getCurrentCount,
     isRequirement,
 } from '../../database/requirement';
-import InputSlider from './InputSlider';
 import { useTimelineContext } from '../../profile/activity/useTimeline';
+import InputSlider from './InputSlider';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
