@@ -100,13 +100,16 @@ export enum RequirementCategory {
 /**
  * Can we go top-down? E.g. games / tactics / middlegames / endgames / openings
  */
-export enum TopDownCategories {
-    Games = 'Games + Analysis',
-    Tactics = 'Tactics',
-    Middlegames = 'Middlegames + Strategy',
-    Endgame = 'Endgame',
-    Opening = 'Opening',
-}
+export const TopDownCategories = {
+    Games: RequirementCategory.Games,
+    Tactics: RequirementCategory.Tactics,
+    Middlegames: RequirementCategory.Middlegames,
+    Endgame: RequirementCategory.Endgame,
+    Opening: RequirementCategory.Opening,
+} as const;
+
+// Create a type for TopDownCategories
+export type TopDownCategories = keyof typeof TopDownCategories;
 
 /** A requirement in the training plan. */
 export interface Requirement {
@@ -199,7 +202,6 @@ export interface Requirement {
      */
     blockers?: string[];
 }
-
 
 /** A user's progress on a specific requirement. */
 export interface RequirementProgress {
@@ -376,8 +378,18 @@ export function isComplete(
     );
 }
 
-export function getRemainingReqPoints(cohort: string, requirement: Requirement, progress?: RequirementProgress): number{
-    return getTotalCount(cohort, requirement) - getCurrentCount(cohort, requirement, progress) 
+export function getRemainingReqPoints(
+    cohort: string,
+    requirement: Requirement,
+    progress?: RequirementProgress,
+): number {
+    if (requirement.atomic) {
+        return getTotalCount(cohort, requirement);
+    }
+    return (
+        getTotalCount(cohort, requirement) -
+        getCurrentCount(cohort, requirement, progress)
+    );
 }
 
 /**
@@ -531,8 +543,16 @@ export function getTotalCategoryScore(
     );
 }
 
-export function getRemainingCategoryScore(user: User, cohort: string, category: string, requirements: Requirement[]): number {
-    return getTotalCategoryScore(cohort, category, requirements) - getCategoryScore(user, cohort, category, requirements);
+export function getRemainingCategoryScore(
+    user: User,
+    cohort: string,
+    category: string,
+    requirements: Requirement[],
+): number {
+    return (
+        getTotalCategoryScore(cohort, category, requirements) -
+        getCategoryScore(user, cohort, category, requirements)
+    );
 }
 
 /**
@@ -597,46 +617,70 @@ Within that category, pick the task with the greatest remaining percentage of Do
 If the number of chosen tasks >= 3, stop. Else go to step 3.
 */
 
-export function suggestedAlgo(reqs : Requirement[], user: User, currentTaskCount: number){
+export function suggestedAlgo(reqs: Requirement[], user: User, currentTaskCount: number) {
+    // hashmap for category, %
+    const categoryPercent: Map<RequirementCategory, number> = new Map();
+    const reqPercent: Map<Requirement, number> = new Map();
+    const topDownOrder: RequirementCategory[] = [];
+    let actualTasks: Requirement[] = [];
 
-   // hashmap for category, %
-   const categoryPercent: Map<TopDownCategories, number> = new Map();
-   const reqPercent: Map<Requirement, number> = new Map();
-   const topDownOrder: TopDownCategories[] = [];
-   let actualTasks: Requirement[] = [];
+    console.log('Initial Data:');
+    console.log('Requirements:', reqs);
+    console.log('User:', user);
+    console.log('Current Task Count:', currentTaskCount);
 
-   // for each requirement category in user's progress go in and calculate the % percentage of Dojo points remaining 
-   // store in a hashmap category being key, val being %
-   for(const topdowncategory of Object.values(TopDownCategories)){
-       topDownOrder.push(topdowncategory);
-       categoryPercent.set(topdowncategory, getRemainingCategoryScore(user, user.dojoCohort, topdowncategory, reqs))
-   }
-
-   // or use Dojo points for that task insteadn of remaining (not done yet)
-
-  
-   // sort by percent remaining or the topdown approach
-   const sortedCategoryPercent = Array.from(categoryPercent.entries())
-  .sort(([categorystart, valueA], [categoryend, valueB]) => {
-    if (valueA !== valueB) {
-      // Sort by value (descending)
-      return valueB - valueA;
-    } else {
-      // Sort by priority order
-      return topDownOrder.indexOf(categorystart) - topDownOrder.indexOf(categoryend);
+    // For each requirement category in user's progress, calculate the % of Dojo points remaining
+    for (const topdowncategory of Object.values(TopDownCategories)) {
+        topDownOrder.push(topdowncategory);
+        const remainingScore = getRemainingCategoryScore(
+            user,
+            user.dojoCohort,
+            topdowncategory,
+            reqs,
+        );
+        categoryPercent.set(topdowncategory, remainingScore);
+        console.log(`Remaining Score for ${topdowncategory}:`, remainingScore);
     }
-  });
- 
-  // cut out the other tasks based on how much we need
 
-  const neededCategoriesPercents: Map<TopDownCategories, number> = new Map(sortedCategoryPercent.slice(0, currentTaskCount)); 
-  const requirementsById = Object.fromEntries(reqs.map((r) => [r.id, r]));
-  let matchingReqs: Requirement[] = [];
-   // for each entry in entries of category
+    console.log(
+        'Category Percent Map before sorting:',
+        Array.from(categoryPercent.entries()),
+    );
 
-     for(const neededCategory of Object.values(neededCategoriesPercents)){
-        
-        matchingReqs = Object.values(user.progress)
+    // Sort by percent remaining or the top-down approach
+    const sortedCategoryPercent = Array.from(categoryPercent.entries()).sort(
+        ([categorystart, valueA], [categoryend, valueB]) => {
+            if (valueA !== valueB) {
+                // Sort by value (descending)
+                return valueB - valueA;
+            } else {
+                // Sort by priority order
+                return (
+                    topDownOrder.indexOf(categorystart) -
+                    topDownOrder.indexOf(categoryend)
+                );
+            }
+        },
+    );
+
+    console.log('Sorted Category Percent:', sortedCategoryPercent);
+
+    // Cut out the other tasks based on how much we need
+    const neededCategoriesPercents: Map<RequirementCategory, number> = new Map(
+        sortedCategoryPercent.slice(0, currentTaskCount),
+    );
+
+    console.log(
+        'Needed Categories Percent:',
+        Array.from(neededCategoriesPercents.entries()),
+    );
+
+    const requirementsById = Object.fromEntries(reqs.map((r) => [r.id, r]));
+    let matchingReqs: Requirement[] = [];
+
+    // For each entry in entries of category
+    for (const [neededCategory] of neededCategoriesPercents.entries()) {
+        const matched = Object.values(user.progress)
             .map((progress) => requirementsById[progress.requirementId])
             .filter(
                 (r) =>
@@ -644,37 +688,54 @@ export function suggestedAlgo(reqs : Requirement[], user: User, currentTaskCount
                     !isComplete(user.dojoCohort, r, user.progress[r.id]) &&
                     r.category == neededCategory,
             );
-     }
 
-     // for each task in entry
+        matchingReqs.push(...matched);
 
-         // calculate the % percentage of Dojo points remaining or use Dojo points for that task intead of remaining (dups?) (not done yet)
-     for(const neededcurr of matchingReqs){
-        reqPercent.set(neededcurr, getRemainingReqPoints(user.dojoCohort, neededcurr, user.progress[neededcurr.id]));
-     }
+        console.log(`Matching Requirements for ${neededCategory}:`, matched);
+    }
 
-      // sort the hashmap by value and prority
-       // sort by percent remaining or the topdown approach
-   const sortedReqPercent = Array.from(reqPercent.entries())
-   .sort(([reqstart, valueA], [reqend, valueB]) => {
-     if (valueA !== valueB) {
-       // Sort by value (descending)
-       return valueB - valueA;
-     } else {
-       // Sort by priority order
-       return compareRequirements(reqstart, reqend);
-     }
-   }); 
-   
-   // var suggestedTasks
-   const suggestedTask: Map<Requirement, number> = new Map(sortedReqPercent.slice(0, currentTaskCount));
-      // slice by currentTaskCount
+    console.log('All Matching Requirements:', matchingReqs);
 
-   for(const atasks of Object.values(suggestedTask)){
-      actualTasks.push(atasks);
-   } 
-   
-   return actualTasks;
+    // For each task in entry
+    for (const neededcurr of matchingReqs) {
+        const remainingPoints = getRemainingReqPoints(
+            user.dojoCohort,
+            neededcurr,
+            user.progress[neededcurr.id],
+        );
+        reqPercent.set(neededcurr, remainingPoints);
+        console.log(`Remaining Points for ${neededcurr.id}:`, remainingPoints);
+    }
 
-          
+    console.log('Req Percent Map before sorting:', Array.from(reqPercent.entries()));
+
+    // Sort the hashmap by value and priority
+    const sortedReqPercent = Array.from(reqPercent.entries()).sort(
+        ([reqstart, valueA], [reqend, valueB]) => {
+            if (valueA !== valueB) {
+                // Sort by value (descending)
+                return valueB - valueA;
+            } else {
+                // Sort by priority order
+                return compareRequirements(reqstart, reqend);
+            }
+        },
+    );
+
+    console.log('Sorted Req Percent:', sortedReqPercent);
+
+    // Slice by currentTaskCount
+    const suggestedTask: Map<Requirement, number> = new Map(
+        sortedReqPercent.slice(0, currentTaskCount),
+    );
+
+    console.log('Suggested Tasks Map:', Array.from(suggestedTask.entries()));
+
+    for (const [atask] of suggestedTask.entries()) {
+        actualTasks.push(atask);
+    }
+
+    console.log('Final Suggested Tasks:', actualTasks);
+
+    return actualTasks;
 }
