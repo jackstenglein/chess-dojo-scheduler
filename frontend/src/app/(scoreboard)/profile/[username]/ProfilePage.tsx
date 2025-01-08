@@ -23,10 +23,10 @@ import { FollowerEntry } from '@/database/follower';
 import { hasCreatedProfile, User } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
-import { TimelineProvider } from '@/profile/activity/useTimeline';
 import GamesTab from '@/profile/GamesTab';
 import GraduationDialog from '@/profile/GraduationDialog';
 import ActivityTab from '@/profile/activity/ActivityTab';
+import { TimelineProvider } from '@/profile/activity/useTimeline';
 import ClubsTab from '@/profile/clubs/ClubsTab';
 import CoachTab from '@/profile/coach/CoachTab';
 import ProfileCreatorPage from '@/profile/creator/ProfileCreatorPage';
@@ -46,7 +46,7 @@ import {
     Timeline,
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
-import { Alert, Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
+import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
 import { useEffect } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
@@ -161,26 +161,11 @@ function AuthProfilePage({
             }}
         >
             <TimelineProvider owner={user.username}>
-                <Container maxWidth='md' sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}>
+                <Container
+                    maxWidth='md'
+                    sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}
+                >
                     <RequestSnackbar request={followRequest} />
-
-                    <Alert
-                        severity='info'
-                        action={
-                            <Button
-                                size='small'
-                                color='inherit'
-                                href={`/profile/${user.username}/postmortem/2024`}
-                                component={Link}
-                            >
-                                Open
-                            </Button>
-                        }
-                        variant='outlined'
-                        sx={{ mb: 4 }}
-                    >
-                        Your 2024 postmortem is now available!
-                    </Alert>
 
                     <Stack>
                         <Stack
