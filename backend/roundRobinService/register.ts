@@ -96,6 +96,10 @@ async function fetchUser(username: string): Promise<User> {
     return unmarshall(result.Item) as User;
 }
 
+/**
+ * Initializes Stripe using the current stage's key.
+ * @returns The new Stripe object.
+ */
 async function initStripe(): Promise<Stripe> {
     return new Stripe(
         (await getSecret(`chess-dojo-${process.env.stage}-stripeKey`)) || ''

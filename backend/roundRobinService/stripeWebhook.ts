@@ -12,6 +12,11 @@ import { getSecret } from './secret';
 let stripe: Stripe | undefined = undefined;
 let endpointSecret: string | undefined = undefined;
 
+/**
+ * Handles Stripe webhook events. Currently, only checkout.session.completed
+ * events for round robin registrations are handled.
+ * @param event The API Gateway event that triggered the handler.
+ */
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
