@@ -1,4 +1,4 @@
-import { useTimeline } from '@/profile/activity/useTimeline';
+import { TimelineProvider, useTimelineContext } from '@/profile/activity/useTimeline';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { useCallback, useEffect, useState } from 'react';
 import { Heatmap } from '../info/Heatmap';
@@ -11,11 +11,16 @@ const endDateByPeriod: Record<string, string> = {
 };
 
 export function HeatmapSection({ review }: SectionProps) {
-    const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
+    return (
+        <TimelineProvider owner={review.username}>
+            <Section review={review} />
+        </TimelineProvider>
+    );
+}
 
-    console.log('useTime: ', review.username);
-    const { entries } = useTimeline(review.username);
-    console.log('Entries: ', entries);
+function Section({ review }: SectionProps) {
+    const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
+    const { entries } = useTimelineContext();
 
     const resizeDialogBlocks = useCallback(() => {
         setBlockSize(getBlockSize());

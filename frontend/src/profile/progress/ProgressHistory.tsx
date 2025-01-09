@@ -18,7 +18,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
 import {
     CustomTask,
     Requirement,
@@ -28,7 +27,7 @@ import {
 import { TimelineEntry } from '../../database/timeline';
 import { User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
-import { useTimeline } from '../activity/useTimeline';
+import { useTimelineContext } from '../activity/useTimeline';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -295,12 +294,11 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     onClose,
     toggleView,
 }) => {
-    const { user } = useAuth();
     const api = useApi();
     const request = useRequest<AxiosResponse<User>>();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
-    const { entries, request: timelineRequest } = useTimeline(user?.username);
+    const { entries, request: timelineRequest } = useTimelineContext();
 
     const isTimeOnly =
         requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo ||

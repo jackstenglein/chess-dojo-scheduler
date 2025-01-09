@@ -2,14 +2,14 @@ import { Grid2 } from '@mui/material';
 import { User } from '../../database/user';
 import ActivityPieChart from './ActivityPieChart';
 import ActivityTimeline from './ActivityTimeline';
-import { useTimeline } from './useTimeline';
+import { useTimelineContext } from './useTimeline';
 
 interface ActivityTabProps {
     user: User;
 }
 
 const ActivityTab: React.FC<ActivityTabProps> = ({ user }) => {
-    const timeline = useTimeline(user.username);
+    const timeline = useTimelineContext();
 
     return (
         <Grid2 container justifyContent='space-between' rowSpacing={5}>
