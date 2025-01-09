@@ -97,6 +97,12 @@ async function fetchUser(username: string): Promise<User> {
     return unmarshall(result.Item) as User;
 }
 
+async function initStripe(): Promise<Stripe> {
+    return new Stripe(
+        (await getSecret(`chess-dojo-${process.env.stage}-stripeKey`)) || ''
+    );
+}
+
 /**
  * Creates and returns a Stripe checkout URL in setup mode.
  * @param user The user being redirected to Stripe.
@@ -111,9 +117,7 @@ async function getCheckoutUrl({
     request: RoundRobinRegisterRequest;
 }): Promise<string> {
     if (!stripe) {
-        stripe = new Stripe(
-            (await getSecret(`chess-dojo-${process.env.stage}-stripeKey`)) || ''
-        );
+        stripe = await initStripe();
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -274,7 +278,40 @@ async function startTournament(
         })
     );
 
+    await chargeFreeUsers(tournament);
     return { tournament, waitlist };
+}
+
+/**
+ * Charges the free users in the given tournament.
+ * @param tournament The tournament to charge free users for.
+ */
+async function chargeFreeUsers(tournament: RoundRobin) {
+    for (const player of Object.values(tournament.players)) {
+        if (!player.checkoutSession?.setup_intent) {
+            continue;
+        }
+
+        try {
+            if (!stripe) {
+                stripe = await initStripe();
+            }
+            const setupIntent = await stripe.setupIntents.retrieve(
+                player.checkoutSession.setup_intent as string
+            );
+            await stripe.paymentIntents.create({
+                amount: 200,
+                currency: 'usd',
+                customer: player.checkoutSession.customer as string,
+                payment_method: setupIntent.payment_method as string,
+                off_session: true,
+                confirm: true,
+                statement_descriptor: 'CHESSDOJO ROUND ROBIN',
+            });
+        } catch (err) {
+            console.error(`Failed to charge player %j: %j`, player, err);
+        }
+    }
 }
 
 /**
