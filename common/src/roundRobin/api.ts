@@ -1,3 +1,4 @@
+import Stripe from 'stripe';
 import { z } from 'zod';
 
 /** The maximum number of players in a round robin. */
@@ -163,4 +164,7 @@ export interface RoundRobinPlayer {
 
     /** The status of the player. */
     status: RoundRobinPlayerStatus;
+
+    /** The Stripe checkout session for players who paid to enter. */
+    checkoutSession?: Stripe.Checkout.Session;
 }

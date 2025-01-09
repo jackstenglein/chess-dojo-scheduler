@@ -38,7 +38,6 @@ export function Waitlist({
 
     const canRegister =
         user &&
-        !isFreeTier &&
         !tournament.players[user.username] &&
         Math.abs(
             dojoCohorts.indexOf(user.dojoCohort) - dojoCohorts.indexOf(tournament.cohort),
@@ -69,7 +68,7 @@ export function Waitlist({
                         sx={{ mt: -2, mb: 3 }}
                         onClick={() => setShowRegistration(true)}
                     >
-                        Register
+                        Register {isFreeTier && ' - $2'}
                     </Button>
                 )}
 

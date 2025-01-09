@@ -180,3 +180,4 @@ services:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}

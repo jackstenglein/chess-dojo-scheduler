@@ -1,5 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useFreeTier } from '@/auth/Auth';
 import { User } from '@/database/user';
 import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { LoadingButton } from '@mui/lab';
@@ -34,6 +35,7 @@ export function RegisterModal({
     user,
     onUpdateTournaments,
 }: RegisterModalProps) {
+    const isFreeTier = useFreeTier();
     const [lichessUsername, setLichessUsername] = useState(
         user?.ratings.LICHESS?.username || '',
     );
@@ -73,12 +75,17 @@ export function RegisterModal({
                 discordUsername,
             });
             console.log('registerForRoundRobin: ', resp);
-            request.onSuccess('Successfully registered for the tournament');
-            onUpdateTournaments({
-                waitlist: resp.data.waitlist as RoundRobin,
-                tournament: resp.data.tournament,
-            });
-            onClose();
+
+            if ('url' in resp.data) {
+                window.location.href = resp.data.url;
+            } else {
+                request.onSuccess('Successfully registered for the tournament');
+                onUpdateTournaments({
+                    waitlist: resp.data.waitlist as RoundRobin,
+                    tournament: resp.data.tournament,
+                });
+                onClose();
+            }
         } catch (err) {
             console.error('registerForRoundRobin: ', err);
             request.onFailure(err);
@@ -90,7 +97,15 @@ export function RegisterModal({
             <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
                 <DialogTitle>Register for the Round Robin?</DialogTitle>
                 <DialogContent>
-                    <DialogContentText sx={{ mb: 1 }}>
+                    {isFreeTier && (
+                        <DialogContentText sx={{ mb: 2 }}>
+                            You will be charged $2 once the tournament starts. After the
+                            tournament starts, no refunds will be provided for
+                            withdrawals.
+                        </DialogContentText>
+                    )}
+
+                    <DialogContentText sx={{ mb: 2 }}>
                         To prevent cheating, all games in the tournament must be played
                         using either the Lichess or Chess.com accounts entered here.
                     </DialogContentText>

@@ -40,10 +40,12 @@ export interface RoundRobinApiContextType {
     ) => Promise<AxiosResponse<RoundRobin>>;
 }
 
-export interface RoundRobinRegisterResponse {
-    waitlist: RoundRobinWaitlist;
-    tournament?: RoundRobin;
-}
+export type RoundRobinRegisterResponse =
+    | { url: string }
+    | {
+          waitlist: RoundRobinWaitlist;
+          tournament?: RoundRobin;
+      };
 
 /**
  * Sends a request to register for a round robin tournament.

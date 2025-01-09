@@ -1,6 +1,7 @@
+import TimeControlTable from '@/components/tournaments/round-robin/TimeControlTable';
 import { PawnIcon } from '@/style/ChessIcons';
 import Icon from '@/style/Icon';
-import { CalendarMonth, HelpOutline } from '@mui/icons-material';
+import { CalendarMonth, HelpOutline, MonetizationOn } from '@mui/icons-material';
 import GroupIcon from '@mui/icons-material/Group';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
@@ -16,57 +17,39 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import TimeControlTable from '../../../../components/tournaments/round-robin/TimeControlTable';
 
 const faqs = [
     {
         question: 'Is there a registration period for Dojo Round robins?',
-        answer: "No, you can register at any time. Once 10 players have registered for your cohort's round robin, the tournament will automatically start.",
+        answer: "No, you can join the waitlist at any time. Once 10 players have joined the waitlist for your cohort's round robin, the tournament will automatically start.",
     },
     {
         question: 'How do I register for the Dojo Round Robin?',
-        answer: 'You can go to the pairings tab and hit register.',
-    },
-    {
-        question: 'I just graduated from my cohort, can I play 1 level up?',
-        answer: 'Yes, system will take care of that automatically',
+        answer: 'Go to the tournaments tab and click the Register button on the waitlist. You can register for your cohort, as well as one cohort above and below.',
     },
     {
         question: 'What are the time controls for different cohorts?',
-        answer: 'Time controls are based on your rating: Under 800: 30+0, 800-1200: 30+30, 1200+: 45+30, 1600+: 60+30, 2000+: 90+30.',
+        answer: 'Time controls are based on your cohort: Under 800: 30+0, 800-1200: 30+30, 1200+: 45+30, 1600+: 60+30, 2000+: 90+30.',
     },
     {
         question: 'When do the tournaments start?',
-        answer: 'As soon as 10 players have joined',
-    },
-    {
-        question:
-            'My cohort tournament pairings and crosstable are not showing, why is that?',
-        answer: 'The tournament is waiting for at least 10 players to join, when its active it will be in active state',
+        answer: 'As soon as 10 players have joined the waitlist.',
     },
     {
         question: 'What if I want to withdraw from the tournament?',
-        answer: "You can easily withdraw when tournament didn't start yet, when its started and you have to withdraw your scores will not count",
+        answer: 'Click the withdraw button on the tournament. All your matches will be forfeited, including games you have already played.',
     },
     {
-        question: 'How do I schedule the round games?',
-        answer: 'You can schedule the round games from #round-robin-find-games, you can use either Lichess/Chess.com or OTB',
+        question: 'How do I schedule the games?',
+        answer: 'Use the players tab on the tournament to find the Chess.com, Lichess and/or Discord username of your opponent. Message them on those platforms to schedule the game.',
     },
     {
-        question: 'I just played a game, do I have to submit the game somewhere?',
-        answer: 'You can submit the game by hitting the submit game button under games tab',
-    },
-    {
-        question: 'I played a game but I do not see scores coming in why is that?',
-        answer: 'Usually scores show automatically show up, if there is error please ping @Jalp',
+        question: 'How do I submit my games?',
+        answer: 'Click the submit game button on the tournament and enter the Chess.com or Lichess URL.',
     },
     {
         question: 'What happens if I suspect someone of cheating?',
-        answer: 'Report it immediately. Cheating is taken very seriously, and players caught cheating will be banned from the server.',
-    },
-    {
-        question: 'I have other question which is not here, where should I ask?',
-        answer: 'No worries! You can ask them in #round-robin-player-chat or create a training prgram ticket',
+        answer: 'Report it immediately. Cheating is taken very seriously, and players caught cheating will be banned.',
     },
 ];
 
@@ -141,6 +124,37 @@ export const InfoPage = () => {
                 </ListItem>
             </List>
             <TimeControlTable />
+            <Divider sx={{ my: 4 }} />
+
+            <Typography variant='h6' color='text.secondary'>
+                <MonetizationOn
+                    sx={{ verticalAlign: 'middle', mr: 1 }}
+                    color='dojoOrange'
+                />
+                Entrance Fee
+            </Typography>
+
+            <List>
+                <ListItem>
+                    <ListItemIcon>
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
+                    </ListItemIcon>
+                    <ListItemText primary='The entrance fee is $2 per tournament. The fee is waived for subscribers to the training program.' />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
+                    </ListItemIcon>
+                    <ListItemText primary='You will be charged when the tournament begins. If you withdraw from the waitlist before the tournament begins, you will not be charged.' />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
+                    </ListItemIcon>
+                    <ListItemText primary='After the tournament begins, no refunds will be provided for withdrawals.' />
+                </ListItem>
+            </List>
+
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
