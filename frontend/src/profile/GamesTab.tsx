@@ -3,15 +3,13 @@ import { RequestSnackbar } from '@/api/Request';
 import { useAuth, useFreeTier } from '@/auth/Auth';
 import GameTable from '@/components/games/list/GameTable';
 import { GameInfo } from '@/database/game';
-import { RequirementCategory } from '@/database/requirement';
 import { User } from '@/database/user';
 import { ListItemContextMenu } from '@/games/list/ListItemContextMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
 import { useRouter } from '@/hooks/useRouter';
-import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
-import { Button, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import { GridPaginationModel, GridRowParams } from '@mui/x-data-grid-pro';
 import { useCallback } from 'react';
 
@@ -49,24 +47,9 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         }
     };
 
-    const onSubmit = () => {
-        router.push('/games/import');
-    };
-
     return (
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
-            {currentUser?.username === user.username && (
-                <Button
-                    variant='contained'
-                    onClick={onSubmit}
-                    color='success'
-                    startIcon={<Icon name={RequirementCategory.Games} />}
-                >
-                    Analyze a Game
-                </Button>
-            )}
-
             {isFreeTier && currentUser?.username !== user.username && (
                 <Stack alignItems='center' mb={5}>
                     <UpsellAlert>
