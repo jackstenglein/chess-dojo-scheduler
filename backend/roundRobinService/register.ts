@@ -37,7 +37,6 @@ import {
     UpdateItemBuilder,
 } from 'chess-dojo-directory-service/database';
 import Stripe from 'stripe';
-import { v4 as uuid } from 'uuid';
 import { getSecret } from './secret';
 
 export const tournamentsTable = process.env.stage + '-tournaments';
@@ -259,7 +258,7 @@ async function startTournament(
         startsAt: `ACTIVE_${startDate.toISOString()}`,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        name: generateName(startDate),
+        name: generateName(startDate, waitlist.name),
     };
     setPairings(tournament);
 
@@ -271,6 +270,7 @@ async function startTournament(
     );
 
     waitlist.players = {};
+    waitlist.name = `${parseInt(waitlist.name) + 1}`;
     await dynamo.send(
         new PutItemCommand({
             Item: marshall(waitlist, { removeUndefinedValues: true }),
@@ -319,25 +319,24 @@ async function chargeFreeUsers(tournament: RoundRobin) {
  * @param startDate The start date of the tournament.
  * @returns The generated name.
  */
-function generateName(startDate: Date) {
+function generateName(startDate: Date, number: string) {
     const month = startDate.getUTCMonth() + 1;
     const year = startDate.getUTCFullYear();
-    const id = uuid().slice(-5);
 
     if (month >= 12 || month <= 2) {
         // Dec - Feb
-        return `Winter ${year} ${id}`;
+        return `Winter ${year} #${number}`;
     }
     if (month <= 5) {
         // March - May
-        return `Spring ${year} ${id}`;
+        return `Spring ${year} #${number}`;
     }
     if (month <= 8) {
         // June - Aug
-        return `Summer ${year} ${id}`;
+        return `Summer ${year} #${number}`;
     }
     // Sept - Nov
-    return `Fall ${year} ${id}`;
+    return `Fall ${year} #${number}`;
 }
 
 /**
