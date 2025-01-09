@@ -3,11 +3,13 @@
     "main": "handler.js",
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.637.0",
+        "@aws-sdk/client-secrets-manager": "^3.723.0",
         "@aws-sdk/util-dynamodb": "^3.614.0",
         "@jackstenglein/chess": "^2.2.8",
         "@jackstenglein/chess-dojo-common": "file:../../common",
         "chess-dojo-directory-service": "file:../directoryService",
         "chess-dojo-pgn-service": "file:../pgnService",
+        "stripe": "^17.5.0",
         "uuid": "^11.0.3"
     },
     "devDependencies": {

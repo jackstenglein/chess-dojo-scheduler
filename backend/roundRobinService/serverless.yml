@@ -42,12 +42,23 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
           - dynamodb:PutItem
         Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
 
   withdraw:
     handler: withdraw.handler
@@ -79,3 +90,22 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:GetItem
         Resource: ${param:TournamentsTableArn}
+
+  webhook:
+    handler: stripeWebhook.handler
+    events:
+      - httpApi:
+          path: /tournaments/round-robin/payment/webhook
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:PutItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeRoundRobinEndpoint-*

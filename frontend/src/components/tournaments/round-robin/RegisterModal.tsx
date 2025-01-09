@@ -73,12 +73,17 @@ export function RegisterModal({
                 discordUsername,
             });
             console.log('registerForRoundRobin: ', resp);
-            request.onSuccess('Successfully registered for the tournament');
-            onUpdateTournaments({
-                waitlist: resp.data.waitlist as RoundRobin,
-                tournament: resp.data.tournament,
-            });
-            onClose();
+
+            if ('url' in resp.data) {
+                window.location.href = resp.data.url;
+            } else {
+                request.onSuccess('Successfully registered for the tournament');
+                onUpdateTournaments({
+                    waitlist: resp.data.waitlist as RoundRobin,
+                    tournament: resp.data.tournament,
+                });
+                onClose();
+            }
         } catch (err) {
             console.error('registerForRoundRobin: ', err);
             request.onFailure(err);

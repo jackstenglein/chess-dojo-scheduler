@@ -63,8 +63,12 @@ async function fetchTournaments(request: RoundRobinListRequest) {
     }
 
     const output = await dynamo.send(new QueryCommand(input));
+    const tournaments = output.Items?.map((item) => unmarshall(item)) || [];
+    tournaments.forEach((t) =>
+        Object.keys(t.players).forEach((p) => (t.players[p].checkoutSession = undefined))
+    );
     return {
-        tournaments: output.Items?.map((item) => unmarshall(item)) || [],
+        tournaments,
         lastEvaluatedKey: output.LastEvaluatedKey,
     };
 }

@@ -24,6 +24,7 @@ var monthlyPriceId = os.Getenv("monthlyPriceId")
 var yearlyPriceId = os.Getenv("yearlyPriceId")
 var quickGameReviewPriceId = os.Getenv("quickGameReviewPriceId")
 var deepGameReviewPriceId = os.Getenv("deepGameReviewPriceId")
+var roundRobinPriceId = os.Getenv("roundRobinPriceId")
 
 type CheckoutSessionType string
 
@@ -32,6 +33,7 @@ const (
 	CheckoutSessionType_Subscription CheckoutSessionType = "SUBSCRIPTION"
 	CheckoutSessionType_Coaching     CheckoutSessionType = "COACHING"
 	CheckoutSessionType_GameReview   CheckoutSessionType = "GAME_REVIEW"
+	CheckoutSessionType_RoundRobin   CheckoutSessionType = "ROUND_ROBIN"
 )
 
 func init() {
@@ -273,6 +275,36 @@ func GameReviewCheckoutSession(user *database.User, cohort, id string, reviewTyp
 			"cohort":     cohort,
 			"id":         id,
 			"username":   user.Username,
+		},
+	}
+
+	if user.PaymentInfo.GetCustomerId() != "" {
+		params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
+	}
+
+	checkoutSession, err := session.New(params)
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to create checkout session", err)
+	}
+	return checkoutSession, nil
+}
+
+// Creates a checkout session for a free-tier user to enter a round robin tournament.
+func RoundRobinCheckoutSession(user *database.User, cohort string) (*stripe.CheckoutSession, error) {
+	params := &stripe.CheckoutSessionParams{
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				Price:    stripe.String(roundRobinPriceId),
+				Quantity: stripe.Int64(1),
+			},
+		},
+		ClientReferenceID: stripe.String(user.Username),
+		SuccessURL:        stripe.String(fmt.Sprintf("%s/tournaments/round-robin?cohort=%s", frontendHost, cohort)),
+		CancelURL:         stripe.String(fmt.Sprintf("%s/tournaments/round-robin?cohort=%s", frontendHost, cohort)),
+		Metadata: map[string]string{
+			"type":     string(CheckoutSessionType_RoundRobin),
+			"cohort":   cohort,
+			"username": user.Username,
 		},
 	}
 

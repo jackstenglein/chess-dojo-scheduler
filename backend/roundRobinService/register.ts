@@ -2,9 +2,14 @@
 
 import {
     ConditionalCheckFailedException,
+    GetItemCommand,
     PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import {
+    SubscriptionStatus,
+    User,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     MAX_ROUND_ROBIN_PLAYERS,
     RoundRobin,
@@ -31,10 +36,16 @@ import {
     sizeLessThan,
     UpdateItemBuilder,
 } from 'chess-dojo-directory-service/database';
+import Stripe from 'stripe';
 import { v4 as uuid } from 'uuid';
+import { getSecret } from './secret';
 
 export const tournamentsTable = process.env.stage + '-tournaments';
+const usersTable = process.env.stage + '-users';
 const MAX_ATTEMPTS = 3;
+const FRONTEND_HOST = process.env.frontendHost;
+
+let stripe: Stripe | undefined = undefined;
 
 /**
  * Handles a request to register for the round robin. If the round robin
@@ -49,6 +60,13 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: ', event);
         const request = parseEvent(event, RoundRobinRegisterSchema);
         const { username } = requireUserInfo(event);
+        const user = await fetchUser(username);
+
+        if (user.subscriptionStatus !== SubscriptionStatus.Subscribed) {
+            const url = await getCheckoutUrl({ user, request });
+            return success({ url });
+        }
+
         const tournaments = await register({ username, request });
         return success(tournaments);
     } catch (err) {
@@ -57,17 +75,105 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 };
 
 /**
+ * Fetches the user with the given username.
+ * @param username The username to fetch.
+ * @returns The user with the given username.
+ */
+async function fetchUser(username: string): Promise<User> {
+    const result = await dynamo.send(
+        new GetItemCommand({
+            Key: {
+                username: { S: username },
+            },
+            TableName: usersTable,
+        })
+    );
+    if (!result.Item) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Invalid request: user ${username} does not exist`,
+        });
+    }
+    return unmarshall(result.Item) as User;
+}
+
+/**
+ * Creates and returns a Stripe checkout URL in setup mode.
+ * @param user The user being redirected to Stripe.
+ * @param request The round robin register request.
+ * @returns The Stripe checkout URL.
+ */
+async function getCheckoutUrl({
+    user,
+    request,
+}: {
+    user: User;
+    request: RoundRobinRegisterRequest;
+}): Promise<string> {
+    if (!stripe) {
+        stripe = new Stripe(
+            (await getSecret(`chess-dojo-${process.env.stage}-stripeKey`)) || ''
+        );
+    }
+
+    const session = await stripe.checkout.sessions.create({
+        client_reference_id: user.username,
+        customer: user.paymentInfo?.customerId,
+        customer_creation: user.paymentInfo?.customerId ? undefined : 'always',
+        mode: 'setup',
+        payment_method_types: [
+            'card',
+            'cashapp',
+            'link',
+            'bancontact',
+            'ideal',
+            'sepa_debit',
+        ],
+        custom_text: {
+            after_submit: {
+                message:
+                    'ChessDojo will charge you $2 once the Round Robin tournament begins. Withdraw before the tournament starts for free. After the tournament starts, no refunds will be provided.',
+            },
+        },
+        success_url: `${FRONTEND_HOST}/tournaments/round-robin?cohort=${request.cohort}`,
+        cancel_url: `${FRONTEND_HOST}/tournaments/round-robin?cohort=${request.cohort}`,
+        metadata: {
+            type: 'ROUND_ROBIN',
+            username: user.username,
+            displayName: request.displayName,
+            lichessUsername: request.lichessUsername,
+            chesscomUsername: request.chesscomUsername,
+            discordUsername: request.discordUsername || '',
+            cohort: request.cohort,
+        },
+    });
+    console.log('Session: %j', session);
+
+    if (!session.url) {
+        throw new ApiError({
+            statusCode: 500,
+            publicMessage: 'Temporary server error',
+            privateMessage: `Stripe checkout session does not have URL: ${session}`,
+        });
+    }
+    return session.url;
+}
+
+/**
  * Registers the given user for the given round robin.
  * @param username The username of the person registering.
  * @param request The round robin registration request.
+ * @param checkoutSession The Stripe checkout session for users who paid to enter.
  * @returns An array of the updated tournament and waitlist.
  */
-async function register({
+export async function register({
     username,
     request,
+    checkoutSession,
 }: {
     username: string;
     request: RoundRobinRegisterRequest;
+    checkoutSession?: Stripe.Checkout.Session;
 }): Promise<{ waitlist: RoundRobinWaitlist; tournament?: RoundRobin }> {
     const player: RoundRobinPlayer = {
         username,
@@ -76,6 +182,7 @@ async function register({
         chesscomUsername: request.chesscomUsername,
         discordUsername: request.discordUsername,
         status: RoundRobinPlayerStatuses.ACTIVE,
+        checkoutSession,
     };
 
     let attempts = 0;
