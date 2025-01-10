@@ -620,7 +620,7 @@ If the number of chosen tasks >= 3, stop. Else go to step 3.
 export function suggestedAlgo(reqs: Requirement[], user: User, currentTaskCount: number) {
     // hashmap for category, %
     const categoryPercent: Map<RequirementCategory, number> = new Map();
-    const reqPercent: Map<Requirement, number> = new Map();
+
     const topDownOrder: RequirementCategory[] = [];
     let actualTasks: Requirement[] = [];
 
@@ -680,6 +680,7 @@ export function suggestedAlgo(reqs: Requirement[], user: User, currentTaskCount:
 
     // For each entry in entries of category
     for (const [neededCategory] of neededCategoriesPercents.entries()) {
+        const reqPercent: Map<Requirement, number> = new Map();
         const matched = Object.values(user.progress)
             .map((progress) => requirementsById[progress.requirementId])
             .filter(
@@ -689,50 +690,48 @@ export function suggestedAlgo(reqs: Requirement[], user: User, currentTaskCount:
                     r.category == neededCategory,
             );
 
-        matchingReqs.push(...matched);
-
         console.log(`Matching Requirements for ${neededCategory}:`, matched);
-    }
 
-    console.log('All Matching Requirements:', matchingReqs);
+        console.log('All Matching Requirements:', matched);
 
-    // For each task in entry
-    for (const neededcurr of matchingReqs) {
-        const remainingPoints = getRemainingReqPoints(
-            user.dojoCohort,
-            neededcurr,
-            user.progress[neededcurr.id],
+        // For each task in entry
+        for (const neededcurr of matched) {
+            const remainingPoints = getRemainingReqPoints(
+                user.dojoCohort,
+                neededcurr,
+                user.progress[neededcurr.id],
+            );
+            reqPercent.set(neededcurr, remainingPoints);
+            console.log(`Remaining Points for ${neededcurr.id}:`, remainingPoints);
+        }
+
+        console.log('Req Percent Map before sorting:', Array.from(reqPercent.entries()));
+
+        // Sort the hashmap by value and priority
+        const sortedReqPercent = Array.from(reqPercent.entries()).sort(
+            ([reqstart, valueA], [reqend, valueB]) => {
+                if (valueA !== valueB) {
+                    // Sort by value (descending)
+                    return valueB - valueA;
+                } else {
+                    // Sort by priority order
+                    return compareRequirements(reqstart, reqend);
+                }
+            },
         );
-        reqPercent.set(neededcurr, remainingPoints);
-        console.log(`Remaining Points for ${neededcurr.id}:`, remainingPoints);
-    }
 
-    console.log('Req Percent Map before sorting:', Array.from(reqPercent.entries()));
+        console.log('Sorted Req Percent:', sortedReqPercent);
 
-    // Sort the hashmap by value and priority
-    const sortedReqPercent = Array.from(reqPercent.entries()).sort(
-        ([reqstart, valueA], [reqend, valueB]) => {
-            if (valueA !== valueB) {
-                // Sort by value (descending)
-                return valueB - valueA;
-            } else {
-                // Sort by priority order
-                return compareRequirements(reqstart, reqend);
-            }
-        },
-    );
+        // Slice by currentTaskCount
+        const suggestedTask: Map<Requirement, number> = new Map(
+            sortedReqPercent.slice(0, 1),
+        );
 
-    console.log('Sorted Req Percent:', sortedReqPercent);
+        console.log('Suggested Tasks Map:', Array.from(suggestedTask.entries()));
 
-    // Slice by currentTaskCount
-    const suggestedTask: Map<Requirement, number> = new Map(
-        sortedReqPercent.slice(0, currentTaskCount),
-    );
-
-    console.log('Suggested Tasks Map:', Array.from(suggestedTask.entries()));
-
-    for (const [atask] of suggestedTask.entries()) {
-        actualTasks.push(atask);
+        for (const [atask] of suggestedTask.entries()) {
+            actualTasks.push(atask);
+        }
     }
 
     console.log('Final Suggested Tasks:', actualTasks);
