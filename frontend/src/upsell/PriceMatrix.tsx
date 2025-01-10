@@ -2,6 +2,33 @@ import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
 import { Request } from '../api/Request';
 import SellingPoint, { SellingPointStatus } from './SellingPoint';
+import { getCurrency } from './locales';
+
+const priceDataByCurrency: Record<
+    string,
+    { symbol: string; monthly: number; yearly: number }
+> = {
+    USD: {
+        symbol: '$',
+        monthly: 15,
+        yearly: 120,
+    },
+    EUR: {
+        symbol: '€',
+        monthly: 15,
+        yearly: 120,
+    },
+    GBP: {
+        symbol: '£',
+        monthly: 15,
+        yearly: 120,
+    },
+    INR: {
+        symbol: '₹',
+        monthly: 650,
+        yearly: 5200,
+    },
+};
 
 interface PriceMatrixProps {
     onSubscribe?: (interval: 'month' | 'year') => void;
@@ -21,6 +48,12 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
     subscribeLink,
     freeTierLink,
 }) => {
+    const lang = navigator.languages[0];
+    console.log(navigator.languages);
+    const currency = getCurrency(lang);
+    console.log('Currency: ', currency);
+    const priceData = priceDataByCurrency[currency || 'USD'] || priceDataByCurrency.USD;
+
     return (
         <>
             {(onFreeTier || freeTierLink) && (
@@ -43,7 +76,9 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                         Free Tier
                                     </Typography>
 
-                                    <Typography variant='h6'>$0</Typography>
+                                    <Typography variant='h6'>
+                                        {priceData.symbol}0
+                                    </Typography>
                                 </Stack>
 
                                 <Stack spacing={1} flexGrow={1}>
@@ -103,7 +138,10 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                     Training Program
                                 </Typography>
 
-                                <Typography variant='h6'>$15 / month</Typography>
+                                <Typography variant='h6'>
+                                    {priceData.symbol}
+                                    {priceData.monthly} / month
+                                </Typography>
                             </Stack>
 
                             <Stack spacing={1} flexGrow={1}>
@@ -161,7 +199,10 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                     Training Program - Yearly
                                 </Typography>
 
-                                <Typography variant='h6'>$120 / year</Typography>
+                                <Typography variant='h6'>
+                                    {priceData.symbol}
+                                    {priceData.yearly} / year
+                                </Typography>
                             </Stack>
 
                             <Stack spacing={1} flexGrow={1}>
@@ -170,7 +211,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                     status={SellingPointStatus.Included}
                                 />
                                 <SellingPoint
-                                    description='Saves $60 / year compared to monthly membership'
+                                    description={`Saves ${priceData.symbol}${priceData.monthly * 12 - priceData.yearly} / year compared to monthly membership`}
                                     status={SellingPointStatus.Included}
                                 />
                             </Stack>
