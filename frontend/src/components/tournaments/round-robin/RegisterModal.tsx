@@ -99,8 +99,8 @@ export function RegisterModal({
                 <DialogContent>
                     {isFreeTier && (
                         <DialogContentText sx={{ mb: 2 }}>
-                            You will be charged $2 once the tournament starts. After the
-                            tournament starts, no refunds will be provided for
+                            You will only be charged $2 once the tournament starts. After
+                            the tournament starts, no refunds will be provided for
                             withdrawals.
                         </DialogContentText>
                     )}
