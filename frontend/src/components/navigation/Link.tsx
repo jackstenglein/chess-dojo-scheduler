@@ -4,6 +4,7 @@ import { pagesWithVideos } from '@/hooks/useRouter';
 import { LinkProps, Link as MuiLink } from '@mui/material';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
+import { forwardRef } from 'react';
 
 /**
  * Renders a MUI link to another page. If the link is relative and to a page
@@ -11,7 +12,7 @@ import { usePathname } from 'next/navigation';
  * Link component for client-side routing. Otherwise, it uses an a tag.
  * @param props The props passed to the MUI Link component.
  */
-export function Link(props: LinkProps) {
+export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
     const pathname = usePathname();
 
     let useNextLink = true;
@@ -35,5 +36,6 @@ export function Link(props: LinkProps) {
     }
 
     const component = props.component || (useNextLink ? NextLink : 'a');
-    return <MuiLink {...props} component={component} />;
-}
+    return <MuiLink ref={ref} {...props} component={component} />;
+});
+Link.displayName = 'Link';
