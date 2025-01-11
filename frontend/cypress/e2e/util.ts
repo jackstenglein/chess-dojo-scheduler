@@ -6,9 +6,9 @@ export const tournamentsClock = new Date('2023-09-13T05:00:00.000Z');
  * @returns The most recent Sunday before the given date.
  */
 function getSunday(d: Date): Date {
-    const day = d.getDay();
-    const diff = d.getDate() - day;
-    return new Date(d.setDate(diff));
+    const day = d.getUTCDay();
+    const diff = d.getUTCDate() - day;
+    return new Date(d.setUTCDate(diff));
 }
 
 /**
@@ -19,7 +19,7 @@ function getSunday(d: Date): Date {
  */
 function addDays(d: Date, count: number): Date {
     const result = new Date(d);
-    result.setDate(d.getDate() + count);
+    result.setUTCDate(d.getUTCDate() + count);
     return result;
 }
 
