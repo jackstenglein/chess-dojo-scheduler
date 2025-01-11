@@ -2,11 +2,11 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { useAuth } from '@/auth/Auth';
+import { useAuth, useFreeTier } from '@/auth/Auth';
 import { Course } from '@/database/course';
-import { SubscriptionStatus } from '@/database/user';
+import { getCohortRange } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import { Container, Grid2 } from '@mui/material';
+import { Container, Grid2, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { getCheckoutSessionId } from '../localStorage';
 import { CourseFilterEditor, useCourseFilters } from './CourseFilters';
@@ -17,6 +17,7 @@ const ListCoursesPage = () => {
     const request = useRequest<Course[]>();
     const api = useApi();
     const { user } = useAuth();
+    const isFreeTier = useFreeTier();
 
     useEffect(() => {
         if (!request.isSent()) {
@@ -32,7 +33,35 @@ const ListCoursesPage = () => {
         }
     }, [request, api]);
 
-    const noItems = !request.data?.length;
+    const courses =
+        request.data?.filter((course) => {
+            const isPurchased = user?.purchasedCourses
+                ? user.purchasedCourses[course.id]
+                : getCheckoutSessionId(course.id) !== '';
+
+            const isAccessible =
+                isPurchased || (course.includedWithSubscription && !isFreeTier);
+
+            if (!courseFilters.categories[course.type]) {
+                return false;
+            }
+
+            if (courseFilters.showAccessible && !isAccessible) {
+                return false;
+            }
+
+            const cohortRange = getCohortRange(
+                courseFilters.minCohort,
+                courseFilters.maxCohort,
+            );
+            if (cohortRange.every((c) => !course.cohorts.includes(c))) {
+                return false;
+            }
+
+            return true;
+        }) ?? [];
+
+    const noItems = !courses.length;
 
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
@@ -55,7 +84,7 @@ const ListCoursesPage = () => {
                         md: 10,
                     }}
                 >
-                    {request.data?.map((course) => (
+                    {courses.map((course) => (
                         <Grid2
                             key={course.id}
                             size={{
@@ -67,10 +96,7 @@ const ListCoursesPage = () => {
                             <CourseListItem
                                 key={course.id}
                                 course={course}
-                                isFreeTier={
-                                    user?.subscriptionStatus !==
-                                    SubscriptionStatus.Subscribed
-                                }
+                                isFreeTier={isFreeTier}
                                 isPurchased={
                                     user?.purchasedCourses
                                         ? user.purchasedCourses[course.id]
@@ -81,7 +107,12 @@ const ListCoursesPage = () => {
                         </Grid2>
                     ))}
 
-                    {noItems && request.isLoading() && <LoadingPage />}
+                    {noItems && (request.isLoading() || !request.isSent()) && (
+                        <LoadingPage />
+                    )}
+                    {noItems && !request.isLoading() && request.isSent() && (
+                        <Typography>No courses found</Typography>
+                    )}
                 </Grid2>
             </Grid2>
         </Container>
