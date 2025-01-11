@@ -6,7 +6,7 @@ import { useAuth, useFreeTier } from '@/auth/Auth';
 import { Course } from '@/database/course';
 import { getCohortRange } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import { Container, Grid2, Typography } from '@mui/material';
+import { Container, Grid2, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { getCheckoutSessionId } from '../localStorage';
 import { CourseFilterEditor, useCourseFilters } from './CourseFilters';
@@ -108,7 +108,9 @@ const ListCoursesPage = () => {
                     ))}
 
                     {noItems && (request.isLoading() || !request.isSent()) && (
-                        <LoadingPage />
+                        <Stack justifyContent='center' alignItems='center' width={1}>
+                            <LoadingPage />
+                        </Stack>
                     )}
                     {noItems && !request.isLoading() && request.isSent() && (
                         <Typography>No courses found</Typography>
