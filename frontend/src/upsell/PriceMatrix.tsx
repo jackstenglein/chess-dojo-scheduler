@@ -1,5 +1,8 @@
+'use client';
+
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { Request } from '../api/Request';
 import SellingPoint, { SellingPointStatus } from './SellingPoint';
 import { getCurrency } from './locales';
@@ -48,10 +51,12 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
     subscribeLink,
     freeTierLink,
 }) => {
-    const lang = navigator.languages[0];
-    console.log(navigator.languages);
-    const currency = getCurrency(lang);
-    console.log('Currency: ', currency);
+    const [currency, setCurrency] = useState('USD');
+    useEffect(() => {
+        const lang = navigator.languages[0];
+        setCurrency(getCurrency(lang));
+    }, [setCurrency]);
+
     const priceData = priceDataByCurrency[currency || 'USD'] || priceDataByCurrency.USD;
 
     return (
