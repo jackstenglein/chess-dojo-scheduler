@@ -26,7 +26,7 @@ const isGameSubmissionEntry = (entry: TimelineEntry) =>
 const isAnnotationEntry = (entry: TimelineEntry) =>
     isGameAnalysisEntry(entry) && isGameSubmissionEntry(entry);
 
-const AllCategoriesFilterName = 'All Categories';
+export const AllCategoriesFilterName = 'All Categories';
 
 const CategoryFilters: FilterMap = [
     RequirementCategory.Tactics,
@@ -42,14 +42,14 @@ const CategoryFilters: FilterMap = [
     {},
 );
 
-const Filters: FilterMap = {
+export const Filters: FilterMap = {
     [AllCategoriesFilterName]: () => true,
     Annotations: isAnnotationEntry,
     [RequirementCategory.Games]: (entry) =>
         isGameAnalysisEntry(entry) && !isAnnotationEntry(entry),
     ...CategoryFilters,
 };
-const FilterOptions = Object.keys(Filters).map((opt) => {
+export const FilterOptions = Object.keys(Filters).map((opt) => {
     return {
         value: opt,
         label: opt,
