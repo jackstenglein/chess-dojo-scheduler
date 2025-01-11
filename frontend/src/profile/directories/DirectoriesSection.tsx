@@ -27,7 +27,7 @@ import {
     GridToolbarDensitySelector,
     GridToolbarFilterButton,
 } from '@mui/x-data-grid-pro';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { AddButton } from './AddButton';
 import { BulkItemEditor } from './BulkItemEditor';
@@ -135,7 +135,10 @@ export const DirectoriesSection = ({
         return <NotFoundPage />;
     }
 
-    const onClickRow = (params: GridRowParams<DirectoryItem>) => {
+    const onClickRow = (
+        params: GridRowParams<DirectoryItem>,
+        event: React.MouseEvent,
+    ) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
             updateSearchParams({
                 directory: params.row.id,
@@ -145,12 +148,15 @@ export const DirectoriesSection = ({
                         : directory.owner,
             });
         } else {
-            router.push(
-                `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
-                    '?',
-                    '%3F',
-                )}?directory=${directory.id}&directoryOwner=${directory.owner}`,
-            );
+            const url = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
+                '?',
+                '%3F',
+            )}?directory=${directory.id}&directoryOwner=${directory.owner}`;
+            if (event.shiftKey) {
+                window.open(url, '_blank');
+            } else {
+                router.push(url);
+            }
         }
     };
 
