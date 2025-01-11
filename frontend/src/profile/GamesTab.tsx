@@ -34,13 +34,17 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const pagination = usePagination(searchByOwner, 0, 10);
     const { request, data, pageSize, setPageSize } = pagination;
 
-    const onClickRow = (params: GridRowParams<GameInfo>) => {
-        router.push(
-            `/games/${params.row.cohort.replaceAll(
-                '+',
-                '%2B',
-            )}/${params.row.id.replaceAll('?', '%3F')}`,
-        );
+    const onClickRow = (params: GridRowParams<GameInfo>, event: React.MouseEvent) => {
+        const url = `/games/${params.row.cohort.replaceAll(
+            '+',
+            '%2B',
+        )}/${params.row.id.replaceAll('?', '%3F')}`;
+
+        if (event.shiftKey) {
+            window.open(url, '_blank');
+        } else {
+            router.push(url);
+        }
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {

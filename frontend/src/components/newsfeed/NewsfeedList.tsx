@@ -23,9 +23,6 @@ const isGameAnalysisEntry = (entry: TimelineEntry) =>
 const isGameSubmissionEntry = (entry: TimelineEntry) =>
     entry.requirementId === TimelineSpecialRequirementId.GameSubmission;
 
-const isAnnotationEntry = (entry: TimelineEntry) =>
-    isGameAnalysisEntry(entry) && isGameSubmissionEntry(entry);
-
 export const AllCategoriesFilterName = 'All Categories';
 
 const CategoryFilters: FilterMap = [
@@ -44,9 +41,9 @@ const CategoryFilters: FilterMap = [
 
 export const Filters: FilterMap = {
     [AllCategoriesFilterName]: () => true,
-    Annotations: isAnnotationEntry,
+    Annotations: isGameSubmissionEntry,
     [RequirementCategory.Games]: (entry) =>
-        isGameAnalysisEntry(entry) && !isAnnotationEntry(entry),
+        isGameAnalysisEntry(entry) && !isGameSubmissionEntry(entry),
     ...CategoryFilters,
 };
 export const FilterOptions = Object.keys(Filters).map((opt) => {
