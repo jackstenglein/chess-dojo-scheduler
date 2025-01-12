@@ -145,6 +145,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     <IconButton
                         aria-label={`Update ${requirement.name}`}
                         onClick={() => setShowUpdateDialog(true)}
+                        data-cy='update-task-button'
                     >
                         <AddCircle color='primary' />
                     </IconButton>

@@ -139,6 +139,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
 
                 {!isTimeOnly && (
                     <TextField
+                        data-cy='task-history-count'
                         label='Count'
                         value={count}
                         onChange={(event) => onChangeCount(event.target.value)}
@@ -151,9 +152,11 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                 <TextField
                     label='Hours'
                     value={hours}
-                    inputProps={{
-                        inputMode: 'numeric',
-                        pattern: '[0-9]*',
+                    slotProps={{
+                        htmlInput: {
+                            inputMode: 'numeric',
+                            pattern: '[0-9]*',
+                        },
                     }}
                     onChange={(event) => onChangeHours(event.target.value)}
                     sx={{ maxWidth: '100px' }}
@@ -164,9 +167,11 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                 <TextField
                     label='Minutes'
                     value={minutes}
-                    inputProps={{
-                        inputMode: 'numeric',
-                        pattern: '[0-9]*',
+                    slotProps={{
+                        htmlInput: {
+                            inputMode: 'numeric',
+                            pattern: '[0-9]*',
+                        },
                     }}
                     onChange={(event) => onChangeMinutes(event.target.value)}
                     sx={{ maxWidth: '100px' }}
@@ -174,7 +179,11 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                     helperText={error.minutes}
                 />
 
-                <IconButton aria-label='delete' onClick={deleteItem}>
+                <IconButton
+                    data-cy='task-history-delete-button'
+                    aria-label='delete'
+                    onClick={deleteItem}
+                >
                     <DeleteIcon />
                 </IconButton>
             </Stack>
@@ -437,7 +446,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                     <Stack spacing={3} mt={1} width={1}>
                         {items.map((item, idx) => (
                             <ProgressHistoryItem
-                                key={idx}
+                                key={item.entry.id}
                                 {...item}
                                 error={errors[idx] || {}}
                                 updateItem={getUpdateItem(idx)}
@@ -468,7 +477,11 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                         Hide History
                     </Button>
                 )}
-                <LoadingButton loading={request.isLoading()} onClick={onSubmit}>
+                <LoadingButton
+                    data-cy='task-updater-save-button'
+                    loading={request.isLoading()}
+                    onClick={onSubmit}
+                >
                     Save
                 </LoadingButton>
             </DialogActions>

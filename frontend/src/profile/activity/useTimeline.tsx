@@ -74,8 +74,9 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({
     }, [reset]);
 
     const resetRequest = useCallback(() => {
-        reset();
         setStartKey(undefined);
+        setEntries([]);
+        reset();
     }, [reset, setStartKey]);
 
     const onEdit = useCallback(

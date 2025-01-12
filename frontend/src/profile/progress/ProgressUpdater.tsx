@@ -281,11 +281,19 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     Cancel
                 </Button>
                 {toggleView && (
-                    <Button onClick={toggleView} disabled={request.isLoading()}>
+                    <Button
+                        data-cy='task-updater-show-history-button'
+                        onClick={toggleView}
+                        disabled={request.isLoading()}
+                    >
                         Show History
                     </Button>
                 )}
-                <LoadingButton loading={request.isLoading()} onClick={onSubmit}>
+                <LoadingButton
+                    data-cy='task-updater-save-button'
+                    loading={request.isLoading()}
+                    onClick={onSubmit}
+                >
                     Update
                 </LoadingButton>
             </DialogActions>
