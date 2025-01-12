@@ -383,12 +383,16 @@ export function getRemainingReqPoints(
     requirement: Requirement,
     progress?: RequirementProgress,
 ): number {
+    const total = getTotalCount(cohort, requirement);
+    const score = getCurrentCount(cohort, requirement, progress);
+    console.log('TOTAL_REQ', total);
+    console.log('CURRENT_SCORE_REQ', score);
+    console.log('DIVIDED_REQ', ((total - score) / (total)) * 100);
     if (requirement.atomic) {
-        return getTotalCount(cohort, requirement);
+        return 100;
     }
     return (
-        getTotalCount(cohort, requirement) -
-        getCurrentCount(cohort, requirement, progress)
+        ((total - score) / (total)) * 100
     );
 }
 
@@ -549,9 +553,13 @@ export function getRemainingCategoryScore(
     category: string,
     requirements: Requirement[],
 ): number {
+    const total = getTotalCategoryScore(cohort, category, requirements);
+    const score = getCategoryScore(user, cohort, category, requirements);
+    console.log('TOTAL', total)
+    console.log('CATEGORY_SCORE', score)
+    console.log('DIVIDED', (total - score)/total)
     return (
-        getTotalCategoryScore(cohort, category, requirements) -
-        getCategoryScore(user, cohort, category, requirements)
+        ( (total - score)/total) * 100 
     );
 }
 
