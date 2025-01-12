@@ -1,14 +1,13 @@
-import { Dialog, DialogContent, DialogTitle, MenuItem, TextField } from '@mui/material';
-import { useState } from 'react';
-
-import { useAuth } from '../../auth/Auth';
+import { useAuth } from '@/auth/Auth';
 import {
     CustomTask,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
-} from '../../database/requirement';
-import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../../database/user';
+} from '@/database/requirement';
+import { ALL_COHORTS, compareCohorts, dojoCohorts } from '@/database/user';
+import { Dialog, DialogContent, DialogTitle, MenuItem, TextField } from '@mui/material';
+import { useState } from 'react';
 import ProgressHistory from './ProgressHistory';
 import ProgressUpdater from './ProgressUpdater';
 
@@ -68,7 +67,7 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
     }
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth='md'>
+        <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth>
             <DialogTitle>{dialogTitle}</DialogTitle>
 
             {(selectCohort || view === ProgressDialogView.History) && (

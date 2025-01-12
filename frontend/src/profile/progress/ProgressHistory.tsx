@@ -1,14 +1,17 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 import {
+    Box,
     Button,
     DialogActions,
     DialogContent,
     DialogContentText,
     Divider,
+    Grid2,
     IconButton,
     Stack,
     TextField,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
@@ -21,11 +24,13 @@ import { RequestSnackbar, useRequest } from '../../api/Request';
 import {
     CustomTask,
     Requirement,
+    RequirementProgress,
     ScoreboardDisplay,
+    getCurrentScore,
     isRequirement,
 } from '../../database/requirement';
 import { TimelineEntry } from '../../database/timeline';
-import { User } from '../../database/user';
+import { ALL_COHORTS, User } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import { useTimelineContext } from '../activity/useTimeline';
 
@@ -36,6 +41,7 @@ interface HistoryItem {
     count: string;
     hours: string;
     minutes: string;
+    notes: string;
     entry: TimelineEntry;
     index: number;
     deleted: boolean;
@@ -52,6 +58,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
     count,
     hours,
     minutes,
+    notes,
     entry,
     index,
     deleted,
@@ -67,128 +74,126 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
         entry.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
         entry.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
-    const onChangeDate = (value: DateTime | null) => {
-        updateItem({
-            date: value,
-            count,
-            hours,
-            minutes,
-            entry,
-            index,
-            deleted,
-        });
-    };
-
-    const onChangeCount = (value: string) => {
-        updateItem({
-            date,
-            count: value,
-            hours,
-            minutes,
-            entry,
-            index,
-            deleted,
-        });
-    };
-
-    const onChangeHours = (value: string) => {
-        updateItem({
-            date,
-            count,
-            hours: value,
-            minutes,
-            entry,
-            index,
-            deleted,
-        });
-    };
-
-    const onChangeMinutes = (value: string) => {
-        updateItem({
+    const onChange = (
+        key: 'date' | 'count' | 'hours' | 'minutes' | 'notes',
+        value: string | DateTime | null,
+    ) => {
+        const newItem = {
             date,
             count,
             hours,
-            minutes: value,
+            minutes,
+            notes,
             entry,
             index,
             deleted,
-        });
+            [key]: value,
+        };
+        updateItem(newItem);
     };
 
     return (
-        <>
+        <Box>
             <Stack
                 direction='row'
-                spacing={{ xs: 0, sm: 1 }}
+                spacing={{ sm: 1 }}
                 width={1}
                 alignItems='center'
                 flexWrap={{ xs: 'wrap', sm: 'nowrap' }}
                 rowGap={2}
             >
-                <DatePicker
-                    label='Date'
-                    value={date}
-                    onChange={onChangeDate}
-                    slotProps={{
-                        textField: {
-                            error: !!error.date,
-                            helperText: error.date,
-                        },
-                    }}
-                />
+                <Grid2 container columnGap={2} rowGap={3} alignItems='center'>
+                    <Grid2 size={{ xs: 12, sm: 'grow' }} sx={{ minWidth: '145px' }}>
+                        <DatePicker
+                            label='Date'
+                            value={date}
+                            onChange={(v) => onChange('date', v)}
+                            slotProps={{
+                                textField: {
+                                    error: !!error.date,
+                                    helperText: error.date,
+                                    fullWidth: true,
+                                },
+                            }}
+                        />
+                    </Grid2>
 
-                {!isTimeOnly && (
-                    <TextField
-                        data-cy='task-history-count'
-                        label='Count'
-                        value={count}
-                        onChange={(event) => onChangeCount(event.target.value)}
-                        sx={{ maxWidth: '100px' }}
-                        error={!!error.count}
-                        helperText={error.count}
-                    />
-                )}
+                    {!isTimeOnly && (
+                        <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                            <TextField
+                                data-cy='task-history-count'
+                                label='Count'
+                                value={count}
+                                onChange={(event) =>
+                                    onChange('count', event.target.value)
+                                }
+                                fullWidth
+                                error={!!error.count}
+                                helperText={error.count}
+                            />
+                        </Grid2>
+                    )}
 
-                <TextField
-                    label='Hours'
-                    value={hours}
-                    slotProps={{
-                        htmlInput: {
-                            inputMode: 'numeric',
-                            pattern: '[0-9]*',
-                        },
-                    }}
-                    onChange={(event) => onChangeHours(event.target.value)}
-                    sx={{ maxWidth: '100px' }}
-                    error={!!error.hours}
-                    helperText={error.hours}
-                />
+                    <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                        <TextField
+                            label='Hours'
+                            value={hours}
+                            slotProps={{
+                                htmlInput: {
+                                    inputMode: 'numeric',
+                                    pattern: '[0-9]*',
+                                },
+                            }}
+                            onChange={(event) => onChange('hours', event.target.value)}
+                            fullWidth
+                            error={!!error.hours}
+                            helperText={error.hours}
+                        />
+                    </Grid2>
 
-                <TextField
-                    label='Minutes'
-                    value={minutes}
-                    slotProps={{
-                        htmlInput: {
-                            inputMode: 'numeric',
-                            pattern: '[0-9]*',
-                        },
-                    }}
-                    onChange={(event) => onChangeMinutes(event.target.value)}
-                    sx={{ maxWidth: '100px' }}
-                    error={!!error.minutes}
-                    helperText={error.minutes}
-                />
+                    <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                        <TextField
+                            label='Minutes'
+                            value={minutes}
+                            slotProps={{
+                                htmlInput: {
+                                    inputMode: 'numeric',
+                                    pattern: '[0-9]*',
+                                },
+                            }}
+                            onChange={(event) => onChange('minutes', event.target.value)}
+                            fullWidth
+                            error={!!error.minutes}
+                            helperText={error.minutes}
+                        />
+                    </Grid2>
 
-                <IconButton
-                    data-cy='task-history-delete-button'
-                    aria-label='delete'
-                    onClick={deleteItem}
-                >
-                    <DeleteIcon />
-                </IconButton>
+                    <Grid2 size={12}>
+                        <TextField
+                            label='Comments'
+                            placeholder='Optional comments about your progress or the task itself. Visible to others on the newsfeed.'
+                            multiline={true}
+                            maxRows={3}
+                            value={notes}
+                            onChange={(e) => onChange('notes', e.target.value)}
+                            fullWidth
+                        />
+                    </Grid2>
+                </Grid2>
+
+                <Tooltip title='Delete entry'>
+                    <IconButton
+                        data-cy='task-history-delete-button'
+                        aria-label='delete'
+                        onClick={deleteItem}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                </Tooltip>
             </Stack>
-            <Divider sx={{ display: { xs: 'inherit', sm: 'none' } }} />
-        </>
+
+            <Divider sx={{ mt: 3, mb: 1 }} />
+        </Box>
     );
 };
 
@@ -199,7 +204,11 @@ interface HistoryItemError {
     minutes?: string;
 }
 
-function getTimelineUpdate(items: HistoryItem[]): {
+function getTimelineUpdate(
+    cohort: string,
+    requirement: Requirement | CustomTask,
+    items: HistoryItem[],
+): {
     updated: TimelineEntry[];
     deleted: TimelineEntry[];
     errors: Record<number, HistoryItemError>;
@@ -263,6 +272,7 @@ function getTimelineUpdate(items: HistoryItem[]): {
 
         const minutesSpent =
             60 * parseInt(item.hours || '0') + parseInt(item.minutes || '0');
+        totalMinutesSpent += minutesSpent;
 
         const previousCount =
             updated.length === 0 ? 0 : updated[updated.length - 1].newCount;
@@ -271,13 +281,25 @@ function getTimelineUpdate(items: HistoryItem[]): {
                 ? previousCount + minutesSpent
                 : previousCount + parseInt(item.count);
 
-        totalMinutesSpent += minutesSpent;
+        let previousScore = 0;
+        let newScore = 0;
+        if (isRequirement(requirement)) {
+            previousScore = getCurrentScore(cohort, requirement, {
+                counts: { [ALL_COHORTS]: previousCount, [cohort]: previousCount },
+            } as unknown as RequirementProgress);
+            newScore = getCurrentScore(cohort, requirement, {
+                counts: { [ALL_COHORTS]: newCount, [cohort]: newCount },
+            } as unknown as RequirementProgress);
+        }
 
         updated.push({
             ...item.entry,
+            notes: item.notes,
             date: item.date?.toUTC().toISO() || item.entry.createdAt,
             previousCount,
             newCount,
+            dojoPoints: newScore - previousScore,
+            totalDojoPoints: newScore,
             minutesSpent,
             totalMinutesSpent,
         });
@@ -307,7 +329,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     const request = useRequest<AxiosResponse<User>>();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
-    const { entries, request: timelineRequest } = useTimelineContext();
+    const { entries, request: timelineRequest, resetRequest } = useTimelineContext();
 
     const isTimeOnly =
         requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
@@ -322,6 +344,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                 count: `${t.newCount - t.previousCount}`,
                 hours: `${Math.floor(t.minutesSpent / 60)}`,
                 minutes: `${t.minutesSpent % 60}`,
+                notes: t.notes,
                 cohort: t.cohort,
                 entry: t,
                 index: idx,
@@ -384,7 +407,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     );
 
     const onSubmit = () => {
-        const update = getTimelineUpdate(items);
+        const update = getTimelineUpdate(cohort, requirement, items);
 
         setErrors(update.errors);
         if (Object.values(update.errors).length > 0) {
@@ -417,6 +440,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                 });
                 onClose();
                 request.onSuccess(response);
+                resetRequest();
             })
             .catch((err) => {
                 console.error('updateUserTimeline: ', err);
