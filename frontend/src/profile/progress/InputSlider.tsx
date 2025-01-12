@@ -69,6 +69,7 @@ const InputSlider: React.FC<InputSliderProps> = ({
                     {suffix && <InputLabel htmlFor='input-slider'>{suffix}</InputLabel>}
                     <OutlinedInput
                         id='input-slider'
+                        data-cy='task-updater-count'
                         value={value}
                         size='small'
                         onChange={handleInputChange}

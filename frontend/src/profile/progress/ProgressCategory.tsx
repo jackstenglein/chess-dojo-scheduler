@@ -99,7 +99,7 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                     )}
                 </Stack>
             </AccordionSummary>
-            <AccordionDetails>
+            <AccordionDetails data-cy={`progress-category-${c.name}`}>
                 <Divider />
                 {c.requirements.map((r) => {
                     if (isFreeTier && !r.isFree) {
