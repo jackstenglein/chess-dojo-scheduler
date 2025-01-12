@@ -195,7 +195,7 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
     };
 
     return (
-        <Stack direction='row' spacing={1} mt={1}>
+        <>
             <RequestSnackbar request={request} />
 
             {Object.entries(reactionMap).map(([type, reactors]) => (
@@ -251,7 +251,7 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                     ))}
                 </Stack>
             </Menu>
-        </Stack>
+        </>
     );
 };
 

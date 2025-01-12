@@ -1,4 +1,5 @@
 import { useApi } from '@/api/Api';
+import { useAuth } from '@/auth/Auth';
 import { ScoreboardDisplay, formatTime } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
@@ -8,6 +9,7 @@ import GameNewsfeedItem from '../../app/(scoreboard)/newsfeed/(detail)/[owner]/[
 import GraduationNewsfeedItem from '../../app/(scoreboard)/newsfeed/(detail)/[owner]/[id]/GraduationNewsfeedItem';
 import CommentEditor from '../comments/CommentEditor';
 import CommentList from '../comments/CommentList';
+import { NewsfeedItemEditor } from './NewsfeedItemEditor';
 import NewsfeedItemHeader from './NewsfeedItemHeader';
 import ReactionList from './ReactionList';
 
@@ -19,6 +21,7 @@ interface NewsfeedItemProps {
 
 const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments }) => {
     const api = useApi();
+    const { user } = useAuth();
 
     return (
         <Card variant='outlined'>
@@ -27,12 +30,18 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments 
                     <NewsfeedItemHeader entry={entry} />
                     <NewsfeedItemBody entry={entry} />
 
-                    <ReactionList
-                        owner={entry.owner}
-                        id={entry.id}
-                        reactions={entry.reactions}
-                        onEdit={onEdit}
-                    />
+                    <Stack direction='row' gap={1} mt={1} flexWrap='wrap'>
+                        <ReactionList
+                            owner={entry.owner}
+                            id={entry.id}
+                            reactions={entry.reactions}
+                            onEdit={onEdit}
+                        />
+
+                        {user?.username === entry.owner && (
+                            <NewsfeedItemEditor entry={entry} />
+                        )}
+                    </Stack>
 
                     <Divider sx={{ width: 1, mt: 1, mb: 2 }} />
 
