@@ -1,3 +1,4 @@
+import { CategoryColors } from '@/style/ThemeProvider';
 import { AddCircle, Lock } from '@mui/icons-material';
 import {
     Box,
@@ -234,6 +235,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                             >
                                 {requirementName}
                             </Typography>
+
                             {showCount(requirement) && (
                                 <Box mr={1}>
                                     <ProgressText
@@ -248,6 +250,16 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                                 </Box>
                             )}
                         </Stack>
+                        <Chip
+                            label={requirement.category}
+                            variant='outlined'
+                            sx={{
+                                color: CategoryColors[requirement.category],
+                                borderColor: CategoryColors[requirement.category],
+                                alignSelf: 'start',
+                            }}
+                            size='small'
+                        />
                         {DescriptionElement}
                     </Grid>
                     <Grid item xs={2} sm='auto' id='task-status'>

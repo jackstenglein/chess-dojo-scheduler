@@ -14,8 +14,8 @@ import React from 'react';
 
 const categories = [
     'Games + Analysis',
-    'Middlegames + Strategy',
     'Tactics',
+    'Middlegames + Strategy',
     'Endgame',
     'Opening',
 ];
