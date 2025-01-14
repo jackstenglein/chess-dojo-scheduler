@@ -25,6 +25,7 @@ import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory, { Category } from './ProgressCategory';
+import { TrainingTipsButton } from '@/components/profile/TrainingTips';
 
 function useHideCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('hideCompletedTasks2', false);
@@ -272,6 +273,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                         }}
                     />
                 </FormGroup>
+                <TrainingTipsButton />
                 <Stack direction='row' spacing={1} justifyContent='end'>
                     <Button onClick={onExpandAll} startIcon={<KeyboardDoubleArrowDown />}>
                         Expand All
