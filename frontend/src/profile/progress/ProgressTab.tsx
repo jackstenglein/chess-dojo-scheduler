@@ -1,4 +1,5 @@
 import { useFreeTier } from '@/auth/Auth';
+import { TrainingTipsButton } from '@/components/profile/TrainingTips';
 import DojoScoreCard from '@/components/profile/stats/DojoScoreCard';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
@@ -25,7 +26,6 @@ import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory, { Category } from './ProgressCategory';
-import { TrainingTipsButton } from '@/components/profile/TrainingTips';
 
 function useHideCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('hideCompletedTasks2', false);
