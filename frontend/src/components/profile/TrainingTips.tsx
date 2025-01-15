@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from '@/analytics/events';
 import { icons } from '@/style/Icon';
 import {
     Box,
@@ -21,6 +22,11 @@ import { Link } from '../navigation/Link';
 export function TrainingTipsButton() {
     const [showDialog, setShowDialog] = useState(false);
 
+    const onOpen = () => {
+        trackEvent(EventType.OpenProgramTips);
+        setShowDialog(true);
+    };
+
     return (
         <>
             {showDialog && (
@@ -29,12 +35,7 @@ export function TrainingTipsButton() {
                     open={showDialog}
                 />
             )}
-            <Button
-                variant='outlined'
-                color='dojoOrange'
-                size='large'
-                onClick={() => setShowDialog(true)}
-            >
+            <Button variant='outlined' color='dojoOrange' size='large' onClick={onOpen}>
                 Program Tips
             </Button>
         </>
