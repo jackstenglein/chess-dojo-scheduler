@@ -15,8 +15,8 @@ import {
     Typography,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import { useRouter } from 'next/navigation';
 import { ReactNode, useState } from 'react';
+import { Link } from '../navigation/Link';
 
 export function TrainingTipsButton() {
     const [showDialog, setShowDialog] = useState(false);
@@ -27,7 +27,6 @@ export function TrainingTipsButton() {
                 <TrainingTipsDialog
                     closeDialog={() => setShowDialog(false)}
                     open={showDialog}
-                    onClose={() => setShowDialog(false)}
                 />
             )}
             <Button
@@ -44,21 +43,15 @@ export function TrainingTipsButton() {
 
 interface TrainingTipsDialogProps {
     open: boolean;
-    onClose: () => void;
     closeDialog: () => void;
 }
 
 export default function TrainingTipsDialog({
     open,
-    onClose,
     closeDialog,
 }: TrainingTipsDialogProps) {
-    const router = useRouter();
-
-    const goto = (url: string) => router.push(url);
-
     return (
-        <Dialog maxWidth='md' open={open} onClose={onClose} fullWidth>
+        <Dialog maxWidth='md' open={open} onClose={closeDialog} fullWidth>
             <DialogContent>
                 <Stack spacing={2}>
                     <Stack
@@ -70,7 +63,7 @@ export default function TrainingTipsDialog({
                     >
                         <TrainingTipsCard
                             name='Play Classical Games'
-                            onClick={() => goto('/tournaments')}
+                            href='/tournaments'
                             icon={icons['Classical Game']}
                         >
                             <Box>
@@ -87,7 +80,7 @@ export default function TrainingTipsDialog({
                         </TrainingTipsCard>
                         <TrainingTipsCard
                             name='Annotate your Games'
-                            onClick={() => goto('/games/import')}
+                            href='/games/import'
                             icon={icons.Annotations}
                         >
                             If you’ve played some classical games recently, it’s time to
@@ -96,7 +89,7 @@ export default function TrainingTipsDialog({
                         </TrainingTipsCard>
                         <TrainingTipsCard
                             name='Tactics Test'
-                            onClick={() => goto('/tests')}
+                            href='/tests'
                             icon={icons.Tactics}
                         >
                             After Games & Analysis, Tactics is the next most important
@@ -116,7 +109,7 @@ export default function TrainingTipsDialog({
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Close</Button>
+                <Button onClick={closeDialog}>Close</Button>
             </DialogActions>
         </Dialog>
     );
@@ -127,10 +120,17 @@ interface TrainingTipsCardProps {
     icon:
         | ((props: SvgIconProps) => JSX.Element)
         | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
-    onClick: () => void;
+    onClick?: () => void;
+    href?: string;
 }
 
-const TrainingTipsCard = ({ name, children, icon, onClick }: TrainingTipsCardProps) => {
+const TrainingTipsCard = ({
+    name,
+    children,
+    icon,
+    href,
+    onClick,
+}: TrainingTipsCardProps) => {
     const Icon = icon;
 
     return (
@@ -141,7 +141,12 @@ const TrainingTipsCard = ({ name, children, icon, onClick }: TrainingTipsCardPro
             }}
         >
             <Card sx={{ height: 1 }}>
-                <CardActionArea sx={{ height: 1 }} onClick={onClick}>
+                <CardActionArea
+                    component={Link}
+                    href={href}
+                    sx={{ height: 1 }}
+                    onClick={onClick}
+                >
                     <CardContent>
                         <Stack
                             height={1}
