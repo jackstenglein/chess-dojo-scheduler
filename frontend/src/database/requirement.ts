@@ -383,17 +383,17 @@ export function getRemainingReqPoints(
     requirement: Requirement,
     progress?: RequirementProgress,
 ): number {
-    const total = getTotalCount(cohort, requirement);
-    const score = getCurrentCount(cohort, requirement, progress);
+    const total = roundUp(getTotalCount(cohort, requirement));
+    const score = roundUp(getCurrentCount(cohort, requirement, progress));
+    console.log('requirement', requirement);
     console.log('TOTAL_REQ', total);
     console.log('CURRENT_SCORE_REQ', score);
-    console.log('DIVIDED_REQ', ((total - score) / (total)) * 100);
+    console.log('DIVIDED_REQ', roundUp(((total - score) / total) * 100));
     if (requirement.atomic) {
+        console.log('Found atomic');
         return 100;
     }
-    return (
-        ((total - score) / (total)) * 100
-    );
+    return roundUp(((total - score) / total) * 100);
 }
 
 /**
@@ -525,6 +525,10 @@ export function getCategoryScore(
     return Math.round(score * 100) / 100;
 }
 
+function roundUp(num: number) {
+    return Math.round(num * 100) / 100;
+}
+
 /**
  * Returns the total possible dojo score for the given cohort, requirement category and requirements.
  * @param cohort The cohort to get the score for.
@@ -553,14 +557,13 @@ export function getRemainingCategoryScore(
     category: string,
     requirements: Requirement[],
 ): number {
-    const total = getTotalCategoryScore(cohort, category, requirements);
-    const score = getCategoryScore(user, cohort, category, requirements);
-    console.log('TOTAL', total)
-    console.log('CATEGORY_SCORE', score)
-    console.log('DIVIDED', (total - score)/total)
-    return (
-        ( (total - score)/total) * 100 
-    );
+    const total = roundUp(getTotalCategoryScore(cohort, category, requirements));
+    const score = roundUp(getCategoryScore(user, cohort, category, requirements));
+    console.log('CATEGORY', category);
+    console.log('TOTAL', total);
+    console.log('CATEGORY_SCORE', score);
+    console.log('DIVIDED', roundUp(((total - score) / total) * 100));
+    return roundUp(((total - score) / total) * 100);
 }
 
 /**
@@ -625,6 +628,11 @@ Within that category, pick the task with the greatest remaining percentage of Do
 If the number of chosen tasks >= 3, stop. Else go to step 3.
 */
 
+// after play game requirement show annontate game just for the games category regardless of %
+// middlegame positional play 0.22 * 45 = 9.9
+// middlegame newyork 9.9
+// tal - bot 10
+
 export function suggestedAlgo(reqs: Requirement[], user: User, currentTaskCount: number) {
     // hashmap for category, %
     const categoryPercent: Map<RequirementCategory, number> = new Map();
@@ -684,11 +692,15 @@ export function suggestedAlgo(reqs: Requirement[], user: User, currentTaskCount:
     );
 
     const requirementsById = Object.fromEntries(reqs.map((r) => [r.id, r]));
-    let matchingReqs: Requirement[] = [];
+
+    console.log('Requirements by ID:', requirementsById);
+
+  
 
     // For each entry in entries of category
     for (const [neededCategory] of neededCategoriesPercents.entries()) {
         const reqPercent: Map<Requirement, number> = new Map();
+
         const matched = Object.values(user.progress)
             .map((progress) => requirementsById[progress.requirementId])
             .filter(
@@ -701,6 +713,16 @@ export function suggestedAlgo(reqs: Requirement[], user: User, currentTaskCount:
         console.log(`Matching Requirements for ${neededCategory}:`, matched);
 
         console.log('All Matching Requirements:', matched);
+
+        console.log(`Needed Category: ${neededCategory}`);
+        if (neededCategory === RequirementCategory.Endgame) {
+            console.log('Endgame is being processed.');
+            console.log('Matched tasks for Endgame:', matched);
+            console.log(
+                'Remaining points for Endgame tasks:',
+                Array.from(reqPercent.entries()),
+            );
+        }
 
         // For each task in entry
         for (const neededcurr of matched) {
