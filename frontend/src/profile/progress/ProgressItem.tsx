@@ -1,4 +1,5 @@
 import { AddCircle, Lock } from '@mui/icons-material';
+import PushPinIcon from '@mui/icons-material/PushPin';
 import {
     Box,
     Checkbox,
@@ -15,6 +16,7 @@ import { useRequirements } from '../../api/cache/requirements';
 import {
     CustomTask,
     Requirement,
+    RequirementCategory,
     RequirementProgress,
     ScoreboardDisplay,
     formatTime,
@@ -36,6 +38,8 @@ interface ProgressItemProps {
     requirement: Requirement | CustomTask;
     cohort: string;
     isCurrentUser: boolean;
+    onPin: (req: Requirement) => void;
+    isPin: boolean;
 }
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
@@ -44,6 +48,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     requirement,
     cohort,
     isCurrentUser,
+    onPin,
+    isPin,
 }) => {
     if (!isRequirement(requirement)) {
         return (
@@ -62,6 +68,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             requirement={requirement}
             cohort={cohort}
             isCurrentUser={isCurrentUser}
+            onPin={onPin}
+            isPin={isPin}
         />
     );
 };
@@ -78,6 +86,8 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     requirement,
     cohort,
     isCurrentUser,
+    onPin,
+    isPin,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
@@ -270,6 +280,24 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                                 </Typography>
                             )}
                             {UpdateElement}
+
+                            {requirement.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
+                                requirement.category !== RequirementCategory.Welcome && (
+                                    <IconButton
+                                        onClick={() => onPin(requirement)}
+                                        aria-label={
+                                            isPin
+                                                ? `Unpin ${requirement.name}`
+                                                : `Pin ${requirement.name}`
+                                        }
+                                    >
+                                        {isPin ? (
+                                            <PushPinIcon color='error' />
+                                        ) : (
+                                            <PushPinIcon color='primary' />
+                                        )}
+                                    </IconButton>
+                                )}
                         </Stack>
                     </Grid>
                 </Grid>

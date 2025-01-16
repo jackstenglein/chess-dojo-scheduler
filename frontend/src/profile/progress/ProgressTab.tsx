@@ -17,7 +17,6 @@ import { useRequirements } from '../../api/cache/requirements';
 import {
     Requirement,
     RequirementCategory,
-    isBlocked,
     isComplete,
     suggestedAlgo,
 } from '../../database/requirement';
@@ -45,6 +44,7 @@ interface ProgressTabProps {
 const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     const [cohort, setCohort] = useState(user.dojoCohort);
     const { request: requirementRequest } = useRequirements(ALL_COHORTS, false);
+    const [pinnedRequirements, setPinnedRequirements] = useState<Requirement[]>([]);
     const { requirements } = useRequirements(cohort, false);
     const [hideCompleted, setHideCompleted] = useHideCompleted(isCurrentUser);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({
@@ -59,10 +59,23 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     });
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
     const isFreeTier = useFreeTier();
+    const suggestedTasksstate = useMemo(() => {
+        return suggestedAlgo(pinnedRequirements, requirements, user);
+    }, [pinnedRequirements, requirements, user]);
 
     useEffect(() => {
         setCohort(user.dojoCohort);
     }, [user.dojoCohort]);
+
+    const handlePin = (requirement: Requirement) => {
+        setPinnedRequirements((prevPinned) => {
+            const isPinned = prevPinned.some((task) => task.id === requirement.id);
+            if (isPinned) {
+                return prevPinned.filter((task) => task.id !== requirement.id); // Unpin
+            }
+            return [...prevPinned, requirement]; // Pin
+        });
+    };
 
     const categories: Category[] = useMemo(() => {
         const categories: Category[] = [];
@@ -107,81 +120,90 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         return categories;
     }, [requirements, user, cohort, hideCompleted]);
 
+    // const suggestedTasks: Category = useMemo(() => {
+    //     const tasks: Requirement[] = suggestedAlgo(requirements, user, 3);
+    //     const suggestedTasks: Category = {
+    //         name: RequirementCategory.SuggestedTasks,
+    //         requirements: tasks,
+    //         totalComplete: 0,
+    //         totalRequirements: tasks.length,
+    //     };
+
+    //     // const desiredTaskCount = 3;
+
+    //     // const requirementsById = Object.fromEntries(requirements.map((r) => [r.id, r]));
+
+    //     // const recentRequirements = Object.values(user.progress)
+    //     //     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    //     //     .map((progress) => requirementsById[progress.requirementId])
+    //     //     .filter(
+    //     //         (r) =>
+    //     //             !!r &&
+    //     //             !isComplete(cohort, r, user.progress[r.id]) &&
+    //     //             r.category !== RequirementCategory.NonDojo,
+    //     //     );
+
+    //     // suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
+
+    //     // const now = new Date();
+    //     // const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
+    //     // const categoryOffset = daysSinceEpoch % categories.length;
+
+    //     // const categoriesOfInterest: RequirementCategory[] = [
+    //     //     ...categories.slice(categoryOffset),
+    //     //     ...categories.slice(0, categoryOffset),
+    //     // ]
+    //     //     .map((c) => c.name)
+    //     //     .filter((c) => c !== RequirementCategory.NonDojo);
+
+    //     // const tasksOfInterest = requirements.filter(
+    //     //     (r) =>
+    //     //         ((isFreeTier && r.isFree) || !isFreeTier) &&
+    //     //         !isComplete(cohort, r, user.progress[r.id]) &&
+    //     //         categoriesOfInterest.includes(r.category) &&
+    //     //         !isBlocked(cohort, user, r, requirements).isBlocked &&
+    //     //         suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
+    //     // );
+
+    //     // const tasksByCategory = tasksOfInterest.reduce<Record<string, Requirement[]>>(
+    //     //     (acc, req) => {
+    //     //         acc[req.category] ??= [];
+    //     //         acc[req.category].push(req);
+
+    //     //         return acc;
+    //     //     },
+    //     //     {},
+    //     // );
+
+    //     // // Once per task we need, get one task of each category
+    //     // const moreTasks = [
+    //     //     ...Array(desiredTaskCount - suggestedTasks.requirements.length).keys(),
+    //     // ].flatMap((n) =>
+    //     //     categoriesOfInterest
+    //     //         .map((c) => tasksByCategory[c] ?? [])
+    //     //         .filter((tasks) => tasks.length > 0)
+    //     //         .flatMap((tasks) => tasks[(daysSinceEpoch + n) % tasks.length]),
+    //     // );
+
+    //     // // Fill the remaining suggest tasks slots with tasks that rotate day by day.
+    //     // suggestedTasks.requirements = [
+    //     //     ...suggestedTasks.requirements,
+    //     //     ...moreTasks,
+    //     // ].slice(0, desiredTaskCount);
+
+    //     // suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
+
+    //     return suggestedTasks;
+    // }, [categories, isFreeTier, user, cohort, requirements]);
+
     const suggestedTasks: Category = useMemo(() => {
-        const tasks: Requirement[] = suggestedAlgo(requirements, user, 3);
-        const suggestedTasks: Category = {
+        return {
             name: RequirementCategory.SuggestedTasks,
-            requirements: tasks,
+            requirements: suggestedTasksstate,
             totalComplete: 0,
-            totalRequirements: tasks.length,
+            totalRequirements: suggestedTasksstate.length,
         };
-
-        // const desiredTaskCount = 3;
-
-        // const requirementsById = Object.fromEntries(requirements.map((r) => [r.id, r]));
-
-        // const recentRequirements = Object.values(user.progress)
-        //     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-        //     .map((progress) => requirementsById[progress.requirementId])
-        //     .filter(
-        //         (r) =>
-        //             !!r &&
-        //             !isComplete(cohort, r, user.progress[r.id]) &&
-        //             r.category !== RequirementCategory.NonDojo,
-        //     );
-
-        // suggestedTasks.requirements = recentRequirements.slice(0, desiredTaskCount - 1);
-
-        // const now = new Date();
-        // const daysSinceEpoch = Math.floor(now.getTime() / 8.64e7);
-        // const categoryOffset = daysSinceEpoch % categories.length;
-
-        // const categoriesOfInterest: RequirementCategory[] = [
-        //     ...categories.slice(categoryOffset),
-        //     ...categories.slice(0, categoryOffset),
-        // ]
-        //     .map((c) => c.name)
-        //     .filter((c) => c !== RequirementCategory.NonDojo);
-
-        // const tasksOfInterest = requirements.filter(
-        //     (r) =>
-        //         ((isFreeTier && r.isFree) || !isFreeTier) &&
-        //         !isComplete(cohort, r, user.progress[r.id]) &&
-        //         categoriesOfInterest.includes(r.category) &&
-        //         !isBlocked(cohort, user, r, requirements).isBlocked &&
-        //         suggestedTasks.requirements.findIndex((recent) => recent.id === r.id) < 0,
-        // );
-
-        // const tasksByCategory = tasksOfInterest.reduce<Record<string, Requirement[]>>(
-        //     (acc, req) => {
-        //         acc[req.category] ??= [];
-        //         acc[req.category].push(req);
-
-        //         return acc;
-        //     },
-        //     {},
-        // );
-
-        // // Once per task we need, get one task of each category
-        // const moreTasks = [
-        //     ...Array(desiredTaskCount - suggestedTasks.requirements.length).keys(),
-        // ].flatMap((n) =>
-        //     categoriesOfInterest
-        //         .map((c) => tasksByCategory[c] ?? [])
-        //         .filter((tasks) => tasks.length > 0)
-        //         .flatMap((tasks) => tasks[(daysSinceEpoch + n) % tasks.length]),
-        // );
-
-        // // Fill the remaining suggest tasks slots with tasks that rotate day by day.
-        // suggestedTasks.requirements = [
-        //     ...suggestedTasks.requirements,
-        //     ...moreTasks,
-        // ].slice(0, desiredTaskCount);
-
-        // suggestedTasks.totalRequirements = suggestedTasks.requirements.length;
-
-        return suggestedTasks;
-    }, [categories, isFreeTier, user, cohort, requirements]);
+    }, [categories, isFreeTier, user, cohort, requirements, pinnedRequirements]);
 
     if (requirementRequest.isLoading() || categories.length === 0) {
         return <LoadingPage />;
@@ -295,6 +317,8 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     isCurrentUser={isCurrentUser}
                     cohort={cohort}
                     setShowCustomTaskEditor={setShowCustomTaskEditor}
+                    onPin={handlePin}
+                    isPin={suggestedTasksstate}
                 />
             )}
 
@@ -308,6 +332,8 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     isCurrentUser={isCurrentUser}
                     cohort={cohort}
                     setShowCustomTaskEditor={setShowCustomTaskEditor}
+                    onPin={handlePin}
+                    isPin={suggestedTasksstate}
                 />
             ))}
 

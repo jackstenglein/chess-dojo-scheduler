@@ -33,6 +33,9 @@ interface ProgressCategoryProps {
     cohort: string;
     setShowCustomTaskEditor: (v: boolean) => void;
     color?: SvgIconOwnProps['color'];
+    onPin: (req: Requirement) => void;
+    isPin: Requirement[];
+    
 }
 
 const ProgressCategory: React.FC<ProgressCategoryProps> = ({
@@ -44,6 +47,9 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
     cohort,
     setShowCustomTaskEditor,
     color,
+    onPin,
+    isPin,
+
 }) => {
     const isFreeTier = useFreeTier();
 
@@ -113,6 +119,9 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                             cohort={cohort}
                             isCurrentUser={isCurrentUser}
                             user={user}
+                            onPin={onPin}
+                            isPin={isPin.some((ri) => ri.id === r.id)}
+                            
                         />
                     );
                 })}
