@@ -351,7 +351,10 @@ export function getCurrentCount(
  * @param requirement The requirement to get the total count for.
  * @returns The total count for the given cohort and requirement.
  */
-export function getTotalCount(cohort: string, requirement: Requirement): number {
+export function getTotalCount(
+    cohort: string,
+    requirement: Requirement | CustomTask,
+): number {
     return requirement.counts[cohort] || 0;
 }
 
@@ -392,7 +395,7 @@ export function formatTime(value: number): string {
  */
 export function isComplete(
     cohort: string,
-    requirement: Requirement,
+    requirement: Requirement | CustomTask,
     progress?: RequirementProgress,
 ): boolean {
     return (
