@@ -23,7 +23,6 @@ import {
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory, { Category } from './ProgressCategory';
 
 function useHideCompleted(isCurrentUser: boolean) {
@@ -56,7 +55,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         'Non-Dojo': false,
         [RequirementCategory.SuggestedTasks]: true,
     });
-    const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
     const isFreeTier = useFreeTier();
 
     useEffect(() => {
@@ -88,11 +86,11 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         });
 
         user.customTasks?.forEach((task) => {
-            if (task.counts[cohort]) {
-                const c = categories.find((c) => c.name === 'Non-Dojo');
+            if (cohort in task.counts) {
+                const c = categories.find((c) => c.name === task.category);
                 if (c === undefined) {
                     categories.push({
-                        name: RequirementCategory.NonDojo,
+                        name: task.category,
                         requirements: [task],
                         totalComplete: 0,
                         totalRequirements: 1,
@@ -292,7 +290,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     user={user}
                     isCurrentUser={isCurrentUser}
                     cohort={cohort}
-                    setShowCustomTaskEditor={setShowCustomTaskEditor}
                 />
             )}
 
@@ -305,14 +302,8 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     user={user}
                     isCurrentUser={isCurrentUser}
                     cohort={cohort}
-                    setShowCustomTaskEditor={setShowCustomTaskEditor}
                 />
             ))}
-
-            <CustomTaskEditor
-                open={showCustomTaskEditor}
-                onClose={() => setShowCustomTaskEditor(false)}
-            />
         </Stack>
     );
 };
