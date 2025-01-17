@@ -23,43 +23,8 @@ type UpdateTimelineRequest struct {
 	MinutesSpent  int                       `json:"minutesSpent"`
 }
 
-func updateCustomTaskProgress(request *UpdateTimelineRequest, user *database.User) {
-	progress, ok := user.Progress[request.RequirementId]
-	if !ok {
-		progress = &database.RequirementProgress{
-			RequirementId: request.RequirementId,
-			Counts:        make(map[database.DojoCohort]int),
-			MinutesSpent:  make(map[database.DojoCohort]int),
-		}
-	}
-	progress.UpdatedAt = time.Now().Format(time.RFC3339)
-	progress.MinutesSpent[request.Cohort] = request.MinutesSpent
-	user.Progress[request.RequirementId] = progress
-}
-
-func updateDefaultTaskProgress(request *UpdateTimelineRequest, user *database.User) error {
-	requirement, err := repository.GetRequirement(request.RequirementId)
-	if err != nil {
-		return err
-	}
-
-	progress, ok := user.Progress[request.RequirementId]
-	if !ok {
-		progress = &database.RequirementProgress{
-			RequirementId: request.RequirementId,
-			Counts:        make(map[database.DojoCohort]int),
-			MinutesSpent:  make(map[database.DojoCohort]int),
-		}
-	}
-	progress.UpdatedAt = time.Now().Format(time.RFC3339)
-	progress.MinutesSpent[request.Cohort] = request.MinutesSpent
-	if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
-		progress.Counts[database.AllCohorts] = request.Count
-	} else {
-		progress.Counts[request.Cohort] = request.Count
-	}
-	user.Progress[progress.RequirementId] = progress
-	return nil
+func main() {
+	lambda.Start(Handler)
 }
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
@@ -121,13 +86,13 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	found := false
 	for _, t := range user.CustomTasks {
 		if t.Id == request.RequirementId {
-			updateCustomTaskProgress(request, user)
+			updateTaskProgress(request, user, t)
 			found = true
 			break
 		}
 	}
 	if !found {
-		updateDefaultTaskProgress(request, user)
+		updateRequirementProgress(request, user)
 	}
 
 	update := &database.UserUpdate{
@@ -140,6 +105,32 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	return api.Success(user), nil
 }
 
-func main() {
-	lambda.Start(Handler)
+// Updates the progress for a requirement in the Dojo's training plan.
+func updateRequirementProgress(request *UpdateTimelineRequest, user *database.User) error {
+	requirement, err := repository.GetRequirement(request.RequirementId)
+	if err != nil {
+		return err
+	}
+	updateTaskProgress(request, user, requirement)
+	return nil
+}
+
+// Updates the progess for a task, whether it is a custom task or training plan requirement.
+func updateTaskProgress(request *UpdateTimelineRequest, user *database.User, task database.Task) {
+	progress, ok := user.Progress[request.RequirementId]
+	if !ok {
+		progress = &database.RequirementProgress{
+			RequirementId: request.RequirementId,
+			Counts:        make(map[database.DojoCohort]int),
+			MinutesSpent:  make(map[database.DojoCohort]int),
+		}
+	}
+	progress.UpdatedAt = time.Now().Format(time.RFC3339)
+	progress.MinutesSpent[request.Cohort] = request.MinutesSpent
+	if task.GetNumberOfCohorts() == 1 || task.GetNumberOfCohorts() == 0 {
+		progress.Counts[database.AllCohorts] = request.Count
+	} else {
+		progress.Counts[request.Cohort] = request.Count
+	}
+	user.Progress[progress.RequirementId] = progress
 }

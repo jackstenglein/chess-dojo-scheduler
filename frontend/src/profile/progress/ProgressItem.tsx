@@ -43,40 +43,6 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     cohort,
     isCurrentUser,
 }) => {
-    // if (!isRequirement(requirement)) {
-    //     return (
-    //         <CustomTaskProgressItem
-    //             progress={progress}
-    //             task={requirement}
-    //             cohort={cohort}
-    //         />
-    //     );
-    // }
-
-    return (
-        <RequirementProgressItem
-            user={user}
-            progress={progress}
-            requirement={requirement}
-            cohort={cohort}
-            isCurrentUser={isCurrentUser}
-        />
-    );
-};
-
-export default ProgressItem;
-
-interface RequirementProgressItemProps extends ProgressItemProps {
-    requirement: Requirement | CustomTask;
-}
-
-const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
-    user,
-    progress,
-    requirement,
-    cohort,
-    isCurrentUser,
-}) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
     const { requirements } = useRequirements(ALL_COHORTS, false);
@@ -281,6 +247,8 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
         </Tooltip>
     );
 };
+
+export default ProgressItem;
 
 function showCount(requirement: Requirement | CustomTask): boolean {
     return (
