@@ -65,7 +65,11 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
     const [name, setName] = useState(task?.name ?? '');
     const [description, setDescription] = useState(task?.description ?? '');
     const [cohorts, setCohorts] = useState([ALL_COHORTS]);
-    const [count, setCount] = useState(`${Object.values(task?.counts || {})[0] || ''}`);
+    const [count, setCount] = useState(
+        task?.scoreboardDisplay === ScoreboardDisplay.NonDojo
+            ? ''
+            : `${Object.values(task?.counts || {})[0] || ''}`,
+    );
 
     const isOtherCountType = !DEFAULT_COUNT_TYPES.includes(task?.progressBarSuffix || '');
     const [countType, setCountType] = useState(
@@ -146,13 +150,14 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
             newTasks = [...(user.customTasks || []), newTask];
         }
 
-        const eventType = task ? EventType.EditNondojoTask : EventType.CreateNondojoTask;
-
         request.onStart();
         api.updateUser({
             customTasks: newTasks,
         })
             .then(() => {
+                const eventType = task
+                    ? EventType.EditNondojoTask
+                    : EventType.CreateNondojoTask;
                 trackEvent(eventType, {
                     task_id: newTask.id,
                     task_name: name,
