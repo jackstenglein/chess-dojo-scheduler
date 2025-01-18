@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useTimelineContext } from '../activity/useTimeline';
 
 const OTHER_COUNT_TYPE = 'Other';
 const MINUTES_COUNT_TYPE = 'Minutes';
@@ -56,6 +57,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
     const request = useRequest();
     const api = useApi();
     const { user } = useAuth();
+    const { resetRequest: resetTimeline } = useTimelineContext();
 
     const [category, setCategory] = useState(
         task?.category ?? initialCategory ?? RequirementCategory.NonDojo,
@@ -156,6 +158,9 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
                     task_name: name,
                 });
                 request.onSuccess();
+                if (task && task.category !== category) {
+                    resetTimeline();
+                }
                 onClose();
             })
             .catch((err) => {
