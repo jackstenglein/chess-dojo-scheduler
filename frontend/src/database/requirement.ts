@@ -398,6 +398,9 @@ export function isComplete(
     requirement: Requirement | CustomTask,
     progress?: RequirementProgress,
 ): boolean {
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
+        return false;
+    }
     return (
         getCurrentCount(cohort, requirement, progress) >=
         getTotalCount(cohort, requirement)
