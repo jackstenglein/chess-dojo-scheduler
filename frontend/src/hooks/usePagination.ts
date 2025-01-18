@@ -1,6 +1,6 @@
 import { Request, RequestStatus, useRequest } from '@/api/Request';
 import { ListGamesResponse } from '@/api/gameApi';
-import { GameInfo } from '@/database/game';
+import { GameInfo, GameKey } from '@/database/game';
 import { AxiosResponse } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { useNextSearchParams } from './useNextSearchParams';
@@ -19,6 +19,7 @@ export interface PaginationResult {
     setPage: (newPage: number) => void;
     setPageSize: (newPageSize: number) => void;
     onSearch: (searchFunc: SearchFunc) => void;
+    onDelete: (keys: GameKey[]) => void;
 }
 
 export function usePagination(
@@ -68,6 +69,20 @@ export function usePagination(
             setSearchFunc(() => searchFunc);
         },
         [reset, setGames, setStartKey, setSearchFunc],
+    );
+
+    const onDelete = useCallback(
+        (keys: GameKey[]) => {
+            setGames((gs) =>
+                gs.filter((g) => {
+                    const key = keys.find(
+                        (key) => key.cohort === g.cohort && key.id === g.id,
+                    );
+                    return !key;
+                }),
+            );
+        },
+        [setGames],
     );
 
     useEffect(() => {
@@ -121,5 +136,6 @@ export function usePagination(
         setPage: onChangePage,
         setPageSize: onChangePageSize,
         onSearch,
+        onDelete,
     };
 }

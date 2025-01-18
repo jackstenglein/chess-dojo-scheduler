@@ -5,6 +5,7 @@ import GameTable from '@/components/games/list/GameTable';
 import { GameInfo } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
 import { User } from '@/database/user';
+import { BulkGameEditor } from '@/games/list/BulkGameEditor';
 import { ListItemContextMenu } from '@/games/list/ListItemContextMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
@@ -12,8 +13,12 @@ import { useRouter } from '@/hooks/useRouter';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import { Button, Stack } from '@mui/material';
-import { GridPaginationModel, GridRowParams } from '@mui/x-data-grid-pro';
-import { useCallback } from 'react';
+import {
+    GridPaginationModel,
+    GridRowParams,
+    GridRowSelectionModel,
+} from '@mui/x-data-grid-pro';
+import { useCallback, useState } from 'react';
 
 interface GamesTabProps {
     user: User;
@@ -23,6 +28,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const api = useApi();
     const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
+    const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
     const contextMenu = useDataGridContextMenu();
     const router = useRouter();
 
@@ -32,7 +38,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     );
 
     const pagination = usePagination(searchByOwner, 0, 10);
-    const { request, data, pageSize, setPageSize } = pagination;
+    const { request, data, pageSize, setPageSize, onDelete } = pagination;
 
     const onClickRow = (params: GridRowParams<GameInfo>, event: React.MouseEvent) => {
         const url = `/games/${params.row.cohort.replaceAll(
@@ -61,14 +67,35 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
             {currentUser?.username === user.username && (
-                <Button
-                    variant='contained'
-                    onClick={onSubmit}
-                    color='success'
-                    startIcon={<Icon name={RequirementCategory.Games} />}
+                <Stack
+                    direction='row'
+                    alignItems='center'
+                    gap={2}
+                    width={1}
+                    flexWrap='wrap'
                 >
-                    Analyze a Game
-                </Button>
+                    <Button
+                        variant='contained'
+                        onClick={onSubmit}
+                        color='success'
+                        startIcon={<Icon name={RequirementCategory.Games} />}
+                    >
+                        Analyze a Game
+                    </Button>
+                    <BulkGameEditor
+                        games={rowSelectionModel
+                            .map((id) => {
+                                const game = data.find((g) => g.id === id);
+                                if (!game) {
+                                    return null;
+                                }
+                                return { cohort: game.cohort, id: game.id };
+                            })
+                            .filter((g) => !!g)}
+                        onClear={() => setRowSelectionModel([])}
+                        onDelete={onDelete}
+                    />
+                </Stack>
             )}
 
             {isFreeTier && currentUser?.username !== user.username && (
@@ -94,6 +121,10 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                         owner: false,
                         unlisted: currentUser?.username === user.username,
                     }}
+                    checkboxSelection={currentUser?.username === user.username}
+                    checkboxSelectionVisibleOnly
+                    onRowSelectionModelChange={setRowSelectionModel}
+                    rowSelectionModel={rowSelectionModel}
                 />
             )}
 

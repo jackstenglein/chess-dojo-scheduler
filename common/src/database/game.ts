@@ -230,3 +230,22 @@ export const UpdateGameSchema = z
 
 /** A request to update a game. */
 export type UpdateGameRequest = z.infer<typeof UpdateGameSchema>;
+
+/** Verifies a request to delete a game. */
+export const DeleteGamesSchema = z
+    .object({
+        /** The cohort of the game to delete. */
+        cohort: z.string(),
+
+        /** The id of the game to delete. */
+        id: z.string(),
+    })
+    .array()
+    .min(1)
+    .max(100);
+
+/** A request to delete games. Up to 100 games can be deleted in a single call. */
+export type DeleteGamesRequest = z.infer<typeof DeleteGamesSchema>;
+
+/** The response to a delete games request. Contains the keys of the successfully deleted games. */
+export type DeleteGamesResponse = DeleteGamesRequest;

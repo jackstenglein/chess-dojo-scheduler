@@ -34,9 +34,15 @@ export interface PgnHeaders {
     [key: string]: string | undefined;
 }
 
-export interface GameInfo {
+/** The key of a game in the database. */
+export interface GameKey {
+    /** The cohort the game is in. */
     cohort: string;
+    /** The id of the game. */
     id: string;
+}
+
+export interface GameInfo extends GameKey {
     date: string;
     owner: string;
     ownerDisplayName: string;

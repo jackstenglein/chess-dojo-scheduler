@@ -15,6 +15,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import {
     CreateGameRequest,
+    DeleteGamesRequest,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
@@ -102,7 +103,7 @@ import {
     createComment,
     createGame,
     deleteComment,
-    deleteGame,
+    deleteGames,
     featureGame,
     getGame,
     listFeaturedGames,
@@ -316,7 +317,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 featureGame(idToken, cohort, id, featured),
             updateGame: (cohort: string, id: string, req: Partial<UpdateGameRequest>) =>
                 updateGame(idToken, cohort, id, req),
-            deleteGame: (cohort: string, id: string) => deleteGame(idToken, cohort, id),
+            deleteGames: (request: DeleteGamesRequest) => deleteGames(idToken, request),
             listGamesByCohort: (
                 cohort: string,
                 startKey?: string,

@@ -177,7 +177,10 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                 >
                     Replace PGN
                 </Button>
-                <DeleteGameButton variant='contained' game={game} />
+                <DeleteGameButton
+                    variant='contained'
+                    games={[{ cohort: game.cohort, id: game.id }]}
+                />
             </Stack>
         </Stack>
     );
