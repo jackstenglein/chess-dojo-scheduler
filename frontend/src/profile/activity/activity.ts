@@ -5,6 +5,7 @@ import {
     getCurrentScore,
     getTotalCount,
     getUnitScore,
+    isRequirement,
     Requirement,
     RequirementCategory,
 } from '../../database/requirement';
@@ -20,15 +21,9 @@ export const ScoreCategories = [
     RequirementCategory.Opening,
 ];
 
-export const RequirementColors = [
-    '#c27ba0',
-    '#ff9900',
-    '#38761d',
-    '#0000ff',
-    '#351c75',
-    '#cc0000',
-    '#f44336',
-];
+export const RequirementColors = Object.values(CategoryColors).filter(
+    (v, i) => Object.values(CategoryColors).indexOf(v) === i,
+);
 
 /**
  * Timeframes that can be used as options when viewing a user's activity.
@@ -605,7 +600,9 @@ function getAllTimeCategoryTimeChartData(
 ): PieChartData[] {
     const data: Record<string, PieChartData> = {};
 
-    for (const requirement of requirements) {
+    for (const requirement of (requirements as (Requirement | CustomTask)[]).concat(
+        user.customTasks || [],
+    )) {
         if (category !== requirement.category) {
             continue;
         }
@@ -619,7 +616,9 @@ function getAllTimeCategoryTimeChartData(
             reqCohorts = Object.keys(progress.minutesSpent);
         }
 
-        const name = requirement.shortName || requirement.name;
+        const name = isRequirement(requirement)
+            ? requirement.shortName || requirement.name
+            : requirement.name;
 
         for (const cohort of reqCohorts) {
             if (!progress.minutesSpent[cohort]) {
@@ -629,35 +628,6 @@ function getAllTimeCategoryTimeChartData(
             if (data[name]) {
                 data[name].value += progress.minutesSpent[cohort];
             } else {
-                data[name] = {
-                    name,
-                    value: progress.minutesSpent[cohort],
-                    color: RequirementColors[
-                        Object.values(data).length % RequirementColors.length
-                    ],
-                };
-            }
-        }
-    }
-    if (category === 'Non-Dojo') {
-        for (const task of user.customTasks || []) {
-            const progress = user.progress[task.id];
-            if (!progress?.minutesSpent) {
-                continue;
-            }
-
-            const name = task.name;
-
-            let reqCohorts = cohorts;
-            if (cohorts.includes(ALL_COHORTS)) {
-                reqCohorts = Object.keys(progress.minutesSpent);
-            }
-
-            for (const cohort of reqCohorts) {
-                if (!progress.minutesSpent[cohort]) {
-                    continue;
-                }
-
                 data[name] = {
                     name,
                     value: progress.minutesSpent[cohort],
