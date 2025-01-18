@@ -17,6 +17,8 @@ import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 
+const MAX_GAMES_PER_BATCH = 100;
+
 interface DeleteGameButtonProps {
     games: GameKey[];
     variant?: 'icon' | 'contained' | 'outlined';
@@ -37,27 +39,34 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const router = useRouter();
 
-    const onDelete = () => {
-        request.onStart();
-        api.deleteGames(games)
-            .then((resp) => {
-                for (const game of resp.data) {
-                    trackEvent(EventType.DeleteGame, {
-                        dojo_cohort: game.cohort,
-                    });
-                }
-                request.onSuccess();
-                if (onSuccess) {
-                    onSuccess(resp.data);
-                    setShowDeleteModal(false);
-                } else {
-                    router.push('/profile?view=games');
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-                request.onFailure(err);
-            });
+    const onDelete = async () => {
+        try {
+            request.onStart();
+            const deleted: GameKey[] = [];
+
+            for (let i = 0; i < games.length; i += MAX_GAMES_PER_BATCH) {
+                const batch = games.slice(i, i + MAX_GAMES_PER_BATCH);
+                const resp = await api.deleteGames(batch);
+                deleted.push(...resp.data);
+            }
+
+            for (const game of deleted) {
+                trackEvent(EventType.DeleteGame, {
+                    dojo_cohort: game.cohort,
+                });
+            }
+
+            request.onSuccess();
+            if (onSuccess) {
+                onSuccess(deleted);
+                setShowDeleteModal(false);
+            } else {
+                router.push('/profile?view=games');
+            }
+        } catch (err) {
+            console.error(err);
+            request.onFailure(err);
+        }
     };
 
     const onClose = () => {
