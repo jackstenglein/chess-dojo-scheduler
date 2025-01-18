@@ -125,6 +125,10 @@ func updateTaskProgress(request *UpdateTimelineRequest, user *database.User, tas
 			MinutesSpent:  make(map[database.DojoCohort]int),
 		}
 	}
+	if progress.Counts == nil {
+		progress.Counts = make(map[database.DojoCohort]int)
+	}
+
 	progress.UpdatedAt = time.Now().Format(time.RFC3339)
 	progress.MinutesSpent[request.Cohort] = request.MinutesSpent
 	if task.GetNumberOfCohorts() == 1 || task.GetNumberOfCohorts() == 0 {
