@@ -255,7 +255,8 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                         label: getDisplayString(t),
                         icon: <Icon name={t} color='primary' />,
                     }))}
-                    errorHelper={errors.types}
+                    error={Boolean(errors.types)}
+                    helperText={errors.types}
                     data-cy='availability-type-selector'
                 />
             </Stack>

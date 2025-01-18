@@ -754,6 +754,8 @@ type UserUpdater interface {
 	// RecordFreeTierConversion adds 1 conversion to the user statistics for
 	// the given cohort.
 	RecordFreeTierConversion(cohort DojoCohort) error
+
+	ListTimelineEntries(owner string, startKey string) ([]*TimelineEntry, string, error)
 }
 
 type UserProgressUpdater interface {

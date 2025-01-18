@@ -10,11 +10,19 @@ import {
     SvgIconOwnProps,
     Typography,
 } from '@mui/material';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFreeTier } from '../../auth/Auth';
-import { CustomTask, Requirement, RequirementCategory } from '../../database/requirement';
+import {
+    CustomTask,
+    CustomTaskCategory,
+    isCustomTaskCategory,
+    isRequirement,
+    Requirement,
+    RequirementCategory,
+} from '../../database/requirement';
 import { User } from '../../database/user';
 import Icon from '../../style/Icon';
+import CustomTaskEditor from './CustomTaskEditor';
 import ProgressItem from './ProgressItem';
 
 export interface Category {
@@ -31,7 +39,6 @@ interface ProgressCategoryProps {
     user: User;
     isCurrentUser: boolean;
     cohort: string;
-    setShowCustomTaskEditor: (v: boolean) => void;
     color?: SvgIconOwnProps['color'];
 }
 
@@ -42,16 +49,16 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
     user,
     isCurrentUser,
     cohort,
-    setShowCustomTaskEditor,
     color,
 }) => {
     const isFreeTier = useFreeTier();
+    const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
 
     const hiddenTaskCount = useMemo(() => {
         if (!isFreeTier) {
             return 0;
         }
-        return c.requirements.filter((r) => !r.isFree).length;
+        return c.requirements.filter((r) => isRequirement(r) && !r.isFree).length;
     }, [c.requirements, isFreeTier]);
 
     if (!color) {
@@ -87,7 +94,7 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                         />
                         {c.name}
                     </Typography>
-                    {c.name === 'Non-Dojo' ? (
+                    {c.name === RequirementCategory.NonDojo ? (
                         <ProgressText label={`${c.requirements.length} Activities`} />
                     ) : (
                         <ProgressText
@@ -102,7 +109,7 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
             <AccordionDetails data-cy={`progress-category-${c.name}`}>
                 <Divider />
                 {c.requirements.map((r) => {
-                    if (isFreeTier && !r.isFree) {
+                    if (isFreeTier && isRequirement(r) && !r.isFree) {
                         return null;
                     }
                     return (
@@ -117,26 +124,28 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                     );
                 })}
 
-                {!isFreeTier && c.name === 'Non-Dojo' && isCurrentUser && (
+                {!isFreeTier && isCustomTaskCategory(c.name) && isCurrentUser && (
                     <Button sx={{ mt: 2 }} onClick={() => setShowCustomTaskEditor(true)}>
-                        Add Custom Activity
+                        Add Custom Task
                     </Button>
                 )}
 
-                {isFreeTier && c.name !== 'Non-Dojo' && hiddenTaskCount > 0 && (
-                    <Stack mt={2} spacing={2} alignItems='center'>
-                        <Typography>
-                            Unlock {hiddenTaskCount} more task
-                            {hiddenTaskCount > 1 ? 's' : ''} by upgrading to a full
-                            account
-                        </Typography>
-                        <Button variant='outlined' href='/prices'>
-                            View Prices
-                        </Button>
-                    </Stack>
-                )}
+                {isFreeTier &&
+                    c.name !== RequirementCategory.NonDojo &&
+                    hiddenTaskCount > 0 && (
+                        <Stack mt={2} spacing={2} alignItems='center'>
+                            <Typography>
+                                Unlock {hiddenTaskCount} more task
+                                {hiddenTaskCount > 1 ? 's' : ''} by upgrading to a full
+                                account
+                            </Typography>
+                            <Button variant='outlined' href='/prices'>
+                                View Prices
+                            </Button>
+                        </Stack>
+                    )}
 
-                {isFreeTier && c.name === 'Non-Dojo' && (
+                {isFreeTier && c.name === RequirementCategory.NonDojo && (
                     <Stack mt={2} spacing={2} alignItems='center'>
                         <Typography>
                             Upgrade to a full account to create your own custom tasks
@@ -147,6 +156,12 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                     </Stack>
                 )}
             </AccordionDetails>
+
+            <CustomTaskEditor
+                open={showCustomTaskEditor}
+                onClose={() => setShowCustomTaskEditor(false)}
+                initialCategory={c.name as unknown as CustomTaskCategory}
+            />
         </Accordion>
     );
 };

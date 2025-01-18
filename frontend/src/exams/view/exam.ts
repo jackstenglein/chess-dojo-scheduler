@@ -1,3 +1,4 @@
+import { Requirement } from '@/database/requirement';
 import { Chess, Move } from '@jackstenglein/chess';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import {
@@ -8,7 +9,6 @@ import {
 import { useEffect } from 'react';
 import { useApi } from '../../api/Api';
 import { useRequest } from '../../api/Request';
-import { Requirement } from '../../database/requirement';
 import {
     ALL_COHORTS,
     User,
@@ -278,7 +278,7 @@ function getTaskRating(user: User, req?: Requirement): number {
         return -1;
     }
 
-    const count = progress.counts[ALL_COHORTS];
+    const count = progress.counts?.[ALL_COHORTS];
     if (!count) {
         return -1;
     }

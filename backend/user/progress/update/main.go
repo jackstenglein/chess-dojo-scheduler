@@ -25,145 +25,8 @@ type ProgressUpdateRequest struct {
 	Notes                   string              `json:"notes"`
 }
 
-func handleCustomTask(request *ProgressUpdateRequest, user *database.User, task *database.CustomTask) (api.Response, error) {
-	progress, ok := user.Progress[request.RequirementId]
-	if !ok {
-		progress = &database.RequirementProgress{
-			RequirementId: request.RequirementId,
-			Counts:        make(map[database.DojoCohort]int),
-			MinutesSpent:  make(map[database.DojoCohort]int),
-		}
-	}
-	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
-	now := time.Now()
-	progress.UpdatedAt = now.Format(time.RFC3339)
-
-	date := now
-	if request.Date != "" {
-		d, err := time.Parse(time.RFC3339, request.Date)
-		if err != nil {
-			log.Errorf("Failed to parse request.Date: %v", err)
-		} else {
-			date = d
-		}
-	}
-
-	timelineEntry := &database.TimelineEntry{
-		TimelineEntryKey: database.TimelineEntryKey{
-			Owner: user.Username,
-			Id:    fmt.Sprintf("%s_%s", date.Format(time.DateOnly), uuid.NewString()),
-		},
-		OwnerDisplayName:    user.DisplayName,
-		RequirementId:       request.RequirementId,
-		RequirementName:     task.Name,
-		RequirementCategory: "Non-Dojo",
-		ScoreboardDisplay:   task.ScoreboardDisplay,
-		Cohort:              request.Cohort,
-		TotalCount:          1,
-		MinutesSpent:        request.IncrementalMinutesSpent,
-		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
-		Date:                date.Format(time.RFC3339),
-		CreatedAt:           now.Format(time.RFC3339),
-		Notes:               request.Notes,
-	}
-	if err := repository.PutTimelineEntry(timelineEntry); err != nil {
-		return api.Failure(err), nil
-	}
-
-	user, err := repository.UpdateUserProgress(user.Username, progress)
-	if err != nil {
-		return api.Failure(err), nil
-	}
-	return api.Success(user), nil
-}
-
-func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api.Response, error) {
-	requirement, err := repository.GetRequirement(request.RequirementId)
-	if err != nil {
-		return api.Failure(err), nil
-	}
-	totalCount, ok := requirement.Counts[request.Cohort]
-	if !ok {
-		return api.Failure(errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` does not apply to this requirement", request.Cohort), "")), nil
-	}
-
-	progress, ok := user.Progress[request.RequirementId]
-	if !ok {
-		progress = &database.RequirementProgress{
-			RequirementId: request.RequirementId,
-			Counts:        make(map[database.DojoCohort]int),
-			MinutesSpent:  make(map[database.DojoCohort]int),
-		}
-	}
-
-	originalScore := requirement.CalculateScore(request.Cohort, progress)
-
-	var originalCount int
-	if requirement.IsExpired(progress) {
-		originalCount = 0
-	} else if requirement.NumberOfCohorts == 1 || requirement.NumberOfCohorts == 0 {
-		originalCount = progress.Counts[database.AllCohorts]
-		progress.Counts[database.AllCohorts] += request.IncrementalCount
-	} else {
-		originalCount = progress.Counts[request.Cohort]
-		progress.Counts[request.Cohort] += request.IncrementalCount
-	}
-	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
-
-	now := time.Now()
-	updatedAt := now.Format(time.RFC3339)
-	progress.UpdatedAt = updatedAt
-
-	date := now
-	if request.Date != "" {
-		d, err := time.Parse(time.RFC3339, request.Date)
-		if err != nil {
-			log.Errorf("Failed to parse request.Date: %v", err)
-		} else {
-			date = d
-		}
-	}
-
-	newScore := requirement.CalculateScore(request.Cohort, progress)
-
-	name := requirement.ShortName
-	if name == "" {
-		name = requirement.Name
-	}
-
-	timelineEntry := &database.TimelineEntry{
-		TimelineEntryKey: database.TimelineEntryKey{
-			Owner: user.Username,
-			Id:    fmt.Sprintf("%s_%s", date.Format(time.DateOnly), uuid.NewString()),
-		},
-		OwnerDisplayName:    user.DisplayName,
-		RequirementId:       request.RequirementId,
-		RequirementName:     name,
-		RequirementCategory: requirement.Category,
-		ScoreboardDisplay:   requirement.ScoreboardDisplay,
-		ProgressBarSuffix:   requirement.ProgressBarSuffix,
-		Cohort:              request.Cohort,
-		TotalCount:          totalCount,
-		PreviousCount:       originalCount,
-		NewCount:            originalCount + request.IncrementalCount,
-		DojoPoints:          newScore - originalScore,
-		TotalDojoPoints:     newScore,
-		MinutesSpent:        request.IncrementalMinutesSpent,
-		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
-		Date:                date.Format(time.RFC3339),
-		CreatedAt:           updatedAt,
-		Notes:               request.Notes,
-	}
-
-	if err := repository.PutTimelineEntry(timelineEntry); err != nil {
-		return api.Failure(err), nil
-	}
-
-	user, err = repository.UpdateUserProgress(user.Username, progress)
-	if err != nil {
-		return api.Failure(err), nil
-	}
-	return api.Success(user), nil
+func main() {
+	lambda.Start(Handler)
 }
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
@@ -193,13 +56,101 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	for _, t := range user.CustomTasks {
 		if t.Id == request.RequirementId {
-			return handleCustomTask(request, user, t)
+			return handleTask(request, user, t)
 		}
 	}
 
 	return handleDefaultTask(request, user)
 }
 
-func main() {
-	lambda.Start(Handler)
+func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api.Response, error) {
+	requirement, err := repository.GetRequirement(request.RequirementId)
+	if err != nil {
+		return api.Failure(err), nil
+	}
+	return handleTask(request, user, requirement)
+}
+
+func handleTask(request *ProgressUpdateRequest, user *database.User, task database.Task) (api.Response, error) {
+	totalCount, ok := task.GetCounts()[request.Cohort]
+	if !ok {
+		return api.Failure(errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` does not apply to this requirement", request.Cohort), "")), nil
+	}
+
+	progress, ok := user.Progress[request.RequirementId]
+	if !ok {
+		progress = &database.RequirementProgress{
+			RequirementId: request.RequirementId,
+			Counts:        make(map[database.DojoCohort]int),
+			MinutesSpent:  make(map[database.DojoCohort]int),
+		}
+	}
+	if progress.Counts == nil {
+		progress.Counts = make(map[database.DojoCohort]int)
+	}
+
+	originalScore := task.CalculateScore(request.Cohort, progress)
+
+	var originalCount int
+	if task.IsExpired(progress) {
+		originalCount = 0
+	} else if task.GetNumberOfCohorts() == 1 || task.GetNumberOfCohorts() == 0 {
+		originalCount = progress.Counts[database.AllCohorts]
+		progress.Counts[database.AllCohorts] += request.IncrementalCount
+	} else {
+		originalCount = progress.Counts[request.Cohort]
+		progress.Counts[request.Cohort] += request.IncrementalCount
+	}
+	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
+
+	now := time.Now()
+	updatedAt := now.Format(time.RFC3339)
+	progress.UpdatedAt = updatedAt
+
+	date := now
+	if request.Date != "" {
+		d, err := time.Parse(time.RFC3339, request.Date)
+		if err != nil {
+			log.Errorf("Failed to parse request.Date: %v", err)
+		} else {
+			date = d
+		}
+	}
+
+	newScore := task.CalculateScore(request.Cohort, progress)
+
+	timelineEntry := &database.TimelineEntry{
+		TimelineEntryKey: database.TimelineEntryKey{
+			Owner: user.Username,
+			Id:    fmt.Sprintf("%s_%s", date.Format(time.DateOnly), uuid.NewString()),
+		},
+		OwnerDisplayName:    user.DisplayName,
+		RequirementId:       request.RequirementId,
+		RequirementName:     task.GetName(),
+		RequirementCategory: task.GetCategory(),
+		IsCustomRequirement: task.IsCustom(),
+		ScoreboardDisplay:   task.GetScoreboardDisplay(),
+		ProgressBarSuffix:   task.GetProgressBarSuffix(),
+		Cohort:              request.Cohort,
+		TotalCount:          totalCount,
+		PreviousCount:       originalCount,
+		NewCount:            originalCount + request.IncrementalCount,
+		DojoPoints:          newScore - originalScore,
+		TotalDojoPoints:     newScore,
+		MinutesSpent:        request.IncrementalMinutesSpent,
+		TotalMinutesSpent:   progress.MinutesSpent[request.Cohort],
+		Date:                date.Format(time.RFC3339),
+		CreatedAt:           updatedAt,
+		Notes:               request.Notes,
+	}
+
+	if err := repository.PutTimelineEntry(timelineEntry); err != nil {
+		return api.Failure(err), nil
+	}
+
+	user, err := repository.UpdateUserProgress(user.Username, progress)
+	if err != nil {
+		return api.Failure(err), nil
+	}
+	return api.Success(user), nil
 }

@@ -78,6 +78,11 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
                         <Typography sx={{ color: CategoryColors[category] }}>
                             {category}
                         </Typography>
+                        {entry.isCustomRequirement && (
+                            <Typography variant='body2' color='text.secondary'>
+                                Custom Task
+                            </Typography>
+                        )}
                         <Typography variant='body2' color='text.secondary'>
                             {entry.cohort}
                         </Typography>

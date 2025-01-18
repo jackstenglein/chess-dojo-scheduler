@@ -4,7 +4,7 @@ import {
     Checkbox,
     Chip,
     Divider,
-    Grid,
+    Grid2,
     IconButton,
     Stack,
     Tooltip,
@@ -22,12 +22,10 @@ import {
     getTotalTime,
     isBlocked,
     isExpired,
-    isRequirement,
 } from '../../database/requirement';
 import { ALL_COHORTS, User } from '../../database/user';
 import RequirementModal from '../../requirements/RequirementModal';
 import ScoreboardProgress, { ProgressText } from '../../scoreboard/ScoreboardProgress';
-import CustomTaskProgressItem from './CustomTaskProgressItem';
 import ProgressDialog from './ProgressDialog';
 
 interface ProgressItemProps {
@@ -39,40 +37,6 @@ interface ProgressItemProps {
 }
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
-    user,
-    progress,
-    requirement,
-    cohort,
-    isCurrentUser,
-}) => {
-    if (!isRequirement(requirement)) {
-        return (
-            <CustomTaskProgressItem
-                progress={progress}
-                task={requirement}
-                cohort={cohort}
-            />
-        );
-    }
-
-    return (
-        <RequirementProgressItem
-            user={user}
-            progress={progress}
-            requirement={requirement}
-            cohort={cohort}
-            isCurrentUser={isCurrentUser}
-        />
-    );
-};
-
-export default ProgressItem;
-
-interface RequirementProgressItemProps extends ProgressItemProps {
-    requirement: Requirement;
-}
-
-const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     user,
     progress,
     requirement,
@@ -128,7 +92,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                 <ScoreboardProgress
                     value={currentCount}
                     max={totalCount}
-                    min={requirement.startCount}
+                    min={requirement.startCount || 0}
                     isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
                     hideProgressText={true}
                     sx={{ height: '6px' }}
@@ -176,30 +140,15 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     return (
         <Tooltip title={blocker.reason} followCursor>
             <Stack spacing={2} mt={2}>
-                {showUpdateDialog && (
-                    <ProgressDialog
-                        open={showUpdateDialog}
-                        onClose={() => setShowUpdateDialog(false)}
-                        requirement={requirement}
-                        cohort={cohort}
-                        progress={progress}
-                    />
-                )}
-                <Grid
+                <Grid2
                     container
                     columnGap={0.5}
                     alignItems='center'
                     justifyContent='space-between'
                     position='relative'
                 >
-                    <Grid
-                        item
-                        xs={9}
-                        xl={
-                            requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo
-                                ? 9
-                                : 10
-                        }
+                    <Grid2
+                        size={9}
                         onClick={() => setShowReqModal(true)}
                         sx={{ cursor: 'pointer', position: 'relative' }}
                         id='task-details'
@@ -249,8 +198,8 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                             )}
                         </Stack>
                         {DescriptionElement}
-                    </Grid>
-                    <Grid item xs={2} sm='auto' id='task-status'>
+                    </Grid2>
+                    <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
                         <Stack
                             direction='row'
                             alignItems='center'
@@ -272,8 +221,8 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                             )}
                             {UpdateElement}
                         </Stack>
-                    </Grid>
-                </Grid>
+                    </Grid2>
+                </Grid2>
                 <Divider />
 
                 {showReqModal && (
@@ -284,12 +233,24 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                         cohort={cohort}
                     />
                 )}
+
+                {showUpdateDialog && (
+                    <ProgressDialog
+                        open={showUpdateDialog}
+                        onClose={() => setShowUpdateDialog(false)}
+                        requirement={requirement}
+                        cohort={cohort}
+                        progress={progress}
+                    />
+                )}
             </Stack>
         </Tooltip>
     );
 };
 
-function showCount(requirement: Requirement): boolean {
+export default ProgressItem;
+
+function showCount(requirement: Requirement | CustomTask): boolean {
     return (
         requirement.scoreboardDisplay !== ScoreboardDisplay.NonDojo &&
         requirement.scoreboardDisplay !== ScoreboardDisplay.Checkbox &&
