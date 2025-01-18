@@ -1,4 +1,5 @@
 import { useFreeTier } from '@/auth/Auth';
+import { TrainingTipsButton } from '@/components/profile/TrainingTips';
 import DojoScoreCard from '@/components/profile/stats/DojoScoreCard';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
@@ -262,6 +263,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                         }}
                     />
                 </FormGroup>
+                <TrainingTipsButton />
                 <Stack direction='row' spacing={1} justifyContent='end'>
                     <Button onClick={onExpandAll} startIcon={<KeyboardDoubleArrowDown />}>
                         Expand All

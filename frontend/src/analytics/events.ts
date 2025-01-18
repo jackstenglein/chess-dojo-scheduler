@@ -21,6 +21,7 @@ export enum EventType {
     EditNondojoTask = 'edit_nondojo_task',
     DeleteNondojoTask = 'delete_nondojo_task',
     ViewTaskDetails = 'view_task_details',
+    OpenProgramTips = 'open_program_tips',
 
     // Game actions
     SubmitGame = 'submit_game',
