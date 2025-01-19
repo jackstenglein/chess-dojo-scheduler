@@ -220,8 +220,8 @@ export const UpdateGameSchema = z
             })
             .merge(updateGame),
     ])
-    .refine((val) => val.type || val.orientation, {
-        message: 'At least one of type or orientation is required',
+    .refine((val) => val.type || val.orientation || val.unlisted !== undefined, {
+        message: 'At least one of type, orientation or unlisted is required',
     })
     .transform((val) => {
         val.id = atob(val.id);

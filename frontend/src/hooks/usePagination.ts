@@ -2,7 +2,7 @@ import { Request, RequestStatus, useRequest } from '@/api/Request';
 import { ListGamesResponse } from '@/api/gameApi';
 import { GameInfo, GameKey } from '@/database/game';
 import { AxiosResponse } from 'axios';
-import { useCallback, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useNextSearchParams } from './useNextSearchParams';
 
 export type SearchFunc = (startKey: string) => Promise<AxiosResponse<ListGamesResponse>>;
@@ -16,6 +16,7 @@ export interface PaginationResult {
     request: Request;
     rowCount: number;
     hasMore: boolean;
+    setGames: Dispatch<SetStateAction<GameInfo[]>>;
     setPage: (newPage: number) => void;
     setPageSize: (newPageSize: number) => void;
     onSearch: (searchFunc: SearchFunc) => void;
@@ -133,6 +134,7 @@ export function usePagination(
         request,
         rowCount,
         hasMore: startKey !== undefined,
+        setGames,
         setPage: onChangePage,
         setPageSize: onChangePageSize,
         onSearch,

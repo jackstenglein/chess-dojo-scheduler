@@ -745,7 +745,7 @@ export function stripTagValue(header?: string | null): string {
  * @param game The game to test.
  * @returns True if the game has missing or invalid data required to publish.
  */
-export function isMissingData(game: Game) {
+export function isMissingData(game: GameInfo) {
     const h = game.headers;
     return (
         !isGameResult(h.Result) ||

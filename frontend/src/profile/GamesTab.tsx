@@ -38,7 +38,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     );
 
     const pagination = usePagination(searchByOwner, 0, 10);
-    const { request, data, pageSize, setPageSize, onDelete } = pagination;
+    const { request, data, pageSize, setPageSize, onDelete, setGames } = pagination;
 
     const onClickRow = (params: GridRowParams<GameInfo>, event: React.MouseEvent) => {
         const url = `/games/${params.row.cohort.replaceAll(
@@ -84,16 +84,11 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                     </Button>
                     <BulkGameEditor
                         games={rowSelectionModel
-                            .map((id) => {
-                                const game = data.find((g) => g.id === id);
-                                if (!game) {
-                                    return null;
-                                }
-                                return { cohort: game.cohort, id: game.id };
-                            })
+                            .map((id) => data.find((g) => g.id === id))
                             .filter((g) => !!g)}
                         onClear={() => setRowSelectionModel([])}
                         onDelete={onDelete}
+                        setGames={setGames}
                     />
                 </Stack>
             )}
