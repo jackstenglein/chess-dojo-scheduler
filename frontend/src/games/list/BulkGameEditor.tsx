@@ -1,6 +1,7 @@
 import { useFreeTier } from '@/auth/Auth';
 import { GameInfo, GameKey } from '@/database/game';
-import { Close, Visibility, VisibilityOff } from '@mui/icons-material';
+import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
+import { Close, CreateNewFolder, Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     Alert,
     IconButton,
@@ -12,6 +13,7 @@ import {
 } from '@mui/material';
 import { Dispatch, SetStateAction, useState } from 'react';
 import DeleteGameButton from '../view/DeleteGameButton';
+import { AddToDirectoryDialog } from './AddToDirectoryDialog';
 import { ChangeVisibilityDialog } from './ChangeVisibilityDialog';
 
 export function BulkGameEditor({
@@ -27,6 +29,7 @@ export function BulkGameEditor({
     setGames: Dispatch<SetStateAction<GameInfo[]>>;
 }) {
     const isFreeTier = useFreeTier();
+    const [directoryPickerOpen, setDirectoryPickerOpen] = useState(false);
     const [visibilityDialog, setVisibilityDialog] = useState('');
     const [visibilitySkipped, setVisibilitySkipped] = useState<GameKey[]>([]);
 
@@ -66,6 +69,12 @@ export function BulkGameEditor({
 
                 <Typography sx={{ ml: 1, mr: 2.5 }}>{games.length} selected</Typography>
 
+                <Tooltip title='Add to Folder'>
+                    <IconButton size='small' onClick={() => setDirectoryPickerOpen(true)}>
+                        <CreateNewFolder />
+                    </IconButton>
+                </Tooltip>
+
                 {unpublished.length > 0 && !isFreeTier && (
                     <Tooltip title={`Publish Game${unpublished.length !== 1 ? 's' : ''}`}>
                         <IconButton
@@ -97,33 +106,40 @@ export function BulkGameEditor({
                     }}
                     onSuccess={handleDelete}
                 />
-
-                {visibilityDialog && (
-                    <ChangeVisibilityDialog
-                        games={visibilityDialog === 'unlisted' ? published : unpublished}
-                        onCancel={() => setVisibilityDialog('')}
-                        onSuccess={handleVisibilityChange}
-                        unlisted={visibilityDialog === 'unlisted'}
-                    />
-                )}
-
-                <Snackbar
-                    open={visibilitySkipped.length > 0}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                >
-                    <Alert
-                        severity='error'
-                        variant='filled'
-                        onClose={() => setVisibilitySkipped([])}
-                    >
-                        {visibilitySkipped.length} game
-                        {visibilitySkipped.length !== 1 ? 's were' : ' was'} not able to
-                        be published because{' '}
-                        {visibilitySkipped.length !== 1 ? 'they are' : 'it is'} missing
-                        data.
-                    </Alert>
-                </Snackbar>
             </Stack>
+
+            <DirectoryCacheProvider>
+                <AddToDirectoryDialog
+                    open={directoryPickerOpen}
+                    games={games}
+                    onClose={() => setDirectoryPickerOpen(false)}
+                />
+            </DirectoryCacheProvider>
+
+            {visibilityDialog && (
+                <ChangeVisibilityDialog
+                    games={visibilityDialog === 'unlisted' ? published : unpublished}
+                    onCancel={() => setVisibilityDialog('')}
+                    onSuccess={handleVisibilityChange}
+                    unlisted={visibilityDialog === 'unlisted'}
+                />
+            )}
+
+            <Snackbar
+                open={visibilitySkipped.length > 0}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    severity='error'
+                    variant='filled'
+                    onClose={() => setVisibilitySkipped([])}
+                >
+                    {visibilitySkipped.length} game
+                    {visibilitySkipped.length !== 1 ? 's were' : ' was'} not able to be
+                    published because{' '}
+                    {visibilitySkipped.length !== 1 ? 'they are' : 'it is'} missing data.
+                </Alert>
+            </Snackbar>
         </Paper>
     );
 }

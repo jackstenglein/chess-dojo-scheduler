@@ -29,7 +29,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
-    const contextMenu = useDataGridContextMenu();
+    const contextMenu = useDataGridContextMenu(rowSelectionModel);
     const router = useRouter();
 
     const searchByOwner = useCallback(
@@ -124,13 +124,13 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
             )}
 
             <ListItemContextMenu
-                game={
-                    contextMenu.rowIds
-                        ? data.find((g) => g.id === contextMenu.rowIds[0])
-                        : undefined
-                }
+                games={contextMenu.rowIds
+                    .map((id) => data.find((g) => g.id === id))
+                    .filter((g) => !!g)}
                 onClose={contextMenu.close}
                 position={contextMenu.position}
+                setGames={setGames}
+                allowEdits
             />
         </Stack>
     );

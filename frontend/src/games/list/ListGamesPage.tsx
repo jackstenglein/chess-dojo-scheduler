@@ -135,11 +135,9 @@ const ListGamesPage = () => {
                         }}
                     />
                     <ListItemContextMenu
-                        game={
-                            contextMenu.rowIds
-                                ? data.find((g) => g.id === contextMenu.rowIds[0])
-                                : undefined
-                        }
+                        games={contextMenu.rowIds
+                            .map((id) => data.find((g) => g.id === id))
+                            .filter((g) => !!g)}
                         onClose={contextMenu.close}
                         position={contextMenu.position}
                     />
