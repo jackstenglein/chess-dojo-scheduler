@@ -140,8 +140,8 @@ async function fetchFromTablebase(fen: string): Promise<LichessTablebasePosition
 
     try {
         const response = await axios.get<LichessTablebasePosition>(
-            'http://tablebase.lichess.ovh/standard',
-            { params: { fen } },
+            'https://tablebase.lichess.ovh/standard',
+            { params: { fen: fen.replaceAll(' ', '_') }, headers: { Accept: '*/*' } },
         );
         return response.data;
     } catch (err) {
