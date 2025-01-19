@@ -1,5 +1,7 @@
 import {
     CreateGameRequest,
+    DeleteGamesRequest,
+    DeleteGamesResponse,
     GameHeader,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
@@ -63,13 +65,14 @@ export interface GameApiContextType {
     ) => Promise<AxiosResponse<Game>>;
 
     /**
-     * deleteGame removes the specified game from the database. The caller
-     * must be the owner of the game.
-     * @param cohort The cohort the game is in.
-     * @param id The id of the game.
-     * @returns The delete Game.
+     * Deletes the specified games from the database. The caller
+     * must be the owner of the games.
+     * @param request The request to delete the games.
+     * @returns The keys of the successfully deleted games.
      */
-    deleteGame: (cohort: string, id: string) => Promise<AxiosResponse<Game>>;
+    deleteGames: (
+        request: DeleteGamesRequest,
+    ) => Promise<AxiosResponse<DeleteGamesResponse>>;
 
     /**
      * listGamesByCohort returns a list of GameInfo objects corresponding to the provided cohort,
@@ -300,18 +303,14 @@ export function updateGame(
 }
 
 /**
- * deleteGame removes the specified game from the database. The caller
- * must be the owner of the game.
+ * Deletes the specified games from the database. The caller
+ * must be the owner of the games.
  * @param idToken The id token of the current signed-in user.
- * @param cohort The cohort the game is in.
- * @param id The id of the game.
- * @returns The delete Game.
+ * @param request The request to delete the games.
+ * @returns The keys of the successfully deleted games.
  */
-export function deleteGame(idToken: string, cohort: string, id: string) {
-    cohort = encodeURIComponent(cohort);
-    id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
-
-    return axios.delete<Game>(BASE_URL + `/game/${cohort}/${id}`, {
+export function deleteGames(idToken: string, request: DeleteGamesRequest) {
+    return axios.post<DeleteGamesResponse>(BASE_URL + `/game/delete`, request, {
         headers: { Authorization: 'Bearer ' + idToken },
     });
 }
@@ -746,7 +745,7 @@ export function stripTagValue(header?: string | null): string {
  * @param game The game to test.
  * @returns True if the game has missing or invalid data required to publish.
  */
-export function isMissingData(game: Game) {
+export function isMissingData(game: GameInfo) {
     const h = game.headers;
     return (
         !isGameResult(h.Result) ||

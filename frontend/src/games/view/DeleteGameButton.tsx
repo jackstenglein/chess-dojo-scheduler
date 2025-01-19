@@ -1,3 +1,4 @@
+import { GameKey } from '@/database/game';
 import { useRouter } from '@/hooks/useRouter';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
@@ -8,58 +9,43 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
+    IconButtonProps,
     Tooltip,
 } from '@mui/material';
 import { useState } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
-import { Game } from '../../database/game';
+
+const MAX_GAMES_PER_BATCH = 100;
 
 interface DeleteGameButtonProps {
-    game: Game;
+    games: GameKey[];
     variant?: 'icon' | 'contained' | 'outlined';
+    slotProps?: {
+        icon?: IconButtonProps;
+    };
+    onSuccess?: (games: GameKey[]) => void;
 }
 
 const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
-    game,
+    games,
     variant = 'icon',
+    slotProps,
+    onSuccess,
 }) => {
-    const api = useApi();
-    const request = useRequest();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const router = useRouter();
-
-    const onDelete = () => {
-        request.onStart();
-        api.deleteGame(game.cohort, game.id)
-            .then(() => {
-                trackEvent(EventType.DeleteGame, {
-                    dojo_cohort: game.cohort,
-                });
-                request.onSuccess();
-                router.push('/profile?view=games');
-            })
-            .catch((err) => {
-                console.error(err);
-                request.onFailure(err);
-            });
-    };
-
-    const onClose = () => {
-        setShowDeleteModal(false);
-        request.reset();
-    };
 
     return (
         <>
             {variant === 'icon' ? (
-                <Tooltip title='Delete Game'>
+                <Tooltip title={`Delete Game${games.length !== 1 ? 's' : ''}`}>
                     <IconButton
                         data-cy='delete-game-button'
                         onClick={() => setShowDeleteModal(true)}
+                        {...slotProps?.icon}
                     >
-                        <DeleteIcon sx={{ color: 'text.secondary' }} />
+                        <DeleteIcon />
                     </IconButton>
                 </Tooltip>
             ) : (
@@ -69,36 +55,97 @@ const DeleteGameButton: React.FC<DeleteGameButtonProps> = ({
                     onClick={() => setShowDeleteModal(true)}
                     color='error'
                 >
-                    Delete Game
+                    Delete Game{games.length !== 1 ? 's' : ''}
                 </Button>
             )}
 
-            <Dialog
+            <DeleteGamesDialog
                 open={showDeleteModal}
-                onClose={request.isLoading() ? undefined : onClose}
-            >
-                <DialogTitle>Delete Game?</DialogTitle>
-                <DialogContent>
-                    Are you sure you want to delete this game? This action cannot be
-                    undone.
-                </DialogContent>
-                <DialogActions>
-                    <Button disabled={request.isLoading()} onClick={onClose}>
-                        Cancel
-                    </Button>
-                    <LoadingButton
-                        data-cy='delete-game-confirm-button'
-                        color='error'
-                        loading={request.isLoading()}
-                        onClick={onDelete}
-                    >
-                        Delete
-                    </LoadingButton>
-                </DialogActions>
-                <RequestSnackbar request={request} />
-            </Dialog>
+                onClose={() => setShowDeleteModal(false)}
+                onSuccess={onSuccess}
+                games={games}
+            />
         </>
     );
 };
 
 export default DeleteGameButton;
+
+export function DeleteGamesDialog({
+    open,
+    onClose,
+    onSuccess,
+    games,
+}: {
+    open: boolean;
+    onClose: () => void;
+    onSuccess?: (games: GameKey[]) => void;
+    games: GameKey[];
+}) {
+    const api = useApi();
+    const request = useRequest();
+    const router = useRouter();
+
+    const handleClose = () => {
+        onClose();
+        request.reset();
+    };
+
+    const onDelete = async () => {
+        try {
+            request.onStart();
+            const deleted: GameKey[] = [];
+
+            for (let i = 0; i < games.length; i += MAX_GAMES_PER_BATCH) {
+                const batch = games.slice(i, i + MAX_GAMES_PER_BATCH);
+                const resp = await api.deleteGames(batch);
+                deleted.push(...resp.data);
+            }
+
+            for (const game of deleted) {
+                trackEvent(EventType.DeleteGame, {
+                    dojo_cohort: game.cohort,
+                });
+            }
+
+            request.onSuccess();
+            if (onSuccess) {
+                onSuccess(deleted);
+                handleClose();
+            } else {
+                router.push('/profile?view=games');
+            }
+        } catch (err) {
+            console.error(err);
+            request.onFailure(err);
+        }
+    };
+
+    return (
+        <Dialog open={open} onClose={request.isLoading() ? undefined : handleClose}>
+            <DialogTitle>
+                Delete{games.length !== 1 ? ` ${games.length}` : ''} Game
+                {games.length !== 1 ? 's' : ''}?
+            </DialogTitle>
+            <DialogContent>
+                Are you sure you want to delete{' '}
+                {games.length === 1 ? 'this game' : 'these games'}? This action cannot be
+                undone.
+            </DialogContent>
+            <DialogActions>
+                <Button disabled={request.isLoading()} onClick={handleClose}>
+                    Cancel
+                </Button>
+                <LoadingButton
+                    data-cy='delete-game-confirm-button'
+                    color='error'
+                    loading={request.isLoading()}
+                    onClick={onDelete}
+                >
+                    Delete
+                </LoadingButton>
+            </DialogActions>
+            <RequestSnackbar request={request} />
+        </Dialog>
+    );
+}

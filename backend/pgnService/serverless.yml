@@ -188,6 +188,21 @@ functions:
         Resource:
           - ${param:DirectoriesTableArn}
 
+  deleteGames:
+    handler: game/delete.handler
+    events:
+      - httpApi:
+          path: /game/delete
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: ${param:GamesTableArn}
+
   recalculateExamScores:
     handler: exam/recalculateScores.handler
     timeout: 30
