@@ -359,20 +359,12 @@ resources:
             KeyType: HASH
           - AttributeName: previousCohort
             KeyType: RANGE
-        BillingMode: !If
-          - IsProd
-          - PROVISIONED
-          - PAY_PER_REQUEST
+        BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: !If
             - IsProd
             - true
             - false
-        ProvisionedThroughput: !If
-          - IsProd
-          - ReadCapacityUnits: 3
-            WriteCapacityUnits: 1
-          - !Ref AWS::NoValue
         GlobalSecondaryIndexes:
           - IndexName: CohortIndex
             KeySchema:
@@ -382,11 +374,6 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 3
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
           - IndexName: DateIndex
             KeySchema:
               - AttributeName: type
@@ -395,11 +382,6 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
-            ProvisionedThroughput: !If
-              - IsProd
-              - ReadCapacityUnits: 2
-                WriteCapacityUnits: 1
-              - !Ref AWS::NoValue
 
     GamesTable:
       Type: AWS::DynamoDB::Table
