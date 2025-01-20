@@ -19,7 +19,8 @@ import (
 var client = http.Client{Timeout: 5 * time.Second}
 
 var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
-var uscfRegexp, _ = regexp.Compile(`(?s)Regular Rating\s*<\/td>\s*<td>\s*<b><nobr>.*<\/nobr>\s*<\/b>\s*<\/td>\s*<td>\s*(\d+)`)
+var uscfCurrRegexp, _ = regexp.Compile(`Regular Rating\s*</td>\s*<td>\s*<b><nobr>\s*(\d+)`)
+var uscfFutureRegexp, _ = regexp.Compile(`(?s)Regular Rating\s*<\/td>\s*<td>\s*<b><nobr>.*<\/nobr>\s*<\/b>\s*<\/td>\s*<td>\s*(\d+)`)
 var uscfGameCountRegexp, _ = regexp.Compile(`<tr><td></td><td><b>(\d+)`)
 var acfRegexp, _ = regexp.Compile(`Current Rating:\s*</div>\s*<div id="stats-box-data-col">\s*[-\d]*\s*</div>\s*<div id="stats-box-data-col">\s*(\d+)`)
 
@@ -223,13 +224,17 @@ func FetchUscfRating(uscfId string) (*database.Rating, error) {
 		return nil, err
 	}
 
-	rating, err := findRating(b, uscfRegexp)
+	rating, err := findRating(b, uscfFutureRegexp)
 	if err != nil {
-		if bytes.Contains(b, []byte("Non-Member")) {
-			err := errors.New(404, "Invalid request: the given USCF ID does not exist", "")
-			return nil, err
+		rating, err = findRating(b, uscfCurrRegexp)
+		if err != nil {
+			if bytes.Contains(b, []byte("Non-Member")) {
+				err := errors.New(404, "Invalid request: the given USCF ID does not exist", "")
+				return nil, err
+			}
+			log.Warnf("USCF id %q: no rating found on website", uscfId)
+			rating = 0
 		}
-		return nil, errors.Wrap(400, fmt.Sprintf("Invalid USCF id `%s`: no rating found on USCF website", uscfId), "", err)
 	}
 
 	dojoRating := &database.Rating{CurrentRating: rating}
