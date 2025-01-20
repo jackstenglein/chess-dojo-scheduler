@@ -200,7 +200,8 @@ func FetchFideRating(fideId string) (*database.Rating, error) {
 
 	rating, err := findRating(b, fideRegexp)
 	if err != nil {
-		return nil, errors.Wrap(400, fmt.Sprintf("Invalid FIDE id `%s`: no rating found on FIDE website", fideId), "", err)
+		log.Warnf("FIDE id %q: no rating found on website", fideId)
+		rating = 0
 	}
 	return &database.Rating{CurrentRating: rating}, nil
 }
@@ -359,7 +360,8 @@ func FetchAcfRating(acfId string) (*database.Rating, error) {
 
 	rating, err := findRating(b, acfRegexp)
 	if err != nil {
-		return nil, errors.Wrap(400, fmt.Sprintf("Invalid ACF id `%s`: no rating found on ACF website", acfId), "", err)
+		log.Warnf("ACF id %q: no rating found on website", acfId)
+		rating = 0
 	}
 	return &database.Rating{CurrentRating: rating}, nil
 }
