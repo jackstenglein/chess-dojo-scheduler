@@ -10,14 +10,12 @@ import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import useSaveGame from '@/hooks/useSaveGame';
 import LoadingPage from '@/loading/LoadingPage';
-import { Chess, EventType as ChessEventType, FEN } from '@jackstenglein/chess';
+import { FEN } from '@jackstenglein/chess';
 import {
     CreateGameRequest,
     GameOrientation,
     GameOrientations,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
-import { Api } from 'chessground/api';
-import { usePathname } from 'next/navigation';
 
 function parseCreateGameRequest(req: CreateGameRequest | null) {
     if (req?.pgnText) {
@@ -31,42 +29,10 @@ export default function AnalysisBoard() {
     const { pgn, fen } = parseCreateGameRequest(stagedGame);
     const { searchParams } = useNextSearchParams();
     const { user, status } = useAuth();
-    const pathname = usePathname();
 
     if (status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
-
-    const onInitialize = (_: Api, chess: Chess) => {
-        const observer = {
-            types: [
-                ChessEventType.NewVariation,
-                ChessEventType.UpdateComment,
-                ChessEventType.UpdateCommand,
-                ChessEventType.UpdateNags,
-                ChessEventType.Initialized,
-                ChessEventType.UpdateDrawables,
-                ChessEventType.DeleteMove,
-                ChessEventType.DeleteBeforeMove,
-                ChessEventType.PromoteVariation,
-                ChessEventType.UpdateHeader,
-                ChessEventType.LegalMove,
-            ],
-            handler: () => {
-                const params = new URLSearchParams(searchParams);
-                params.set('fen', chess.fen());
-
-                const url = `${pathname}?${params.toString()}`;
-                window.history.replaceState(
-                    { ...window.history.state, as: url, url },
-                    '',
-                    url,
-                );
-            },
-        };
-
-        chess.addObserver(observer);
-    };
 
     return (
         <PgnErrorBoundary pgn={pgn}>
@@ -79,7 +45,6 @@ export default function AnalysisBoard() {
                 <PgnBoard
                     pgn={pgn}
                     fen={searchParams.get('fen') || fen}
-                    onInitialize={onInitialize}
                     startOrientation={getDefaultOrientation(pgn, user)}
                     underboardTabs={[
                         DefaultUnderboardTab.Tags,
