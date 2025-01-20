@@ -27,7 +27,12 @@ const StartButtons = () => {
     };
 
     const onCopyUrl = () => {
-        copy(window.location.href);
+        const url = new URL(window.location.href);
+        const fen = chess?.fen();
+        if (fen) {
+            url.searchParams.set('fen', fen);
+        }
+        copy(url.href);
         onCopy('url');
     };
 
