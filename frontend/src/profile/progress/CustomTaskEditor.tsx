@@ -250,7 +250,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
                         error={!!errors.count}
                         helperText={
                             errors.count ||
-                            'Leave blank if you are only tracking time in this task'
+                            'The final target you want to reach. Leave blank if you are only tracking time in this task.'
                         }
                     />
 
