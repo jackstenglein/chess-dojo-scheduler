@@ -68,7 +68,7 @@ export async function listRequirements(
 ) {
     const params = { scoreboardOnly, startKey };
     const result: Requirement[] = [];
-    
+    //console.log(idToken)
 
     do {
         const resp = await axios.get<ListRequirementsResponse>(

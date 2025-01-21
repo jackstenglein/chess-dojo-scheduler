@@ -1,29 +1,27 @@
 import { Requirement, RequirementCategory, RequirementProgress } from './requirement';
 import {User, ALL_COHORTS} from './user';
-import { suggestedAlgo, isComplete, getCategoryScore } from './requirement';
+import { suggestedAlgo, isComplete, getCategoryScore, getRemainingCategoryScore, isTrainingPlanComplete} from './requirement';
 import * as fs from 'fs'
 import { json2csv } from "/workspace/chess-dojo-scheduler/node_modules/json-2-csv/lib/converter"
 import axios from 'axios';
-
-
-
 
 
 const apiToken = "api-endpoint";
 
 export async function simulateTrainingPlan(reqs: Requirement[], user: User) {
     const rows: any[] = [];
-    let remainingReqs = reqs.filter(req => !isComplete(user.dojoCohort, req, user.progress[req.id]));
+    let remainingReqs = reqs;
     console.log('running')
-    while (remainingReqs.length > 0) {
+    console.log('Starting training plan for ', user.displayName + ' ' + 'COHORT: ' + user.dojoCohort);
+    while (!isTrainingPlanComplete(user, user.dojoCohort, reqs)) {
         // Call suggestedAlgo
         const suggestedTasks = suggestedAlgo([], remainingReqs, user);
         
         // Pick a random task
         const chosenTask = suggestedTasks[Math.floor(Math.random() * suggestedTasks.length)];
-        console.log(chosenTask)
+        //console.log(chosenTask)
 
-        if (!chosenTask) break; // No tasks left to complete
+         if (!chosenTask) break; // No tasks left to complete
 
         // Update progress
         if (!user.progress[chosenTask.id]) {
@@ -54,17 +52,22 @@ export async function simulateTrainingPlan(reqs: Requirement[], user: User) {
             'Suggested Task 2': suggestedTasks[1]?.name || '',
             'Suggested Task 3': suggestedTasks[2]?.name || '',
             'Task Chosen By User': chosenTask.name,
-            'Games Dojo Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Games, remainingReqs) || 0,
-            'Tactics Dojo Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Tactics, remainingReqs) || 0,
-            'Middlegames Dojo Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Middlegames, remainingReqs) || 0,
-            'Endgame Dojo Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Endgame, remainingReqs) || 0,
-            'Opening Dojo Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Opening, remainingReqs) || 0,
+            'Games Dojo Current Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Games, remainingReqs) || 0,
+            'Games % Remaining': getRemainingCategoryScore(user, user.dojoCohort, RequirementCategory.Games, remainingReqs) || 0,
+            'Tactics Dojo Current  Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Tactics, remainingReqs) || 0,
+            'Tactics % Remaining': getRemainingCategoryScore(user, user.dojoCohort, RequirementCategory.Tactics, remainingReqs) || 0,
+            'Middlegames Current Dojo Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Middlegames, remainingReqs) || 0,
+            'Middlegames % Remaining': getRemainingCategoryScore(user, user.dojoCohort, RequirementCategory.Middlegames, remainingReqs) || 0,
+            'Endgame Dojo Current Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Endgame, remainingReqs) || 0,
+            'Endgame % Remaining': getRemainingCategoryScore(user, user.dojoCohort, RequirementCategory.Endgame, remainingReqs) || 0,
+            'Opening Dojo Current Points': getCategoryScore(user, user.dojoCohort, RequirementCategory.Opening, remainingReqs) || 0,
+            'Opening % Remaining': getRemainingCategoryScore(user, user.dojoCohort, RequirementCategory.Opening, remainingReqs) || 0,
         });
 
         console.log('JSON ', rows)
 
         // Recompute remaining requirements
-        remainingReqs = reqs.filter(req => !isComplete(user.dojoCohort, req, user.progress[req.id]));
+        // remainingReqs = reqs.filter(req => !isComplete(user.dojoCohort, req, user.progress[req.id]));
     }
 
     console.log('Finished!')
@@ -72,9 +75,9 @@ export async function simulateTrainingPlan(reqs: Requirement[], user: User) {
     //Save JSON to file
     try {
         const csv = json2csv(rows);
-        fs.writeFileSync('output.json', JSON.stringify(rows, null, 2), 'utf-8');
+        fs.writeFileSync('output4.json', JSON.stringify(rows, null, 2), 'utf-8');
         console.log('JSON file has been written to output.json');
-        fs.writeFileSync('output.csv', csv, 'utf-8');
+        fs.writeFileSync('output4.csv', csv, 'utf-8');
         console.log('CSV file has been written.');
     } catch (error) {
         console.error('Error writing JSON file:', error);

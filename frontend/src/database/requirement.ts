@@ -567,6 +567,18 @@ export function getRemainingCategoryScore(
     return roundUp(((total - score) / total) * 100);
 }
 
+export function isTrainingPlanComplete(
+    user: User,
+    cohort: string,
+    req: Requirement[]
+): boolean {
+    return getRemainingCategoryScore(user, cohort, RequirementCategory.Games, req) == 0 &&
+    getRemainingCategoryScore(user, cohort, RequirementCategory.Tactics, req) == 0 &&
+    getRemainingCategoryScore(user, cohort, RequirementCategory.Endgame, req) == 0 &&
+    getRemainingCategoryScore(user, cohort, RequirementCategory.Middlegames, req) == 0 &&
+    getRemainingCategoryScore(user, cohort, RequirementCategory.Opening, req) == 0
+}
+
 /**
  * Returns the unit score of the requirement for the given cohort.
  * @param cohort The cohort to get the unit score for.
