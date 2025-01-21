@@ -154,7 +154,7 @@ interface GameTableProps
     limitFreeTier?: boolean;
     columns?: GridColDef<GameInfo>[];
     defaultVisibility?: Record<string, boolean>;
-    onRowClick?: (params: GridRowParams<GameInfo>) => void;
+    onRowClick?: (params: GridRowParams<GameInfo>, event: React.MouseEvent) => void;
 }
 
 export default function GameTable({

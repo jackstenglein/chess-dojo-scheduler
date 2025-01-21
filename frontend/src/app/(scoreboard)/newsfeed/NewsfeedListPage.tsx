@@ -52,7 +52,7 @@ export function NewsfeedListPage() {
                     <Stack spacing={3}>
                         <Typography variant='h6'>Newsfeed</Typography>
 
-                        {clubs.length === 0 &&
+                        {user?.clubs?.length &&
                         (clubRequest.isLoading() || !clubRequest.isSent()) ? (
                             <LoadingPage />
                         ) : (

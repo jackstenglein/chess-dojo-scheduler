@@ -5,11 +5,15 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
+import { PawnIcon } from '@/style/ChessIcons';
+import { Email, LocationOn, Person, TrendingUp } from '@mui/icons-material';
+import AddLinkIcon from '@mui/icons-material/AddLink';
 import { LoadingButton } from '@mui/lab';
 import {
     Checkbox,
     Container,
     FormControlLabel,
+    InputAdornment,
     MenuItem,
     Stack,
     TextField,
@@ -160,7 +164,7 @@ const SubmitResultsPage = () => {
             <Stack spacing={4}>
                 <Stack spacing={1}>
                     <Typography data-cy='title' variant='h6'>
-                        Submit Results for the Open Classical
+                        Submit Results for the Dojo Open Classical
                     </Typography>
                     <Typography>
                         Results are submitted for the current active round. No late
@@ -180,6 +184,15 @@ const SubmitResultsPage = () => {
                             errors.email ||
                             'Please provide the same email addess you used to register for the tournament'
                         }
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <Email fontSize='medium' color='dojoOrange' />
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
                     />
                 )}
 
@@ -192,6 +205,15 @@ const SubmitResultsPage = () => {
                     onChange={(e) => setRegion(e.target.value)}
                     error={Boolean(errors.region)}
                     helperText={errors.region}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <LocationOn fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                 >
                     <MenuItem value='A'>Region A (Americas)</MenuItem>
                     <MenuItem value='B'>Region B (Eurasia/Africa/Oceania)</MenuItem>
@@ -205,10 +227,19 @@ const SubmitResultsPage = () => {
                     value={section}
                     onChange={(e) => setSection(e.target.value)}
                     error={Boolean(errors.section)}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <TrendingUp fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                     helperText={errors.section}
                 >
                     <MenuItem value='Open'>Open</MenuItem>
-                    <MenuItem value='U1800'>U1800</MenuItem>
+                    <MenuItem value='U1900'>U1900</MenuItem>
                 </TextField>
 
                 <TextField
@@ -218,6 +249,15 @@ const SubmitResultsPage = () => {
                     onChange={(e) => setGameUrl(e.target.value)}
                     onBlur={onBlurGameUrl}
                     error={Boolean(errors.gameUrl)}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <AddLinkIcon fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                     helperText={errors.gameUrl || 'Please provide a link to the game'}
                 />
 
@@ -228,6 +268,15 @@ const SubmitResultsPage = () => {
                     value={white}
                     onChange={(e) => setWhite(e.target.value)}
                     error={Boolean(errors.white)}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <Person fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                     helperText={
                         errors.white ||
                         'Lichess username of the player with the white pieces'
@@ -240,6 +289,15 @@ const SubmitResultsPage = () => {
                     value={black}
                     onChange={(e) => setBlack(e.target.value)}
                     error={Boolean(errors.black)}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <Person fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                     helperText={
                         errors.black ||
                         'Lichess username of the player with the black pieces'
@@ -253,6 +311,15 @@ const SubmitResultsPage = () => {
                     required
                     value={result}
                     onChange={(e) => setResult(e.target.value)}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <PawnIcon fontSize='medium' color='dojoOrange' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                     error={Boolean(errors.result)}
                     helperText={errors.result}
                 >
@@ -293,6 +360,7 @@ const SubmitResultsPage = () => {
                     variant='contained'
                     loading={request.isLoading()}
                     onClick={onSubmit}
+                    color='success'
                     sx={{ alignSelf: 'center' }}
                 >
                     Submit

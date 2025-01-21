@@ -19,7 +19,8 @@ import (
 var client = http.Client{Timeout: 5 * time.Second}
 
 var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
-var uscfRegexp, _ = regexp.Compile(`Regular Rating\s*</td>\s*<td>\s*<b><nobr>\s*(\d+)`)
+var uscfCurrRegexp, _ = regexp.Compile(`Regular Rating\s*</td>\s*<td>\s*<b><nobr>\s*(\d+)`)
+var uscfFutureRegexp, _ = regexp.Compile(`(?s)Regular Rating\s*<\/td>\s*<td>\s*<b><nobr>.*<\/nobr>\s*<\/b>\s*<\/td>\s*<td>\s*(\d+)`)
 var uscfGameCountRegexp, _ = regexp.Compile(`<tr><td></td><td><b>(\d+)`)
 var acfRegexp, _ = regexp.Compile(`Current Rating:\s*</div>\s*<div id="stats-box-data-col">\s*[-\d]*\s*</div>\s*<div id="stats-box-data-col">\s*(\d+)`)
 
@@ -66,6 +67,15 @@ type CfcResponse struct {
 type KnsbResponse struct {
 	Rating   int `json:"rating"`
 	NumGames int `json:"num_played"`
+}
+
+type KnsbList struct {
+	ListId   int    `json:"list_id"`
+	Category string `json:"category"`
+}
+
+type KnsbListResponse struct {
+	Items []KnsbList `json:"items"`
 }
 
 type RatingFetchFunc func(username string) (*database.Rating, error)
@@ -199,7 +209,8 @@ func FetchFideRating(fideId string) (*database.Rating, error) {
 
 	rating, err := findRating(b, fideRegexp)
 	if err != nil {
-		return nil, errors.Wrap(400, fmt.Sprintf("Invalid FIDE id `%s`: no rating found on FIDE website", fideId), "", err)
+		log.Warnf("FIDE id %q: no rating found on website", fideId)
+		rating = 0
 	}
 	return &database.Rating{CurrentRating: rating}, nil
 }
@@ -223,13 +234,17 @@ func FetchUscfRating(uscfId string) (*database.Rating, error) {
 		return nil, err
 	}
 
-	rating, err := findRating(b, uscfRegexp)
+	rating, err := findRating(b, uscfFutureRegexp)
 	if err != nil {
-		if bytes.Contains(b, []byte("Non-Member")) {
-			err := errors.New(404, "Invalid request: the given USCF ID does not exist", "")
-			return nil, err
+		rating, err = findRating(b, uscfCurrRegexp)
+		if err != nil {
+			if bytes.Contains(b, []byte("Non-Member")) {
+				err := errors.New(404, "Invalid request: the given USCF ID does not exist", "")
+				return nil, err
+			}
+			log.Warnf("USCF id %q: no rating found on website", uscfId)
+			rating = 0
 		}
-		return nil, errors.Wrap(400, fmt.Sprintf("Invalid USCF id `%s`: no rating found on USCF website", uscfId), "", err)
 	}
 
 	dojoRating := &database.Rating{CurrentRating: rating}
@@ -354,30 +369,48 @@ func FetchAcfRating(acfId string) (*database.Rating, error) {
 
 	rating, err := findRating(b, acfRegexp)
 	if err != nil {
-		return nil, errors.Wrap(400, fmt.Sprintf("Invalid ACF id `%s`: no rating found on ACF website", acfId), "", err)
+		log.Warnf("ACF id %q: no rating found on website", acfId)
+		rating = 0
 	}
 	return &database.Rating{CurrentRating: rating}, nil
 }
 
 func FetchKnsbRating(knsbId string) (*database.Rating, error) {
-	resp, err := client.Get(fmt.Sprintf("https://ratingviewer.nl/metrics/ratingList/%s/1.json", knsbId))
+	resp, err := client.Get("https://ratingviewer.nl/rating-lists/index.json?page=1&pageSize=10")
+	if err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed call to KNSB list API", err)
+	}
+	if resp.StatusCode != 200 {
+		return nil, errors.New(500, "Temporary server error", fmt.Sprintf("Invalid request: KNSB list API returned status `%d`", resp.StatusCode))
+	}
+
+	var listResp KnsbListResponse
+	if err := json.NewDecoder(resp.Body).Decode(&listResp); err != nil {
+		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal KNSB list response", err)
+	}
+
+	for _, item := range listResp.Items {
+		if item.Category == "C" {
+			return fetchKnsbListRating(knsbId, item.ListId)
+		}
+	}
+	return nil, errors.New(500, "Temporary server error", "Failed to find category C in KNSB list API response")
+}
+
+func fetchKnsbListRating(knsbId string, listId int) (*database.Rating, error) {
+	resp, err := client.Get(fmt.Sprintf("https://ratingviewer.nl/metrics/ratingList/%s/%d.json", knsbId, listId))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed call to KNSB API", err)
 		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
-		err = errors.New(400, fmt.Sprintf("Invalid request: KNSB API returned status `%d`", resp.StatusCode), "")
-		return nil, err
+		return nil, errors.New(400, fmt.Sprintf("Invalid request: KNSB API returned status `%d`", resp.StatusCode), "")
 	}
 
 	var r KnsbResponse
 	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to unmarshal KNSB response", err)
-	}
-
-	if r.Rating == 0 {
-		return nil, errors.New(400, "Invalid request: KNSB API returned no classical rating for your ID", "Nil KNSB response")
 	}
 	return &database.Rating{CurrentRating: r.Rating, NumGames: r.NumGames}, nil
 }

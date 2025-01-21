@@ -11,8 +11,8 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService/secrets"
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/webhook"
+	stripe "github.com/stripe/stripe-go/v81"
+	"github.com/stripe/stripe-go/v81/webhook"
 )
 
 var repository database.UserUpdater = database.DynamoDB

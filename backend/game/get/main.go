@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -42,6 +43,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	} else {
 		id = string(b)
+		id = strings.ReplaceAll(id, "%3F", "?")
 	}
 
 	game, err := repository.GetGame(cohort, id)

@@ -29,7 +29,29 @@ func (s ScoreboardDisplay) IsValid() bool {
 	return s == Hidden || s == Checkbox || s == ProgressBar || s == NonDojo
 }
 
-// CustomTask contains the fields for a user-entered NonDojo task.
+type Task interface {
+	// Returns the score for the given requirement based on the provided
+	// cohort and progress.
+	CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32
+	// Returns true if the given progress is expired for the task.
+	IsExpired(progress *RequirementProgress) bool
+	// Returns the number of cohorts the task needs to be completed in.
+	GetNumberOfCohorts() int
+	// Returns the name of the task.
+	GetName() string
+	// Returns the requirement category of the task.
+	GetCategory() string
+	// Returns the scoreboard display of the task.
+	GetScoreboardDisplay() ScoreboardDisplay
+	// Returns the progress bar suffix of the task.
+	GetProgressBarSuffix() string
+	// Returns the counts of the task.
+	GetCounts() map[DojoCohort]int
+	// Returns true if the task is custom-created by the user.
+	IsCustom() bool
+}
+
+// CustomTask contains the fields for a user-entered task.
 type CustomTask struct {
 	// Uniquely identifies a custom requirement.
 	Id string `dynamodbav:"id" json:"id"`
@@ -50,11 +72,55 @@ type CustomTask struct {
 	// Must be NonDojo
 	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`
 
-	// Must be Non-Dojo
+	// The category of the custom task.
 	Category string `dynamodbav:"category" json:"category"`
+
+	// The number of cohorts the requirement needs to be completed in before it
+	// stops being suggested. For requirements that restart their progress in every
+	// cohort, this is the special value -1.
+	NumberOfCohorts int `dynamodbav:"numberOfCohorts" json:"numberOfCohorts"`
+
+	// An optional string that is used to label the count of the progress bar.
+	ProgressBarSuffix string `dynamodbav:"progressBarSuffix,omitempty" json:"progressBarSuffix"`
 
 	// The time the task was most recently updated
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
+}
+
+func (t *CustomTask) CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32 {
+	return 0
+}
+
+func (t *CustomTask) IsExpired(progress *RequirementProgress) bool {
+	return false
+}
+
+func (t *CustomTask) GetNumberOfCohorts() int {
+	return t.NumberOfCohorts
+}
+
+func (t *CustomTask) GetName() string {
+	return t.Name
+}
+
+func (t *CustomTask) GetCategory() string {
+	return t.Category
+}
+
+func (t *CustomTask) GetScoreboardDisplay() ScoreboardDisplay {
+	return t.ScoreboardDisplay
+}
+
+func (t *CustomTask) GetProgressBarSuffix() string {
+	return t.ProgressBarSuffix
+}
+
+func (t *CustomTask) GetCounts() map[DojoCohort]int {
+	return t.Counts
+}
+
+func (t *CustomTask) IsCustom() bool {
+	return true
 }
 
 // Position contains the field for a sparring position.
@@ -152,21 +218,6 @@ func (r *Requirement) clampCount(cohort DojoCohort, count int) int {
 	return (int)(math.Max(math.Min(float64(count), float64(r.Counts[cohort])), float64(r.StartCount)))
 }
 
-// Returns true if the given progress is expired for the requirement.
-func (r *Requirement) IsExpired(progress *RequirementProgress) bool {
-	if r.ExpirationDays <= 0 || progress == nil {
-		return false
-	}
-
-	expirationDate, err := time.Parse(time.RFC3339, progress.UpdatedAt)
-	if err != nil {
-		return false
-	}
-
-	expirationDate = expirationDate.Add(time.Duration(r.ExpirationDays) * time.Hour * 24)
-	return time.Now().After(expirationDate)
-}
-
 // CalculateScore returns the score for the given requirement based on the provided
 // cohort and progress.
 func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32 {
@@ -214,6 +265,52 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 
 	count = r.clampCount(cohort, count)
 	return float32(math.Max(float64(count-r.StartCount), 0)) * unitScore
+}
+
+// Returns true if the given progress is expired for the requirement.
+func (r *Requirement) IsExpired(progress *RequirementProgress) bool {
+	if r.ExpirationDays <= 0 || progress == nil {
+		return false
+	}
+
+	expirationDate, err := time.Parse(time.RFC3339, progress.UpdatedAt)
+	if err != nil {
+		return false
+	}
+
+	expirationDate = expirationDate.Add(time.Duration(r.ExpirationDays) * time.Hour * 24)
+	return time.Now().After(expirationDate)
+}
+
+func (r *Requirement) GetNumberOfCohorts() int {
+	return r.NumberOfCohorts
+}
+
+func (r *Requirement) GetName() string {
+	if r.ShortName != "" {
+		return r.ShortName
+	}
+	return r.Name
+}
+
+func (r *Requirement) GetCategory() string {
+	return r.Category
+}
+
+func (r *Requirement) GetScoreboardDisplay() ScoreboardDisplay {
+	return r.ScoreboardDisplay
+}
+
+func (r *Requirement) GetProgressBarSuffix() string {
+	return r.ProgressBarSuffix
+}
+
+func (r *Requirement) GetCounts() map[DojoCohort]int {
+	return r.Counts
+}
+
+func (r *Requirement) IsCustom() bool {
+	return false
 }
 
 type RequirementProgress struct {

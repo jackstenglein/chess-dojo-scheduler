@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
-	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v81"
 )
 
 type AvailabilityType string

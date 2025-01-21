@@ -119,7 +119,7 @@ func Info(v ...any) {
 // Infof prints the provided format string and arguments only if the
 // current log level is >= InfoLevel.
 func Infof(format string, v ...any) {
-	if defaultLogger.level >= DebugLevel {
+	if defaultLogger.level >= InfoLevel {
 		levelPrintf("INFO", format, v...)
 	}
 }

@@ -89,8 +89,9 @@ export interface NavbarItem {
     name: string;
     icon?: JSX.Element;
     onClick?: () => void;
-    children?: NavbarItem[];
+    children?: Omit<NavbarItem, 'onClick'>[];
     href?: string;
+    target?: '_blank';
 }
 
 function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
@@ -212,20 +213,20 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                 {
                     name: 'Twitch',
                     icon: <TwitchIcon color='twitch' />,
-                    onClick: () =>
-                        window.open('https://www.twitch.tv/chessdojo/videos', '_blank'),
+                    href: 'https://www.twitch.tv/chessdojo/videos',
+                    target: '_blank',
                 },
                 {
                     name: 'YouTube',
                     icon: <YoutubeIcon color='youtube' />,
-                    onClick: () =>
-                        window.open('https://www.youtube.com/@ChessDojo', '_blank'),
+                    href: 'https://www.youtube.com/@ChessDojo',
+                    target: '_blank',
                 },
                 {
                     name: 'Patreon',
                     icon: <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: 'white' }} />,
-                    onClick: () =>
-                        window.open('https://www.patreon.com/ChessDojo', '_blank'),
+                    href: 'https://www.patreon.com/ChessDojo',
+                    target: '_blank',
                 },
             ],
         },
@@ -257,8 +258,8 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                 {
                     name: 'Merch',
                     icon: <Storefront />,
-                    onClick: () =>
-                        window.open('https://www.chessdojo.shop/shop', '_blank'),
+                    href: 'https://www.chessdojo.shop/shop',
+                    target: '_blank',
                 },
             ],
         },
@@ -305,13 +306,6 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
         setAnchorEl(null);
     };
 
-    const handleClick = (func: () => void) => {
-        return () => {
-            func();
-            handleClose();
-        };
-    };
-
     if (item.name === 'Calendar') {
         return (
             <Button
@@ -328,6 +322,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                     </Badge>
                 }
                 href={item.href}
+                component={Link}
             >
                 {item.name}
             </Button>
@@ -357,11 +352,10 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                     {item.children.map((child) => (
                         <MenuItem
                             key={child.name}
-                            onClick={
-                                child.onClick ? handleClick(child.onClick) : undefined
-                            }
+                            onClick={handleClose}
                             component={child.href ? Link : 'li'}
                             href={child.href}
+                            target={child.target}
                         >
                             {child.icon && <ListItemIcon>{child.icon}</ListItemIcon>}
                             <Typography textAlign='center'>{child.name}</Typography>
@@ -376,9 +370,9 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
 export const NavMenuItem: React.FC<{
     item: NavbarItem;
     openItems: Record<string, boolean>;
-    handleClick: (func: () => void) => () => void;
+    handleClose: () => void;
     meetingCount?: number;
-}> = ({ item, openItems, handleClick, meetingCount }) => {
+}> = ({ item, openItems, handleClose, meetingCount }) => {
     return (
         <>
             <MenuItem
@@ -409,12 +403,11 @@ export const NavMenuItem: React.FC<{
                         {item.children.map((child) => (
                             <MenuItem
                                 key={child.name}
-                                onClick={
-                                    child.onClick ? handleClick(child.onClick) : undefined
-                                }
+                                onClick={handleClose}
                                 sx={{ pl: 3 }}
                                 component={child.href ? Link : 'li'}
                                 href={child.href}
+                                target={child.target}
                             >
                                 {child.icon ? (
                                     <ListItemIcon>{child.icon}</ListItemIcon>
@@ -443,10 +436,7 @@ function HelpButton() {
     );
 }
 
-function useNavbarItems(
-    meetingCount: number,
-    handleClick: (func: () => void) => () => void,
-) {
+function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
 
@@ -485,6 +475,11 @@ function useNavbarItems(
         startItemCount = startItems.length - 8;
     }
 
+    const onClose = () => {
+        setOpenItems({});
+        handleClose();
+    };
+
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
         .map((item) => (
@@ -498,7 +493,7 @@ function useNavbarItems(
                 key={item.name}
                 item={item}
                 openItems={openItems}
-                handleClick={handleClick}
+                handleClose={onClose}
                 meetingCount={meetingCount}
             />
         ));
@@ -519,7 +514,7 @@ function useNavbarItems(
                 key='help'
                 item={helpItem()}
                 openItems={openItems}
-                handleClick={handleClick}
+                handleClose={onClose}
             />,
         );
     }
@@ -528,7 +523,13 @@ function useNavbarItems(
         endItems.push(<ProfileButton key='profileDropdown' />);
     } else {
         menuItems.push(
-            <MenuItem key='signout' onClick={handleClick(auth.signout)}>
+            <MenuItem
+                key='signout'
+                onClick={() => {
+                    auth.signout();
+                    onClose();
+                }}
+            >
                 <ListItemIcon>
                     <Logout color='error' />
                 </ListItemIcon>
@@ -558,14 +559,7 @@ const LargeMenu = ({ meetingCount }: MenuProps) => {
         setAnchorEl(null);
     };
 
-    const handleClick = (func: () => void) => {
-        return () => {
-            func();
-            handleClose();
-        };
-    };
-
-    const { startItems, menuItems, endItems } = useNavbarItems(meetingCount, handleClick);
+    const { startItems, menuItems, endItems } = useNavbarItems(meetingCount, handleClose);
     const profileCreated = hasCreatedProfile(auth.user);
 
     if (!profileCreated) {
@@ -647,14 +641,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
 
     const handleClose = () => {
         setAnchorEl(null);
-    };
-
-    const handleClick = (func: () => void) => {
-        return () => {
-            func();
-            handleClose();
-            setOpenItems({});
-        };
+        setOpenItems({});
     };
 
     const profileCreated = hasCreatedProfile(auth.user);
@@ -666,7 +653,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                 key={item.name}
                 item={item}
                 openItems={openItems}
-                handleClick={handleClick}
+                handleClose={handleClose}
                 meetingCount={meetingCount}
             />
         ));
@@ -728,7 +715,12 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                     <Typography textAlign='center'>Help</Typography>
                 </MenuItem>
 
-                <MenuItem onClick={handleClick(auth.signout)}>
+                <MenuItem
+                    onClick={() => {
+                        auth.signout();
+                        handleClose();
+                    }}
+                >
                     <ListItemIcon>
                         <Logout color='error' />
                     </ListItemIcon>

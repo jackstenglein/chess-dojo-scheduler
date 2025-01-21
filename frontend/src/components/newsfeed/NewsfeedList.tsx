@@ -23,10 +23,7 @@ const isGameAnalysisEntry = (entry: TimelineEntry) =>
 const isGameSubmissionEntry = (entry: TimelineEntry) =>
     entry.requirementId === TimelineSpecialRequirementId.GameSubmission;
 
-const isAnnotationEntry = (entry: TimelineEntry) =>
-    isGameAnalysisEntry(entry) && isGameSubmissionEntry(entry);
-
-const AllCategoriesFilterName = 'All Categories';
+export const AllCategoriesFilterName = 'All Categories';
 
 const CategoryFilters: FilterMap = [
     RequirementCategory.Tactics,
@@ -42,14 +39,14 @@ const CategoryFilters: FilterMap = [
     {},
 );
 
-const Filters: FilterMap = {
+export const Filters: FilterMap = {
     [AllCategoriesFilterName]: () => true,
-    Annotations: isAnnotationEntry,
+    Annotations: isGameSubmissionEntry,
     [RequirementCategory.Games]: (entry) =>
-        isGameAnalysisEntry(entry) && !isAnnotationEntry(entry),
+        isGameAnalysisEntry(entry) && !isGameSubmissionEntry(entry),
     ...CategoryFilters,
 };
-const FilterOptions = Object.keys(Filters).map((opt) => {
+export const FilterOptions = Object.keys(Filters).map((opt) => {
     return {
         value: opt,
         label: opt,
@@ -230,7 +227,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
     }
 
     return (
-        <Stack spacing={3}>
+        <Stack spacing={3} data-cy='newsfeed-list'>
             {newsfeedIdOptions !== undefined && (
                 <MultipleSelectChip
                     selected={newsfeedIds}

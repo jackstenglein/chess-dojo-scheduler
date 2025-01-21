@@ -1,9 +1,10 @@
 import ModalTitle from '@/components/ui/ModalTitle';
+import CustomTaskEditor from '@/profile/progress/CustomTaskEditor';
 import { Edit, Lock, Loop } from '@mui/icons-material';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import CheckIcon from '@mui/icons-material/Check';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
-import { Box, Button, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Chip, Grid2, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import { useRequirements } from '../api/cache/requirements';
 import { useAuth, useFreeTier } from '../auth/Auth';
@@ -18,7 +19,7 @@ import {
 } from '../database/requirement';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '../database/user';
 import ProgressDialog from '../profile/progress/ProgressDialog';
-import CustomTaskDisplay from './CustomTaskDisplay';
+import DeleteCustomTaskModal from './DeleteCustomTaskModal';
 import Position from './Position';
 
 function dojoPointDescription(requirement: Requirement, cohort: string) {
@@ -53,10 +54,17 @@ function dojoPointDescription(requirement: Requirement, cohort: string) {
     } per ${unit} completed.`;
 }
 
-const DojoPointChip: React.FC<{ requirement: Requirement; cohort: string }> = ({
+function DojoPointChip({
     requirement,
     cohort,
-}) => {
+}: {
+    requirement: Requirement;
+    cohort: string;
+}) {
+    if (!isRequirement(requirement)) {
+        return null;
+    }
+
     const description = dojoPointDescription(requirement, cohort);
     let unitScore = getUnitScore(cohort, requirement);
     if (requirement.scoreboardDisplay === ScoreboardDisplay.Minutes) {
@@ -76,9 +84,13 @@ const DojoPointChip: React.FC<{ requirement: Requirement; cohort: string }> = ({
             />
         </Tooltip>
     );
-};
+}
 
-const ExpirationChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => {
+function ExpirationChip({ requirement }: { requirement: Requirement }) {
+    if (!isRequirement(requirement)) {
+        return null;
+    }
+
     if (requirement.expirationDays < 0) {
         return null;
     }
@@ -106,7 +118,7 @@ const ExpirationChip: React.FC<{ requirement: Requirement }> = ({ requirement })
             />
         </Tooltip>
     );
-};
+}
 
 const RepeatChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => {
     let title = '';
@@ -177,6 +189,8 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
 }) => {
     const { user } = useAuth();
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+    const [showEditor, setShowEditor] = useState(false);
+    const [showDeleter, setShowDeleter] = useState(false);
     const isFreeTier = useFreeTier();
 
     const selectedCohort = useMemo(() => {
@@ -232,10 +246,6 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
         return { isBlocked: false };
     }, [requirement, requirements, selectedCohort, user]);
 
-    if (!isRequirement(requirement)) {
-        return <CustomTaskDisplay task={requirement} onClose={onClose} />;
-    }
-
     if (!selectedCohort) {
         return null;
     }
@@ -245,7 +255,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
     const totalCount =
         requirement.counts[selectedCohort] || requirement.counts[ALL_COHORTS];
     const currentCount =
-        progress?.counts[selectedCohort] || progress?.counts[ALL_COHORTS] || 0;
+        progress?.counts?.[selectedCohort] || progress?.counts?.[ALL_COHORTS] || 0;
     const isCompleted = currentCount >= totalCount;
 
     let requirementName = requirement.name.replaceAll('{{count}}', `${totalCount}`);
@@ -253,9 +263,10 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
         requirementName += ` (${totalCount})`;
     }
 
-    let description = isFreeTier
-        ? requirement.freeDescription || requirement.description
-        : requirement.description;
+    let description =
+        isRequirement(requirement) && isFreeTier
+            ? requirement.freeDescription || requirement.description
+            : requirement.description;
     description = description.replaceAll('{{count}}', `${totalCount}`);
 
     return (
@@ -269,7 +280,8 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                         </Typography>
                     </Stack>
                 </ModalTitle>
-                <Stack direction='row' spacing={2} alignItems='center'>
+
+                <Stack direction='row' gap={2} alignItems='center'>
                     {blocker.isBlocked ? (
                         <Tooltip title={blocker.reason}>
                             <Chip icon={<Lock />} label='Locked' color='error' />
@@ -291,14 +303,53 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                             Update Progress
                         </Button>
                     )}
+
+                    {!isRequirement(requirement) &&
+                        requirement.owner === user?.username && (
+                            <>
+                                <Button
+                                    variant='contained'
+                                    onClick={() => setShowEditor(true)}
+                                >
+                                    Edit Task
+                                </Button>
+                                <Button
+                                    variant='contained'
+                                    color='error'
+                                    onClick={() => setShowDeleter(true)}
+                                >
+                                    Delete Task
+                                </Button>
+
+                                <CustomTaskEditor
+                                    open={showEditor}
+                                    onClose={() => setShowEditor(false)}
+                                    task={requirement}
+                                />
+
+                                <DeleteCustomTaskModal
+                                    task={requirement}
+                                    open={showDeleter}
+                                    onCancel={() => setShowDeleter(false)}
+                                    onDelete={onClose}
+                                />
+                            </>
+                        )}
                 </Stack>
 
-                <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
-                    <DojoPointChip requirement={requirement} cohort={selectedCohort} />
-                    <ExpirationChip requirement={requirement} />
-                    <RepeatChip requirement={requirement} />
-                    {requirement.blockers && <BlockerChips requirement={requirement} />}
-                </Stack>
+                {isRequirement(requirement) && (
+                    <Stack direction='row' spacing={2} flexWrap='wrap' rowGap={1}>
+                        <DojoPointChip
+                            requirement={requirement}
+                            cohort={selectedCohort}
+                        />
+                        <ExpirationChip requirement={requirement} />
+                        <RepeatChip requirement={requirement} />
+                        {requirement.blockers && (
+                            <BlockerChips requirement={requirement} />
+                        )}
+                    </Stack>
+                )}
 
                 <Typography
                     variant='body1'
@@ -306,28 +357,29 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                     dangerouslySetInnerHTML={{ __html: description }}
                 />
 
-                {requirement.positions && (
-                    <Grid container gap={2}>
+                {isRequirement(requirement) && requirement.positions && (
+                    <Grid2 container gap={2}>
                         {requirement.positions.map((p) => (
-                            <Grid key={p.fen} item md='auto'>
+                            <Grid2 key={p.fen} size='auto'>
                                 <Position position={p} />
-                            </Grid>
+                            </Grid2>
                         ))}
-                    </Grid>
+                    </Grid2>
                 )}
 
-                {requirement.videoUrls?.map((url, idx) => (
-                    <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }} key={url}>
-                        <iframe
-                            src={url}
-                            title={`${requirement.name} Video ${idx + 1}`}
-                            allow='accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share'
-                            allowFullScreen={true}
-                            style={{ width: '100%', height: '100%' }}
-                            frameBorder={0}
-                        />
-                    </Box>
-                ))}
+                {isRequirement(requirement) &&
+                    requirement.videoUrls?.map((url, idx) => (
+                        <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }} key={url}>
+                            <iframe
+                                src={url}
+                                title={`${requirement.name} Video ${idx + 1}`}
+                                allow='accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share'
+                                allowFullScreen={true}
+                                style={{ width: '100%', height: '100%' }}
+                                frameBorder={0}
+                            />
+                        </Box>
+                    ))}
             </Stack>
 
             <ProgressDialog

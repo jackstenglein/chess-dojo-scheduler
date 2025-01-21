@@ -30,7 +30,7 @@ describe('Submit Results Page', () => {
         cy.contains('Region A').click();
 
         cy.getBySel('section').click();
-        cy.contains('U1800').click();
+        cy.contains('U1900').click();
 
         cy.getBySel('game-url').type('https://test.com');
         cy.getBySel('white').type('shatterednirvana');
@@ -48,7 +48,7 @@ describe('Submit Results Page', () => {
         cy.getBySel('email').type('test@example.com');
 
         cy.getBySel('section').click();
-        cy.contains('U1800').click();
+        cy.contains('U1900').click();
 
         cy.getBySel('game-url').type('https://test.com');
         cy.getBySel('white').type('shatterednirvana');
@@ -88,7 +88,7 @@ describe('Submit Results Page', () => {
         cy.contains('Region A').click();
 
         cy.getBySel('section').click();
-        cy.contains('U1800').click();
+        cy.contains('U1900').click();
 
         cy.getBySel('white').type('shatterednirvana');
         cy.getBySel('black').type('jackstenglein');
@@ -108,7 +108,7 @@ describe('Submit Results Page', () => {
         cy.contains('Region A').click();
 
         cy.getBySel('section').click();
-        cy.contains('U1800').click();
+        cy.contains('U1900').click();
 
         cy.getBySel('game-url').type('https://test.com');
         cy.getBySel('black').type('jackstenglein');
@@ -128,7 +128,7 @@ describe('Submit Results Page', () => {
         cy.contains('Region A').click();
 
         cy.getBySel('section').click();
-        cy.contains('U1800').click();
+        cy.contains('U1900').click();
 
         cy.getBySel('game-url').type('https://test.com');
         cy.getBySel('white').type('jackstenglein');
@@ -148,7 +148,7 @@ describe('Submit Results Page', () => {
         cy.contains('Region A').click();
 
         cy.getBySel('section').click();
-        cy.contains('U1800').click();
+        cy.contains('U1900').click();
 
         cy.getBySel('game-url').type('https://test.com');
         cy.getBySel('white').type('jackstenglein');
@@ -194,7 +194,7 @@ describe('Submit Results Page', () => {
         cy.interceptApi('POST', '/public/tournaments/open-classical/results', {
             body: {
                 sections: {
-                    A_U1800: {
+                    A_U1900: {
                         rounds: [],
                     },
                 },
@@ -205,7 +205,7 @@ describe('Submit Results Page', () => {
         cy.getBySel('region').click();
         cy.contains('Region A').click();
         cy.getBySel('section').click();
-        cy.contains('U1800').click();
+        cy.contains('U1900').click();
         cy.getBySel('game-url').type('https://test.com');
         cy.getBySel('white').type('cypress');
         cy.getBySel('black').type('cypress');

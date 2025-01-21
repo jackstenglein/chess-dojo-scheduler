@@ -3,6 +3,12 @@ import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import LoadMoreButton from '@/components/newsfeed/LoadMoreButton';
 import NewsfeedItem from '@/components/newsfeed/NewsfeedItem';
 import NewsfeedItemHeader from '@/components/newsfeed/NewsfeedItemHeader';
+import {
+    AllCategoriesFilterName,
+    FilterOptions,
+    Filters,
+} from '@/components/newsfeed/NewsfeedList';
+import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { RequirementCategory } from '@/database/requirement';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Scheduler } from '@aldabil/react-scheduler';
@@ -75,6 +81,7 @@ interface ActivityTimelineProps {
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) => {
     const { request, entries, hasMore, onLoadMore, onEdit } = timeline;
+    const [filters, setFilters] = useState<string[]>([AllCategoriesFilterName]);
     const [numShown, setNumShown] = useState(25);
     const [view, setView] = useState('list');
 
@@ -89,6 +96,23 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
         );
     }
 
+    const setFiltersWrapper = (proposedFilters: string[]) => {
+        const addedFilters = proposedFilters.filter(
+            (filter) => !filters.includes(filter),
+        );
+
+        let finalFilters = [];
+        if (addedFilters.includes(AllCategoriesFilterName)) {
+            finalFilters = [AllCategoriesFilterName];
+        } else {
+            finalFilters = proposedFilters.filter(
+                (filter) => filter !== AllCategoriesFilterName,
+            );
+        }
+
+        setFilters(finalFilters);
+    };
+
     const handleLoadMore = () => {
         if (numShown < entries.length) {
             setNumShown(numShown + 25);
@@ -96,6 +120,10 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
             onLoadMore();
         }
     };
+
+    const shownEntries = entries.filter((entry) =>
+        filters.some((filterKey) => Filters[filterKey]?.(entry)),
+    );
 
     return (
         <Stack mt={2} spacing={2}>
@@ -120,12 +148,20 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
                 </ToggleButtonGroup>
             </Stack>
 
+            <MultipleSelectChip
+                selected={filters}
+                setSelected={setFiltersWrapper}
+                options={FilterOptions}
+                label='Categories'
+                error={filters.length === 0}
+            />
+
             {entries.length === 0 ? (
                 <Typography>No events yet</Typography>
             ) : view === 'list' ? (
                 <ActivityTimelineList
                     user={user}
-                    entries={entries}
+                    entries={shownEntries}
                     numShown={numShown}
                     onEdit={onEdit}
                     hasMore={hasMore}
@@ -133,7 +169,10 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
                     request={request}
                 />
             ) : (
-                <ActivityTimelineCalendar user={user} timeline={timeline} />
+                <ActivityTimelineCalendar
+                    user={user}
+                    timeline={{ ...timeline, entries: shownEntries }}
+                />
             )}
 
             <RequestSnackbar request={request} />

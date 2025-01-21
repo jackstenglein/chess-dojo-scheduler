@@ -10,8 +10,9 @@
     "author": "jackstenglein",
     "license": "MIT",
     "dependencies": {
-        "@jackstenglein/chess": "^2.2.8",
+        "@jackstenglein/chess": "^2.2.9",
         "ml-regression-simple-linear": "^3.0.1",
+        "stripe": "^17.5.0",
         "uuid": "^10.0.0",
         "zod": "^3.23.8"
     },

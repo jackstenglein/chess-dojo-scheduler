@@ -7,7 +7,7 @@ import {
     DialogContent,
     DialogContentText,
     FormControlLabel,
-    Grid,
+    Grid2,
     Stack,
     TextField,
 } from '@mui/material';
@@ -26,19 +26,12 @@ import {
     getCurrentCount,
     isRequirement,
 } from '../../database/requirement';
+import { useTimelineContext } from '../../profile/activity/useTimeline';
 import InputSlider from './InputSlider';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
-const TIME_WARNING_THRESHOLD_MINS = 60 * 5; // 5 hours
-
-function getContentText(isNonDojo: boolean, isMinutes: boolean): string {
-    if (isNonDojo || isMinutes) {
-        return 'This time will be added to any time you have previously entered for this activity.';
-    }
-
-    return `Optionally add time to this requirement in order for it to be added to your activity breakdown. This time will be added to any time you have previously entered for this requirement.`;
-}
+const TIME_WARNING_THRESHOLD_MINS = 60 * 5;
 
 function getIncrementalCount(
     alreadyComplete: boolean,
@@ -89,6 +82,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     toggleView,
 }) => {
     const api = useApi();
+    const { resetRequest: timelineNewRequest } = useTimelineContext();
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
@@ -170,6 +164,9 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                 setHours('');
                 setMinutes('');
                 request.reset();
+                // The timeline needs to know that the update request is done
+                // So we go get the new activity
+                timelineNewRequest();
             })
             .catch((err) => {
                 console.error('updateUserProgress: ', err);
@@ -181,12 +178,12 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
         <>
             <DialogContent>
                 <Stack spacing={3} sx={{ mt: isMinutes ? 1 : undefined }}>
-                    {isSlider && isRequirement(requirement) && (
+                    {isSlider && (
                         <InputSlider
                             value={value}
                             setValue={setValue}
                             max={totalCount}
-                            min={requirement.startCount}
+                            min={requirement.startCount || 0}
                             suffix={requirement.progressBarSuffix}
                         />
                     )}
@@ -215,12 +212,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     />
 
                     <Stack spacing={2}>
-                        <DialogContentText>
-                            {getContentText(isNonDojo, isMinutes)}
-                        </DialogContentText>
-
-                        <Grid container width={1}>
-                            <Grid item xs={12} sm>
+                        <Grid2 container width={1} gap={2}>
+                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
                                 <DatePicker
                                     label='Date'
                                     disableFuture
@@ -228,36 +221,40 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                                     onChange={setDate}
                                     slotProps={{ textField: { fullWidth: true } }}
                                 />
-                            </Grid>
-                            <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
+                            </Grid2>
+                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
                                 <TextField
                                     label='Hours'
                                     value={hours}
-                                    inputProps={{
-                                        inputMode: 'numeric',
-                                        pattern: '[0-9]*',
+                                    slotProps={{
+                                        htmlInput: {
+                                            inputMode: 'numeric',
+                                            pattern: '[0-9]*',
+                                        },
                                     }}
                                     onChange={(event) => setHours(event.target.value)}
                                     error={!!errors.hours}
                                     helperText={errors.hours}
                                     fullWidth
                                 />
-                            </Grid>
-                            <Grid item xs={12} sm pl={{ sm: 2 }} pt={{ xs: 2, sm: 0 }}>
+                            </Grid2>
+                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
                                 <TextField
                                     label='Minutes'
                                     value={minutes}
-                                    inputProps={{
-                                        inputMode: 'numeric',
-                                        pattern: '[0-9]*',
+                                    slotProps={{
+                                        htmlInput: {
+                                            inputMode: 'numeric',
+                                            pattern: '[0-9]*',
+                                        },
                                     }}
                                     onChange={(event) => setMinutes(event.target.value)}
                                     error={!!errors.minutes}
                                     helperText={errors.minutes}
                                     fullWidth
                                 />
-                            </Grid>
-                        </Grid>
+                            </Grid2>
+                        </Grid2>
                         <DialogContentText>
                             Total Time:{' '}
                             {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
@@ -276,11 +273,19 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     Cancel
                 </Button>
                 {toggleView && (
-                    <Button onClick={toggleView} disabled={request.isLoading()}>
+                    <Button
+                        data-cy='task-updater-show-history-button'
+                        onClick={toggleView}
+                        disabled={request.isLoading()}
+                    >
                         Show History
                     </Button>
                 )}
-                <LoadingButton loading={request.isLoading()} onClick={onSubmit}>
+                <LoadingButton
+                    data-cy='task-updater-save-button'
+                    loading={request.isLoading()}
+                    onClick={onSubmit}
+                >
                     Update
                 </LoadingButton>
             </DialogActions>

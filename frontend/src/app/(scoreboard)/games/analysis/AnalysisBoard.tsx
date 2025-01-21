@@ -7,6 +7,7 @@ import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButton
 import { GameContext } from '@/context/useGame';
 import { User } from '@/database/user';
 import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import useSaveGame from '@/hooks/useSaveGame';
 import LoadingPage from '@/loading/LoadingPage';
 import { FEN } from '@jackstenglein/chess';
@@ -25,8 +26,8 @@ function parseCreateGameRequest(req: CreateGameRequest | null) {
 
 export default function AnalysisBoard() {
     const { stagedGame } = useSaveGame();
-
     const { pgn, fen } = parseCreateGameRequest(stagedGame);
+    const { searchParams } = useNextSearchParams();
     const { user, status } = useAuth();
 
     if (status === AuthStatus.Loading) {
@@ -43,13 +44,14 @@ export default function AnalysisBoard() {
             >
                 <PgnBoard
                     pgn={pgn}
-                    fen={fen}
+                    fen={searchParams.get('fen') || fen}
                     startOrientation={getDefaultOrientation(pgn, user)}
                     underboardTabs={[
                         DefaultUnderboardTab.Tags,
                         DefaultUnderboardTab.Editor,
                         DefaultUnderboardTab.Explorer,
                         DefaultUnderboardTab.Clocks,
+                        DefaultUnderboardTab.Share,
                         DefaultUnderboardTab.Settings,
                     ]}
                     allowMoveDeletion={true}
@@ -58,6 +60,7 @@ export default function AnalysisBoard() {
                     slots={{
                         moveButtonExtras: EngineMoveButtonExtras,
                     }}
+                    initialUnderboardTab={DefaultUnderboardTab.Explorer}
                 />
             </GameContext.Provider>
         </PgnErrorBoundary>

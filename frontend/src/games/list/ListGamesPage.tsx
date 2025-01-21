@@ -59,10 +59,13 @@ const ListGamesPage = () => {
     const pagination = usePagination(null, 0, 10);
     const { pageSize, setPageSize, request, data, onSearch } = pagination;
 
-    const onClick = ({ cohort, id }: GameInfo) => {
-        router.push(
-            `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`,
-        );
+    const onClick = ({ cohort, id }: GameInfo, event: React.MouseEvent) => {
+        const url = `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`;
+        if (event.shiftKey) {
+            window.open(url, '_blank');
+        } else {
+            router.push(url);
+        }
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
@@ -124,7 +127,7 @@ const ListGamesPage = () => {
                         namespace='games-list-page'
                         limitFreeTier
                         pagination={pagination}
-                        onRowClick={(params) => onClick(params.row)}
+                        onRowClick={(params, event) => onClick(params.row, event)}
                         onPaginationModelChange={onPaginationModelChange}
                         contextMenu={contextMenu}
                         defaultVisibility={{
@@ -132,11 +135,9 @@ const ListGamesPage = () => {
                         }}
                     />
                     <ListItemContextMenu
-                        game={
-                            contextMenu.rowIds
-                                ? data.find((g) => g.id === contextMenu.rowIds[0])
-                                : undefined
-                        }
+                        games={contextMenu.rowIds
+                            .map((id) => data.find((g) => g.id === id))
+                            .filter((g) => !!g)}
                         onClose={contextMenu.close}
                         position={contextMenu.position}
                     />

@@ -44,6 +44,13 @@ const nextConfig = {
 
         return headers;
     },
+    redirects: () => [
+        {
+            source: '/games/explorer',
+            destination: '/games/analysis',
+            permanent: true,
+        },
+    ],
 };
 
 const ENGINE_HEADERS = [
@@ -70,7 +77,7 @@ const pagesWithVideos = [
     '/scoreboard/:path*',
     '/blog/olympiad-2024',
     '/blog/new-ratings',
-    '/blog/dojo-talks/top-10-2025',
+    '/blog/dojo-talks/:path*',
 
     // K+P Endings
     '/courses/ENDGAME/34241b4d-3a8f-4d5f-9a15-b26cf718a0d0/1/1',

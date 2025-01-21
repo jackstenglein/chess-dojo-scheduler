@@ -335,7 +335,7 @@ export function ShareTab() {
     };
 
     return (
-        <CardContent>
+        <CardContent data-cy='underboard-tab-share'>
             <Stack>
                 <RequestSnackbar request={pdfRequest} />
                 <RequestSnackbar request={cloneRequest} />
@@ -528,30 +528,31 @@ export function ShareTab() {
                         Copy Current Line
                     </CopyButton>
 
-                    <LoadingButton
-                        variant='contained'
-                        startIcon={<Merge />}
-                        onClick={() => setShowMergeDialog(true)}
-                    >
-                        Merge Current Line
-                    </LoadingButton>
-
                     {user && (
-                        <LoadingButton
-                            variant='contained'
-                            loading={cloneRequest.isLoading()}
-                            onClick={onCloneGame}
-                        >
-                            Clone Game
-                        </LoadingButton>
+                        <>
+                            <LoadingButton
+                                variant='contained'
+                                startIcon={<Merge />}
+                                onClick={() => setShowMergeDialog(true)}
+                            >
+                                Merge Current Line
+                            </LoadingButton>
+                            <MergeLineDialog
+                                open={showMergeDialog}
+                                onClose={() => setShowMergeDialog(false)}
+                            />
+
+                            <LoadingButton
+                                variant='contained'
+                                loading={cloneRequest.isLoading()}
+                                onClick={onCloneGame}
+                            >
+                                Clone Game
+                            </LoadingButton>
+                        </>
                     )}
                 </Stack>
             </Stack>
-
-            <MergeLineDialog
-                open={showMergeDialog}
-                onClose={() => setShowMergeDialog(false)}
-            />
         </CardContent>
     );
 }

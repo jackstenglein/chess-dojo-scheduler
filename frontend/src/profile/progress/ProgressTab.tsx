@@ -1,5 +1,6 @@
 import { useApi } from '@/api/Api';
 import { useAuth } from '@/auth/Auth';
+import { TrainingTipsButton } from '@/components/profile/TrainingTips';
 import DojoScoreCard from '@/components/profile/stats/DojoScoreCard';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
@@ -25,7 +26,6 @@ import {
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
-import CustomTaskEditor from './CustomTaskEditor';
 import ProgressCategory, { Category } from './ProgressCategory';
 
 function useHideCompleted(isCurrentUser: boolean) {
@@ -60,7 +60,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         'Non-Dojo': false,
         [RequirementCategory.SuggestedTasks]: true,
     });
-    const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
 
     useEffect(() => {
         setCohort(user.dojoCohort);
@@ -91,41 +90,31 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             });
         }
 
-        requirements.forEach((r) => {
-            const c = categories.find((c) => c.name === r.category);
-            const complete = isComplete(cohort, r, user.progress[r.id]);
+        const tasks = (requirements as (Requirement | CustomTask)[]).concat(
+            user.customTasks ?? [],
+        );
+        tasks.forEach((task) => {
+            if (!(cohort in task.counts)) {
+                return;
+            }
+
+            const c = categories.find((c) => c.name === task.category);
+            const complete = isComplete(cohort, task, user.progress[task.id]);
 
             if (c === undefined) {
                 categories.push({
-                    name: r.category,
-                    requirements: complete && hideCompleted ? [] : [r],
+                    name: task.category,
+                    requirements: complete && hideCompleted ? [] : [task],
                     totalComplete: complete ? 1 : 0,
                     totalRequirements: 1,
                 });
             } else {
                 c.totalRequirements++;
                 if (!complete || !hideCompleted) {
-                    c.requirements.push(r);
+                    c.requirements.push(task);
                 }
                 if (complete) {
                     c.totalComplete++;
-                }
-            }
-        });
-
-        user.customTasks?.forEach((task) => {
-            if (task.counts[cohort]) {
-                const c = categories.find((c) => c.name === 'Non-Dojo');
-                if (c === undefined) {
-                    categories.push({
-                        name: RequirementCategory.NonDojo,
-                        requirements: [task],
-                        totalComplete: 0,
-                        totalRequirements: 1,
-                    });
-                } else {
-                    c.requirements.push(task);
-                    c.totalRequirements++;
                 }
             }
         });
@@ -233,6 +222,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                         }}
                     />
                 </FormGroup>
+                <TrainingTipsButton />
                 <Stack direction='row' spacing={1} justifyContent='end'>
                     <Button onClick={onExpandAll} startIcon={<KeyboardDoubleArrowDown />}>
                         Expand All
@@ -252,16 +242,10 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     user={user}
                     isCurrentUser={isCurrentUser}
                     cohort={cohort}
-                    setShowCustomTaskEditor={setShowCustomTaskEditor}
                     togglePin={togglePin}
                     pinnedTasks={pinnedTasks}
                 />
             ))}
-
-            <CustomTaskEditor
-                open={showCustomTaskEditor}
-                onClose={() => setShowCustomTaskEditor(false)}
-            />
         </Stack>
     );
 };

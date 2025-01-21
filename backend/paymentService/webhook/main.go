@@ -16,8 +16,8 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/meta"
 	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService/secrets"
-	stripe "github.com/stripe/stripe-go/v76"
-	"github.com/stripe/stripe-go/v76/webhook"
+	stripe "github.com/stripe/stripe-go/v81"
+	"github.com/stripe/stripe-go/v81/webhook"
 )
 
 var repository = database.DynamoDB
