@@ -33,7 +33,7 @@ export interface Category {
     color?: SvgIconOwnProps['color'];
 }
 
-export interface ProgressCategoryProps {
+interface ProgressCategoryProps {
     c: Category;
     expanded: boolean;
     toggleExpand: (name: string) => void;
