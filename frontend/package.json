@@ -28,7 +28,7 @@
         "@vitejs/plugin-react": "^4.3.4",
         "async-mutex": "^0.5.0",
         "aws-amplify": "^6.11.0",
-        "axios": "^1.7.8",
+        "axios": "^1.7.9",
         "chessground": "^9.1.1",
         "copy-to-clipboard": "^3.3.3",
         "dotenv": "^16.4.7",
