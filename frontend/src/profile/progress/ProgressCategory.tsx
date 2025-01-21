@@ -22,9 +22,10 @@ export interface Category {
     requirements: (Requirement | CustomTask)[];
     totalComplete: number;
     totalRequirements: number;
+    color?: SvgIconOwnProps['color'];
 }
 
-interface ProgressCategoryProps {
+export interface ProgressCategoryProps {
     c: Category;
     expanded: boolean;
     toggleExpand: (name: string) => void;
@@ -32,11 +33,8 @@ interface ProgressCategoryProps {
     isCurrentUser: boolean;
     cohort: string;
     setShowCustomTaskEditor: (v: boolean) => void;
-    color?: SvgIconOwnProps['color'];
-    onPin: (req: Requirement) => void;
-    isPin: Requirement[];
-    isSug: Requirement[];
-    
+    togglePin: (req: Requirement | CustomTask) => void;
+    pinnedTasks: (Requirement | CustomTask)[];
 }
 
 const ProgressCategory: React.FC<ProgressCategoryProps> = ({
@@ -47,10 +45,8 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
     isCurrentUser,
     cohort,
     setShowCustomTaskEditor,
-    color,
-    onPin,
-    isPin,
-    isSug,
+    togglePin,
+    pinnedTasks,
 }) => {
     const isFreeTier = useFreeTier();
 
@@ -60,10 +56,6 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
         }
         return c.requirements.filter((r) => !r.isFree).length;
     }, [c.requirements, isFreeTier]);
-
-    if (!color) {
-        color = 'primary';
-    }
 
     return (
         <Accordion
@@ -89,7 +81,7 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                     <Typography fontWeight='bold'>
                         <Icon
                             name={c.name}
-                            color={color}
+                            color={c.color || 'primary'}
                             sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
                         />
                         {c.name}
@@ -120,10 +112,8 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                             cohort={cohort}
                             isCurrentUser={isCurrentUser}
                             user={user}
-                            onPin={onPin}
-                            isPin={isPin.some((ri) => ri.id === r.id)}
-                            isSug={!isSug.some((ri) => ri.id === r.id) && isPin.some((ri) => ri.id === r.id)}
-                            
+                            togglePin={togglePin}
+                            isPinned={pinnedTasks.some((t) => t.id === r.id)}
                         />
                     );
                 })}

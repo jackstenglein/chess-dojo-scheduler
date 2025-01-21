@@ -645,11 +645,11 @@ const SUGGESTED_TASK_CATEGORIES = [
  * @returns A list of at most MAX_SUGGESTED_TASKS suggested tasks.
  */
 export function getSuggestedTasks(
-    pinnedTasks: Requirement[],
+    pinnedTasks: (Requirement | CustomTask)[],
     requirements: Requirement[],
     user: User,
-): Requirement[] {
-    const suggestedTasks: Requirement[] = [];
+): (Requirement | CustomTask)[] {
+    const suggestedTasks: (Requirement | CustomTask)[] = [];
     suggestedTasks.push(...pinnedTasks);
 
     if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {

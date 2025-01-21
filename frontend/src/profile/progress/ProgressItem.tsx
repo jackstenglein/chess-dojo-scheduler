@@ -1,5 +1,4 @@
-import { AddCircle, Lock } from '@mui/icons-material';
-import PushPinIcon from '@mui/icons-material/PushPin';
+import { AddCircle, Lock, PushPin, PushPinOutlined } from '@mui/icons-material';
 import {
     Box,
     Checkbox,
@@ -38,9 +37,8 @@ interface ProgressItemProps {
     requirement: Requirement | CustomTask;
     cohort: string;
     isCurrentUser: boolean;
-    onPin: (req: Requirement) => void;
-    isPin: boolean;
-    isSug: boolean;
+    togglePin: (req: Requirement | CustomTask) => void;
+    isPinned: boolean;
 }
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
@@ -49,9 +47,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     requirement,
     cohort,
     isCurrentUser,
-    onPin,
-    isPin,
-    isSug,
+    togglePin,
+    isPinned,
 }) => {
     if (!isRequirement(requirement)) {
         return (
@@ -70,9 +67,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             requirement={requirement}
             cohort={cohort}
             isCurrentUser={isCurrentUser}
-            onPin={onPin}
-            isPin={isPin}
-            isSug={isSug}
+            togglePin={togglePin}
+            isPinned={isPinned}
         />
     );
 };
@@ -89,9 +85,8 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     requirement,
     cohort,
     isCurrentUser,
-    onPin,
-    isPin,
-    isSug
+    togglePin,
+    isPinned,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
@@ -208,11 +203,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                     <Grid
                         item
                         xs={9}
-                        xl={
-                            requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo
-                                ? 9
-                                : 10
-                        }
+                        xl={9}
                         onClick={() => setShowReqModal(true)}
                         sx={{ cursor: 'pointer', position: 'relative' }}
                         id='task-details'
@@ -264,12 +255,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                         {DescriptionElement}
                     </Grid>
                     <Grid item xs={2} sm='auto' id='task-status'>
-                        <Stack
-                            direction='row'
-                            alignItems='center'
-                            justifyContent='end'
-                            gap={1}
-                        >
+                        <Stack direction='row' alignItems='center' justifyContent='end'>
                             {!blocker.isBlocked && (
                                 <Typography
                                     color='text.secondary'
@@ -279,31 +265,34 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                                     }}
                                     noWrap
                                     textOverflow='unset'
+                                    mr={1}
                                 >
                                     {time}
                                 </Typography>
                             )}
                             {UpdateElement}
 
-                            {requirement.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
+                            {isCurrentUser &&
+                                requirement.scoreboardDisplay !==
+                                    ScoreboardDisplay.Hidden &&
                                 requirement.category !== RequirementCategory.Welcome && (
-                                    <IconButton
-                                        onClick={() => onPin(requirement)}
-                                        disabled={isSug}
-                                        aria-label={
-                                            isPin
-                                                ? `Unpin ${requirement.name}`
-                                                : `Pin ${requirement.name}`
+                                    <Tooltip
+                                        title={
+                                            isPinned
+                                                ? 'Unpin from Suggested Tasks'
+                                                : 'Pin to Suggested Tasks'
                                         }
                                     >
-                                        
-                                        {isPin ? (
-                                            <PushPinIcon color='dojoOrange' />
-                                        ) 
-                                        : (
-                                            <PushPinIcon color='primary' />
-                                        )}
-                                    </IconButton>
+                                        <IconButton
+                                            onClick={() => togglePin(requirement)}
+                                        >
+                                            {isPinned ? (
+                                                <PushPin color='dojoOrange' />
+                                            ) : (
+                                                <PushPinOutlined color='dojoOrange' />
+                                            )}
+                                        </IconButton>
+                                    </Tooltip>
                                 )}
                         </Stack>
                     </Grid>

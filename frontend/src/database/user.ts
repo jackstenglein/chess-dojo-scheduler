@@ -146,6 +146,9 @@ export interface User {
 
     /** A map from exam id to the user's summary for that exam. */
     exams: Record<string, UserExamSummary>;
+
+    /** The IDs of the user's pinned tasks. */
+    pinnedTasks?: string[];
 }
 
 export type UserSummary = Pick<User, 'username' | 'displayName' | 'dojoCohort'>;
