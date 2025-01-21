@@ -79,6 +79,7 @@ export async function listRequirements(
                 },
             },
         );
+
         result.push(...resp.data.requirements);
         params.startKey = resp.data.lastEvaluatedKey;
     } while (params.startKey);

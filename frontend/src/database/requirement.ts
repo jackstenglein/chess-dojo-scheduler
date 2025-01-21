@@ -97,20 +97,6 @@ export enum RequirementCategory {
     SuggestedTasks = 'Suggested Tasks',
 }
 
-/**
- * Can we go top-down? E.g. games / tactics / middlegames / endgames / openings
- */
-export const TopDownCategories = {
-    Games: RequirementCategory.Games,
-    Tactics: RequirementCategory.Tactics,
-    Middlegames: RequirementCategory.Middlegames,
-    Endgame: RequirementCategory.Endgame,
-    Opening: RequirementCategory.Opening,
-} as const;
-
-// Create a type for TopDownCategories
-export type TopDownCategories = keyof typeof TopDownCategories;
-
 /** A requirement in the training plan. */
 export interface Requirement {
     /** The id of the requirement. */
@@ -193,8 +179,6 @@ export interface Requirement {
 
     /** Whether the requirement is visible to free-tier users. */
     isFree: boolean;
-
-    atomic: boolean;
 
     /**
      * A list of requirement IDs which must be completed before this requirement
@@ -378,24 +362,6 @@ export function isComplete(
     );
 }
 
-export function getRemainingReqPoints(
-    cohort: string,
-    requirement: Requirement,
-    progress?: RequirementProgress,
-): number {
-    const total = roundUp(getTotalCount(cohort, requirement));
-    const score = roundUp(getCurrentCount(cohort, requirement, progress));
-    // console.log('requirement', requirement);
-    // console.log('TOTAL_REQ', total);
-    // console.log('CURRENT_SCORE_REQ', score);
-    // console.log('DIVIDED_REQ', roundUp(((total - score) / total) * 100));
-    if (requirement.atomic) {
-        console.log('Found atomic');
-        return 100;
-    }
-    return roundUp(((total - score) / total) * 100);
-}
-
 /**
  * Returns true if the given progress is expired for the given requirement.
  * @param requirement The requirement to check.
@@ -476,6 +442,22 @@ export function getTotalScore(cohort: string | undefined, requirements: Requirem
 }
 
 /**
+ * Returns the Dojo points remaining uncompleted in the requirement.
+ * @param cohort The cohort to get the points for.
+ * @param requirement The requirement to get the points for.
+ * @param progress The progress to get the points for.
+ */
+export function getRemainingScore(
+    cohort: string,
+    requirement: Requirement,
+    progress?: RequirementProgress,
+): number {
+    const total = getTotalScore(cohort, [requirement]);
+    const current = getCurrentScore(cohort, requirement, progress);
+    return total - current;
+}
+
+/**
  * Returns the user's dojo points for the given cohort and set of requirements.
  * @param user The user to get the dojo points for.
  * @param cohort The cohort to get the dojo points for.
@@ -525,10 +507,6 @@ export function getCategoryScore(
     return Math.round(score * 100) / 100;
 }
 
-function roundUp(num: number) {
-    return Math.round(num * 100) / 100;
-}
-
 /**
  * Returns the total possible dojo score for the given cohort, requirement category and requirements.
  * @param cohort The cohort to get the score for.
@@ -551,34 +529,22 @@ export function getTotalCategoryScore(
     );
 }
 
-export function getRemainingCategoryScore(
+/**
+ * Returns the percentage of Dojo points remaining uncompleted in the category.
+ * @param user The user to get the Dojo points for.
+ * @param cohort The cohort to get the Dojo points for.
+ * @param category The category to get the Dojo points for.
+ * @param requirements The list of requirements to get the Dojo points for.
+ */
+export function getRemainingCategoryScorePercent(
     user: User,
     cohort: string,
     category: string,
     requirements: Requirement[],
 ): number {
-    const total = roundUp(getTotalCategoryScore(cohort, category, requirements));
-    const score = roundUp(getCategoryScore(user, cohort, category, requirements));
-    // console.log('CATEGORY', category);
-    // console.log('TOTAL', total);
-    // console.log('CATEGORY_SCORE', score);
-    // console.log('DIVIDED', roundUp(((total - score) / total) * 100));
-    return roundUp(((total - score) / total) * 100);
-}
-
-export function isTrainingPlanComplete(
-    user: User,
-    cohort: string,
-    req: Requirement[],
-): boolean {
-    return (
-        getRemainingCategoryScore(user, cohort, RequirementCategory.Games, req) === 0 &&
-        getRemainingCategoryScore(user, cohort, RequirementCategory.Tactics, req) === 0 &&
-        getRemainingCategoryScore(user, cohort, RequirementCategory.Endgame, req) === 0 &&
-        getRemainingCategoryScore(user, cohort, RequirementCategory.Middlegames, req) ===
-            0 &&
-        getRemainingCategoryScore(user, cohort, RequirementCategory.Opening, req) === 0
-    );
+    const total = getTotalCategoryScore(cohort, category, requirements);
+    const score = getCategoryScore(user, cohort, category, requirements);
+    return (total - score) / total;
 }
 
 /**
@@ -635,177 +601,116 @@ export function isBlocked(
     return { isBlocked: false };
 }
 
+/** A list of IDs of tasks which cannot be suggested, unless the user has pinned them. */
+const INELIGIBLE_SUGGESTED_TASKS = [
+    '812adb60-d5fb-4655-8d22-d568a0dca547', // Postmortems
+];
+
+/** The maximum number of suggested tasks returned by the suggestion algorithm. */
+const MAX_SUGGESTED_TASKS = 3;
+
 /**
- * Tasks the user has chosen to pin.
-If the number of selected tasks >= 3, stop. Else continue to step 3.
-Pick the category with the greatest remaining percentage of Dojo points. Choose a unique category that is not already in the selected tasks, if possible. If a task has the "All At Once" flag, use the total Dojo points for that task instead of the remaining points.
-Within that category, pick the task with the greatest remaining percentage of Dojo points (if a task has the "All At Once" flag, use the total Dojo points for that task instead of the remaining points). Add the task to the chosen tasks.
-If the number of chosen tasks >= 3, stop. Else go to step 3.
-*/
+ * The categories allowed in the suggested tasks algorithm. Their order here is used
+ * for breaking ties in the algorithm if two categories have the same remaining Dojo
+ * point percentage.
+ */
+const SUGGESTED_TASK_CATEGORIES = [
+    RequirementCategory.Games,
+    RequirementCategory.Tactics,
+    RequirementCategory.Middlegames,
+    RequirementCategory.Endgame,
+    RequirementCategory.Opening,
+];
 
-// after play game requirement show annontate game just for the games category regardless of %
-// middlegame positional play 0.22 * 45 = 9.9
-// middlegame newyork 9.9
-// tal - bot 10
-
-export function suggestedAlgo(
-    reqsPins: Requirement[],
-    reqsall: Requirement[],
+/**
+ * Returns a list of tasks to be shown to the user in the Suggested Tasks category.
+ * We show at most MAX_SUGGESTED_TASKS tasks, in the following priority:
+ *
+ *   1. The user's pinned tasks.
+ *   2. The unique task with the greatest remaining Dojo points in the unique category
+ *      with the greatest remaining percentage of Dojo points.
+ *
+ * Only categories in SUGGESTED_TASK_CATEGORIES are suggested (unless pinned by the user).
+ * Categories are only repeated within the suggested tasks if it is not possible to
+ * pick a unique category. Ties between categories are broken using the
+ * SUGGESTED_TASK_CATEGORIES list.
+ *
+ * NOTE: some tasks (such as postmortems) are ineligible to be suggested and will not
+ * be suggested unless the user has pinned them. These task IDs are listed in
+ * INELIGIBLE_SUGGESTED_TASKS.
+ *
+ * @param pinnedTasks The user's pinned tasks.
+ * @param requirements All requirements in the training plan.
+ * @param user The user to suggest tasks for.
+ * @returns A list of at most MAX_SUGGESTED_TASKS suggested tasks.
+ */
+export function getSuggestedTasks(
+    pinnedTasks: Requirement[],
+    requirements: Requirement[],
     user: User,
-) {
-    //console.log(reqsall)
+): Requirement[] {
+    const suggestedTasks: Requirement[] = [];
+    suggestedTasks.push(...pinnedTasks);
 
-    const reqs = reqsall.filter(
-        (req) => req.id !== '812adb60-d5fb-4655-8d22-d568a0dca547',
+    if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
+        return suggestedTasks;
+    }
+
+    const eligibleRequirements = requirements.filter(
+        (r) =>
+            !INELIGIBLE_SUGGESTED_TASKS.includes(r.id) &&
+            !suggestedTasks.some((t) => r.id === t.id) &&
+            SUGGESTED_TASK_CATEGORIES.includes(r.category) &&
+            !isComplete(user.dojoCohort, r, user.progress[r.id]),
     );
-
-    //console.log(reqs)
-
-    if (!reqsPins || !reqs || !user) {
-        return [];
+    if (eligibleRequirements.length === 0) {
+        return suggestedTasks;
     }
 
-    const categoryPercent: Map<RequirementCategory, number> = new Map<
-        RequirementCategory,
-        number
-    >();
-    const topDownOrder: RequirementCategory[] = [];
-    const actualTasks: Requirement[] = reqsPins.length >= 1 ? reqsPins.slice() : []; // Start with pinned tasks
-
-    if (reqsPins.length >= 1) {
-        //console.log('Pinned Tasks:', reqsPins);
-    }
-
-    // Compute category percentages
-    for (const topdowncategory of Object.values(TopDownCategories)) {
-        topDownOrder.push(topdowncategory);
-        const remainingScore = getRemainingCategoryScore(
+    const categoryPercentages = SUGGESTED_TASK_CATEGORIES.map((category) => ({
+        category,
+        percent: getRemainingCategoryScorePercent(
             user,
             user.dojoCohort,
-            topdowncategory,
-            reqs,
-        );
-        categoryPercent.set(topdowncategory, remainingScore);
-    }
-
-    // Sort categories by percentage remaining and top-down order
-    const sortedCategoryPercent = Array.from(categoryPercent.entries()).sort(
-        ([categorystart, valueA], [categoryend, valueB]) => {
-            if (valueA !== valueB) {
-                return valueB - valueA; // Descending by percentage
-            } else {
-                return (
-                    topDownOrder.indexOf(categorystart) -
-                    topDownOrder.indexOf(categoryend)
-                );
-            }
-        },
-    );
-
-    //console.log(sortedCategoryPercent);
-
-    // Exclude categories of pinned tasks
-    const neededCategoriesPercents = new Map(
-        sortedCategoryPercent.filter(
-            ([category]) => !reqsPins.some((pin) => pin.category === category),
+            category,
+            requirements,
         ),
-    );
+    })).sort((lhs, rhs) => rhs.percent - lhs.percent);
 
-    //console.log(neededCategoriesPercents);
+    while (suggestedTasks.length < MAX_SUGGESTED_TASKS) {
+        const eligibleCategories = categoryPercentages.filter((item) =>
+            eligibleRequirements.some((r) => r.category === item.category),
+        );
+        if (eligibleCategories.length === 0) {
+            break;
+        }
 
-    const requirementsById = Object.fromEntries(reqs.map((r) => [r.id, r]));
+        let chosenCategories = eligibleCategories.filter(
+            (item) => !suggestedTasks.some((r) => r.category === item.category),
+        );
+        if (chosenCategories.length === 0) {
+            chosenCategories = eligibleCategories;
+        }
 
-    while (actualTasks.length < 3) {
-        let foundReplacement = false;
-        let countCategory = 0;
-        for (const [neededCategory] of neededCategoriesPercents.entries()) {
-            if (countCategory >= 3) {
+        for (const { category } of chosenCategories) {
+            const categoryRequirements = eligibleRequirements
+                .filter((r) => r.category === category)
+                .sort(
+                    (lhs, rhs) =>
+                        getRemainingScore(user.dojoCohort, rhs, user.progress[rhs.id]) -
+                        getRemainingScore(user.dojoCohort, lhs, user.progress[lhs.id]),
+                );
+            suggestedTasks.push(categoryRequirements[0]);
+            eligibleRequirements.splice(
+                eligibleRequirements.indexOf(categoryRequirements[0]),
+                1,
+            );
+
+            if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
                 break;
             }
-            const reqPercent: Map<Requirement, number> = new Map<Requirement, number>();
-
-            const matched = Object.values(user.progress)
-                .map((progress) => requirementsById[progress.requirementId])
-                .filter(
-                    (r) =>
-                        !!r &&
-                        !isComplete(user.dojoCohort, r, user.progress[r.id]) &&
-                        r.category === neededCategory &&
-                        !actualTasks.some((task) => task.id === r.id),
-                );
-
-            for (const task of matched) {
-                const remainingPoints = getRemainingReqPoints(
-                    user.dojoCohort,
-                    task,
-                    user.progress[task.id],
-                );
-                reqPercent.set(task, remainingPoints);
-                //console.log('REQ SET', reqPercent);
-            }
-
-            // Sort tasks by remaining points and priority
-            const sortedReqPercent = Array.from(reqPercent.entries()).sort(
-                ([reqStart, valueA], [reqEnd, valueB]) => {
-                    if (valueA !== valueB) {
-                        return valueB - valueA; // Descending by remaining points
-                    } else {
-                        return compareRequirements(reqStart, reqEnd); // By priority
-                    }
-                },
-            );
-
-            if (sortedReqPercent.length > 0) {
-                //console.log('SORT REQ', sortedReqPercent);
-                const [topTask] = sortedReqPercent[0];
-                actualTasks.push(topTask);
-                foundReplacement = true;
-                // Move to the next needed category
-            }
-
-            countCategory++;
-        }
-
-        if (!foundReplacement) break; // Stop if no replacements found
-    }
-
-    /**
-     * for each element in categories
-     * []
-     * if games categories its not there
-     *    if played games.count < anontated.count && games.count >= 1
-     *    replace the lowest prority with annonated requirement
-     * else
-     * don't
-     */
-
-    // Recompute tasks if pinned
-    if (reqsPins.length > 0) {
-        // Replace the task with the lowest remaining points
-        actualTasks.sort((a, b) => {
-            const remainingA = getRemainingReqPoints(
-                user.dojoCohort,
-                a,
-                user.progress[a.id],
-            );
-            const remainingB = getRemainingReqPoints(
-                user.dojoCohort,
-                b,
-                user.progress[b.id],
-            );
-            return remainingA - remainingB; // Ascending by remaining points
-        });
-
-        const taskToReplace = actualTasks.pop(); // Remove the task with the lowest priority
-        //console.log('Replacing Task:', taskToReplace);
-
-        for (const pin of reqsPins) {
-            if (!actualTasks.includes(pin)) {
-                actualTasks.push(pin); // Add the pinned task
-            }
         }
     }
 
-    //console.log('Final Suggested Tasks:', actualTasks);
-    return actualTasks;
+    return suggestedTasks;
 }

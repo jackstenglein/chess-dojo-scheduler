@@ -33,3 +33,7 @@ yarn-error.log*
 
 # Incremental builds`
 tsconfig.tsbuildinfo
+
+# Script data
+scripts/requirements.ts
+scripts/*.csv
