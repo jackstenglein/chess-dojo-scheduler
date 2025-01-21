@@ -1,7 +1,6 @@
 import { isObject } from './scoreboard';
 import { SubscriptionStatus, User } from './user';
 
-
 /** The status of a requirement. */
 export enum RequirementStatus {
     /** The requirement is actively in use. */
@@ -570,13 +569,16 @@ export function getRemainingCategoryScore(
 export function isTrainingPlanComplete(
     user: User,
     cohort: string,
-    req: Requirement[]
+    req: Requirement[],
 ): boolean {
-    return getRemainingCategoryScore(user, cohort, RequirementCategory.Games, req) == 0 &&
-    getRemainingCategoryScore(user, cohort, RequirementCategory.Tactics, req) == 0 &&
-    getRemainingCategoryScore(user, cohort, RequirementCategory.Endgame, req) == 0 &&
-    getRemainingCategoryScore(user, cohort, RequirementCategory.Middlegames, req) == 0 &&
-    getRemainingCategoryScore(user, cohort, RequirementCategory.Opening, req) == 0
+    return (
+        getRemainingCategoryScore(user, cohort, RequirementCategory.Games, req) === 0 &&
+        getRemainingCategoryScore(user, cohort, RequirementCategory.Tactics, req) === 0 &&
+        getRemainingCategoryScore(user, cohort, RequirementCategory.Endgame, req) === 0 &&
+        getRemainingCategoryScore(user, cohort, RequirementCategory.Middlegames, req) ===
+            0 &&
+        getRemainingCategoryScore(user, cohort, RequirementCategory.Opening, req) === 0
+    );
 }
 
 /**
@@ -646,11 +648,16 @@ If the number of chosen tasks >= 3, stop. Else go to step 3.
 // middlegame newyork 9.9
 // tal - bot 10
 
-export function suggestedAlgo(reqsPins: Requirement[], reqsall: Requirement[], user: User) {
-
+export function suggestedAlgo(
+    reqsPins: Requirement[],
+    reqsall: Requirement[],
+    user: User,
+) {
     //console.log(reqsall)
 
-    const reqs = reqsall.filter((req) => req.id !== '812adb60-d5fb-4655-8d22-d568a0dca547');
+    const reqs = reqsall.filter(
+        (req) => req.id !== '812adb60-d5fb-4655-8d22-d568a0dca547',
+    );
 
     //console.log(reqs)
 
@@ -658,9 +665,12 @@ export function suggestedAlgo(reqsPins: Requirement[], reqsall: Requirement[], u
         return [];
     }
 
-    const categoryPercent: Map<RequirementCategory, number> = new Map();
+    const categoryPercent: Map<RequirementCategory, number> = new Map<
+        RequirementCategory,
+        number
+    >();
     const topDownOrder: RequirementCategory[] = [];
-    let actualTasks: Requirement[] = reqsPins.length >= 1 ? reqsPins.slice() : []; // Start with pinned tasks
+    const actualTasks: Requirement[] = reqsPins.length >= 1 ? reqsPins.slice() : []; // Start with pinned tasks
 
     if (reqsPins.length >= 1) {
         //console.log('Pinned Tasks:', reqsPins);
@@ -712,7 +722,7 @@ export function suggestedAlgo(reqsPins: Requirement[], reqsall: Requirement[], u
             if (countCategory >= 3) {
                 break;
             }
-            const reqPercent: Map<Requirement, number> = new Map();
+            const reqPercent: Map<Requirement, number> = new Map<Requirement, number>();
 
             const matched = Object.values(user.progress)
                 .map((progress) => requirementsById[progress.requirementId])
@@ -762,10 +772,10 @@ export function suggestedAlgo(reqsPins: Requirement[], reqsall: Requirement[], u
     /**
      * for each element in categories
      * []
-     * if games categories its not there 
+     * if games categories its not there
      *    if played games.count < anontated.count && games.count >= 1
      *    replace the lowest prority with annonated requirement
-     * else 
+     * else
      * don't
      */
 
@@ -799,14 +809,3 @@ export function suggestedAlgo(reqsPins: Requirement[], reqsall: Requirement[], u
     //console.log('Final Suggested Tasks:', actualTasks);
     return actualTasks;
 }
-
-
-
-
-
-
-
-
-
-
-
