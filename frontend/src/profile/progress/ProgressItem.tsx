@@ -40,6 +40,7 @@ interface ProgressItemProps {
     isCurrentUser: boolean;
     onPin: (req: Requirement) => void;
     isPin: boolean;
+    isSug: boolean;
 }
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
@@ -50,6 +51,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     isCurrentUser,
     onPin,
     isPin,
+    isSug,
 }) => {
     if (!isRequirement(requirement)) {
         return (
@@ -70,6 +72,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             isCurrentUser={isCurrentUser}
             onPin={onPin}
             isPin={isPin}
+            isSug={isSug}
         />
     );
 };
@@ -88,6 +91,7 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
     isCurrentUser,
     onPin,
     isPin,
+    isSug
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
@@ -285,15 +289,18 @@ const RequirementProgressItem: React.FC<RequirementProgressItemProps> = ({
                                 requirement.category !== RequirementCategory.Welcome && (
                                     <IconButton
                                         onClick={() => onPin(requirement)}
+                                        disabled={isSug}
                                         aria-label={
                                             isPin
                                                 ? `Unpin ${requirement.name}`
                                                 : `Pin ${requirement.name}`
                                         }
                                     >
+                                        
                                         {isPin ? (
-                                            <PushPinIcon color='error' />
-                                        ) : (
+                                            <PushPinIcon color='dojoOrange' />
+                                        ) 
+                                        : (
                                             <PushPinIcon color='primary' />
                                         )}
                                     </IconButton>

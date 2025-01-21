@@ -68,6 +68,7 @@ export async function listRequirements(
 ) {
     const params = { scoreboardOnly, startKey };
     const result: Requirement[] = [];
+    
 
     do {
         const resp = await axios.get<ListRequirementsResponse>(
@@ -79,7 +80,7 @@ export async function listRequirements(
                 },
             },
         );
-
+        
         result.push(...resp.data.requirements);
         params.startKey = resp.data.lastEvaluatedKey;
     } while (params.startKey);

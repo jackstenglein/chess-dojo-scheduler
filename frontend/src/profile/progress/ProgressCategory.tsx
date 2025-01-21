@@ -35,6 +35,7 @@ interface ProgressCategoryProps {
     color?: SvgIconOwnProps['color'];
     onPin: (req: Requirement) => void;
     isPin: Requirement[];
+    isSug: Requirement[];
     
 }
 
@@ -49,7 +50,7 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
     color,
     onPin,
     isPin,
-
+    isSug,
 }) => {
     const isFreeTier = useFreeTier();
 
@@ -121,6 +122,7 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                             user={user}
                             onPin={onPin}
                             isPin={isPin.some((ri) => ri.id === r.id)}
+                            isSug={!isSug.some((ri) => ri.id === r.id) && isPin.some((ri) => ri.id === r.id)}
                             
                         />
                     );

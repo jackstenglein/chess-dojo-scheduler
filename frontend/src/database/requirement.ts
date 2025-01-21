@@ -1,6 +1,7 @@
 import { isObject } from './scoreboard';
 import { SubscriptionStatus, User } from './user';
 
+
 /** The status of a requirement. */
 export enum RequirementStatus {
     /** The requirement is actively in use. */
@@ -385,10 +386,10 @@ export function getRemainingReqPoints(
 ): number {
     const total = roundUp(getTotalCount(cohort, requirement));
     const score = roundUp(getCurrentCount(cohort, requirement, progress));
-    console.log('requirement', requirement);
-    console.log('TOTAL_REQ', total);
-    console.log('CURRENT_SCORE_REQ', score);
-    console.log('DIVIDED_REQ', roundUp(((total - score) / total) * 100));
+    // console.log('requirement', requirement);
+    // console.log('TOTAL_REQ', total);
+    // console.log('CURRENT_SCORE_REQ', score);
+    // console.log('DIVIDED_REQ', roundUp(((total - score) / total) * 100));
     if (requirement.atomic) {
         console.log('Found atomic');
         return 100;
@@ -559,10 +560,10 @@ export function getRemainingCategoryScore(
 ): number {
     const total = roundUp(getTotalCategoryScore(cohort, category, requirements));
     const score = roundUp(getCategoryScore(user, cohort, category, requirements));
-    console.log('CATEGORY', category);
-    console.log('TOTAL', total);
-    console.log('CATEGORY_SCORE', score);
-    console.log('DIVIDED', roundUp(((total - score) / total) * 100));
+    // console.log('CATEGORY', category);
+    // console.log('TOTAL', total);
+    // console.log('CATEGORY_SCORE', score);
+    // console.log('DIVIDED', roundUp(((total - score) / total) * 100));
     return roundUp(((total - score) / total) * 100);
 }
 
@@ -633,7 +634,14 @@ If the number of chosen tasks >= 3, stop. Else go to step 3.
 // middlegame newyork 9.9
 // tal - bot 10
 
-export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user: User) {
+export function suggestedAlgo(reqsPins: Requirement[], reqsall: Requirement[], user: User) {
+
+    //console.log(reqsall)
+
+    const reqs = reqsall.filter((req) => req.id !== '812adb60-d5fb-4655-8d22-d568a0dca547');
+
+    //console.log(reqs)
+
     if (!reqsPins || !reqs || !user) {
         return [];
     }
@@ -643,7 +651,7 @@ export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user
     let actualTasks: Requirement[] = reqsPins.length >= 1 ? reqsPins.slice() : []; // Start with pinned tasks
 
     if (reqsPins.length >= 1) {
-        console.log('Pinned Tasks:', reqsPins);
+        //console.log('Pinned Tasks:', reqsPins);
     }
 
     // Compute category percentages
@@ -672,7 +680,7 @@ export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user
         },
     );
 
-    console.log(sortedCategoryPercent);
+    //console.log(sortedCategoryPercent);
 
     // Exclude categories of pinned tasks
     const neededCategoriesPercents = new Map(
@@ -681,7 +689,7 @@ export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user
         ),
     );
 
-    console.log(neededCategoriesPercents);
+    //console.log(neededCategoriesPercents);
 
     const requirementsById = Object.fromEntries(reqs.map((r) => [r.id, r]));
 
@@ -711,7 +719,7 @@ export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user
                     user.progress[task.id],
                 );
                 reqPercent.set(task, remainingPoints);
-                console.log('REQ SET', reqPercent);
+                //console.log('REQ SET', reqPercent);
             }
 
             // Sort tasks by remaining points and priority
@@ -726,7 +734,7 @@ export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user
             );
 
             if (sortedReqPercent.length > 0) {
-                console.log('SORT REQ', sortedReqPercent);
+                //console.log('SORT REQ', sortedReqPercent);
                 const [topTask] = sortedReqPercent[0];
                 actualTasks.push(topTask);
                 foundReplacement = true;
@@ -738,6 +746,16 @@ export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user
 
         if (!foundReplacement) break; // Stop if no replacements found
     }
+
+    /**
+     * for each element in categories
+     * []
+     * if games categories its not there 
+     *    if played games.count < anontated.count && games.count >= 1
+     *    replace the lowest prority with annonated requirement
+     * else 
+     * don't
+     */
 
     // Recompute tasks if pinned
     if (reqsPins.length > 0) {
@@ -757,7 +775,7 @@ export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user
         });
 
         const taskToReplace = actualTasks.pop(); // Remove the task with the lowest priority
-        console.log('Replacing Task:', taskToReplace);
+        //console.log('Replacing Task:', taskToReplace);
 
         for (const pin of reqsPins) {
             if (!actualTasks.includes(pin)) {
@@ -766,6 +784,17 @@ export function suggestedAlgo(reqsPins: Requirement[], reqs: Requirement[], user
         }
     }
 
-    console.log('Final Suggested Tasks:', actualTasks);
+    //console.log('Final Suggested Tasks:', actualTasks);
     return actualTasks;
 }
+
+
+
+
+
+
+
+
+
+
+

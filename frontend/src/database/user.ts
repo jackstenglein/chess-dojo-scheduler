@@ -1,4 +1,4 @@
-import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
+
 import { AuthTokens } from 'aws-amplify/auth';
 import { ExamType } from './exam';
 import { oldRatingBoundaries } from './ratings';
@@ -26,6 +26,34 @@ export enum RatingSystem {
     Knsb = 'KNSB',
     Custom = 'CUSTOM',
 }
+
+/**
+ * Returns the given cohort range as an array of 2 numbers. Ex: 0-1500
+ * would return [0, 1500]. For ranges like 2000+, the max cohort is set to Infinity
+ * (IE: [2000, Infinity]). If range is not provided or the min cohort is NaN, [-1, -1]
+ * is returned.
+ * @param range The cohort range to convert.
+ * @returns The min and max cohort as numbers.
+ */
+export function getCohortRangeInt(range?: string): [number, number] {
+    if (!range) {
+        return [-1, -1];
+    }
+
+    const minCohort = parseInt(range);
+    if (isNaN(minCohort)) {
+        return [-1, -1];
+    }
+
+    let maxCohort =
+        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
+    if (isNaN(maxCohort)) {
+        maxCohort = Infinity;
+    }
+
+    return [minCohort, maxCohort];
+}
+
 
 export function formatRatingSystem(ratingSystem: RatingSystem | string): string {
     switch (ratingSystem) {

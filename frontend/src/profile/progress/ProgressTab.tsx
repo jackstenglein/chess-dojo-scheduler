@@ -18,8 +18,11 @@ import {
     Requirement,
     RequirementCategory,
     isComplete,
+    
     suggestedAlgo,
+
 } from '../../database/requirement';
+import { simulateTrainingPlan } from '@/database/simulation';
 import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
@@ -42,6 +45,7 @@ interface ProgressTabProps {
 }
 
 const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
+    console.log(user);
     const [cohort, setCohort] = useState(user.dojoCohort);
     const { request: requirementRequest } = useRequirements(ALL_COHORTS, false);
     const [pinnedRequirements, setPinnedRequirements] = useState<Requirement[]>([]);
@@ -57,6 +61,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         'Non-Dojo': false,
         [RequirementCategory.SuggestedTasks]: true,
     });
+   
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
     const isFreeTier = useFreeTier();
     const suggestedTasksstate = useMemo(() => {
@@ -76,7 +81,9 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             return [...prevPinned, requirement]; // Pin
         });
     };
-
+   const handleSimulate = () => {
+        simulateTrainingPlan(requirements, user);
+    };
     const categories: Category[] = useMemo(() => {
         const categories: Category[] = [];
         requirements.forEach((r) => {
@@ -272,7 +279,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
             </TextField>
 
             <DojoScoreCard user={user} cohort={cohort} />
-
+            <Button onClick={handleSimulate}> START </Button>
             <Stack
                 direction='row'
                 justifyContent='space-between'
@@ -319,10 +326,12 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     setShowCustomTaskEditor={setShowCustomTaskEditor}
                     onPin={handlePin}
                     isPin={suggestedTasksstate}
+                    isSug={pinnedRequirements}
                 />
             )}
 
             {categories.map((c) => (
+                
                 <ProgressCategory
                     key={c.name}
                     c={c}
@@ -334,6 +343,7 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
                     setShowCustomTaskEditor={setShowCustomTaskEditor}
                     onPin={handlePin}
                     isPin={suggestedTasksstate}
+                    isSug={pinnedRequirements}
                 />
             ))}
 
