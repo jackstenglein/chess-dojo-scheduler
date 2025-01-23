@@ -122,6 +122,8 @@
         "@types/uuid": "^10.0.0",
         "@typescript-eslint/eslint-plugin": "^7.12.0",
         "@typescript-eslint/parser": "^7.12.0",
+        "command-line-args": "^6.0.1",
+        "command-line-usage": "^7.0.3",
         "cypress": "^13.17.0",
         "cypress-parallel": "^0.14.0",
         "eslint": "^8.57.0",

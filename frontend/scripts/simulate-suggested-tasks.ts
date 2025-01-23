@@ -36,6 +36,13 @@ const optionDefinitions = [
         type: String,
         multiple: true,
     },
+    {
+        name: 'random',
+        description:
+            'Choose a random task to simulate performing, rather than the first task.',
+        alias: 'r',
+        type: Boolean,
+    },
 ];
 
 const usage = [
@@ -222,7 +229,9 @@ function simulateTrainingPlan(cohort: string, requirements: Requirement[]) {
     let suggestedTasks = getSuggestedTasks([], requirements, user);
 
     do {
-        const chosenTask = suggestedTasks[0];
+        const chosenTask = opts.random
+            ? suggestedTasks[Math.floor(Math.random() * suggestedTasks.length)]
+            : suggestedTasks[0];
 
         if (!user.progress[chosenTask.id]) {
             user.progress[chosenTask.id] = {
