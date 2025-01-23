@@ -138,11 +138,19 @@ function getReportRow(
     user: User,
     requirements: Requirement[],
 ): ReportRow {
+    const taskNames = ['', '', ''];
+
+    for (let i = 0; i < suggestedTasks.length; i++) {
+        const task = suggestedTasks[i];
+        taskNames[i] =
+            `${task.shortName || task.name} (${getCurrentCount(user.dojoCohort, task, user.progress[task.id])} / ${getTotalCount(user.dojoCohort, task)}) (${task.category})`;
+    }
+
     return {
-        suggestedTask1: suggestedTasks[0]?.shortName || suggestedTasks[0]?.name || '',
-        suggestedTask2: suggestedTasks[1]?.shortName || suggestedTasks[1]?.name || '',
-        suggestedTask3: suggestedTasks[2]?.shortName || suggestedTasks[2]?.name || '',
-        chosenTask: `${chosenTask.shortName || chosenTask.name} (${getCurrentCount(user.dojoCohort, chosenTask, user.progress[chosenTask.id])} / ${getTotalCount(user.dojoCohort, chosenTask)})`,
+        suggestedTask1: taskNames[0],
+        suggestedTask2: taskNames[1],
+        suggestedTask3: taskNames[2],
+        chosenTask: `${chosenTask.shortName || chosenTask.name} (${getCurrentCount(user.dojoCohort, chosenTask, user.progress[chosenTask.id])} / ${getTotalCount(user.dojoCohort, chosenTask)}) (${chosenTask.category})`,
         gamesPoints:
             getCategoryScore(
                 user,

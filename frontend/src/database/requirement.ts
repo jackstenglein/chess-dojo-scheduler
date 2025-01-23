@@ -675,12 +675,20 @@ const SUGGESTED_TASK_CATEGORIES = [
     RequirementCategory.Opening,
 ];
 
+/** The ID of the Play Classical Games task. */
+const CLASSICAL_GAMES_TASK = '38f46441-7a4e-4506-8632-166bcbe78baf';
+
+/** The ID of the Annotate Classical Games task. */
+const ANNOTATE_GAMES_TASK = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
+
 /**
  * Returns a list of tasks to be shown to the user in the Suggested Tasks category.
  * We show at most MAX_SUGGESTED_TASKS tasks, in the following priority:
  *
  *   1. The user's pinned tasks.
- *   2. The unique task with the greatest remaining Dojo points in the unique category
+ *   2. If the user's number of annotated games < their number of classical games played,
+ *      the annotate classical games task is suggested.
+ *   3. The unique task with the greatest remaining Dojo points in the unique category
  *      with the greatest remaining percentage of Dojo points.
  *
  * Only categories in SUGGESTED_TASK_CATEGORIES are suggested (unless pinned by the user).
@@ -718,6 +726,25 @@ export function getSuggestedTasks(
     );
     if (eligibleRequirements.length === 0) {
         return suggestedTasks;
+    }
+
+    const annotateTask = eligibleRequirements.find((r) => r.id === ANNOTATE_GAMES_TASK);
+    const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK);
+    if (
+        annotateTask &&
+        classicalGamesTask &&
+        getCurrentCount(
+            user.dojoCohort,
+            annotateTask,
+            user.progress[ANNOTATE_GAMES_TASK],
+        ) <
+            getCurrentCount(
+                user.dojoCohort,
+                classicalGamesTask,
+                user.progress[CLASSICAL_GAMES_TASK],
+            )
+    ) {
+        suggestedTasks.push(annotateTask);
     }
 
     const categoryPercentages = SUGGESTED_TASK_CATEGORIES.map((category) => ({
@@ -762,42 +789,6 @@ export function getSuggestedTasks(
             if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
                 break;
             }
-        }
-    }
-
-    const playingReq = requirements.find(
-        (r) => r.id == '38f46441-7a4e-4506-8632-166bcbe78baf',
-    );
-    const annonReq = requirements.find(
-        (r) => r.id == '4d23d689-1284-46e6-b2a2-4b4bfdc37174',
-    );
-
-    if (!playingReq || !annonReq) {
-        return suggestedTasks;
-    }
-
-    for (const task of suggestedTasks) {
-        if (task.id == '4d23d689-1284-46e6-b2a2-4b4bfdc37174') {
-            return suggestedTasks;
-        }
-    }
-
-    const isStillAnon =
-        getCurrentScore(user.dojoCohort, annonReq, user.progress[annonReq.id]) <
-        getCurrentScore(user.dojoCohort, playingReq, user.progress[playingReq.id]);
-
-    for (const task of suggestedTasks) {
-        if (
-            task.category == RequirementCategory.Games &&
-            task.id !== '4d23d689-1284-46e6-b2a2-4b4bfdc37174' &&
-            task.id !== '38f46441-7a4e-4506-8632-166bcbe78baf' &&
-            isStillAnon
-        ) {
-            const replaceIndex = suggestedTasks.indexOf(task);
-            suggestedTasks[replaceIndex] = annonReq;
-        } else if (isStillAnon) {
-            suggestedTasks.pop();
-            suggestedTasks.push(annonReq);
         }
     }
 
