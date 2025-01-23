@@ -222,8 +222,7 @@ function simulateTrainingPlan(cohort: string, requirements: Requirement[]) {
     let suggestedTasks = getSuggestedTasks([], requirements, user);
 
     do {
-        const chosenTask =
-            suggestedTasks[Math.floor(Math.random() * suggestedTasks.length)];
+        const chosenTask = suggestedTasks[0];
 
         if (!user.progress[chosenTask.id]) {
             user.progress[chosenTask.id] = {

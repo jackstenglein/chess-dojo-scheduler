@@ -765,5 +765,35 @@ export function getSuggestedTasks(
         }
     }
 
+    const playingReq = requirements.find(
+        (r) => r.id == '38f46441-7a4e-4506-8632-166bcbe78baf',
+    );
+    const annonReq = requirements.find(
+        (r) => r.id == '4d23d689-1284-46e6-b2a2-4b4bfdc37174',
+    );
+
+    if (!playingReq || !annonReq) {
+        return suggestedTasks;
+    }
+
+    const isStillAnon =
+        getCurrentScore(user.dojoCohort, annonReq, user.progress[annonReq.id]) <
+        getCurrentScore(user.dojoCohort, playingReq, user.progress[playingReq.id]);
+    console.log('ISSTILLANON', isStillAnon);
+    for (const task of suggestedTasks) {
+        if (
+            task.category == RequirementCategory.Games &&
+            task.id !== '4d23d689-1284-46e6-b2a2-4b4bfdc37174' &&
+            task.id !== '38f46441-7a4e-4506-8632-166bcbe78baf' &&
+            isStillAnon
+        ) {
+            const replaceIndex = suggestedTasks.indexOf(task);
+            suggestedTasks[replaceIndex] = annonReq;
+        } else if (isStillAnon) {
+            suggestedTasks.pop();
+            suggestedTasks.push(annonReq);
+        }
+    }
+
     return suggestedTasks;
 }
