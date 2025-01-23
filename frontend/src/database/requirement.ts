@@ -776,10 +776,16 @@ export function getSuggestedTasks(
         return suggestedTasks;
     }
 
+    for (const task of suggestedTasks) {
+        if (task.id == '4d23d689-1284-46e6-b2a2-4b4bfdc37174') {
+            return suggestedTasks;
+        }
+    }
+
     const isStillAnon =
         getCurrentScore(user.dojoCohort, annonReq, user.progress[annonReq.id]) <
         getCurrentScore(user.dojoCohort, playingReq, user.progress[playingReq.id]);
-    console.log('ISSTILLANON', isStillAnon);
+
     for (const task of suggestedTasks) {
         if (
             task.category == RequirementCategory.Games &&
