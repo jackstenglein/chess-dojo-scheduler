@@ -4,7 +4,12 @@ import {
     primaryAxis,
     secondaryAxes,
 } from '@/components/profile/stats/RatingCard';
-import { RatingSystem, formatRatingSystem, getNormalizedRating } from '@/database/user';
+import {
+    RatingSystem,
+    formatRatingSystem,
+    getNormalizedRating,
+    isCustom,
+} from '@/database/user';
 import { YearReviewRatingData } from '@/database/yearReview';
 import { ArrowDownward, ArrowUpward, Help, OpenInNew } from '@mui/icons-material';
 import {
@@ -190,7 +195,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         </Stack>
                     </Grid2>
 
-                    {system !== RatingSystem.Custom && (
+                    {!isCustom(system) && (
                         <>
                             <Grid2
                                 display='flex'

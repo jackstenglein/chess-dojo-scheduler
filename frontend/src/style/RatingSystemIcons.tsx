@@ -72,7 +72,7 @@ export const RatingSystemIcon = ({
 }: {
     system: RatingSystem;
     size?: 'small' | 'medium';
-}) => {
+}): JSX.Element => {
     switch (system) {
         case RatingSystem.Lichess:
             return <SiLichess size={size === 'small' ? 15 : 30} />;
@@ -98,6 +98,8 @@ export const RatingSystemIcon = ({
         case RatingSystem.Knsb:
             return <KnsbIcon size={size} />;
         case RatingSystem.Custom:
+        case RatingSystem.Custom2:
+        case RatingSystem.Custom3:
             return <SlGraph size={size === 'small' ? 15 : 30} />;
     }
 };

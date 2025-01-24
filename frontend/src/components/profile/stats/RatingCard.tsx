@@ -5,6 +5,7 @@ import {
     formatRatingSystem,
     getNormalizedRating,
     getRatingBoundary,
+    isCustom,
 } from '@/database/user';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -46,6 +47,8 @@ export function getMemberLink(ratingSystem: RatingSystem, username: string): str
         case RatingSystem.Knsb:
             return `https://ratingviewer.nl/lists/1/players/${username}`;
         case RatingSystem.Custom:
+        case RatingSystem.Custom2:
+        case RatingSystem.Custom3:
             return '';
     }
 }
@@ -125,7 +128,7 @@ function RatingProfileLink({
     username: string;
     system: RatingSystem;
 }) {
-    if (usernameHidden || system === RatingSystem.Custom) {
+    if (usernameHidden || isCustom(system)) {
         return null;
     }
     return (
@@ -209,7 +212,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         <Stack>
                             <Typography variant='h6' sx={{ mb: -1 }}>
                                 {formatRatingSystem(system)}
-                                {system === RatingSystem.Custom && name && ` (${name})`}
+                                {isCustom(system) && name && ` (${name})`}
                             </Typography>
                             <RatingProfileLink
                                 usernameHidden={usernameHidden}
@@ -326,7 +329,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         </Stack>
                     </Grid2>
 
-                    {system !== RatingSystem.Custom && (
+                    {!isCustom(system) && (
                         <Grid2
                             size={{ xs: 6, sm: 3, md: 'grow' }}
                             display='flex'

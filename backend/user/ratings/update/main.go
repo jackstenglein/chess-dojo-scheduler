@@ -56,7 +56,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, rati
 	shouldUpdate := false
 
 	for system, rating := range user.Ratings {
-		if system != database.Custom {
+		if system != database.Custom && system != database.Custom2 && system != database.Custom3 {
 			shouldUpdate = updateRating(rating, string(system), ratingFetchFuncs[system]) || shouldUpdate
 		}
 

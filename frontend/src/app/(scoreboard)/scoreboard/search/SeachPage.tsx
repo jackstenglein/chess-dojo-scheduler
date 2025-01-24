@@ -4,7 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { Link } from '@/components/navigation/Link';
 import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
-import { RatingSystem, User } from '@/database/user';
+import { isCustom, RatingSystem, User } from '@/database/user';
 import Avatar from '@/profile/Avatar';
 import {
     Checkbox,
@@ -261,7 +261,7 @@ export function SearchPage() {
                                 sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
                             >
                                 {SearchFields.map((field) => {
-                                    if (field === RatingSystem.Custom) {
+                                    if (isCustom(field)) {
                                         return null;
                                     }
                                     return (

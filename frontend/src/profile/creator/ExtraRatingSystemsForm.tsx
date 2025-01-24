@@ -25,7 +25,7 @@ import {
 } from './PreferredRatingSystemForm';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
-const { Custom, ...RatingSystems } = RatingSystem;
+const { Custom, Custom2, Custom3, ...RatingSystems } = RatingSystem;
 
 function getUpdate(
     user: User,

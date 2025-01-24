@@ -157,8 +157,7 @@ func fetchRatings(user *database.User, update *database.UserUpdate) error {
 
 	for system, rating := range *update.Ratings {
 		existingRating := user.Ratings[system]
-		if system != database.Custom && (existingRating == nil || rating.Username != existingRating.Username ||
-			rating.CurrentRating == 0 || rating.StartRating == 0) {
+		if system != database.Custom && system != database.Custom2 && system != database.Custom3 && (existingRating == nil || rating.Username != existingRating.Username || rating.CurrentRating == 0 || rating.StartRating == 0) {
 			if err := fetchCurrentRating(rating, ratings.RatingFetchFuncs[system]); err != nil {
 				return err
 			}
@@ -171,7 +170,7 @@ func handleAutopickCohort(user *database.User, update *database.UserUpdate) api.
 	if update.RatingSystem == nil || *update.RatingSystem == "" {
 		return api.Failure(errors.New(400, "Invalid request: ratingSystem is required when autopickCohort is true", ""))
 	}
-	if *update.RatingSystem == database.Custom {
+	if *update.RatingSystem == database.Custom || *update.RatingSystem == database.Custom2 || *update.RatingSystem == database.Custom3 {
 		return api.Failure(errors.New(400, "Invalid request: ratingSystem cannot be CUSTOM when autopickCohort is true", ""))
 	}
 

@@ -18,7 +18,7 @@ import {
     Typography,
 } from '@mui/material';
 
-const { Custom, ...others } = RatingSystem;
+const { Custom, Custom2, Custom3, ...others } = RatingSystem;
 
 export default function RatingConversionsPage() {
     const ratingSystems = Object.values(others);

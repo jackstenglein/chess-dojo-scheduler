@@ -1,7 +1,6 @@
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { AuthTokens } from 'aws-amplify/auth';
 import { ExamType } from './exam';
-import { oldRatingBoundaries } from './ratings';
 import { CustomTask, RequirementProgress } from './requirement';
 import { ScoreboardSummary } from './scoreboard';
 
@@ -25,6 +24,8 @@ export enum RatingSystem {
     Acf = 'ACF',
     Knsb = 'KNSB',
     Custom = 'CUSTOM',
+    Custom2 = 'CUSTOM_2',
+    Custom3 = 'CUSTOM_3',
 }
 
 export function formatRatingSystem(ratingSystem: RatingSystem | string): string {
@@ -48,9 +49,23 @@ export function formatRatingSystem(ratingSystem: RatingSystem | string): string 
         case RatingSystem.Knsb:
             return 'KNSB';
         case RatingSystem.Custom:
+        case RatingSystem.Custom2:
+        case RatingSystem.Custom3:
             return 'Custom';
     }
     return ratingSystem;
+}
+
+/**
+ * Returns true if the given rating system is a custom system.
+ * @param ratingSystem The rating system to check.
+ */
+export function isCustom(ratingSystem: RatingSystem | string | undefined): boolean {
+    return (
+        ratingSystem === RatingSystem.Custom ||
+        ratingSystem === RatingSystem.Custom2 ||
+        ratingSystem === RatingSystem.Custom3
+    );
 }
 
 export interface Rating {
@@ -438,6 +453,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 300,
         [RatingSystem.Knsb]: 400,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '300-400': {
         [RatingSystem.Chesscom]: 650,
@@ -450,6 +467,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 395,
         [RatingSystem.Knsb]: 600,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '400-500': {
         [RatingSystem.Chesscom]: 750,
@@ -462,6 +481,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 490,
         [RatingSystem.Knsb]: 800,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '500-600': {
         [RatingSystem.Chesscom]: 850,
@@ -474,6 +495,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 585,
         [RatingSystem.Knsb]: 1000,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '600-700': {
         [RatingSystem.Chesscom]: 950,
@@ -486,6 +509,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 680,
         [RatingSystem.Knsb]: 1140,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '700-800': {
         [RatingSystem.Chesscom]: 1050,
@@ -498,6 +523,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 775,
         [RatingSystem.Knsb]: 1280,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '800-900': {
         [RatingSystem.Chesscom]: 1150,
@@ -510,6 +537,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 870,
         [RatingSystem.Knsb]: 1400,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '900-1000': {
         [RatingSystem.Fide]: 1450,
@@ -522,6 +551,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 990,
         [RatingSystem.Knsb]: 1450,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1000-1100': {
         [RatingSystem.Fide]: 1500,
@@ -534,6 +565,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1100,
         [RatingSystem.Knsb]: 1500,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1100-1200': {
         [RatingSystem.Fide]: 1550,
@@ -546,6 +579,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1210,
         [RatingSystem.Knsb]: 1550,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1200-1300': {
         [RatingSystem.Fide]: 1600,
@@ -558,6 +593,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1320,
         [RatingSystem.Knsb]: 1600,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1300-1400': {
         [RatingSystem.Fide]: 1650,
@@ -570,6 +607,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1415,
         [RatingSystem.Knsb]: 1650,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1400-1500': {
         [RatingSystem.Fide]: 1700,
@@ -582,6 +621,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1510,
         [RatingSystem.Knsb]: 1700,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1500-1600': {
         [RatingSystem.Fide]: 1750,
@@ -594,6 +635,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1605,
         [RatingSystem.Knsb]: 1750,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1600-1700': {
         [RatingSystem.Fide]: 1800,
@@ -606,6 +649,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1700,
         [RatingSystem.Knsb]: 1800,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1700-1800': {
         [RatingSystem.Fide]: 1850,
@@ -618,6 +663,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1790,
         [RatingSystem.Knsb]: 1850,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1800-1900': {
         [RatingSystem.Fide]: 1910,
@@ -630,6 +677,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 1900,
         [RatingSystem.Knsb]: 1910,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '1900-2000': {
         [RatingSystem.Fide]: 2000,
@@ -642,6 +691,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 2000,
         [RatingSystem.Knsb]: 2000,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '2000-2100': {
         [RatingSystem.Fide]: 2100,
@@ -654,6 +705,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 2105,
         [RatingSystem.Knsb]: 2100,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '2100-2200': {
         [RatingSystem.Fide]: 2200,
@@ -666,6 +719,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 2215,
         [RatingSystem.Knsb]: 2200,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '2200-2300': {
         [RatingSystem.Fide]: 2300,
@@ -678,6 +733,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 2330,
         [RatingSystem.Knsb]: 2300,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
     '2300-2400': {
         [RatingSystem.Fide]: 2400,
@@ -690,6 +747,8 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Acf]: 2450,
         [RatingSystem.Knsb]: 2400,
         [RatingSystem.Custom]: -1,
+        [RatingSystem.Custom2]: -1,
+        [RatingSystem.Custom3]: -1,
     },
 };
 
@@ -733,7 +792,7 @@ export function getNormalizedRating(
     ratingSystem: RatingSystem,
     boundaries: Record<string, Record<RatingSystem, number>> = ratingBoundaries,
 ): number {
-    if (ratingSystem === RatingSystem.Custom) {
+    if (isCustom(ratingSystem)) {
         return -1;
     }
 
@@ -773,7 +832,7 @@ export function shouldPromptGraduation(user?: User): boolean {
     if (!user?.dojoCohort || !user.ratingSystem) {
         return false;
     }
-    if (user.ratingSystem === RatingSystem.Custom) {
+    if (isCustom(user.ratingSystem)) {
         return false;
     }
     const cohortBoundaries = ratingBoundaries[user.dojoCohort];
@@ -801,7 +860,7 @@ export function shouldPromptDemotion(user?: User): boolean {
     if (!user?.dojoCohort || !user.ratingSystem) {
         return false;
     }
-    if (user.ratingSystem === RatingSystem.Custom) {
+    if (isCustom(user.ratingSystem)) {
         return false;
     }
 
@@ -830,30 +889,6 @@ export function shouldPromptDemotion(user?: User): boolean {
         }
     }
     return haveFullHistory;
-}
-
-export function getSuggestedCohorts(
-    user?: User,
-): [string | undefined, string | undefined] {
-    if (!user?.dojoCohort || !user.ratingSystem) {
-        return [undefined, undefined];
-    }
-    if (user.ratingSystem === RatingSystem.Custom) {
-        return [undefined, undefined];
-    }
-
-    const currentRating = getCurrentRating(user);
-    const newNormalizedRating = getNormalizedRating(currentRating, user.ratingSystem);
-    const oldNormalizedRating = getNormalizedRating(
-        currentRating,
-        user.ratingSystem,
-        oldRatingBoundaries,
-    );
-
-    const newCohort = normalizedRatingToCohort(newNormalizedRating);
-    const oldCohort = normalizedRatingToCohort(oldNormalizedRating);
-
-    return [oldCohort, newCohort];
 }
 
 export function hasCreatedProfile(user?: User): boolean {

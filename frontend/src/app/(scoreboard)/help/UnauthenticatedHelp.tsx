@@ -14,7 +14,7 @@ import React from 'react';
 import HelpItem from './HelpItem';
 import SupportTicket from './SupportTicket';
 
-const { Custom, ...ratingSystems } = RatingSystem;
+const { Custom, Custom2, Custom3, ...ratingSystems } = RatingSystem;
 
 export const faq = {
     title: 'Frequently Asked Questions',
