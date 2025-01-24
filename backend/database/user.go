@@ -101,6 +101,8 @@ const (
 	Acf      RatingSystem = "ACF"
 	Knsb     RatingSystem = "KNSB"
 	Custom   RatingSystem = "CUSTOM"
+	Custom2  RatingSystem = "CUSTOM_2"
+	Custom3  RatingSystem = "CUSTOM_3"
 )
 
 var ratingSystems = []RatingSystem{
@@ -114,6 +116,8 @@ var ratingSystems = []RatingSystem{
 	Acf,
 	Knsb,
 	Custom,
+	Custom2,
+	Custom3,
 }
 
 type Rating struct {

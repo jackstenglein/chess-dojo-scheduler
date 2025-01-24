@@ -75,12 +75,6 @@ const RatingsSection = ({ review }: SectionProps) => {
         ? Object.entries(review.ratings).filter((data) => data[1].isPreferred)[0]
         : undefined;
 
-    const customRatingData = review.ratings
-        ? Object.entries(review.ratings).filter(
-              (data) => data[0] === RatingSystem.Custom,
-          )[0]?.[1]
-        : undefined;
-
     return (
         <Stack alignItems='center'>
             <Typography
@@ -120,10 +114,7 @@ const RatingsSection = ({ review }: SectionProps) => {
 
                     <Stack width={1} spacing={5}>
                         {Object.entries(review.ratings || {}).map(([system, data]) => {
-                            if (
-                                system === preferred[0] ||
-                                system === RatingSystem.Custom
-                            ) {
+                            if (system === preferred[0]) {
                                 return null;
                             }
                             return (
@@ -137,16 +128,6 @@ const RatingsSection = ({ review }: SectionProps) => {
                                 />
                             );
                         })}
-
-                        {customRatingData && (
-                            <RatingCard
-                                cohort={review.currentCohort}
-                                system={RatingSystem.Custom}
-                                data={customRatingData}
-                                dark={dark}
-                                period={review.period}
-                            />
-                        )}
                     </Stack>
                 </>
             ) : (

@@ -17,7 +17,7 @@ import { EventType, setUserCohort, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
-import { RatingSystem, shouldPromptGraduation } from '../database/user';
+import { isCustom, shouldPromptGraduation } from '../database/user';
 import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
 import GraduationShareDialog from './GraduationShareDialog';
 
@@ -33,8 +33,7 @@ const GraduationDialog = () => {
     const [graduation, setGraduation] = useState<Graduation>();
 
     const shouldGraduate = shouldPromptGraduation(user);
-    const disableGraduation =
-        !shouldGraduate && user?.ratingSystem !== RatingSystem.Custom;
+    const disableGraduation = !shouldGraduate && !isCustom(user?.ratingSystem);
 
     const onOpen = () => {
         if (isFreeTier) {

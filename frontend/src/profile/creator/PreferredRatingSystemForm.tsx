@@ -42,6 +42,8 @@ export function getUsernameLabel(rs: RatingSystem): string {
         case RatingSystem.Knsb:
             return 'KNSB ID';
         case RatingSystem.Custom:
+        case RatingSystem.Custom2:
+        case RatingSystem.Custom3:
             return '';
     }
 }
@@ -56,6 +58,8 @@ export function getHelperText(rs: RatingSystem): React.ReactNode | undefined {
         case RatingSystem.Acf:
         case RatingSystem.Knsb:
         case RatingSystem.Custom:
+        case RatingSystem.Custom2:
+        case RatingSystem.Custom3:
             return undefined;
 
         case RatingSystem.Dwz:
@@ -89,6 +93,8 @@ export function getUsernameType(rs: RatingSystem): string {
             return 'rating code';
 
         case RatingSystem.Custom:
+        case RatingSystem.Custom2:
+        case RatingSystem.Custom3:
             return '';
     }
 }
@@ -113,7 +119,7 @@ function getUpdate(
     return result;
 }
 
-const { Custom, ...RatingSystems } = RatingSystem;
+const { Custom, Custom2, Custom3, ...RatingSystems } = RatingSystem;
 
 const PreferredRatingSystemForm: React.FC<ProfileCreatorFormProps> = ({
     user,
