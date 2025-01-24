@@ -6,13 +6,17 @@ import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import { Link } from '@/components/navigation/Link';
+import NotificationSettingsEditor from '@/components/profile/edit/NotificationSettingsEditor';
 import { PersonalInfoEditor } from '@/components/profile/edit/PersonalInfoEditor';
+import { RatingEditor, RatingsEditor } from '@/components/profile/edit/RatingsEditor';
+import SubscriptionManager from '@/components/profile/edit/SubscriptionManager';
 import {
     Rating,
     RatingSystem,
     User,
     dojoCohorts,
     formatRatingSystem,
+    isCustom,
 } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
 import InfoIcon from '@mui/icons-material/Info';
@@ -27,80 +31,16 @@ import {
     Button,
     Card,
     CardContent,
-    Checkbox,
     Container,
-    Divider,
-    FormControlLabel,
-    Grid,
     Grid2,
-    MenuItem,
     Stack,
-    TextField,
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import NotificationSettingsEditor from '../../../../components/profile/edit/NotificationSettingsEditor';
-import SubscriptionManager from './SubscriptionManager';
 
 export const MAX_PROFILE_PICTURE_SIZE_MB = 9;
 
 type UserUpdate = Partial<User & { profilePictureData: string }>;
-
-const ratingSystemForms = [
-    {
-        system: RatingSystem.Chesscom,
-        label: 'Chess.com Username',
-        hideLabel: 'Hide Username',
-    },
-    {
-        system: RatingSystem.Lichess,
-        label: 'Lichess Username',
-        hideLabel: 'Hide Username',
-    },
-    {
-        system: RatingSystem.Fide,
-        label: 'FIDE ID',
-        hideLabel: 'Hide ID',
-    },
-    {
-        system: RatingSystem.Uscf,
-        label: 'USCF ID',
-        hideLabel: 'Hide ID',
-    },
-    {
-        system: RatingSystem.Ecf,
-        label: 'ECF Rating Code',
-        hideLabel: 'Hide Rating Code',
-    },
-    {
-        system: RatingSystem.Cfc,
-        label: 'CFC ID',
-        hideLabel: 'Hide ID',
-    },
-    {
-        system: RatingSystem.Dwz,
-        label: 'DWZ ID',
-        hideLabel: 'Hide ID',
-    },
-    {
-        system: RatingSystem.Acf,
-        label: 'ACF ID',
-        hideLabel: 'Hide ID',
-    },
-    {
-        system: RatingSystem.Knsb,
-        label: 'KNSB ID',
-        hideLabel: 'Hide ID',
-    },
-];
-
-interface RatingEditor {
-    username: string;
-    hideUsername: boolean;
-    startRating: string;
-    currentRating: string;
-    name: string;
-}
 
 function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
     const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(
@@ -211,56 +151,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
     const [ratingEditors, setRatingEditors] = useState(getRatingEditors(user.ratings));
 
-    const setUsername = (ratingSystem: RatingSystem, username: string) => {
-        setRatingEditors({
-            ...ratingEditors,
-            [ratingSystem]: {
-                ...ratingEditors[ratingSystem],
-                username,
-            },
-        });
-    };
-
-    const setCurrentRating = (ratingSystem: RatingSystem, value: string) => {
-        setRatingEditors({
-            ...ratingEditors,
-            [ratingSystem]: {
-                ...ratingEditors[ratingSystem],
-                currentRating: value,
-            },
-        });
-    };
-
-    const setStartRating = (ratingSystem: RatingSystem, value: string) => {
-        setRatingEditors({
-            ...ratingEditors,
-            [ratingSystem]: {
-                ...ratingEditors[ratingSystem],
-                startRating: value,
-            },
-        });
-    };
-
-    const setHidden = (ratingSystem: RatingSystem, value: boolean) => {
-        setRatingEditors({
-            ...ratingEditors,
-            [ratingSystem]: {
-                ...ratingEditors[ratingSystem],
-                hideUsername: value,
-            },
-        });
-    };
-
-    const setRatingName = (ratingSystem: RatingSystem, value: string) => {
-        setRatingEditors({
-            ...ratingEditors,
-            [ratingSystem]: {
-                ...ratingEditors[ratingSystem],
-                name: value,
-            },
-        });
-    };
-
     const [notificationSettings, setNotificationSettings] = useState(
         user.notificationSettings,
     );
@@ -304,10 +194,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
             newErrors.ratingSystem = 'This field is required';
         }
 
-        if (
-            ratingSystem !== RatingSystem.Custom &&
-            !ratingEditors[ratingSystem].username.trim()
-        ) {
+        if (!isCustom(ratingSystem) && !ratingEditors[ratingSystem].username.trim()) {
             newErrors[`${ratingSystem}Username`] =
                 `This field is required when using ${formatRatingSystem(
                     ratingSystem,
@@ -315,19 +202,38 @@ export function ProfileEditorPage({ user }: { user: User }) {
         }
 
         for (const rs of Object.keys(ratingEditors)) {
-            if (parseRating(ratingEditors[rs as RatingSystem].startRating) < 0) {
+            const startRating = parseRating(
+                ratingEditors[rs as RatingSystem].startRating,
+            );
+            if (startRating < 0) {
                 newErrors[`${rs}StartRating`] = 'Rating must be an integer >= 0';
             }
-        }
-
-        if (ratingSystem === RatingSystem.Custom) {
-            if (parseRating(ratingEditors[RatingSystem.Custom].currentRating) <= 0) {
-                newErrors.currentCustomRating =
-                    'This field is required when using Custom rating system.';
-            }
-            if (parseRating(ratingEditors[RatingSystem.Custom].startRating) <= 0) {
-                newErrors.startCustomRating =
-                    'This field is required when using Custom rating system.';
+            if (isCustom(rs)) {
+                const name = ratingEditors[rs as RatingSystem].name;
+                const currentRating = parseRating(
+                    ratingEditors[rs as RatingSystem].currentRating,
+                );
+                if (
+                    (rs === ratingSystem || currentRating > 0 || startRating > 0) &&
+                    !name.trim()
+                ) {
+                    newErrors[`${rs}Name`] =
+                        'This field is required when using a custom rating';
+                }
+                if (
+                    (rs === ratingSystem || name.trim() || startRating > 0) &&
+                    currentRating <= 0
+                ) {
+                    newErrors[`${rs}CurrentRating`] =
+                        'This field is required when using a custom rating system';
+                }
+                if (
+                    (rs === ratingSystem || name.trim() || currentRating > 0) &&
+                    startRating === 0
+                ) {
+                    newErrors[`${rs}StartRating`] =
+                        'This field is required when using a custom rating system';
+                }
             }
         }
 
@@ -357,20 +263,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
                 request.onFailure(err);
             });
     };
-
-    const ratingSystems = ratingSystemForms.map((rsf) => ({
-        required: ratingSystem === rsf.system,
-        label: rsf.label,
-        hideLabel: rsf.hideLabel,
-        username: ratingEditors[rsf.system].username,
-        setUsername: (value: string) => setUsername(rsf.system, value),
-        startRating: ratingEditors[rsf.system].startRating,
-        setStartRating: (value: string) => setStartRating(rsf.system, value),
-        hidden: ratingEditors[rsf.system].hideUsername,
-        setHidden: (value: boolean) => setHidden(rsf.system, value),
-        usernameError: errors[`${rsf.system}Username`],
-        startRatingError: errors[`${rsf.system}StartRating`],
-    }));
 
     const scrollToId = (id: string) => (e: React.MouseEvent) => {
         e.preventDefault();
@@ -512,7 +404,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
                         </Stack>
 
                         {Object.values(errors).length > 0 && (
-                            <Alert severity='error' sx={{ mb: 3 }}>
+                            <Alert severity='error' sx={{ mb: 3 }} variant='filled'>
                                 Unable to save profile. Fix the errors below and retry.
                             </Alert>
                         )}
@@ -536,186 +428,15 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             request={request}
                         />
 
-                        <Stack spacing={4}>
-                            <Stack
-                                id='ratings'
-                                sx={{
-                                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
-                                }}
-                            >
-                                <Typography variant='h5'>
-                                    <TimelineIcon
-                                        style={{
-                                            verticalAlign: 'middle',
-                                            marginRight: '0.1em',
-                                        }}
-                                    />{' '}
-                                    Ratings
-                                </Typography>
-                                <Divider />
-                            </Stack>
-
-                            <TextField
-                                required
-                                select
-                                label='ChessDojo Cohort'
-                                value={dojoCohort}
-                                onChange={(event) => setDojoCohort(event.target.value)}
-                                error={!!errors.dojoCohort}
-                                helperText={errors.dojoCohort}
-                            >
-                                {dojoCohorts.map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                        {option}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-
-                            <TextField
-                                required
-                                select
-                                label='Preferred Rating System'
-                                value={ratingSystem}
-                                onChange={(event) =>
-                                    setRatingSystem(event.target.value as RatingSystem)
-                                }
-                                error={!!errors.ratingSystem}
-                                helperText={errors.ratingSystem}
-                            >
-                                {Object.values(RatingSystem).map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                        {formatRatingSystem(option)}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-
-                            {ratingSystems.map((rs) => (
-                                <Grid
-                                    key={rs.label}
-                                    container
-                                    columnGap={2}
-                                    alignItems='start'
-                                >
-                                    <Grid item xs>
-                                        <TextField
-                                            required={rs.required}
-                                            label={rs.label}
-                                            value={rs.username}
-                                            onChange={(event) =>
-                                                rs.setUsername(event.target.value)
-                                            }
-                                            error={!!rs.usernameError}
-                                            helperText={
-                                                rs.usernameError ||
-                                                rs.label === 'DWZ ID' ? (
-                                                    <>
-                                                        Learn how to find your DWZ ID{' '}
-                                                        <Link href='/help#How%20do%20I%20find%20my%20DWZ%20ID?'>
-                                                            here
-                                                        </Link>
-                                                    </>
-                                                ) : (
-                                                    "Leave blank if you don't have an account"
-                                                )
-                                            }
-                                            sx={{ width: 1 }}
-                                        />
-                                    </Grid>
-
-                                    <Grid item xs>
-                                        <TextField
-                                            label='Start Rating'
-                                            value={rs.startRating}
-                                            onChange={(event) =>
-                                                rs.setStartRating(event.target.value)
-                                            }
-                                            error={!!rs.startRatingError}
-                                            helperText={
-                                                rs.startRatingError ||
-                                                'Your rating when you first joined the Dojo'
-                                            }
-                                            sx={{ width: 1 }}
-                                        />
-                                    </Grid>
-
-                                    <Grid item xs>
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={rs.hidden}
-                                                    onChange={(event) =>
-                                                        rs.setHidden(event.target.checked)
-                                                    }
-                                                />
-                                            }
-                                            label={rs.hideLabel}
-                                        />
-                                    </Grid>
-                                </Grid>
-                            ))}
-
-                            <Grid container columnGap={2} alignItems='start'>
-                                <Grid item xs>
-                                    <TextField
-                                        required={ratingSystem === RatingSystem.Custom}
-                                        label='Current Rating (Custom)'
-                                        value={
-                                            ratingEditors[RatingSystem.Custom]
-                                                .currentRating
-                                        }
-                                        onChange={(event) =>
-                                            setCurrentRating(
-                                                RatingSystem.Custom,
-                                                event.target.value,
-                                            )
-                                        }
-                                        error={!!errors.currentCustomRating}
-                                        helperText={
-                                            errors.currentCustomRating ||
-                                            'Fill in if you want to manually track your rating'
-                                        }
-                                        sx={{ width: 1 }}
-                                    />
-                                </Grid>
-
-                                <Grid item xs>
-                                    <TextField
-                                        required={ratingSystem === RatingSystem.Custom}
-                                        label='Start Rating (Custom)'
-                                        value={
-                                            ratingEditors[RatingSystem.Custom].startRating
-                                        }
-                                        onChange={(event) =>
-                                            setStartRating(
-                                                RatingSystem.Custom,
-                                                event.target.value,
-                                            )
-                                        }
-                                        error={!!errors.startCustomRating}
-                                        helperText={
-                                            errors.startCustomRating ||
-                                            'Your rating when you first joined the Dojo'
-                                        }
-                                        sx={{ width: 1 }}
-                                    />
-                                </Grid>
-
-                                <Grid item xs>
-                                    <TextField
-                                        label='Custom Rating Name'
-                                        value={ratingEditors[RatingSystem.Custom].name}
-                                        onChange={(event) =>
-                                            setRatingName(
-                                                RatingSystem.Custom,
-                                                event.target.value,
-                                            )
-                                        }
-                                        sx={{ width: 1 }}
-                                        helperText=' '
-                                    />
-                                </Grid>
-                            </Grid>
-                        </Stack>
+                        <RatingsEditor
+                            dojoCohort={dojoCohort}
+                            setDojoCohort={setDojoCohort}
+                            ratingSystem={ratingSystem}
+                            setRatingSystem={setRatingSystem}
+                            ratingEditors={ratingEditors}
+                            setRatingEditors={setRatingEditors}
+                            errors={errors}
+                        />
 
                         <NotificationSettingsEditor
                             notificationSettings={notificationSettings}
