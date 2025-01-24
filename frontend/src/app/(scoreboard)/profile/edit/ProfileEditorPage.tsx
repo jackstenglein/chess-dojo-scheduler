@@ -4,8 +4,9 @@ import { EventType, setUserCohort, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
-import { DefaultTimezone, TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
+import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import { Link } from '@/components/navigation/Link';
+import { PersonalInfoEditor } from '@/components/profile/edit/PersonalInfoEditor';
 import {
     Rating,
     RatingSystem,
@@ -14,15 +15,12 @@ import {
     formatRatingSystem,
 } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
-import Avatar from '@/profile/Avatar';
-import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SaveIcon from '@mui/icons-material/Save';
 import TimelineIcon from '@mui/icons-material/Timeline';
-import UploadIcon from '@mui/icons-material/Upload';
 import { LoadingButton } from '@mui/lab';
 import {
     Alert,
@@ -33,7 +31,6 @@ import {
     Container,
     Divider,
     FormControlLabel,
-    FormLabel,
     Grid,
     Grid2,
     MenuItem,
@@ -42,7 +39,7 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import NotificationSettingsEditor from './NotificationSettingsEditor';
+import NotificationSettingsEditor from '../../../../components/profile/edit/NotificationSettingsEditor';
 import SubscriptionManager from './SubscriptionManager';
 
 export const MAX_PROFILE_PICTURE_SIZE_MB = 9;
@@ -273,31 +270,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest<string>();
-
-    const onChangeProfilePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (files?.length) {
-            if (files[0].size / 1024 / 1024 > MAX_PROFILE_PICTURE_SIZE_MB) {
-                request.onFailure({ message: 'Profile picture must be 9MB or smaller' });
-                return;
-            }
-
-            encodeFileToBase64(files[0])
-                .then((encoded) => {
-                    setProfilePictureData(encoded);
-                    setProfilePictureUrl(URL.createObjectURL(files[0]));
-                })
-                .catch((err) => {
-                    console.log(err);
-                    request.onFailure(err);
-                });
-        }
-    };
-
-    const onDeleteProfilePicture = () => {
-        setProfilePictureUrl('');
-        setProfilePictureData('');
-    };
 
     const update = getUpdate(
         user,
@@ -545,111 +517,24 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             </Alert>
                         )}
 
-                        <Stack spacing={4}>
-                            <Stack
-                                id='personal'
-                                sx={{
-                                    scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
-                                }}
-                            >
-                                <Typography variant='h5'>
-                                    <InfoIcon
-                                        style={{
-                                            verticalAlign: 'middle',
-                                            marginRight: '0.1em',
-                                        }}
-                                    />{' '}
-                                    Personal Info
-                                </Typography>
-                                <Divider />
-                            </Stack>
-
-                            <Stack>
-                                <FormLabel sx={{ mb: 1 }}>Profile Picture</FormLabel>
-                                <Stack direction='row' alignItems='center' spacing={3}>
-                                    <Avatar
-                                        user={user}
-                                        size={150}
-                                        url={profilePictureUrl}
-                                    />
-                                    <Stack spacing={2} alignItems='start'>
-                                        <Button
-                                            component='label'
-                                            variant='outlined'
-                                            startIcon={<UploadIcon />}
-                                        >
-                                            Upload Photo
-                                            <input
-                                                type='file'
-                                                accept='image/*'
-                                                hidden
-                                                onChange={onChangeProfilePicture}
-                                            />
-                                        </Button>
-                                        <Button
-                                            variant='outlined'
-                                            startIcon={<DeleteIcon />}
-                                            onClick={onDeleteProfilePicture}
-                                        >
-                                            Delete Photo
-                                        </Button>
-                                    </Stack>
-                                </Stack>
-                            </Stack>
-
-                            <TextField
-                                required
-                                label='Display Name'
-                                value={displayName}
-                                onChange={(event) => setDisplayName(event.target.value)}
-                                error={!!errors.displayName}
-                                helperText={
-                                    errors.displayName ||
-                                    'This is how other users will identify you'
-                                }
-                            />
-
-                            <TextField
-                                label='Discord Username'
-                                value={discordUsername}
-                                onChange={(event) =>
-                                    setDiscordUsername(event.target.value)
-                                }
-                                error={!!errors.discordUsername}
-                                helperText={
-                                    errors.discordUsername ||
-                                    'Format as username#id for older-style Discord usernames'
-                                }
-                            />
-
-                            <TextField
-                                label='Bio'
-                                multiline
-                                minRows={3}
-                                maxRows={6}
-                                value={bio}
-                                onChange={(event) => setBio(event.target.value)}
-                                error={!!errors.bio}
-                                helperText={
-                                    errors.bio ||
-                                    'Supports Markdown-style links like [click here](https://google.com)'
-                                }
-                            />
-
-                            {user.isCoach && (
-                                <TextField
-                                    label='Coach Bio'
-                                    multiline
-                                    minRows={3}
-                                    maxRows={6}
-                                    value={coachBio}
-                                    onChange={(event) => setCoachBio(event.target.value)}
-                                    helperText='An optional coaching-specific bio. If included, it will be displayed on the coaching page and on the coach tab on your profile. If not included, the coaching page will use your regular bio and the coach tab on your profile will not have an additional bio.'
-                                />
-                            )}
-
-                            <TimezoneSelector value={timezone} onChange={setTimezone} />
-                        </Stack>
+                        <PersonalInfoEditor
+                            user={user}
+                            displayName={displayName}
+                            setDisplayName={setDisplayName}
+                            discordUsername={discordUsername}
+                            setDiscordUsername={setDiscordUsername}
+                            bio={bio}
+                            setBio={setBio}
+                            coachBio={coachBio}
+                            setCoachBio={setCoachBio}
+                            timezone={timezone}
+                            setTimezone={setTimezone}
+                            profilePictureUrl={profilePictureUrl}
+                            setProfilePictureUrl={setProfilePictureUrl}
+                            setProfilePictureData={setProfilePictureData}
+                            errors={errors}
+                            request={request}
+                        />
 
                         <Stack spacing={4}>
                             <Stack
