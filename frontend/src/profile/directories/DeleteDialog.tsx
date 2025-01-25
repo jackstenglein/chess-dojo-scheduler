@@ -1,6 +1,7 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { MAX_GAMES_PER_DELETE_BATCH } from '@/games/view/DeleteGameButton';
 import {
     Directory,
     DirectoryItem,
@@ -20,13 +21,29 @@ import {
 import { useState } from 'react';
 import { useDirectoryCache } from './DirectoryCache';
 
+export enum DeleteDialogType {
+    Remove = 'REMOVE',
+    Delete = 'DELETE',
+}
+
 export const DeleteDialog = ({
+    type,
     directory,
     items,
     onCancel,
 }: {
+    /**
+     * The type of the dialog when handling games. If set to Remove,
+     * games are only removed from the directory. If set to Delete,
+     * games are fully deleted from the database. Subdirectories are
+     * always fully deleted.
+     */
+    type: DeleteDialogType;
+    /** The directory containing the items to delete. */
     directory: Directory;
+    /** The items to delete (or remove). */
     items: DirectoryItem[];
+    /** A callback invoked when the user cancels the delete. */
     onCancel: () => void;
 }) => {
     const [value, setValue] = useState('');
@@ -34,9 +51,9 @@ export const DeleteDialog = ({
     const api = useApi();
     const cache = useDirectoryCache();
 
-    const requiresConfirmation = items.some(
-        (item) => item.type === DirectoryItemTypes.DIRECTORY,
-    );
+    const requiresConfirmation =
+        items.some((item) => item.type === DirectoryItemTypes.DIRECTORY) ||
+        (type === DeleteDialogType.Delete && items.length > 5);
     const disableDelete = requiresConfirmation && value.trim() !== 'delete';
 
     const onDelete = () => {
@@ -53,7 +70,7 @@ export const DeleteDialog = ({
             .filter((item) => item.type === DirectoryItemTypes.DIRECTORY)
             .map((item) => item.id);
 
-        const promises: Promise<void>[] = [];
+        const promises: Promise<unknown>[] = [];
 
         if (gameItemIds.length > 0) {
             promises.push(
@@ -70,6 +87,17 @@ export const DeleteDialog = ({
                         });
                     }),
             );
+            if (type === DeleteDialogType.Delete) {
+                for (let i = 0; i < gameItemIds.length; i += MAX_GAMES_PER_DELETE_BATCH) {
+                    const batch = gameItemIds
+                        .slice(i, i + MAX_GAMES_PER_DELETE_BATCH)
+                        .map((id) => ({
+                            cohort: id.split('/')[0],
+                            id: id.split('/')[1],
+                        }));
+                    promises.push(api.deleteGames(batch));
+                }
+            }
         }
         if (directoryItemIds.length > 0) {
             promises.push(
@@ -102,10 +130,14 @@ export const DeleteDialog = ({
             onClose={request.isLoading() ? undefined : onCancel}
             fullWidth
         >
-            <DialogTitle>{getDialogTitle(items)}</DialogTitle>
+            <DialogTitle>{getDialogTitle(type, items)}</DialogTitle>
             <DialogContent data-cy='delete-directory-form'>
                 <Stack spacing={1}>
-                    <DeleteDialogContentText directory={directory} items={items} />
+                    <DeleteDialogContentText
+                        type={type}
+                        directory={directory}
+                        items={items}
+                    />
 
                     {requiresConfirmation && (
                         <>
@@ -140,7 +172,9 @@ export const DeleteDialog = ({
                     loading={request.isLoading()}
                     onClick={onDelete}
                 >
-                    {requiresConfirmation ? 'Delete' : 'Remove'}
+                    {type === DeleteDialogType.Delete || requiresConfirmation
+                        ? 'Delete'
+                        : 'Remove'}
                 </LoadingButton>
             </DialogActions>
 
@@ -149,12 +183,15 @@ export const DeleteDialog = ({
     );
 };
 
-function getDialogTitle(items: DirectoryItem[]) {
+function getDialogTitle(type: DeleteDialogType, items: DirectoryItem[]) {
     if (items.length === 1) {
         if (items[0].type === DirectoryItemTypes.DIRECTORY) {
             return `Delete ${items[0].metadata.name}?`;
         }
-        return `Remove game?`;
+        if (type === DeleteDialogType.Remove) {
+            return `Remove Game?`;
+        }
+        return 'Delete Game?';
     }
 
     let directoryCount = 0;
@@ -171,18 +208,18 @@ function getDialogTitle(items: DirectoryItem[]) {
     let title = '';
 
     if (directoryCount > 0) {
-        title += `Delete ${directoryCount} folder${directoryCount > 1 ? 's' : ''}`;
+        title += `Delete ${directoryCount} Folder${directoryCount > 1 ? 's' : ''}`;
         if (gameCount > 0) {
             title += ' and ';
         }
     }
     if (gameCount > 0) {
-        if (title === '') {
+        if (type === DeleteDialogType.Remove) {
             title += 'Remove ';
-        } else {
-            title += 'remove ';
+        } else if (title === '') {
+            title += 'Delete ';
         }
-        title += `${gameCount} game${gameCount > 1 ? 's' : ''}`;
+        title += `${gameCount} Game${gameCount > 1 ? 's' : ''}`;
     }
 
     title += '?';
@@ -190,9 +227,11 @@ function getDialogTitle(items: DirectoryItem[]) {
 }
 
 const DeleteDialogContentText = ({
+    type,
     directory,
     items,
 }: {
+    type: DeleteDialogType;
     directory: Directory;
     items: DirectoryItem[];
 }) => {
@@ -206,14 +245,26 @@ const DeleteDialogContentText = ({
                 </DialogContentText>
             );
         }
+        if (type === DeleteDialogType.Remove) {
+            return (
+                <DialogContentText>
+                    This will remove the game{' '}
+                    <strong>
+                        {items[0].metadata.white} - {items[0].metadata.black}
+                    </strong>{' '}
+                    from the <strong>{directory.name}</strong> folder. The game will still
+                    be accessible from the Games tab and from any other folders it is in.
+                </DialogContentText>
+            );
+        }
         return (
             <DialogContentText>
-                This will remove the game{' '}
+                This will <strong>permanently delete</strong> the game{' '}
                 <strong>
                     {items[0].metadata.white} - {items[0].metadata.black}
-                </strong>{' '}
-                from the <strong>{directory.name}</strong> folder. The game will still be
-                accessible from the Games tab and from any other folders it is in.
+                </strong>
+                . It will be removed from the Games tab and will no longer be accessible
+                from other folders.
             </DialogContentText>
         );
     }
@@ -241,23 +292,45 @@ const DeleteDialogContentText = ({
     }
 
     if (directoryCount === 0 && gameCount > 0) {
+        if (type === DeleteDialogType.Remove) {
+            return (
+                <DialogContentText>
+                    This will remove {gameCount} games from the{' '}
+                    <strong>{directory.name}</strong> folder. The games will still be
+                    accessible from the Games tab and from any other folders they may be
+                    in.
+                </DialogContentText>
+            );
+        }
         return (
             <DialogContentText>
-                This will remove {gameCount} games from the{' '}
-                <strong>{directory.name}</strong> folder. The games will still be
-                accessible from the Games tab and from any other folders they may be in.
+                This will <strong>permanently delete</strong> {gameCount} games. The games
+                will be removed from the Games tab and will no longer be accessible from
+                other folders.
+            </DialogContentText>
+        );
+    }
+
+    if (type === DeleteDialogType.Remove) {
+        return (
+            <DialogContentText>
+                This will delete {directoryCount} folder{directoryCount > 1 && 's'} and
+                remove {gameCount} game{gameCount > 1 && 's'} from the {directory.name}{' '}
+                folder. The game{gameCount > 1 && 's'} will still be available in the
+                Games tab and from any other folders they may be in. However, the folder
+                {directoryCount > 1 && 's'} will be <strong>permanently deleted</strong>,
+                along with any subfolders.
             </DialogContentText>
         );
     }
 
     return (
         <DialogContentText>
-            This will delete {directoryCount} folder{directoryCount > 1 && 's'} and remove{' '}
-            {gameCount} game{gameCount > 1 && 's'} from the {directory.name} folder. The
-            game{gameCount > 1 && 's'} will still be available in the Games tab and from
-            any other folders they may be in. However, the folder
-            {directoryCount > 1 && 's'} will be <strong>permanently deleted</strong>,
-            along with any subfolders.
+            This will <strong>permanently delete</strong> {directoryCount} folder
+            {directoryCount > 1 && 's'} and {gameCount} game{gameCount > 1 && 's'}. The
+            game{gameCount > 1 && 's'} will be removed from the Games tab and will no
+            longer be accessible from other folders. Any subfolders will also be{' '}
+            <strong>permanently deleted</strong>.
         </DialogContentText>
     );
 };

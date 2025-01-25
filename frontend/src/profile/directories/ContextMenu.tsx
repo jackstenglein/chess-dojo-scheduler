@@ -79,7 +79,7 @@ export const ContextMenu = ({
                             <ListItemText primary='Move' />
                         </MenuItem>
                         <Divider />
-                        <MenuItem onClick={editor.onDelete}>
+                        <MenuItem onClick={editor.onRemove}>
                             <ListItemIcon>
                                 {isDirectory ? <Delete /> : <FolderOff />}
                             </ListItemIcon>

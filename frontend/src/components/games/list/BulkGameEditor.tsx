@@ -12,8 +12,8 @@ import {
     Typography,
 } from '@mui/material';
 import { Dispatch, SetStateAction, useState } from 'react';
-import DeleteGameButton from '../view/DeleteGameButton';
-import { AddToDirectoryDialog } from './AddToDirectoryDialog';
+import { AddToDirectoryDialog } from '../../../games/list/AddToDirectoryDialog';
+import DeleteGameButton from '../../../games/view/DeleteGameButton';
 import { ChangeVisibilityDialog } from './ChangeVisibilityDialog';
 
 export function BulkGameEditor({

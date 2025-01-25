@@ -28,7 +28,7 @@ import {
 } from '@mui/material';
 import { GridPaginationModel } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
-import { ListItemContextMenu } from './ListItemContextMenu';
+import { ListItemContextMenu } from '../../components/games/list/ListItemContextMenu';
 import SearchFilters from './SearchFilters';
 
 const ListGamesPage = () => {

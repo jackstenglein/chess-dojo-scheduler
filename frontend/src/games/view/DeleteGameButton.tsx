@@ -17,7 +17,7 @@ import { EventType, trackEvent } from '../../analytics/events';
 import { useApi } from '../../api/Api';
 import { RequestSnackbar, useRequest } from '../../api/Request';
 
-const MAX_GAMES_PER_BATCH = 100;
+export const MAX_GAMES_PER_DELETE_BATCH = 100;
 
 interface DeleteGameButtonProps {
     games: GameKey[];
@@ -96,8 +96,8 @@ export function DeleteGamesDialog({
             request.onStart();
             const deleted: GameKey[] = [];
 
-            for (let i = 0; i < games.length; i += MAX_GAMES_PER_BATCH) {
-                const batch = games.slice(i, i + MAX_GAMES_PER_BATCH);
+            for (let i = 0; i < games.length; i += MAX_GAMES_PER_DELETE_BATCH) {
+                const batch = games.slice(i, i + MAX_GAMES_PER_DELETE_BATCH);
                 const resp = await api.deleteGames(batch);
                 deleted.push(...resp.data);
             }

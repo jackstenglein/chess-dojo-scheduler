@@ -13,20 +13,39 @@ import {
 } from '@mui/icons-material';
 import { IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { DeleteDialog } from './DeleteDialog';
+import { DeleteDialog, DeleteDialogType } from './DeleteDialog';
 import { useDirectoryCache } from './DirectoryCache';
 import { MoveDialog } from './MoveDialog';
 import { onUpdateDirectory, UpdateDirectoryDialog } from './UpdateDirectoryDialog';
 
 interface UseDirectoryEditorResponse {
+    /** The parent directory containing the selected items. */
     directory: Directory;
+    /** The items selected to be edited. */
     items: DirectoryItem[];
+    /** Whether the rename dialog is open. */
     renameOpen: boolean;
+    /** Whether the move dialog is open. */
     moveOpen: boolean;
+    /**
+     * Whether the remove dialog is open. Contrary to the delete dialog, the remove dialog
+     * does not fully delete selected games. The games are only removed from the directory.
+     */
+    removeOpen: boolean;
+    /**
+     * Whether the delete dialog is open. Contrary to the remove dialog, the delete dialog
+     * fully deletes selected games.
+     */
     deleteOpen: boolean;
+    /** Opens the rename dialog. */
     onRename: () => void;
+    /** Opens the move dialog. */
     onMove: () => void;
+    /** Opens the remove dialog. */
+    onRemove: () => void;
+    /** Opens the delete dialog. */
     onDelete: () => void;
+    /** Closes any open dialogs. */
     handleClose: () => void;
 }
 
@@ -41,6 +60,7 @@ export function useDirectoryEditor(
 
     const [renameOpen, setRenameOpen] = useState(false);
     const [moveOpen, setMoveOpen] = useState(false);
+    const [removeOpen, setRemoveOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
     const onRename = () => {
@@ -51,6 +71,10 @@ export function useDirectoryEditor(
         setMoveOpen(true);
     };
 
+    const onRemove = () => {
+        setRemoveOpen(true);
+    };
+
     const onDelete = () => {
         setDeleteOpen(true);
     };
@@ -59,6 +83,7 @@ export function useDirectoryEditor(
         onClose();
         setRenameOpen(false);
         setMoveOpen(false);
+        setRemoveOpen(false);
         setDeleteOpen(false);
     };
 
@@ -67,9 +92,11 @@ export function useDirectoryEditor(
         items,
         renameOpen,
         moveOpen,
+        removeOpen,
         deleteOpen,
         onRename,
         onMove,
+        onRemove,
         onDelete,
         handleClose,
     };
@@ -118,14 +145,26 @@ export const BulkItemEditor = ({
                     </IconButton>
                 </Tooltip>
 
-                <Tooltip
-                    title={showEdit ? 'Delete' : 'Remove from Folder'}
-                    onClick={editor.onDelete}
-                >
-                    <IconButton size='small' sx={{ mr: 1 }}>
-                        {showEdit ? <Delete /> : <FolderOff />}
-                    </IconButton>
-                </Tooltip>
+                {showEdit ? (
+                    <Tooltip title='Delete' onClick={editor.onDelete}>
+                        <IconButton size='small' sx={{ mr: 1 }}>
+                            <Delete />
+                        </IconButton>
+                    </Tooltip>
+                ) : (
+                    <>
+                        <Tooltip title='Remove from Folder' onClick={editor.onRemove}>
+                            <IconButton size='small' sx={{ mr: 1 }}>
+                                <FolderOff />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title='Delete' onClick={editor.onDelete}>
+                            <IconButton size='small' sx={{ mr: 1 }}>
+                                <Delete />
+                            </IconButton>
+                        </Tooltip>
+                    </>
+                )}
             </Stack>
 
             <ItemEditorDialogs editor={editor} />
@@ -178,12 +217,15 @@ export const ItemEditorDialogs = ({ editor }: { editor: UseDirectoryEditorRespon
         );
     }
 
-    if (editor.deleteOpen) {
+    if (editor.removeOpen || editor.deleteOpen) {
         return (
             <DeleteDialog
                 directory={editor.directory}
                 items={editor.items}
                 onCancel={editor.handleClose}
+                type={
+                    editor.removeOpen ? DeleteDialogType.Remove : DeleteDialogType.Delete
+                }
             />
         );
     }

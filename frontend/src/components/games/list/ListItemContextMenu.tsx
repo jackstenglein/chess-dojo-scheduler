@@ -12,8 +12,8 @@ import {
     Snackbar,
 } from '@mui/material';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { DeleteGamesDialog } from '../view/DeleteGameButton';
-import { AddToDirectoryDialog } from './AddToDirectoryDialog';
+import { AddToDirectoryDialog } from '../../../games/list/AddToDirectoryDialog';
+import { DeleteGamesDialog } from '../../../games/view/DeleteGameButton';
 import { ChangeVisibilityDialog } from './ChangeVisibilityDialog';
 
 export const ListItemContextMenu = ({

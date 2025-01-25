@@ -1,12 +1,12 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth, useFreeTier } from '@/auth/Auth';
+import { BulkGameEditor } from '@/components/games/list/BulkGameEditor';
 import GameTable from '@/components/games/list/GameTable';
+import { ListItemContextMenu } from '@/components/games/list/ListItemContextMenu';
 import { GameInfo } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
 import { User } from '@/database/user';
-import { BulkGameEditor } from '@/games/list/BulkGameEditor';
-import { ListItemContextMenu } from '@/games/list/ListItemContextMenu';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
 import { useRouter } from '@/hooks/useRouter';
