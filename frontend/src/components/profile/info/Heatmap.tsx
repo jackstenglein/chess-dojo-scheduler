@@ -33,6 +33,12 @@ interface CategoryCount {
 }
 
 interface Activity extends BaseActivity {
+    /**
+     * Required by the react-activity-calendar library, but always set to 0
+     * as we dynamically calculate the level when rendering the block.
+     */
+    level: number;
+
     /** The count of the activity by category. */
     categoryCounts?: Partial<Record<RequirementCategory, CategoryCount>>;
 
@@ -77,6 +83,16 @@ const VALID_TOOLTIP_CATEGORIES = [
 
 /** The color of the heatmap in monochrome color mode. */
 const MONOCHROME_COLOR = '#6f02e3';
+
+/** The array of legend colors in light theme. */
+const LIGHT_THEME = Array(MAX_LEVEL + 1)
+    .fill(0)
+    .map((_, level) => mixColors('#EBEDF0', MONOCHROME_COLOR, level / MAX_LEVEL));
+
+/** The array of legend colors in dark theme. */
+const DARK_THEME = Array(MAX_LEVEL + 1)
+    .fill(0)
+    .map((_, level) => mixColors('#393939', MONOCHROME_COLOR, level / MAX_LEVEL));
 
 /**
  * Renders the Heatmap, including the options and legend, for the given timeline entries.
@@ -141,8 +157,8 @@ export function Heatmap({
                 ref={setCalendarRef}
                 colorScheme={isLight ? 'light' : 'dark'}
                 theme={{
-                    dark: ['#393939', MONOCHROME_COLOR],
-                    light: ['#EBEDF0', MONOCHROME_COLOR],
+                    light: LIGHT_THEME,
+                    dark: DARK_THEME,
                 }}
                 data={activities}
                 renderBlock={(block, activity) =>
@@ -151,7 +167,7 @@ export function Heatmap({
                             block={block}
                             activity={activity as Activity}
                             field={field}
-                            baseColor={isLight ? '#EBEDF0' : '#393939'}
+                            baseColor={isLight ? LIGHT_THEME[0] : DARK_THEME[0]}
                             clamp={clamp}
                         />
                     ) : (
@@ -159,7 +175,7 @@ export function Heatmap({
                             block={block}
                             activity={activity as Activity}
                             field={field}
-                            baseColor={isLight ? '#EBEDF0' : '#393939'}
+                            baseColor={isLight ? LIGHT_THEME[0] : DARK_THEME[0]}
                             clamp={clamp}
                         />
                     )
@@ -728,10 +744,62 @@ function LegendTooltip({
  */
 function calculateColor(colors: [from: string, to: string], level: number): string {
     const [from, to] = colors;
-    const mixFactor = (level / MAX_LEVEL) * 100;
-    return `color-mix(in oklab, ${to} ${parseFloat(mixFactor.toFixed(2))}%, ${from})`;
+    const mixFactor = level / MAX_LEVEL;
+    return mixColors(from, to, mixFactor);
 }
 
+/**
+ * Mixes two colors by the given proportion. Manually recreates CSS color-mix, as it
+ * is unavailable in older browsers.
+ * @param color1 The first color to mix in hex.
+ * @param color2 The second color to mix in hex.
+ * @param weight The proportion of color2 in the mix. Specified as a decimal.
+ * @returns A new hex color representing the mix.
+ */
+function mixColors(color1: string, color2: string, weight: number) {
+    const rgb1 = hexToRgb(color1);
+    const rgb2 = hexToRgb(color2);
+
+    if (!rgb2) {
+        return color1;
+    }
+    if (!rgb1) {
+        return color2;
+    }
+    const mixedRgb = {
+        r: Math.round(rgb1?.r * (1 - weight) + rgb2.r * weight),
+        g: Math.round(rgb1?.g * (1 - weight) + rgb2.g * weight),
+        b: Math.round(rgb1?.b * (1 - weight) + rgb2.b * weight),
+    };
+    return rgbToHex(mixedRgb);
+}
+
+/**
+ * Converts the given hex color to RGB.
+ * @param hex The hex color to convert.
+ * @returns The RGB components of the color.
+ */
+function hexToRgb(hex: string) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+        ? {
+              r: parseInt(result[1], 16),
+              g: parseInt(result[2], 16),
+              b: parseInt(result[3], 16),
+          }
+        : null;
+}
+
+/**
+ * Converts the given RGB color to hex.
+ * @param rgb The RGB color to convert.
+ * @returns The hex code of the color.
+ */
+function rgbToHex(rgb: { r: number; g: number; b: number }) {
+    return `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)}`;
+}
+
+/** Renders a stripe pattern for use in SVGs. */
 function StripePattern() {
     return (
         <pattern id='diagonalHatch' patternUnits='userSpaceOnUse' width='4' height='4'>
