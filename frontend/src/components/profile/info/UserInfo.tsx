@@ -1,9 +1,8 @@
 import { Link } from '@/components/navigation/Link';
-import { SubscriptionStatus, User } from '@/database/user';
+import { User } from '@/database/user';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import WarningIcon from '@mui/icons-material/Warning';
-import { Stack, Tooltip, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
 interface UserInfoProps {
     user: User;
@@ -37,12 +36,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, linkUsername }) => {
                         cohort={user.dojoCohort}
                         tooltip={`Member of the ${user.dojoCohort} cohort`}
                     />
-
-                    {user.subscriptionStatus === SubscriptionStatus.FreeTier && (
-                        <Tooltip title='This account is on the free tier and has limited access to the site'>
-                            <WarningIcon color='warning' />
-                        </Tooltip>
-                    )}
                 </Stack>
                 <Typography variant='h5' color='text.secondary'>
                     {user.dojoCohort}
