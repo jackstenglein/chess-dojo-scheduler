@@ -224,6 +224,12 @@ export interface Requirement {
      * can be updated.
      */
     blockers?: string[];
+
+    /**
+     * Indicates whether the task must be fully complete before the suggested
+     * task algorithm skips over it.
+     */
+    atomic: boolean;
 }
 
 /** A user's progress on a specific requirement. */
@@ -682,6 +688,22 @@ const CLASSICAL_GAMES_TASK = '38f46441-7a4e-4506-8632-166bcbe78baf';
 const ANNOTATE_GAMES_TASK = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
 
 /**
+ * Returns the remaining score of a task for the purposes of the suggested task algorithm.
+ * If the task is atomic, the total score of the task is considered remaining. Otherwise,
+ * the actual remaining score is returned.
+ */
+function getRemainingSuggestionScore(
+    cohort: string,
+    requirement: Requirement,
+    progress: RequirementProgress,
+): number {
+    if (requirement.atomic) {
+        return getTotalScore(cohort, [requirement]);
+    }
+    return getRemainingScore(cohort, requirement, progress);
+}
+
+/**
  * Returns a list of tasks to be shown to the user in the Suggested Tasks category.
  * We show at most MAX_SUGGESTED_TASKS tasks, in the following priority:
  *
@@ -777,8 +799,16 @@ export function getSuggestedTasks(
                 .filter((r) => r.category === category)
                 .sort(
                     (lhs, rhs) =>
-                        getRemainingScore(user.dojoCohort, rhs, user.progress[rhs.id]) -
-                        getRemainingScore(user.dojoCohort, lhs, user.progress[lhs.id]),
+                        getRemainingSuggestionScore(
+                            user.dojoCohort,
+                            rhs,
+                            user.progress[rhs.id],
+                        ) -
+                        getRemainingSuggestionScore(
+                            user.dojoCohort,
+                            lhs,
+                            user.progress[lhs.id],
+                        ),
                 );
             suggestedTasks.push(categoryRequirements[0]);
             eligibleRequirements.splice(
