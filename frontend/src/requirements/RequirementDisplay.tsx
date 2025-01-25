@@ -325,6 +325,7 @@ const RequirementDisplay: React.FC<RequirementDisplayProps> = ({
                                     open={showEditor}
                                     onClose={() => setShowEditor(false)}
                                     task={requirement}
+                                    initialCategory={requirement.category}
                                 />
 
                                 <DeleteCustomTaskModal

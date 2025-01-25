@@ -144,17 +144,6 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                             </Button>
                         </Stack>
                     )}
-
-                {isFreeTier && c.name === RequirementCategory.NonDojo && (
-                    <Stack mt={2} spacing={2} alignItems='center'>
-                        <Typography>
-                            Upgrade to a full account to create your own custom tasks
-                        </Typography>
-                        <Button variant='outlined' href='/prices'>
-                            View Prices
-                        </Button>
-                    </Stack>
-                )}
             </AccordionDetails>
 
             <CustomTaskEditor

@@ -45,7 +45,7 @@ interface CustomTaskEditorProps {
     task?: CustomTask;
     open: boolean;
     onClose: () => void;
-    initialCategory?: CustomTaskCategory;
+    initialCategory: CustomTaskCategory;
 }
 
 const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
@@ -59,9 +59,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
     const { user } = useAuth();
     const { resetRequest: resetTimeline } = useTimelineContext();
 
-    const [category, setCategory] = useState(
-        task?.category ?? initialCategory ?? RequirementCategory.NonDojo,
-    );
+    const [category, setCategory] = useState(task?.category ?? initialCategory);
     const [name, setName] = useState(task?.name ?? '');
     const [description, setDescription] = useState(task?.description ?? '');
     const [cohorts, setCohorts] = useState([ALL_COHORTS]);
