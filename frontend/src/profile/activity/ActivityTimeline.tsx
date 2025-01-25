@@ -233,7 +233,7 @@ const ActivityTimelineCalendar = ({
 
     const events: ProcessedEvent[] = useMemo(() => {
         const events: ProcessedEvent[] = entries.map((entry) => {
-            const date = new Date(entry.createdAt);
+            const date = new Date(entry.date || entry.createdAt);
             const category =
                 entry.requirementId === TimelineSpecialRequirementId.GameSubmission
                     ? RequirementCategory.Games
