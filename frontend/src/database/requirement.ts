@@ -118,7 +118,6 @@ export type CustomTaskCategory = Extract<
     | RequirementCategory.Middlegames
     | RequirementCategory.Endgame
     | RequirementCategory.Opening
-    | RequirementCategory.NonDojo
 >;
 
 /**
@@ -131,8 +130,7 @@ export function isCustomTaskCategory(obj: unknown): obj is CustomTaskCategory {
             obj === RequirementCategory.Tactics ||
             obj === RequirementCategory.Middlegames ||
             obj === RequirementCategory.Endgame ||
-            obj === RequirementCategory.Opening ||
-            obj === RequirementCategory.NonDojo)
+            obj === RequirementCategory.Opening)
     );
 }
 
