@@ -664,6 +664,30 @@ const INELIGIBLE_SUGGESTED_TASKS = [
     '25230066-4eda-4886-a12c-39a5175ea632', // Online tactics tune up 0-1400
     'b55eda1d-11dc-4f6f-aa7b-b83a6339513f', // Online tactics tune up 1400-1800
     'b9ef52d2-795d-4005-b15a-437ee36a2c0a', // Online tactics tune up 1800+
+
+    // Review Master Games, all cohorts
+    'ec86ff17-f9ec-4ef9-aa12-60a2ace17963',
+    '4e42201e-cd58-471f-9359-515e5c669b0c',
+    '90d7cd05-5219-49cc-900b-efe392d28736',
+    'ca281c97-f0fc-4c25-9a66-99eae875c578',
+    'c3db57da-be74-4e71-b061-a16a9d80f101',
+    '5b91042b-1da2-4138-99dd-c6e1732b45a9',
+    'd3192026-cda6-4d1e-a1c2-1dee3f68b063',
+    'fbb5ece4-f7f0-4fdd-b194-298397cb8bca',
+    '89acdc78-ae38-4390-942b-8359116a9620',
+    '8a68cb46-f935-4457-92d1-82ff3eafec64',
+    '5d560e7c-ee48-46c8-affe-6fef6b2bf2f0',
+    '539f93c8-db55-4a00-b786-962c3bdd86ac',
+    '0fe8b57a-0f82-4a72-b89a-a3d56ff3b46b',
+    'bdc8cbb1-b592-42f2-a1c8-896024838c05',
+    '7fabaa5a-95d0-4ddc-b711-afd8fccf5aca',
+    'ec27f1fe-6f9e-4be2-a869-f979eef555a5',
+    '666cb454-5242-453f-83f3-d9daac487d75',
+    'b2ff90b7-5900-4d33-b31b-426ee750bed4',
+    'bdb1580b-421e-4501-86d9-316c77118d44',
+    '8667a8d4-eafe-4855-85c2-d8580869135f',
+    'b1bd988e-a856-4829-81e9-b7b2fd1ebd6d',
+    'cba150ad-b66c-4fd4-b041-f35e98dcd161',
 ];
 
 /** The maximum number of suggested tasks returned by the suggestion algorithm. */
