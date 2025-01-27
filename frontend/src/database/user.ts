@@ -879,3 +879,11 @@ export function isActive(user: User): boolean {
 
     return user.updatedAt >= monthAgo.toISOString();
 }
+
+/**
+ * Returns true if the given user is on the free tier.
+ * @param user The user to check
+ */
+export function isFree(user: User | undefined): boolean {
+    return user?.subscriptionStatus !== SubscriptionStatus.Subscribed;
+}

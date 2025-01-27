@@ -87,7 +87,7 @@ function getEmptyUser(cohort: string): User {
         displayName: '',
         discordUsername: '',
         bio: '',
-        subscriptionStatus: '',
+        subscriptionStatus: 'SUBSCRIBED',
         ratingSystem: RatingSystem.Chesscom,
         ratings: {},
         disableBookingNotifications: false,

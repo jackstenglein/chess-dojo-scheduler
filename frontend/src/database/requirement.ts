@@ -1,5 +1,5 @@
 import { isObject } from './scoreboard';
-import { SubscriptionStatus, User } from './user';
+import { isFree, SubscriptionStatus, User } from './user';
 
 /** The status of a requirement. */
 export enum RequirementStatus {
@@ -663,6 +663,9 @@ export function isBlocked(
 /** A list of IDs of tasks which cannot be suggested, unless the user has pinned them. */
 const INELIGIBLE_SUGGESTED_TASKS = [
     '812adb60-d5fb-4655-8d22-d568a0dca547', // Postmortems
+    '25230066-4eda-4886-a12c-39a5175ea632', // Online tactics tune up 0-1400
+    'b55eda1d-11dc-4f6f-aa7b-b83a6339513f', // Online tactics tune up 1400-1800
+    'b9ef52d2-795d-4005-b15a-437ee36a2c0a', // Online tactics tune up 1800+
 ];
 
 /** The maximum number of suggested tasks returned by the suggestion algorithm. */
@@ -739,8 +742,10 @@ export function getSuggestedTasks(
         return suggestedTasks;
     }
 
+    const isFreeUser = isFree(user);
     const eligibleRequirements = requirements.filter(
         (r) =>
+            (!isFreeUser || r.isFree) &&
             !INELIGIBLE_SUGGESTED_TASKS.includes(r.id) &&
             !suggestedTasks.some((t) => r.id === t.id) &&
             SUGGESTED_TASK_CATEGORIES.includes(r.category) &&
