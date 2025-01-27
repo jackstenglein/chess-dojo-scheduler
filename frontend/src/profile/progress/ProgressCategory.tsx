@@ -30,6 +30,7 @@ export interface Category {
     requirements: (Requirement | CustomTask)[];
     totalComplete: number;
     totalRequirements: number;
+    color?: SvgIconOwnProps['color'];
 }
 
 interface ProgressCategoryProps {
@@ -39,7 +40,8 @@ interface ProgressCategoryProps {
     user: User;
     isCurrentUser: boolean;
     cohort: string;
-    color?: SvgIconOwnProps['color'];
+    togglePin: (req: Requirement | CustomTask) => void;
+    pinnedTasks: (Requirement | CustomTask)[];
 }
 
 const ProgressCategory: React.FC<ProgressCategoryProps> = ({
@@ -49,7 +51,8 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
     user,
     isCurrentUser,
     cohort,
-    color,
+    togglePin,
+    pinnedTasks,
 }) => {
     const isFreeTier = useFreeTier();
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
@@ -60,10 +63,6 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
         }
         return c.requirements.filter((r) => isRequirement(r) && !r.isFree).length;
     }, [c.requirements, isFreeTier]);
-
-    if (!color) {
-        color = 'primary';
-    }
 
     return (
         <Accordion
@@ -89,7 +88,7 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                     <Typography fontWeight='bold'>
                         <Icon
                             name={c.name}
-                            color={color}
+                            color={c.color || 'primary'}
                             sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
                         />
                         {c.name}
@@ -120,6 +119,8 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                             cohort={cohort}
                             isCurrentUser={isCurrentUser}
                             user={user}
+                            togglePin={togglePin}
+                            isPinned={pinnedTasks.some((t) => t.id === r.id)}
                         />
                     );
                 })}

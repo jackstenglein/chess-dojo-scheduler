@@ -1,4 +1,4 @@
-import { AddCircle, Lock } from '@mui/icons-material';
+import { AddCircle, Lock, PushPin, PushPinOutlined } from '@mui/icons-material';
 import {
     Box,
     Checkbox,
@@ -15,6 +15,7 @@ import { useRequirements } from '../../api/cache/requirements';
 import {
     CustomTask,
     Requirement,
+    RequirementCategory,
     RequirementProgress,
     ScoreboardDisplay,
     formatTime,
@@ -34,6 +35,8 @@ interface ProgressItemProps {
     requirement: Requirement | CustomTask;
     cohort: string;
     isCurrentUser: boolean;
+    togglePin: (req: Requirement | CustomTask) => void;
+    isPinned: boolean;
 }
 
 const ProgressItem: React.FC<ProgressItemProps> = ({
@@ -42,6 +45,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     requirement,
     cohort,
     isCurrentUser,
+    togglePin,
+    isPinned,
 }) => {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
     const [showReqModal, setShowReqModal] = useState(false);
@@ -200,12 +205,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                         {DescriptionElement}
                     </Grid2>
                     <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
-                        <Stack
-                            direction='row'
-                            alignItems='center'
-                            justifyContent='end'
-                            gap={1}
-                        >
+                        <Stack direction='row' alignItems='center' justifyContent='end'>
                             {!blocker.isBlocked && (
                                 <Typography
                                     color='text.secondary'
@@ -215,11 +215,35 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                                     }}
                                     noWrap
                                     textOverflow='unset'
+                                    mr={1}
                                 >
                                     {time}
                                 </Typography>
                             )}
                             {UpdateElement}
+
+                            {isCurrentUser &&
+                                requirement.scoreboardDisplay !==
+                                    ScoreboardDisplay.Hidden &&
+                                requirement.category !== RequirementCategory.Welcome && (
+                                    <Tooltip
+                                        title={
+                                            isPinned
+                                                ? 'Unpin from Suggested Tasks'
+                                                : 'Pin to Suggested Tasks'
+                                        }
+                                    >
+                                        <IconButton
+                                            onClick={() => togglePin(requirement)}
+                                        >
+                                            {isPinned ? (
+                                                <PushPin color='dojoOrange' />
+                                            ) : (
+                                                <PushPinOutlined color='dojoOrange' />
+                                            )}
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
                         </Stack>
                     </Grid2>
                 </Grid2>

@@ -2,6 +2,7 @@ import boto3
 import csv
 import datetime
 from decimal import Decimal
+import json
 
 db = boto3.resource('dynamodb')
 table = db.Table('dev-requirements')
@@ -163,6 +164,7 @@ def main():
                 'expirationDays': int(row['Expiration Days']) if row['Expiration Days'] else -1,
                 'isFree': row['Free?'] == '1',
                 'blockers': getBlockers(row),
+                'atomic': row['Atomic'] == 'TRUE',
             }
 
             items.append(item)
@@ -179,6 +181,9 @@ def main():
     print(f'Got {len(categories["Non-Dojo"])} Non-Dojo requirements')
 
     print('Uploading items')
+
+    # with open('requirements.json', 'w') as out:
+    #     out.write(json.dumps(items))
 
     updated = 0
     try:

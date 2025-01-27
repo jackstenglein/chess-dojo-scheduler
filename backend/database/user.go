@@ -302,6 +302,9 @@ type User struct {
 
 	// A map from exam id to the user's summary for that exam
 	Exams map[string]UserExamSummary `dynamodbav:"exams" json:"exams"`
+
+	// The IDs of the user's pinned tasks.
+	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -645,6 +648,9 @@ type UserUpdate struct {
 
 	// The user's coach info. This field cannot be manually set by the user.
 	CoachInfo *CoachInfo `dynamodbav:"coachInfo,omitempty" json:"-"`
+
+	// The IDs of the user's pinned tasks.
+	PinnedTasks *[]string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

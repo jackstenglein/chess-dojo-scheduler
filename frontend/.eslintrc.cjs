@@ -20,6 +20,7 @@ module.exports = {
         'coverage/**',
         'public/**',
         'src/stockfish/engine/sf17-79.js',
+        'scripts/simulate-suggested-tasks.ts',
     ],
     root: true,
 };
