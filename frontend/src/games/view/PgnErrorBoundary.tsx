@@ -73,7 +73,12 @@ class PgnErrorBoundary extends Component<
                             </Button>
 
                             <DeleteGameButton
-                                game={this.props.game}
+                                games={[
+                                    {
+                                        cohort: this.props.game.cohort,
+                                        id: this.props.game.id,
+                                    },
+                                ]}
                                 variant='contained'
                             />
                         </Stack>

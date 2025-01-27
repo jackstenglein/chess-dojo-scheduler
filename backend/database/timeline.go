@@ -25,14 +25,17 @@ type TimelineEntry struct {
 	// The display name of the user that created this timeline entry.
 	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
 
-	// The id of the requirement that the timeline entry applies to
+	// The id of the requirement that the timeline entry applies to.
 	RequirementId string `dynamodbav:"requirementId" json:"requirementId"`
 
-	// The name of the requirement that the timeline entry applies to
+	// The name of the requirement that the timeline entry applies to.
 	RequirementName string `dynamodbav:"requirementName" json:"requirementName"`
 
-	// The category of the requirement that the timeline entry applies to
+	// The category of the requirement that the timeline entry applies to.
 	RequirementCategory string `dynamodbav:"requirementCategory" json:"requirementCategory"`
+
+	// Whether the requirement is custom or not.
+	IsCustomRequirement bool `dynamodbav:"isCustomRequirement" json:"isCustomRequirement"`
 
 	// How the requirement should be displayed on the scoreboard.
 	ScoreboardDisplay ScoreboardDisplay `dynamodbav:"scoreboardDisplay" json:"scoreboardDisplay"`

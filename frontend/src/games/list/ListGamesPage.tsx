@@ -28,7 +28,7 @@ import {
 } from '@mui/material';
 import { GridPaginationModel } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
-import { ListItemContextMenu } from './ListItemContextMenu';
+import { ListItemContextMenu } from '../../components/games/list/ListItemContextMenu';
 import SearchFilters from './SearchFilters';
 
 const ListGamesPage = () => {
@@ -135,11 +135,9 @@ const ListGamesPage = () => {
                         }}
                     />
                     <ListItemContextMenu
-                        game={
-                            contextMenu.rowIds
-                                ? data.find((g) => g.id === contextMenu.rowIds[0])
-                                : undefined
-                        }
+                        games={contextMenu.rowIds
+                            .map((id) => data.find((g) => g.id === id))
+                            .filter((g) => !!g)}
                         onClose={contextMenu.close}
                         position={contextMenu.position}
                     />

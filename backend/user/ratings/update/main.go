@@ -56,7 +56,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, rati
 	shouldUpdate := false
 
 	for system, rating := range user.Ratings {
-		if system != database.Custom {
+		if system != database.Custom && system != database.Custom2 && system != database.Custom3 {
 			shouldUpdate = updateRating(rating, string(system), ratingFetchFuncs[system]) || shouldUpdate
 		}
 
@@ -69,7 +69,7 @@ func updateIfNecessary(user *database.User, queuedUpdates []*database.User, rati
 
 		if now.Weekday() == time.Monday {
 			history := user.RatingHistories[system]
-			if history == nil || history[len(history)-1].Rating != rating.CurrentRating {
+			if rating.CurrentRating > 0 && (history == nil || history[len(history)-1].Rating != rating.CurrentRating) {
 				if user.RatingHistories == nil {
 					user.RatingHistories = make(map[database.RatingSystem][]database.RatingHistory)
 				}

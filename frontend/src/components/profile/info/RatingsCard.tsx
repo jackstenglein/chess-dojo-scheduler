@@ -1,6 +1,7 @@
 import {
     formatRatingSystem,
     getSystemCurrentRating,
+    isCustom,
     RatingSystem,
     User,
 } from '@/database/user';
@@ -62,7 +63,7 @@ const RatingRow = ({
             <Grid2 size={8}>
                 <Typography>
                     {formatRatingSystem(system)}{' '}
-                    {system === RatingSystem.Custom && name && ` (${name})`}
+                    {isCustom(system) && name && ` (${name})`}
                 </Typography>
             </Grid2>
             <Grid2 size={2}>

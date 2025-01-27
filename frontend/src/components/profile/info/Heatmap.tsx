@@ -24,9 +24,23 @@ import {
 import { GiCrossedSwords } from 'react-icons/gi';
 import { HeatmapOptions, TimelineEntryField, useHeatmapOptions } from './HeatmapOptions';
 
+interface CategoryCount {
+    /** The count of the category spent on custom tasks. */
+    custom: number;
+
+    /** The count of the category spent on training plan tasks. */
+    trainingPlan: number;
+}
+
 interface Activity extends BaseActivity {
+    /**
+     * Required by the react-activity-calendar library, but always set to 0
+     * as we dynamically calculate the level when rendering the block.
+     */
+    level: number;
+
     /** The count of the activity by category. */
-    categoryCounts?: Partial<Record<RequirementCategory, number>>;
+    categoryCounts?: Partial<Record<RequirementCategory, CategoryCount>>;
 
     /** Whether a classical game was played on this date. */
     gamePlayed?: boolean;
@@ -69,6 +83,16 @@ const VALID_TOOLTIP_CATEGORIES = [
 
 /** The color of the heatmap in monochrome color mode. */
 const MONOCHROME_COLOR = '#6f02e3';
+
+/** The array of legend colors in light theme. */
+const LIGHT_THEME = Array(MAX_LEVEL + 1)
+    .fill(0)
+    .map((_, level) => mixColors('#EBEDF0', MONOCHROME_COLOR, level / MAX_LEVEL));
+
+/** The array of legend colors in dark theme. */
+const DARK_THEME = Array(MAX_LEVEL + 1)
+    .fill(0)
+    .map((_, level) => mixColors('#393939', MONOCHROME_COLOR, level / MAX_LEVEL));
 
 /**
  * Renders the Heatmap, including the options and legend, for the given timeline entries.
@@ -133,8 +157,8 @@ export function Heatmap({
                 ref={setCalendarRef}
                 colorScheme={isLight ? 'light' : 'dark'}
                 theme={{
-                    dark: ['#393939', MONOCHROME_COLOR],
-                    light: ['#EBEDF0', MONOCHROME_COLOR],
+                    light: LIGHT_THEME,
+                    dark: DARK_THEME,
                 }}
                 data={activities}
                 renderBlock={(block, activity) =>
@@ -143,7 +167,7 @@ export function Heatmap({
                             block={block}
                             activity={activity as Activity}
                             field={field}
-                            baseColor={isLight ? '#EBEDF0' : '#393939'}
+                            baseColor={isLight ? LIGHT_THEME[0] : DARK_THEME[0]}
                             clamp={clamp}
                         />
                     ) : (
@@ -151,7 +175,7 @@ export function Heatmap({
                             block={block}
                             activity={activity as Activity}
                             field={field}
-                            baseColor={isLight ? '#EBEDF0' : '#393939'}
+                            baseColor={isLight ? LIGHT_THEME[0] : DARK_THEME[0]}
                             clamp={clamp}
                         />
                     )
@@ -212,11 +236,8 @@ export function CategoryLegend() {
                     rowGap={0.5}
                     mt={0.5}
                 >
-                    {Object.entries(CategoryColors).map(([category, color]) => {
-                        if (!VALID_CATEGORIES.includes(category as RequirementCategory)) {
-                            return null;
-                        }
-
+                    {VALID_TOOLTIP_CATEGORIES.map((category) => {
+                        const color = CategoryColors[category];
                         return (
                             <Stack
                                 key={category}
@@ -307,8 +328,16 @@ function getActivity(
 
         activity.count += entry[field];
         if (activity.categoryCounts) {
-            activity.categoryCounts[entry.requirementCategory] =
-                (activity.categoryCounts[entry.requirementCategory] ?? 0) + entry[field];
+            const category = activity.categoryCounts[entry.requirementCategory] || {
+                custom: 0,
+                trainingPlan: 0,
+            };
+            if (entry.isCustomRequirement) {
+                category.custom += entry[field];
+            } else {
+                category.trainingPlan += entry[field];
+            }
+            activity.categoryCounts[entry.requirementCategory] = category;
         }
 
         totalCount += entry[field];
@@ -367,6 +396,7 @@ function Block({
     let totalCount = 0;
     let maxCount: number | undefined = undefined;
     let color: string | undefined = undefined;
+    let isCustom = false;
 
     for (const category of Object.values(RequirementCategory)) {
         const count = activity.categoryCounts?.[category as RequirementCategory];
@@ -374,16 +404,19 @@ function Block({
             continue;
         }
 
-        totalCount += count;
-        if (maxCount === undefined || count > maxCount) {
+        totalCount += count.custom + count.trainingPlan;
+        if (maxCount === undefined || count.custom + count.trainingPlan > maxCount) {
             maxCategory = category as RequirementCategory;
-            maxCount = count;
+            maxCount = count.custom + count.trainingPlan;
         }
     }
 
     if (maxCount && maxCategory) {
         const level = calculateLevel(totalCount, clamp);
         color = calculateColor([baseColor, CategoryColors[maxCategory]], level);
+        isCustom =
+            (activity.categoryCounts?.[maxCategory]?.custom ?? 0) >
+            (activity.categoryCounts?.[maxCategory]?.trainingPlan ?? 0);
     }
 
     const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
@@ -411,17 +444,44 @@ function Block({
                     />
                 )
             )}
+
+            {isCustom && !activity.graduation && !activity.gamePlayed && (
+                <>
+                    {cloneElement(block, {
+                        style: {
+                            ...newStyle,
+                            ...(icon
+                                ? { fill: 'transparent', stroke: 'transparent' }
+                                : {}),
+                        },
+                    })}
+                    <StripePattern />
+                </>
+            )}
+
             <Tooltip
                 key={activity.date}
                 disableInteractive
                 title={<BlockTooltip activity={activity} field={field} />}
             >
-                {cloneElement(block, {
-                    style: {
-                        ...newStyle,
-                        ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
-                    },
-                })}
+                {isCustom && !activity.graduation && !activity.gamePlayed ? (
+                    <rect
+                        x={block.props.x}
+                        y={block.props.y}
+                        width={block.props.width}
+                        height={block.props.height}
+                        fill='url(#diagonalHatch)'
+                    />
+                ) : (
+                    cloneElement(block, {
+                        style: {
+                            ...newStyle,
+                            ...(icon
+                                ? { fill: 'transparent', stroke: 'transparent' }
+                                : {}),
+                        },
+                    })
+                )}
             </Tooltip>
         </>
     );
@@ -496,7 +556,12 @@ function BlockTooltip({
         .filter((entry) =>
             VALID_TOOLTIP_CATEGORIES.includes(entry[0] as RequirementCategory),
         )
-        .sort((lhs, rhs) => rhs[1] - lhs[1]);
+        .sort(
+            (lhs, rhs) =>
+                rhs[1].custom +
+                rhs[1].trainingPlan -
+                (lhs[1].custom + lhs[1].trainingPlan),
+        );
 
     return (
         <Stack alignItems='center'>
@@ -539,37 +604,83 @@ function BlockTooltip({
                     </Stack>
                 </Stack>
             )}
-            {categories.map(([category, count]) => (
-                <Stack
-                    key={category}
-                    direction='row'
-                    justifyContent='space-between'
-                    alignItems='center'
-                    columnGap='1rem'
-                    width={1}
-                >
-                    <Stack direction='row' alignItems='center' columnGap={0.5}>
-                        <Box
-                            sx={{
-                                height: '12px',
-                                width: '12px',
-                                borderRadius: '2px',
-                                backgroundColor:
-                                    CategoryColors[category as RequirementCategory],
-                            }}
-                        />
-                        <Typography variant='caption' pt='2px'>
-                            {category}
-                        </Typography>
-                    </Stack>
+            {categories.map(([category, count]) => {
+                const rows = [
+                    { category, count: count.trainingPlan },
+                    {
+                        category: `${category} (Custom)`,
+                        count: count.custom,
+                        striped: true,
+                    },
+                ]
+                    .filter((x) => x.count)
+                    .sort((x, y) => y.count - x.count);
 
-                    <Typography variant='caption' pt='2px'>
-                        {field === 'dojoPoints'
-                            ? `${Math.round(10 * count) / 10} Dojo point${count !== 1 ? 's' : ''}`
-                            : formatTime(count)}
-                    </Typography>
-                </Stack>
-            ))}
+                return rows.map((row) => (
+                    <TooltipRow
+                        key={row.category}
+                        category={row.category}
+                        field={field}
+                        count={row.count}
+                        backgroundColor={CategoryColors[category as RequirementCategory]}
+                        striped={row.striped}
+                    />
+                ));
+            })}
+        </Stack>
+    );
+}
+
+function TooltipRow({
+    category,
+    backgroundColor,
+    field,
+    count,
+    striped,
+}: {
+    category: string;
+    backgroundColor: string;
+    field: TimelineEntryField;
+    count: number;
+    striped?: boolean;
+}) {
+    return (
+        <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'
+            columnGap='1rem'
+            width={1}
+        >
+            <Stack direction='row' alignItems='center' columnGap={0.5}>
+                <svg width='12' height='12'>
+                    <g>
+                        <rect
+                            width='12'
+                            height='12'
+                            rx='2'
+                            ry='2'
+                            style={{ fill: backgroundColor }}
+                        />
+                        {striped && (
+                            <>
+                                <StripePattern />
+                                <rect width='12' height='12' fill='url(#diagonalHatch)' />
+                            </>
+                        )}
+                    </g>
+                </svg>
+
+                <Typography variant='caption' pt='2px'>
+                    {category}
+                </Typography>
+            </Stack>
+
+            <Typography variant='caption' pt='2px'>
+                {field === 'dojoPoints'
+                    ? `${Math.round(10 * count) / 10} Dojo point${count !== 1 ? 's' : ''}`
+                    : formatTime(count)}
+            </Typography>
         </Stack>
     );
 }
@@ -633,6 +744,71 @@ function LegendTooltip({
  */
 function calculateColor(colors: [from: string, to: string], level: number): string {
     const [from, to] = colors;
-    const mixFactor = (level / MAX_LEVEL) * 100;
-    return `color-mix(in oklab, ${to} ${parseFloat(mixFactor.toFixed(2))}%, ${from})`;
+    const mixFactor = level / MAX_LEVEL;
+    return mixColors(from, to, mixFactor);
+}
+
+/**
+ * Mixes two colors by the given proportion. Manually recreates CSS color-mix, as it
+ * is unavailable in older browsers.
+ * @param color1 The first color to mix in hex.
+ * @param color2 The second color to mix in hex.
+ * @param weight The proportion of color2 in the mix. Specified as a decimal.
+ * @returns A new hex color representing the mix.
+ */
+function mixColors(color1: string, color2: string, weight: number) {
+    const rgb1 = hexToRgb(color1);
+    const rgb2 = hexToRgb(color2);
+
+    if (!rgb2) {
+        return color1;
+    }
+    if (!rgb1) {
+        return color2;
+    }
+    const mixedRgb = {
+        r: Math.round(rgb1?.r * (1 - weight) + rgb2.r * weight),
+        g: Math.round(rgb1?.g * (1 - weight) + rgb2.g * weight),
+        b: Math.round(rgb1?.b * (1 - weight) + rgb2.b * weight),
+    };
+    return rgbToHex(mixedRgb);
+}
+
+/**
+ * Converts the given hex color to RGB.
+ * @param hex The hex color to convert.
+ * @returns The RGB components of the color.
+ */
+function hexToRgb(hex: string) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+        ? {
+              r: parseInt(result[1], 16),
+              g: parseInt(result[2], 16),
+              b: parseInt(result[3], 16),
+          }
+        : null;
+}
+
+/**
+ * Converts the given RGB color to hex.
+ * @param rgb The RGB color to convert.
+ * @returns The hex code of the color.
+ */
+function rgbToHex(rgb: { r: number; g: number; b: number }) {
+    return `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)}`;
+}
+
+/** Renders a stripe pattern for use in SVGs. */
+function StripePattern() {
+    return (
+        <pattern id='diagonalHatch' patternUnits='userSpaceOnUse' width='4' height='4'>
+            <path
+                d='M-1,1 l2,-2
+M0,4 l4,-4
+M3,5 l2,-2'
+                style={{ stroke: 'black', strokeWidth: 1 }}
+            />
+        </pattern>
+    );
 }

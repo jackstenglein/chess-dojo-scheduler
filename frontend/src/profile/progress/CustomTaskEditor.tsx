@@ -1,3 +1,16 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { CohortSelect } from '@/components/ui/CohortSelect';
+import {
+    CustomTask,
+    CustomTaskCategory,
+    isCustomTaskCategory,
+    RequirementCategory,
+    ScoreboardDisplay,
+} from '@/database/requirement';
+import { ALL_COHORTS, dojoCohorts } from '@/database/user';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -5,70 +18,86 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
-    FormControl,
     FormControlLabel,
-    FormHelperText,
+    MenuItem,
     Stack,
     TextField,
-    Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { useAuth } from '../../auth/Auth';
-import {
-    CustomTask,
-    RequirementCategory,
-    ScoreboardDisplay,
-} from '../../database/requirement';
-import { dojoCohorts } from '../../database/user';
+import { useTimelineContext } from '../activity/useTimeline';
+
+const OTHER_COUNT_TYPE = 'Other';
+const MINUTES_COUNT_TYPE = 'Minutes';
+
+const DEFAULT_COUNT_TYPES = [
+    '',
+    'Chapters',
+    'Exercises',
+    'Games',
+    MINUTES_COUNT_TYPE,
+    'Pages',
+    'Problems',
+];
 
 interface CustomTaskEditorProps {
     task?: CustomTask;
     open: boolean;
     onClose: () => void;
+    initialCategory: CustomTaskCategory;
 }
 
-const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose }) => {
+const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
+    task,
+    open,
+    onClose,
+    initialCategory,
+}) => {
     const request = useRequest();
     const api = useApi();
     const { user } = useAuth();
+    const { resetRequest: resetTimeline } = useTimelineContext();
 
+    const [category, setCategory] = useState(task?.category ?? initialCategory);
     const [name, setName] = useState(task?.name ?? '');
     const [description, setDescription] = useState(task?.description ?? '');
-    const [allCohorts, setAllCohorts] = useState(
-        task ? Object.values(task.counts).length === dojoCohorts.length : true,
+    const [cohorts, setCohorts] = useState([ALL_COHORTS]);
+    const [count, setCount] = useState(
+        task?.scoreboardDisplay === ScoreboardDisplay.NonDojo
+            ? ''
+            : `${Object.values(task?.counts || {})[0] || ''}`,
     );
-    const [cohorts, setCohorts] = useState<Record<string, boolean>>(
-        dojoCohorts.reduce<Record<string, boolean>>((map, cohort) => {
-            map[cohort] = task?.counts[cohort] !== undefined || false;
-            return map;
-        }, {}),
+
+    const isOtherCountType = !DEFAULT_COUNT_TYPES.includes(task?.progressBarSuffix || '');
+    const [countType, setCountType] = useState(
+        isOtherCountType ? OTHER_COUNT_TYPE : task?.progressBarSuffix || '',
     );
+    const [otherType, setOtherType] = useState(
+        isOtherCountType ? task?.progressBarSuffix || '' : '',
+    );
+    const [trackCountPerCohort, setTrackCountPerCohort] = useState(false);
+
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     if (!user) {
         return null;
     }
 
-    const onChangeCohort = (cohort: string, value: boolean) => {
-        setCohorts({
-            ...cohorts,
-            [cohort]: value,
-        });
-    };
-
     const onCreate = () => {
         const newErrors: Record<string, string> = {};
         if (name.trim() === '') {
             newErrors.name = 'This field is required and must be non-empty';
         }
-        if (!allCohorts && Object.values(cohorts).every((v) => !v)) {
+        if (cohorts.length === 0) {
             newErrors.cohorts = 'At least one cohort is required';
+        }
+        const countInt = parseInt(count || '0');
+        if (isNaN(countInt) || countInt < 0) {
+            newErrors.count = 'Must be a positive integer or empty';
+        }
+        if (countType === OTHER_COUNT_TYPE && otherType.trim() === '') {
+            newErrors.otherType = 'This field is required';
         }
         setErrors(newErrors);
 
@@ -76,23 +105,35 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             return;
         }
 
-        const includedCohorts = allCohorts
-            ? dojoCohorts
-            : Object.keys(cohorts).filter((c) => cohorts[c]);
+        const includedCohorts = cohorts[0] === ALL_COHORTS ? dojoCohorts : cohorts;
         const newCounts = includedCohorts.reduce<Record<string, number>>((map, c) => {
-            map[c] = 1;
+            map[c] = countInt;
             return map;
         }, {});
 
+        let scoreboardDisplay: ScoreboardDisplay;
+        if (countInt === 0) {
+            scoreboardDisplay = ScoreboardDisplay.NonDojo;
+        } else if (countInt === 1) {
+            scoreboardDisplay = ScoreboardDisplay.Checkbox;
+        } else if (countType === MINUTES_COUNT_TYPE) {
+            scoreboardDisplay = ScoreboardDisplay.Minutes;
+        } else {
+            scoreboardDisplay = ScoreboardDisplay.ProgressBar;
+        }
+
         const newTask: CustomTask = {
-            id: task ? task.id : uuidv4(),
+            id: task?.id || uuidv4(),
+            owner: user.username,
             name,
             description,
             counts: newCounts,
-            scoreboardDisplay: ScoreboardDisplay.NonDojo as const,
-            category: RequirementCategory.NonDojo as const,
+            scoreboardDisplay,
+            category,
+            numberOfCohorts: trackCountPerCohort ? -1 : 1,
+            progressBarSuffix:
+                countType === OTHER_COUNT_TYPE ? otherType.trim() : countType,
             updatedAt: new Date().toISOString(),
-            owner: user.username,
         };
 
         let newTasks: CustomTask[] = [];
@@ -107,18 +148,22 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             newTasks = [...(user.customTasks || []), newTask];
         }
 
-        const eventType = task ? EventType.EditNondojoTask : EventType.CreateNondojoTask;
-
         request.onStart();
         api.updateUser({
             customTasks: newTasks,
         })
             .then(() => {
+                const eventType = task
+                    ? EventType.EditNondojoTask
+                    : EventType.CreateNondojoTask;
                 trackEvent(eventType, {
                     task_id: newTask.id,
                     task_name: name,
                 });
                 request.onSuccess();
+                if (task && task.category !== category) {
+                    resetTimeline();
+                }
                 onClose();
             })
             .catch((err) => {
@@ -127,29 +172,44 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
             });
     };
 
-    const title = task ? `Update ${task.name}?` : 'Create Custom Activity?';
+    const title = task ? `Update ${task.name}?` : `Create Custom Task?`;
 
     return (
         <Dialog
             open={open}
             onClose={request.isLoading() ? undefined : onClose}
             maxWidth='md'
+            fullWidth
         >
             <RequestSnackbar request={request} />
 
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                {task === undefined && (
-                    <DialogContentText>
-                        This will create a new custom activity which you can use to track
-                        your time. You will not be able to update progress or mark this
-                        task as complete.
-                    </DialogContentText>
-                )}
-
-                <Stack spacing={2} mt={2}>
+                <Stack gap={3} mt={2}>
                     <TextField
-                        label='Activity Name'
+                        label='Category'
+                        required
+                        value={category}
+                        onChange={(e) =>
+                            setCategory(e.target.value as CustomTaskCategory)
+                        }
+                        fullWidth
+                        select
+                    >
+                        {Object.values(RequirementCategory).map((c) => {
+                            if (!isCustomTaskCategory(c)) {
+                                return null;
+                            }
+                            return (
+                                <MenuItem key={c} value={c}>
+                                    {c}
+                                </MenuItem>
+                            );
+                        })}
+                    </TextField>
+
+                    <TextField
+                        label='Task Name'
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -168,53 +228,65 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({ task, open, onClose
                         fullWidth
                     />
 
-                    <Stack>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                            Choose the cohorts this activity will be added to. Your time
-                            will be tracked individually across each cohort.
-                        </Typography>
-                        <FormControl error={!!errors.cohorts}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={allCohorts}
-                                        onChange={(event) =>
-                                            setAllCohorts(event.target.checked)
-                                        }
-                                    />
-                                }
-                                label='All Cohorts'
+                    <CohortSelect
+                        multiple
+                        label='Cohorts'
+                        selected={cohorts}
+                        setSelected={setCohorts}
+                        error={!!errors.cohorts}
+                        helperText={
+                            errors.cohorts ||
+                            'Your time will be tracked individually across each cohort'
+                        }
+                    />
+
+                    <TextField
+                        label='Goal (Optional)'
+                        value={count}
+                        onChange={(e) => setCount(e.target.value)}
+                        fullWidth
+                        error={!!errors.count}
+                        helperText={
+                            errors.count ||
+                            'The final target you want to reach. Leave blank if you are only tracking time in this task.'
+                        }
+                    />
+
+                    <TextField
+                        select
+                        label='Goal Type'
+                        value={countType}
+                        onChange={(e) => setCountType(e.target.value)}
+                        fullWidth
+                    >
+                        <MenuItem value=''>None</MenuItem>
+                        <MenuItem value='Chapters'>Chapters</MenuItem>
+                        <MenuItem value='Exercises'>Exercises</MenuItem>
+                        <MenuItem value='Games'>Games</MenuItem>
+                        <MenuItem value='Minutes'>Minutes</MenuItem>
+                        <MenuItem value='Pages'>Pages</MenuItem>
+                        <MenuItem value='Problems'>Problems</MenuItem>
+                        <MenuItem value='Other'>Other</MenuItem>
+                    </TextField>
+
+                    {countType === 'Other' && (
+                        <TextField
+                            label='Other Goal Type'
+                            value={otherType}
+                            onChange={(e) => setOtherType(e.target.value)}
+                            fullWidth
+                        />
+                    )}
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={trackCountPerCohort}
+                                onChange={(e) => setTrackCountPerCohort(e.target.checked)}
                             />
-                            {!allCohorts && (
-                                <Stack
-                                    direction='row'
-                                    sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
-                                >
-                                    {dojoCohorts.map((cohort) => (
-                                        <FormControlLabel
-                                            key={cohort}
-                                            control={
-                                                <Checkbox
-                                                    checked={
-                                                        allCohorts || cohorts[cohort]
-                                                    }
-                                                    onChange={(event) =>
-                                                        onChangeCohort(
-                                                            cohort,
-                                                            event.target.checked,
-                                                        )
-                                                    }
-                                                />
-                                            }
-                                            disabled={allCohorts}
-                                            label={cohort}
-                                        />
-                                    ))}
-                                </Stack>
-                            )}
-                            <FormHelperText>{errors.cohorts}</FormHelperText>
-                        </FormControl>
-                    </Stack>
+                        }
+                        label='Reset count to 0 when switching cohorts'
+                    />
                 </Stack>
             </DialogContent>
             <DialogActions>

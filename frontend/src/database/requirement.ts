@@ -1,5 +1,5 @@
 import { isObject } from './scoreboard';
-import { SubscriptionStatus, User } from './user';
+import { isFree, SubscriptionStatus, User } from './user';
 
 /** The status of a requirement. */
 export enum RequirementStatus {
@@ -53,17 +53,30 @@ export interface CustomTask {
      */
     counts: Record<string, number>;
 
-    /** The scoreboard display of the CustomTask. Should always be non-dojo. */
-    scoreboardDisplay: ScoreboardDisplay.NonDojo;
+    /** The scoreboard display of the CustomTask. */
+    scoreboardDisplay: ScoreboardDisplay;
 
-    /** The category of the CustomTask. Should always be non-dojo. */
-    category: RequirementCategory.NonDojo;
+    /** The category of the CustomTask. */
+    category: CustomTaskCategory;
+
+    /**
+     * The number of cohorts the requirement needs to be completed in before it
+     * stops being suggested. For requirements that restart their progress in every
+     * cohort, this is the special value -1.
+     */
+    numberOfCohorts: number;
+
+    /** An optional string that is used to label the count of the progress bar. */
+    progressBarSuffix: string;
 
     /** The last time the CustomTask definition was updated. */
     updatedAt: string;
 
-    /** Whether the CustomTask applies to the free tier. */
-    isFree?: boolean;
+    /**
+     * Does not exist for CustomTasks, but including this makes it easier to
+     * perform operations on objects of type Requirement|CustomTask.
+     */
+    startCount?: number;
 }
 
 /** A position in a requirement. */
@@ -95,6 +108,30 @@ export enum RequirementCategory {
     Graduation = 'Graduation',
     NonDojo = 'Non-Dojo',
     SuggestedTasks = 'Suggested Tasks',
+}
+
+/** The categories of a custom task. This is a subset of RequirementCategory. */
+export type CustomTaskCategory = Extract<
+    RequirementCategory,
+    | RequirementCategory.Games
+    | RequirementCategory.Tactics
+    | RequirementCategory.Middlegames
+    | RequirementCategory.Endgame
+    | RequirementCategory.Opening
+>;
+
+/**
+ * Returns true if obj is of type CustomTaskCategory.
+ */
+export function isCustomTaskCategory(obj: unknown): obj is CustomTaskCategory {
+    return (
+        typeof obj === 'string' &&
+        (obj === RequirementCategory.Games ||
+            obj === RequirementCategory.Tactics ||
+            obj === RequirementCategory.Middlegames ||
+            obj === RequirementCategory.Endgame ||
+            obj === RequirementCategory.Opening)
+    );
 }
 
 /** A requirement in the training plan. */
@@ -185,6 +222,12 @@ export interface Requirement {
      * can be updated.
      */
     blockers?: string[];
+
+    /**
+     * Indicates whether the task must be fully complete before the suggested
+     * task algorithm skips over it.
+     */
+    atomic: boolean;
 }
 
 /** A user's progress on a specific requirement. */
@@ -197,7 +240,7 @@ export interface RequirementProgress {
      * requirements whose progress carries over across cohorts, the special value
      * ALL_COHORTS is used as a key.
      */
-    counts: Record<string, number>;
+    counts?: Record<string, number>;
 
     /** A map from the cohort to the user's time spent on the requirement in that cohort. */
     minutesSpent: Record<string, number>;
@@ -212,7 +255,7 @@ export interface RequirementProgress {
  * @returns Whether obj is a Requirement.
  */
 export function isRequirement(obj: unknown): obj is Requirement {
-    return isObject(obj) && obj.numberOfCohorts !== undefined;
+    return isObject(obj) && obj.sortPriority !== undefined;
 }
 
 /**
@@ -238,7 +281,7 @@ export function compareRequirements(a: Requirement, b: Requirement) {
  */
 function clampCount(
     cohort: string,
-    requirement: Requirement,
+    requirement: Requirement | CustomTask,
     count: number,
     clamp?: boolean,
 ): number {
@@ -269,10 +312,10 @@ export function getCurrentCount(
     if (!progress) {
         return 0;
     }
-    if (!isRequirement(requirement)) {
-        return 0;
-    }
-    if (requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
+    if (
+        isRequirement(requirement) &&
+        requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo
+    ) {
         return 0;
     }
 
@@ -281,29 +324,29 @@ export function getCurrentCount(
     }
 
     if (requirement.numberOfCohorts === 1 || requirement.numberOfCohorts === 0) {
-        return clampCount(cohort, requirement, progress.counts.ALL_COHORTS || 0, clamp);
+        return clampCount(cohort, requirement, progress.counts?.ALL_COHORTS || 0, clamp);
     }
 
     if (
         requirement.numberOfCohorts > 1 &&
-        Object.keys(progress.counts).length >= requirement.numberOfCohorts
+        Object.keys(progress.counts || {}).length >= requirement.numberOfCohorts
     ) {
-        if (progress.counts[cohort] !== undefined) {
+        if (progress.counts?.[cohort] !== undefined) {
             return clampCount(cohort, requirement, progress.counts[cohort], clamp);
         }
 
         return clampCount(
             cohort,
             requirement,
-            Math.max(...Object.values(progress.counts)),
+            Math.max(...Object.values(progress.counts || {})),
             clamp,
         );
     }
 
-    if (!requirement.counts[cohort]) {
+    if (requirement.counts?.[cohort] === undefined) {
         cohort = Object.keys(requirement.counts)[0];
     }
-    return clampCount(cohort, requirement, progress.counts[cohort] || 0, clamp);
+    return clampCount(cohort, requirement, progress.counts?.[cohort] || 0, clamp);
 }
 
 /**
@@ -312,7 +355,10 @@ export function getCurrentCount(
  * @param requirement The requirement to get the total count for.
  * @returns The total count for the given cohort and requirement.
  */
-export function getTotalCount(cohort: string, requirement: Requirement): number {
+export function getTotalCount(
+    cohort: string,
+    requirement: Requirement | CustomTask,
+): number {
     return requirement.counts[cohort] || 0;
 }
 
@@ -353,9 +399,12 @@ export function formatTime(value: number): string {
  */
 export function isComplete(
     cohort: string,
-    requirement: Requirement,
+    requirement: Requirement | CustomTask,
     progress?: RequirementProgress,
 ): boolean {
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
+        return false;
+    }
     return (
         getCurrentCount(cohort, requirement, progress) >=
         getTotalCount(cohort, requirement)
@@ -369,10 +418,14 @@ export function isComplete(
  * @returns True if the progress is expired.
  */
 export function isExpired(
-    requirement: Requirement,
+    requirement: Requirement | CustomTask,
     progress?: RequirementProgress,
 ): boolean {
     if (!progress) {
+        return false;
+    }
+
+    if (!isRequirement(requirement)) {
         return false;
     }
 
@@ -439,6 +492,22 @@ export function getTotalScore(cohort: string | undefined, requirements: Requirem
     }, 0);
 
     return totalScore;
+}
+
+/**
+ * Returns the Dojo points remaining uncompleted in the requirement.
+ * @param cohort The cohort to get the points for.
+ * @param requirement The requirement to get the points for.
+ * @param progress The progress to get the points for.
+ */
+export function getRemainingScore(
+    cohort: string,
+    requirement: Requirement,
+    progress?: RequirementProgress,
+): number {
+    const total = getTotalScore(cohort, [requirement]);
+    const current = getCurrentScore(cohort, requirement, progress);
+    return total - current;
 }
 
 /**
@@ -514,6 +583,24 @@ export function getTotalCategoryScore(
 }
 
 /**
+ * Returns the percentage of Dojo points remaining uncompleted in the category.
+ * @param user The user to get the Dojo points for.
+ * @param cohort The cohort to get the Dojo points for.
+ * @param category The category to get the Dojo points for.
+ * @param requirements The list of requirements to get the Dojo points for.
+ */
+export function getRemainingCategoryScorePercent(
+    user: User,
+    cohort: string,
+    category: string,
+    requirements: Requirement[],
+): number {
+    const total = getTotalCategoryScore(cohort, category, requirements);
+    const score = getCategoryScore(user, cohort, category, requirements);
+    return (total - score) / total;
+}
+
+/**
  * Returns the unit score of the requirement for the given cohort.
  * @param cohort The cohort to get the unit score for.
  * @param requirement The requirement to get the unit score for.
@@ -537,9 +624,13 @@ export function getUnitScore(cohort: string, requirement: Requirement): number {
 export function isBlocked(
     cohort: string,
     user: User,
-    requirement: Requirement,
+    requirement: Requirement | CustomTask,
     requirements: Requirement[],
 ): { isBlocked: boolean; reason?: string } {
+    if (!isRequirement(requirement)) {
+        return { isBlocked: false };
+    }
+
     if (!requirement.blockers || requirement.blockers.length === 0) {
         return { isBlocked: false };
     }
@@ -565,4 +656,198 @@ export function isBlocked(
         }
     }
     return { isBlocked: false };
+}
+
+/** A list of IDs of tasks which cannot be suggested, unless the user has pinned them. */
+const INELIGIBLE_SUGGESTED_TASKS = [
+    '812adb60-d5fb-4655-8d22-d568a0dca547', // Postmortems
+    '25230066-4eda-4886-a12c-39a5175ea632', // Online tactics tune up 0-1400
+    'b55eda1d-11dc-4f6f-aa7b-b83a6339513f', // Online tactics tune up 1400-1800
+    'b9ef52d2-795d-4005-b15a-437ee36a2c0a', // Online tactics tune up 1800+
+
+    // Review Master Games, all cohorts
+    'ec86ff17-f9ec-4ef9-aa12-60a2ace17963',
+    '4e42201e-cd58-471f-9359-515e5c669b0c',
+    '90d7cd05-5219-49cc-900b-efe392d28736',
+    'ca281c97-f0fc-4c25-9a66-99eae875c578',
+    'c3db57da-be74-4e71-b061-a16a9d80f101',
+    '5b91042b-1da2-4138-99dd-c6e1732b45a9',
+    'd3192026-cda6-4d1e-a1c2-1dee3f68b063',
+    'fbb5ece4-f7f0-4fdd-b194-298397cb8bca',
+    '89acdc78-ae38-4390-942b-8359116a9620',
+    '8a68cb46-f935-4457-92d1-82ff3eafec64',
+    '5d560e7c-ee48-46c8-affe-6fef6b2bf2f0',
+    '539f93c8-db55-4a00-b786-962c3bdd86ac',
+    '0fe8b57a-0f82-4a72-b89a-a3d56ff3b46b',
+    'bdc8cbb1-b592-42f2-a1c8-896024838c05',
+    '7fabaa5a-95d0-4ddc-b711-afd8fccf5aca',
+    'ec27f1fe-6f9e-4be2-a869-f979eef555a5',
+    '666cb454-5242-453f-83f3-d9daac487d75',
+    'b2ff90b7-5900-4d33-b31b-426ee750bed4',
+    'bdb1580b-421e-4501-86d9-316c77118d44',
+    '8667a8d4-eafe-4855-85c2-d8580869135f',
+    'b1bd988e-a856-4829-81e9-b7b2fd1ebd6d',
+    'cba150ad-b66c-4fd4-b041-f35e98dcd161',
+];
+
+/** The maximum number of suggested tasks returned by the suggestion algorithm. */
+const MAX_SUGGESTED_TASKS = 3;
+
+/**
+ * The categories allowed in the suggested tasks algorithm. Their order here is used
+ * for breaking ties in the algorithm if two categories have the same remaining Dojo
+ * point percentage.
+ */
+const SUGGESTED_TASK_CATEGORIES = [
+    RequirementCategory.Games,
+    RequirementCategory.Tactics,
+    RequirementCategory.Middlegames,
+    RequirementCategory.Endgame,
+    RequirementCategory.Opening,
+];
+
+/** The ID of the Play Classical Games task. */
+const CLASSICAL_GAMES_TASK = '38f46441-7a4e-4506-8632-166bcbe78baf';
+
+/** The ID of the Annotate Classical Games task. */
+const ANNOTATE_GAMES_TASK = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
+
+/**
+ * Returns the remaining score of a task for the purposes of the suggested task algorithm.
+ * If the task is atomic, the total score of the task is considered remaining. Otherwise,
+ * the actual remaining score is returned.
+ */
+function getRemainingSuggestionScore(
+    cohort: string,
+    requirement: Requirement,
+    progress: RequirementProgress,
+): number {
+    if (requirement.atomic) {
+        return getTotalScore(cohort, [requirement]);
+    }
+    return getRemainingScore(cohort, requirement, progress);
+}
+
+/**
+ * Returns a list of tasks to be shown to the user in the Suggested Tasks category.
+ * We show at most MAX_SUGGESTED_TASKS tasks, in the following priority:
+ *
+ *   1. The user's pinned tasks.
+ *   2. If the user's number of annotated games < their number of classical games played,
+ *      the annotate classical games task is suggested.
+ *   3. The unique task with the greatest remaining Dojo points in the unique category
+ *      with the greatest remaining percentage of Dojo points.
+ *
+ * Only categories in SUGGESTED_TASK_CATEGORIES are suggested (unless pinned by the user).
+ * Categories are only repeated within the suggested tasks if it is not possible to
+ * pick a unique category. Ties between categories are broken using the
+ * SUGGESTED_TASK_CATEGORIES list.
+ *
+ * NOTE: some tasks (such as postmortems) are ineligible to be suggested and will not
+ * be suggested unless the user has pinned them. These task IDs are listed in
+ * INELIGIBLE_SUGGESTED_TASKS.
+ *
+ * @param pinnedTasks The user's pinned tasks.
+ * @param requirements All requirements in the training plan.
+ * @param user The user to suggest tasks for.
+ * @returns A list of at most MAX_SUGGESTED_TASKS suggested tasks.
+ */
+export function getSuggestedTasks(
+    pinnedTasks: (Requirement | CustomTask)[],
+    requirements: Requirement[],
+    user: User,
+): (Requirement | CustomTask)[] {
+    const suggestedTasks: (Requirement | CustomTask)[] = [];
+    suggestedTasks.push(...pinnedTasks);
+
+    if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
+        return suggestedTasks;
+    }
+
+    const isFreeUser = isFree(user);
+    const eligibleRequirements = requirements.filter(
+        (r) =>
+            (!isFreeUser || r.isFree) &&
+            !INELIGIBLE_SUGGESTED_TASKS.includes(r.id) &&
+            !suggestedTasks.some((t) => r.id === t.id) &&
+            SUGGESTED_TASK_CATEGORIES.includes(r.category) &&
+            !isComplete(user.dojoCohort, r, user.progress[r.id]),
+    );
+    if (eligibleRequirements.length === 0) {
+        return suggestedTasks;
+    }
+
+    const annotateTask = eligibleRequirements.find((r) => r.id === ANNOTATE_GAMES_TASK);
+    const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK);
+    if (
+        annotateTask &&
+        classicalGamesTask &&
+        getCurrentCount(
+            user.dojoCohort,
+            annotateTask,
+            user.progress[ANNOTATE_GAMES_TASK],
+        ) <
+            getCurrentCount(
+                user.dojoCohort,
+                classicalGamesTask,
+                user.progress[CLASSICAL_GAMES_TASK],
+            )
+    ) {
+        suggestedTasks.push(annotateTask);
+    }
+
+    const categoryPercentages = SUGGESTED_TASK_CATEGORIES.map((category) => ({
+        category,
+        percent: getRemainingCategoryScorePercent(
+            user,
+            user.dojoCohort,
+            category,
+            requirements,
+        ),
+    })).sort((lhs, rhs) => rhs.percent - lhs.percent);
+
+    while (suggestedTasks.length < MAX_SUGGESTED_TASKS) {
+        const eligibleCategories = categoryPercentages.filter((item) =>
+            eligibleRequirements.some((r) => r.category === item.category),
+        );
+        if (eligibleCategories.length === 0) {
+            break;
+        }
+
+        let chosenCategories = eligibleCategories.filter(
+            (item) => !suggestedTasks.some((r) => r.category === item.category),
+        );
+        if (chosenCategories.length === 0) {
+            chosenCategories = eligibleCategories;
+        }
+
+        for (const { category } of chosenCategories) {
+            const categoryRequirements = eligibleRequirements
+                .filter((r) => r.category === category)
+                .sort(
+                    (lhs, rhs) =>
+                        getRemainingSuggestionScore(
+                            user.dojoCohort,
+                            rhs,
+                            user.progress[rhs.id],
+                        ) -
+                        getRemainingSuggestionScore(
+                            user.dojoCohort,
+                            lhs,
+                            user.progress[lhs.id],
+                        ),
+                );
+            suggestedTasks.push(categoryRequirements[0]);
+            eligibleRequirements.splice(
+                eligibleRequirements.indexOf(categoryRequirements[0]),
+                1,
+            );
+
+            if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
+                break;
+            }
+        }
+    }
+
+    return suggestedTasks;
 }

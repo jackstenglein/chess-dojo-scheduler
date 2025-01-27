@@ -260,15 +260,30 @@ export function StatisticsPage() {
         if (!data) {
             return [];
         }
-        return Object.values(RatingSystem).map((rs) => ({
+        const { Custom, Custom2, Custom3, ...others } = RatingSystem;
+        const series = Object.values(others).map((rs) => ({
             label: formatRatingSystem(rs),
             data: dojoCohorts.map((c) => ({
                 cohort: c,
                 value:
-                    data.cohorts[c].activeRatingSystems[rs] +
-                    data.cohorts[c].inactiveRatingSystems[rs],
+                    (data.cohorts[c].activeRatingSystems[rs] ?? 0) +
+                    (data.cohorts[c].inactiveRatingSystems[rs] ?? 0),
             })),
         }));
+        series.push({
+            label: formatRatingSystem(Custom),
+            data: dojoCohorts.map((c) => ({
+                cohort: c,
+                value:
+                    (data.cohorts[c].activeRatingSystems[Custom] ?? 0) +
+                    (data.cohorts[c].inactiveRatingSystems[Custom] ?? 0) +
+                    (data.cohorts[c].activeRatingSystems[Custom2] ?? 0) +
+                    (data.cohorts[c].inactiveRatingSystems[Custom2] ?? 0) +
+                    (data.cohorts[c].activeRatingSystems[Custom3] ?? 0) +
+                    (data.cohorts[c].inactiveRatingSystems[Custom3] ?? 0),
+            })),
+        });
+        return series;
     }, [request.data]);
 
     const subscriptionChangesData: Series[] = useMemo(() => {

@@ -33,7 +33,7 @@ export interface MultipleSelectChipOption {
     icon?: JSX.Element;
 }
 
-interface MultipleSelectChipProps {
+export interface MultipleSelectChipProps {
     selected: string[];
     setSelected: (v: string[]) => void;
     options: MultipleSelectChipOption[];
@@ -41,7 +41,7 @@ interface MultipleSelectChipProps {
     size?: 'small' | 'medium';
     sx?: SxProps;
     error?: boolean;
-    errorHelper?: string;
+    helperText?: string;
     'data-cy'?: string;
     displayEmpty?: string;
 }
@@ -54,7 +54,7 @@ export default function MultipleSelectChip({
     size,
     sx,
     error,
-    errorHelper,
+    helperText,
     displayEmpty,
     ...others
 }: MultipleSelectChipProps) {
@@ -71,7 +71,7 @@ export default function MultipleSelectChip({
     };
 
     return (
-        <FormControl {...others} sx={sx} error={error || Boolean(errorHelper)}>
+        <FormControl {...others} sx={sx} error={error}>
             {label && <InputLabel>{label}</InputLabel>}
             <Select
                 multiple
@@ -108,7 +108,7 @@ export default function MultipleSelectChip({
                     </MenuItem>
                 ))}
             </Select>
-            {errorHelper && <FormHelperText>{errorHelper}</FormHelperText>}
+            {helperText && <FormHelperText>{helperText}</FormHelperText>}
         </FormControl>
     );
 }

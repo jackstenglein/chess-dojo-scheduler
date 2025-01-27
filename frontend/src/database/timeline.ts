@@ -13,6 +13,7 @@ export interface TimelineEntry {
     requirementId: string;
     requirementName: string;
     requirementCategory: RequirementCategory;
+    isCustomRequirement?: boolean;
     cohort: string;
     totalCount: number;
     previousCount: number;

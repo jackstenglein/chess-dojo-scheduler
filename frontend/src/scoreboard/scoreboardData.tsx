@@ -11,12 +11,12 @@ import {
 import { ScoreboardSummary, isScoreboardSummary } from '../database/scoreboard';
 import {
     MinutesSpentKey,
-    RatingSystem,
     User,
     formatRatingSystem,
     getNormalizedRating,
     getCurrentRating as getUserCurrentRating,
     getStartRating as getUserStartRating,
+    isCustom,
 } from '../database/user';
 import RequirementModal from '../requirements/RequirementModal';
 import ScoreboardCheck from './ScoreboardCheck';
@@ -213,11 +213,11 @@ export function formatPercentComplete(value: number) {
 
 export function getRatingSystem(row: ScoreboardRow) {
     if (
-        row.ratingSystem === RatingSystem.Custom &&
+        isCustom(row.ratingSystem) &&
         !isGraduation(row) &&
-        row.ratings[RatingSystem.Custom]?.name
+        row.ratings[row.ratingSystem]?.name
     ) {
-        return `Custom (${row.ratings[RatingSystem.Custom].name})`;
+        return `Custom (${row.ratings[row.ratingSystem]?.name})`;
     }
     return formatRatingSystem(row.ratingSystem);
 }

@@ -35,7 +35,7 @@ import {
     clearCheckoutSessionIds,
     getAllCheckoutSessionIds,
 } from '../app/(scoreboard)/courses/localStorage';
-import { CognitoUser, parseUser, SubscriptionStatus, User } from '../database/user';
+import { CognitoUser, isFree, parseUser, User } from '../database/user';
 
 const config = getConfig();
 Amplify.configure(
@@ -183,7 +183,7 @@ export function useRequiredAuth(): RequiredAuthContextType {
 }
 
 export function useFreeTier() {
-    return useAuth().user?.subscriptionStatus !== SubscriptionStatus.Subscribed;
+    return isFree(useAuth().user);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

@@ -20,7 +20,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-var repository database.UserUpdater = database.DynamoDB
+var repository = database.DynamoDB
 var mediaStore database.MediaStore = database.S3
 var stage = os.Getenv("stage")
 
@@ -116,11 +116,16 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	update.SearchKey = aws.String(database.GetSearchKey(user, update))
-	user, err = repository.UpdateUser(info.Username, update)
+	newUser, err := repository.UpdateUser(info.Username, update)
 	if err != nil {
 		return api.Failure(err), nil
 	}
-	return api.Success(user), nil
+
+	if update.CustomTasks != nil {
+		handleCustomTaskUpdate(user, newUser)
+	}
+
+	return api.Success(newUser), nil
 }
 
 func fetchCurrentRating(rating *database.Rating, fetcher ratings.RatingFetchFunc) error {
@@ -152,8 +157,7 @@ func fetchRatings(user *database.User, update *database.UserUpdate) error {
 
 	for system, rating := range *update.Ratings {
 		existingRating := user.Ratings[system]
-		if system != database.Custom && (existingRating == nil || rating.Username != existingRating.Username ||
-			rating.CurrentRating == 0 || rating.StartRating == 0) {
+		if system != database.Custom && system != database.Custom2 && system != database.Custom3 && (existingRating == nil || rating.Username != existingRating.Username || rating.CurrentRating == 0 || rating.StartRating == 0) {
 			if err := fetchCurrentRating(rating, ratings.RatingFetchFuncs[system]); err != nil {
 				return err
 			}
@@ -166,7 +170,7 @@ func handleAutopickCohort(user *database.User, update *database.UserUpdate) api.
 	if update.RatingSystem == nil || *update.RatingSystem == "" {
 		return api.Failure(errors.New(400, "Invalid request: ratingSystem is required when autopickCohort is true", ""))
 	}
-	if *update.RatingSystem == database.Custom {
+	if *update.RatingSystem == database.Custom || *update.RatingSystem == database.Custom2 || *update.RatingSystem == database.Custom3 {
 		return api.Failure(errors.New(400, "Invalid request: ratingSystem cannot be CUSTOM when autopickCohort is true", ""))
 	}
 
@@ -250,4 +254,52 @@ func getSheetsClient(ctx context.Context) (*sheets.Service, error) {
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Sheets client", err)
 	}
 	return client, nil
+}
+
+// Handles updating the user's timeline for a custom task update, if necessary.
+// Note that we assume the user can only update a single custom task at a time,
+// as that is currently the only flow supported by the frontend.
+func handleCustomTaskUpdate(before *database.User, after *database.User) {
+	for _, t := range before.CustomTasks {
+		for _, t2 := range after.CustomTasks {
+			if t.Id == t2.Id && t.Category != t2.Category {
+				updateTimeline(after, t2)
+				return
+			}
+		}
+	}
+}
+
+// Updates the timeline for the given user so that entries matching the given
+// task have the correct requirement category and scoreboard display.
+func updateTimeline(user *database.User, task *database.CustomTask) {
+	log.Infof("Updating timeline for task %q: %v", task.Id, task)
+
+	startKey := ""
+	for loop := true; loop; loop = (startKey != "") {
+		entries, lastKey, err := repository.ListTimelineEntries(user.Username, startKey)
+		if err != nil {
+			log.Errorf("Failed to fetch timeline entries: %v", err)
+			return
+		}
+		log.Infof("Checking %d entries: %v", len(entries), entries)
+
+		updatedEntries := make([]*database.TimelineEntry, 0)
+		for _, entry := range entries {
+			if entry.RequirementId == task.Id && (entry.RequirementCategory != task.Category || entry.ScoreboardDisplay != task.ScoreboardDisplay) {
+				entry.RequirementCategory = task.Category
+				entry.ScoreboardDisplay = task.ScoreboardDisplay
+				updatedEntries = append(updatedEntries, entry)
+			}
+		}
+
+		log.Infof("Updating %d entries: %v", len(updatedEntries), updatedEntries)
+		_, err = repository.PutTimelineEntries(updatedEntries)
+		if err != nil {
+			log.Errorf("Failed to update timeline entries: %v", err)
+			return
+		}
+
+		startKey = lastKey
+	}
 }

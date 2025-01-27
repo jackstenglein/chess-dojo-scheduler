@@ -10,7 +10,7 @@ interface GraduationChipsProps {
     cohort: string;
 }
 
-const { Custom, ...ratingSystems } = RatingSystem;
+const { Custom, Custom2, Custom3, ...ratingSystems } = RatingSystem;
 
 const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
     const ratingBoundary = getRatingBoundary(cohort, RatingSystem.Chesscom);

@@ -101,6 +101,8 @@ const (
 	Acf      RatingSystem = "ACF"
 	Knsb     RatingSystem = "KNSB"
 	Custom   RatingSystem = "CUSTOM"
+	Custom2  RatingSystem = "CUSTOM_2"
+	Custom3  RatingSystem = "CUSTOM_3"
 )
 
 var ratingSystems = []RatingSystem{
@@ -114,6 +116,8 @@ var ratingSystems = []RatingSystem{
 	Acf,
 	Knsb,
 	Custom,
+	Custom2,
+	Custom3,
 }
 
 type Rating struct {
@@ -298,6 +302,9 @@ type User struct {
 
 	// A map from exam id to the user's summary for that exam
 	Exams map[string]UserExamSummary `dynamodbav:"exams" json:"exams"`
+
+	// The IDs of the user's pinned tasks.
+	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -641,6 +648,9 @@ type UserUpdate struct {
 
 	// The user's coach info. This field cannot be manually set by the user.
 	CoachInfo *CoachInfo `dynamodbav:"coachInfo,omitempty" json:"-"`
+
+	// The IDs of the user's pinned tasks.
+	PinnedTasks *[]string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
@@ -754,6 +764,8 @@ type UserUpdater interface {
 	// RecordFreeTierConversion adds 1 conversion to the user statistics for
 	// the given cohort.
 	RecordFreeTierConversion(cohort DojoCohort) error
+
+	ListTimelineEntries(owner string, startKey string) ([]*TimelineEntry, string, error)
 }
 
 type UserProgressUpdater interface {

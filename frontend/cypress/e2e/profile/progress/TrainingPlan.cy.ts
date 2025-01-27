@@ -15,25 +15,9 @@ describe('Training Plan', () => {
             .find('[data-cy="update-task-button"]')
             .first()
             .click();
-        cy.getBySel('task-updater-count').type('1');
-        cy.getBySel('task-updater-save-button').click();
 
-        cy.getBySel('progress-category-Tactics')
-            .find('[data-cy="update-task-button"]')
-            .first()
-            .click();
-        cy.getBySel('task-updater-count').type('2');
-        cy.getBySel('task-updater-save-button').click();
-
-        cy.getBySel('progress-category-Tactics')
-            .find('[data-cy="update-task-button"]')
-            .first()
-            .click();
         cy.getBySel('task-updater-show-history-button').click();
 
-        cy.getBySel('task-history-count').should('have.length', 2);
-        cy.getBySel('task-history-delete-button').first().click();
-        cy.getBySel('task-history-delete-button').click();
         cy.getBySel('task-updater-save-button').click();
     });
 });

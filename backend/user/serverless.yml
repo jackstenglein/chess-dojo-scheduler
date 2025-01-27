@@ -94,6 +94,11 @@ functions:
         Resource: ${param:UsersTableArn}
       - Effect: Allow
         Action:
+          - dynamodb:Query
+          - dynamodb:BatchWriteItem
+        Resource: ${param:TimelineTableArn}
+      - Effect: Allow
+        Action:
           - s3:PutObject
           - s3:DeleteObject
         Resource: !Join

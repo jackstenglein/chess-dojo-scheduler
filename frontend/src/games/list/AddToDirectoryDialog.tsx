@@ -24,11 +24,11 @@ import {
 import { useState } from 'react';
 
 export const AddToDirectoryDialog = ({
-    game,
+    games,
     open,
     onClose,
 }: {
-    game?: GameInfo;
+    games?: GameInfo[];
     open: boolean;
     onClose: () => void;
 }) => {
@@ -46,10 +46,41 @@ export const AddToDirectoryDialog = ({
         setDirectoryId(id);
     };
 
-    const alreadyExists = Boolean(directory?.items[`${game?.cohort}/${game?.id}`]);
+    const alreadyExists = games?.every((g) =>
+        Boolean(directory?.items[`${g.cohort}/${g.id}`]),
+    );
 
     const onAdd = () => {
-        if (!game || alreadyExists) {
+        if (!games?.length) {
+            return;
+        }
+
+        const gamesToAdd = [];
+        for (const game of games) {
+            if (directory?.items[`${game.cohort}/${game.id}`]) {
+                continue;
+            }
+
+            gamesToAdd.push({
+                owner: game.owner,
+                ownerDisplayName: game.ownerDisplayName,
+                createdAt:
+                    game.createdAt ||
+                    game.date.replaceAll('.', '-') ||
+                    new Date().toISOString(),
+                id: game.id,
+                cohort: game.cohort,
+                white: game.headers.White,
+                black: game.headers.Black,
+                whiteElo: game.headers.WhiteElo,
+                blackElo: game.headers.BlackElo,
+                result: game.headers.Result,
+            });
+        }
+
+        if (gamesToAdd.length === 0) {
+            request.onSuccess(`All games already present in ${directory?.name}`);
+            onClose();
             return;
         }
 
@@ -57,29 +88,15 @@ export const AddToDirectoryDialog = ({
         api.addDirectoryItems({
             owner: user.username,
             id: directoryId,
-            games: [
-                {
-                    owner: game.owner,
-                    ownerDisplayName: game.ownerDisplayName,
-                    createdAt:
-                        game.createdAt ||
-                        game.date.replaceAll('.', '-') ||
-                        new Date().toISOString(),
-                    id: game.id,
-                    cohort: game.cohort,
-                    white: game.headers.White,
-                    black: game.headers.Black,
-                    whiteElo: game.headers.WhiteElo,
-                    blackElo: game.headers.BlackElo,
-                    result: game.headers.Result,
-                },
-            ],
+            games: gamesToAdd,
         })
             .then((resp) => {
                 cache.put(resp.data.directory);
-                request.onSuccess(`Game added to ${resp.data.directory.name}`);
+                request.onSuccess(
+                    `Game${games.length !== 1 ? 's' : ''} added to ${resp.data.directory.name}`,
+                );
                 trackEvent(EventType.AddDirectoryItems, {
-                    count: 1,
+                    count: gamesToAdd.length,
                     method: 'add_to_directory_dialog',
                 });
                 onClose();
@@ -93,11 +110,14 @@ export const AddToDirectoryDialog = ({
     return (
         <>
             <Dialog
-                open={open && !!game}
+                open={open && !!games?.length}
                 onClose={request.isLoading() ? undefined : onClose}
                 fullWidth
             >
-                <DialogTitle>Add Game to {directory?.name ?? 'Folder'}?</DialogTitle>
+                <DialogTitle>
+                    Add {games?.length} Game{games?.length !== 1 && 's'} to{' '}
+                    {directory?.name ?? 'Folder'}?
+                </DialogTitle>
                 <DialogContent>
                     {directory ? (
                         <Stack spacing={1}>
@@ -139,7 +159,7 @@ export const AddToDirectoryDialog = ({
                     <Tooltip
                         title={
                             alreadyExists
-                                ? 'This game is already added to this directory'
+                                ? 'These games are already added to this directory'
                                 : ''
                         }
                     >
