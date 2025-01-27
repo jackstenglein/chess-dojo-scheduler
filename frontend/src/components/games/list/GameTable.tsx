@@ -23,6 +23,7 @@ import {
     formatMoves,
     formatPublishedAt,
     getPublishedAt,
+    getTimeControl,
     RenderCohort,
     RenderGameResultStack,
     RenderOwner,
@@ -84,6 +85,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerName: 'Time',
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderTimeControl({ timeControl: params.row.headers.TimeControl }),
+        valueGetter: (_, row) => getTimeControl({ timeControl: row.headers.TimeControl }),
         width: 75,
     },
     {
