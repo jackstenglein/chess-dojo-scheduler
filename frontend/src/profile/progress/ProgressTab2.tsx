@@ -1,5 +1,6 @@
 import { useRequirements } from '@/api/cache/requirements';
 import { FullTrainingPlan } from '@/components/profile/trainingPlan/FullTrainingPlan';
+import { TrainingPlanSection } from '@/components/profile/trainingPlan/TrainingPlanSection';
 import {
     TrainingPlanView,
     TrainingPlanViewSelect,
@@ -9,7 +10,6 @@ import { ALL_COHORTS, User } from '@/database/user';
 import { Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import ProgressCategory from './ProgressCategory';
 
 const TRAINING_PLAN_VIEW = {
     Key: 'trainingPlanView',
@@ -62,12 +62,12 @@ export function ProgressTab2({
             </Box>
 
             {trainingPlanView === TrainingPlanView.Daily && (
-                <ProgressCategory
-                    c={{
-                        name: "Today's Tasks" as RequirementCategory,
-                        requirements: suggestedTasks,
-                        totalComplete: 0,
-                        totalRequirements: suggestedTasks.length,
+                <TrainingPlanSection
+                    section={{
+                        category: "Today's Tasks" as RequirementCategory,
+                        tasks: suggestedTasks,
+                        complete: 0,
+                        total: suggestedTasks.length,
                     }}
                     expanded={true}
                     toggleExpand={() => null}

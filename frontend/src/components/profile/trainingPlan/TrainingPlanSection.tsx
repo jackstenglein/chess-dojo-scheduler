@@ -1,3 +1,15 @@
+import { useFreeTier } from '@/auth/Auth';
+import {
+    CustomTask,
+    CustomTaskCategory,
+    isCustomTaskCategory,
+    isRequirement,
+    Requirement,
+    RequirementCategory,
+} from '@/database/requirement';
+import { User } from '@/database/user';
+import CustomTaskEditor from '@/profile/progress/CustomTaskEditor';
+import ProgressItem from '@/profile/progress/ProgressItem';
 import { ProgressText } from '@/scoreboard/ScoreboardProgress';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -11,41 +23,43 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { useFreeTier } from '../../auth/Auth';
-import {
-    CustomTask,
-    CustomTaskCategory,
-    isCustomTaskCategory,
-    isRequirement,
-    Requirement,
-    RequirementCategory,
-} from '../../database/requirement';
-import { User } from '../../database/user';
-import Icon from '../../style/Icon';
-import CustomTaskEditor from './CustomTaskEditor';
-import ProgressItem from './ProgressItem';
+import { TrainingPlanIcon } from './TrainingPlanCategory';
 
-export interface Category {
-    name: RequirementCategory;
-    requirements: (Requirement | CustomTask)[];
-    totalComplete: number;
-    totalRequirements: number;
+/** A section in the training plan view. */
+export interface Section {
+    /** The category of the section. */
+    category: RequirementCategory;
+    /** The tasks to display in the section. */
+    tasks: (Requirement | CustomTask)[];
+    /** The number of complete tasks in the section. */
+    complete: number;
+    /** The total number of tasks in the section. */
+    total: number;
+    /** The color of the icon in the section header. */
     color?: SvgIconOwnProps['color'];
 }
 
-interface ProgressCategoryProps {
-    c: Category;
+interface TrainingPlanSectionProps {
+    /** The section of the training plan to render. */
+    section: Section;
+    /** Whether the section is expanded. */
     expanded?: boolean;
-    toggleExpand: (name: RequirementCategory) => void;
+    /** A callback invoked when the section expansion is toggled. */
+    toggleExpand: (category: RequirementCategory) => void;
+    /** The user whose training plan is being displayed. */
     user: User;
+    /** Whether the user being displayed is the current authenticated user. */
     isCurrentUser: boolean;
+    /** The cohort being displayed. */
     cohort: string;
+    /** A callback invoked when the user toggles a pinned task. */
     togglePin: (req: Requirement | CustomTask) => void;
+    /** The set of pinned tasks. */
     pinnedTasks: (Requirement | CustomTask)[];
 }
 
-const ProgressCategory: React.FC<ProgressCategoryProps> = ({
-    c,
+export function TrainingPlanSection({
+    section,
     expanded,
     toggleExpand,
     user,
@@ -53,7 +67,7 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
     cohort,
     togglePin,
     pinnedTasks,
-}) => {
+}: TrainingPlanSectionProps) {
     const isFreeTier = useFreeTier();
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
 
@@ -61,20 +75,20 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
         if (!isFreeTier) {
             return 0;
         }
-        return c.requirements.filter((r) => isRequirement(r) && !r.isFree).length;
-    }, [c.requirements, isFreeTier]);
+        return section.tasks.filter((r) => isRequirement(r) && !r.isFree).length;
+    }, [section.tasks, isFreeTier]);
 
     return (
         <Accordion
-            key={c.name}
+            key={section.category}
             expanded={expanded}
-            onChange={() => toggleExpand(c.name)}
+            onChange={() => toggleExpand(section.category)}
             sx={{ width: 1 }}
         >
             <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
-                aria-controls={`${c.name.replaceAll(' ', '-')}-content`}
-                id={`${c.name.replaceAll(' ', '-')}-header`}
+                aria-controls={`${section.category.replaceAll(' ', '-')}-content`}
+                id={`${section.category.replaceAll(' ', '-')}-header`}
             >
                 <Stack
                     direction='row'
@@ -86,28 +100,24 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                     sx={{ width: 1, mr: 2 }}
                 >
                     <Typography fontWeight='bold'>
-                        <Icon
-                            name={c.name}
-                            color={c.color || 'primary'}
+                        <TrainingPlanIcon
+                            category={section.category}
+                            color={section.color || 'primary'}
                             sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
                         />
-                        {c.name}
+                        {section.category}
                     </Typography>
-                    {c.name === RequirementCategory.NonDojo ? (
-                        <ProgressText label={`${c.requirements.length} Activities`} />
-                    ) : (
-                        <ProgressText
-                            value={c.totalComplete}
-                            max={c.totalRequirements}
-                            min={0}
-                            suffix='Tasks'
-                        />
-                    )}
+                    <ProgressText
+                        value={section.complete}
+                        max={section.total}
+                        min={0}
+                        suffix='Tasks'
+                    />
                 </Stack>
             </AccordionSummary>
-            <AccordionDetails data-cy={`progress-category-${c.name}`}>
+            <AccordionDetails data-cy={`progress-category-${section.category}`}>
                 <Divider />
-                {c.requirements.map((r) => {
+                {section.tasks.map((r) => {
                     if (isFreeTier && isRequirement(r) && !r.isFree) {
                         return null;
                     }
@@ -125,14 +135,19 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
                     );
                 })}
 
-                {!isFreeTier && isCustomTaskCategory(c.name) && isCurrentUser && (
-                    <Button sx={{ mt: 2 }} onClick={() => setShowCustomTaskEditor(true)}>
-                        Add Custom Task
-                    </Button>
-                )}
+                {!isFreeTier &&
+                    isCustomTaskCategory(section.category) &&
+                    isCurrentUser && (
+                        <Button
+                            sx={{ mt: 2 }}
+                            onClick={() => setShowCustomTaskEditor(true)}
+                        >
+                            Add Custom Task
+                        </Button>
+                    )}
 
                 {isFreeTier &&
-                    c.name !== RequirementCategory.NonDojo &&
+                    section.category !== RequirementCategory.NonDojo &&
                     hiddenTaskCount > 0 && (
                         <Stack mt={2} spacing={2} alignItems='center'>
                             <Typography>
@@ -150,10 +165,8 @@ const ProgressCategory: React.FC<ProgressCategoryProps> = ({
             <CustomTaskEditor
                 open={showCustomTaskEditor}
                 onClose={() => setShowCustomTaskEditor(false)}
-                initialCategory={c.name as unknown as CustomTaskCategory}
+                initialCategory={section.category as unknown as CustomTaskCategory}
             />
         </Accordion>
     );
-};
-
-export default ProgressCategory;
+}

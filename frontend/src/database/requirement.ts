@@ -108,6 +108,7 @@ export enum RequirementCategory {
     Graduation = 'Graduation',
     NonDojo = 'Non-Dojo',
     SuggestedTasks = 'Suggested Tasks',
+    Pinned = 'Pinned Tasks',
 }
 
 /** The categories of a custom task. This is a subset of RequirementCategory. */

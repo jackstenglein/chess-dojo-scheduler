@@ -10,7 +10,6 @@ import {
 } from '@/database/requirement';
 import { ALL_COHORTS, dojoCohorts, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import ProgressCategory, { Category } from '@/profile/progress/ProgressCategory';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
@@ -24,6 +23,7 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import { Section, TrainingPlanSection } from './TrainingPlanSection';
 
 /** Renders the full training plan view of the training plan tab. */
 export function FullTrainingPlan({
@@ -43,6 +43,7 @@ export function FullTrainingPlan({
     const [expanded, setExpanded] = useState<
         Partial<Record<RequirementCategory, boolean>>
     >({
+        [RequirementCategory.Pinned]: true,
         [RequirementCategory.Welcome]: false,
         [RequirementCategory.Games]: false,
         [RequirementCategory.Tactics]: false,
@@ -68,8 +69,20 @@ export function FullTrainingPlan({
         );
     }, [user, requirements]);
 
-    const categories: Category[] = useMemo(() => {
-        const categories: Category[] = [];
+    const sections: Section[] = useMemo(() => {
+        const sections: Section[] = [];
+
+        if (pinnedTasks.length > 0) {
+            const uncompletedTasks = pinnedTasks.filter(
+                (t) => !isComplete(cohort, t, user.progress[t.id]),
+            );
+            sections.push({
+                category: RequirementCategory.Pinned,
+                tasks: showCompleted ? pinnedTasks : uncompletedTasks,
+                complete: pinnedTasks.length - uncompletedTasks.length,
+                total: pinnedTasks.length,
+            });
+        }
 
         const tasks = (requirements as (Requirement | CustomTask)[]).concat(
             user.customTasks ?? [],
@@ -79,30 +92,30 @@ export function FullTrainingPlan({
                 return;
             }
 
-            const c = categories.find((c) => c.name === task.category);
+            const s = sections.find((s) => s.category === task.category);
             const complete = isComplete(cohort, task, user.progress[task.id]);
 
-            if (c === undefined) {
-                categories.push({
-                    name: task.category,
-                    requirements: complete && showCompleted ? [task] : [],
-                    totalComplete: complete ? 1 : 0,
-                    totalRequirements: 1,
+            if (s === undefined) {
+                sections.push({
+                    category: task.category,
+                    tasks: complete && showCompleted ? [task] : [],
+                    complete: complete ? 1 : 0,
+                    total: 1,
                 });
             } else {
-                c.totalRequirements++;
-                if (!complete || showCompleted) {
-                    c.requirements.push(task);
-                }
+                s.total++;
                 if (complete) {
-                    c.totalComplete++;
+                    s.complete++;
+                }
+                if (!complete || showCompleted) {
+                    s.tasks.push(task);
                 }
             }
         });
-        return categories;
-    }, [requirements, user, cohort, showCompleted]);
+        return sections;
+    }, [requirements, user, cohort, showCompleted, pinnedTasks]);
 
-    if (requirementRequest.isLoading() || categories.length === 0) {
+    if (requirementRequest.isLoading() || sections.length === 0) {
         return <LoadingPage />;
     }
 
@@ -119,25 +132,19 @@ export function FullTrainingPlan({
 
     const onExpandAll = () => {
         setExpanded((c) =>
-            Object.keys(c).reduce<Partial<Record<RequirementCategory, boolean>>>(
-                (acc, cat) => {
-                    acc[cat as RequirementCategory] = true;
-                    return acc;
-                },
-                {},
-            ),
+            Object.keys(c).reduce<Record<string, boolean>>((acc, cat) => {
+                acc[cat as RequirementCategory] = true;
+                return acc;
+            }, {}),
         );
     };
 
     const onCollapseAll = () => {
         setExpanded((c) =>
-            Object.keys(c).reduce<Partial<Record<RequirementCategory, boolean>>>(
-                (acc, cat) => {
-                    acc[cat as RequirementCategory] = false;
-                    return acc;
-                },
-                {},
-            ),
+            Object.keys(c).reduce<Record<string, boolean>>((acc, cat) => {
+                acc[cat as RequirementCategory] = false;
+                return acc;
+            }, {}),
         );
     };
 
@@ -212,11 +219,11 @@ export function FullTrainingPlan({
                 </Stack>
             </Stack>
 
-            {categories.map((c) => (
-                <ProgressCategory
-                    key={c.name}
-                    c={c}
-                    expanded={expanded[c.name]}
+            {sections.map((section) => (
+                <TrainingPlanSection
+                    key={section.category}
+                    section={section}
+                    expanded={expanded[section.category]}
                     toggleExpand={toggleExpand}
                     user={user}
                     isCurrentUser={isCurrentUser}
