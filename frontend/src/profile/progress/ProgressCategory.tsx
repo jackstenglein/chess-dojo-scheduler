@@ -35,8 +35,8 @@ export interface Category {
 
 interface ProgressCategoryProps {
     c: Category;
-    expanded: boolean;
-    toggleExpand: (name: string) => void;
+    expanded?: boolean;
+    toggleExpand: (name: RequirementCategory) => void;
     user: User;
     isCurrentUser: boolean;
     cohort: string;
