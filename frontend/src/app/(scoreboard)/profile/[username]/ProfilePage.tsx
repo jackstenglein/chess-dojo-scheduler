@@ -19,6 +19,7 @@ import { RatingsCard } from '@/components/profile/info/RatingsCard';
 import TimezoneChip from '@/components/profile/info/TimezoneChip';
 import UserInfo from '@/components/profile/info/UserInfo';
 import StatsTab from '@/components/profile/stats/StatsTab';
+import { TrainingPlanTab } from '@/components/profile/trainingPlan/TrainingPlanTab';
 import ProfilePageTutorial from '@/components/tutorial/ProfilePageTutorial';
 import { FollowerEntry } from '@/database/follower';
 import { hasCreatedProfile, User } from '@/database/user';
@@ -33,7 +34,6 @@ import CoachTab from '@/profile/coach/CoachTab';
 import ProfileCreatorPage from '@/profile/creator/ProfileCreatorPage';
 import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
-import { ProgressTab2 } from '@/profile/progress/ProgressTab2';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
     Edit,
@@ -293,14 +293,7 @@ function AuthProfilePage({
                                     <CoachTab user={user} />
                                 </TabPanel>
                                 <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
-                                    <ProgressTab2
-                                        user={user}
-                                        isCurrentUser={currentUserProfile}
-                                    />
-                                    {/* <ProgressTab
-                                        user={user}
-                                        isCurrentUser={currentUserProfile}
-                                    /> */}
+                                    <TrainingPlanTab user={user} />
                                 </TabPanel>
                                 <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
                                     <ActivityTab user={user} />

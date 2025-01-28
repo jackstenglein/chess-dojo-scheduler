@@ -1,14 +1,11 @@
-import { useApi } from '@/api/Api';
-import { useRequirements } from '@/api/cache/requirements';
 import { RequestSnackbar } from '@/api/Request';
-import { useAuth } from '@/auth/Auth';
 import {
     CustomTask,
     isComplete,
     Requirement,
     RequirementCategory,
 } from '@/database/requirement';
-import { ALL_COHORTS, dojoCohorts, User } from '@/database/user';
+import { dojoCohorts, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
@@ -24,20 +21,18 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { Section, TrainingPlanSection } from './TrainingPlanSection';
+import { useTrainingPlan } from './useTrainingPlan';
 
 /** Renders the full training plan view of the training plan tab. */
-export function FullTrainingPlan({
-    user,
-    isCurrentUser,
-}: {
-    user: User;
-    isCurrentUser: boolean;
-}) {
-    const { updateUser } = useAuth();
-    const api = useApi();
+export function FullTrainingPlan({ user }: { user: User }) {
     const [cohort, setCohort] = useState(user.dojoCohort);
-    const { request: requirementRequest } = useRequirements(ALL_COHORTS, false);
-    const { requirements } = useRequirements(cohort, false);
+    const {
+        request: requirementRequest,
+        requirements,
+        pinnedTasks,
+        togglePin,
+        isCurrentUser,
+    } = useTrainingPlan(user, cohort);
     const [showCompleted, setShowCompleted] = useShowCompleted(isCurrentUser);
 
     const [expanded, setExpanded] = useState<
@@ -56,18 +51,6 @@ export function FullTrainingPlan({
     useEffect(() => {
         setCohort(user.dojoCohort);
     }, [user.dojoCohort, setCohort]);
-
-    const pinnedTasks = useMemo(() => {
-        return (
-            user.pinnedTasks
-                ?.map(
-                    (id) =>
-                        user.customTasks?.find((task) => task.id === id) ||
-                        requirements.find((task) => task.id === id),
-                )
-                .filter((t) => !!t) ?? []
-        );
-    }, [user, requirements]);
 
     const sections: Section[] = useMemo(() => {
         const sections: Section[] = [];
@@ -146,17 +129,6 @@ export function FullTrainingPlan({
                 return acc;
             }, {}),
         );
-    };
-
-    const togglePin = (task: Requirement | CustomTask) => {
-        const isPinned = pinnedTasks.some((t) => t.id === task.id);
-        const newPinnedTasks = isPinned
-            ? pinnedTasks.filter((t) => t.id !== task.id)
-            : [...pinnedTasks, task];
-        const newIds = newPinnedTasks.map((t) => t.id);
-
-        updateUser({ pinnedTasks: newIds });
-        api.updateUser({ pinnedTasks: newIds }).catch(console.error);
     };
 
     return (
