@@ -12,6 +12,7 @@ import CoachChip from '@/components/profile/info/CoachChip';
 import CountChip from '@/components/profile/info/CountChip';
 import CreatedAtChip from '@/components/profile/info/CreatedAtChip';
 import DiscordChip from '@/components/profile/info/DiscordChip';
+import DojoScoreCard from '@/components/profile/info/DojoScoreCard';
 import { HeatmapCard } from '@/components/profile/info/HeatmapCard';
 import InactiveChip from '@/components/profile/info/InactiveChip';
 import { RatingsCard } from '@/components/profile/info/RatingsCard';
@@ -352,6 +353,7 @@ function AuthProfilePage({
                 >
                     <Stack spacing={2}>
                         <RatingsCard user={user} />
+                        <DojoScoreCard user={user} cohort={user.dojoCohort} />
                         <HeatmapCard />
                         <BadgeCard user={user} />
                     </Stack>

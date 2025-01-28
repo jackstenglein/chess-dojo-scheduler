@@ -1,7 +1,7 @@
 import { useApi } from '@/api/Api';
 import { useAuth } from '@/auth/Auth';
 import { TrainingTipsButton } from '@/components/profile/TrainingTips';
-import DojoScoreCard from '@/components/profile/stats/DojoScoreCard';
+import DojoScoreCard from '@/components/profile/info/DojoScoreCard';
 import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 import {
     Button,
