@@ -1,31 +1,47 @@
-import { FullTrainingPlan } from '@/components/profile/trainingPlan/FullTrainingPlan';
 import {
     TrainingPlanView,
     TrainingPlanViewSelect,
 } from '@/components/profile/trainingPlan/TrainingPlanViewSelect';
 import { User } from '@/database/user';
 import { Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { DailyTrainingPlan } from './DailyTrainingPlan';
+import { DailyTrainingPlan } from './daily/DailyTrainingPlan';
+import { FullTrainingPlan } from './full/FullTrainingPlan';
 
 const TRAINING_PLAN_VIEW = {
     Key: 'trainingPlanView',
     Default: TrainingPlanView.Daily,
 };
 
-export function TrainingPlanTab({ user }: { user: User }) {
+export function TrainingPlanTab({
+    user,
+    isCurrentUser,
+}: {
+    user: User;
+    isCurrentUser: boolean;
+}) {
     const [trainingPlanView, setTrainingPlanView] = useLocalStorage(
         TRAINING_PLAN_VIEW.Key,
         TRAINING_PLAN_VIEW.Default,
     );
+    const [workGoalMinutes, setWorkGoalMinutes] = useState(60);
 
     return (
         <Stack alignItems='start' mb={6}>
-            <TextField select label='Work Goal' value='3' fullWidth sx={{ mb: 3 }}>
-                <MenuItem value='1'>1 hour / day</MenuItem>
-                <MenuItem value='2'>2 hours / day</MenuItem>
-                <MenuItem value='3'>3 hours / day</MenuItem>
-                <MenuItem value='4'>4 hours / day</MenuItem>
+            <TextField
+                disabled={!isCurrentUser}
+                select
+                label='Work Goal'
+                value={workGoalMinutes}
+                onChange={(e) => setWorkGoalMinutes(parseInt(e.target.value))}
+                fullWidth
+                sx={{ mb: 3 }}
+            >
+                <MenuItem value={60}>1 hour / day</MenuItem>
+                <MenuItem value={120}>2 hours / day</MenuItem>
+                <MenuItem value={180}>3 hours / day</MenuItem>
+                <MenuItem value={240}>4 hours / day</MenuItem>
             </TextField>
 
             <Box sx={{ mb: 4 }}>
@@ -36,7 +52,7 @@ export function TrainingPlanTab({ user }: { user: User }) {
             </Box>
 
             {trainingPlanView === TrainingPlanView.Daily && (
-                <DailyTrainingPlan user={user} />
+                <DailyTrainingPlan user={user} workGoalMinutes={workGoalMinutes} />
             )}
 
             {trainingPlanView === TrainingPlanView.Weekly && (

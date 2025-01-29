@@ -9,7 +9,6 @@ import {
 } from '@/database/requirement';
 import { User } from '@/database/user';
 import CustomTaskEditor from '@/profile/progress/CustomTaskEditor';
-import ProgressItem from '@/profile/progress/ProgressItem';
 import { ProgressText } from '@/scoreboard/ScoreboardProgress';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -24,6 +23,7 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { TrainingPlanIcon } from './TrainingPlanCategory';
+import { FullTrainingPlanItem } from './full/FullTrainingPlanItem';
 
 /** A section in the training plan view. */
 export interface Section {
@@ -122,7 +122,7 @@ export function TrainingPlanSection({
                         return null;
                     }
                     return (
-                        <ProgressItem
+                        <FullTrainingPlanItem
                             key={r.id}
                             requirement={r}
                             progress={user.progress[r.id]}

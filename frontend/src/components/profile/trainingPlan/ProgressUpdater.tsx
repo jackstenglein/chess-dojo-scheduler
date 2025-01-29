@@ -1,3 +1,15 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import {
+    CustomTask,
+    Requirement,
+    RequirementProgress,
+    ScoreboardDisplay,
+    getCurrentCount,
+    isRequirement,
+} from '@/database/requirement';
+import { useTimelineContext } from '@/profile/activity/useTimeline';
 import { LoadingButton } from '@mui/lab';
 import {
     Alert,
@@ -11,23 +23,11 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { useState } from 'react';
-
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import {
-    CustomTask,
-    Requirement,
-    RequirementProgress,
-    ScoreboardDisplay,
-    getCurrentCount,
-    isRequirement,
-} from '../../database/requirement';
-import { useTimelineContext } from '../../profile/activity/useTimeline';
+import { useState } from 'react';
 import InputSlider from './InputSlider';
+import { TaskDialogView } from './TaskDialog';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -71,7 +71,7 @@ interface ProgressUpdaterProps {
     progress?: RequirementProgress;
     cohort: string;
     onClose: () => void;
-    toggleView?: () => void;
+    setView?: (view: TaskDialogView) => void;
 }
 
 const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
@@ -79,7 +79,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     progress,
     cohort,
     onClose,
-    toggleView,
+    setView,
 }) => {
     const api = useApi();
     const { resetRequest: timelineNewRequest } = useTimelineContext();
@@ -272,14 +272,22 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                 <Button onClick={onClose} disabled={request.isLoading()}>
                     Cancel
                 </Button>
-                {toggleView && (
-                    <Button
-                        data-cy='task-updater-show-history-button'
-                        onClick={toggleView}
-                        disabled={request.isLoading()}
-                    >
-                        Show History
-                    </Button>
+                {setView && (
+                    <>
+                        <Button
+                            onClick={() => setView(TaskDialogView.Details)}
+                            disabled={request.isLoading()}
+                        >
+                            Task Details
+                        </Button>
+                        <Button
+                            data-cy='task-updater-show-history-button'
+                            onClick={() => setView(TaskDialogView.History)}
+                            disabled={request.isLoading()}
+                        >
+                            Show History
+                        </Button>
+                    </>
                 )}
                 <LoadingButton
                     data-cy='task-updater-save-button'

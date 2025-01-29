@@ -384,6 +384,9 @@ export function getTotalTime(cohort: string, progress?: RequirementProgress): nu
 export function formatTime(value: number): string {
     const hours = Math.floor(value / 60);
     const minutes = Math.round(value % 60);
+    if (hours === 0) {
+        return `${minutes}m`;
+    }
     if (minutes === 0) {
         return `${hours}h`;
     }

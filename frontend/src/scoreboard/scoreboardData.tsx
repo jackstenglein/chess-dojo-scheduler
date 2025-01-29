@@ -1,3 +1,6 @@
+import { useAuth } from '@/auth/Auth';
+import { TaskDialog, TaskDialogView } from '@/components/profile/trainingPlan/TaskDialog';
+import { TimelineProvider } from '@/profile/activity/useTimeline';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
 import React, { useState } from 'react';
 import { Graduation, isGraduation } from '../database/graduation';
@@ -18,7 +21,6 @@ import {
     getStartRating as getUserStartRating,
     isCustom,
 } from '../database/user';
-import RequirementModal from '../requirements/RequirementModal';
 import ScoreboardCheck from './ScoreboardCheck';
 import ScoreboardProgress from './ScoreboardProgress';
 
@@ -31,6 +33,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ requirement, cohort }) => {
     const [showReqModal, setShowReqModal] = useState(false);
+    const { user } = useAuth();
 
     const totalCount = requirement.counts[cohort] || 0;
     let headerName = requirement.name.replaceAll('{{count}}', `${totalCount}`);
@@ -41,12 +44,18 @@ const Header: React.FC<HeaderProps> = ({ requirement, cohort }) => {
     return (
         <>
             <div onClick={() => setShowReqModal(true)}>{headerName}</div>
-            <RequirementModal
-                open={showReqModal}
-                onClose={() => setShowReqModal(false)}
-                requirement={requirement}
-                cohort={cohort}
-            />
+            {user && (
+                <TimelineProvider owner={user.username}>
+                    <TaskDialog
+                        open={showReqModal}
+                        onClose={() => setShowReqModal(false)}
+                        task={requirement}
+                        initialView={TaskDialogView.Details}
+                        cohort={cohort}
+                        progress={user.progress[requirement.id]}
+                    />
+                </TimelineProvider>
+            )}
         </>
     );
 };

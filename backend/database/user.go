@@ -305,6 +305,8 @@ type User struct {
 
 	// The IDs of the user's pinned tasks.
 	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks"`
+
+	WorkGoal int `dynamodbav:"workGoal" json:"workGoal"`
 }
 
 // A summary of a user's performance on a single exam.

@@ -20,8 +20,8 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { Section, TrainingPlanSection } from './TrainingPlanSection';
-import { useTrainingPlan } from './useTrainingPlan';
+import { Section, TrainingPlanSection } from '../TrainingPlanSection';
+import { useTrainingPlan } from '../useTrainingPlan';
 
 /** Renders the full training plan view of the training plan tab. */
 export function FullTrainingPlan({ user }: { user: User }) {

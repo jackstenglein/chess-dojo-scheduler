@@ -293,7 +293,10 @@ function AuthProfilePage({
                                     <CoachTab user={user} />
                                 </TabPanel>
                                 <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
-                                    <TrainingPlanTab user={user} />
+                                    <TrainingPlanTab
+                                        user={user}
+                                        isCurrentUser={currentUserProfile}
+                                    />
                                 </TabPanel>
                                 <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
                                     <ActivityTab user={user} />
