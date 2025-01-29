@@ -11,6 +11,7 @@ import {
     ScoreboardDisplay,
 } from '@/database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '@/database/user';
+import { useTimelineContext } from '@/profile/activity/useTimeline';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -26,7 +27,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { useTimelineContext } from '../activity/useTimeline';
 
 const OTHER_COUNT_TYPE = 'Other';
 const MINUTES_COUNT_TYPE = 'Minutes';

@@ -8,7 +8,6 @@ import {
     RequirementCategory,
 } from '@/database/requirement';
 import { User } from '@/database/user';
-import CustomTaskEditor from '@/profile/progress/CustomTaskEditor';
 import { ProgressText } from '@/scoreboard/ScoreboardProgress';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -22,6 +21,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
+import CustomTaskEditor from './CustomTaskEditor';
 import { TrainingPlanIcon } from './TrainingPlanCategory';
 import { FullTrainingPlanItem } from './full/FullTrainingPlanItem';
 

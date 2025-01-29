@@ -1,5 +1,7 @@
 import { useRequirements } from '@/api/cache/requirements';
 import { useAuth, useFreeTier } from '@/auth/Auth';
+import DeleteCustomTaskModal from '@/components/profile/trainingPlan/DeleteCustomTaskModal';
+import Position from '@/components/profile/trainingPlan/Position';
 import ProgressHistory from '@/components/profile/trainingPlan/ProgressHistory';
 import ProgressUpdater from '@/components/profile/trainingPlan/ProgressUpdater';
 import ModalTitle from '@/components/ui/ModalTitle';
@@ -14,9 +16,6 @@ import {
     ScoreboardDisplay,
 } from '@/database/requirement';
 import { ALL_COHORTS, compareCohorts, dojoCohorts } from '@/database/user';
-import CustomTaskEditor from '@/profile/progress/CustomTaskEditor';
-import DeleteCustomTaskModal from '@/requirements/DeleteCustomTaskModal';
-import Position from '@/requirements/Position';
 import { AccessAlarm, Check, Lock, Loop, Scoreboard } from '@mui/icons-material';
 import {
     Box,
@@ -34,6 +33,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
+import CustomTaskEditor from './CustomTaskEditor';
 
 export enum TaskDialogView {
     Details = 'DETAILS',
