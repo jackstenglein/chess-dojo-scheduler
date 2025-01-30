@@ -3,7 +3,6 @@ import { Chip, Stack } from '@mui/material';
 export enum TrainingPlanView {
     Daily = 'DAILY',
     Weekly = 'WEEKLY',
-    Monthly = 'MONTHLY',
     Full = 'FULL',
 }
 
@@ -30,12 +29,6 @@ export function TrainingPlanViewSelect({
                 color='secondary'
                 variant={value === TrainingPlanView.Weekly ? 'filled' : 'outlined'}
                 onClick={() => onChange(TrainingPlanView.Weekly)}
-            />
-            <Chip
-                label='Monthly'
-                color='secondary'
-                variant={value === TrainingPlanView.Monthly ? 'filled' : 'outlined'}
-                onClick={() => onChange(TrainingPlanView.Monthly)}
             />
             <Chip
                 label='Full Training Plan'

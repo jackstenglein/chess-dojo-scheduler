@@ -59,10 +59,6 @@ export function TrainingPlanTab({
                 <Typography>Not available in beta yet</Typography>
             )}
 
-            {trainingPlanView === TrainingPlanView.Monthly && (
-                <Typography>Not available in beta yet</Typography>
-            )}
-
             {trainingPlanView === TrainingPlanView.Full && (
                 <FullTrainingPlan user={user} />
             )}
