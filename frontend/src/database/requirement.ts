@@ -707,10 +707,10 @@ const SUGGESTED_TASK_CATEGORIES = [
 ];
 
 /** The ID of the Play Classical Games task. */
-const CLASSICAL_GAMES_TASK = '38f46441-7a4e-4506-8632-166bcbe78baf';
+export const CLASSICAL_GAMES_TASK = '38f46441-7a4e-4506-8632-166bcbe78baf';
 
 /** The ID of the Annotate Classical Games task. */
-const ANNOTATE_GAMES_TASK = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
+export const ANNOTATE_GAMES_TASK = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
 
 /**
  * Returns the remaining score of a task for the purposes of the suggested task algorithm.
