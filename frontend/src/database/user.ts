@@ -1,3 +1,4 @@
+import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { AuthTokens } from 'aws-amplify/auth';
 import { ExamType } from './exam';
@@ -164,6 +165,26 @@ export interface User {
 
     /** The IDs of the user's pinned tasks. */
     pinnedTasks?: string[];
+
+    /** The day the user's week starts on. Sunday is 0; Saturday is 6. */
+    weekStart: WeekDays;
+
+    /** The user's work goal settings. */
+    workGoal?: WorkGoalSettings;
+}
+
+export interface WorkGoalSettings {
+    /**
+     * A list of the minutes the user wants to work per day of the week.
+     * In conjunction with minutesPerTask, this affects how many tasks the
+     * user is suggested. Sunday is index 0; Saturday is index 6.
+     */
+    minutesPerDay: number[];
+    /**
+     * The minimum minutes the user will spend on each task per day. In conjunction
+     * with minutesPerDay, this affects how many tasks the user is suggested.
+     */
+    minutesPerTask: number;
 }
 
 export type UserSummary = Pick<User, 'username' | 'displayName' | 'dojoCohort'>;

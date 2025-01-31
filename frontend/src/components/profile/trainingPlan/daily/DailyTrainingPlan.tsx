@@ -12,16 +12,11 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo } from 'react';
-import { useTrainingPlan } from '../useTrainingPlan';
+import { getTodaysWorkGoal, useTrainingPlan } from '../useTrainingPlan';
+import { DEFAULT_WORK_GOAL } from '../WorkGoalSettingsEditor';
 import { TimeframeTrainingPlanItem } from './TimeframeTrainingPlanItem';
 
-export function DailyTrainingPlan({
-    user,
-    workGoalMinutes,
-}: {
-    user: User;
-    workGoalMinutes: number;
-}) {
+export function DailyTrainingPlan({ user }: { user: User }) {
     const [startDate, endDate] = useMemo(() => {
         const startDate = new Date();
         startDate.setHours(0, 0, 0, 0);
@@ -36,7 +31,23 @@ export function DailyTrainingPlan({
         useTrainingPlan(user);
 
     const suggestedTasks = useMemo(() => {
-        return getSuggestedTasks(pinnedTasks, requirements, user);
+        const tasks = getSuggestedTasks(pinnedTasks, requirements, user);
+
+        const workGoal = user.workGoal || DEFAULT_WORK_GOAL;
+        const minutesToday = getTodaysWorkGoal(workGoal);
+        const maxTasks = Math.floor(minutesToday / workGoal.minutesPerTask);
+
+        const tasksWithTime = tasks.slice(0, maxTasks);
+
+        const suggestedTasks = tasksWithTime.map((task) => ({
+            task,
+            goalMinutes: Math.floor(minutesToday / tasksWithTime.length),
+        }));
+        suggestedTasks.push(
+            ...tasks.slice(maxTasks).map((task) => ({ task, goalMinutes: 0 })),
+        );
+
+        return suggestedTasks;
     }, [pinnedTasks, requirements, user]);
 
     return (
@@ -70,20 +81,25 @@ export function DailyTrainingPlan({
                 </AccordionSummary>
                 <AccordionDetails>
                     <Divider />
-                    {suggestedTasks.map((task) => (
-                        <TimeframeTrainingPlanItem
-                            key={task.id}
-                            startDate={startDate}
-                            endDate={endDate}
-                            task={task}
-                            goalMinutes={workGoalMinutes / suggestedTasks.length}
-                            progress={user.progress[task.id]}
-                            cohort={user.dojoCohort}
-                            isCurrentUser={isCurrentUser}
-                            isPinned={pinnedTasks.some((t) => t.id === task.id)}
-                            togglePin={togglePin}
-                        />
-                    ))}
+                    {suggestedTasks.map(({ task, goalMinutes }) => {
+                        if (goalMinutes === 0) {
+                            return null;
+                        }
+                        return (
+                            <TimeframeTrainingPlanItem
+                                key={task.id}
+                                startDate={startDate}
+                                endDate={endDate}
+                                task={task}
+                                goalMinutes={goalMinutes}
+                                progress={user.progress[task.id]}
+                                cohort={user.dojoCohort}
+                                isCurrentUser={isCurrentUser}
+                                isPinned={pinnedTasks.some((t) => t.id === task.id)}
+                                togglePin={togglePin}
+                            />
+                        );
+                    })}
                 </AccordionDetails>
             </Accordion>
         </>

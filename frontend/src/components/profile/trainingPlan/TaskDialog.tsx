@@ -48,6 +48,7 @@ interface TaskDialogProps {
     initialView: TaskDialogView;
     progress: RequirementProgress | undefined;
     cohort: string;
+    initialTime?: number;
 }
 
 export function TaskDialog({ open, initialView, ...props }: TaskDialogProps) {
@@ -82,6 +83,7 @@ function ProgressDialog({
     cohort,
     view,
     setView,
+    initialTime,
 }: ProgressDialogProps) {
     const { user } = useAuth();
 
@@ -153,6 +155,7 @@ function ProgressDialog({
                     cohort={selectedCohort}
                     onClose={onClose}
                     setView={setView}
+                    initialTime={initialTime}
                 />
             )}
         </>

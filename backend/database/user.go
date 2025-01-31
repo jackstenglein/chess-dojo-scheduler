@@ -306,7 +306,11 @@ type User struct {
 	// The IDs of the user's pinned tasks.
 	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks"`
 
-	WorkGoal int `dynamodbav:"workGoal" json:"workGoal"`
+	// The day the user's week starts on. Sunday is 0; Saturday is 6.
+	WeekStart int `dynamodbav:"weekStart,omitempty" json:"weekStart"`
+
+	// The user's work goal settings
+	WorkGoal *WorkGoalSettings `dynamodbav:"workGoal,omitempty" json:"workGoal,omitempty"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -333,6 +337,16 @@ type PaymentInfo struct {
 
 	// The status of the subscription
 	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+}
+
+type WorkGoalSettings struct {
+	// A list of the minutes the user wants to work per day of the week.
+	// Sunday is index 0; Saturday is index 6.
+	MinutesPerDay []int `dynamodbav:"minutesPerDay" json:"minutesPerDay"`
+
+	// The minimum minutes the user will spend on each task per day. In conjunction
+	// with minutes per day, this affects how many tasks the user is suggested.
+	MinutesPerTask int `dynamodbav:"minutesPerTask" json:"minutesPerTask"`
 }
 
 // Returns true if the given PaymentInfo indicates an active subscription.
@@ -653,6 +667,12 @@ type UserUpdate struct {
 
 	// The IDs of the user's pinned tasks.
 	PinnedTasks *[]string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks,omitempty"`
+
+	// The day the user's week starts on. Sunday is 0; Saturday is 6.
+	WeekStart *int `dynamodbav:"weekStart,omitempty" json:"weekStart,omitempty"`
+
+	// The work goal settings of the user.
+	WorkGoal *WorkGoalSettings `dynamodbav:"workGoal,omitempty" json:"workGoal,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

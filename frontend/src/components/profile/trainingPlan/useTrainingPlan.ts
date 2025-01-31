@@ -2,7 +2,7 @@ import { useApi } from '@/api/Api';
 import { useRequirements } from '@/api/cache/requirements';
 import { useAuth } from '@/auth/Auth';
 import { CustomTask, Requirement } from '@/database/requirement';
-import { ALL_COHORTS, User } from '@/database/user';
+import { ALL_COHORTS, User, WorkGoalSettings } from '@/database/user';
 import { useMemo } from 'react';
 
 /**
@@ -45,4 +45,13 @@ export function useTrainingPlan(user: User, cohort?: string) {
         togglePin,
         isCurrentUser: currentUser?.username === user.username,
     };
+}
+
+/**
+ * Returns the number of minutes the user is expected to work today.
+ * @param workGoal The work goal settings of the user.
+ */
+export function getTodaysWorkGoal(workGoal: WorkGoalSettings): number {
+    const dayIndex = new Date().getDay();
+    return workGoal.minutesPerDay[dayIndex];
 }

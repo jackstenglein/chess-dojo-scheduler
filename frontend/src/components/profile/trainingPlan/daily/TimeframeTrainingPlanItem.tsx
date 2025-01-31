@@ -146,7 +146,7 @@ export const TimeframeTrainingPlanItem = ({
                 </Grid2>
                 <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
-                        {currentCount >= totalCount ? (
+                        {timeWorkedMinutes >= goalMinutes ? (
                             <Checkbox
                                 checked
                                 onClick={() => setTaskDialogView(TaskDialogView.Progress)}
@@ -193,6 +193,7 @@ export const TimeframeTrainingPlanItem = ({
                     initialView={taskDialogView}
                     progress={progress}
                     cohort={cohort}
+                    initialTime={goalMinutes - timeWorkedMinutes}
                 />
             )}
         </Stack>
