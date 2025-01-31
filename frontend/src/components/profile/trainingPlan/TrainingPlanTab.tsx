@@ -49,7 +49,7 @@ export function TrainingPlanTab({
             )}
 
             {trainingPlanView === TrainingPlanView.Weekly && (
-                <Typography>Not available in beta yet</Typography>
+                <Typography mt={2}>Not available in beta yet</Typography>
             )}
 
             {trainingPlanView === TrainingPlanView.Full && (

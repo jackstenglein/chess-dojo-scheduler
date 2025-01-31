@@ -44,6 +44,12 @@ export interface CustomTask {
     /** The name of the CustomTask. */
     name: string;
 
+    /**
+     * Does not exist for CustomTasks, but makes the type system happy when
+     * working with both Requirements and CustomTasks.
+     */
+    dailyName?: undefined;
+
     /** The description of the CustomTask. */
     description: string;
 
@@ -154,6 +160,12 @@ export interface Requirement {
      * like the pie charts.
      */
     shortName?: string;
+
+    /**
+     * The optional daily name for the requirement, which is displayed in contexts
+     * like the training plan daily tab.
+     */
+    dailyName?: string;
 
     /** The description of the requirement. */
     description: string;

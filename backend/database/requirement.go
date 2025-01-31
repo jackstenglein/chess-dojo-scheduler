@@ -157,6 +157,9 @@ type Requirement struct {
 	// The short name of the requirement
 	ShortName string `dynamodbav:"shortName,omitempty" json:"shortName,omitempty"`
 
+	// The daily name of the requirement
+	DailyName string `dynamodbav:"dailyName,omitempty" json:"dailyName,omitempty"`
+
 	// The description of the requirement
 	Description string `dynamodbav:"description" json:"description"`
 

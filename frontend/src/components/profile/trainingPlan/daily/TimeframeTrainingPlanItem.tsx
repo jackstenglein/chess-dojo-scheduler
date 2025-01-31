@@ -76,7 +76,10 @@ export const TimeframeTrainingPlanItem = ({
     const totalCount = getTotalCount(cohort, task);
     const currentCount = getCurrentCount(cohort, task, progress);
 
-    let requirementName = task.name.replaceAll('{{count}}', `${totalCount}`);
+    let requirementName = (task.dailyName || task.name).replaceAll(
+        '{{count}}',
+        `${totalCount}`,
+    );
     if (task.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
         requirementName += ` (${totalCount})`;
     }
