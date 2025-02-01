@@ -114,7 +114,7 @@
         "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@jackstenglein/eslint-config-dojo": "file:../eslint-config-dojo",
         "@testing-library/jest-dom": "^6.6.3",
-        "@testing-library/react": "^16.1.0",
+        "@testing-library/react": "^16.2.0",
         "@types/lodash.debounce": "^4.0.9",
         "@types/luxon": "^3.4.2",
         "@types/react-copy-to-clipboard": "^5.0.7",
