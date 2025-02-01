@@ -14,8 +14,10 @@ import {
     User,
 } from '@/database/user';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
+import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import { CategoryColors } from '@/style/ThemeProvider';
-import { Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
+import { Help } from '@mui/icons-material';
+import { Card, CardContent, Grid2, Stack, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 
 const categories = [
@@ -92,21 +94,39 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                     {showRatingProgress && (
                         <Grid2 size={12}>
                             <Stack width={1}>
-                                <Typography
-                                    variant='body2'
-                                    color='text.secondary'
-                                    sx={{ fontWeight: 'bold' }}
-                                >
-                                    {formatRatingSystem(user.ratingSystem)}
-                                </Typography>
-                                <ScoreboardProgress
-                                    value={currentRating}
-                                    min={minRatingBoundary}
-                                    max={graduationBoundary}
-                                    color='primary'
-                                    sx={{ height: '8px', borderRadius: '2px' }}
-                                    label={`${currentRating} / ${graduationBoundary}`}
-                                />
+                                <Stack direction='row' alignItems='center' gap={0.5}>
+                                    <RatingSystemIcon
+                                        system={user.ratingSystem}
+                                        size='small'
+                                    />
+                                    <Typography
+                                        variant='body2'
+                                        color='text.secondary'
+                                        sx={{ fontWeight: 'bold' }}
+                                    >
+                                        {formatRatingSystem(user.ratingSystem)}
+                                    </Typography>
+                                </Stack>
+
+                                <Stack direction='row' alignItems='center' gap={0.5}>
+                                    <ScoreboardProgress
+                                        value={currentRating}
+                                        min={minRatingBoundary}
+                                        max={graduationBoundary}
+                                        color='primary'
+                                        sx={{ height: '8px', borderRadius: '2px' }}
+                                        label={`${currentRating} / ${graduationBoundary}`}
+                                    />
+
+                                    <Tooltip title='Next graduation'>
+                                        <Help
+                                            sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '16px',
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </Stack>
                             </Stack>
                         </Grid2>
                     )}
@@ -117,7 +137,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                         min={0}
                         max={100}
                         label={`${percentComplete}%`}
-                        color='primary.main'
+                        color='inherit'
                     />
 
                     {categories.map((c, idx) => {
