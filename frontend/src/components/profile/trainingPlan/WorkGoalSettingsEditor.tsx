@@ -37,13 +37,13 @@ const DAY_NAMES = [
 
 /** The default work goal settings if the user has not saved any. */
 export const DEFAULT_WORK_GOAL: WorkGoalSettings = {
-    minutesPerDay: DAY_NAMES.map(() => 60),
+    minutesPerDay: DAY_NAMES.map(() => 45),
     minutesPerTask: 30,
 } as const;
 
 /** Renders an editor that allows the user to update their work goal settings. */
 export function WorkGoalSettingsEditor({
-    initialWeekStart,
+    initialWeekStart = 1,
     workGoal = DEFAULT_WORK_GOAL,
     disabled,
     view,
@@ -63,12 +63,12 @@ export function WorkGoalSettingsEditor({
 
     const [originalWeekStart, setOriginalWeekStart] = useLocalStorage<WeekDays>(
         'calendarFilters.weekStartOn',
-        0,
+        1,
     );
 
-    const [weekStart, setWeekStart] = useState(initialWeekStart || originalWeekStart);
+    const [weekStart, setWeekStart] = useState(originalWeekStart || initialWeekStart);
     const minTime = useTimeEditor(workGoal.minutesPerTask);
-    const timePerDay = workGoal.minutesPerDay.map((minutes) => useTimeEditor(minutes));
+    const timePerDay = useTimePerDay(workGoal);
     const minutesPerWeek = timePerDay.reduce((sum, t) => sum + t.total, 0);
 
     const onSave = async () => {
@@ -295,6 +295,18 @@ function useTimeEditor(initialMinutes: number) {
         setErrors,
         total,
     };
+}
+
+function useTimePerDay(workGoal: WorkGoalSettings) {
+    return [
+        useTimeEditor(workGoal.minutesPerDay[0]),
+        useTimeEditor(workGoal.minutesPerDay[1]),
+        useTimeEditor(workGoal.minutesPerDay[2]),
+        useTimeEditor(workGoal.minutesPerDay[3]),
+        useTimeEditor(workGoal.minutesPerDay[4]),
+        useTimeEditor(workGoal.minutesPerDay[5]),
+        useTimeEditor(workGoal.minutesPerDay[6]),
+    ];
 }
 
 function getLabel(
