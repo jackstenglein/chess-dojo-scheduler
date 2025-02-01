@@ -4,6 +4,8 @@ import { useAuth } from '@/auth/Auth';
 import { Reaction, TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
+import Image from  "next/image";
+
 import {
     Button,
     IconButton,
@@ -117,15 +119,20 @@ const ReactionEmoji: React.FC<{ type: string; icon?: boolean }> = ({ type, icon 
                 objectFit: 'contain',
             };
 
+            if (icon) {
+                styles.width = "100%";
+                styles.height = "100%";
+            }
+
             if (theme.palette.mode === 'light' && type === ':WhiteLogoText:') {
                 styles.filter = 'invert(1)';
             }
 
             return (
-                <img
+                <Image
                     alt={type}
-                    width={icon ? '100%' : '20.1833px'}
-                    height={icon ? '100%' : '30px'}
+                    width={icon ? 0 : 20.1833}
+                    height={icon ? 0 : 30}
                     style={styles}
                     src={ReactionTypesToImage[type]}
                     crossOrigin='anonymous'

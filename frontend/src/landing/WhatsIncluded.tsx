@@ -13,6 +13,7 @@ import {
     Tabs,
     Typography,
 } from '@mui/material';
+import Image from 'next/image';
 import { useState } from 'react';
 
 interface TabData {
@@ -177,7 +178,7 @@ const WhatsIncluded = () => {
                                         >
                                             <Stack>
                                                 {data.images.map((image) => (
-                                                    <img
+                                                    <Image
                                                         key={image}
                                                         src={image}
                                                         style={{
