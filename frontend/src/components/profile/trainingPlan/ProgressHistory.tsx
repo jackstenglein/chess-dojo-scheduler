@@ -1,3 +1,18 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import {
+    CustomTask,
+    Requirement,
+    RequirementProgress,
+    ScoreboardDisplay,
+    getCurrentScore,
+    isRequirement,
+} from '@/database/requirement';
+import { TimelineEntry } from '@/database/timeline';
+import { ALL_COHORTS, User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
+import { useTimelineContext } from '@/profile/activity/useTimeline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -18,21 +33,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import {
-    CustomTask,
-    Requirement,
-    RequirementProgress,
-    ScoreboardDisplay,
-    getCurrentScore,
-    isRequirement,
-} from '../../database/requirement';
-import { TimelineEntry } from '../../database/timeline';
-import { ALL_COHORTS, User } from '../../database/user';
-import LoadingPage from '../../loading/LoadingPage';
-import { useTimelineContext } from '../activity/useTimeline';
+import { TaskDialogView } from './TaskDialog';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -316,14 +317,14 @@ interface ProgressHistoryProps {
     requirement: Requirement | CustomTask;
     cohort: string;
     onClose: () => void;
-    toggleView?: () => void;
+    setView?: (view: TaskDialogView) => void;
 }
 
 const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     requirement,
     cohort,
     onClose,
-    toggleView,
+    setView,
 }) => {
     const api = useApi();
     const request = useRequest<AxiosResponse<User>>();
@@ -496,10 +497,21 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                 <Button onClick={onClose} disabled={request.isLoading()}>
                     Cancel
                 </Button>
-                {toggleView && (
-                    <Button onClick={toggleView} disabled={request.isLoading()}>
-                        Hide History
-                    </Button>
+                {setView && (
+                    <>
+                        <Button
+                            onClick={() => setView(TaskDialogView.Details)}
+                            disabled={request.isLoading()}
+                        >
+                            Task Details
+                        </Button>
+                        <Button
+                            onClick={() => setView(TaskDialogView.Progress)}
+                            disabled={request.isLoading()}
+                        >
+                            Update Progress
+                        </Button>
+                    </>
                 )}
                 <LoadingButton
                     data-cy='task-updater-save-button'

@@ -147,6 +147,7 @@ def main():
                 'category': row['Category'],
                 'name': row['Requirement Name'],
                 'shortName': row['Requirement Short Name'],
+                'dailyName': row['Daily Name'],
                 'description': row['Description'] if row['Description'] else '',
                 'freeDescription': row['Free Description'] if row['Free Description'] else '',
                 'counts': counts,

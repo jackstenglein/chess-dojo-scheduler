@@ -10,8 +10,8 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import React, { useMemo, useState } from 'react';
-import { useRequirements } from '../../api/cache/requirements';
+import { useMemo, useState } from 'react';
+import { useRequirements } from '../../../../api/cache/requirements';
 import {
     CustomTask,
     Requirement,
@@ -23,13 +23,14 @@ import {
     getTotalTime,
     isBlocked,
     isExpired,
-} from '../../database/requirement';
-import { ALL_COHORTS, User } from '../../database/user';
-import RequirementModal from '../../requirements/RequirementModal';
-import ScoreboardProgress, { ProgressText } from '../../scoreboard/ScoreboardProgress';
-import ProgressDialog from './ProgressDialog';
+} from '../../../../database/requirement';
+import { ALL_COHORTS, User } from '../../../../database/user';
+import ScoreboardProgress, {
+    ProgressText,
+} from '../../../../scoreboard/ScoreboardProgress';
+import { TaskDialog, TaskDialogView } from '../TaskDialog';
 
-interface ProgressItemProps {
+interface FullTrainingPlanItemProps {
     user: User;
     progress?: RequirementProgress;
     requirement: Requirement | CustomTask;
@@ -39,7 +40,7 @@ interface ProgressItemProps {
     isPinned: boolean;
 }
 
-const ProgressItem: React.FC<ProgressItemProps> = ({
+export const FullTrainingPlanItem = ({
     user,
     progress,
     requirement,
@@ -47,9 +48,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     isCurrentUser,
     togglePin,
     isPinned,
-}) => {
-    const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-    const [showReqModal, setShowReqModal] = useState(false);
+}: FullTrainingPlanItemProps) => {
+    const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
     const { requirements } = useRequirements(ALL_COHORTS, false);
 
     const blocker = useMemo(() => {
@@ -78,7 +78,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 <Checkbox
                     aria-label={`Checkbox ${requirement.name}`}
                     checked={currentCount >= totalCount}
-                    onClick={() => setShowUpdateDialog(true)}
+                    onClick={() => setTaskDialogView(TaskDialogView.Progress)}
                     disabled={!isCurrentUser}
                     sx={{
                         color,
@@ -107,13 +107,13 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 currentCount >= totalCount ? (
                     <Checkbox
                         checked
-                        onClick={() => setShowUpdateDialog(true)}
+                        onClick={() => setTaskDialogView(TaskDialogView.Progress)}
                         color={isCurrentUser ? 'trainingPlanTaskComplete' : undefined}
                     />
                 ) : !isCurrentUser ? null : (
                     <IconButton
                         aria-label={`Update ${requirement.name}`}
-                        onClick={() => setShowUpdateDialog(true)}
+                        onClick={() => setTaskDialogView(TaskDialogView.Progress)}
                         data-cy='update-task-button'
                     >
                         <AddCircle color='primary' />
@@ -125,7 +125,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
             UpdateElement = (
                 <IconButton
                     aria-label={`Update ${requirement.name}`}
-                    onClick={() => setShowUpdateDialog(true)}
+                    onClick={() => setTaskDialogView(TaskDialogView.Progress)}
                 >
                     <AddCircle color='primary' />
                 </IconButton>
@@ -154,7 +154,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 >
                     <Grid2
                         size={9}
-                        onClick={() => setShowReqModal(true)}
+                        onClick={() => setTaskDialogView(TaskDialogView.Details)}
                         sx={{ cursor: 'pointer', position: 'relative' }}
                         id='task-details'
                         display='flex'
@@ -188,6 +188,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                             >
                                 {requirementName}
                             </Typography>
+
                             {showCount(requirement) && (
                                 <Box mr={1}>
                                     <ProgressText
@@ -249,30 +250,20 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 </Grid2>
                 <Divider />
 
-                {showReqModal && (
-                    <RequirementModal
-                        open={showReqModal}
-                        onClose={() => setShowReqModal(false)}
-                        requirement={requirement}
-                        cohort={cohort}
-                    />
-                )}
-
-                {showUpdateDialog && (
-                    <ProgressDialog
-                        open={showUpdateDialog}
-                        onClose={() => setShowUpdateDialog(false)}
-                        requirement={requirement}
-                        cohort={cohort}
+                {taskDialogView && (
+                    <TaskDialog
+                        open
+                        onClose={() => setTaskDialogView(undefined)}
+                        task={requirement}
+                        initialView={taskDialogView}
                         progress={progress}
+                        cohort={cohort}
                     />
                 )}
             </Stack>
         </Tooltip>
     );
 };
-
-export default ProgressItem;
 
 function showCount(requirement: Requirement | CustomTask): boolean {
     return (

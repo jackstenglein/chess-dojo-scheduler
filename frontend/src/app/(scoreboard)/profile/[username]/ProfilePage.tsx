@@ -12,12 +12,14 @@ import CoachChip from '@/components/profile/info/CoachChip';
 import CountChip from '@/components/profile/info/CountChip';
 import CreatedAtChip from '@/components/profile/info/CreatedAtChip';
 import DiscordChip from '@/components/profile/info/DiscordChip';
+import DojoScoreCard from '@/components/profile/info/DojoScoreCard';
 import { HeatmapCard } from '@/components/profile/info/HeatmapCard';
 import InactiveChip from '@/components/profile/info/InactiveChip';
 import { RatingsCard } from '@/components/profile/info/RatingsCard';
 import TimezoneChip from '@/components/profile/info/TimezoneChip';
 import UserInfo from '@/components/profile/info/UserInfo';
 import StatsTab from '@/components/profile/stats/StatsTab';
+import { TrainingPlanTab } from '@/components/profile/trainingPlan/TrainingPlanTab';
 import ProfilePageTutorial from '@/components/tutorial/ProfilePageTutorial';
 import { FollowerEntry } from '@/database/follower';
 import { hasCreatedProfile, User } from '@/database/user';
@@ -32,7 +34,6 @@ import CoachTab from '@/profile/coach/CoachTab';
 import ProfileCreatorPage from '@/profile/creator/ProfileCreatorPage';
 import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
-import ProgressTab from '@/profile/progress/ProgressTab';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
     Edit,
@@ -292,7 +293,7 @@ function AuthProfilePage({
                                     <CoachTab user={user} />
                                 </TabPanel>
                                 <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
-                                    <ProgressTab
+                                    <TrainingPlanTab
                                         user={user}
                                         isCurrentUser={currentUserProfile}
                                     />
@@ -348,6 +349,7 @@ function AuthProfilePage({
                 >
                     <Stack spacing={2}>
                         <RatingsCard user={user} />
+                        <DojoScoreCard user={user} cohort={user.dojoCohort} />
                         <HeatmapCard />
                         <BadgeCard user={user} />
                     </Stack>
