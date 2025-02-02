@@ -58,9 +58,6 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
         return [suggestionsByDay, overallSuggestions];
     }, []);
 
-    console.log('Week Start: ', startDate);
-    console.log('Week End: ', endDate);
-
     return (
         <>
             <RequestSnackbar request={request} />
@@ -116,10 +113,6 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
                 const end = new Date(dayStart);
                 end.setDate(end.getDate() + 1);
                 const dayEnd = end.toISOString();
-
-                console.log('Day: ', dayIdx);
-                console.log('Day Start: ', dayStart);
-                console.log('Day End: ', dayEnd);
 
                 return (
                     <TimeframeTrainingPlanSection

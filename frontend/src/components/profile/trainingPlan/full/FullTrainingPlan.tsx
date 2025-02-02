@@ -164,6 +164,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
                 flexWrap='wrap'
                 alignItems='end'
                 mt={3}
+                mb={expanded[sections[0].category] ? -2 : 0}
             >
                 <FormGroup>
                     <FormControlLabel

@@ -1,4 +1,3 @@
-import { CategoryColors } from '@/style/ThemeProvider';
 import { AddCircle, Lock, PushPin, PushPinOutlined } from '@mui/icons-material';
 import {
     Box,
@@ -204,16 +203,6 @@ export const FullTrainingPlanItem = ({
                                 </Box>
                             )}
                         </Stack>
-                        <Chip
-                            label={requirement.category}
-                            variant='outlined'
-                            sx={{
-                                color: CategoryColors[requirement.category],
-                                borderColor: CategoryColors[requirement.category],
-                                alignSelf: 'start',
-                            }}
-                            size='small'
-                        />
                         {DescriptionElement}
                     </Grid2>
                     <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>

@@ -111,7 +111,7 @@ export function TrainingPlanSection({
                         value={section.complete}
                         max={section.total}
                         min={0}
-                        suffix='Tasks'
+                        suffix='Complete'
                     />
                 </Stack>
             </AccordionSummary>
