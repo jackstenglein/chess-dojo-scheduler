@@ -129,6 +129,12 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /user/progress/v2
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:

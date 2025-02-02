@@ -84,7 +84,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     initialTime,
 }) => {
     const api = useApi();
-    const { resetRequest: timelineNewRequest } = useTimelineContext();
+    const { onNewEntry } = useTimelineContext();
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
@@ -157,7 +157,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             date,
             notes,
         )
-            .then(() => {
+            .then((resp) => {
                 trackEvent(EventType.UpdateProgress, {
                     requirement_id: requirement.id,
                     requirement_name: requirement.name,
@@ -166,13 +166,11 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     incremental_count: incrementalCount,
                     incremental_minutes: hoursInt * 60 + minutesInt,
                 });
+                onNewEntry(resp.data.timelineEntry);
                 onClose();
                 setHours('');
                 setMinutes('');
                 request.reset();
-                // The timeline needs to know that the update request is done
-                // So we go get the new activity
-                timelineNewRequest();
             })
             .catch((err) => {
                 console.error('updateUserProgress: ', err);
