@@ -1,12 +1,15 @@
 import { RequestSnackbar } from '@/api/Request';
-import { getSuggestedTasks } from '@/database/requirement';
+import { formatTime, getSuggestedTasks } from '@/database/requirement';
 import { User } from '@/database/user';
-import { ProgressText } from '@/scoreboard/ScoreboardProgress';
+import { useTimelineContext } from '@/profile/activity/useTimeline';
 import { CalendarToday } from '@mui/icons-material';
 import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
+    Box,
+    CircularProgress,
+    CircularProgressProps,
     Divider,
     Stack,
     Typography,
@@ -17,6 +20,8 @@ import { DEFAULT_WORK_GOAL } from '../WorkGoalSettingsEditor';
 import { TimeframeTrainingPlanItem } from './TimeframeTrainingPlanItem';
 
 export function DailyTrainingPlan({ user }: { user: User }) {
+    const { entries: timeline } = useTimelineContext();
+
     const [startDate, endDate] = useMemo(() => {
         const startDate = new Date();
         startDate.setHours(0, 0, 0, 0);
@@ -30,7 +35,7 @@ export function DailyTrainingPlan({ user }: { user: User }) {
     const { request, requirements, pinnedTasks, togglePin, isCurrentUser } =
         useTrainingPlan(user);
 
-    const suggestedTasks = useMemo(() => {
+    const [suggestedTasks, currentTime, goalTime] = useMemo(() => {
         const tasks = getSuggestedTasks(pinnedTasks, requirements, user);
 
         const workGoal = user.workGoal || DEFAULT_WORK_GOAL;
@@ -47,8 +52,23 @@ export function DailyTrainingPlan({ user }: { user: User }) {
             ...tasks.slice(maxTasks).map((task) => ({ task, goalMinutes: 0 })),
         );
 
-        return suggestedTasks;
-    }, [pinnedTasks, requirements, user]);
+        let timeWorked = 0;
+        for (const entry of timeline) {
+            const date = entry.date || entry.createdAt;
+            if (
+                date >= startDate &&
+                date < endDate &&
+                suggestedTasks.some(
+                    ({ task, goalMinutes }) =>
+                        goalMinutes > 0 && task.id === entry.requirementId,
+                )
+            ) {
+                timeWorked += entry.minutesSpent;
+            }
+        }
+
+        return [suggestedTasks, timeWorked, minutesToday];
+    }, [pinnedTasks, requirements, user, startDate, endDate, timeline]);
 
     return (
         <>
@@ -71,12 +91,7 @@ export function DailyTrainingPlan({ user }: { user: User }) {
                             />
                             Today's Tasks
                         </Typography>
-                        <ProgressText
-                            value={0}
-                            max={suggestedTasks.length}
-                            min={0}
-                            suffix='Tasks'
-                        />
+                        <CircularProgressWithLabel value={currentTime} max={goalTime} />
                     </Stack>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -103,5 +118,49 @@ export function DailyTrainingPlan({ user }: { user: User }) {
                 </AccordionDetails>
             </Accordion>
         </>
+    );
+}
+
+function CircularProgressWithLabel(
+    props: CircularProgressProps & { value: number; max: number },
+) {
+    return (
+        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+            <CircularProgress
+                variant='determinate'
+                value={100}
+                sx={{
+                    position: 'absolute',
+                    color: 'var(--mui-palette-LinearProgress-primaryBg)',
+                }}
+                size='3.5rem'
+            />
+            <CircularProgress
+                variant='determinate'
+                {...props}
+                size='3.5rem'
+                value={(props.value / props.max) * 100}
+            />
+            <Box
+                sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <Typography
+                    variant='caption'
+                    component='div'
+                    sx={{ color: 'text.secondary' }}
+                >
+                    {formatTime(props.value)}
+                </Typography>
+            </Box>
+        </Box>
     );
 }

@@ -4,6 +4,7 @@ import {
     RequirementCategory,
     RequirementProgress,
     ScoreboardDisplay,
+    formatTime,
     getCurrentCount,
     getTotalCount,
 } from '@/database/requirement';
@@ -76,13 +77,9 @@ export const TimeframeTrainingPlanItem = ({
     const totalCount = getTotalCount(cohort, task);
     const currentCount = getCurrentCount(cohort, task, progress);
 
-    let requirementName = (task.dailyName || task.name).replaceAll(
-        '{{count}}',
-        `${totalCount}`,
-    );
-    if (task.scoreboardDisplay === ScoreboardDisplay.Checkbox && totalCount > 1) {
-        requirementName += ` (${totalCount})`;
-    }
+    const requirementName = (task.dailyName || task.name)
+        .replaceAll('{{count}}', `${totalCount}`)
+        .replaceAll('{{time}}', formatTime(goalMinutes));
 
     return (
         <Stack spacing={2} mt={2}>
@@ -112,40 +109,25 @@ export const TimeframeTrainingPlanItem = ({
                         size='small'
                     />
 
-                    <Stack
-                        direction='row'
-                        flexWrap='wrap'
-                        alignItems='center'
-                        columnGap={1}
-                        rowGap={1}
-                        mt={1}
+                    <Typography
+                        sx={{
+                            fontWeight: 'bold',
+                            mt: 1,
+                        }}
                     >
-                        <Typography
-                            sx={{
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            {requirementName}
-                        </Typography>
-                        {totalCount > 1 && (
-                            <Typography
-                                component='span'
-                                variant='body2'
-                                color='text.secondary'
-                            >
-                                ({currentCount}/{totalCount}
-                                {task.progressBarSuffix && ` ${task.progressBarSuffix}`})
-                            </Typography>
-                        )}
-                    </Stack>
+                        {requirementName}
+                    </Typography>
 
-                    <ScoreboardProgress
-                        value={timeWorkedMinutes}
-                        max={goalMinutes}
-                        min={0}
-                        isTime
-                        sx={{ height: '6px' }}
-                    />
+                    {displayProgress(task) && (
+                        <ScoreboardProgress
+                            value={currentCount}
+                            max={totalCount}
+                            min={task.startCount || 0}
+                            isTime={task.scoreboardDisplay === ScoreboardDisplay.Minutes}
+                            sx={{ height: '6px' }}
+                            suffix={task.progressBarSuffix}
+                        />
+                    )}
                 </Grid2>
                 <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
@@ -202,3 +184,17 @@ export const TimeframeTrainingPlanItem = ({
         </Stack>
     );
 };
+
+/**
+ * Returns true if the task should display a progress bar.
+ * @param task The task to check.
+ */
+function displayProgress(task: Requirement | CustomTask): boolean {
+    switch (task.scoreboardDisplay) {
+        case ScoreboardDisplay.Unspecified:
+        case ScoreboardDisplay.ProgressBar:
+        case ScoreboardDisplay.Minutes:
+            return true;
+    }
+    return false;
+}
