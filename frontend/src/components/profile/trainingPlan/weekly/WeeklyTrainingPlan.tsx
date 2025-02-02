@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 import { TimeframeTrainingPlanSection } from '../daily/TimeframeTrainingPlanSection';
 import { useExpanded } from '../useExpanded';
 import { useTrainingPlan } from '../useTrainingPlan';
-import { DAY_NAMES } from '../WorkGoalSettingsEditor';
+import { DAY_NAMES } from '../workGoal';
 
 export function WeeklyTrainingPlan({ user }: { user: User }) {
     const { expanded, toggleExpand, onExpandAll, onCollapseAll } = useExpanded({

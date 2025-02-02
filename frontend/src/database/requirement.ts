@@ -1,4 +1,4 @@
-import { DEFAULT_WORK_GOAL } from '@/components/profile/trainingPlan/WorkGoalSettingsEditor';
+import { DEFAULT_WORK_GOAL } from '@/components/profile/trainingPlan/workGoal';
 import { isObject } from './scoreboard';
 import { ALL_COHORTS, isFree, SubscriptionStatus, User } from './user';
 

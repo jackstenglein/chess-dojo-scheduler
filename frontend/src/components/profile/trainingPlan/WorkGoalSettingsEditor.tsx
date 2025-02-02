@@ -22,24 +22,9 @@ import {
 import { Fragment, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { TrainingPlanView } from './TrainingPlanViewSelect';
+import { DAY_NAMES, DEFAULT_WORK_GOAL } from './workGoal';
 
 const NUMBER_REGEX = /^[0-9]*$/;
-
-export const DAY_NAMES = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-] as const;
-
-/** The default work goal settings if the user has not saved any. */
-export const DEFAULT_WORK_GOAL: WorkGoalSettings = {
-    minutesPerDay: DAY_NAMES.map(() => 45),
-    minutesPerTask: 30,
-} as const;
 
 /** Renders an editor that allows the user to update their work goal settings. */
 export function WorkGoalSettingsEditor({
