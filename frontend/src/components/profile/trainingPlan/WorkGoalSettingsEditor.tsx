@@ -25,7 +25,7 @@ import { TrainingPlanView } from './TrainingPlanViewSelect';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
-const DAY_NAMES = [
+export const DAY_NAMES = [
     'Sunday',
     'Monday',
     'Tuesday',
@@ -43,7 +43,7 @@ export const DEFAULT_WORK_GOAL: WorkGoalSettings = {
 
 /** Renders an editor that allows the user to update their work goal settings. */
 export function WorkGoalSettingsEditor({
-    initialWeekStart = 1,
+    initialWeekStart = 0,
     workGoal = DEFAULT_WORK_GOAL,
     disabled,
     view,
@@ -63,7 +63,7 @@ export function WorkGoalSettingsEditor({
 
     const [originalWeekStart, setOriginalWeekStart] = useLocalStorage<WeekDays>(
         'calendarFilters.weekStartOn',
-        1,
+        0,
     );
 
     const [weekStart, setWeekStart] = useState(originalWeekStart || initialWeekStart);

@@ -3,10 +3,11 @@ import {
     TrainingPlanViewSelect,
 } from '@/components/profile/trainingPlan/TrainingPlanViewSelect';
 import { User } from '@/database/user';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 import { DailyTrainingPlan } from './daily/DailyTrainingPlan';
 import { FullTrainingPlan } from './full/FullTrainingPlan';
+import { WeeklyTrainingPlan } from './weekly/WeeklyTrainingPlan';
 import { WorkGoalSettingsEditor } from './WorkGoalSettingsEditor';
 
 const TRAINING_PLAN_VIEW = {
@@ -49,7 +50,7 @@ export function TrainingPlanTab({
             )}
 
             {trainingPlanView === TrainingPlanView.Weekly && (
-                <Typography mt={2}>Not available in beta yet</Typography>
+                <WeeklyTrainingPlan user={user} />
             )}
 
             {trainingPlanView === TrainingPlanView.Full && (

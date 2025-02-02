@@ -1,5 +1,6 @@
+import { DEFAULT_WORK_GOAL } from '@/components/profile/trainingPlan/WorkGoalSettingsEditor';
 import { isObject } from './scoreboard';
-import { isFree, SubscriptionStatus, User } from './user';
+import { ALL_COHORTS, isFree, SubscriptionStatus, User } from './user';
 
 /** The status of a requirement. */
 export enum RequirementStatus {
@@ -866,4 +867,123 @@ export function getSuggestedTasks(
     }
 
     return suggestedTasks;
+}
+
+export interface SuggestedTask {
+    task: Requirement | CustomTask;
+    goalMinutes: number;
+}
+
+export function getWeeklySuggestedTasks({
+    user,
+    pinnedTasks,
+    requirements,
+}: {
+    user: User;
+    pinnedTasks: (Requirement | CustomTask)[];
+    requirements: Requirement[];
+}): SuggestedTask[][] {
+    const weekStart = user.weekStart || 0;
+    const weekEnd = (weekStart + 6) % 7;
+    const current = new Date();
+    current.setHours(0, 0, 0, 0);
+    const diff = (weekEnd - current.getDay()) % 7;
+
+    const end = new Date();
+    end.setDate(end.getDate() + diff + 1);
+    end.setHours(0, 0, 0, 0);
+
+    const workGoal = user.workGoal || DEFAULT_WORK_GOAL;
+    const mockUser = JSON.parse(JSON.stringify(user)) as User;
+
+    const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
+    const timePerTask: Record<string, number> = {};
+
+    while (current.getTime() < end.getTime()) {
+        // console.log('Get tasks for ', current);
+        const dayIdx = current.getDay();
+
+        const tasks = getSuggestedTasks(pinnedTasks, requirements, mockUser);
+
+        const minutesToday = workGoal.minutesPerDay[dayIdx];
+        const maxTasks = Math.floor(minutesToday / workGoal.minutesPerTask);
+        const tasksWithTime = tasks.slice(0, maxTasks);
+
+        for (const task of tasksWithTime) {
+            let totalTaskTime =
+                (timePerTask[task.id] ?? 0) +
+                Math.floor(minutesToday / tasksWithTime.length);
+            updateMockProgress({ mockUser, task, time: totalTaskTime });
+            totalTaskTime %= 60;
+            timePerTask[task.id] = totalTaskTime;
+        }
+
+        const suggestedTasks = tasksWithTime.map((task) => ({
+            task,
+            goalMinutes: Math.floor(minutesToday / tasksWithTime.length),
+        }));
+        suggestedTasks.push(
+            ...tasks.slice(maxTasks).map((task) => ({ task, goalMinutes: 0 })),
+        );
+
+        taskList[dayIdx] = suggestedTasks;
+
+        current.setDate(current.getDate() + 1);
+    }
+
+    // console.log('Task List: ', taskList);
+    // console.log('Time per task: ', timePerTask);
+    return taskList;
+}
+
+function updateMockProgress({
+    mockUser,
+    task,
+    time,
+}: {
+    mockUser: User;
+    task: Requirement | CustomTask;
+    time: number;
+}) {
+    if (!isRequirement(task)) {
+        return;
+    }
+
+    let progress = mockUser.progress[task.id];
+    if (!progress?.counts) {
+        progress = {
+            requirementId: task.id,
+            counts: {
+                [mockUser.dojoCohort]: task.startCount,
+                [ALL_COHORTS]: task.startCount,
+            },
+            minutesSpent: { [mockUser.dojoCohort]: 0 },
+            updatedAt: new Date().toISOString(),
+        };
+        mockUser.progress[task.id] = progress;
+    }
+
+    const points = Math.floor(time / 60);
+    if (points === 0) {
+        return;
+    }
+
+    // console.log('Incrementing count for task: ', task);
+
+    let increment = 1;
+    const unitScore = getUnitScore(mockUser.dojoCohort, task);
+    if (unitScore > 0 && unitScore < 1) {
+        increment = Math.ceil(1 / task.unitScore);
+    } else if (unitScore === 0) {
+        increment = getTotalCount(mockUser.dojoCohort, task);
+    }
+    increment *= points;
+
+    if (progress.counts) {
+        if (task.numberOfCohorts === 0 || task.numberOfCohorts === 1) {
+            progress.counts[ALL_COHORTS] += increment;
+        } else {
+            progress.counts[mockUser.dojoCohort] += increment;
+        }
+    }
 }
