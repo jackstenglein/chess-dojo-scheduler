@@ -4,7 +4,7 @@ import NotificationButton from '@/components/notifications/NotificationButton';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
-import { TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
+import { DiscordIcon, TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 import {
     AutoStories,
@@ -220,6 +220,12 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     name: 'YouTube',
                     icon: <YoutubeIcon color='youtube' />,
                     href: 'https://www.youtube.com/@ChessDojo',
+                    target: '_blank',
+                },
+                {
+                    name: 'Discord',
+                    icon: <DiscordIcon sx={{ color: '#5865f2' }} />,
+                    href: 'https://discord.com/invite/br4MB6ur66',
                     target: '_blank',
                 },
                 {

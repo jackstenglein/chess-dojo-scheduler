@@ -54,6 +54,33 @@ const helpSections = [
                 ),
             },
             {
+                title: 'How do I communicate with other Dojo members?',
+                content: (
+                    <>
+                        The dojo training program has specialized{' '}
+                        <Link
+                            href='https://discord.gg/br4MB6ur66'
+                            target='_blank'
+                            rel='noopener'
+                        >
+                            private Discord server
+                        </Link>{' '}
+                        to help you gain the support you need to improve your chess, this
+                        server is only for paid members, but free-tier users can enjoy the
+                        Dojo's{' '}
+                        <Link
+                            href='https://chessdojo.shop'
+                            target='_blank'
+                            rel='noopener'
+                        >
+                            public Discord server
+                        </Link>{' '}
+                        which also has exciting Discord events like open classical, and
+                        weekly team battle channels you can enjoy!
+                    </>
+                ),
+            },
+            {
                 title: 'How do I switch cohorts without graduating?',
                 content: (
                     <>
