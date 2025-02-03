@@ -1,9 +1,14 @@
 import { useApi } from '@/api/Api';
 import { useRequirements } from '@/api/cache/requirements';
 import { useAuth } from '@/auth/Auth';
-import { CustomTask, Requirement } from '@/database/requirement';
-import { ALL_COHORTS, User, WorkGoalSettings } from '@/database/user';
-import { useMemo } from 'react';
+import {
+    CustomTask,
+    getWeeklySuggestedTasks,
+    Requirement,
+    SuggestedTask,
+} from '@/database/requirement';
+import { ALL_COHORTS, User, WeeklyPlan, WorkGoalSettings } from '@/database/user';
+import { useEffect, useMemo } from 'react';
 
 /**
  * Returns common data and functions used across all Training Plan tabs.
@@ -47,6 +52,71 @@ export function useTrainingPlan(user: User, cohort?: string) {
     };
 }
 
+export function useWeeklyTrainingPlan(user: User) {
+    const api = useApi();
+    const trainingPlan = useTrainingPlan(user);
+    const { pinnedTasks, requirements, isCurrentUser } = trainingPlan;
+
+    const { suggestionsByDay, weekSuggestions, endDate } = useMemo(() => {
+        const { suggestionsByDay, endDate } = getWeeklySuggestedTasks({
+            user,
+            pinnedTasks,
+            requirements,
+        });
+
+        const weekSuggestions: SuggestedTask[] = [];
+        for (const day of suggestionsByDay) {
+            for (const suggestion of day) {
+                const existing = weekSuggestions.find(
+                    (s) => s.task.id === suggestion.task.id,
+                );
+                if (existing) {
+                    existing.goalMinutes += suggestion.goalMinutes;
+                } else {
+                    weekSuggestions.push({ ...suggestion });
+                }
+            }
+        }
+
+        return { suggestionsByDay, weekSuggestions, endDate };
+    }, [user, pinnedTasks, requirements]);
+
+    const savedPlan = user.weeklyPlan;
+    useEffect(() => {
+        if (
+            !isCurrentUser ||
+            equalPlans(savedPlan, { suggestionsByDay, endDate }) ||
+            isEmpty(suggestionsByDay)
+        ) {
+            return;
+        }
+
+        console.log('Saving user plan');
+        api.updateUser({
+            weeklyPlan: {
+                endDate,
+                tasks: suggestionsByDay.map((day) =>
+                    day.map((suggestion) => ({
+                        id: suggestion.task.id,
+                        minutes: suggestion.goalMinutes,
+                    })),
+                ),
+            },
+        }).catch((err) => console.error('save weekly plan: ', err));
+    }, [isCurrentUser, savedPlan, suggestionsByDay, endDate]);
+
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 7);
+
+    return {
+        ...trainingPlan,
+        suggestionsByDay,
+        weekSuggestions,
+        endDate,
+        startDate: startDate.toISOString(),
+    };
+}
+
 /**
  * Returns the number of minutes the user is expected to work today.
  * @param workGoal The work goal settings of the user.
@@ -54,4 +124,36 @@ export function useTrainingPlan(user: User, cohort?: string) {
 export function getTodaysWorkGoal(workGoal: WorkGoalSettings): number {
     const dayIndex = new Date().getDay();
     return workGoal.minutesPerDay[dayIndex];
+}
+
+function equalPlans(
+    savedPlan: WeeklyPlan | undefined,
+    newPlan: { suggestionsByDay: SuggestedTask[][]; endDate: string },
+) {
+    if (!savedPlan) {
+        return false;
+    }
+    if (savedPlan.endDate !== newPlan.endDate) {
+        return false;
+    }
+    for (let i = 0; i < savedPlan.tasks.length; i++) {
+        const savedTasks = savedPlan.tasks[i];
+        const newTasks = newPlan.suggestionsByDay[i];
+        if (savedTasks.length !== newTasks.length) {
+            return false;
+        }
+        for (let j = 0; j < savedTasks.length; j++) {
+            if (
+                savedTasks[j].id !== newTasks[j].task.id ||
+                savedTasks[j].minutes !== newTasks[j].goalMinutes
+            ) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function isEmpty(suggestionsByDay: SuggestedTask[][]) {
+    return suggestionsByDay.every((day) => day.length === 0);
 }

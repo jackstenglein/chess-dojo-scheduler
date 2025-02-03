@@ -122,7 +122,6 @@ def main():
         'Middlegames + Strategy': [],
         'Endgame': [],
         'Opening': [],
-        'Non-Dojo': [],
     }
     updatedAt = datetime.datetime.utcnow().isoformat('T') + 'Z'
 

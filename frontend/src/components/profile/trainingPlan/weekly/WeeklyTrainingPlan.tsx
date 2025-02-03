@@ -1,5 +1,4 @@
 import { RequestSnackbar } from '@/api/Request';
-import { getWeeklySuggestedTasks, SuggestedTask } from '@/database/requirement';
 import { User } from '@/database/user';
 import {
     ExpandLess,
@@ -8,10 +7,9 @@ import {
     KeyboardDoubleArrowUp,
 } from '@mui/icons-material';
 import { Button, Stack } from '@mui/material';
-import { useMemo } from 'react';
 import { TimeframeTrainingPlanSection } from '../daily/TimeframeTrainingPlanSection';
 import { useExpanded } from '../useExpanded';
-import { useTrainingPlan } from '../useTrainingPlan';
+import { useWeeklyTrainingPlan } from '../useTrainingPlan';
 import { DAY_NAMES } from '../workGoal';
 
 export function WeeklyTrainingPlan({ user }: { user: User }) {
@@ -26,37 +24,19 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
         '6': false,
     });
 
-    const [startDate, endDate] = useMemo(
-        () => getDateRange(user.weekStart || 0),
-        [user.weekStart],
-    );
+    const {
+        request,
+        pinnedTasks,
+        togglePin,
+        isCurrentUser,
+        suggestionsByDay,
+        weekSuggestions,
+        startDate,
+        endDate,
+    } = useWeeklyTrainingPlan(user);
 
-    const { request, requirements, pinnedTasks, togglePin, isCurrentUser } =
-        useTrainingPlan(user);
-
-    const [suggestionsByDay, overallSuggestions] = useMemo(() => {
-        const suggestionsByDay = getWeeklySuggestedTasks({
-            user,
-            pinnedTasks,
-            requirements,
-        });
-
-        const overallSuggestions: SuggestedTask[] = [];
-        for (const day of suggestionsByDay) {
-            for (const suggestion of day) {
-                const existing = overallSuggestions.find(
-                    (s) => s.task.id === suggestion.task.id,
-                );
-                if (existing) {
-                    existing.goalMinutes += suggestion.goalMinutes;
-                } else {
-                    overallSuggestions.push({ ...suggestion });
-                }
-            }
-        }
-
-        return [suggestionsByDay, overallSuggestions];
-    }, [user, pinnedTasks, requirements]);
+    console.log('Week Start: ', startDate);
+    console.log('Week End: ', endDate);
 
     return (
         <>
@@ -95,7 +75,7 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
                 }
                 user={user}
                 isCurrentUser={isCurrentUser}
-                tasks={overallSuggestions}
+                tasks={weekSuggestions}
                 pinnedTasks={pinnedTasks}
                 togglePin={togglePin}
                 expanded={expanded.total}
@@ -149,34 +129,6 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
             })}
         </>
     );
-}
-
-function getDateRange(
-    startDay: number,
-    endDay?: number,
-    reference: Date = new Date(),
-): [string, string] {
-    if (endDay === undefined) {
-        endDay = (startDay + 6) % 7;
-    }
-
-    reference.setHours(0, 0, 0, 0);
-
-    const startDiff =
-        reference.getDay() >= startDay
-            ? reference.getDay() - startDay
-            : 7 - (startDay - reference.getDay());
-    const endDiff = (endDay - reference.getDay()) % 7;
-
-    const start = new Date();
-    start.setDate(start.getDate() - startDiff);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date();
-    end.setDate(end.getDate() + endDiff + 1);
-    end.setHours(0, 0, 0, 0);
-
-    return [start.toISOString(), end.toISOString()];
 }
 
 function getDayOfWeekAfterDate(reference: Date, day: number): string {

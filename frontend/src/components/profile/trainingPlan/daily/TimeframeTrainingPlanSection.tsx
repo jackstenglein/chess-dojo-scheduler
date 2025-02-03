@@ -132,6 +132,8 @@ export function TimeframeTrainingPlanSection({
 function CircularProgressWithLabel(
     props: CircularProgressProps & { value: number; max: number },
 ) {
+    const clampedValue = Math.min(100, (props.value / props.max) * 100);
+
     return (
         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
             <CircularProgress
@@ -147,7 +149,8 @@ function CircularProgressWithLabel(
                 variant='determinate'
                 {...props}
                 size='3.5rem'
-                value={(props.value / props.max) * 100}
+                value={clampedValue}
+                color={clampedValue === 100 ? 'success' : 'primary'}
             />
             <Box
                 sx={{

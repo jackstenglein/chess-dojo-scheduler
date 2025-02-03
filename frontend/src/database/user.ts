@@ -171,6 +171,9 @@ export interface User {
 
     /** The user's work goal settings. */
     workGoal?: WorkGoalSettings;
+
+    /** The user's weekly training plan. */
+    weeklyPlan?: WeeklyPlan;
 }
 
 export interface WorkGoalSettings {
@@ -185,6 +188,21 @@ export interface WorkGoalSettings {
      * with minutesPerDay, this affects how many tasks the user is suggested.
      */
     minutesPerTask: number;
+}
+
+export interface WeeklyPlan {
+    /** The exclusive date the weekly plan ends, in ISO 8601. */
+    endDate: string;
+    /**
+     * The tasks in the plan, in a list ordered by the index of the day of the week.
+     * Sunday is index 0; Saturday is index 6.
+     */
+    tasks: {
+        /** The id of the task. */
+        id: string;
+        /** The work goal of the task in minutes. */
+        minutes: number;
+    }[][];
 }
 
 export type UserSummary = Pick<User, 'username' | 'displayName' | 'dojoCohort'>;

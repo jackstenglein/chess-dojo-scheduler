@@ -311,6 +311,9 @@ type User struct {
 
 	// The user's work goal settings
 	WorkGoal *WorkGoalSettings `dynamodbav:"workGoal,omitempty" json:"workGoal,omitempty"`
+
+	// The user's weekly training plan
+	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -347,6 +350,20 @@ type WorkGoalSettings struct {
 	// The minimum minutes the user will spend on each task per day. In conjunction
 	// with minutes per day, this affects how many tasks the user is suggested.
 	MinutesPerTask int `dynamodbav:"minutesPerTask" json:"minutesPerTask"`
+}
+
+type WeeklyPlan struct {
+	// The (exclusive) date the weekly plan ends, in ISO 8601.
+	EndDate string `dynamodbav:"endDate" json:"endDate"`
+
+	// The tasks in the plan, in a list ordered by the index of the day of the week.
+	// Sunday is index 0; Saturday is index 6.
+	Tasks [][]struct {
+		// The id of the task
+		Id string `dynamodbav:"id" json:"id"`
+		// The work goal of the task in minutes
+		Minutes int `dynamodbav:"minutes" json:"minutes"`
+	} `dynamodbav:"tasks" json:"tasks"`
 }
 
 // Returns true if the given PaymentInfo indicates an active subscription.
@@ -673,6 +690,9 @@ type UserUpdate struct {
 
 	// The work goal settings of the user.
 	WorkGoal *WorkGoalSettings `dynamodbav:"workGoal,omitempty" json:"workGoal,omitempty"`
+
+	// The user's weekly training plan.
+	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
