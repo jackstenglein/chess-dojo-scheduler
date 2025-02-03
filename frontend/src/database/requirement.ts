@@ -887,11 +887,17 @@ export function getWeeklySuggestedTasks({
     const weekEnd = (weekStart + 6) % 7;
     const current = new Date();
     current.setHours(0, 0, 0, 0);
-    const diff = (weekEnd - current.getDay()) % 7;
+    const diff =
+        weekEnd >= current.getDay()
+            ? weekEnd - current.getDay()
+            : 7 - current.getDay() + weekEnd;
 
     const end = new Date();
     end.setDate(end.getDate() + diff + 1);
     end.setHours(0, 0, 0, 0);
+
+    console.log('Current: ', current);
+    console.log('End: ', end);
 
     const workGoal = user.workGoal || DEFAULT_WORK_GOAL;
     const mockUser = JSON.parse(JSON.stringify(user)) as User;
@@ -900,10 +906,11 @@ export function getWeeklySuggestedTasks({
     const timePerTask: Record<string, number> = {};
 
     while (current.getTime() < end.getTime()) {
-        // console.log('Get tasks for ', current);
+        console.log('Get tasks for ', current);
         const dayIdx = current.getDay();
 
         const tasks = getSuggestedTasks(pinnedTasks, requirements, mockUser);
+        console.log('Tasks for dayIdx ', dayIdx, tasks);
 
         const minutesToday = workGoal.minutesPerDay[dayIdx];
         const maxTasks = Math.floor(minutesToday / workGoal.minutesPerTask);
@@ -931,8 +938,7 @@ export function getWeeklySuggestedTasks({
         current.setDate(current.getDate() + 1);
     }
 
-    // console.log('Task List: ', taskList);
-    // console.log('Time per task: ', timePerTask);
+    console.log('Task List: ', taskList);
     return taskList;
 }
 
@@ -967,8 +973,6 @@ function updateMockProgress({
     if (points === 0) {
         return;
     }
-
-    // console.log('Incrementing count for task: ', task);
 
     let increment = 1;
     const unitScore = getUnitScore(mockUser.dojoCohort, task);

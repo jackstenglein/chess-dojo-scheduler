@@ -56,7 +56,7 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
         }
 
         return [suggestionsByDay, overallSuggestions];
-    }, []);
+    }, [user, pinnedTasks, requirements]);
 
     return (
         <>
