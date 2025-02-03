@@ -17,8 +17,6 @@ import { useLocalStorage } from 'usehooks-ts';
 import { RequestSnackbar } from '../../api/Request';
 import { useRequirements } from '../../api/cache/requirements';
 import {
-    ANNOTATE_GAMES_TASK,
-    CLASSICAL_GAMES_TASK,
     CustomTask,
     Requirement,
     RequirementCategory,
@@ -29,8 +27,6 @@ import { ALL_COHORTS, User, dojoCohorts } from '../../database/user';
 import LoadingPage from '../../loading/LoadingPage';
 import CohortIcon from '../../scoreboard/CohortIcon';
 import ProgressCategory, { Category } from './ProgressCategory';
-import { isEligbleForBadge } from '@/components/profile/info/BadgeHandler';
-
 
 function useHideCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('hideCompletedTasks2', false);
@@ -179,13 +175,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         api.updateUser({ pinnedTasks: newIds }).catch(console.error);
     };
 
-<<<<<<< HEAD
-    console.log(isEligbleForBadge(user, ANNOTATE_GAMES_TASK, 75, requirements))
-    console.log(isEligbleForBadge(user, CLASSICAL_GAMES_TASK, 80, requirements))
-=======
-    // console.log(isEligbleForBadge(user, ANNOTATE_GAMES_TASK, 75, requirements))
-    // console.log(isEligbleForBadge(user, CLASSICAL_GAMES_TASK, 80, requirements))
->>>>>>> b5032b42 (fix(badges): add viewing badge ability when eligible)
 
     return (
         <Stack alignItems='start'>
