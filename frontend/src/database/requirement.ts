@@ -885,76 +885,90 @@ export function getWeeklySuggestedTasks({
 }): { suggestionsByDay: SuggestedTask[][]; endDate: string } {
     const weekStart = user.weekStart || 0;
     const weekEnd = (weekStart + 6) % 7;
-    const current = new Date();
-    current.setHours(0, 0, 0, 0);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
     const diff =
-        weekEnd >= current.getDay()
-            ? weekEnd - current.getDay()
-            : 7 - current.getDay() + weekEnd;
+        weekEnd >= now.getDay() ? weekEnd - now.getDay() : 7 - now.getDay() + weekEnd;
 
     const end = new Date();
     end.setDate(end.getDate() + diff + 1);
     end.setHours(0, 0, 0, 0);
+
+    const current = new Date(end);
+    current.setDate(current.getDate() - 7);
 
     console.log('Current: ', current);
     console.log('End: ', end);
 
     const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
 
-    if (user.weeklyPlan && new Date(user.weeklyPlan.endDate).getTime() >= end.getTime()) {
-        console.log('Reusing saved weekly plan with end date: ', user.weeklyPlan.endDate);
+    const workGoal = user.workGoal || DEFAULT_WORK_GOAL;
+    const mockUser = JSON.parse(JSON.stringify(user)) as User;
 
-        for (let i = 0; i < user.weeklyPlan.tasks.length; i++) {
-            const day = user.weeklyPlan.tasks[i];
-            for (const { id, minutes } of day) {
-                const task =
-                    pinnedTasks.find((t) => t.id === id) ??
-                    requirements.find((t) => t.id === id);
-                if (task) {
-                    taskList[i].push({ task, goalMinutes: minutes });
+    const timePerTask: Record<string, number> = {};
+
+    const reuseSavedPlan =
+        user.weeklyPlan && new Date(user.weeklyPlan.endDate).getTime() >= end.getTime();
+
+    for (; current.getTime() < end.getTime(); current.setDate(current.getDate() + 1)) {
+        console.log('Get tasks for ', current);
+        const dayIdx = current.getDay();
+
+        let tasks: (Requirement | CustomTask)[];
+        if (reuseSavedPlan && user.weeklyPlan) {
+            console.log('Reusing saved weekly plan');
+
+            if (current.getTime() < now.getTime()) {
+                console.log('Day is in the past, so not using new work goals');
+                const day = user.weeklyPlan.tasks[dayIdx];
+                for (const { id, minutes } of day) {
+                    const task =
+                        pinnedTasks.find((t) => t.id === id) ??
+                        requirements.find((t) => t.id === id);
+                    if (task) {
+                        taskList[dayIdx].push({ task, goalMinutes: minutes });
+                    }
                 }
-            }
-        }
-    } else {
-        console.log('Generating new weekly plan');
-
-        const workGoal = user.workGoal || DEFAULT_WORK_GOAL;
-        const mockUser = JSON.parse(JSON.stringify(user)) as User;
-
-        const timePerTask: Record<string, number> = {};
-
-        while (current.getTime() < end.getTime()) {
-            console.log('Get tasks for ', current);
-            const dayIdx = current.getDay();
-
-            const tasks = getSuggestedTasks(pinnedTasks, requirements, mockUser);
-            console.log('Tasks for dayIdx ', dayIdx, tasks);
-
-            const minutesToday = workGoal.minutesPerDay[dayIdx];
-            const maxTasks = Math.floor(minutesToday / workGoal.minutesPerTask);
-            const tasksWithTime = tasks.slice(0, maxTasks);
-
-            for (const task of tasksWithTime) {
-                let totalTaskTime =
-                    (timePerTask[task.id] ?? 0) +
-                    Math.floor(minutesToday / tasksWithTime.length);
-                updateMockProgress({ mockUser, task, time: totalTaskTime });
-                totalTaskTime %= 60;
-                timePerTask[task.id] = totalTaskTime;
+                continue;
             }
 
-            const suggestedTasks = tasksWithTime.map((task) => ({
-                task,
-                goalMinutes: Math.floor(minutesToday / tasksWithTime.length),
-            }));
-            suggestedTasks.push(
-                ...tasks.slice(maxTasks).map((task) => ({ task, goalMinutes: 0 })),
-            );
-
-            taskList[dayIdx] = suggestedTasks;
-
-            current.setDate(current.getDate() + 1);
+            tasks =
+                user.weeklyPlan?.tasks[dayIdx]
+                    .map(
+                        (task) =>
+                            pinnedTasks.find((t) => t.id === task.id) ??
+                            requirements.find((t) => t.id === task.id),
+                    )
+                    .filter((task) => !!task) ?? [];
+        } else {
+            console.log('Generating new task list');
+            tasks = getSuggestedTasks(pinnedTasks, requirements, mockUser);
         }
+
+        console.log('Tasks for dayIdx ', dayIdx, tasks);
+
+        const minutesToday = workGoal.minutesPerDay[dayIdx];
+        const maxTasks = Math.max(1, Math.floor(minutesToday / workGoal.minutesPerTask));
+        const tasksWithTime = tasks.slice(0, maxTasks);
+
+        for (const task of tasksWithTime) {
+            let totalTaskTime =
+                (timePerTask[task.id] ?? 0) +
+                Math.floor(minutesToday / tasksWithTime.length);
+            updateMockProgress({ mockUser, task, time: totalTaskTime });
+            totalTaskTime %= 60;
+            timePerTask[task.id] = totalTaskTime;
+        }
+
+        const suggestedTasks = tasksWithTime.map((task) => ({
+            task,
+            goalMinutes: Math.floor(minutesToday / tasksWithTime.length),
+        }));
+        suggestedTasks.push(
+            ...tasks.slice(maxTasks).map((task) => ({ task, goalMinutes: 0 })),
+        );
+
+        taskList[dayIdx] = suggestedTasks;
     }
 
     console.log('Task List: ', taskList);

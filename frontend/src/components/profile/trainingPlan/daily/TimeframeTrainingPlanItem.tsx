@@ -135,6 +135,7 @@ export const TimeframeTrainingPlanItem = ({
                             <Checkbox
                                 checked
                                 onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                                disabled={!isCurrentUser}
                             />
                         ) : !isCurrentUser ? null : (
                             <IconButton
