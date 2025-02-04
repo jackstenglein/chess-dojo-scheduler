@@ -236,7 +236,6 @@ function allStartItems(
                     href: 'https://www.youtube.com/@ChessDojo',
                     target: '_blank',
                 },
-
                 {
                     name: 'Patreon',
                     icon: <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: 'white' }} />,
