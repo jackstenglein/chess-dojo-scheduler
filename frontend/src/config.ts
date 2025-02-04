@@ -33,6 +33,10 @@ export const EnvSchema = z.object({
     baseUrl: z.string(),
     isBeta: z.boolean(),
     metaPixelId: z.string(),
+    discord: z.object({
+        publicUrl: z.string(),
+        privateUrl: z.string(),
+    }),
 });
 
 export type Config = z.infer<typeof EnvSchema>;
@@ -65,5 +69,9 @@ export function getConfig(): Config {
         baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
         isBeta: process.env.NEXT_PUBLIC_IS_BETA === 'true',
         metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID,
+        discord: {
+            publicUrl: process.env.NEXT_PUBLIC_DISCORD_PUBLIC_URL,
+            privateUrl: process.env.NEXT_PUBLIC_DISCORD_PRIVATE_URL,
+        },
     });
 }

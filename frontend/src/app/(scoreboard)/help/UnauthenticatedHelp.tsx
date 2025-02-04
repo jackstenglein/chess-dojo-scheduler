@@ -11,6 +11,7 @@ import {
     Typography,
 } from '@mui/material';
 import React from 'react';
+import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
 import SupportTicket from './SupportTicket';
 
@@ -56,18 +57,7 @@ export const faq = {
         },
         {
             title: 'How do I communicate with other Dojo members?',
-            content: (
-                <>
-                    The dojo training program has specialized private Discord server to
-                    help you gain the support you need to improve your chess, this server
-                    is only for paid members, but free-tier users can enjoy the Dojo's{' '}
-                    <Link href='https://chessdojo.shop' target='_blank' rel='noopener'>
-                        public Discord server
-                    </Link>{' '}
-                    which also has exciting Discord events like open classical, and weekly
-                    team battle channels you can enjoy!
-                </>
-            ),
+            content: <DiscordHelpItem />,
         },
         {
             title: 'How often should I study?',
