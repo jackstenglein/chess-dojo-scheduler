@@ -22,8 +22,13 @@ layers:
     package:
       artifact: layer.zip
 
+resources:
+  Conditions:
+    IsNotSimple: !Not [!Equals ['${sls:stage}', 'simple']]
+
 functions:
   pdf:
+    condition: IsNotSimple
     handler: pdf.handler
     timeout: 25
     layers:
