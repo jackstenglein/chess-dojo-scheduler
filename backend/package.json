@@ -7,5 +7,9 @@
     },
     "dependencies": {
         "serverless": "^3.38.0"
+    },
+    "scripts": {
+        "setup": "scripts/setup.sh",
+        "deploy:simple": "sls deploy --stage simple"
     }
 }
