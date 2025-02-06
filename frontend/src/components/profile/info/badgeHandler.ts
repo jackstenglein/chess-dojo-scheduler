@@ -172,14 +172,12 @@ function getEligibleForLimitLevel(
         0,
     );
 
-    console.log('TOTAL_COUNT', totalCount);
-
     // make searching in O(1) if user hits max return the max level
     if (totalCount >= levels[levels.length - 1]) {
         return levels[levels.length - 1];
     }
     // same but the start useful for mate in 3 or badges with 1 max level again O(1) search time
-    if (levels.length == 1 && totalCount >= levels[0]) {
+    if (levels.length === 1 && totalCount >= levels[0]) {
         return levels[0];
     }
 
@@ -219,7 +217,7 @@ function getBadgeMessage(level: number, badge: BADGE): string {
             msg = classicalGameMilestones[level];
             break;
         case BADGE.DAILY_STREAK:
-            msg = 'Wowza! Your daily streak hit ' + level + '!';
+            msg = `Wowza! Your daily streak hit ${level}!`;
             break;
     }
 
@@ -233,7 +231,7 @@ function getBadgeMessage(level: number, badge: BADGE): string {
  * @returns the badge title
  */
 function getBadgeTitle(level: number, badge: BADGE): string {
-    return BADGE_TITLE[badge] + ' ' + level;
+    return `${BADGE_TITLE[badge]} ${level}`
 }
 
 /**
@@ -254,7 +252,6 @@ function isRareBadge(level: number, badge: BADGE): boolean {
  */
 function getEligibleBadgeInfo(user: User, badge: BADGE): string[] | undefined {
     const level: number = getEligibleForLimitLevel(user, badge, BADGE_LIMITS[badge]);
-    console.log('LEVEL', level);
     const info: string[] = [];
     if (level === -1) {
         return undefined;
