@@ -231,7 +231,7 @@ function getBadgeMessage(level: number, badge: BADGE): string {
  * @returns the badge title
  */
 function getBadgeTitle(level: number, badge: BADGE): string {
-    return `${BADGE_TITLE[badge]} ${level}`
+    return `${BADGE_TITLE[badge]} ${level}`;
 }
 
 /**

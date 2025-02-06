@@ -34,17 +34,17 @@ export const BadgeCard = ({ user }: { user: User }) => {
     };
 
     useEffect(() => {
-      if (badgeData.length > previousBadgeImgs.length) {
-          const newBadge = badgeData.find(
-              (badge, index) =>
-                  !previousBadgeImgs[index] || badge[0] !== previousBadgeImgs[index][0]
-          );
-          if (newBadge) {
-              setSelectedBadge(newBadge);
-          }
-      }
-      setPreviousBadgeImgs([...badgeData]);
-  }, [badgeData]);
+        if (badgeData.length > previousBadgeImgs.length) {
+            const newBadge = badgeData.find(
+                (badge, index) =>
+                    !previousBadgeImgs[index] || badge[0] !== previousBadgeImgs[index][0],
+            );
+            if (newBadge) {
+                setSelectedBadge(newBadge);
+            }
+        }
+        setPreviousBadgeImgs([...badgeData]);
+    }, [badgeData]);
 
     const badges =
         user.graduationCohorts
