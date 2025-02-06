@@ -16,9 +16,9 @@ export enum BADGE {
  * Current Badge limits
  */
 const BADGE_LIMITS: Record<BADGE, number[]> = {
-    [BADGE.POLGAR_MATE_ONE]: [50, 306], // circle shield
-    [BADGE.POLGAR_MATE_TWO]: [500, 750, 1471, 2000, 2500, 3000, 3718], // circle hexa star shield
-    [BADGE.POLGAR_MATE_THREE]: [4462], // shield
+    [BADGE.POLGAR_MATE_ONE]: [50, 306],
+    [BADGE.POLGAR_MATE_TWO]: [500, 750, 1471, 2000, 2500, 3000, 3718],
+    [BADGE.POLGAR_MATE_THREE]: [4462],
     [BADGE.CLASSICAL_GAMES]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
     [BADGE.ANNONTATE_GAMES]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
     [BADGE.DAILY_STREAK]: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
