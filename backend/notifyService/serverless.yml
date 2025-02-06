@@ -1,0 +1,35 @@
+# Deploys the notification service.
+
+service: chess-dojo-notify
+
+plugins:
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  deploymentMethod: direct
+
+functions:
+  create:
+    handler: send.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - NotificationQueue
+              - Arn
+
+resources:
+  Resources:
+    NotificationQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "NotificationQueue"
