@@ -89,24 +89,24 @@ export const BadgeCard = ({ user }: { user: User }) => {
     }
 
     if (badgeData.length !== 0) {
-        for (let i = 0; i < badgeData.length; i++) {
+        for (const badge of badgeData) {
             badges.push(
-                <Tooltip title={badgeData[i][1]} key={badgeData[i][0]}>
+                <Tooltip title={badge[1]} key={badge[0]}>
                     <img
-                        src={badgeData[i][0]}
+                        src={badge[0]}
                         style={{
                             height: '50px',
                             width: '50px',
                             cursor: 'pointer',
                             boxShadow:
-                                badgeData[i][3] === 'rare'
-                                    ? `0 0 12px 4px ${badgeData[i][4]}`
+                                badge[3] === 'rare'
+                                    ? `0 0 12px 4px ${badge[4]}`
                                     : undefined,
                             borderRadius: '8px',
                             transition: 'transform 0.2s',
                         }}
-                        alt={badgeData[i][1]}
-                        onClick={() => handleBadgeClick(badgeData[i])}
+                        alt={badge[1]}
+                        onClick={() => handleBadgeClick(badge)}
                         onMouseEnter={(e) =>
                             (e.currentTarget.style.transform = 'scale(1.1)')
                         }

@@ -181,7 +181,7 @@ function getEligibleForLimitLevel(
         return levels[0];
     }
 
-    let maxLevel: number = -1;
+    let maxLevel = -1;
     for (const level of levels) {
         if (totalCount >= level) {
             maxLevel = level;
