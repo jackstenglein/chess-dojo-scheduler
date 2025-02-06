@@ -16,9 +16,9 @@ export enum BADGE {
  * Current Badge limits
  */
 const BADGE_LIMITS: Record<BADGE, number[]> = {
-    [BADGE.POLGAR_MATE_ONE]: [50, 306],
-    [BADGE.POLGAR_MATE_TWO]: [500, 750, 1471, 2000, 2500, 3000, 3718],
-    [BADGE.POLGAR_MATE_THREE]: [4462],
+    [BADGE.POLGAR_MATE_ONE]: [50, 306], // circle shield
+    [BADGE.POLGAR_MATE_TWO]: [500, 750, 1471, 2000, 2500, 3000, 3718], // circle hexa star shield
+    [BADGE.POLGAR_MATE_THREE]: [4462], // shield
     [BADGE.CLASSICAL_GAMES]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
     [BADGE.ANNONTATE_GAMES]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
     [BADGE.DAILY_STREAK]: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
@@ -84,6 +84,18 @@ const polgarMateMilestones: Record<number, string> = {
 };
 
 /**
+ * Badge glow color
+ */
+const BADGE_RARE_COLOR: Record<BADGE, string> = {
+    [BADGE.POLGAR_MATE_ONE]: '#CC6CE7',
+    [BADGE.POLGAR_MATE_TWO]: '#98F5F9',
+    [BADGE.POLGAR_MATE_THREE]: '#FE9900',
+    [BADGE.ANNONTATE_GAMES]: '#BDF77A',
+    [BADGE.CLASSICAL_GAMES]: '#39A99A',
+    [BADGE.DAILY_STREAK]: 'white',
+};
+
+/**
  * Badge titles
  */
 const BADGE_TITLE: Record<BADGE, string> = {
@@ -95,7 +107,7 @@ const BADGE_TITLE: Record<BADGE, string> = {
     [BADGE.DAILY_STREAK]: 'Daily Streak',
 };
 
-const ROUND_ROBIN_BADGES: string[] = ['fall', 'summer', 'winter', 'spring'];
+// const ROUND_ROBIN_BADGES: string[] = ['fall', 'summer', 'winter', 'spring'];
 
 /**
  * gets the RR badge
@@ -116,19 +128,19 @@ function getBadgeImage(level: number, badge: BADGE): string {
     let imageURL: string;
     switch (badge) {
         case BADGE.POLGAR_MATE_ONE:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/Polgar_m1_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m1_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.POLGAR_MATE_TWO:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/Polgar_m2_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m2_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.POLGAR_MATE_THREE:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/Polgar_m3_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m3_4462-removebg-preview.png?raw=true`;
             break;
         case BADGE.CLASSICAL_GAMES:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/cla_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/cla_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.ANNONTATE_GAMES:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/anon_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/anon_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.DAILY_STREAK:
             imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/streak/clean/streak${level}paper-clean.png?raw=true`;
@@ -139,49 +151,46 @@ function getBadgeImage(level: number, badge: BADGE): string {
 }
 
 /**
- * check if a user is eligible for the badge and given requirement
+ * check if the user is eligible for badge limit for given requirement
  * @param user the current user
- * @param reqid the requirement ID
- * @param targetLevel the target level for user to earn the badge
- * @returns if user is eligible
+ * @param requirementId requirement id
+ * @param levels the badge requirement levels
+ * @returns the badge limit user is eligible for level
  */
-function isEligibleForBadge(
+function getEligibleForLimitLevel(
     user: User,
-    requirementid: string,
-    targetLevel: number,
-): boolean {
-    const progress = user.progress[requirementid];
+    requirementId: string,
+    levels: number[],
+): number {
+    const progress = user.progress[requirementId];
     if (!progress) {
-        return false;
+        return -1;
     }
 
-    let totalCount = 0;
-    for (const key in progress.counts) {
-        totalCount += progress.counts[key];
+    const totalCount = Object.values(progress.counts || {}).reduce(
+        (sum, v) => sum + v,
+        0,
+    );
+
+    console.log('TOTAL_COUNT', totalCount);
+
+    // make searching in O(1) if user hits max return the max level
+    if (totalCount >= levels[levels.length - 1]) {
+        return levels[levels.length - 1];
+    }
+    // same but the start useful for mate in 3 or badges with 1 max level again O(1) search time
+    if (levels.length == 1 && totalCount >= levels[0]) {
+        return levels[0];
     }
 
-    return totalCount >= targetLevel;
-}
-
-/**
- * gets the level the user is elgible for
- * @param user the current user
- * @param reqid the requirement id
- * @param levels the counting badge levels list
- * @returns the current level badge user can get
- */
-function isEligibleForLimit(user: User, requirementid: string, levels: number[]): number {
     let maxLevel: number = -1;
     for (const level of levels) {
-        const elgible = isEligibleForBadge(user, requirementid, level);
-
-        if (elgible) {
+        if (totalCount >= level) {
             maxLevel = level;
         } else {
             return maxLevel;
         }
     }
-
     return -1;
 }
 
@@ -218,21 +227,49 @@ function getBadgeMessage(level: number, badge: BADGE): string {
 }
 
 /**
+ * gets the badge title
+ * @param level the current level
+ * @param badge the badge type
+ * @returns the badge title
+ */
+function getBadgeTitle(level: number, badge: BADGE): string {
+    return BADGE_TITLE[badge] + ' ' + level;
+}
+
+/**
+ * check if badge is rare
+ * @param level the level at we are at
+ * @param badge the badge type
+ * @returns is the badge rare or at max level
+ */
+function isRareBadge(level: number, badge: BADGE): boolean {
+    return level === BADGE_LIMITS[badge][BADGE_LIMITS[badge].length - 1];
+}
+
+/**
  * gets the info and badge image for eligible badge
  * @param user current user
  * @param badge the badge type
  * @returns info and image for the badge
  */
 function getEligibleBadgeInfo(user: User, badge: BADGE): string[] | undefined {
-    const level: number = isEligibleForLimit(user, badge, BADGE_LIMITS[badge]);
+    const level: number = getEligibleForLimitLevel(user, badge, BADGE_LIMITS[badge]);
+    console.log('LEVEL', level);
     const info: string[] = [];
     if (level === -1) {
         return undefined;
     }
 
     info.push(getBadgeImage(level, badge));
-    info.push(BADGE_TITLE[badge] + ' ' + level);
+    info.push(getBadgeTitle(level, badge));
     info.push(getBadgeMessage(level, badge));
+
+    if (isRareBadge(level, badge)) {
+        info.push('rare');
+        info.push(BADGE_RARE_COLOR[badge]);
+    } else {
+        info.push('normal');
+    }
 
     return info;
 }

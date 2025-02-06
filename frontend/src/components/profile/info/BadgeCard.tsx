@@ -22,7 +22,6 @@ import { getEligibleBadges } from './badgeHandler';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<string[] | undefined>(undefined);
-
     const badgeData: string[][] = getEligibleBadges(user);
     const [previousBadgeImgs, setPreviousBadgeImgs] = useState<string[][]>(badgeData);
 
@@ -42,7 +41,6 @@ export const BadgeCard = ({ user }: { user: User }) => {
         if (newBadge) {
             setSelectedBadge(newBadge);
         }
-
         setPreviousBadgeImgs([...badgeData]);
     }, [badgeData]);
 
@@ -50,7 +48,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
         user.graduationCohorts
             ?.sort(compareCohorts)
             .filter((c, i) => user.graduationCohorts?.indexOf(c) === i)
-            .map((c) => <CohortIcon key={c} cohort={c} />) ?? [];
+            .map((c) => <CohortIcon key={c} cohort={c} size={50} />) ?? [];
 
     if (!user.createdAt || user.createdAt < '2024-12') {
         badges.push(
@@ -62,8 +60,8 @@ export const BadgeCard = ({ user }: { user: User }) => {
                     <Image
                         src={postmortem2024}
                         alt='2024 postmortem'
-                        width={40}
-                        height={40}
+                        width={50}
+                        height={50}
                     />
                 </Tooltip>
             </Link>,
@@ -80,8 +78,8 @@ export const BadgeCard = ({ user }: { user: User }) => {
                     <Image
                         src={postmortem2023}
                         alt='2023 postmortem'
-                        width={40}
-                        height={70}
+                        width={50}
+                        height={50}
                     />
                 </Tooltip>
             </Link>,
@@ -94,9 +92,25 @@ export const BadgeCard = ({ user }: { user: User }) => {
                 <Tooltip title={badgeData[i][1]} key={badgeData[i][0]}>
                     <img
                         src={badgeData[i][0]}
-                        style={{ height: '40px', width: '40px', cursor: 'pointer' }}
+                        style={{
+                            height: '50px',
+                            width: '50px',
+                            cursor: 'pointer',
+                            boxShadow:
+                                badgeData[i][3] === 'rare'
+                                    ? `0 0 12px 4px ${badgeData[i][4]}`
+                                    : undefined,
+                            borderRadius: '8px',
+                            transition: 'transform 0.2s',
+                        }}
                         alt={badgeData[i][1]}
                         onClick={() => handleBadgeClick(badgeData[i])}
+                        onMouseEnter={(e) =>
+                            (e.currentTarget.style.transform = 'scale(1.1)')
+                        }
+                        onMouseLeave={(e) =>
+                            (e.currentTarget.style.transform = 'scale(1)')
+                        }
                     />
                 </Tooltip>,
             );
@@ -152,7 +166,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
                             <img
                                 src={selectedBadge[0]}
                                 alt={selectedBadge[1]}
-                                style={{ maxWidth: '80%', borderRadius: '10px' }}
+                                className='glow-image'
                             />
                             <Typography variant='body1' sx={{ mt: 2, color: '#EEB312' }}>
                                 {selectedBadge[2]}
@@ -161,6 +175,42 @@ export const BadgeCard = ({ user }: { user: User }) => {
                     </>
                 )}
             </Dialog>
+
+            <style jsx>{`
+                .glow-image {
+                    max-width: 90%;
+                    border-radius: 10px;
+                    animation: glow-animation 1.5s infinite alternate;
+                }
+                @keyframes glow-animation {
+                    0% {
+                        box-shadow:
+                            0 0 10px
+                                ${selectedBadge !== undefined &&
+                                selectedBadge[3] === 'rare'
+                                    ? selectedBadge[4]
+                                    : '#C0C0C0'},
+                            0 0 20px
+                                ${selectedBadge !== undefined &&
+                                selectedBadge[3] === 'rare'
+                                    ? selectedBadge[4]
+                                    : '#C0C0C0'};
+                    }
+                    100% {
+                        box-shadow:
+                            0 0 40px
+                                ${selectedBadge !== undefined &&
+                                selectedBadge[3] === 'rare'
+                                    ? selectedBadge[4]
+                                    : '#C0C0C0'},
+                            0 0 40px
+                                ${selectedBadge !== undefined &&
+                                selectedBadge[3] === 'rare'
+                                    ? selectedBadge[4]
+                                    : '#C0C0C0'};
+                    }
+                }
+            `}</style>
         </>
     );
 };
