@@ -10,6 +10,8 @@
     },
     "scripts": {
         "setup": "scripts/setup.sh",
-        "deploy:simple": "sls deploy --stage simple"
+        "deploy:simple": "serverless deploy --stage simple",
+        "deploy:simple:notifyService": "serverless notifyService deploy --stage simple ",
+        "deploy:simple:directoryService": "serverless directoryService deploy --stage simple "
     }
 }
