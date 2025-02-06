@@ -18,37 +18,33 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
-import { getEligibleBadges } from './BadgeHandler';
+import { getEligibleBadges } from './badgeHandler';
 
 export const BadgeCard = ({ user }: { user: User }) => {
-    const [openDialog, setOpenDialog] = useState(false);
-    const [selectedBadge, setSelectedBadge] = useState<string[] | null>(null);
+    const [selectedBadge, setSelectedBadge] = useState<string[] | undefined>(undefined);
 
-    const badgeImgs: string[][] = getEligibleBadges(user);
-    const [previousBadgeImgs, setPreviousBadgeImgs] = useState<string[][]>(badgeImgs);
+    const badgeData: string[][] = getEligibleBadges(user);
+    const [previousBadgeImgs, setPreviousBadgeImgs] = useState<string[][]>(badgeData);
 
     const handleBadgeClick = (badge: string[]) => {
         setSelectedBadge(badge);
-        setOpenDialog(true);
     };
 
     const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setSelectedBadge(null);
+        setSelectedBadge(undefined);
     };
 
     useEffect(() => {
-        const newBadge = badgeImgs.find(
+        const newBadge = badgeData.find(
             (badge, index) =>
                 !previousBadgeImgs[index] || badge[0] !== previousBadgeImgs[index][0],
         );
         if (newBadge) {
             setSelectedBadge(newBadge);
-            setOpenDialog(true);
         }
 
-        setPreviousBadgeImgs([...badgeImgs]);
-    }, [badgeImgs]);
+        setPreviousBadgeImgs([...badgeData]);
+    }, [badgeData]);
 
     const badges =
         user.graduationCohorts
@@ -84,7 +80,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
                     <Image
                         src={postmortem2023}
                         alt='2023 postmortem'
-                        width={70}
+                        width={40}
                         height={70}
                     />
                 </Tooltip>
@@ -92,15 +88,15 @@ export const BadgeCard = ({ user }: { user: User }) => {
         );
     }
 
-    if (badgeImgs.length !== 0) {
-        for (let i = 0; i < badgeImgs.length; i++) {
+    if (badgeData.length !== 0) {
+        for (let i = 0; i < badgeData.length; i++) {
             badges.push(
-                <Tooltip title={badgeImgs[i][1]} key={badgeImgs[i][0]}>
+                <Tooltip title={badgeData[i][1]} key={badgeData[i][0]}>
                     <img
-                        src={badgeImgs[i][0]}
-                        style={{ height: '50px', width: '50px', cursor: 'pointer' }}
-                        alt={badgeImgs[i][1]}
-                        onClick={() => handleBadgeClick(badgeImgs[i])}
+                        src={badgeData[i][0]}
+                        style={{ height: '40px', width: '40px', cursor: 'pointer' }}
+                        alt={badgeData[i][1]}
+                        onClick={() => handleBadgeClick(badgeData[i])}
                     />
                 </Tooltip>,
             );
@@ -122,7 +118,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
                 </CardContent>
             </Card>
 
-            <Dialog open={openDialog} onClose={handleCloseDialog}>
+            <Dialog open={selectedBadge !== undefined} onClose={handleCloseDialog}>
                 {selectedBadge && (
                     <>
                         <DialogTitle

@@ -116,19 +116,19 @@ function getBadgeImage(level: number, badge: BADGE): string {
     let imageURL: string;
     switch (badge) {
         case BADGE.POLGAR_MATE_ONE:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/pol/new/clean/polgar_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/Polgar_m1_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.POLGAR_MATE_TWO:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/pol/new/clean/polgar_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/Polgar_m2_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.POLGAR_MATE_THREE:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/pol/new/clean/polgar_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/Polgar_m3_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.CLASSICAL_GAMES:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/cla/new/clean/cla_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/cla_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.ANNONTATE_GAMES:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/ana/new/clean/Ann_${level}-removebg-preview.png?raw=true`;
+            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv2/clean/anon_${level}-removebg-preview.png?raw=true`;
             break;
         case BADGE.DAILY_STREAK:
             imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/streak/clean/streak${level}paper-clean.png?raw=true`;
@@ -145,8 +145,12 @@ function getBadgeImage(level: number, badge: BADGE): string {
  * @param targetLevel the target level for user to earn the badge
  * @returns if user is eligible
  */
-function isEligibleForBadge(user: User, reqid: string, targetLevel: number): boolean {
-    const progress = user.progress[reqid];
+function isEligibleForBadge(
+    user: User,
+    requirementid: string,
+    targetLevel: number,
+): boolean {
+    const progress = user.progress[requirementid];
     if (!progress) {
         return false;
     }
@@ -166,10 +170,10 @@ function isEligibleForBadge(user: User, reqid: string, targetLevel: number): boo
  * @param levels the counting badge levels list
  * @returns the current level badge user can get
  */
-function isEligibleForLimit(user: User, reqid: string, levels: number[]): number {
+function isEligibleForLimit(user: User, requirementid: string, levels: number[]): number {
     let maxLevel: number = -1;
     for (const level of levels) {
-        const elgible = isEligibleForBadge(user, reqid, level);
+        const elgible = isEligibleForBadge(user, requirementid, level);
 
         if (elgible) {
             maxLevel = level;
@@ -219,10 +223,10 @@ function getBadgeMessage(level: number, badge: BADGE): string {
  * @param badge the badge type
  * @returns info and image for the badge
  */
-function isEligibleBadgeImage(user: User, badge: BADGE): string[] | undefined {
+function getEligibleBadgeInfo(user: User, badge: BADGE): string[] | undefined {
     const level: number = isEligibleForLimit(user, badge, BADGE_LIMITS[badge]);
     const info: string[] = [];
-    if (level == -1) {
+    if (level === -1) {
         return undefined;
     }
 
@@ -242,9 +246,9 @@ export function getEligibleBadges(user: User): string[][] {
     const keys = Object.values(BADGE);
     const overallInfo: string[][] = [];
     keys.forEach((key) => {
-        const badgeImg = isEligibleBadgeImage(user, key);
-        if (badgeImg != undefined) {
-            overallInfo.push(badgeImg);
+        const badgeImage = getEligibleBadgeInfo(user, key);
+        if (badgeImage) {
+            overallInfo.push(badgeImage);
         }
     });
 

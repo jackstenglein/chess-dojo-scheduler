@@ -49,8 +49,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
     const [cohort, setCohort] = useState(user.dojoCohort);
     const { request: requirementRequest } = useRequirements(ALL_COHORTS, false);
     const { requirements } = useRequirements(cohort, false);
-    console.log(requirements)
-    console.log(user)
     const [hideCompleted, setHideCompleted] = useHideCompleted(isCurrentUser);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({
         'Welcome to the Dojo': false,
