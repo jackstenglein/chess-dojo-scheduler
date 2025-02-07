@@ -173,7 +173,6 @@ const ProgressTab: React.FC<ProgressTabProps> = ({ user, isCurrentUser }) => {
         api.updateUser({ pinnedTasks: newIds }).catch(console.error);
     };
 
-
     return (
         <Stack alignItems='start'>
             <RequestSnackbar request={requirementRequest} />
