@@ -15,7 +15,6 @@ import DiscordChip from '@/components/profile/info/DiscordChip';
 import DojoScoreCard from '@/components/profile/info/DojoScoreCard';
 import { HeatmapCard } from '@/components/profile/info/HeatmapCard';
 import InactiveChip from '@/components/profile/info/InactiveChip';
-import { RatingsCard } from '@/components/profile/info/RatingsCard';
 import TimezoneChip from '@/components/profile/info/TimezoneChip';
 import UserInfo from '@/components/profile/info/UserInfo';
 import StatsTab from '@/components/profile/stats/StatsTab';
@@ -36,18 +35,18 @@ import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
-    Edit,
     Folder,
     Groups,
     PieChart,
     RocketLaunch,
+    Settings,
     Star,
     ThumbDown,
     ThumbUp,
     Timeline,
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
-import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
+import { Box, Container, IconButton, Stack, Tab, Tabs, Tooltip } from '@mui/material';
 import { useEffect } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
@@ -179,17 +178,17 @@ function AuthProfilePage({
                             <UserInfo user={user} />
 
                             {currentUserProfile ? (
-                                <Stack direction='row' spacing={2}>
+                                <Stack direction='row' spacing={1} alignItems='center'>
                                     <GraduationDialog />
-                                    <Button
-                                        component={Link}
-                                        id='edit-profile-button'
-                                        variant='contained'
-                                        startIcon={<Edit />}
-                                        href='/profile/edit'
-                                    >
-                                        Edit Profile
-                                    </Button>
+                                    <Tooltip title='Edit Profile and Settings'>
+                                        <IconButton
+                                            id='edit-profile-button'
+                                            component={Link}
+                                            href='/profile/edit'
+                                        >
+                                            <Settings sx={{ color: 'text.secondary' }} />
+                                        </IconButton>
+                                    </Tooltip>
                                 </Stack>
                             ) : (
                                 <LoadingButton
@@ -348,7 +347,6 @@ function AuthProfilePage({
                     }}
                 >
                     <Stack spacing={2}>
-                        <RatingsCard user={user} />
                         <DojoScoreCard user={user} cohort={user.dojoCohort} />
                         <HeatmapCard />
                         <BadgeCard user={user} />
