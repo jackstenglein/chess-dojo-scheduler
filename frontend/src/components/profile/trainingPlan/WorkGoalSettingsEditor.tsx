@@ -2,7 +2,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { WorkGoalSettings } from '@/database/user';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
-import { Help, Settings } from '@mui/icons-material';
+import { Settings } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -16,7 +16,6 @@ import {
     MenuItem,
     Stack,
     TextField,
-    Tooltip,
     Typography,
 } from '@mui/material';
 import { Fragment, useState } from 'react';
@@ -52,13 +51,12 @@ export function WorkGoalSettingsEditor({
     );
 
     const [weekStart, setWeekStart] = useState(originalWeekStart || initialWeekStart);
-    const minTime = useTimeEditor(workGoal.minutesPerTask);
     const timePerDay = useTimePerDay(workGoal);
     const minutesPerWeek = timePerDay.reduce((sum, t) => sum + t.total, 0);
 
     const onSave = async () => {
         let error = false;
-        for (const timeEditor of timePerDay.concat(minTime)) {
+        for (const timeEditor of timePerDay) {
             const newErrors: Record<string, string> = {};
             if (!NUMBER_REGEX.test(timeEditor.hours)) {
                 newErrors.hours = 'Must be numeric';
@@ -79,7 +77,7 @@ export function WorkGoalSettingsEditor({
             await api.updateUser({
                 weekStart,
                 workGoal: {
-                    minutesPerTask: minTime.total,
+                    minutesPerTask: DEFAULT_WORK_GOAL.minutesPerTask,
                     minutesPerDay: timePerDay.map((t) => t.total),
                 },
             });
@@ -168,40 +166,6 @@ export function WorkGoalSettingsEditor({
                     </TextField>
 
                     <Grid2 container alignItems='baseline' rowGap={2}>
-                        <Grid2 size={{ xs: 4.5, sm: 3.5 }} alignSelf='center'>
-                            <Typography>
-                                Minimum Time Per Task{' '}
-                                <Tooltip title='The minimum amount of time to spend working on each task per day. For example, if set to 30 minutes and your work goal is 1 hour, you will be suggested two tasks each for 30 minutes. If set to 15 minutes, you will be suggested three tasks each for 20 minutes.'>
-                                    <Help
-                                        fontSize='small'
-                                        sx={{
-                                            verticalAlign: 'middle',
-                                            color: 'text.secondary',
-                                        }}
-                                    />
-                                </Tooltip>
-                            </Typography>
-                        </Grid2>
-
-                        <Grid2 size={{ xs: 7.5, sm: 8.5 }}>
-                            <Stack direction='row' gap={{ xs: 0.5, sm: 1 }}>
-                                <TextField
-                                    label='Hours'
-                                    value={minTime.hours}
-                                    onChange={(e) => minTime.setHours(e.target.value)}
-                                    error={!!minTime.errors.hours}
-                                    helperText={minTime.errors.hours}
-                                />
-                                <TextField
-                                    label='Minutes'
-                                    value={minTime.minutes}
-                                    onChange={(e) => minTime.setMinutes(e.target.value)}
-                                    error={!!minTime.errors.minutes}
-                                    helperText={minTime.errors.minutes}
-                                />
-                            </Stack>
-                        </Grid2>
-
                         <Grid2 size={12} mt={1}>
                             <FormLabel>Work Goal</FormLabel>
                         </Grid2>

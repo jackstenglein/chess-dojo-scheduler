@@ -948,7 +948,10 @@ export function getWeeklySuggestedTasks({
         console.log('Tasks for dayIdx ', dayIdx, tasks);
 
         const minutesToday = workGoal.minutesPerDay[dayIdx];
-        const maxTasks = Math.max(1, Math.floor(minutesToday / workGoal.minutesPerTask));
+        const maxTasks = Math.max(
+            1,
+            Math.floor(minutesToday / DEFAULT_WORK_GOAL.minutesPerTask),
+        );
         const tasksWithTime = tasks.slice(0, maxTasks);
 
         for (const task of tasksWithTime) {
