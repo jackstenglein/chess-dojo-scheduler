@@ -1,10 +1,11 @@
+import { useRequirements } from '@/api/cache/requirements';
 import {
     CustomTask,
     formatTime,
     Requirement,
     SuggestedTask,
 } from '@/database/requirement';
-import { User } from '@/database/user';
+import { ALL_COHORTS, User } from '@/database/user';
 import { useTimelineContext } from '@/profile/activity/useTimeline';
 import {
     Accordion,
@@ -43,6 +44,8 @@ interface TimeframeTrainingPlanSectionProps {
     expanded: boolean;
     /** A callback invoked when the expanded state is changed. */
     toggleExpanded?: () => void;
+    /** Whether to disable including extra tasks that the user worked on in the timeframe. */
+    disableExtraTasks?: boolean;
 }
 
 export function TimeframeTrainingPlanSection({
@@ -57,29 +60,51 @@ export function TimeframeTrainingPlanSection({
     togglePin,
     expanded,
     toggleExpanded,
+    disableExtraTasks,
 }: TimeframeTrainingPlanSectionProps) {
     const { entries: timeline } = useTimelineContext();
+    const { requirements } = useRequirements(ALL_COHORTS, false);
 
-    const [currentTime, goalTime] = useMemo(() => {
+    const [currentTime, goalTime, extraTaskIds] = useMemo(() => {
         const goalMinutes = tasks.reduce((sum, { goalMinutes }) => sum + goalMinutes, 0);
+        const extraTaskIds = new Set<string>();
 
         let timeWorked = 0;
         for (const entry of timeline) {
             const date = entry.date || entry.createdAt;
+            const isSuggestedTask = tasks.some(
+                ({ task, goalMinutes }) =>
+                    goalMinutes > 0 && task.id === entry.requirementId,
+            );
             if (
                 date >= startDate &&
                 date < endDate &&
-                tasks.some(
-                    ({ task, goalMinutes }) =>
-                        goalMinutes > 0 && task.id === entry.requirementId,
-                )
+                (!disableExtraTasks || isSuggestedTask)
             ) {
                 timeWorked += entry.minutesSpent;
+                if (!isSuggestedTask) {
+                    extraTaskIds.add(entry.requirementId);
+                }
             }
         }
 
-        return [timeWorked, goalMinutes];
-    }, [tasks, startDate, endDate, timeline]);
+        return [timeWorked, goalMinutes, extraTaskIds];
+    }, [tasks, startDate, endDate, timeline, disableExtraTasks]);
+
+    const extraTasks = useMemo(() => {
+        const extraTasks: (Requirement | CustomTask)[] = [];
+
+        extraTaskIds.forEach((id) => {
+            const task =
+                requirements.find((t) => t.id === id) ||
+                user.customTasks?.find((t) => t.id === id);
+            if (task) {
+                extraTasks.push(task);
+            }
+        });
+
+        return extraTasks;
+    }, [extraTaskIds, user.customTasks, requirements]);
 
     return (
         <Accordion expanded={expanded} onChange={toggleExpanded} sx={{ width: 1 }}>
@@ -116,6 +141,22 @@ export function TimeframeTrainingPlanSection({
                             endDate={endDate}
                             task={task}
                             goalMinutes={goalMinutes}
+                            progress={user.progress[task.id]}
+                            cohort={user.dojoCohort}
+                            isCurrentUser={isCurrentUser}
+                            isPinned={pinnedTasks.some((t) => t.id === task.id)}
+                            togglePin={togglePin}
+                        />
+                    );
+                })}
+                {extraTasks.map((task) => {
+                    return (
+                        <TimeframeTrainingPlanItem
+                            key={task.id}
+                            startDate={startDate}
+                            endDate={endDate}
+                            task={task}
+                            goalMinutes={0}
                             progress={user.progress[task.id]}
                             cohort={user.dojoCohort}
                             isCurrentUser={isCurrentUser}

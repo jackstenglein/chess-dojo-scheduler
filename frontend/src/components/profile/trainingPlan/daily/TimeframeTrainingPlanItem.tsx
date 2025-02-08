@@ -131,7 +131,7 @@ export const TimeframeTrainingPlanItem = ({
                 </Grid2>
                 <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
-                        {timeWorkedMinutes >= goalMinutes ? (
+                        {goalMinutes > 0 && timeWorkedMinutes >= goalMinutes ? (
                             <Checkbox
                                 checked
                                 onClick={() => setTaskDialogView(TaskDialogView.Progress)}
