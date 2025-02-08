@@ -16,8 +16,13 @@ package:
   individually: true
   artifact: target/lambda/gif/bootstrap.zip
 
+resources:
+  Conditions:
+    IsNotSimple: !Not [!Equals ['${sls:stage}', 'simple']]
+
 functions:
   gif:
+    condition: IsNotSimple
     handler: gif
     package:
       artifact: target/lambda/gif/bootstrap.zip
