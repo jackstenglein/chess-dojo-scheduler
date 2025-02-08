@@ -270,10 +270,7 @@ export function useLichessUserGames(): [
 
     const requestGames = useCallback(
         (params: ExportUserGamesParams, force?: boolean) => {
-            if (
-                !force &&
-                (request.isLoading() || request.data !== undefined || games !== undefined)
-            ) {
+            if (!force && request.isSent()) {
                 return;
             }
 
@@ -289,7 +286,7 @@ export function useLichessUserGames(): [
                     request.onFailure(err);
                 });
         },
-        [request, games],
+        [request],
     );
 
     return [games, requestGames, request];

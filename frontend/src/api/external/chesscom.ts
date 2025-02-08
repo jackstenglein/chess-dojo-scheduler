@@ -73,7 +73,7 @@ export function useChesscomGames(): [
 
     const requestGames = useCallback(
         (params: ExportUserGamesParams, force?: boolean) => {
-            if (!force && (request.isLoading() || request.data)) {
+            if (!force && request.isSent()) {
                 return;
             }
 
