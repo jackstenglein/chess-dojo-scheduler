@@ -1,5 +1,13 @@
 import { User } from '@/database/user';
 
+export interface Badge {
+    image: string;
+    title: string;
+    message: string;
+    israre: boolean;
+    rareglowhexcode?: string;
+}
+
 /**
  * BADGE enum representation
  */
@@ -102,7 +110,7 @@ const BADGE_TITLE: Record<BADGE, string> = {
     [BADGE.POLGAR_MATE_ONE]: 'Polgar M1',
     [BADGE.POLGAR_MATE_TWO]: 'Polgar M2',
     [BADGE.POLGAR_MATE_THREE]: 'Polgar M3',
-    [BADGE.ANNONTATE_GAMES]: 'Game Annontation',
+    [BADGE.ANNONTATE_GAMES]: 'Game Annotation',
     [BADGE.CLASSICAL_GAMES]: 'Classical Games Played',
     [BADGE.DAILY_STREAK]: 'Daily Streak',
 };
@@ -250,25 +258,39 @@ function isRareBadge(level: number, badge: BADGE): boolean {
  * @param badge the badge type
  * @returns info and image for the badge
  */
-function getEligibleBadgeInfo(user: User, badge: BADGE): string[] | undefined {
+function getEligibleBadgeInfo(user: User, badge: BADGE): Badge | undefined {
     const level: number = getEligibleForLimitLevel(user, badge, BADGE_LIMITS[badge]);
-    const info: string[] = [];
+
     if (level === -1) {
         return undefined;
     }
 
-    info.push(getBadgeImage(level, badge));
-    info.push(getBadgeTitle(level, badge));
-    info.push(getBadgeMessage(level, badge));
+    const currentBadge: Badge = {
+        image: getBadgeImage(level, badge),
+        title: getBadgeTitle(level, badge),
+        message: getBadgeMessage(level, badge),
+        israre: isRareBadge(level, badge),
+        rareglowhexcode: isRareBadge(level, badge) ? BADGE_RARE_COLOR[badge] : undefined,
+    };
 
-    if (isRareBadge(level, badge)) {
-        info.push('rare');
-        info.push(BADGE_RARE_COLOR[badge]);
-    } else {
-        info.push('normal');
-    }
+    return currentBadge;
+}
 
-    return info;
+/**
+ * gets the tactics champion badge
+ * @returns the tactics champion badge
+ */
+export function getTacticsChampionBadge(): Badge {
+    const championBadge: Badge = {
+        image: 'https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Tactics_champion-removebg-preview.png?raw=true',
+        title: 'Tactics Champion',
+        message:
+            'Wowza! Your tactics rating is higher than your cohort, keep it up or you will lose it!',
+        israre: true,
+        rareglowhexcode: '#CABC56',
+    };
+
+    return championBadge;
 }
 
 /**
@@ -276,9 +298,9 @@ function getEligibleBadgeInfo(user: User, badge: BADGE): string[] | undefined {
  * @param user the current user
  * @returns all possible badges
  */
-export function getEligibleBadges(user: User): string[][] {
+export function getEligibleBadges(user: User): Badge[] {
     const keys = Object.values(BADGE);
-    const overallInfo: string[][] = [];
+    const overallInfo: Badge[] = [];
     keys.forEach((key) => {
         const badgeImage = getEligibleBadgeInfo(user, key);
         if (badgeImage) {
