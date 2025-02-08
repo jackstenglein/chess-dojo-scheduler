@@ -21,6 +21,8 @@ custom:
     schedule: cron(0 0 ? * FRI *)
   dev:
     schedule: cron(0 0 ? * FRI 1970)
+  simple:
+    schedule: cron(0 0 ? * FRI 1970)
 
 functions:
   scrapeTwic:

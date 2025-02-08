@@ -11,6 +11,7 @@ import {
     Typography,
 } from '@mui/material';
 import React from 'react';
+import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
 import SupportTicket from './SupportTicket';
 
@@ -53,6 +54,10 @@ export const faq = {
                     material.
                 </>
             ),
+        },
+        {
+            title: 'How do I communicate with other Dojo members?',
+            content: <DiscordHelpItem />,
         },
         {
             title: 'How often should I study?',

@@ -60,6 +60,7 @@ functions:
         Resource: ${param:UsersTableArn}
 
   checkAccess:
+    condition: IsNotSimple
     handler: access/check/main.go
     events:
       - httpApi:
@@ -536,6 +537,7 @@ functions:
         Resource: ${param:GraduationsTableArn}
 
   checkSubscriptions:
+    condition: IsNotSimple
     handler: subscriptionCheck/main.go
     events:
       - schedule:
@@ -791,8 +793,13 @@ functions:
                 - '/index/FollowingIndex'
 
 resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+    IsNotSimple: !Not [!Equals ['${sls:stage}', 'simple']]
+
   Resources:
     UpdateRatingsTimeoutAlarm:
+      Condition: IsNotSimple
       Type: AWS::CloudWatch::Alarm
       Properties:
         AlarmName: UpdateRatingsTimeout-${sls:stage}
@@ -812,6 +819,7 @@ resources:
         TreatMissingData: ignore
 
     UpdateStatisticsTimeoutAlarm:
+      Condition: IsNotSimple
       Type: AWS::CloudWatch::Alarm
       Properties:
         AlarmName: UpdateStatisticsTimeout-${sls:stage}
@@ -831,6 +839,7 @@ resources:
         TreatMissingData: ignore
 
     UpdateTimeSpentTimeoutAlarm:
+      Condition: IsNotSimple
       Type: AWS::CloudWatch::Alarm
       Properties:
         AlarmName: UpdateTimeSpentTimeout-${sls:stage}

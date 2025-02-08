@@ -8,31 +8,27 @@ import {
 } from 'chess-dojo-directory-service/api';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
-import { TexGenerator } from './TexGenerator';
+import { TypstGenerator } from './TypstGenerator';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
 
         const request = parseBody(event, PdfExportSchema);
-        const generator = new TexGenerator({
+        const generator = new TypstGenerator({
             ...request,
             qrcodeFilename: `/tmp/${event.requestContext.requestId}-qrcode.png`,
         });
         fs.writeFileSync(
-            `/tmp/${event.requestContext.requestId}.tex`,
-            await generator.toTex(),
+            `/tmp/${event.requestContext.requestId}.typ`,
+            await generator.toTypst(),
         );
+        console.log('Generated typ file');
 
-        console.log('Generated tex file');
-
-        execSync(
-            `pdflatex -interaction=nonstopmode ${event.requestContext.requestId}.tex`,
-            {
-                cwd: '/tmp',
-                stdio: 'inherit',
-            },
-        );
+        execSync(`typst compile ${event.requestContext.requestId}.typ`, {
+            cwd: '/tmp',
+            stdio: 'inherit',
+        });
 
         const base64body = fs
             .readFileSync(`/tmp/${event.requestContext.requestId}.pdf`)

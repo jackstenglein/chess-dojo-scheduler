@@ -83,7 +83,7 @@ functions:
     environment:
       mongoConnectionString: ${file(../tournament.yml):mongoConnectionString}
 
-  openClassicalRegister:
+  ocRegister:
     handler: openClassical/register/main.go
     events:
       - httpApi:
@@ -102,7 +102,7 @@ functions:
           - dynamodb:UpdateItem
         Resource: ${param:TournamentsTableArn}
 
-  openClassicalSubmitResults:
+  ocSubmitResults:
     handler: openClassical/results/submit/main.go
     events:
       - httpApi:
@@ -157,7 +157,7 @@ functions:
               - - ${param:TournamentsTableArn}
                 - '/index/OpenClassicalIndex'
 
-  openClassicalAdminGetRegistrations:
+  ocAdminGetRegistrations:
     handler: openClassical/admin/getRegistrations/main.go
     events:
       - httpApi:
@@ -174,7 +174,7 @@ functions:
           - ${param:TournamentsTableArn}
           - ${param:UsersTableArn}
 
-  openClassicalAdminSetPairings:
+  ocAdminSetPairings:
     handler: openClassical/admin/setPairings/main.go
     events:
       - httpApi:
@@ -196,7 +196,7 @@ functions:
         Resource:
           - ${param:UsersTableArn}
 
-  openClassicalAdminSendPairings:
+  ocAdminSendPairings:
     handler: openClassical/admin/emailPairings/main.go
     events:
       - httpApi:
@@ -224,7 +224,7 @@ functions:
           - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
           - arn:aws:ses:${aws:region}:${aws:accountId}:template/openClassicalPairing
 
-  openClassicalAdminBanPlayer:
+  ocAdminBanPlayer:
     handler: openClassical/admin/banPlayer/main.go
     events:
       - httpApi:
@@ -246,7 +246,7 @@ functions:
         Resource:
           - ${param:UsersTableArn}
 
-  openClassicalAdminUnbanPlayer:
+  ocAdminUnbanPlayer:
     handler: openClassical/admin/unbanPlayer/main.go
     events:
       - httpApi:
@@ -267,7 +267,7 @@ functions:
         Resource:
           - ${param:UsersTableArn}
   
-  openClassicalAdminWithdrawPlayer:
+  ocAdminWithdrawPlayer:
     handler: openClassical/admin/withdrawPlayer/main.go
     events:
       - httpApi:
@@ -289,7 +289,7 @@ functions:
         Resource:
           - ${param:UsersTableArn}
   
-  openClassicalAdminVerifyResult:
+  ocAdminVerifyResult:
     handler: openClassical/admin/verifyResult/main.go
     events:
       - httpApi:
@@ -311,7 +311,7 @@ functions:
         Resource:
           - ${param:UsersTableArn}
   
-  openClassicalAdminCompleteTournament:
+  ocAdminCompleteTournament:
     handler: openClassical/admin/completeTournament/main.go
     events:
       - httpApi:

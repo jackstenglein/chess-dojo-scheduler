@@ -12,6 +12,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
 import SupportTicket from './SupportTicket';
 import { faq } from './UnauthenticatedHelp';
@@ -52,6 +53,10 @@ const helpSections = [
                         <Link href='/newsfeed'>Newsfeed</Link>.
                     </>
                 ),
+            },
+            {
+                title: 'How do I communicate with other Dojo members?',
+                content: <DiscordHelpItem />,
             },
             {
                 title: 'How do I switch cohorts without graduating?',
