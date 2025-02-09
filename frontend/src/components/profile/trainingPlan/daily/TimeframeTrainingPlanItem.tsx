@@ -77,7 +77,8 @@ export const TimeframeTrainingPlanItem = ({
     const totalCount = getTotalCount(cohort, task);
     const currentCount = getCurrentCount(cohort, task, progress);
 
-    const requirementName = (task.dailyName || task.name)
+    const name = goalMinutes > 0 ? task.dailyName : task.name;
+    const requirementName = (name || task.name)
         .replaceAll('{{count}}', `${totalCount}`)
         .replaceAll('{{time}}', formatTime(goalMinutes));
 

@@ -364,6 +364,13 @@ type WeeklyPlan struct {
 		// The work goal of the task in minutes
 		Minutes int `dynamodbav:"minutes" json:"minutes"`
 	} `dynamodbav:"tasks" json:"tasks"`
+
+	// The date (in ISO 8601) the user's progress was most recently updated when the weekly plan was
+	// last generated.
+	ProgressUpdatedAt string `dynamodbav:"progressUpdatedAt" json:"progressUpdatedAt"`
+
+	// The ids of the user's pinned tasks (in order) when the weekly plan was last generated.
+	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks,omitempty"`
 }
 
 // Returns true if the given PaymentInfo indicates an active subscription.

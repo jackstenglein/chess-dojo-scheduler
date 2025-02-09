@@ -90,6 +90,7 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
                 }
 
                 const dayStart = getDayOfWeekAfterDate(new Date(startDate), dayIdx);
+                const start = new Date(dayStart);
                 const end = new Date(dayStart);
                 end.setDate(end.getDate() + 1);
                 const dayEnd = end.toISOString();
@@ -99,7 +100,7 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
                         key={dayIdx}
                         startDate={dayStart}
                         endDate={dayEnd}
-                        title={DAY_NAMES[dayIdx]}
+                        title={`${DAY_NAMES[dayIdx]} ${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
                         icon={
                             expanded[`${dayIdx}`] ? (
                                 <ExpandLess

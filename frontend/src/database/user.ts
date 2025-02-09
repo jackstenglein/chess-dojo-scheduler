@@ -203,6 +203,13 @@ export interface WeeklyPlan {
         /** The work goal of the task in minutes. */
         minutes: number;
     }[][];
+    /**
+     * The date (in ISO 8601) the user's progress was most recently updated when the weekly plan
+     * was last generated.
+     */
+    progressUpdatedAt: string;
+    /** The ids of the user's pinned tasks (in order) when the weekly plan was last generated. */
+    pinnedTasks?: string[];
 }
 
 export type UserSummary = Pick<User, 'username' | 'displayName' | 'dojoCohort'>;

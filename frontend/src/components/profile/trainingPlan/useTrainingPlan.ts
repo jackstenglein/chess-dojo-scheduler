@@ -1,14 +1,10 @@
 import { useApi } from '@/api/Api';
 import { useRequirements } from '@/api/cache/requirements';
 import { useAuth } from '@/auth/Auth';
-import {
-    CustomTask,
-    getWeeklySuggestedTasks,
-    Requirement,
-    SuggestedTask,
-} from '@/database/requirement';
+import { CustomTask, Requirement } from '@/database/requirement';
 import { ALL_COHORTS, User, WeeklyPlan, WorkGoalSettings } from '@/database/user';
 import { useEffect, useMemo } from 'react';
+import { getWeeklySuggestedTasks, SuggestedTask } from './suggestedTasks';
 
 /**
  * Returns common data and functions used across all Training Plan tabs.
@@ -57,35 +53,42 @@ export function useWeeklyTrainingPlan(user: User) {
     const trainingPlan = useTrainingPlan(user);
     const { pinnedTasks, requirements, isCurrentUser } = trainingPlan;
 
-    const { suggestionsByDay, weekSuggestions, endDate } = useMemo(() => {
-        const { suggestionsByDay, endDate } = getWeeklySuggestedTasks({
-            user,
-            pinnedTasks,
-            requirements,
-        });
+    const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt } =
+        useMemo(() => {
+            const { suggestionsByDay, endDate, progressUpdatedAt } =
+                getWeeklySuggestedTasks({
+                    user,
+                    pinnedTasks,
+                    requirements,
+                });
 
-        const weekSuggestions: SuggestedTask[] = [];
-        for (const day of suggestionsByDay) {
-            for (const suggestion of day) {
-                const existing = weekSuggestions.find(
-                    (s) => s.task.id === suggestion.task.id,
-                );
-                if (existing) {
-                    existing.goalMinutes += suggestion.goalMinutes;
-                } else {
-                    weekSuggestions.push({ ...suggestion });
+            const weekSuggestions: SuggestedTask[] = [];
+            for (const day of suggestionsByDay) {
+                for (const suggestion of day) {
+                    const existing = weekSuggestions.find(
+                        (s) => s.task.id === suggestion.task.id,
+                    );
+                    if (existing) {
+                        existing.goalMinutes += suggestion.goalMinutes;
+                    } else {
+                        weekSuggestions.push({ ...suggestion });
+                    }
                 }
             }
-        }
 
-        return { suggestionsByDay, weekSuggestions, endDate };
-    }, [user, pinnedTasks, requirements]);
+            return { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt };
+        }, [user, pinnedTasks, requirements]);
 
     const savedPlan = user.weeklyPlan;
     useEffect(() => {
         if (
             !isCurrentUser ||
-            equalPlans(savedPlan, { suggestionsByDay, endDate }) ||
+            equalPlans(savedPlan, {
+                suggestionsByDay,
+                endDate,
+                progressUpdatedAt,
+                pinnedTasks: pinnedTasks.map((t) => t.id),
+            }) ||
             isEmpty(suggestionsByDay)
         ) {
             return;
@@ -101,9 +104,19 @@ export function useWeeklyTrainingPlan(user: User) {
                         minutes: suggestion.goalMinutes,
                     })),
                 ),
+                progressUpdatedAt,
+                pinnedTasks: pinnedTasks.map((t) => t.id),
             },
         }).catch((err) => console.error('save weekly plan: ', err));
-    }, [isCurrentUser, savedPlan, suggestionsByDay, endDate]);
+    }, [
+        isCurrentUser,
+        savedPlan,
+        suggestionsByDay,
+        endDate,
+        progressUpdatedAt,
+        pinnedTasks,
+        api,
+    ]);
 
     const startDate = new Date(endDate);
     startDate.setDate(startDate.getDate() - 7);
@@ -126,15 +139,39 @@ export function getTodaysWorkGoal(workGoal: WorkGoalSettings): number {
     return workGoal.minutesPerDay[dayIndex];
 }
 
+/**
+ * Returns true if the given saved plan is equivalent to the given new plan.
+ * @param savedPlan The saved weekly plan to check.
+ * @param newPlan The new plan to check.
+ */
 function equalPlans(
     savedPlan: WeeklyPlan | undefined,
-    newPlan: { suggestionsByDay: SuggestedTask[][]; endDate: string },
+    newPlan: {
+        suggestionsByDay: SuggestedTask[][];
+        endDate: string;
+        progressUpdatedAt: string;
+        pinnedTasks: string[];
+    },
 ) {
     if (!savedPlan) {
+        console.log('Saved plan does not exist');
         return false;
     }
     if (savedPlan.endDate !== newPlan.endDate) {
+        console.log('Saved plan end date does not match new plan end date');
         return false;
+    }
+    if (savedPlan.progressUpdatedAt !== newPlan.progressUpdatedAt) {
+        console.log(
+            'Saved plan progressUpdatedAt does not match new plan progressUpdatedAt',
+        );
+        return false;
+    }
+    for (let i = 0; i < newPlan.pinnedTasks.length; i++) {
+        if (savedPlan.pinnedTasks?.[i] !== newPlan.pinnedTasks[i]) {
+            console.log('Saved plan pinnedTasks does not match new plan pinnedTasks');
+            return false;
+        }
     }
     for (let i = 0; i < savedPlan.tasks.length; i++) {
         const savedTasks = savedPlan.tasks[i];

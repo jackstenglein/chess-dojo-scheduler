@@ -1,10 +1,5 @@
 import { useRequirements } from '@/api/cache/requirements';
-import {
-    CustomTask,
-    formatTime,
-    Requirement,
-    SuggestedTask,
-} from '@/database/requirement';
+import { CustomTask, formatTime, Requirement } from '@/database/requirement';
 import { ALL_COHORTS, User } from '@/database/user';
 import { useTimelineContext } from '@/profile/activity/useTimeline';
 import {
@@ -19,6 +14,7 @@ import {
     Typography,
 } from '@mui/material';
 import { ReactNode, useMemo } from 'react';
+import { SuggestedTask } from '../suggestedTasks';
 import { TimeframeTrainingPlanItem } from './TimeframeTrainingPlanItem';
 
 interface TimeframeTrainingPlanSectionProps {
