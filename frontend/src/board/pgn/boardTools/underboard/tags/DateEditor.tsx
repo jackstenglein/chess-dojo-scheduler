@@ -1,8 +1,8 @@
+import { parsePgnDate, toLocalPgnDate } from '@/api/gameApi';
 import { PgnDate } from '@jackstenglein/chess';
 import { GridRenderEditCellParams, useGridApiContext } from '@mui/x-data-grid-pro';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
-import { parsePgnDate, toPgnDate } from '../../../../../api/gameApi';
 import { TagRow } from './Tags';
 
 export function EditDateCell(props: GridRenderEditCellParams<TagRow, PgnDate | string>) {
@@ -10,7 +10,11 @@ export function EditDateCell(props: GridRenderEditCellParams<TagRow, PgnDate | s
     const apiRef = useGridApiContext();
 
     const handleChange = (newValue: DateTime<true> | null) => {
-        void apiRef.current.setEditCellValue({ id, field, value: toPgnDate(newValue) });
+        void apiRef.current.setEditCellValue({
+            id,
+            field,
+            value: toLocalPgnDate(newValue),
+        });
     };
 
     const dateTime = parsePgnDate(isPgnDate(value) ? value.value : value);

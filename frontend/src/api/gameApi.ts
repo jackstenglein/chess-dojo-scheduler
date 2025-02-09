@@ -789,3 +789,12 @@ export function toPgnDate(date?: DateTime | null): string | null {
 
     return pgnDate;
 }
+
+/**
+ * Converts a DateTime to a PGN tag string, using the date's local
+ * timezone.
+ * @param date The DateTime object to convert.
+ */
+export function toLocalPgnDate(date?: DateTime | null): string | undefined {
+    return date?.toISODate()?.replaceAll('-', '.');
+}
