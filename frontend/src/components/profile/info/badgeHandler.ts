@@ -276,21 +276,21 @@ function getEligibleBadgeInfo(user: User, badge: BadgeType): Badge | undefined {
     return currentBadge;
 }
 
-/**
- * gets the tactics champion badge
- * @returns the tactics champion badge
- */
-export function getTacticsChampionBadge(): Badge {
-    const championBadge: Badge = {
-        image: 'https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Tactics_champion-removebg-preview.png?raw=true',
-        title: 'Tactics Champion',
-        message:
-            'Wowza! Your tactics rating is higher than your cohort, keep it up or you will lose it!',
-        glowHexcode: '#CABC56',
-    };
+// /**
+//  * gets the tactics champion badge
+//  * @returns the tactics champion badge
+//  */
+// export function getTacticsChampionBadge(): Badge {
+//     const championBadge: Badge = {
+//         image: 'https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Tactics_champion-removebg-preview.png?raw=true',
+//         title: 'Tactics Champion',
+//         message:
+//             'Wowza! Your tactics rating is higher than your cohort, keep it up or you will lose it!',
+//         glowHexcode: '#CABC56',
+//     };
 
-    return championBadge;
-}
+//     return championBadge;
+// }
 
 /**
  * Gets all possible elgible badges for user
