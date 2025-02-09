@@ -128,11 +128,11 @@
         "cypress-parallel": "^0.14.0",
         "eslint": "^8.57.0",
         "eslint-config-next": "^15.1.6",
-        "eslint-plugin-cypress": "^3.5.0",
+        "eslint-plugin-cypress": "^4.1.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
-        "eslint-plugin-react": "^7.37.1",
-        "eslint-plugin-react-hooks": "^4.6.2",
-        "happy-dom": "^15.7.4",
+        "eslint-plugin-react": "^7.37.4",
+        "eslint-plugin-react-hooks": "^5.1.0",
+        "happy-dom": "^17.0.2",
         "json-2-csv": "^5.5.8",
         "nyc": "^17.1.0",
         "prettier": "^3.4.2",
@@ -140,7 +140,7 @@
         "serve": "^14.2.4",
         "typedoc": "^0.27.6",
         "typescript": "^5.4.5",
-        "typescript-eslint": "^8.8.0"
+        "typescript-eslint": "^8.23.0"
     },
     "overrides": {
         "d3-interpolate": "^3.0.1",
