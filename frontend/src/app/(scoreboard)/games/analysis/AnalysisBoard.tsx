@@ -61,6 +61,7 @@ export default function AnalysisBoard() {
                         moveButtonExtras: EngineMoveButtonExtras,
                     }}
                     initialUnderboardTab={DefaultUnderboardTab.Explorer}
+                    disableNullMoves={false}
                 />
             </GameContext.Provider>
         </PgnErrorBoundary>
