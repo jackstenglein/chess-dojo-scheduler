@@ -31,10 +31,6 @@ const BADGE_LIMITS: Record<BadgeType, number[]> = {
     [BadgeType.DailyStreak]: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
 };
 
-/**
- * classical games level to message hashmap
- */
-
 const classicalGameMilestones: Record<number, string> = {
     1: 'Congrats on playing your first classical game. Keep up the good work!',
     5: "Congrats on playing five classical games. That's a full tournament!",
@@ -50,11 +46,6 @@ const classicalGameMilestones: Record<number, string> = {
     400: '400 classical games—masterful commitment!',
     500: "500 classical games! You're a true legend!",
 };
-
-/**
- *
- * annontation to message hashmap
- */
 
 const annotationMilestones: Record<number, string> = {
     1: 'Congrats on annotating your first classical game. Keep up the good work!',
@@ -72,16 +63,11 @@ const annotationMilestones: Record<number, string> = {
     500: '500 classical game annotations! Whoa, check out Tartakower over here!',
 };
 
-/**
- * Polgar to message hashmap
- */
-
 const polgarMateMilestones: Record<number, string> = {
     50: "Congrats on solving your first 50 Polgar mates! You're sharpening your tactical vision.",
     306: "Amazing! You've completed all mate-in-ones. Great job recognizing immediate threats!",
     500: '500 Polgar mates solved! Your tactical acumen is growing rapidly.',
     750: "750 Polgar mates! That's impressive dedication to tactical mastery.",
-    1000: '1,000 Polgar mates solved! Your chess instincts are getting sharper!',
     1471: "Incredible! You've solved all simple mate-in-twos. Tactical brilliance!",
     2000: '2,000 Polgar mates solved—truly remarkable tactical prowess!',
     2500: "2,500 Polgar mates! You're a tactical mastermind!",
@@ -90,10 +76,7 @@ const polgarMateMilestones: Record<number, string> = {
     4462: "Amazing achievement! You've mastered all mate-in-threes. Tactical artistry!",
 };
 
-/**
- * Badge glow color
- */
-const BADGE_MAX_COLOR: Record<BadgeType, string> = {
+const BADGE_MAX_GLOW_COLOR: Record<BadgeType, string> = {
     [BadgeType.PolgarMateOne]: '#AB2ECE',
     [BadgeType.PolgarMateTwo]: '#33C0C6',
     [BadgeType.PolgarMateThree]: '#C67B09',
@@ -102,14 +85,6 @@ const BADGE_MAX_COLOR: Record<BadgeType, string> = {
     [BadgeType.DailyStreak]: '#B19110',
 };
 
-/**
- * Badge glow for non max simple badges
- */
-export const BADGE_SIMPLE_GLOW = '#F04649';
-
-/**
- * Badge titles
- */
 const BADGE_TITLE: Record<BadgeType, string> = {
     [BadgeType.PolgarMateOne]: 'Polgar M1',
     [BadgeType.PolgarMateTwo]: 'Polgar M2',
@@ -131,35 +106,24 @@ export function getRRbadge(season: string): string {
 }
 
 /**
- * Get the counting badge images
+ * Get the image for the given badge and level.
  * @param level the level to fetch the badge for
  * @param badge the type of badge
  * @returns the image of the badge
  */
 function getBadgeImage(level: number, badge: BadgeType): string {
-    let imageURL: string;
     switch (badge) {
         case BadgeType.PolgarMateOne:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m1_${level}-removebg-preview.png?raw=true`;
-            break;
         case BadgeType.PolgarMateTwo:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m2_${level}-removebg-preview.png?raw=true`;
-            break;
         case BadgeType.PolgarMateThree:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m3_4462-removebg-preview.png?raw=true`;
-            break;
+            return `/static/badges/polgar/v1/${level}.png`;
         case BadgeType.ClassicalGames:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/cla_${level}-removebg-preview.png?raw=true`;
-            break;
+            return `/static/badges/classical_games_played/v1/${level}.png`;
         case BadgeType.AnnotateGames:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/anon_${level}-removebg-preview.png?raw=true`;
-            break;
+            return `/static/badges/classical_games_annotated/v1/${level}.png`;
         case BadgeType.DailyStreak:
-            imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/streak/clean/streak${level}paper-clean.png?raw=true`;
-            break;
+            return `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/streak/clean/streak${level}paper-clean.png?raw=true`;
     }
-
-    return imageURL;
 }
 
 /**
@@ -250,7 +214,7 @@ function isMaxBadge(level: number, badge: BadgeType): boolean {
  * @returns if badge is max returns the glow or undefined
  */
 function getBadgeGlow(level: number, badge: BadgeType): string | undefined {
-    return isMaxBadge(level, badge) ? BADGE_MAX_COLOR[badge] : undefined;
+    return isMaxBadge(level, badge) ? BADGE_MAX_GLOW_COLOR[badge] : undefined;
 }
 
 /**
