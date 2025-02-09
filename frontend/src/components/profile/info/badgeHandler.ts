@@ -4,32 +4,31 @@ export interface Badge {
     image: string;
     title: string;
     message: string;
-    israre: boolean;
-    rareglowhexcode?: string;
+    glowHexcode?: string;
 }
 
 /**
  * BADGE enum representation
  */
-export enum BADGE {
-    POLGAR_MATE_ONE = '917be358-e6d9-47e6-9cad-66fc2fdb5da6',
-    POLGAR_MATE_TWO = 'f815084f-b9bc-408d-9db9-ba9b1c260ff3',
-    POLGAR_MATE_THREE = '657fd4c7-461c-4503-b5f7-38a5a3480008',
-    CLASSICAL_GAMES = '38f46441-7a4e-4506-8632-166bcbe78baf',
-    ANNONTATE_GAMES = '4d23d689-1284-46e6-b2a2-4b4bfdc37174',
-    DAILY_STREAK = 'DAILY_STREAK',
+export enum BadgeType {
+    PolgarMateOne = '917be358-e6d9-47e6-9cad-66fc2fdb5da6',
+    PolgarMateTwo = 'f815084f-b9bc-408d-9db9-ba9b1c260ff3',
+    PolgarMateThree = '657fd4c7-461c-4503-b5f7-38a5a3480008',
+    ClassicalGames = '38f46441-7a4e-4506-8632-166bcbe78baf',
+    AnnotateGames = '4d23d689-1284-46e6-b2a2-4b4bfdc37174',
+    DailyStreak = 'DAILY_STREAK',
 }
 
 /**
  * Current Badge limits
  */
-const BADGE_LIMITS: Record<BADGE, number[]> = {
-    [BADGE.POLGAR_MATE_ONE]: [50, 306],
-    [BADGE.POLGAR_MATE_TWO]: [500, 750, 1471, 2000, 2500, 3000, 3718],
-    [BADGE.POLGAR_MATE_THREE]: [4462],
-    [BADGE.CLASSICAL_GAMES]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
-    [BADGE.ANNONTATE_GAMES]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
-    [BADGE.DAILY_STREAK]: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
+const BADGE_LIMITS: Record<BadgeType, number[]> = {
+    [BadgeType.PolgarMateOne]: [50, 306],
+    [BadgeType.PolgarMateTwo]: [500, 750, 1471, 2000, 2500, 3000, 3718],
+    [BadgeType.PolgarMateThree]: [4462],
+    [BadgeType.ClassicalGames]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
+    [BadgeType.AnnotateGames]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
+    [BadgeType.DailyStreak]: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
 };
 
 /**
@@ -94,25 +93,30 @@ const polgarMateMilestones: Record<number, string> = {
 /**
  * Badge glow color
  */
-const BADGE_RARE_COLOR: Record<BADGE, string> = {
-    [BADGE.POLGAR_MATE_ONE]: '#CC6CE7',
-    [BADGE.POLGAR_MATE_TWO]: '#98F5F9',
-    [BADGE.POLGAR_MATE_THREE]: '#FE9900',
-    [BADGE.ANNONTATE_GAMES]: '#BDF77A',
-    [BADGE.CLASSICAL_GAMES]: '#39A99A',
-    [BADGE.DAILY_STREAK]: 'white',
+const BADGE_MAX_COLOR: Record<BadgeType, string> = {
+    [BadgeType.PolgarMateOne]: '#AB2ECE',
+    [BadgeType.PolgarMateTwo]: '#33C0C6',
+    [BadgeType.PolgarMateThree]: '#C67B09',
+    [BadgeType.AnnotateGames]: '#72B526',
+    [BadgeType.ClassicalGames]: '#39A99A',
+    [BadgeType.DailyStreak]: '#B19110',
 };
+
+/**
+ * Badge glow for non max simple badges
+ */
+export const BADGE_SIMPLE_GLOW: string = '#F04649';
 
 /**
  * Badge titles
  */
-const BADGE_TITLE: Record<BADGE, string> = {
-    [BADGE.POLGAR_MATE_ONE]: 'Polgar M1',
-    [BADGE.POLGAR_MATE_TWO]: 'Polgar M2',
-    [BADGE.POLGAR_MATE_THREE]: 'Polgar M3',
-    [BADGE.ANNONTATE_GAMES]: 'Game Annotation',
-    [BADGE.CLASSICAL_GAMES]: 'Classical Games Played',
-    [BADGE.DAILY_STREAK]: 'Daily Streak',
+const BADGE_TITLE: Record<BadgeType, string> = {
+    [BadgeType.PolgarMateOne]: 'Polgar M1',
+    [BadgeType.PolgarMateTwo]: 'Polgar M2',
+    [BadgeType.PolgarMateThree]: 'Polgar M3',
+    [BadgeType.AnnotateGames]: 'Game Annotation',
+    [BadgeType.ClassicalGames]: 'Classical Games Played',
+    [BadgeType.DailyStreak]: 'Daily Streak',
 };
 
 // const ROUND_ROBIN_BADGES: string[] = ['fall', 'summer', 'winter', 'spring'];
@@ -132,25 +136,25 @@ export function getRRbadge(season: string): string {
  * @param badge the type of badge
  * @returns the image of the badge
  */
-function getBadgeImage(level: number, badge: BADGE): string {
+function getBadgeImage(level: number, badge: BadgeType): string {
     let imageURL: string;
     switch (badge) {
-        case BADGE.POLGAR_MATE_ONE:
+        case BadgeType.PolgarMateOne:
             imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m1_${level}-removebg-preview.png?raw=true`;
             break;
-        case BADGE.POLGAR_MATE_TWO:
+        case BadgeType.PolgarMateTwo:
             imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m2_${level}-removebg-preview.png?raw=true`;
             break;
-        case BADGE.POLGAR_MATE_THREE:
+        case BadgeType.PolgarMateThree:
             imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Polgar_m3_4462-removebg-preview.png?raw=true`;
             break;
-        case BADGE.CLASSICAL_GAMES:
+        case BadgeType.ClassicalGames:
             imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/cla_${level}-removebg-preview.png?raw=true`;
             break;
-        case BADGE.ANNONTATE_GAMES:
+        case BadgeType.AnnotateGames:
             imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/anon_${level}-removebg-preview.png?raw=true`;
             break;
-        case BADGE.DAILY_STREAK:
+        case BadgeType.DailyStreak:
             imageURL = `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/streak/clean/streak${level}paper-clean.png?raw=true`;
             break;
     }
@@ -165,11 +169,7 @@ function getBadgeImage(level: number, badge: BADGE): string {
  * @param levels the badge requirement levels
  * @returns the badge limit user is eligible for level
  */
-function getEligibleForLimitLevel(
-    user: User,
-    requirementId: string,
-    levels: number[],
-): number {
+function getBadgeLevel(user: User, requirementId: string, levels: number[]): number {
     const progress = user.progress[requirementId];
     if (!progress) {
         return -1;
@@ -180,15 +180,6 @@ function getEligibleForLimitLevel(
         0,
     );
 
-    // make searching in O(1) if user hits max return the max level
-    if (totalCount >= levels[levels.length - 1]) {
-        return levels[levels.length - 1];
-    }
-    // same but the start useful for mate in 3 or badges with 1 max level again O(1) search time
-    if (levels.length === 1 && totalCount >= levels[0]) {
-        return levels[0];
-    }
-
     let maxLevel = -1;
     for (const level of levels) {
         if (totalCount >= level) {
@@ -197,7 +188,7 @@ function getEligibleForLimitLevel(
             return maxLevel;
         }
     }
-    return -1;
+    return maxLevel;
 }
 
 /**
@@ -206,25 +197,25 @@ function getEligibleForLimitLevel(
  * @param badge the badge type
  * @returns the message
  */
-function getBadgeMessage(level: number, badge: BADGE): string {
+function getBadgeMessage(level: number, badge: BadgeType): string {
     let msg: string;
     switch (badge) {
-        case BADGE.POLGAR_MATE_ONE:
+        case BadgeType.PolgarMateOne:
             msg = polgarMateMilestones[level];
             break;
-        case BADGE.POLGAR_MATE_TWO:
+        case BadgeType.PolgarMateTwo:
             msg = polgarMateMilestones[level];
             break;
-        case BADGE.POLGAR_MATE_THREE:
+        case BadgeType.PolgarMateThree:
             msg = polgarMateMilestones[level];
             break;
-        case BADGE.ANNONTATE_GAMES:
+        case BadgeType.AnnotateGames:
             msg = annotationMilestones[level];
             break;
-        case BADGE.CLASSICAL_GAMES:
+        case BadgeType.ClassicalGames:
             msg = classicalGameMilestones[level];
             break;
-        case BADGE.DAILY_STREAK:
+        case BadgeType.DailyStreak:
             msg = `Wowza! Your daily streak hit ${level}!`;
             break;
     }
@@ -238,18 +229,28 @@ function getBadgeMessage(level: number, badge: BADGE): string {
  * @param badge the badge type
  * @returns the badge title
  */
-function getBadgeTitle(level: number, badge: BADGE): string {
-    return `${BADGE_TITLE[badge]} ${level}`;
+function getBadgeTitle(level: number, badge: BadgeType): string {
+    return `${BADGE_TITLE[badge]}-${level}`;
 }
 
 /**
- * check if badge is rare
+ * check if badge is the highest max badge as possible
  * @param level the level at we are at
  * @param badge the badge type
- * @returns is the badge rare or at max level
+ * @returns is the badge at the max level
  */
-function isRareBadge(level: number, badge: BADGE): boolean {
+function isMaxBadge(level: number, badge: BadgeType): boolean {
     return level === BADGE_LIMITS[badge][BADGE_LIMITS[badge].length - 1];
+}
+
+/**
+ * gets the badge glow
+ * @param level the level
+ * @param badge the badge type
+ * @returns if badge is max returns the glow or undefined
+ */
+function getBadgeGlow(level: number, badge: BadgeType): string | undefined {
+    return isMaxBadge(level, badge) ? BADGE_MAX_COLOR[badge] : undefined;
 }
 
 /**
@@ -258,8 +259,8 @@ function isRareBadge(level: number, badge: BADGE): boolean {
  * @param badge the badge type
  * @returns info and image for the badge
  */
-function getEligibleBadgeInfo(user: User, badge: BADGE): Badge | undefined {
-    const level: number = getEligibleForLimitLevel(user, badge, BADGE_LIMITS[badge]);
+function getEligibleBadgeInfo(user: User, badge: BadgeType): Badge | undefined {
+    const level: number = getBadgeLevel(user, badge, BADGE_LIMITS[badge]);
 
     if (level === -1) {
         return undefined;
@@ -269,8 +270,7 @@ function getEligibleBadgeInfo(user: User, badge: BADGE): Badge | undefined {
         image: getBadgeImage(level, badge),
         title: getBadgeTitle(level, badge),
         message: getBadgeMessage(level, badge),
-        israre: isRareBadge(level, badge),
-        rareglowhexcode: isRareBadge(level, badge) ? BADGE_RARE_COLOR[badge] : undefined,
+        glowHexcode: getBadgeGlow(level, badge),
     };
 
     return currentBadge;
@@ -286,8 +286,7 @@ export function getTacticsChampionBadge(): Badge {
         title: 'Tactics Champion',
         message:
             'Wowza! Your tactics rating is higher than your cohort, keep it up or you will lose it!',
-        israre: true,
-        rareglowhexcode: '#CABC56',
+        glowHexcode: '#CABC56',
     };
 
     return championBadge;
@@ -299,12 +298,12 @@ export function getTacticsChampionBadge(): Badge {
  * @returns all possible badges
  */
 export function getEligibleBadges(user: User): Badge[] {
-    const keys = Object.values(BADGE);
+    const keys = Object.values(BadgeType);
     const overallInfo: Badge[] = [];
     keys.forEach((key) => {
-        const badgeImage = getEligibleBadgeInfo(user, key);
-        if (badgeImage) {
-            overallInfo.push(badgeImage);
+        const badge = getEligibleBadgeInfo(user, key);
+        if (badge) {
+            overallInfo.push(badge);
         }
     });
 
