@@ -121,11 +121,11 @@ export const BadgeCard = ({ user }: { user: User }) => {
     for (const badge of badgeData) {
         badges.push(
             <Tooltip title={badge.title}>
-                <img
+                <Image
                     src={badge.image}
+                    width={50}
+                    height={50}
                     style={{
-                        height: '50px',
-                        width: '50px',
                         cursor: 'pointer',
                         filter: badge.glowHexcode
                             ? `drop-shadow(0 0 12px ${badge.glowHexcode})`
@@ -155,8 +155,9 @@ export const BadgeCard = ({ user }: { user: User }) => {
                         rowGap={1}
                         alignItems='center'
                     >
-                        {badges.map((badge) => (
+                        {badges.map((badge, idx) => (
                             <Box
+                                key={idx}
                                 sx={{
                                     height: '50px',
                                     width: '50px',
@@ -211,20 +212,30 @@ export const BadgeCard = ({ user }: { user: User }) => {
                                     : undefined,
                             }}
                         >
-                            <img
-                                src={selectedBadge.image}
-                                alt={selectedBadge.title}
-                                style={{
-                                    maxWidth: '90%',
-                                    borderRadius: '10px',
-                                    animation: selectedBadge.glowHexcode
-                                        ? 'glow-animation 1.5s infinite alternate'
-                                        : undefined,
-                                    filter: selectedBadge.glowHexcode
-                                        ? `drop-shadow(0 0 12px ${selectedBadge.glowHexcode})`
-                                        : undefined,
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    position: 'relative',
+                                    width: '90%',
+                                    aspectRatio: 1,
+                                    margin: 'auto',
                                 }}
-                            />
+                            >
+                                <Image
+                                    src={selectedBadge.image}
+                                    alt={selectedBadge.title}
+                                    fill
+                                    style={{
+                                        borderRadius: '10px',
+                                        animation: selectedBadge.glowHexcode
+                                            ? 'glow-animation 1.5s infinite alternate'
+                                            : undefined,
+                                        filter: selectedBadge.glowHexcode
+                                            ? `drop-shadow(0 0 12px ${selectedBadge.glowHexcode})`
+                                            : undefined,
+                                    }}
+                                />
+                            </Box>
                             <Typography variant='body1'>
                                 {selectedBadge.message}
                             </Typography>
