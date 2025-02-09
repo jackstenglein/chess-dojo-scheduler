@@ -462,8 +462,12 @@ function getMoveTime(chess: Chess | undefined, move: Move): string {
         tcMoveNum += tc.moves || 0;
         if (moveNumber <= tcMoveNum) {
             timeControl = tc;
-            additionalTime = Math.max(0, timeControls[i + 1]?.seconds || 0);
+            const nextTimeControl =
+                i + 1 < timeControls.length ? timeControls[i + 1] : timeControls[i];
+            additionalTime = Math.max(0, nextTimeControl?.seconds || 0);
             break;
+        } else if (tc.moves && i + 1 === timeControls.length) {
+            i--;
         }
     }
 

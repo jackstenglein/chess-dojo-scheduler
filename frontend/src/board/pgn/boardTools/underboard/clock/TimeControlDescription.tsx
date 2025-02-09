@@ -21,6 +21,7 @@ export function TimeControlDescription({
                     : tc.delay
                       ? ` + ${tc.delay} sec delay`
                       : ''}
+                {tc.moves && `every ${tc.moves === 1 ? 'move' : `${tc.moves} moves`}`}
             </Typography>
         );
     }

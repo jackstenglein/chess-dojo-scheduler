@@ -213,6 +213,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
 
         let timeControl = timeControls?.[0] ?? {};
         let timeControlIdx = 0;
+        let pliesSinceTimeControl = 0;
 
         const whiteClockDisplay: Datum[] = [
             {
@@ -242,11 +243,16 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
 
             if (
                 timeControl.moves &&
-                timeControlIdx + 1 < (timeControls?.length ?? 0) &&
-                i / 2 === timeControl.moves - 1
+                pliesSinceTimeControl / 2 === timeControl.moves - 1
             ) {
-                timeControl = timeControls?.[++timeControlIdx] || {};
+                if (timeControlIdx + 1 < (timeControls?.length ?? 0)) {
+                    timeControlIdx++;
+                }
+                timeControl = timeControls?.[timeControlIdx] || {};
                 additionalTime = Math.max(0, timeControl.seconds || 0);
+                pliesSinceTimeControl = 0;
+            } else {
+                pliesSinceTimeControl += 2;
             }
 
             const firstTime = clockToSeconds(moves[i]?.commentDiag?.clk);
