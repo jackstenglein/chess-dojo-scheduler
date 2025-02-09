@@ -105,7 +105,7 @@ const BADGE_MAX_COLOR: Record<BadgeType, string> = {
 /**
  * Badge glow for non max simple badges
  */
-export const BADGE_SIMPLE_GLOW: string = '#F04649';
+export const BADGE_SIMPLE_GLOW = '#F04649';
 
 /**
  * Badge titles
