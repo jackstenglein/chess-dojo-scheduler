@@ -20,6 +20,7 @@ export const CategoryColors: Record<RequirementCategory, string> = {
     [RequirementCategory.Opening]: '#f05b5b',
     [RequirementCategory.Graduation]: '#fc6156',
     [RequirementCategory.NonDojo]: '#dbdbdb',
+    [RequirementCategory.Pinned]: '#c27ba0',
 };
 
 declare module '@mui/material/styles' {

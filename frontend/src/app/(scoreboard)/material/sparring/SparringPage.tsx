@@ -4,10 +4,10 @@ import { RequestSnackbar } from '@/api/Request';
 import { useRequirements } from '@/api/cache/requirements';
 import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
+import Position from '@/components/profile/trainingPlan/Position';
 import { Requirement } from '@/database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import Position from '@/requirements/Position';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon, { IconProps } from '@/style/Icon';
 import {

@@ -1,3 +1,4 @@
+import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { AuthTokens } from 'aws-amplify/auth';
 import { ExamType } from './exam';
@@ -163,6 +164,51 @@ export interface User {
     exams: Record<string, UserExamSummary>;
 
     /** The IDs of the user's pinned tasks. */
+    pinnedTasks?: string[];
+
+    /** The day the user's week starts on. Sunday is 0; Saturday is 6. */
+    weekStart: WeekDays;
+
+    /** The user's work goal settings. */
+    workGoal?: WorkGoalSettings;
+
+    /** The user's weekly training plan. */
+    weeklyPlan?: WeeklyPlan;
+}
+
+export interface WorkGoalSettings {
+    /**
+     * A list of the minutes the user wants to work per day of the week.
+     * In conjunction with minutesPerTask, this affects how many tasks the
+     * user is suggested. Sunday is index 0; Saturday is index 6.
+     */
+    minutesPerDay: number[];
+    /**
+     * The minimum minutes the user will spend on each task per day. In conjunction
+     * with minutesPerDay, this affects how many tasks the user is suggested.
+     */
+    minutesPerTask: number;
+}
+
+export interface WeeklyPlan {
+    /** The exclusive date the weekly plan ends, in ISO 8601. */
+    endDate: string;
+    /**
+     * The tasks in the plan, in a list ordered by the index of the day of the week.
+     * Sunday is index 0; Saturday is index 6.
+     */
+    tasks: {
+        /** The id of the task. */
+        id: string;
+        /** The work goal of the task in minutes. */
+        minutes: number;
+    }[][];
+    /**
+     * The date (in ISO 8601) the user's progress was most recently updated when the weekly plan
+     * was last generated.
+     */
+    progressUpdatedAt: string;
+    /** The ids of the user's pinned tasks (in order) when the weekly plan was last generated. */
     pinnedTasks?: string[];
 }
 

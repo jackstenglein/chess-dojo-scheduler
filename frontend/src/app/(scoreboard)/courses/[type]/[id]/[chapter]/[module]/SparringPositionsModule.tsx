@@ -1,4 +1,4 @@
-import Position from '@/requirements/Position';
+import Position from '@/components/profile/trainingPlan/Position';
 import { Grid2 } from '@mui/material';
 
 import { ModuleProps } from './Module';
