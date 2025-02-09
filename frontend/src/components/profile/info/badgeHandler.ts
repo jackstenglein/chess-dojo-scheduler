@@ -114,7 +114,7 @@ const BADGE_TITLE: Record<BadgeType, string> = {
     [BadgeType.PolgarMateOne]: 'Polgar M1',
     [BadgeType.PolgarMateTwo]: 'Polgar M2',
     [BadgeType.PolgarMateThree]: 'Polgar M3',
-    [BadgeType.AnnotateGames]: 'Game Annotation',
+    [BadgeType.AnnotateGames]: 'Classical Games Annotated',
     [BadgeType.ClassicalGames]: 'Classical Games Played',
     [BadgeType.DailyStreak]: 'Daily Streak',
 };
@@ -230,7 +230,7 @@ function getBadgeMessage(level: number, badge: BadgeType): string {
  * @returns the badge title
  */
 function getBadgeTitle(level: number, badge: BadgeType): string {
-    return `${BADGE_TITLE[badge]}-${level}`;
+    return `${BADGE_TITLE[badge]} - ${level}`;
 }
 
 /**

@@ -3,6 +3,7 @@ import { User, compareCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Close as CloseIcon } from '@mui/icons-material';
 import {
+    Box,
     Card,
     CardContent,
     CardHeader,
@@ -18,7 +19,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
-import { BADGE_SIMPLE_GLOW, Badge, getEligibleBadges } from './badgeHandler';
+import { Badge, getEligibleBadges } from './badgeHandler';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge | undefined>(undefined);
@@ -45,8 +46,8 @@ export const BadgeCard = ({ user }: { user: User }) => {
         );
         if (newBadge) {
             setSelectedBadge(newBadge);
+            setPreviousBadgeData(badgeData);
         }
-        setPreviousBadgeData([...badgeData]);
     }, [badgeData, previousBadgeData, setSelectedBadge, setPreviousBadgeData]);
 
     const badges =
@@ -130,11 +131,9 @@ export const BadgeCard = ({ user }: { user: User }) => {
                             ? `drop-shadow(0 0 12px ${badge.glowHexcode})`
                             : undefined,
                         borderRadius: '8px',
-                        transition: 'transform 0.2s',
                     }}
                     alt={badge.title}
                     onClick={() => handleBadgeClick(badge)}
-                    className={badge.glowHexcode ? 'glow' : ''}
                 />
             </Tooltip>,
         );
@@ -149,8 +148,27 @@ export const BadgeCard = ({ user }: { user: User }) => {
             <Card>
                 <CardHeader title='Badges' />
                 <CardContent sx={{ pt: 0 }}>
-                    <Stack direction='row' columnGap={0.75} flexWrap='wrap' rowGap={1}>
-                        {badges}
+                    <Stack
+                        direction='row'
+                        columnGap={0.75}
+                        flexWrap='wrap'
+                        rowGap={1}
+                        alignItems='center'
+                    >
+                        {badges.map((badge) => (
+                            <Box
+                                sx={{
+                                    height: '50px',
+                                    width: '50px',
+                                    '&:hover': {
+                                        transform: 'scale(1.1)',
+                                        transition: 'transform 0.2s',
+                                    },
+                                }}
+                            >
+                                {badge}
+                            </Box>
+                        ))}
                     </Stack>
                 </CardContent>
             </Card>
@@ -180,12 +198,32 @@ export const BadgeCard = ({ user }: { user: User }) => {
                         <DialogContent
                             sx={{
                                 textAlign: 'center',
+                                overflow: 'visible',
+                                '@keyframes glow-animation': selectedBadge.glowHexcode
+                                    ? {
+                                          '0%': {
+                                              filter: `drop-shadow(0 0 8px ${selectedBadge.glowHexcode})`,
+                                          },
+                                          '100%': {
+                                              filter: `drop-shadow(0 0 16px ${selectedBadge.glowHexcode})`,
+                                          },
+                                      }
+                                    : undefined,
                             }}
                         >
                             <img
                                 src={selectedBadge.image}
                                 alt={selectedBadge.title}
-                                className='glow-image'
+                                style={{
+                                    maxWidth: '90%',
+                                    borderRadius: '10px',
+                                    animation: selectedBadge.glowHexcode
+                                        ? 'glow-animation 1.5s infinite alternate'
+                                        : undefined,
+                                    filter: selectedBadge.glowHexcode
+                                        ? `drop-shadow(0 0 12px ${selectedBadge.glowHexcode})`
+                                        : undefined,
+                                }}
                             />
                             <Typography variant='body1'>
                                 {selectedBadge.message}
@@ -194,31 +232,6 @@ export const BadgeCard = ({ user }: { user: User }) => {
                     </>
                 )}
             </Dialog>
-
-            <style jsx>{`
-                .glow {
-                    animation: glow-animation 1.5s infinite alternate;
-                    filter: filter: drop-shadow(0 0 12px
-                            ${selectedBadge?.glowHexcode || BADGE_SIMPLE_GLOW});
-                }
-
-                @keyframes glow-animation {
-                    0% {
-                        filter: drop-shadow(0 0 8px
-                            ${selectedBadge?.glowHexcode || BADGE_SIMPLE_GLOW});
-                    }
-                    100% {
-                        filter: drop-shadow(0 0 16px
-                            ${selectedBadge?.glowHexcode || BADGE_SIMPLE_GLOW});
-                    }
-                }
-
-                .glow-image {
-                    max-width: 90%;
-                    border-radius: 10px;
-                    animation: glow-animation 1.5s infinite alternate;
-                }
-            `}</style>
         </>
     );
 };
