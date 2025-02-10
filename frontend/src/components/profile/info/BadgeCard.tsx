@@ -121,15 +121,11 @@ export const BadgeCard = ({ user }: { user: User }) => {
 
     if (!user.createdAt) {
         const badge = getDojoerBadge();
-        badges.push(
-            <CustomBadge badge={badge} handleBadgeClick={handleBadgeClick}/>
-        );
+        badges.push(<CustomBadge badge={badge} handleBadgeClick={handleBadgeClick} />);
     }
 
     for (const badge of badgeData) {
-        badges.push(
-            <CustomBadge badge={badge} handleBadgeClick={handleBadgeClick}/>
-        );
+        badges.push(<CustomBadge badge={badge} handleBadgeClick={handleBadgeClick} />);
     }
 
     if (badges.length === 0) {
