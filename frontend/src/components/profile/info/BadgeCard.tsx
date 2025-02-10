@@ -119,7 +119,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
     //     );
     // }
 
-    if (user.createdAt) {
+    if (!user.createdAt) {
         const badge = getDojoerBadge();
         badges.push(
             <CustomBadge badge={badge} handleBadgeClick={handleBadgeClick}/>
