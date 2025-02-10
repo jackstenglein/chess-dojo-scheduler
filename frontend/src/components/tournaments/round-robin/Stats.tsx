@@ -202,22 +202,27 @@ function GraphView({
     tournament: RoundRobin;
     viewMode: 'count' | 'percentage';
 }) {
-    const playerStats = calculatePlayerStats(tournament);
+    const playerStats = calculatePlayerStatsList(tournament);
     const playerNames = playerStats.map((stat) => stat.player);
-    const totalGames = countActivePlayers(tournament) - 1;
 
     const wins =
         viewMode === 'count'
             ? playerStats.map((stat) => stat.wins)
-            : playerStats.map((stat) => +((stat.wins / totalGames) * 100).toFixed(2));
+            : playerStats.map((stat) =>
+                  stat.played === 0 ? 0 : +((stat.wins / stat.played) * 100).toFixed(2),
+              );
     const losses =
         viewMode === 'count'
             ? playerStats.map((stat) => stat.losses)
-            : playerStats.map((stat) => +((stat.losses / totalGames) * 100).toFixed(2));
+            : playerStats.map((stat) =>
+                  stat.played === 0 ? 0 : +((stat.losses / stat.played) * 100).toFixed(2),
+              );
     const draws =
         viewMode === 'count'
             ? playerStats.map((stat) => stat.draws)
-            : playerStats.map((stat) => +((stat.draws / totalGames) * 100).toFixed(2));
+            : playerStats.map((stat) =>
+                  stat.played === 0 ? 0 : +((stat.draws / stat.played) * 100).toFixed(2),
+              );
 
     return (
         <Box
@@ -256,8 +261,7 @@ function ListView({
     tournament: RoundRobin;
     viewMode: 'count' | 'percentage';
 }) {
-    const playerStats = calculatePlayerStats(tournament);
-    const totalGames = countActivePlayers(tournament) - 1;
+    const playerStats = calculatePlayerStatsList(tournament);
 
     return (
         <TableContainer>
@@ -266,6 +270,11 @@ function ListView({
                     <TableRow>
                         <TableCell>
                             <Typography fontWeight='bold'>Player</Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                            <Typography fontWeight='bold'>
+                                {viewMode === 'count' ? 'Total Score' : 'Total %'}
+                            </Typography>
                         </TableCell>
                         <TableCell align='center'>
                             <Typography fontWeight='bold'>
@@ -297,22 +306,39 @@ function ListView({
                             <TableCell align='center'>
                                 <Typography>
                                     {viewMode === 'count'
+                                        ? stat.score
+                                        : stat.played === 0
+                                          ? 0
+                                          : ((stat.score / stat.played) * 100).toFixed(2)}
+                                </Typography>
+                            </TableCell>
+                            <TableCell align='center'>
+                                <Typography>
+                                    {viewMode === 'count'
                                         ? stat.wins
-                                        : ((stat.wins / totalGames) * 100).toFixed(2)}
+                                        : stat.played === 0
+                                          ? 0
+                                          : ((stat.wins / stat.played) * 100).toFixed(2)}
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>
                                 <Typography>
                                     {viewMode === 'count'
                                         ? stat.draws
-                                        : ((stat.draws / totalGames) * 100).toFixed(2)}
+                                        : stat.played === 0
+                                          ? 0
+                                          : ((stat.draws / stat.played) * 100).toFixed(2)}
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>
                                 <Typography>
                                     {viewMode === 'count'
                                         ? stat.losses
-                                        : ((stat.losses / totalGames) * 100).toFixed(2)}
+                                        : stat.played === 0
+                                          ? 0
+                                          : ((stat.losses / stat.played) * 100).toFixed(
+                                                2,
+                                            )}
                                 </Typography>
                             </TableCell>
                         </TableRow>
@@ -323,14 +349,27 @@ function ListView({
     );
 }
 
+interface PlayerStats {
+    /** The player's total score in the tournament so far. */
+    score: number;
+    /** The player's win count in the tournament so far. */
+    wins: number;
+    /** The player's draw count in the tournament so far. */
+    draws: number;
+    /** The player's loss count in the tournament so far. */
+    losses: number;
+    /** The number of games the player has played in the tournament so far. */
+    played: number;
+}
+
 /**
- * Calculates the W/D/L counts for the given tournament. Only active players
- * are included.
+ * Calculates the PlayerStats for active players in the given tournament.
+ * Only active players are included.
  * @param tournament The tournament to calculate the counts for.
- * @returns A list of W/D/L counts for each player.
+ * @returns A map from username to stats for each active player in the tournament.
  */
-function calculatePlayerStats(tournament: RoundRobin) {
-    const results: Record<string, { wins: number; draws: number; losses: number }> = {};
+export function calculatePlayerStats(tournament: RoundRobin) {
+    const results: Record<string, PlayerStats> = {};
 
     for (const round of tournament.pairings) {
         for (const pairing of round) {
@@ -344,10 +383,25 @@ function calculatePlayerStats(tournament: RoundRobin) {
                 continue;
             }
 
-            const white = results[pairing.white] || { wins: 0, losses: 0, draws: 0 };
-            const black = results[pairing.black] || { wins: 0, losses: 0, draws: 0 };
+            const white = results[pairing.white] || {
+                score: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                played: 0,
+            };
+            const black = results[pairing.black] || {
+                score: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                played: 0,
+            };
             results[pairing.white] = white;
             results[pairing.black] = black;
+
+            white.played++;
+            black.played++;
 
             if (pairing.result === '1-0') {
                 white.wins++;
@@ -359,16 +413,28 @@ function calculatePlayerStats(tournament: RoundRobin) {
                 white.losses++;
                 black.wins++;
             }
+
+            white.score = white.wins + white.draws / 2;
+            black.score = black.wins + black.draws / 2;
         }
     }
 
-    const resultList: {
+    return results;
+}
+
+/**
+ * Calculates the W/D/L counts for the given tournament. Only active players
+ * are included.
+ * @param tournament The tournament to calculate the counts for.
+ * @returns A list of W/D/L counts for each player.
+ */
+function calculatePlayerStatsList(tournament: RoundRobin) {
+    const results = calculatePlayerStats(tournament);
+
+    const resultList: (PlayerStats & {
         username: string;
         player: string;
-        wins: number;
-        draws: number;
-        losses: number;
-    }[] = [];
+    })[] = [];
 
     for (const username of tournament.playerOrder) {
         if (tournament.players[username].status === RoundRobinPlayerStatuses.WITHDRAWN) {
@@ -378,9 +444,16 @@ function calculatePlayerStats(tournament: RoundRobin) {
         resultList.push({
             username,
             player: tournament.players[username].displayName,
-            ...(results[username] || { wins: 0, draws: 0, losses: 0 }),
+            ...(results[username] || {
+                score: 0,
+                wins: 0,
+                draws: 0,
+                losses: 0,
+                played: 0,
+            }),
         });
     }
 
+    resultList.sort((lhs, rhs) => rhs.score - lhs.score);
     return resultList;
 }

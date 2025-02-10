@@ -5,7 +5,7 @@ import {
     RoundRobin,
     RoundRobinPlayerStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { Group, PeopleAlt, TableChart, Timeline } from '@mui/icons-material';
+import { PeopleAlt, TableChart, Timeline } from '@mui/icons-material';
 import { TabContext, TabPanel } from '@mui/lab';
 import {
     Button,
@@ -18,6 +18,7 @@ import {
     Tabs,
 } from '@mui/material';
 import { useState } from 'react';
+import { GiCrossedSwords } from 'react-icons/gi';
 import { Crosstable } from './Crosstable';
 import { Games } from './Games';
 import { Pairings } from './Pairings';
@@ -82,7 +83,11 @@ export function Tournament({
                             value='crosstable'
                             icon={<TableChart />}
                         />
-                        <Tab label='Pairings' value='pairings' icon={<Group />} />
+                        <Tab
+                            label='Pairings'
+                            value='pairings'
+                            icon={<GiCrossedSwords size={24} />}
+                        />
                         <Tab label='Games' value='games' icon={<PawnIcon />} />
                         <Tab label='Stats' value='stats' icon={<Timeline />} />
                     </Tabs>
