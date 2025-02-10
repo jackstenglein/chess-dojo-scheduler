@@ -19,7 +19,8 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
-import { Badge, getEligibleBadges } from './badgeHandler';
+import { Badge, getDojoerBadge, getEligibleBadges } from './badgeHandler';
+import CustomBadge from './CustomBadge';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge | undefined>(undefined);
@@ -118,24 +119,16 @@ export const BadgeCard = ({ user }: { user: User }) => {
     //     );
     // }
 
+    if (user.createdAt) {
+        const badge = getDojoerBadge();
+        badges.push(
+            <CustomBadge badge={badge} handleBadgeClick={handleBadgeClick}/>
+        );
+    }
+
     for (const badge of badgeData) {
         badges.push(
-            <Tooltip title={badge.title}>
-                <Image
-                    src={badge.image}
-                    width={50}
-                    height={50}
-                    style={{
-                        cursor: 'pointer',
-                        filter: badge.glowHexcode
-                            ? `drop-shadow(0 0 12px ${badge.glowHexcode})`
-                            : undefined,
-                        borderRadius: '8px',
-                    }}
-                    alt={badge.title}
-                    onClick={() => handleBadgeClick(badge)}
-                />
-            </Tooltip>,
+            <CustomBadge badge={badge} handleBadgeClick={handleBadgeClick}/>
         );
     }
 

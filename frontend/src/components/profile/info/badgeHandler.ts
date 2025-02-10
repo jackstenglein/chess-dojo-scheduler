@@ -257,6 +257,22 @@ function getEligibleBadgeInfo(user: User, badge: BadgeType): Badge | undefined {
 // }
 
 /**
+ * gets the Dojo 1.0 badge
+ * @returns the Dojo 1.0 badge
+ */
+export function getDojoerBadge(): Badge {
+    const dojoerBadge = {
+        image: '/static/badges/misc/dojo1.0.png',
+        title: 'Dojo member since 1.0',
+        message:
+            'You been a valuable Dojo member from the start! Thanks for your support!',
+        glowHexcode: '#F4CC2B',
+    };
+
+    return dojoerBadge;
+}
+
+/**
  * Gets all possible elgible badges for user
  * @param user the current user
  * @returns all possible badges
