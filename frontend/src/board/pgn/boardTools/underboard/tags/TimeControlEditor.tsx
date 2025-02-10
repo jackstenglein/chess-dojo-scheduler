@@ -345,11 +345,6 @@ function validateTimeControls(timeControls: TimeControl[]): TimeControlErrors {
                 ...errors[i],
                 moves: 'Number of moves must be specified if not the last time control',
             };
-        } else if (i + 1 === timeControls.length && timeControl.moves) {
-            errors[i] = {
-                ...errors[i],
-                moves: 'Number of moves must be empty for the last time control',
-            };
         }
 
         if (i === 0 && !timeControl.seconds) {
