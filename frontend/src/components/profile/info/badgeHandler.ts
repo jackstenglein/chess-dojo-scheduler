@@ -265,7 +265,7 @@ export function getDojoerBadge(): Badge {
         image: '/static/badges/misc/DojoHeart.png',
         title: 'Dojo member since 1.0',
         message:
-            'You been a valuable Dojo member from the start! Thanks for your support!',
+            'You have been a valuable Dojo member from the start! Thanks for your support!',
         glowHexcode: '#BD01F2',
     };
 
