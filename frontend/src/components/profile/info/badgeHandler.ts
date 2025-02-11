@@ -262,11 +262,11 @@ function getEligibleBadgeInfo(user: User, badge: BadgeType): Badge | undefined {
  */
 export function getDojoerBadge(): Badge {
     const dojoerBadge = {
-        image: '/static/badges/misc/dojo1.0.png',
+        image: '/static/badges/misc/DojoHeart.png',
         title: 'Dojo member since 1.0',
         message:
             'You been a valuable Dojo member from the start! Thanks for your support!',
-        glowHexcode: '#F4CC2B',
+        glowHexcode: '#BD01F2',
     };
 
     return dojoerBadge;
