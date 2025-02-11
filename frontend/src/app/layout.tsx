@@ -2,6 +2,7 @@ import { MetaPixel } from '@/components/analytics/MetaPixel';
 import { WebVitals } from '@/components/analytics/WebVitals';
 import { getConfig } from '@/config';
 import { Metadata } from 'next';
+import { NavigationGuardProvider } from 'next-navigation-guard';
 
 export const metadata: Metadata = {
     metadataBase: new URL(getConfig().baseUrl),
@@ -18,9 +19,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <link rel='manifest' href='/manifest.json' />
             </head>
             <body>
-                <MetaPixel />
-                <WebVitals />
-                <div id='root'>{children}</div>
+                <NavigationGuardProvider>
+                    <MetaPixel />
+                    <WebVitals />
+                    <div id='root'>{children}</div>
+                </NavigationGuardProvider>
             </body>
         </html>
     );

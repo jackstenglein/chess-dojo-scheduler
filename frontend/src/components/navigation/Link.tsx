@@ -4,7 +4,8 @@ import { pagesWithVideos } from '@/hooks/useRouter';
 import { LinkProps, Link as MuiLink } from '@mui/material';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
-import { forwardRef } from 'react';
+import { NavigationGuardProviderContext } from 'node_modules/next-navigation-guard/dist/components/NavigationGuardProviderContext';
+import { forwardRef, useContext } from 'react';
 
 /**
  * Renders a MUI link to another page. If the link is relative and to a page
@@ -14,8 +15,11 @@ import { forwardRef } from 'react';
  */
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
     const pathname = usePathname();
+    const guardMapRef = useContext(NavigationGuardProviderContext);
 
     let useNextLink = true;
+    let guardNavigation: React.MouseEventHandler<HTMLAnchorElement> | undefined =
+        undefined;
 
     if (!props.href || props.href.startsWith('http')) {
         useNextLink = false;
@@ -35,7 +39,45 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
         useNextLink = currentHasVideo === newHasVideo;
     }
 
+    const href = props.href;
+    if (!useNextLink && guardMapRef && href) {
+        for (const guard of guardMapRef.current.values()) {
+            const { enabled, callback } = guard;
+            if (!enabled({ to: href, type: 'push' })) {
+                continue;
+            }
+
+            guardNavigation = (e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault();
+                e.stopPropagation();
+                props.onClick?.(e);
+
+                let confirmed = callback({ to: href, type: 'push' });
+                if (typeof confirmed === 'boolean') {
+                    confirmed = Promise.resolve(confirmed);
+                }
+
+                void confirmed.then((confirmed) => {
+                    if (!confirmed) {
+                        return;
+                    }
+
+                    guard.enabled = () => false;
+                    window.location.href = href;
+                });
+            };
+            break;
+        }
+    }
+
     const component = props.component || (useNextLink ? NextLink : 'a');
-    return <MuiLink ref={ref} {...props} component={component} />;
+    return (
+        <MuiLink
+            ref={ref}
+            {...props}
+            component={component}
+            onClick={guardNavigation ?? props.onClick}
+        />
+    );
 });
 Link.displayName = 'Link';
