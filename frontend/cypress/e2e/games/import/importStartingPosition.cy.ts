@@ -13,4 +13,13 @@ describe('Import Games Page - Position', () => {
 
         cy.location('pathname').should('equal', '/games/analysis');
     });
+
+    it('prevents navigating away from unsaved analysis', () => {
+        cy.getBySel('import-starting-position').click();
+        cy.location('pathname').should('equal', '/games/analysis');
+
+        cy.contains('Training Plan').click();
+
+        cy.getBySel('unsaved-analysis-nav-guard').should('be.visible');
+    });
 });
