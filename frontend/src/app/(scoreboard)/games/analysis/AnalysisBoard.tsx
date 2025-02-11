@@ -24,6 +24,8 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/
 import { useNavigationGuard } from 'next-navigation-guard';
 import { useState } from 'react';
 
+const gameUrlRegex = /^\/games\/.*\/.*/;
+
 function parseCreateGameRequest(req: CreateGameRequest | null) {
     if (req?.pgnText) {
         return { pgn: req.pgnText };
@@ -36,7 +38,11 @@ export default function AnalysisBoard() {
     const { pgn, fen } = parseCreateGameRequest(stagedGame);
     const { searchParams } = useNextSearchParams();
     const { user, status } = useAuth();
-    const navGuard = useNavigationGuard({ enabled: true });
+    const navGuard = useNavigationGuard({
+        enabled: ({ to }) => {
+            return !gameUrlRegex.test(to);
+        },
+    });
     const [chess, setChess] = useState<Chess>();
     const {
         showDialog: showSaveDialog,
