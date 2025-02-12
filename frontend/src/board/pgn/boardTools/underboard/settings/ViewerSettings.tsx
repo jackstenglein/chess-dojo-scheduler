@@ -24,6 +24,11 @@ export const ShowLegalMovesKey = 'showLegalMoves';
 export const CapturedMaterialBehaviorKey = 'capturedMaterialBehavior';
 export const ShowGlyphsKey = 'showGlyphsOnBoard';
 
+export const HideEngine = {
+    Key: 'hideEngine',
+    Default: false,
+} as const;
+
 export enum BoardStyle {
     Standard = 'STANDARD',
     Moon = 'MOON',
@@ -101,6 +106,10 @@ const ViewerSettings = () => {
     const [showLegalMoves, setShowLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
     const [showGlyphs, setShowGlyphs] = useLocalStorage(ShowGlyphsKey, false);
 
+    const [hideEngine, setHideEngine] = useLocalStorage<boolean>(
+        HideEngine.Key,
+        HideEngine.Default,
+    );
     const [highlightEngineLines, setHighlightEngineLines] = useLocalStorage<boolean>(
         HIGHLIGHT_ENGINE_LINES.Key,
         HIGHLIGHT_ENGINE_LINES.Default,
@@ -223,6 +232,16 @@ const ViewerSettings = () => {
                         />
                     }
                     label='Show elapsed time next to move'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={hideEngine}
+                            onChange={(e) => setHideEngine(e.target.checked)}
+                        />
+                    }
+                    label='Hide engine'
                 />
 
                 <FormControlLabel
