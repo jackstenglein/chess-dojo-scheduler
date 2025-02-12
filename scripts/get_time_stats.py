@@ -30,7 +30,7 @@ def process_user(csv_user, requirements):
     user = table.get_item(Key={'username': csv_user['Username']})['Item']
     with open(f"output/{csv_user['Name']}.csv", 'w') as file:
         writer = csv.writer(file)
-        writer.writerow(['Task ID', 'Task Name', 'Cohort', 'Count', 'Minutes'])
+        writer.writerow(['Task ID', 'Task Name', 'Cohort', 'Count', 'Points', 'Minutes'])
 
         for task_id, progress in user['progress'].items():
             if (task := find_task(task_id, requirements)) is None: continue
@@ -38,11 +38,26 @@ def process_user(csv_user, requirements):
             if 'ALL_COHORTS' in progress['counts']:
                 minutes = sum([m for m in progress['minutesSpent'].values()])
                 count = progress['counts']['ALL_COHORTS']
-                writer.writerow([task_id, task['name'], 'ALL_COHORTS', count, minutes])
+                points = 0
+                if task.get('totalScore', 0) > 0:
+                    if count >= task['counts'].get(user['dojoCohort'], 0):
+                        points = task['totalScore']
+                else:
+                    points = float(count) * float(task['unitScore'])
+                writer.writerow([task_id, task['name'], 'ALL_COHORTS', count, points, minutes])
                 continue
 
             for cohort, minutes in progress['minutesSpent'].items():
-                writer.writerow([task_id, task['name'], cohort, progress['counts'].get(cohort, 0), minutes])
+                points = 0
+                count = progress['counts'].get(cohort, 0)
+                if task.get('totalScore', 0) > 0:
+                    if count >= task['counts'][user['dojoCohort']]:
+                        points = task['totalScore']
+                elif cohort in task['unitScoreOverride']:
+                    points = float(count) * float(task['unitScoreOverride']['cohort'])
+                else:
+                    points = float(count) * float(task['unitScore'])
+                writer.writerow([task_id, task['name'], cohort, count, points, minutes])
 
 
 def main():
