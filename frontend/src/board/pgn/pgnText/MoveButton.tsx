@@ -5,7 +5,6 @@ import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Backspace, Help, Merge } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
     Grid2,
     ListItemIcon,
@@ -239,7 +238,7 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
 
                             <MenuItem onClick={() => onDelete(move, 'after')}>
                                 <ListItemIcon>
-                                    <DeleteIcon />
+                                    <Backspace sx={{ transform: 'rotateY(180deg)' }} />
                                 </ListItemIcon>
                                 <ListItemText>Delete from here</ListItemText>
                             </MenuItem>
