@@ -10,7 +10,7 @@ import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
 import './board.css';
 import { getBoardSx, getPieceSx } from './boardThemes';
-import { compareNags, getNagGlyph, getStandardNag, nags } from './pgn/Nag';
+import { compareNags, getNagGlyph } from './pgn/Nag';
 import { useChess } from './pgn/PgnBoard';
 import ResizeHandle from './pgn/ResizeHandle';
 import {
@@ -109,9 +109,8 @@ export function toAutoShapes(chess?: Chess, showGlyphs?: boolean): DrawShape[] {
         return [];
     }
 
-    const nagDetails =
-        currentMove.nags?.sort(compareNags).map((n) => nags[getStandardNag(n)]) ?? [];
-    if (nagDetails.length === 0) {
+    const nags = currentMove.nags?.sort(compareNags) ?? [];
+    if (nags.length === 0) {
         return [];
     }
 
@@ -119,7 +118,7 @@ export function toAutoShapes(chess?: Chess, showGlyphs?: boolean): DrawShape[] {
         {
             orig: currentMove.to,
             customSvg: {
-                html: getNagGlyph(nagDetails[0]),
+                html: getNagGlyph(nags[0]),
             },
         },
     ];
