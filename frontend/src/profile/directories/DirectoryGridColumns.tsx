@@ -1,6 +1,9 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
-import { RenderPlayers, RenderResult } from '@/components/games/list/GameListItem';
+import {
+    RenderGameResultStack,
+    RenderPlayers,
+} from '@/components/games/list/GameListItem';
 import { Link } from '@/components/navigation/Link';
 import { MastersCohort, MastersOwnerDisplayName } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
@@ -100,7 +103,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
             if (params.row.type === DirectoryItemTypes.DIRECTORY) {
                 return null;
             }
-            return RenderResult(params);
+            return <RenderGameResultStack result={params.row.metadata.result} />;
         },
         width: 50,
         disableColumnMenu: true,
@@ -203,7 +206,7 @@ export const adminColumns: GridColDef<DirectoryItem>[] = [
                     </Stack>
                 );
             }
-            return RenderResult(params);
+            return <RenderGameResultStack result={params.row.metadata.result} />;
         },
         width: 50,
         disableColumnMenu: true,

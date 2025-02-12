@@ -271,27 +271,6 @@ export function RenderOwner({
     );
 }
 
-export function RenderResult(params: GridRenderCellParams) {
-    if (!params.value) {
-        return '?';
-    }
-
-    return (
-        <Stack height={1} justifyContent='center' alignItems='center'>
-            <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
-                {params.value === GameResult.White && '1'}
-                {params.value === GameResult.Black && '0'}
-                {params.value === GameResult.Draw && '½'}
-            </Typography>
-            <Typography sx={{ fontSize: { xs: '0.875rem', sm: 'initial' } }}>
-                {params.value === GameResult.White && '0'}
-                {params.value === GameResult.Black && '1'}
-                {params.value === GameResult.Draw && '½'}
-            </Typography>
-        </Stack>
-    );
-}
-
 export function getTimeControl({ timeControl }: { timeControl?: string }) {
     const initialClock = getInitialClock(timeControl);
     if (!initialClock) {
