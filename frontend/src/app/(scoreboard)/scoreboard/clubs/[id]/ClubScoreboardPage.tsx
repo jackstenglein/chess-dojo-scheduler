@@ -8,8 +8,13 @@ import { Link } from '@/components/navigation/Link';
 import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
 import LoadingPage from '@/loading/LoadingPage';
 import Scoreboard from '@/scoreboard/Scoreboard';
-import { Container } from '@mui/material';
-import { GridToolbarContainer } from '@mui/x-data-grid-pro';
+import { Container, Stack } from '@mui/material';
+import {
+    GridToolbarColumnsButton,
+    GridToolbarContainer,
+    GridToolbarDensitySelector,
+    GridToolbarFilterButton,
+} from '@mui/x-data-grid-pro';
 import { useEffect } from 'react';
 
 export function ClubScoreboardPage({ id }: { id: string }) {
@@ -70,10 +75,15 @@ export function ClubScoreboardPage({ id }: { id: string }) {
 
 function CustomToolbar({ id }: { id?: string }) {
     return (
-        <GridToolbarContainer>
+        <Stack>
+            <GridToolbarContainer>
+                <GridToolbarColumnsButton />
+                <GridToolbarDensitySelector />
+                <GridToolbarFilterButton />
+            </GridToolbarContainer>
             <Link href={`/clubs/${id}`} sx={{ mt: 0.5, ml: 0.5 }}>
                 Go to Club
             </Link>
-        </GridToolbarContainer>
+        </Stack>
     );
 }

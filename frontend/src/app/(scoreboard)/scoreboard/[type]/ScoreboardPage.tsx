@@ -5,6 +5,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRequirements } from '@/api/cache/requirements';
 import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
+import { ScoreboardToolbar } from '@/components/scoreboard/ScoreboardToolbar';
 import ScoreboardViewSelector from '@/components/scoreboard/ScoreboardViewSelector';
 import ScoreboardTutorial from '@/components/tutorial/ScoreboardTutorial';
 import { Graduation } from '@/database/graduation';
@@ -155,11 +156,3 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
         </Container>
     );
 }
-
-const ScoreboardToolbar = () => {
-    return (
-        <Typography variant='caption' color='text.secondary' sx={{ ml: 0.5, mt: 0.5 }}>
-            Tip: hold shift while scrolling to scroll horizontally
-        </Typography>
-    );
-};
