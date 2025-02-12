@@ -4,6 +4,7 @@ import {
     NagDetails,
     nags,
 } from '@jackstenglein/chess-dojo-common/src/pgn/nag';
+import { nagSvgs } from './NagIcon';
 
 export { compareNags, nags };
 export type { Nag, NagDetails };
@@ -52,6 +53,12 @@ export const positionalNags: Nag[] = [
     '$138',
     '$44',
     '$140',
+    '$142',
+    '$143',
+    '$1300',
+    '$1301',
+    '$1302',
+    '$1303',
 ];
 
 export function getNagInSet(nagSet: Nag[], nags: string[] | undefined): Nag {
@@ -103,7 +110,11 @@ export function setNagsInSet(newNags: Nag[], nagSet: Nag[], nags?: string[]): Na
     return nags.sort(compareNags);
 }
 
-export function getNagGlyph(nag: NagDetails): string {
+export function getNagGlyph(nag: string): string {
+    const details = nags[nag];
+
+    const svg = nagSvgs[nag];
+
     return `
         <defs>
             <filter id="shadow">
@@ -111,16 +122,22 @@ export function getNagGlyph(nag: NagDetails): string {
             </filter>
         </defs>
         <g transform="translate(71 -12) scale(0.4)">
-            <circle style="fill:${nag.color || 'purple'};filter:url(#shadow)" cx="50" cy="50" r="50"></circle>
-            <text
-                font-size="${nag.glyphFontSize ?? '4.5rem'}" 
+            <circle style="fill:${details.color || 'purple'};filter:url(#shadow)" cx="50" cy="50" r="50"></circle>
+            ${
+                svg
+                    ? ''
+                    : `<text
+                font-size="${details.glyphFontSize ?? '4.5rem'}" 
                 font-weight="bold" 
                 text-anchor="middle" 
                 fill="white" 
                 x="50" 
-                y="${nag.glyphY ?? 75}"
+                y="${details.glyphY ?? 75}"
             >
-                ${nag.label}
-            </text>
-        </g>`;
+                ${details.label}
+            </text>`
+            }
+        </g>
+        ${svg ? svg : ''}
+        `;
 }

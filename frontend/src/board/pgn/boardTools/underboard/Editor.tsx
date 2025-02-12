@@ -1,5 +1,5 @@
 import { Chess, CommentType, Event, EventType, Move } from '@jackstenglein/chess';
-import { Backspace, Edit } from '@mui/icons-material';
+import { Backspace, Edit, MoreHoriz } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -9,6 +9,10 @@ import {
     CardContent,
     FormControlLabel,
     IconButton,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
     Radio,
     RadioGroup,
     Stack,
@@ -32,6 +36,7 @@ import {
     setNagInSet,
     setNagsInSet,
 } from '../../Nag';
+import { nagIcons } from '../../NagIcon';
 import { BlockBoardKeyboardShortcuts, useChess } from '../../PgnBoard';
 import ClockTextField from './clock/ClockTextField';
 import { TimeControlDescription } from './clock/TimeControlDescription';
@@ -78,6 +83,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
     const [commentType, setCommentType] = useState(CommentType.After);
     const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
+    const [moreNagAnchorEl, setMoreNagAnchorEl] = useState<HTMLElement>();
 
     useEffect(() => {
         if (chess) {
@@ -145,8 +151,29 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
         };
 
     const handleMultiNags = (nagSet: Nag[]) => (_event: unknown, newNags: string[]) => {
+        console.log('Handle multi nags: ', newNags);
         chess.setNags(setNagsInSet(newNags, nagSet, move?.nags));
         reconcile();
+    };
+
+    const onMoreNags = (e: React.MouseEvent<HTMLElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setMoreNagAnchorEl(e.currentTarget);
+    };
+
+    const onClickMenuNag = (nag: string) => {
+        console.log('On Click Menu Nag: ', nag);
+        const currentNags = getNagsInSet(positionalNags, move?.nags);
+        console.log('Current Nags: ', currentNags);
+        const index = currentNags.indexOf(nag);
+        if (index < 0) {
+            currentNags.push(nag);
+        } else {
+            currentNags.splice(index, 1);
+        }
+        console.log('New Nags: ', currentNags);
+        handleMultiNags(positionalNags)(undefined, currentNags);
     };
 
     const onNullMove = () => {
@@ -298,7 +325,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         value={getNagsInSet(positionalNags, chess.currentMove()?.nags)}
                         onChange={handleMultiNags(positionalNags)}
                     >
-                        {positionalNags.map((nag) => (
+                        {positionalNags.slice(0, 7).map((nag) => (
                             <NagButton
                                 key={nag}
                                 value={nag}
@@ -306,7 +333,38 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                                 description={nags[nag].description}
                             />
                         ))}
+
+                        <Tooltip title='View more'>
+                            <span style={{ width: `${100 / 8}%` }}>
+                                <ToggleButton
+                                    value='more'
+                                    sx={{ width: 1, height: 1 }}
+                                    onClick={onMoreNags}
+                                >
+                                    <MoreHoriz />
+                                </ToggleButton>
+                            </span>
+                        </Tooltip>
                     </ToggleButtonGroup>
+
+                    <Menu
+                        anchorEl={moreNagAnchorEl}
+                        open={!!moreNagAnchorEl}
+                        onClose={() => setMoreNagAnchorEl(undefined)}
+                    >
+                        {positionalNags.slice(7).map((nag) => (
+                            <MenuItem
+                                key={nag}
+                                onClick={() => onClickMenuNag(nag)}
+                                selected={move?.nags?.includes(nag)}
+                            >
+                                <ListItemIcon>
+                                    {nagIcons[nag] ? nagIcons[nag] : nags[nag].label}
+                                </ListItemIcon>
+                                <ListItemText>{nags[nag].description}</ListItemText>
+                            </MenuItem>
+                        ))}
+                    </Menu>
                 </Stack>
 
                 <Stack spacing={1}>
