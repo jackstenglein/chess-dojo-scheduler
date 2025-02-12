@@ -2,9 +2,7 @@ import { Chess, CommentType, Event, EventType, Move } from '@jackstenglein/chess
 import { Backspace, Edit, MoreHoriz } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
-    Box,
     Button,
     CardContent,
     FormControlLabel,
@@ -52,7 +50,13 @@ const NagButton: React.FC<NagButtonProps> = ({ text, description, ...props }) =>
     return (
         <Tooltip title={description}>
             <span style={{ width: `${100 / 8}%` }}>
-                <ToggleButton {...props} sx={{ width: 1 }}>
+                <ToggleButton
+                    {...props}
+                    sx={{
+                        ...props.sx,
+                        width: 1,
+                    }}
+                >
                     <Stack alignItems='center' justifyContent='center'>
                         <Typography
                             sx={{
@@ -151,7 +155,6 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
         };
 
     const handleMultiNags = (nagSet: Nag[]) => (_event: unknown, newNags: string[]) => {
-        console.log('Handle multi nags: ', newNags);
         chess.setNags(setNagsInSet(newNags, nagSet, move?.nags));
         reconcile();
     };
@@ -163,16 +166,13 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     };
 
     const onClickMenuNag = (nag: string) => {
-        console.log('On Click Menu Nag: ', nag);
         const currentNags = getNagsInSet(positionalNags, move?.nags);
-        console.log('Current Nags: ', currentNags);
         const index = currentNags.indexOf(nag);
         if (index < 0) {
             currentNags.push(nag);
         } else {
             currentNags.splice(index, 1);
         }
-        console.log('New Nags: ', currentNags);
         handleMultiNags(positionalNags)(undefined, currentNags);
     };
 
@@ -287,28 +287,13 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     )}
                 </Stack>
 
-                <Stack spacing={1}>
-                    <ToggleButtonGroup
-                        disabled={!move}
-                        exclusive
-                        value={getNagInSet(moveNags, chess.currentMove()?.nags)}
-                        onChange={handleExclusiveNag(moveNags)}
-                    >
-                        {moveNags.map((nag) => (
-                            <NagButton
-                                key={nag}
-                                value={nag}
-                                text={nags[nag].label}
-                                description={nags[nag].description}
-                            />
-                        ))}
-                    </ToggleButtonGroup>
-
+                <Stack>
                     <ToggleButtonGroup
                         disabled={!move}
                         exclusive
                         value={getNagInSet(evalNags, chess.currentMove()?.nags)}
                         onChange={handleExclusiveNag(evalNags)}
+                        size='small'
                     >
                         {evalNags.map((nag) => (
                             <NagButton
@@ -316,21 +301,32 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                                 value={nag}
                                 text={nags[nag].label}
                                 description={nags[nag].description}
+                                sx={{
+                                    borderBottomLeftRadius: 0,
+                                    borderBottomRightRadius: 0,
+                                    borderBottom: 0,
+                                }}
                             />
                         ))}
                     </ToggleButtonGroup>
 
                     <ToggleButtonGroup
                         disabled={!move}
-                        value={getNagsInSet(positionalNags, chess.currentMove()?.nags)}
-                        onChange={handleMultiNags(positionalNags)}
+                        exclusive
+                        value={getNagInSet(moveNags, chess.currentMove()?.nags)}
+                        onChange={handleExclusiveNag(moveNags)}
+                        size='small'
                     >
-                        {positionalNags.slice(0, 7).map((nag) => (
+                        {moveNags.map((nag) => (
                             <NagButton
                                 key={nag}
                                 value={nag}
                                 text={nags[nag].label}
                                 description={nags[nag].description}
+                                sx={{
+                                    borderTopLeftRadius: 0,
+                                    borderTopRightRadius: 0,
+                                }}
                             />
                         ))}
 
@@ -352,7 +348,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         open={!!moreNagAnchorEl}
                         onClose={() => setMoreNagAnchorEl(undefined)}
                     >
-                        {positionalNags.slice(7).map((nag) => (
+                        {positionalNags.map((nag) => (
                             <MenuItem
                                 key={nag}
                                 onClick={() => onClickMenuNag(nag)}
@@ -367,52 +363,71 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     </Menu>
                 </Stack>
 
-                <Stack spacing={1}>
+                <Stack
+                    direction='row'
+                    gap={1}
+                    alignItems='center'
+                    justifyContent='center'
+                    flexWrap='wrap'
+                >
                     {!chess.disableNullMoves && (
                         <Tooltip title={nullMoveStatus.tooltip}>
-                            <Box sx={{ width: 1 }}>
+                            <span>
                                 <Button
                                     disabled={nullMoveStatus.disabled}
-                                    variant='outlined'
                                     onClick={onNullMove}
-                                    fullWidth
+                                    color='primary'
+                                    variant='outlined'
                                 >
-                                    Insert null move
+                                    Null
                                 </Button>
-                            </Box>
+                            </span>
                         </Tooltip>
                     )}
 
-                    <Button
-                        startIcon={<CheckIcon />}
-                        variant='outlined'
-                        disabled={chess.isInMainline(move) || takebacksDisabled}
-                        onClick={() => chess.promoteVariation(move, true)}
-                    >
-                        Make main line
-                    </Button>
-                    <Button
-                        startIcon={<ArrowUpwardIcon />}
-                        variant='outlined'
-                        disabled={!chess.canPromoteVariation(move) || takebacksDisabled}
-                        onClick={() => chess.promoteVariation(move)}
-                    >
-                        Move variation up
-                    </Button>
-                    <Tooltip
-                        title='Delete this move and all moves after it'
-                        disableInteractive
-                    >
-                        <Button
-                            startIcon={<DeleteIcon />}
-                            variant='outlined'
-                            onClick={() => onDelete(move, 'after')}
-                            disabled={
-                                !config?.allowMoveDeletion || takebacksDisabled || !move
-                            }
-                        >
-                            Delete from here
-                        </Button>
+                    <Tooltip title='Make main line'>
+                        <span>
+                            <Button
+                                disabled={chess.isInMainline(move) || takebacksDisabled}
+                                onClick={() => chess.promoteVariation(move, true)}
+                                color='primary'
+                                variant='outlined'
+                            >
+                                <CheckIcon />
+                            </Button>
+                        </span>
+                    </Tooltip>
+
+                    <Tooltip title='Move variation up'>
+                        <span>
+                            <Button
+                                disabled={
+                                    !chess.canPromoteVariation(move) || takebacksDisabled
+                                }
+                                onClick={() => chess.promoteVariation(move)}
+                                color='primary'
+                                variant='outlined'
+                            >
+                                <ArrowUpwardIcon />
+                            </Button>
+                        </span>
+                    </Tooltip>
+
+                    <Tooltip title='Delete this move and all moves after it'>
+                        <span>
+                            <Button
+                                onClick={() => onDelete(move, 'after')}
+                                disabled={
+                                    !config?.allowMoveDeletion ||
+                                    takebacksDisabled ||
+                                    !move
+                                }
+                                color='error'
+                                variant='outlined'
+                            >
+                                <Backspace sx={{ transform: 'rotateY(180deg)' }} />
+                            </Button>
+                        </span>
                     </Tooltip>
                     <Tooltip
                         title={getDeleteBeforeTooltip({
@@ -421,12 +436,9 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             isMainline,
                             move,
                         })}
-                        disableInteractive
                     >
                         <span>
                             <Button
-                                startIcon={<Backspace />}
-                                variant='outlined'
                                 onClick={() => onDelete(move, 'before')}
                                 disabled={
                                     !config?.allowDeleteBefore ||
@@ -434,9 +446,10 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                                     !isMainline ||
                                     !move?.previous
                                 }
-                                fullWidth
+                                color='error'
+                                variant='outlined'
                             >
-                                Delete before here
+                                <Backspace />
                             </Button>
                         </span>
                     </Tooltip>
@@ -454,23 +467,28 @@ export default Editor;
 
 function getNullMoveStatus(chess: Chess): { disabled: boolean; tooltip: string } {
     if (chess.isCheck()) {
-        return { disabled: true, tooltip: 'Null moves cannot be added while in check.' };
+        return {
+            disabled: true,
+            tooltip: 'Add a null move. Null moves cannot be added while in check.',
+        };
     }
     if (chess.isGameOver()) {
         return {
             disabled: true,
-            tooltip: 'Null moves cannot be added while the game is over.',
+            tooltip:
+                'Add a null move. Null moves cannot be added while the game is over.',
         };
     }
     if (chess.currentMove()?.san === 'Z0') {
         return {
             disabled: true,
-            tooltip: 'Multiple null moves cannot be added in a row.',
+            tooltip: 'Add a null move. Multiple null moves cannot be added in a row.',
         };
     }
     return {
         disabled: false,
-        tooltip: 'You can also add a null move by moving the king onto the enemy king.',
+        tooltip:
+            'Add a null move. You can also add a null move by moving the king onto the enemy king.',
     };
 }
 
@@ -486,13 +504,13 @@ function getDeleteBeforeTooltip({
     move?: Move | null;
 }) {
     if (!allowDeleteBefore || takebacksDisabled) {
-        return 'This action is not allowed';
+        return 'Make this the first move and delete all moves before it. This action is not allowed';
     }
     if (!isMainline) {
-        return 'This action is only available for mainline moves';
+        return 'Make this the first move and delete all moves before it. This action is only available for mainline moves';
     }
     if (!move?.previous) {
-        return 'This action is not available for the first move';
+        return 'Make this the first move and delete all moves before it. This action is not available for the first move';
     }
     return 'Make this the first move and delete all moves before it';
 }
