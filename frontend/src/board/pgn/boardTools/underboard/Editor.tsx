@@ -155,7 +155,6 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
         };
 
     const handleMultiNags = (nagSet: Nag[]) => (_event: unknown, newNags: string[]) => {
-        console.log('Handle multi nags: ', newNags);
         chess.setNags(setNagsInSet(newNags, nagSet, move?.nags));
         reconcile();
     };
@@ -167,16 +166,13 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     };
 
     const onClickMenuNag = (nag: string) => {
-        console.log('On Click Menu Nag: ', nag);
         const currentNags = getNagsInSet(positionalNags, move?.nags);
-        console.log('Current Nags: ', currentNags);
         const index = currentNags.indexOf(nag);
         if (index < 0) {
             currentNags.push(nag);
         } else {
             currentNags.splice(index, 1);
         }
-        console.log('New Nags: ', currentNags);
         handleMultiNags(positionalNags)(undefined, currentNags);
     };
 
