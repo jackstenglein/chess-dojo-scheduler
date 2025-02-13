@@ -31,50 +31,6 @@ export const getDirectorySchema = DirectorySchema.pick({ owner: true, id: true }
  * @param event The API gateway event that triggered the request.
  * @returns The requested directory.
  */
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-    try {
-        console.log('Event: %j', event);
-
-        const userInfo = requireUserInfo(event);
-        const request = parsePathParameters(event, getDirectorySchema);
-        let directory = await fetchDirectory(request.owner, request.id);
-
-        if (!directory) {
-            if (userInfo.username === request.owner && request.id === HOME_DIRECTORY_ID) {
-                directory = await createHomeDirectory(userInfo.username);
-            } else {
-                throw new ApiError({
-                    statusCode: 404,
-                    publicMessage: 'Directory not found',
-                });
-            }
-        }
-
-        const accessRole = await getAccessRole({
-            owner: directory.owner,
-            id: directory.id,
-            username: userInfo.username,
-            directory,
-        });
-        const isViewer = compareRoles(DirectoryAccessRole.Viewer, accessRole);
-        if (directory.visibility === DirectoryVisibility.PRIVATE && !isViewer) {
-            throw new ApiError({
-                statusCode: 403,
-                publicMessage:
-                    'This directory is private. Ask the owner to make it public or share it with you.',
-            });
-        }
-
-        if (!isViewer) {
-            await filterPrivateItems(directory, userInfo.username);
-        }
-
-        return success(directory);
-    } catch (err) {
-        return errToApiGatewayProxyResultV2(err);
-    }
-};
-
 export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
