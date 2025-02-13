@@ -31,7 +31,13 @@ const gameMetadataSchema = z.object({
 
     /** The result of the game. */
     result: z.string().optional(),
+
+    /** Whether the game is unlisted or not. */
+    unlisted: z.boolean(),
 });
+
+/** Metadata about a game in a directory. */
+export type DirectoryGameMetadata = z.infer<typeof gameMetadataSchema>;
 
 const directoryVisibility = z.enum(['PUBLIC', 'PRIVATE']);
 

@@ -56,6 +56,7 @@ export const AddCurrentGameMenuItem = ({
                     whiteElo: game.headers.WhiteElo,
                     blackElo: game.headers.BlackElo,
                     result: game.headers.Result,
+                    unlisted: game.unlisted ?? false,
                 },
             ],
         })
