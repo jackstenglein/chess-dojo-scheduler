@@ -186,7 +186,7 @@ export const adminColumns: GridColDef<DirectoryItem>[] = [
             if (params.row.type === DirectoryItemTypes.DIRECTORY) {
                 isPublic = params.row.metadata.visibility === DirectoryVisibility.PUBLIC;
             } else {
-                isPublic = params.row.metadata.unlisted;
+                isPublic = !params.row.metadata.unlisted;
             }
 
             return (
