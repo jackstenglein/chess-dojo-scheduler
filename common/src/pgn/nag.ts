@@ -221,7 +221,7 @@ export const nags: Record<Nag, NagDetails> = {
     },
     $1302: {
         label: '',
-        description: 'Move found during postmortem',
+        description: 'Move found reviewing with another player',
     },
     $1303: {
         label: '',
