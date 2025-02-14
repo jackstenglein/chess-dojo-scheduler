@@ -7,9 +7,7 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     compareRoles,
-    CreateDirectoryRequest,
     CreateDirectoryRequestV2,
-    CreateDirectorySchema,
     CreateDirectorySchemaV2,
     Directory,
     DirectoryAccessRole,
@@ -19,7 +17,7 @@ import {
     HOME_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { NIL as uuidNil, v4 as uuidv4 } from 'uuid';
+import { NIL as uuidNil } from 'uuid';
 import { getAccessRole } from './access';
 import {
     ApiError,
@@ -35,28 +33,6 @@ import {
     UpdateItemBuilder,
 } from './database';
 import { fetchDirectory } from './get';
-
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-    try {
-        console.log('Event: %j', event);
-        const userInfo = getUserInfo(event);
-        if (!userInfo.username) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'Invalid request: username is required',
-            });
-        }
-
-        const request = getRequest(event);
-        const result = await handleCreateDirectory(event, {
-            ...request,
-            owner: userInfo.username,
-        });
-        return success(result);
-    } catch (err) {
-        return errToApiGatewayProxyResultV2(err);
-    }
-};
 
 export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -145,27 +121,6 @@ async function handleCreateDirectory(
         parent,
         accessRole,
     };
-}
-
-/**
- * Extracts a createDirectoryRequest from the API gateway event.
- * @param event The event to extract the request from.
- * @returns The createDirectoryRequest specified in the API gateway event.
- */
-function getRequest(event: APIGatewayProxyEventV2): CreateDirectoryRequest {
-    try {
-        const body = JSON.parse(event.body || '{}');
-        if (body) {
-            body.id = uuidv4();
-        }
-        return CreateDirectorySchema.parse(body);
-    } catch (err) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: body could not be unmarshaled',
-            cause: err,
-        });
-    }
 }
 
 /**

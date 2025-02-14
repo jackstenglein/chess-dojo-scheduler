@@ -6,7 +6,6 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     AddDirectoryItemsRequestV2,
-    AddDirectoryItemsSchema,
     AddDirectoryItemsSchemaV2,
     Directory,
     DirectoryAccessRole,
@@ -35,40 +34,6 @@ import {
 
 const ADD_ITEMS_BATCH_SIZE = 200;
 const MAX_BATCHES = 5;
-
-/**
- * Handles requests to the V1 add directory items API. Returns the updated directory.
- * @param event The API gateway event that triggered the request.
- * @returns The updated directory after the items are added.
- */
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-    try {
-        console.log('Event: %j', event);
-        const userInfo = requireUserInfo(event);
-        const request = parseEvent(event, AddDirectoryItemsSchema);
-        const items = getDirectoryItems(
-            { ...request, owner: userInfo.username },
-            userInfo.username,
-        );
-        if (items.length === 0) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'Invalid request: at least one item is required',
-            });
-        }
-        if (items.length > ADD_ITEMS_BATCH_SIZE * MAX_BATCHES) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: `Invalid request: number of items (${items.length}) is greater than max batch size ${ADD_ITEMS_BATCH_SIZE * MAX_BATCHES}`,
-            });
-        }
-
-        const directory = await addDirectoryItems(userInfo.username, request.id, items);
-        return success({ directory });
-    } catch (err) {
-        return errToApiGatewayProxyResultV2(err);
-    }
-};
 
 /**
  * Handles requests to the V2 add directory items API. Returns the updated directory.

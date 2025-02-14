@@ -5,7 +5,6 @@ import {
     DirectoryAccessRole,
     isDefaultDirectory,
     UpdateDirectoryRequestV2,
-    UpdateDirectorySchema,
     UpdateDirectorySchemaV2,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
@@ -14,52 +13,11 @@ import { checkAccess } from './access';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
-    parseBody,
     parseEvent,
     requireUserInfo,
     success,
 } from './api';
 import { attributeExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
-
-/**
- * Handles requests to the update directory API, which allows updating the name,
- * visibility and item order of a directory. Returns an error if the caller is
- * not the owner of the directory, or if the directory is a default directory
- * and name or visibility is provided. The updated directory is returned.
- * @param event The API gateway event triggering the request.
- */
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-    try {
-        console.log('Event: %j', event);
-
-        const userInfo = requireUserInfo(event);
-        const request = parseBody(event, UpdateDirectorySchema);
-
-        if (!request.name && !request.visibility && !request.itemIds) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage:
-                    'At least one of `name`, `visibility` and `itemIds` is required',
-            });
-        }
-
-        if ((request.name || request.visibility) && isDefaultDirectory(request.id)) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: "This directory's name/visibility cannot be updated",
-                privateMessage: `Request is for default directory ${request.id}`,
-            });
-        }
-
-        const result = await updateDirectory({
-            ...request,
-            owner: userInfo.username,
-        });
-        return success(result);
-    } catch (err) {
-        return errToApiGatewayProxyResultV2(err);
-    }
-};
 
 /**
  * Handles requests to the update directory API, which allows updating the name,

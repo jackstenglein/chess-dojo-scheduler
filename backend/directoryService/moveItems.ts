@@ -11,7 +11,6 @@ import {
     DirectoryItemSubdirectory,
     DirectoryItemTypes,
     MoveDirectoryItemsRequestV2,
-    MoveDirectoryItemsSchema,
     MoveDirectoryItemsSchemaV2,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
@@ -27,34 +26,6 @@ import {
 import { directoryTable, dynamo } from './database';
 import { fetchDirectory } from './get';
 import { removeDirectoryItems } from './removeItems';
-
-/**
- * Handles requests to the move directory items API. Returns the updated
- * source/target directories.
- * @param event The API gateway event that triggered the request.
- * @returns The updated source/target directories after the move is complete.
- */
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-    try {
-        console.log('Event: %j', event);
-        const userInfo = requireUserInfo(event);
-        const request = parseBody(event, MoveDirectoryItemsSchema);
-        const resp = await moveItems(event, {
-            source: {
-                owner: userInfo.username,
-                id: request.source,
-            },
-            target: {
-                owner: userInfo.username,
-                id: request.target,
-            },
-            items: request.items,
-        });
-        return success(resp);
-    } catch (err) {
-        return errToApiGatewayProxyResultV2(err);
-    }
-};
 
 /**
  * Handles requests to the move directory items API. Returns the updated
