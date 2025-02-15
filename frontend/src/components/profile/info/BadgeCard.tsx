@@ -74,6 +74,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
             .filter((c, i) => user.graduationCohorts?.indexOf(c) === i)
             .map((c) => (
                 <CustomBadge
+                    key={getCohortBadge(c).title}
                     badge={getCohortBadge(c)}
                     handleBadgeClick={handleBadgeClick}
                 />

@@ -353,7 +353,7 @@ export function getIneligibleBadgeList(user: User, badge: BadgeType): Badge[] {
     const levels: number[] = BADGE_LIMITS[badge];
     const badges: Badge[] = [];
     for (const level of levels) {
-        if (level == eligibleLevel) {
+        if (level === eligibleLevel) {
             continue;
         }
         const currentBadge: Badge = {
@@ -387,7 +387,7 @@ export function getIneligibleCohortBadgeList(user: User): Badge[] {
     const eligibleCohorts = user.graduationCohorts;
     const allInvalidCohorts: Badge[] = [];
     const keys = Object.keys(cohortIcons);
-    if (eligibleCohorts != undefined) {
+    if (eligibleCohorts !== undefined) {
         keys.forEach((key) => {
             if (!eligibleCohorts.includes(key)) {
                 allInvalidCohorts.push(getCohortBadge(key));
