@@ -383,6 +383,11 @@ export function getIneligiblePolgarBadgeList(user: User): Badge[] {
     return overallPolgarBadges;
 }
 
+/**
+ * gets the ineligible cohort badges
+ * @param user the user
+ * @returns the cohort badges the user *dreams* to get
+ */
 export function getIneligibleCohortBadgeList(user: User): Badge[] {
     const eligibleCohorts = user.graduationCohorts;
     const allInvalidCohorts: Badge[] = [];
