@@ -29,7 +29,7 @@ export interface BlogItem {
 
 const items: BlogItem[] = [
     {
-        title: 'Custom Tasks Are Here! | Dojo Blog',
+        title: 'Custom Tasks Are Here!',
         subtitle: 'Dojo Blog • February 14, 2025',
         body: `Huge update for the Dojo! It is now possible to add custom tasks to the Training Program!`,
         href: '/blog/dojo-blog/custom-tasks',
@@ -41,7 +41,7 @@ const items: BlogItem[] = [
     {
         title: 'Round Robin Tournaments, Custom Tasks, & more! | Dojo Digest',
         subtitle: 'Dojo Digest • February 1, 2025',
-        body: `2024 was a great year for the Dojo!`,
+        body: `Round robin tournaments are open for non-members, and you can now create custom tasks in your training plan!`,
         href: '/blog/dojo-digest/vol-17',
         image: {
             src: yearstats,
