@@ -1,4 +1,7 @@
 import boto3
+import os
+from dynamodb_json import json_util as json
+
 
 db = boto3.resource('dynamodb')
 table = db.Table('prod-explorer')
@@ -20,24 +23,28 @@ def process_items(items):
 def main():
     try:
         deleted = 0
+        processed = 0
 
-        res = table.scan()
-        items = res.get('Items', [])
-        lastKey = res.get('LastEvaluatedKey', None)
-        deleted += process_items(items)
-
-        while lastKey != None:
-            print('LastEvaluatedKey: ', lastKey)
+        for filename in os.listdir('explorer-positions'):
+            print(f'Processing file {filename}')
+            print('Processed: ', processed)
             print('Deleted: ', deleted)
-            res = table.scan(ExclusiveStartKey=lastKey)
-            items = res.get('Items', [])
-            lastKey = res.get('LastEvaluatedKey', None)
-            deleted += process_items(items)
 
+            items = []
+            file = os.path.join('explorer-positions', filename)
+            with open(file, 'r') as f:
+                for line in f:
+                    processed += 1
+                    item = json.loads(line.strip())['Item']
+                    if item['id'].startswith('GAME#masters'):
+                        items.append(item)
+
+            print(f'Will delete {len(items)} items')
+            deleted += process_items(items)
     except Exception as e:
         print(e)
 
-    print("Finished. Total Deleted: ", deleted)
+    print("Finished. Total Processed:", processed, ", Deleted: ", deleted)
 
 
 if __name__ == '__main__':
