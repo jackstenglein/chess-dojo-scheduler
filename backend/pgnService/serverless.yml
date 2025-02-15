@@ -127,6 +127,25 @@ functions:
           - dynamodb:DeleteItem
         Resource: !GetAtt ExplorerTable.Arn
 
+  listFollowedPositions:
+    handler: explorer/listFollowedPositions.handler
+    events:
+      - httpApi:
+          path: /explorer/position/follower
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt ExplorerTable.Arn
+                - '/index/FollowerIdx'
+
   createGame:
     timeout: 28
     handler: game/create.handler
@@ -284,6 +303,8 @@ resources:
             AttributeType: S
           - AttributeName: id
             AttributeType: S
+          - AttributeName: follower
+            AttributeType: S
         KeySchema:
           - AttributeName: normalizedFen
             KeyType: HASH
@@ -302,3 +323,13 @@ resources:
                 - minCohort
                 - maxCohort
                 - disableVariations
+          - IndexName: FollowerIdx
+            KeySchema:
+              - AttributeName: follower
+                KeyType: HASH
+              - AttributeName: normalizedFen
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - followMetadata
