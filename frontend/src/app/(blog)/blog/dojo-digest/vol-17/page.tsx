@@ -1,25 +1,26 @@
-import { Link, Stack, Typography } from '@mui/material';
+import { Link } from '@/components/navigation/Link';
+import { Stack, Typography } from '@mui/material';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import { Container } from '../../common/Container';
 import { Footer } from '../../common/Footer';
 import { Header } from '../../common/Header';
 import { DojoAchievements } from '../components/DojoAchievements';
-import yearstats from './2024+stats.png';
-import customtasks from './custom+tasks.jpg';
-import heatmapchanges from './heatmapchanges.jpg';
+import yearStats from './2024+stats.png';
+import customTasks from './custom+tasks.png';
+import heatmap from './heatmap.png';
 
 export const metadata: Metadata = {
-    title: 'Free Month at the Dojo | ChessDojo Blog',
-    description: `Make your New Year’s resolution and join the Dojo for the month of January at no cost!`,
-    keywords: ['Chess', 'Dojo', 'Training', 'Digest', 'Games', 'Repertoire'],
+    title: 'Round Robin Tournaments, Custom Tasks, & More | ChessDojo Blog',
+    description: `Round robin tournaments are open for non-members, and you can now create custom tasks in your training plan!`,
+    keywords: ['Chess', 'Dojo', 'Training', 'Digest', 'Tournaments'],
 };
 
 export default function DojoDigestVol17() {
     return (
         <Container>
             <Header
-                title='Round Robin Tournaments, Custom Tasks, & more!'
+                title='Round Robin Tournaments, Custom Tasks, & More!'
                 subtitle='Dojo Digest 17 • February 1, 2025'
             />
 
@@ -28,85 +29,77 @@ export default function DojoDigestVol17() {
                     Updates
                 </Typography>
                 <Typography mt={2}>
-                    <strong> 2024 was a great year for the Dojo</strong> - We introduced
+                    <strong>2024 was a great year for the Dojo</strong> - We introduced
                     the Tactics Trainer, the Heatmap, the Dojo Database and many other new
-                    features. But more important than all that we saw 81000+ rating points
-                    gained and 1900+ graduations. Holy Moly!
+                    features. But more important than all that, we saw 81,000+ rating
+                    points gained and 1,900 graduations!
                 </Typography>
 
                 <Stack mt={2} alignItems='center'>
                     <Image
-                        src={yearstats}
-                        alt=''
-                        style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
-                    />
-                </Stack>
-
-                <Typography mt={2}>
-                    <strong> Dojo has big goals for 2025:</strong> 1) We want to launch
-                    our new weekly training schedule in the next month. 2) Improve our
-                    user experience (UI!) 3) Dial in the program for Dojo 4.0 (May 1st) 4)
-                    Improve our tactics trainer 5) Develop our openings trainer 6) Get the
-                    word out! Not everyone knows about the Dojo.
-                </Typography>
-
-                <Typography mt={4}>
-                    <strong>How to Analyze Your Games</strong> – A ChessDojo Guide will
-                    soon be available as an eBook. Keep an eye out to get your copy soon!
-                </Typography>
-
-                <Typography mt={2}>
-                    <strong>The Dojo Round Robins</strong> have been a huge success, most
-                    cohorts have more than one ongoing tournament. These tournaments are
-                    the best way for busy players to get a consistent game against
-                    opposition who are at their level, unlikely to cheat, and likely to
-                    offer a friendly post-mortem to jumpstart the game annotation process.
-                    We’ve also now opened up these tournaments up to non-dojo players for
-                    a 2 dollar fee. Welcome to the Dojo!
-                </Typography>
-
-                <Typography mt={4}>
-                    <strong>Heatmap changes.</strong> - We’ve changed the way non-dojo
-                    work is presented on the heatmap. Now you, and others, can see the
-                    nature of the non-dojo work you did, ie the bucket the work belongs
-                    in. What is non-dojo work? It’s chess work that was done with
-                    intention. And that is up to you to define. For example, listening to
-                    DojoTalks is obviously something everyone should do, but it’s not
-                    chess training. Below is Sensei Kraai’s heatmap. What isn’t there are
-                    the grad show streams and the blitz dude plays for fun. But he wanted
-                    to capture some endgame work (Secrets of Rook Endings by Nunn) and the
-                    coverage of the World Championship. Note: it’s definitely possible to
-                    do a world championship show without intention, that is just for fun.
-                    But Jesse and David tried to go deep, always trying to guess the move
-                    and understand what was going on (without an engine!).
-                </Typography>
-                <Stack mt={2} alignItems='center'>
-                    <Image
-                        src={heatmapchanges}
+                        src={yearStats}
                         alt=''
                         style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                     />
                 </Stack>
 
                 <Typography mt={4}>
-                    <strong>Custom Tasks!</strong> You can now create custom tasks at the
-                    bottom of any bucket of the training plan. The custom task will then
-                    show up as non-dojo work in that category on the heatmap. Here is a
-                    custom task that sensei Kraai created:
+                    <strong>Round Robin Tournaments</strong> – Our new tournaments have
+                    been a huge success — most cohorts have more than one ongoing
+                    tournament. And now we're opening them up to non-members! For just $2,
+                    you get a 9-round classical tournament against players who are at your
+                    level and usually willing to do post-mortems to jumpstart the game
+                    annotation process. Sign up{' '}
+                    <Link
+                        href='/tournaments/round-robin?utm_source=newsletter&utm_medium=blog&utm_campaign=digest17'
+                        target='_blank'
+                    >
+                        here
+                    </Link>
+                    .
                 </Typography>
-                <Stack mt={2} alignItems='center'>
+
+                <Typography mt={4}>
+                    <strong>Custom Tasks</strong> – You can now create custom tasks in any
+                    category of the training plan, and it will show in that category on
+                    your activity heatmap. Custom tasks also support arbitrary goals now
+                    and allow you to track your progress just like the default tasks in
+                    the training plan.
+                </Typography>
+
+                <Stack mt={2} alignItems='center' spacing={1}>
                     <Image
-                        src={customtasks}
+                        src={customTasks}
                         alt=''
                         style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                     />
+                    <Typography>
+                        <em>Creating a custom task for a book with 240 pages.</em>
+                    </Typography>
                 </Stack>
+
+                <Stack mt={3} alignItems='center' spacing={1}>
+                    <Image
+                        src={heatmap}
+                        alt=''
+                        style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                    />
+                    <Typography>
+                        <em>Custom tasks are striped on your activity heatmap.</em>
+                    </Typography>
+                </Stack>
+
                 <Typography mt={4}>
-                    <strong>Feedback</strong> - The dojo currently has two open threads on
-                    our discord, Dojo 4.0 materials and Dojo 2025. The first is strictly
-                    about what dojoers think should stay or go within the program for 4.0
-                    (May 1st!) and the second is all about improving the Dojo in 2025.
-                    Tell us what you think!
+                    <strong>How to Analyze Your Games</strong> – Our book is out! You can
+                    get a copy{' '}
+                    <Link
+                        href='https://www.amazon.com/How-Analyze-Your-Games-ChessDojo/dp/B0DP2X1T9D'
+                        target='_blank'
+                    >
+                        here
+                    </Link>
+                    . If you prefer eBooks, we will have one available soon. Keep an eye
+                    out to get your copy!
                 </Typography>
 
                 <Typography mt={4}>
@@ -132,7 +125,7 @@ export default function DojoDigestVol17() {
                 <Typography mt={4}>
                     The{' '}
                     <Link
-                        href='https://www.chessdojo.club/profile/google_116089249199348829796'
+                        href='/profile/fe9cec0a-adf7-4a5e-9d3a-f631137966be?utm_source=newsletter&utm_medium=blog&utm_campaign=digest17'
                         target='_blank'
                     >
                         DMStewart1981
@@ -143,7 +136,7 @@ export default function DojoDigestVol17() {
 
                 <Typography mt={2}>
                     <Link
-                        href='https://www.chessdojo.club/profile/google_116100455602249006987'
+                        href='/profile/google_116100455602249006987?utm_source=newsletter&utm_medium=blog&utm_campaign=digest17'
                         target='_blank'
                     >
                         nmp123
@@ -154,7 +147,7 @@ export default function DojoDigestVol17() {
                 </Typography>
                 <Typography mt={2}>
                     <Link
-                        href='https://www.chessdojo.club/profile/9ad63b1e-cd90-4cf4-91df-8dd8b96106ed'
+                        href='/profile/9ad63b1e-cd90-4cf4-91df-8dd8b96106ed?utm_source=newsletter&utm_medium=blog&utm_campaign=digest17'
                         target='_blank'
                     >
                         Adam Greener
@@ -166,7 +159,7 @@ export default function DojoDigestVol17() {
 
                 <Typography mt={2}>
                     <Link
-                        href='https://www.chessdojo.club/profile/36ccb6c6-9562-4b01-aa53-d342aeaac08c'
+                        href='/profile/36ccb6c6-9562-4b01-aa53-d342aeaac08c?utm_source=newsletter&utm_medium=blog&utm_campaign=digest17'
                         target='_blank'
                     >
                         Stephen K
@@ -175,7 +168,7 @@ export default function DojoDigestVol17() {
                 </Typography>
                 <Typography mt={2}>
                     <Link
-                        href='https://www.chessdojo.club/profile/google_105412173001395693513'
+                        href='/profile/google_105412173001395693513?utm_source=newsletter&utm_medium=blog&utm_campaign=digest17'
                         target='_blank'
                     >
                         corporeal
