@@ -49,7 +49,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             follower: userInfo.username,
             normalizedFen,
             id: `FOLLOWER#${userInfo.username}`,
-            followerMetadata: request.metadata,
+            followMetadata: request.metadata,
         };
         await dynamo.send(
             new PutItemCommand({

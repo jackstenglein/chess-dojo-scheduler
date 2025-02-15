@@ -437,7 +437,7 @@ function Database<T>({
 
 export default Database;
 
-const masterTimeControlOptions = [
+export const masterTimeControlOptions = [
     {
         value: 'standard',
         label: 'Standard',

@@ -15,42 +15,42 @@ export interface ExplorerPositionFollower {
      */
     id: string;
     /** Metadata about the follower's notification preferences. */
-    followerMetadata?: ExplorerPositionFollowerMetadata;
+    followMetadata?: ExplorerPositionFollowerMetadata;
 }
 
 const explorerPositionFollowerMetadataSchema = z.object({
     /** Preferences for games added to the Dojo database. */
-    dojo: z
-        .object({
-            /**
-             * The minimum cohort the new analysis must be in for the user to be notified
-             * (inclusive). If not provided, then there is no minimum cohort.
-             */
-            minCohort: z.string().optional(),
-            /**
-             * The maximum cohort the new analysis must be in for the user to be notified
-             * (inclusive). If not provided, then there is no maximum cohort.
-             */
-            maxCohort: z.string().optional(),
-            /**
-             * Whether to disable notifications if the position only appears in a variation
-             * of the analysis and not the mainline.
-             */
-            disableVariations: z.boolean().optional(),
-        })
-        .optional(),
+    dojo: z.object({
+        /** Whether to enable notifications for Dojo games. */
+        enabled: z.boolean(),
+        /**
+         * The minimum cohort the new analysis must be in for the user to be notified
+         * (inclusive). If not provided, then there is no minimum cohort.
+         */
+        minCohort: z.string().optional(),
+        /**
+         * The maximum cohort the new analysis must be in for the user to be notified
+         * (inclusive). If not provided, then there is no maximum cohort.
+         */
+        maxCohort: z.string().optional(),
+        /**
+         * Whether to disable notifications if the position only appears in a variation
+         * of the analysis and not the mainline.
+         */
+        disableVariations: z.boolean().optional(),
+    }),
     /** Preferences for games added to the Masters database. */
-    masters: z
-        .object({
-            /** Valid time controls to alert on. If not provided, all time controls are valid. */
-            timeControls: z.string().array().optional(),
-            /**
-             * The minimum average rating (inclusive) of the players to alert on. If not provided,
-             * all ratings are valid.
-             */
-            minAverageRating: z.number().optional(),
-        })
-        .optional(),
+    masters: z.object({
+        /** Whether to enable notifications for Masters games. */
+        enabled: z.boolean(),
+        /** Valid time controls to alert on. If not provided, all time controls are valid. */
+        timeControls: z.string().array().optional(),
+        /**
+         * The minimum average rating (inclusive) of the players to alert on. If not provided,
+         * all ratings are valid.
+         */
+        minAverageRating: z.number().optional(),
+    }),
 });
 
 export type ExplorerPositionFollowerMetadata = z.infer<
@@ -71,6 +71,9 @@ export const followPositionSchema = z.discriminatedUnion('unfollow', [
         /** If false, the position is followed. */
         unfollow: z.literal(false),
         /** The metadata to attach to the followed position. */
-        metadata: explorerPositionFollowerMetadataSchema.optional(),
+        metadata: explorerPositionFollowerMetadataSchema,
     }),
 ]);
+
+/** A request to follow a position. */
+export type FollowPositionRequest = z.infer<typeof followPositionSchema>;
