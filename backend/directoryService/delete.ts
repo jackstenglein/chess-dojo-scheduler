@@ -1,7 +1,6 @@
 import { DeleteItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
-    DeleteDirectoriesSchema,
     DeleteDirectoriesSchemaV2,
     Directory,
     DirectoryAccessRole,
@@ -13,7 +12,6 @@ import { checkAccess } from './access';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
-    parseBody,
     parseEvent,
     requireUserInfo,
     success,
@@ -21,47 +19,6 @@ import {
 import { directoryTable, dynamo } from './database';
 import { fetchDirectory } from './get';
 import { removeDirectoryFromGames, removeDirectoryItems } from './removeItems';
-
-/**
- * Handles requests to the delete directories API. Returns the directories as
- * they were before the delete. If a directory did not exist, returns undefined.
- * Note that only the specified directories are deleted. Subdirectories are deleted
- * asynchronously by the recursiveDelete stream handler. All directories in the
- * request must have the same parent.
- * @deprecated Use handlerV2 instead.
- * @param event The API gateway event that triggered the request.
- * @returns The directory before the delete, or undefined if it did not exist.
- */
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-    try {
-        console.log('Event: %j', event);
-        const userInfo = requireUserInfo(event);
-        const request = parseBody(event, DeleteDirectoriesSchema);
-
-        if (request.ids.some((id) => isDefaultDirectory(id))) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'One or more directories cannot be deleted',
-                privateMessage: `Request is for directories ${request.ids.toString()}`,
-            });
-        }
-
-        let parent: Directory | undefined = undefined;
-        const directories = await deleteDirectories(userInfo.username, request.ids);
-        if (directories.length > 0) {
-            parent = await removeDirectoryItems(
-                userInfo.username,
-                directories[0].parent,
-                request.ids,
-                true,
-            );
-        }
-
-        return success({ parent });
-    } catch (err) {
-        return errToApiGatewayProxyResultV2(err);
-    }
-};
 
 /**
  * Handles requests to the delete directories API. Returns the directories as

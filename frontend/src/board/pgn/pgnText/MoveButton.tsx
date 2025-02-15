@@ -5,7 +5,6 @@ import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Backspace, Help, Merge } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
     Grid2,
     ListItemIcon,
@@ -26,6 +25,7 @@ import { DeletePrompt, useDeletePrompt } from '../boardTools/underboard/DeletePr
 import { ShowMoveTimesInPgn } from '../boardTools/underboard/settings/ViewerSettings';
 import { MergeLineDialog } from '../boardTools/underboard/share/MergeLineDialog';
 import { compareNags, getStandardNag, nags } from '../Nag';
+import { nagIcons } from '../NagIcon';
 import { useChess } from '../PgnBoard';
 
 export function getTextColor(
@@ -77,22 +77,31 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
         HIGHLIGHT_ENGINE_LINES.Default,
     );
 
-    const displayNags = move.nags?.sort(compareNags).map((nag) => {
-        const n = nags[getStandardNag(nag)];
-        if (!n) return null;
+    const prefixNags: JSX.Element[] = [];
+    const suffixNags: JSX.Element[] = [];
 
-        return (
-            <Tooltip key={n.label} title={n.description} disableInteractive>
+    move.nags?.sort(compareNags).forEach((nag) => {
+        const n = nags[getStandardNag(nag)];
+        if (!n) return;
+
+        const displayNag = (
+            <Tooltip key={nag} title={n.description} disableInteractive>
                 <Typography
                     display='inline'
                     fontSize='inherit'
                     lineHeight='inherit'
                     fontWeight='inherit'
                 >
-                    {n.label}
+                    {nagIcons[nag] ? nagIcons[nag] : n.label}
                 </Typography>
             </Tooltip>
         );
+
+        if (n.prefix) {
+            prefixNags.push(displayNag);
+        } else {
+            suffixNags.push(displayNag);
+        }
     });
 
     return (
@@ -136,8 +145,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                 width={1}
             >
                 <Stack direction='row' alignItems='center'>
+                    {prefixNags}
                     {text}
-                    {displayNags}
+                    {suffixNags}
                     {move.isNullMove && (
                         <Tooltip
                             title='A null move passes the turn to the opponent and is commonly used for demonstrating a threat.'
@@ -228,7 +238,7 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
 
                             <MenuItem onClick={() => onDelete(move, 'after')}>
                                 <ListItemIcon>
-                                    <DeleteIcon />
+                                    <Backspace sx={{ transform: 'rotateY(180deg)' }} />
                                 </ListItemIcon>
                                 <ListItemText>Delete from here</ListItemText>
                             </MenuItem>

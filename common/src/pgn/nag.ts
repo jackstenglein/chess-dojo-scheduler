@@ -7,6 +7,7 @@ export interface NagDetails {
     pdfColorName?: string;
     glyphY?: number;
     glyphFontSize?: string;
+    prefix?: boolean;
 }
 
 export const nags: Record<Nag, NagDetails> = {
@@ -99,14 +100,14 @@ export const nags: Record<Nag, NagDetails> = {
         pdfColorName: 'eval',
     },
     $18: {
-        label: '+—',
+        label: '+−',
         description: 'White is winning',
         glyphFontSize: '4rem',
         glyphY: 65,
         pdfColorName: 'eval',
     },
     $19: {
-        label: '—+',
+        label: '−+',
         description: 'Black is winning',
         glyphFontSize: '4rem',
         glyphY: 65,
@@ -191,10 +192,40 @@ export const nags: Record<Nag, NagDetails> = {
         label: '∆',
         description: 'With the idea',
     },
+    $142: {
+        label: '⌓',
+        description: 'Better is...',
+        prefix: true,
+        glyphFontSize: '6rem',
+        glyphY: 65,
+    },
+    $143: {
+        label: '<=',
+        description: 'Worse is...',
+        prefix: true,
+        glyphFontSize: '3rem',
+        glyphY: 65,
+    },
     $146: {
         label: 'N',
         description: 'Novelty',
         glyphFontSize: '4rem',
+    },
+    $1300: {
+        label: '',
+        description: 'Move found during game',
+    },
+    $1301: {
+        label: '',
+        description: 'Move not found during game',
+    },
+    $1302: {
+        label: '',
+        description: 'Move found reviewing with another player',
+    },
+    $1303: {
+        label: '',
+        description: 'Out of book',
     },
 };
 

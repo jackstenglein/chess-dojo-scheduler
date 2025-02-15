@@ -434,3 +434,4 @@ export const BadgeCard = ({ user }: { user: User }) => {
         </>
     );
 };
+

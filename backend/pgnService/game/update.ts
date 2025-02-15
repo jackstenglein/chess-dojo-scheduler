@@ -9,6 +9,7 @@ import {
     UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { DirectoryGameMetadata } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     UpdateGameRequest,
     UpdateGameSchema,
@@ -243,7 +244,8 @@ async function updateDirectories(newGame: Game, oldGame: Game) {
         newGame.headers.Black === oldGame.headers.Black &&
         newGame.headers.WhiteElo === oldGame.headers.WhiteElo &&
         newGame.headers.BlackElo === oldGame.headers.BlackElo &&
-        newGame.headers.Result === oldGame.headers.Result
+        newGame.headers.Result === oldGame.headers.Result &&
+        newGame.unlisted === oldGame.unlisted
     ) {
         console.log(
             'No changes to game directory information, skipping update of directories.',
@@ -254,7 +256,7 @@ async function updateDirectories(newGame: Game, oldGame: Game) {
     console.log('Updating %d directories', newGame.directories.length);
 
     const gameId = `${newGame.cohort}/${newGame.id}`;
-    const gameInfo = {
+    const gameInfo: DirectoryGameMetadata = {
         owner: newGame.owner,
         ownerDisplayName: newGame.ownerDisplayName,
         createdAt: newGame.createdAt || newGame.date.replaceAll('.', '-'),
@@ -265,6 +267,7 @@ async function updateDirectories(newGame: Game, oldGame: Game) {
         whiteElo: newGame.headers.WhiteElo,
         blackElo: newGame.headers.BlackElo,
         result: newGame.headers.Result,
+        unlisted: newGame.unlisted,
     };
 
     for (let i = 0; i < newGame.directories.length; i += 25) {

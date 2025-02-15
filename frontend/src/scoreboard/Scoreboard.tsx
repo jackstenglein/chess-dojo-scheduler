@@ -7,6 +7,7 @@ import {
     GridActionsCellItem,
     GridColDef,
     GridColumnGroupingModel,
+    GridColumnVisibilityModel,
     GridProSlotsComponent,
     GridRenderCellParams,
     GridRowId,
@@ -14,6 +15,7 @@ import {
 } from '@mui/x-data-grid-pro';
 import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import { useFreeTier } from '../auth/Auth';
 import { isGraduation } from '../database/graduation';
 import { Requirement, ScoreboardDisplay, formatTime } from '../database/requirement';
@@ -579,12 +581,17 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
         return [rows, { top: pinnedRows }];
     }, [user, initialRows, pinnedRowIds, isFreeTier, addUser]);
 
+    const [columnVisibility, setColumnVisibility] =
+        useLocalStorage<GridColumnVisibilityModel>(`/scoreboard/columns`, {});
+
     return (
         <DataGridPro
             data-cy={cypressId}
             sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
             columns={columns}
             columnGroupingModel={columnGroups}
+            columnVisibilityModel={columnVisibility}
+            onColumnVisibilityModelChange={(model) => setColumnVisibility(model)}
             rows={rows}
             pinnedRows={pinnedRows}
             loading={loading}

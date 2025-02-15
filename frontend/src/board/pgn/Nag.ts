@@ -4,6 +4,7 @@ import {
     NagDetails,
     nags,
 } from '@jackstenglein/chess-dojo-common/src/pgn/nag';
+import { nagSvgs } from './NagIcon';
 
 export { compareNags, nags };
 export type { Nag, NagDetails };
@@ -41,9 +42,10 @@ export function getStandardNag(nag: string): Nag {
 export const badMoveNags: Nag[] = ['$6', '$2', '$4'];
 export const goodMoveNags: Nag[] = ['$3', '$1', '$5'];
 
-export const moveNags: Nag[] = ['$3', '$1', '$5', '$6', '$2', '$4', '$7', '$22'];
+export const moveNags: Nag[] = ['$3', '$1', '$5', '$6', '$2', '$4', '$7'];
 export const evalNags: Nag[] = ['$13', '$18', '$16', '$14', '$10', '$15', '$17', '$19'];
 export const positionalNags: Nag[] = [
+    '$22',
     '$146',
     '$32',
     '$36',
@@ -52,6 +54,12 @@ export const positionalNags: Nag[] = [
     '$138',
     '$44',
     '$140',
+    '$142',
+    '$143',
+    '$1300',
+    '$1301',
+    '$1302',
+    '$1303',
 ];
 
 export function getNagInSet(nagSet: Nag[], nags: string[] | undefined): Nag {
@@ -103,7 +111,11 @@ export function setNagsInSet(newNags: Nag[], nagSet: Nag[], nags?: string[]): Na
     return nags.sort(compareNags);
 }
 
-export function getNagGlyph(nag: NagDetails): string {
+export function getNagGlyph(nag: string): string {
+    const details = nags[nag];
+
+    const svg = nagSvgs[nag];
+
     return `
         <defs>
             <filter id="shadow">
@@ -111,16 +123,22 @@ export function getNagGlyph(nag: NagDetails): string {
             </filter>
         </defs>
         <g transform="translate(71 -12) scale(0.4)">
-            <circle style="fill:${nag.color || 'purple'};filter:url(#shadow)" cx="50" cy="50" r="50"></circle>
-            <text
-                font-size="${nag.glyphFontSize ?? '4.5rem'}" 
+            <circle style="fill:${details.color || 'purple'};filter:url(#shadow)" cx="50" cy="50" r="50"></circle>
+            ${
+                svg
+                    ? ''
+                    : `<text
+                font-size="${details.glyphFontSize ?? '4.5rem'}" 
                 font-weight="bold" 
                 text-anchor="middle" 
                 fill="white" 
                 x="50" 
-                y="${nag.glyphY ?? 75}"
+                y="${details.glyphY ?? 75}"
             >
-                ${nag.label}
-            </text>
-        </g>`;
+                ${details.label}
+            </text>`
+            }
+        </g>
+        ${svg ? svg : ''}
+        `;
 }
