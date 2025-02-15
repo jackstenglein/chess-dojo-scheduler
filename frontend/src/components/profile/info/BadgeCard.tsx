@@ -1,7 +1,6 @@
 import { Link } from '@/components/navigation/Link';
 import { User, compareCohorts } from '@/database/user';
-import CohortIcon from '@/scoreboard/CohortIcon';
-import { Close as CloseIcon } from '@mui/icons-material';
+import { Close as CloseIcon, ZoomOutMap } from '@mui/icons-material';
 import {
     Box,
     Card,
@@ -10,7 +9,10 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
+    FormControl,
     IconButton,
+    MenuItem,
+    Select,
     Stack,
     Tooltip,
     Typography,
@@ -19,13 +21,28 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
-import { Badge, getDojoerBadge, getEligibleBadges } from './badgeHandler';
+import {
+    Badge,
+    BadgeType,
+    getCohortBadge,
+    getDojoerBadge,
+    getEligibleBadges,
+    getIneligibleBadgeList,
+    getIneligibleCohortBadgeList,
+    getIneligiblePolgarBadgeList,
+} from './badgeHandler';
 import CustomBadge from './CustomBadge';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge | undefined>(undefined);
+    const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
     const badgeData: Badge[] = getEligibleBadges(user);
     const [previousBadgeData, setPreviousBadgeData] = useState<Badge[]>(badgeData);
+    const [badgeCategory, setBadgeCategory] = useState('current');
+    const ineligibleGameBadges: JSX.Element[] = [];
+    const ineligibleAnnoBadges: JSX.Element[] = [];
+    const ineligiblePolgarBadges: JSX.Element[] = [];
+    const inelgibleCohortBadges: JSX.Element[] = [];
     // const { requirements } = useRequirements(ALL_COHORTS, true);
     // const tacticsRating = calculateTacticsRating(user, requirements);
     // const minCohort = parseInt(user.dojoCohort);
@@ -55,25 +72,12 @@ export const BadgeCard = ({ user }: { user: User }) => {
         user.graduationCohorts
             ?.sort(compareCohorts)
             .filter((c, i) => user.graduationCohorts?.indexOf(c) === i)
-            .map((c) => <CohortIcon key={c} cohort={c} size={50} />) ?? [];
-
-    if (!user.createdAt || user.createdAt < '2024-12') {
-        badges.push(
-            <Link
-                key='postmortem-2024'
-                href={`/profile/${user.username}/postmortem/2024`}
-            >
-                <Tooltip title='View my 2024 postmortem!'>
-                    <Image
-                        src={postmortem2024}
-                        alt='2024 postmortem'
-                        width={50}
-                        height={50}
-                    />
-                </Tooltip>
-            </Link>,
-        );
-    }
+            .map((c) => (
+                <CustomBadge
+                    badge={getCohortBadge(c)}
+                    handleBadgeClick={handleBadgeClick}
+                />
+            )) ?? [];
 
     if (!user.createdAt || user.createdAt < '2023-12') {
         badges.push(
@@ -85,6 +89,24 @@ export const BadgeCard = ({ user }: { user: User }) => {
                     <Image
                         src={postmortem2023}
                         alt='2023 postmortem'
+                        width={50}
+                        height={50}
+                    />
+                </Tooltip>
+            </Link>,
+        );
+    }
+
+    if (!user.createdAt || user.createdAt < '2024-12') {
+        badges.push(
+            <Link
+                key='postmortem-2024'
+                href={`/profile/${user.username}/postmortem/2024`}
+            >
+                <Tooltip title='View my 2024 postmortem!'>
+                    <Image
+                        src={postmortem2024}
+                        alt='2024 postmortem'
                         width={50}
                         height={50}
                     />
@@ -128,6 +150,46 @@ export const BadgeCard = ({ user }: { user: User }) => {
         badges.push(<CustomBadge badge={badge} handleBadgeClick={handleBadgeClick} />);
     }
 
+    for (const polgarBadges of getIneligiblePolgarBadgeList(user)) {
+        ineligiblePolgarBadges.push(
+            <CustomBadge
+                badge={polgarBadges}
+                handleBadgeClick={handleBadgeClick}
+                isBlocked={true}
+            />,
+        );
+    }
+
+    for (const cohortBadge of getIneligibleCohortBadgeList(user)) {
+        inelgibleCohortBadges.push(
+            <CustomBadge
+                badge={cohortBadge}
+                handleBadgeClick={handleBadgeClick}
+                isBlocked={true}
+            />,
+        );
+    }
+
+    for (const anongameBadges of getIneligibleBadgeList(user, BadgeType.AnnotateGames)) {
+        ineligibleAnnoBadges.push(
+            <CustomBadge
+                badge={anongameBadges}
+                handleBadgeClick={handleBadgeClick}
+                isBlocked={true}
+            />,
+        );
+    }
+
+    for (const gameBadges of getIneligibleBadgeList(user, BadgeType.ClassicalGames)) {
+        ineligibleGameBadges.push(
+            <CustomBadge
+                badge={gameBadges}
+                handleBadgeClick={handleBadgeClick}
+                isBlocked={true}
+            />,
+        );
+    }
+
     if (badges.length === 0) {
         return null;
     }
@@ -135,7 +197,23 @@ export const BadgeCard = ({ user }: { user: User }) => {
     return (
         <>
             <Card>
-                <CardHeader title='Badges' />
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    px={2}
+                    pt={2}
+                >
+                    <CardHeader title='Badges' sx={{ p: 0 }} />
+                    <Tooltip title='View All Badges'>
+                        <IconButton
+                            color='primary'
+                            onClick={() => setIsViewAllModalOpen(true)}
+                        >
+                            <ZoomOutMap />
+                        </IconButton>
+                    </Tooltip>
+                </Stack>
                 <CardContent sx={{ pt: 0 }}>
                     <Stack
                         direction='row'
@@ -231,6 +309,127 @@ export const BadgeCard = ({ user }: { user: User }) => {
                         </DialogContent>
                     </>
                 )}
+            </Dialog>
+
+            <Dialog
+                open={isViewAllModalOpen}
+                onClose={() => setIsViewAllModalOpen(false)}
+                sx={{
+                    '& .MuiDialog-paper': {
+                        width: '80vw',
+                        maxWidth: '1000px',
+                        minHeight: '500px',
+                        borderRadius: 4,
+                        boxShadow: 10,
+                        padding: 3,
+                    },
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        fontSize: '1.5rem',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        position: 'relative',
+                    }}
+                >
+                    Badge Cabinet
+                    <IconButton
+                        aria-label='close'
+                        onClick={() => setIsViewAllModalOpen(false)}
+                        sx={{
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <FormControl sx={{ mb: 2, minWidth: 200 }}>
+                        <Select
+                            value={badgeCategory}
+                            onChange={(e) => setBadgeCategory(e.target.value)}
+                        >
+                            <MenuItem value='current'>🏆 Achieved Badges</MenuItem>
+                            <MenuItem value='cohorts'>Graduations (Unachieved)</MenuItem>
+                            <MenuItem value='polgar'>Polgar Mates (Unachieved)</MenuItem>
+                            <MenuItem value='games'>Games (Unachieved)</MenuItem>
+                            <MenuItem value='annotation'>
+                                Annotations (Unachieved)
+                            </MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <Typography
+                        variant='body1'
+                        sx={{
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            mb: 2,
+                        }}
+                    >
+                        {badgeCategory === 'current'
+                            ? '🏆 These are the badges you have achieved! Keep grinding to earn more!'
+                            : '🔒 These are locked badges. Meet the badge requirement to unlock them!'}
+                    </Typography>
+
+                    <Stack
+                        direction='row'
+                        columnGap={1}
+                        flexWrap='wrap'
+                        rowGap={2}
+                        alignItems='center'
+                        justifyContent='center'
+                        sx={{
+                            padding: 2,
+                            background: 'rgba(255, 255, 255, 0.2)',
+                            borderRadius: 3,
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2)',
+                        }}
+                    >
+                        {(badgeCategory === 'current'
+                            ? badges
+                            : badgeCategory === 'polgar'
+                              ? ineligiblePolgarBadges
+                              : badgeCategory === 'games'
+                                ? ineligibleGameBadges
+                                : badgeCategory === 'annotation'
+                                  ? ineligibleAnnoBadges
+                                  : inelgibleCohortBadges
+                        ).map((badge, idx) => (
+                            <Box
+                                key={idx}
+                                sx={{
+                                    height: '120px',
+                                    width: '120px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background:
+                                        badgeCategory === 'current'
+                                            ? 'rgba(255, 223, 186, 0.8)'
+                                            : 'rgba(255,255,255,0.1)',
+                                    borderRadius: '50%',
+                                    border: '3px solid',
+                                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                                    transition: 'transform 0.2s',
+                                    filter:
+                                        badgeCategory === 'current'
+                                            ? 'none'
+                                            : 'grayscale(60%) opacity(0.6)',
+                                    '&:hover': {
+                                        transform: 'scale(1.1)',
+                                    },
+                                }}
+                            >
+                                {badge}
+                            </Box>
+                        ))}
+                    </Stack>
+                </DialogContent>
             </Dialog>
         </>
     );

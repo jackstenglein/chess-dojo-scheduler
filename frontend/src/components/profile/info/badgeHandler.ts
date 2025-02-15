@@ -1,4 +1,5 @@
-import { User } from '@/database/user';
+import { cohortColors, User } from '@/database/user';
+import { cohortIcons } from '@/scoreboard/CohortIcon';
 
 export interface Badge {
     image: string;
@@ -127,6 +128,15 @@ function getBadgeImage(level: number, badge: BadgeType): string {
 }
 
 /**
+ * Gets the cohort badge image
+ * @param cohort the cohort
+ * @returns the cohort image
+ */
+function getCohortBadgeImage(cohort: string): string {
+    return cohortIcons[cohort];
+}
+
+/**
  * check if the user is eligible for badge limit for given requirement
  * @param user the current user
  * @param requirementId requirement id
@@ -186,6 +196,14 @@ function getBadgeMessage(level: number, badge: BadgeType): string {
 
     return msg;
 }
+/**
+ * gets the cohort badge message
+ * @param cohort the cohort
+ * @returns the message
+ */
+function getCohortBadgeMessage(cohort: string): string {
+    return `Congratulations! You have graduated to ${cohort}`;
+}
 
 /**
  * gets the badge title
@@ -195,6 +213,15 @@ function getBadgeMessage(level: number, badge: BadgeType): string {
  */
 function getBadgeTitle(level: number, badge: BadgeType): string {
     return `${BADGE_TITLE[badge]} - ${level}`;
+}
+
+/**
+ * gets the cohort badge title
+ * @param cohort the cohort
+ * @returns the badge title
+ */
+function getCohortBadgeTitle(cohort: string): string {
+    return `Cohort ${cohort}`;
 }
 
 /**
@@ -218,6 +245,15 @@ function getBadgeGlow(level: number, badge: BadgeType): string | undefined {
 }
 
 /**
+ * Gets the cohort badge glow color
+ * @param cohort the cohort
+ * @returns the glow color
+ */
+function getCohortBadgeGlow(cohort: string): string {
+    return cohortColors[cohort];
+}
+
+/**
  * gets the info and badge image for eligible badge
  * @param user current user
  * @param badge the badge type
@@ -238,6 +274,22 @@ function getEligibleBadgeInfo(user: User, badge: BadgeType): Badge | undefined {
     };
 
     return currentBadge;
+}
+
+/**
+ * Gets the cohort badge
+ * @param cohort the cohort
+ * @returns the badge
+ */
+export function getCohortBadge(cohort: string): Badge {
+    const cohortBadge: Badge = {
+        image: getCohortBadgeImage(cohort),
+        title: getCohortBadgeTitle(cohort),
+        message: getCohortBadgeMessage(cohort),
+        glowHexcode: getCohortBadgeGlow(cohort),
+    };
+
+    return cohortBadge;
 }
 
 // /**
@@ -288,4 +340,64 @@ export function getEligibleBadges(user: User): Badge[] {
     });
 
     return overallInfo;
+}
+
+/**
+ * gets the ineligible badge list
+ * @param user the user
+ * @param badge the badge type
+ * @returns the badges user *dreams* to get
+ */
+export function getIneligibleBadgeList(user: User, badge: BadgeType): Badge[] {
+    const eligibleLevel: number = getBadgeLevel(user, badge, BADGE_LIMITS[badge]);
+    const levels: number[] = BADGE_LIMITS[badge];
+    const badges: Badge[] = [];
+    for (const level of levels) {
+        if (level == eligibleLevel) {
+            continue;
+        }
+        const currentBadge: Badge = {
+            image: getBadgeImage(level, badge),
+            title: getBadgeTitle(level, badge),
+            message: getBadgeMessage(level, badge),
+            glowHexcode: getBadgeGlow(level, badge),
+        };
+
+        badges.push(currentBadge);
+    }
+
+    return badges;
+}
+
+/**
+ * gets the ineligible polgar badges
+ * @param user the user
+ * @returns the polgar badges the user *dreams* to get
+ */
+export function getIneligiblePolgarBadgeList(user: User): Badge[] {
+    const overallPolgarBadges: Badge[] = [
+        ...getIneligibleBadgeList(user, BadgeType.PolgarMateOne),
+        ...getIneligibleBadgeList(user, BadgeType.PolgarMateTwo),
+        ...getIneligibleBadgeList(user, BadgeType.PolgarMateThree),
+    ];
+    return overallPolgarBadges;
+}
+
+export function getIneligibleCohortBadgeList(user: User): Badge[] {
+    const eligibleCohorts = user.graduationCohorts;
+    const allInvalidCohorts: Badge[] = [];
+    const keys = Object.keys(cohortIcons);
+    if (eligibleCohorts != undefined) {
+        keys.forEach((key) => {
+            if (!eligibleCohorts.includes(key)) {
+                allInvalidCohorts.push(getCohortBadge(key));
+            }
+        });
+    } else {
+        keys.forEach((key) => {
+            allInvalidCohorts.push(getCohortBadge(key));
+        });
+    }
+
+    return allInvalidCohorts;
 }

@@ -6,9 +6,14 @@ import { Badge } from './badgeHandler';
 interface CustomBadgeProps {
     badge: Badge;
     handleBadgeClick: (badge: Badge) => void;
+    isBlocked?: boolean;
 }
 
-const CustomBadge: React.FC<CustomBadgeProps> = ({ badge, handleBadgeClick }) => {
+const CustomBadge: React.FC<CustomBadgeProps> = ({
+    badge,
+    handleBadgeClick,
+    isBlocked = false,
+}) => {
     return (
         <Tooltip title={badge.title} arrow>
             <Image
@@ -16,14 +21,14 @@ const CustomBadge: React.FC<CustomBadgeProps> = ({ badge, handleBadgeClick }) =>
                 width={50}
                 height={50}
                 style={{
-                    cursor: 'pointer',
+                    cursor: isBlocked ? 'default' : 'pointer',
                     filter: badge.glowHexcode
                         ? `drop-shadow(0 0 12px ${badge.glowHexcode})`
                         : undefined,
                     borderRadius: '8px',
                 }}
                 alt={badge.title}
-                onClick={() => handleBadgeClick(badge)}
+                onClick={() => !isBlocked && handleBadgeClick(badge)}
             />
         </Tooltip>
     );
