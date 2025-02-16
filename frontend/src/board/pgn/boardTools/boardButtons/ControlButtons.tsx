@@ -54,7 +54,7 @@ const ControlButtons = () => {
     };
 
     return (
-        <Stack direction='row'>
+        <Stack direction='row' gap={{ xs: 1.5, sm: 0 }} flexWrap='wrap'>
             {goToEndBehavior !== GoToEndButtonBehavior.Hidden && (
                 <Tooltip title='First Move'>
                     <IconButton
