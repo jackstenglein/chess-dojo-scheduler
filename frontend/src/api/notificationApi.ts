@@ -58,7 +58,7 @@ export function listNotifications(idToken: string, startKey?: string) {
  * @param id The id of the Notification to delete.
  */
 export function deleteNotification(idToken: string, id: string) {
-    id = encodeURIComponent(id);
+    id = btoa(id);
     return axios.delete<null>(`${BASE_URL}/user/notifications/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,

@@ -52,17 +52,17 @@ functions:
 
   notifyFollowers:
     handler: explorer/notifyFollowers.handler
-    timeout: 30
-    # events:
-    #   - stream:
-    #       type: dynamodb
-    #       arn: !GetAtt ExplorerTable.StreamArn
-    #       batchWindow: 20
-    #       batchSize: 5
-    #       maximumRetryAttempts: 2
-    #       parallelizationFactor: 2
-    #       filterPatterns:
-    #         - eventName: [INSERT]
+    timeout: 300
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt ExplorerTable.StreamArn
+          batchWindow: 20
+          batchSize: 1000
+          maximumRetryAttempts: 2
+          parallelizationFactor: 10
+          filterPatterns:
+            - eventName: [INSERT]
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -70,7 +70,7 @@ functions:
         Resource: !GetAtt ExplorerTable.Arn
       - Effect: Allow
         Action:
-          - dynamodb:BatchWriteItem
+          - dynamodb:UpdateItem
         Resource: ${param:NotificationsTableArn}
 
   getPosition:
