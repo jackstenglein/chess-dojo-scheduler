@@ -124,10 +124,40 @@ async function processFollowers(
 
     for (const follower of followers) {
         if (game.cohort === 'masters') {
+            await processMasterGame(follower, game);
         } else {
             await processDojoGame(follower, game);
         }
     }
+}
+
+/**
+ * Saves a notification for a Masters game, if necessary.
+ * @param follower The follower to potentially notify.
+ * @param game The game to notify the follower of.
+ */
+async function processMasterGame(follower: ExplorerPositionFollower, game: ExplorerGame) {
+    const metadata = follower.followMetadata?.masters;
+    if (!metadata?.enabled) {
+        return;
+    }
+    if (
+        metadata.timeControls &&
+        !metadata.timeControls.includes(game.game.timeClass?.toLowerCase() || '')
+    ) {
+        return;
+    }
+    if (metadata.minAverageRating) {
+        const avg =
+            (parseInt(game.game.headers.WhiteElo || '0') +
+                parseInt(game.game.headers.BlackElo || '0')) /
+            2;
+        if (isNaN(avg) || avg < metadata.minAverageRating) {
+            return;
+        }
+    }
+
+    await saveNotification(follower, game);
 }
 
 /**
@@ -156,6 +186,15 @@ async function processDojoGame(follower: ExplorerPositionFollower, game: Explore
         return;
     }
 
+    await saveNotification(follower, game);
+}
+
+/**
+ * Saves a notification for the given follower and game.
+ * @param follower The follower to notify.
+ * @param game The game to notify the follower of.
+ */
+async function saveNotification(follower: ExplorerPositionFollower, game: ExplorerGame) {
     const input = new UpdateItemBuilder()
         .key('username', follower.follower)
         .key('id', follower.normalizedFen)
