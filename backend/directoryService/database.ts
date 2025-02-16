@@ -27,6 +27,7 @@ export class UpdateItemBuilder {
     private exprAttrValues: Record<string, AttributeValue> = {};
     private setExpression = '';
     private removeExpression = '';
+    private addExpression = '';
 
     private _condition: Condition | undefined;
     private returnValues: updateReturnType = 'NONE';
@@ -84,6 +85,45 @@ export class UpdateItemBuilder {
     }
 
     /**
+     * Adds a command to add the given value to the given attribute, which
+     * must be a number or set. If path is a string, it will be split around
+     * the period character and each component will be converted to a DynamoDB
+     * expression attribute name. If path is an array, each item will be converted
+     * to a DynamoDB expression attribute name.
+     * @param path The attribute path to add to.
+     * @param value The value to add. If undefined, this function is a no-op.
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    add(path: AttributePath, value: any): UpdateItemBuilder {
+        if (value === undefined) {
+            return this;
+        }
+
+        if (typeof path === 'string') {
+            return this.addPath(path.split(','), value);
+        }
+        return this.addPath(path, value);
+    }
+
+    /**
+     * Adds a command to add the given value to the given attribute path, which
+     * must be a number or set.
+     * @param path The attribute path to add to.
+     * @param value The value to add.
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    private addPath(path: AttributePathTokens, value: any): UpdateItemBuilder {
+        if (this.addExpression.length > 0) {
+            this.addExpression += ', ';
+        }
+        this.addExpression += this.addExpressionPath(path);
+        this.addExpression += ` :n${this.attrIndex}`;
+        this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value);
+        this.attrIndex++;
+        return this;
+    }
+
+    /**
      * Adds a command to set the given attribute path to the given value.
      * If the value is undefined, this function is a no-op.
      * @param path The attribute path to set.
@@ -112,7 +152,8 @@ export class UpdateItemBuilder {
      * Adds a command to append the given values to the list specified by the given attribute path.
      * If path is a string, it will be split around the period character, and each component will be
      * converted to a DynamoDB expression attribute name. If path is an array, each item will be
-     * converted to a DynamoDB expression attribute name.
+     * converted to a DynamoDB expression attribute name. If the path does not already exist on the
+     * item, it will be set to an empty list before performing the append.
      * @param path The attribute path to set.
      * @param values The values to append to the end of the list.
      * @returns The UpdateItemBuilder for method chaining.
@@ -127,7 +168,8 @@ export class UpdateItemBuilder {
         }
 
         const pathExpr = this.addExpressionPath(path);
-        this.setExpression += `${pathExpr} = list_append(${pathExpr}, :n${this.attrIndex})`;
+        this.setExpression += `${pathExpr} = list_append(if_not_exists(${pathExpr}, :empty_list), :n${this.attrIndex})`;
+        this.exprAttrValues[':empty_list'] = { L: [] };
         this.exprAttrValues[`:n${this.attrIndex}`] = marshall(values, {
             removeUndefinedValues: true,
             convertTopLevelContainer: true,
@@ -205,6 +247,9 @@ export class UpdateItemBuilder {
         }
         if (this.removeExpression.length > 0) {
             updateExpression += ` REMOVE ${this.removeExpression}`;
+        }
+        if (this.addExpression.length > 0) {
+            updateExpression += ` ADD ${this.addExpression}`;
         }
 
         return new UpdateItemCommand({

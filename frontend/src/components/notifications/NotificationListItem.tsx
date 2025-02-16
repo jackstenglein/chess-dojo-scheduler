@@ -154,7 +154,9 @@ function getLink(notification: Notification) {
             return `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`;
 
         case NotificationType.ExplorerGame:
-            return `/games/${notification.explorerGameMetadata?.cohort}/${notification.explorerGameMetadata?.id}`;
+            if (notification.count === 1)
+                return `/games/${notification.explorerGameMetadata?.[0].cohort}/${notification.explorerGameMetadata?.[0].id}`;
+            return `/notifications/${encodeURIComponent(notification.id)}`;
 
         case NotificationType.NewClubJoinRequest:
             return `/clubs/${notification.clubMetadata?.id}?view=joinRequests`;

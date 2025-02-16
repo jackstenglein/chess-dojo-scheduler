@@ -8,7 +8,7 @@ import NotFoundPage from '@/NotFoundPage';
 export function NextRequireAuth({
     Component,
 }: {
-    Component: ({ user }: { user: User }) => JSX.Element;
+    Component: ({ user }: { user: User }) => JSX.Element | null;
 }) {
     const { user, status } = useAuth();
     if (status === AuthStatus.Loading) {

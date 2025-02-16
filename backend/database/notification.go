@@ -70,7 +70,7 @@ type Notification struct {
 	TimelineCommentMetadata *TimelineCommentMetadata `dynamodbav:"timelineCommentMetadata,omitempty" json:"timelineCommentMetadata,omitempty"`
 
 	// Metadata for an explorer game notification
-	ExplorerGameMetadata *ExplorerGameMetadata `dynamodbav:"explorerGameMetadata,omitempty" json:"explorerGameMetadata,omitempty"`
+	ExplorerGameMetadata []ExplorerGameMetadata `dynamodbav:"explorerGameMetadata,omitempty" json:"explorerGameMetadata,omitempty"`
 
 	// Metadata for club-related notifications
 	ClubMetadata *ClubMetadata `dynamodbav:"clubMetadata,omitempty" json:"clubMetadata,omitempty"`
@@ -123,14 +123,20 @@ type TimelineCommentMetadata struct {
 
 // Metadata for an explorer game notification.
 type ExplorerGameMetadata struct {
-	// The normalized fen of the position
-	NormalizedFen string `dynamodbav:"normalizedFen" json:"normalizedFen"`
-
 	// The cohort of the game
 	Cohort DojoCohort `dynamodbav:"cohort" json:"cohort"`
 
 	// The sort key of the game
 	Id string `dynamodbav:"id" json:"id"`
+
+	// The owner of the game
+	Owner string `dynamodbav:"owner" json:"owner"`
+
+	// The display name of the owner of the game
+	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
+
+	// The date the game was published
+	PublishedAt string `dynamodbav:"publishedAt" json:"publishedAt"`
 
 	// The result of the explorer game, not the result of the game
 	Result string `dynamodbav:"result" json:"result"`

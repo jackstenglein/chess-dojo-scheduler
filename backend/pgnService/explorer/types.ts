@@ -114,42 +114,6 @@ export interface ExplorerGame {
     game: ExplorerGameEmbed;
 }
 
-/**
- * A user following this position. The user will be notified when a new
- * analysis is uploaded containing this position.
- */
-export interface ExplorerPositionFollower {
-    /**
-     * This is the hash key of the explorer table. See the comment on ExplorerPosition
-     * for more info on the format.
-     */
-    normalizedFen: string;
-
-    /**
-     * The range key of the table, in the form FOLLOWER#username, where FOLLOWER is the
-     * literal value `FOLLOWER` and username is the username of the follower.
-     */
-    id: string;
-
-    /**
-     * The minimum cohort the new analysis must be in for the user to be notified
-     * (inclusive). If not provided, then there is no minimum cohort.
-     */
-    minCohort?: string;
-
-    /**
-     * The maximum cohort the new analysis must be in for the user to be notified
-     * (inclusive). If not provided, then there is no maximum cohort.
-     */
-    maxCohort?: string;
-
-    /**
-     * Whether to disable notifications if the position only appears in a variation
-     * of the analysis and not the mainline.
-     */
-    disableVariations?: boolean;
-}
-
 /** A game submitted to the Dojo database. */
 export interface Game {
     /** The cohort the game belongs to. */
@@ -234,6 +198,9 @@ export interface ExplorerGameEmbed {
 
         /** The ply count of the game. */
         PlyCount?: string;
+
+        /** The date the game was played. */
+        Date?: string;
     };
 }
 
