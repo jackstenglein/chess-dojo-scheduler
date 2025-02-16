@@ -576,15 +576,7 @@ resources:
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
-        BillingMode: !If
-          - IsProd
-          - PROVISIONED
-          - PAY_PER_REQUEST
-        ProvisionedThroughput: !If
-          - IsProd
-          - ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
-          - !Ref AWS::NoValue
+        BillingMode: PAY_PER_REQUEST
 
     NewsfeedTable:
       Type: AWS::DynamoDB::Table

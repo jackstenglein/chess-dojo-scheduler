@@ -335,18 +335,6 @@ resources:
           - AttributeName: id
             KeyType: RANGE
         GlobalSecondaryIndexes:
-          - IndexName: FollowerIndex
-            KeySchema:
-              - AttributeName: id
-                KeyType: HASH
-              - AttributeName: normalizedFen
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - minCohort
-                - maxCohort
-                - disableVariations
           - IndexName: FollowerIdx
             KeySchema:
               - AttributeName: follower
