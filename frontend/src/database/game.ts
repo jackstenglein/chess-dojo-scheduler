@@ -76,6 +76,9 @@ export interface GameInfo extends GameKey {
      * for review.
      */
     review?: GameReview;
+
+    /** The time class of the game. Currently set only on master games. */
+    timeClass?: string;
 }
 
 export interface Comment {
