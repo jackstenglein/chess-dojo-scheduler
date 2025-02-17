@@ -7,7 +7,7 @@ import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ExplorerGame } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
-const explorerTable = `${process.env.stage}-explorer`;
+export const explorerTable = `${process.env.stage}-explorer`;
 const mastersTable =
     process.env.stage === 'prod' ? 'prod-masters-explorer' : explorerTable;
 

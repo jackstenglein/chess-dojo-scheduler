@@ -22,6 +22,39 @@ provider:
     id: ${param:httpApiId}
   deploymentMethod: direct
 
+custom:
+  notifyFollowers:
+    events:
+      dev:
+        - stream:
+            type: dynamodb
+            arn: !GetAtt ExplorerTable.StreamArn
+            batchWindow: 20
+            batchSize: 1000
+            maximumRetryAttempts: 2
+            parallelizationFactor: 10
+            filterPatterns:
+              - eventName: [INSERT]
+      prod:
+        - stream:
+            type: dynamodb
+            arn: !GetAtt ExplorerTable.StreamArn
+            batchWindow: 20
+            batchSize: 1000
+            maximumRetryAttempts: 2
+            parallelizationFactor: 10
+            filterPatterns:
+              - eventName: [INSERT]
+        - stream:
+            type: dynamodb
+            arn: 'arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer/stream/2025-02-16T00:11:28.090'
+            batchWindow: 20
+            batchSize: 1000
+            maximumRetryAttempts: 2
+            parallelizationFactor: 10
+            filterPatterns:
+              - eventName: [INSERT]
+
 functions:
   processGame:
     handler: explorer/processGame.handler
@@ -52,17 +85,8 @@ functions:
 
   notifyFollowers:
     handler: explorer/notifyFollowers.handler
-    timeout: 30
-    # events:
-    #   - stream:
-    #       type: dynamodb
-    #       arn: !GetAtt ExplorerTable.StreamArn
-    #       batchWindow: 20
-    #       batchSize: 5
-    #       maximumRetryAttempts: 2
-    #       parallelizationFactor: 2
-    #       filterPatterns:
-    #         - eventName: [INSERT]
+    timeout: 300
+    events: ${self:custom.notifyFollowers.events.${sls:stage}}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -70,7 +94,7 @@ functions:
         Resource: !GetAtt ExplorerTable.Arn
       - Effect: Allow
         Action:
-          - dynamodb:BatchWriteItem
+          - dynamodb:UpdateItem
         Resource: ${param:NotificationsTableArn}
 
   getPosition:
@@ -126,6 +150,25 @@ functions:
           - dynamodb:PutItem
           - dynamodb:DeleteItem
         Resource: !GetAtt ExplorerTable.Arn
+
+  listFollowedPositions:
+    handler: explorer/listFollowedPositions.handler
+    events:
+      - httpApi:
+          path: /explorer/position/follower
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt ExplorerTable.Arn
+                - '/index/FollowerIdx'
 
   createGame:
     timeout: 28
@@ -284,21 +327,21 @@ resources:
             AttributeType: S
           - AttributeName: id
             AttributeType: S
+          - AttributeName: follower
+            AttributeType: S
         KeySchema:
           - AttributeName: normalizedFen
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
         GlobalSecondaryIndexes:
-          - IndexName: FollowerIndex
+          - IndexName: FollowerIdx
             KeySchema:
-              - AttributeName: id
+              - AttributeName: follower
                 KeyType: HASH
               - AttributeName: normalizedFen
                 KeyType: RANGE
             Projection:
               ProjectionType: INCLUDE
               NonKeyAttributes:
-                - minCohort
-                - maxCohort
-                - disableVariations
+                - followMetadata

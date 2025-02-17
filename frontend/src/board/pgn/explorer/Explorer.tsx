@@ -12,6 +12,7 @@ import { useChess } from '../PgnBoard';
 import Database from './Database';
 import Header from './Header';
 import { Tablebase } from './Tablebase';
+import { usePositionGames } from './usePositionGames';
 
 const startingPositionFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -34,6 +35,13 @@ const Explorer = () => {
     const [minCohort, setMinCohort] = useState('');
     const [maxCohort, setMaxCohort] = useState('');
     const [timeControls, setTimeControls] = useState(defaultTimeControls);
+    const pagination = usePositionGames({
+        fen,
+        type: tab,
+        minCohort,
+        maxCohort,
+        timeControls,
+    });
 
     useEffect(() => {
         if (chess) {
@@ -157,6 +165,7 @@ const Explorer = () => {
                         setMaxCohort={setMaxCohort}
                         timeControls={timeControls}
                         setTimeControls={onSetTimeControls}
+                        pagination={pagination}
                     />
                 )}
             </TabContext>

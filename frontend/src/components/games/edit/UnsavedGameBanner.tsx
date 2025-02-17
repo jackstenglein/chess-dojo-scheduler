@@ -1,11 +1,5 @@
-import { toPgnDate } from '@/api/gameApi';
 import { RequestSnackbar } from '@/api/Request';
-import { useChess } from '@/board/pgn/PgnBoard';
-import useSaveGame from '@/hooks/useSaveGame';
-import {
-    CreateGameRequest,
-    GameImportTypes,
-} from '@jackstenglein/chess-dojo-common/src/database/game';
+import { useUnsavedGame } from '@/hooks/useUnsavedGame';
 import { CloudOff } from '@mui/icons-material';
 import {
     Alert,
@@ -16,52 +10,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { useState } from 'react';
-import SaveGameDialog, { SaveGameDialogType, SaveGameForm } from './SaveGameDialog';
-
-/**
- * A hook that encapsulates functionality for the UnsavedGameBanner and UnsavedGameIcon.
- */
-function useUnsavedGame() {
-    const [showDialog, setShowDialog] = useState(false);
-    const [showBanner, setShowBanner] = useState(true);
-    const { createGame, stagedGame, request } = useSaveGame();
-    const { chess } = useChess();
-
-    const onSubmit = async (form: SaveGameForm) => {
-        if (!chess) {
-            return;
-        }
-
-        chess.setHeader('White', form.white);
-        chess.setHeader('Black', form.black);
-        chess.setHeader('Result', form.result);
-        chess.setHeader('Date', toPgnDate(form.date) ?? '???.??.??');
-
-        const pgnText = chess.pgn.render();
-        const req: CreateGameRequest = stagedGame ?? {
-            pgnText,
-            type: GameImportTypes.manual,
-        };
-
-        req.pgnText = pgnText;
-        req.publish = form.publish;
-        req.orientation = form.orientation;
-
-        await createGame(req).then(() => {
-            setShowDialog(false);
-        });
-    };
-
-    return {
-        showDialog,
-        setShowDialog,
-        showBanner,
-        setShowBanner,
-        request,
-        onSubmit,
-    };
-}
+import SaveGameDialog, { SaveGameDialogType } from './SaveGameDialog';
 
 interface UnsavedGameBannerProps {
     dismissable?: boolean;

@@ -12,15 +12,27 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
+import { calculatePlayerStats } from './Stats';
 
 export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWaitlist }) {
     if (Object.values(tournament.players).length === 0) {
         return null;
     }
 
-    const players = isRoundRobin(tournament)
+    const isActive = isRoundRobin(tournament);
+
+    const players = isActive
         ? tournament.playerOrder.map((username) => tournament.players[username])
         : Object.values(tournament.players);
+
+    const stats = isActive ? calculatePlayerStats(tournament) : undefined;
+
+    players.sort((lhs, rhs) => {
+        if (!stats) {
+            return 0;
+        }
+        return (stats[rhs.username]?.score ?? 0) - (stats[lhs.username]?.score ?? 0);
+    });
 
     return (
         <Table sx={{ mt: 3 }}>
@@ -38,6 +50,11 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
                     <TableCell align='center'>
                         <Typography fontWeight='bold'>Discord Username</Typography>
                     </TableCell>
+                    {isActive && (
+                        <TableCell align='center'>
+                            <Typography fontWeight='bold'>Score</Typography>
+                        </TableCell>
+                    )}
                 </TableRow>
             </TableHead>
             <TableBody>
@@ -61,6 +78,13 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
                         <TableCell align='center'>
                             <Typography>{player.discordUsername}</Typography>
                         </TableCell>
+                        {stats && (
+                            <TableCell align='center'>
+                                <Typography>
+                                    {stats[player.username]?.score ?? 0}
+                                </Typography>
+                            </TableCell>
+                        )}
                     </TableRow>
                 ))}
             </TableBody>

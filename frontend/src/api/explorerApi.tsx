@@ -1,3 +1,4 @@
+import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import { LichessTablebasePosition } from '@jackstenglein/chess-dojo-common/src/explorer/types';
 import axios, { AxiosResponse } from 'axios';
 import { getConfig } from '../config';
@@ -28,6 +29,11 @@ export interface ExplorerApiContextType {
     followPosition: (
         request: FollowPositionRequest,
     ) => Promise<AxiosResponse<ExplorerPositionFollower | null>>;
+
+    /**
+     * Fetches a list of positions the caller has followed.
+     */
+    listFollowedPositions: () => Promise<AxiosResponse<ListFollowedPositionsResponse>>;
 }
 
 /** The result from a GetExplorerPosition request. */
@@ -64,24 +70,6 @@ export function getPosition(idToken: string, fen: string) {
     });
 }
 
-/** A request to create or update an ExplorerPositionFollower. */
-export interface FollowPositionRequest {
-    /** The FEN of the position to update. */
-    fen: string;
-
-    /** The minimum cohort to trigger game notifications. */
-    minCohort?: string;
-
-    /** The maximum cohort to trigger game notifications. */
-    maxCohort?: string;
-
-    /** Whether to disable notifications for variations. */
-    disableVariations?: boolean;
-
-    /** Whether to delete an existing ExplorerPositionFollower. */
-    unfollow?: boolean;
-}
-
 /**
  * Creates, updates or deletes an ExplorerPositionFollower with the provided parameters.
  * @param idToken The id token of the current signed-in user.
@@ -93,5 +81,24 @@ export function followPosition(idToken: string, request: FollowPositionRequest) 
         `${BASE_URL}/explorer/position/follower`,
         request,
         { headers: { Authorization: 'Bearer ' + idToken } },
+    );
+}
+
+export interface ListFollowedPositionsResponse {
+    /** The followed positions */
+    positions: ExplorerPositionFollower[];
+    /** The last evaluated key for pagination. */
+    lastEvaluatedKey?: string;
+}
+
+/**
+ * Fetches a list of positions the caller has followed.
+ * @param idToken The id token of the current signed-in user.
+ * @returns The list of followed positions.
+ */
+export function listFollowedPositions(idToken: string) {
+    return axios.get<ListFollowedPositionsResponse>(
+        `${BASE_URL}/explorer/position/follower`,
+        { headers: { Authorization: `Bearer ${idToken}` } },
     );
 }

@@ -44,6 +44,7 @@ export interface MultipleSelectChipProps {
     helperText?: string;
     'data-cy'?: string;
     displayEmpty?: string;
+    disabled?: boolean;
 }
 
 export default function MultipleSelectChip({
@@ -56,6 +57,7 @@ export default function MultipleSelectChip({
     error,
     helperText,
     displayEmpty,
+    disabled,
     ...others
 }: MultipleSelectChipProps) {
     const theme = useTheme();
@@ -96,6 +98,7 @@ export default function MultipleSelectChip({
                 )}
                 MenuProps={MenuProps}
                 displayEmpty={!!displayEmpty}
+                disabled={disabled}
             >
                 {options.map((option) => (
                     <MenuItem

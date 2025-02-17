@@ -18,6 +18,7 @@ import {
     DeleteGamesRequest,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import {
     RoundRobinRegisterRequest,
@@ -92,9 +93,9 @@ import {
 } from './examApi';
 import {
     ExplorerApiContextType,
-    FollowPositionRequest,
     followPosition,
     getPosition,
+    listFollowedPositions,
 } from './explorerApi';
 import {
     DeleteCommentRequest,
@@ -449,6 +450,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getPosition: (fen: string) => getPosition(idToken, fen),
             followPosition: (request: FollowPositionRequest) =>
                 followPosition(idToken, request),
+            listFollowedPositions: () => listFollowedPositions(idToken),
 
             subscriptionCheckout: (request: SubscriptionCheckoutRequest) =>
                 subscriptionCheckout(idToken, request),

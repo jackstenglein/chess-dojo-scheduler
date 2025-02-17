@@ -31,7 +31,13 @@ const gameMetadataSchema = z.object({
 
     /** The result of the game. */
     result: z.string().optional(),
+
+    /** Whether the game is unlisted or not. */
+    unlisted: z.boolean(),
 });
+
+/** Metadata about a game in a directory. */
+export type DirectoryGameMetadata = z.infer<typeof gameMetadataSchema>;
 
 const directoryVisibility = z.enum(['PUBLIC', 'PRIVATE']);
 
@@ -236,17 +242,6 @@ export type DirectoryItemGame = z.infer<
 /** The metadata of a game in a directory. */
 export type DirectoryItemGameMetadata = z.infer<typeof gameMetadataSchema>;
 
-/**
- * Verifies a request to create a directory.
- * @deprecated Use CreateDirectorySchemaV2 instead.
- */
-export const CreateDirectorySchema = DirectorySchema.pick({
-    id: true,
-    parent: true,
-    name: true,
-    visibility: true,
-});
-
 /** Verifies a request to create a directory. */
 const CreateDirectorySchemaV2Client = DirectorySchema.pick({
     owner: true,
@@ -264,12 +259,6 @@ export const CreateDirectorySchemaV2 = CreateDirectorySchemaV2Client.transform(
     },
 );
 
-/**
- * A request to create a directory.
- * @deprecated Use CreateDirectoryRequestV2 instead.
- */
-export type CreateDirectoryRequest = z.infer<typeof CreateDirectorySchema>;
-
 /** A request to create a directory, as seen by the server. */
 export type CreateDirectoryRequestV2 = z.infer<typeof CreateDirectorySchemaV2>;
 
@@ -277,30 +266,6 @@ export type CreateDirectoryRequestV2 = z.infer<typeof CreateDirectorySchemaV2>;
 export type CreateDirectoryRequestV2Client = z.infer<
     typeof CreateDirectorySchemaV2Client
 >;
-
-/**
- * Verifies a request to update a directory.
- * @deprecated Use UpdateDirectorySchemaV2 instead.
- */
-export const UpdateDirectorySchema = DirectorySchema.pick({
-    /** The id of the directory to update. */
-    id: true,
-
-    /** The new name to set on the directory. */
-    name: true,
-
-    /** The new visibility to set on the directory. */
-    visibility: true,
-
-    /** The new order of the items to set on the directory. */
-    itemIds: true,
-}).partial({ name: true, visibility: true, itemIds: true });
-
-/**
- * A request to update a directory.
- * @deprecated Use UpdateDirectoryRequestV2 instead.
- */
-export type UpdateDirectoryRequest = z.infer<typeof UpdateDirectorySchema>;
 
 /** Verifies a request to update a directory. */
 export const UpdateDirectorySchemaV2 = DirectorySchema.pick({
@@ -323,20 +288,6 @@ export const UpdateDirectorySchemaV2 = DirectorySchema.pick({
 /** A request to update a directory. */
 export type UpdateDirectoryRequestV2 = z.infer<typeof UpdateDirectorySchemaV2>;
 
-/**
- * Verifies a request to delete directories.
- * @deprecated Use DeleteDirectoriesSchemaV2 instead.
- */
-export const DeleteDirectoriesSchema = z.object({
-    ids: z.string().array(),
-});
-
-/**
- * A request to delete directories. All directories in the request must have the same parent.
- * @deprecated Use DeleteDirectoriesRequestV2 instead.
- */
-export type DeleteDirectoriesRequest = z.infer<typeof DeleteDirectoriesSchema>;
-
 /** Verifies a request to delete directories. */
 export const DeleteDirectoriesSchemaV2 = z.object({
     /** The owner of the directories to delete. */
@@ -348,23 +299,6 @@ export const DeleteDirectoriesSchemaV2 = z.object({
 
 /** A request to delete directories. All directories in the request must have the same parent. */
 export type DeleteDirectoriesRequestV2 = z.infer<typeof DeleteDirectoriesSchemaV2>;
-
-/**
- * Verifies a request to add items to a directory. Currently, only
- * games are handled by this request. Subdirectories can be added using
- * the create directory request.
- *
- * @deprecated Use AddDirectoryItemsSchemaV2, which handles adding items to another user's directory.
- */
-export const AddDirectoryItemsSchema = DirectorySchema.pick({
-    /** The id of the directory to add items to. */
-    id: true,
-}).merge(
-    z.object({
-        /** The games to add to the directory. */
-        games: gameMetadataSchema.array(),
-    }),
-);
 
 /**
  * Verifies a request to add items to a directory. Currently, only
@@ -384,28 +318,8 @@ export const AddDirectoryItemsSchemaV2 = DirectorySchema.pick({
     }),
 );
 
-/**
- * A request to add items to a directory.
- * @deprecated Use AddDirectoryItemsRequestV2 instead.
- */
-export type AddDirectoryItemsRequest = z.infer<typeof AddDirectoryItemsSchema>;
-
 /** A request to add items to a directory. */
 export type AddDirectoryItemsRequestV2 = z.infer<typeof AddDirectoryItemsSchemaV2>;
-
-/**
- * Verifies a request to remove items from a directory. Currently, only
- * games are handled by this request. Subdirectories can be removed using
- * the delete directory request.
- * @deprecated Use RemoveDirectoryItemsSchemaV2, which handles removing items from another user's directory.
- */
-export const RemoveDirectoryItemsSchema = z.object({
-    /** The id of the directory to remove the item from. */
-    directoryId: DirectorySchema.shape.id,
-
-    /** The ids of the item to remove. */
-    itemIds: z.string().array(),
-});
 
 /**
  * Verifies a request to remove items from a directory. Currently, only
@@ -423,38 +337,8 @@ export const RemoveDirectoryItemsSchemaV2 = z.object({
     itemIds: z.string().array(),
 });
 
-/** A request to remove game items from a directory.
- * @deprecated Use RemoveDirectoryItemsRequestV2 instead.
- */
-export type RemoveDirectoryItemsRequest = z.infer<typeof RemoveDirectoryItemsSchema>;
-
 /** A request to remove game items from a directory. */
 export type RemoveDirectoryItemsRequestV2 = z.infer<typeof RemoveDirectoryItemsSchemaV2>;
-
-/**
- * Verifies a request to move items between directories.
- * @deprecated Use MoveDirectoryItemsSchemaV2 instead.
- */
-export const MoveDirectoryItemsSchema = z
-    .object({
-        /** The id of the directory currently containing the items. */
-        source: DirectorySchema.shape.id,
-
-        /** The id of the directory to move the items into. */
-        target: DirectorySchema.shape.id,
-
-        /** The ids of the items to move. */
-        items: z.string().array(),
-    })
-    .refine((val) => val.source !== val.target, {
-        message: 'source/target directories must be different',
-    });
-
-/**
- * A request to move items between directories.
- * @deprecated Use MoveDirectoryItemsRequestV2 instead.
- */
-export type MoveDirectoryItemsRequest = z.infer<typeof MoveDirectoryItemsSchema>;
 
 /**
  * Verifies a request to move items between directories.

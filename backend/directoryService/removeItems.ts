@@ -9,7 +9,6 @@ import {
     Directory,
     DirectoryAccessRole,
     DirectoryItemTypes,
-    RemoveDirectoryItemsSchema,
     RemoveDirectoryItemsSchemaV2,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
@@ -32,29 +31,6 @@ import {
 } from './database';
 import { fetchDirectory } from './get';
 import { getItemIndexMap } from './moveItems';
-
-/**
- * Handles requests to the remove directory item API. Returns the updated
- * directory. Cannot be used to remove a subdirectory. Use the delete directory API
- * instead.
- * @param event The API gateway event that triggered the request.
- * @returns The updated directory after the item is removed.
- */
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-    try {
-        console.log('Event: %j', event);
-        const userInfo = requireUserInfo(event);
-        const request = parseEvent(event, RemoveDirectoryItemsSchema);
-        const directory = await removeDirectoryItems(
-            userInfo.username,
-            request.directoryId,
-            request.itemIds,
-        );
-        return success({ directory });
-    } catch (err) {
-        return errToApiGatewayProxyResultV2(err);
-    }
-};
 
 /**
  * Handles requests to the remove directory item API. Returns the updated

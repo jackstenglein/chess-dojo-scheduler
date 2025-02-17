@@ -469,15 +469,19 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                     </DialogContentText>
                 ) : (
                     <Stack spacing={3} mt={1} width={1}>
-                        {items.map((item, idx) => (
-                            <ProgressHistoryItem
-                                key={item.entry.id}
-                                {...item}
-                                error={errors[idx] || {}}
-                                updateItem={getUpdateItem(idx)}
-                                deleteItem={getDeleteItem(idx)}
-                            />
-                        ))}
+                        {items.map((_, idx, array) => {
+                            const reversedIdx = array.length - 1 - idx;
+                            const item = array[reversedIdx];
+                            return (
+                                <ProgressHistoryItem
+                                    key={item.entry.id}
+                                    {...item}
+                                    error={errors[reversedIdx] || {}}
+                                    updateItem={getUpdateItem(reversedIdx)}
+                                    deleteItem={getDeleteItem(reversedIdx)}
+                                />
+                            );
+                        })}
 
                         <Stack>
                             {!isTimeOnly && (

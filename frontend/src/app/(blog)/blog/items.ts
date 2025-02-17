@@ -1,3 +1,4 @@
+import customtask from './dojo-blog/custom-tasks/custom-tasks.png';
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
 import dojoDigestVol12Image from './dojo-digest/vol-12/dojo-files.png';
@@ -5,6 +6,7 @@ import stockfishImage from './dojo-digest/vol-13/stockfish.png';
 import fileSharingImage from './dojo-digest/vol-14/share-directory.png';
 import heatmap from './dojo-digest/vol-15/Finochess.jpg';
 import freemonth from './dojo-digest/vol-16/freemonth.webp';
+import yearstats from './dojo-digest/vol-17/2024+stats.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import worldrapid from './dojo-talks/2024-world-rapid-blitz/2024-rapid.png';
@@ -26,6 +28,26 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Custom Tasks Are Here!',
+        subtitle: 'Dojo Blog • February 14, 2025',
+        body: `Huge update for the Dojo! It is now possible to add custom tasks to the Training Program!`,
+        href: '/blog/dojo-blog/custom-tasks',
+        image: {
+            src: customtask,
+            alt: '',
+        },
+    },
+    {
+        title: 'Round Robin Tournaments, Custom Tasks, & more! | Dojo Digest',
+        subtitle: 'Dojo Digest • February 1, 2025',
+        body: `Round robin tournaments are open for non-members, and you can now create custom tasks in your training plan!`,
+        href: '/blog/dojo-digest/vol-17',
+        image: {
+            src: yearstats,
+            alt: '',
+        },
+    },
     {
         title: '2024 World Rapid & Blitz w/ GM Hammer | Dojo Talks',
         subtitle: 'DojoTalks • January 3, 2025',

@@ -131,7 +131,7 @@ const ListGamesPage = () => {
                         onPaginationModelChange={onPaginationModelChange}
                         contextMenu={contextMenu}
                         defaultVisibility={{
-                            moves: false,
+                            publishedAt: false,
                         }}
                     />
                     <ListItemContextMenu
