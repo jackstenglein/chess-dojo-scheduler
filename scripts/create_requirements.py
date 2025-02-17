@@ -178,7 +178,6 @@ def main():
         f'Got {len(categories["Middlegames + Strategy"])} Middlegames + Strategy requirements')
     print(f'Got {len(categories["Endgame"])} Endgame requirements')
     print(f'Got {len(categories["Opening"])} Opening requirements')
-    print(f'Got {len(categories["Non-Dojo"])} Non-Dojo requirements')
 
     print('Uploading items')
 
