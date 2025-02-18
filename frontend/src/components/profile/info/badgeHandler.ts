@@ -5,6 +5,8 @@ export interface Badge {
     image: string;
     title: string;
     message: string;
+    isEarned: boolean;
+    type: BadgeType | MiscBadgeType;
     glowHexcode?: string;
 }
 
@@ -17,9 +19,12 @@ export enum BadgeType {
     PolgarMateThree = '657fd4c7-461c-4503-b5f7-38a5a3480008',
     ClassicalGames = '38f46441-7a4e-4506-8632-166bcbe78baf',
     AnnotateGames = '4d23d689-1284-46e6-b2a2-4b4bfdc37174',
-    DailyStreak = 'DAILY_STREAK',
 }
 
+export enum MiscBadgeType {
+    Graduation = 'Graduation',
+    Dojoer = 'Dojo 1.0 Member',
+}
 /**
  * Current Badge limits
  */
@@ -29,7 +34,6 @@ const BADGE_LIMITS: Record<BadgeType, number[]> = {
     [BadgeType.PolgarMateThree]: [4462],
     [BadgeType.ClassicalGames]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
     [BadgeType.AnnotateGames]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
-    [BadgeType.DailyStreak]: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
 };
 
 const classicalGameMilestones: Record<number, string> = {
@@ -83,7 +87,6 @@ const BADGE_MAX_GLOW_COLOR: Record<BadgeType, string> = {
     [BadgeType.PolgarMateThree]: '#C67B09',
     [BadgeType.AnnotateGames]: '#72B526',
     [BadgeType.ClassicalGames]: '#39A99A',
-    [BadgeType.DailyStreak]: '#B19110',
 };
 
 const BADGE_TITLE: Record<BadgeType, string> = {
@@ -92,7 +95,6 @@ const BADGE_TITLE: Record<BadgeType, string> = {
     [BadgeType.PolgarMateThree]: 'Polgar M3',
     [BadgeType.AnnotateGames]: 'Classical Games Annotated',
     [BadgeType.ClassicalGames]: 'Classical Games Played',
-    [BadgeType.DailyStreak]: 'Daily Streak',
 };
 
 // const ROUND_ROBIN_BADGES: string[] = ['fall', 'summer', 'winter', 'spring'];
@@ -122,18 +124,7 @@ function getBadgeImage(level: number, badge: BadgeType): string {
             return `/static/badges/classical_games_played/v1/${level}.png`;
         case BadgeType.AnnotateGames:
             return `/static/badges/classical_games_annotated/v1/${level}.png`;
-        case BadgeType.DailyStreak:
-            return `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/streak/clean/streak${level}paper-clean.png?raw=true`;
     }
-}
-
-/**
- * Gets the cohort badge image
- * @param cohort the cohort
- * @returns the cohort image
- */
-function getCohortBadgeImage(cohort: string): string {
-    return cohortIcons[cohort];
 }
 
 /**
@@ -189,20 +180,9 @@ function getBadgeMessage(level: number, badge: BadgeType): string {
         case BadgeType.ClassicalGames:
             msg = classicalGameMilestones[level];
             break;
-        case BadgeType.DailyStreak:
-            msg = `Wowza! Your daily streak hit ${level}!`;
-            break;
     }
 
     return msg;
-}
-/**
- * gets the cohort badge message
- * @param cohort the cohort
- * @returns the message
- */
-function getCohortBadgeMessage(cohort: string): string {
-    return `Congratulations! You have graduated to ${cohort}`;
 }
 
 /**
@@ -213,15 +193,6 @@ function getCohortBadgeMessage(cohort: string): string {
  */
 function getBadgeTitle(level: number, badge: BadgeType): string {
     return `${BADGE_TITLE[badge]} - ${level}`;
-}
-
-/**
- * gets the cohort badge title
- * @param cohort the cohort
- * @returns the badge title
- */
-function getCohortBadgeTitle(cohort: string): string {
-    return `Cohort ${cohort}`;
 }
 
 /**
@@ -245,48 +216,18 @@ function getBadgeGlow(level: number, badge: BadgeType): string | undefined {
 }
 
 /**
- * Gets the cohort badge glow color
- * @param cohort the cohort
- * @returns the glow color
- */
-function getCohortBadgeGlow(cohort: string): string {
-    return cohortColors[cohort];
-}
-
-/**
- * gets the info and badge image for eligible badge
- * @param user current user
- * @param badge the badge type
- * @returns info and image for the badge
- */
-function getEligibleBadgeInfo(user: User, badge: BadgeType): Badge | undefined {
-    const level: number = getBadgeLevel(user, badge, BADGE_LIMITS[badge]);
-
-    if (level === -1) {
-        return undefined;
-    }
-
-    const currentBadge: Badge = {
-        image: getBadgeImage(level, badge),
-        title: getBadgeTitle(level, badge),
-        message: getBadgeMessage(level, badge),
-        glowHexcode: getBadgeGlow(level, badge),
-    };
-
-    return currentBadge;
-}
-
-/**
  * Gets the cohort badge
  * @param cohort the cohort
  * @returns the badge
  */
-export function getCohortBadge(cohort: string): Badge {
+function getCohortBadge(cohort: string, isEarned: boolean): Badge {
     const cohortBadge: Badge = {
-        image: getCohortBadgeImage(cohort),
-        title: getCohortBadgeTitle(cohort),
-        message: getCohortBadgeMessage(cohort),
-        glowHexcode: getCohortBadgeGlow(cohort),
+        image: cohortIcons[cohort],
+        title: `Graduated from ${cohort}`,
+        message: `Congratulations! You have graduated from ${cohort}`,
+        isEarned: isEarned,
+        type: MiscBadgeType.Graduation,
+        glowHexcode: cohortColors[cohort],
     };
 
     return cohortBadge;
@@ -318,28 +259,25 @@ export function getDojoerBadge(): Badge {
         title: 'Dojo member since 1.0',
         message:
             'You have been a valuable Dojo member from the start! Thanks for your support!',
+        isEarned: true,
         glowHexcode: '#BD01F2',
+        type: MiscBadgeType.Dojoer,
     };
 
     return dojoerBadge;
 }
 
-/**
- * Gets all possible elgible badges for user
- * @param user the current user
- * @returns all possible badges
- */
-export function getEligibleBadges(user: User): Badge[] {
-    const keys = Object.values(BadgeType);
-    const overallInfo: Badge[] = [];
-    keys.forEach((key) => {
-        const badge = getEligibleBadgeInfo(user, key);
-        if (badge) {
-            overallInfo.push(badge);
-        }
-    });
+function getBadge(level: number, badge: BadgeType, isEarned: boolean): Badge {
+    const Badge: Badge = {
+        image: getBadgeImage(level, badge),
+        title: getBadgeTitle(level, badge),
+        message: getBadgeMessage(level, badge),
+        type: badge,
+        isEarned: isEarned,
+        glowHexcode: getBadgeGlow(level, badge),
+    };
 
-    return overallInfo;
+    return Badge;
 }
 
 /**
@@ -348,39 +286,22 @@ export function getEligibleBadges(user: User): Badge[] {
  * @param badge the badge type
  * @returns the badges user *dreams* to get
  */
-export function getIneligibleBadgeList(user: User, badge: BadgeType): Badge[] {
-    const eligibleLevel: number = getBadgeLevel(user, badge, BADGE_LIMITS[badge]);
-    const levels: number[] = BADGE_LIMITS[badge];
+export function getBadges(user: User): Badge[] {
+    const keys = Object.values(BadgeType);
     const badges: Badge[] = [];
-    for (const level of levels) {
-        if (level === eligibleLevel) {
-            continue;
+    keys.forEach((badge) => {
+        const eligibleLevel: number = getBadgeLevel(user, badge, BADGE_LIMITS[badge]);
+        const levels: number[] = BADGE_LIMITS[badge];
+        for (const level of levels) {
+            if (level <= eligibleLevel) {
+                badges.push(getBadge(level, badge, true));
+            } else {
+                badges.push(getBadge(level, badge, false));
+            }
         }
-        const currentBadge: Badge = {
-            image: getBadgeImage(level, badge),
-            title: getBadgeTitle(level, badge),
-            message: getBadgeMessage(level, badge),
-            glowHexcode: getBadgeGlow(level, badge),
-        };
-
-        badges.push(currentBadge);
-    }
+    });
 
     return badges;
-}
-
-/**
- * gets the ineligible polgar badges
- * @param user the user
- * @returns the polgar badges the user *dreams* to get
- */
-export function getIneligiblePolgarBadgeList(user: User): Badge[] {
-    const overallPolgarBadges: Badge[] = [
-        ...getIneligibleBadgeList(user, BadgeType.PolgarMateOne),
-        ...getIneligibleBadgeList(user, BadgeType.PolgarMateTwo),
-        ...getIneligibleBadgeList(user, BadgeType.PolgarMateThree),
-    ];
-    return overallPolgarBadges;
 }
 
 /**
@@ -388,21 +309,26 @@ export function getIneligiblePolgarBadgeList(user: User): Badge[] {
  * @param user the user
  * @returns the cohort badges the user *dreams* to get
  */
-export function getIneligibleCohortBadgeList(user: User): Badge[] {
+export function getAllCohortBadges(user: User): Badge[] {
     const eligibleCohorts = user.graduationCohorts;
-    const allInvalidCohorts: Badge[] = [];
+    console.log(eligibleCohorts);
+    const allBadges: Badge[] = [];
     const keys = Object.keys(cohortIcons);
     if (eligibleCohorts !== undefined) {
-        keys.forEach((key) => {
-            if (!eligibleCohorts.includes(key)) {
-                allInvalidCohorts.push(getCohortBadge(key));
+        for (const key of keys) {
+            console.log(key);
+            if (eligibleCohorts.includes(key)) {
+                allBadges.push(getCohortBadge(key, true));
+                continue;
             }
-        });
+
+            allBadges.push(getCohortBadge(key, false));
+        }
     } else {
         keys.forEach((key) => {
-            allInvalidCohorts.push(getCohortBadge(key));
+            allBadges.push(getCohortBadge(key, false));
         });
     }
 
-    return allInvalidCohorts;
+    return allBadges;
 }

@@ -12,7 +12,7 @@ interface CustomBadgeProps {
 const CustomBadge: React.FC<CustomBadgeProps> = ({
     badge,
     handleBadgeClick,
-    isBlocked = false,
+    isBlocked,
 }) => {
     return (
         <Tooltip title={badge.title} arrow>

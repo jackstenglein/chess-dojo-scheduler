@@ -1,5 +1,5 @@
 import { Link } from '@/components/navigation/Link';
-import { User, compareCohorts } from '@/database/user';
+import { User } from '@/database/user';
 import { Close as CloseIcon, ZoomOutMap } from '@mui/icons-material';
 import {
     Box,
@@ -24,25 +24,23 @@ import postmortem2024 from './2024-postmortem.png';
 import {
     Badge,
     BadgeType,
-    getCohortBadge,
+    getAllCohortBadges,
+    getBadges,
     getDojoerBadge,
-    getEligibleBadges,
-    getIneligibleBadgeList,
-    getIneligibleCohortBadgeList,
-    getIneligiblePolgarBadgeList,
 } from './badgeHandler';
+import BadgeProgress from './BadgeProgress';
 import CustomBadge from './CustomBadge';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge | undefined>(undefined);
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
-    const badgeData: Badge[] = getEligibleBadges(user);
+    const allBadges: Badge[] = getBadges(user);
+    console.log(allBadges);
+    const allGradBadges: Badge[] = getAllCohortBadges(user);
+    console.log(allGradBadges);
+    const badgeData: Badge[] = allBadges.filter((badge) => badge.isEarned);
     const [previousBadgeData, setPreviousBadgeData] = useState<Badge[]>(badgeData);
-    const [badgeCategory, setBadgeCategory] = useState('current');
-    const ineligibleGameBadges: JSX.Element[] = [];
-    const ineligibleAnnoBadges: JSX.Element[] = [];
-    const ineligiblePolgarBadges: JSX.Element[] = [];
-    const inelgibleCohortBadges: JSX.Element[] = [];
+    const [badgeCategory, setBadgeCategory] = useState('all');
     // const { requirements } = useRequirements(ALL_COHORTS, true);
     // const tacticsRating = calculateTacticsRating(user, requirements);
     // const minCohort = parseInt(user.dojoCohort);
@@ -69,13 +67,12 @@ export const BadgeCard = ({ user }: { user: User }) => {
     }, [badgeData, previousBadgeData, setSelectedBadge, setPreviousBadgeData]);
 
     const badges =
-        user.graduationCohorts
-            ?.sort(compareCohorts)
-            .filter((c, i) => user.graduationCohorts?.indexOf(c) === i)
+        allGradBadges
+            .filter((c) => c.isEarned)
             .map((c) => (
                 <CustomBadge
-                    key={getCohortBadge(c).title}
-                    badge={getCohortBadge(c)}
+                    key={c.title}
+                    badge={c}
                     handleBadgeClick={handleBadgeClick}
                 />
             )) ?? [];
@@ -151,46 +148,6 @@ export const BadgeCard = ({ user }: { user: User }) => {
         badges.push(<CustomBadge badge={badge} handleBadgeClick={handleBadgeClick} />);
     }
 
-    for (const polgarBadges of getIneligiblePolgarBadgeList(user)) {
-        ineligiblePolgarBadges.push(
-            <CustomBadge
-                badge={polgarBadges}
-                handleBadgeClick={handleBadgeClick}
-                isBlocked={true}
-            />,
-        );
-    }
-
-    for (const cohortBadge of getIneligibleCohortBadgeList(user)) {
-        inelgibleCohortBadges.push(
-            <CustomBadge
-                badge={cohortBadge}
-                handleBadgeClick={handleBadgeClick}
-                isBlocked={true}
-            />,
-        );
-    }
-
-    for (const anongameBadges of getIneligibleBadgeList(user, BadgeType.AnnotateGames)) {
-        ineligibleAnnoBadges.push(
-            <CustomBadge
-                badge={anongameBadges}
-                handleBadgeClick={handleBadgeClick}
-                isBlocked={true}
-            />,
-        );
-    }
-
-    for (const gameBadges of getIneligibleBadgeList(user, BadgeType.ClassicalGames)) {
-        ineligibleGameBadges.push(
-            <CustomBadge
-                badge={gameBadges}
-                handleBadgeClick={handleBadgeClick}
-                isBlocked={true}
-            />,
-        );
-    }
-
     if (badges.length === 0) {
         return null;
     }
@@ -215,13 +172,14 @@ export const BadgeCard = ({ user }: { user: User }) => {
                         </IconButton>
                     </Tooltip>
                 </Stack>
-                <CardContent sx={{ pt: 0 }}>
+                <CardContent sx={{ pt: 0, pb: 2, px: 2 }}>
                     <Stack
                         direction='row'
                         columnGap={0.75}
                         flexWrap='wrap'
                         rowGap={1}
                         alignItems='center'
+                        sx={{ p: 1 }}
                     >
                         {badges.map((badge, idx) => (
                             <Box
@@ -334,7 +292,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
                         position: 'relative',
                     }}
                 >
-                    Badge Cabinet
+                    All Badges
                     <IconButton
                         aria-label='close'
                         onClick={() => setIsViewAllModalOpen(false)}
@@ -353,13 +311,12 @@ export const BadgeCard = ({ user }: { user: User }) => {
                             value={badgeCategory}
                             onChange={(e) => setBadgeCategory(e.target.value)}
                         >
-                            <MenuItem value='current'>🏆 Achieved Badges</MenuItem>
-                            <MenuItem value='cohorts'>Graduations (Unachieved)</MenuItem>
-                            <MenuItem value='polgar'>Polgar Mates (Unachieved)</MenuItem>
-                            <MenuItem value='games'>Games (Unachieved)</MenuItem>
-                            <MenuItem value='annotation'>
-                                Annotations (Unachieved)
-                            </MenuItem>
+                            <MenuItem value='all'>All Badges</MenuItem>
+                            <MenuItem value='current'>Achieved Badges</MenuItem>
+                            <MenuItem value='cohorts'>Graduations</MenuItem>
+                            <MenuItem value='polgar'>Polgar Mates</MenuItem>
+                            <MenuItem value='games'>Games</MenuItem>
+                            <MenuItem value='annotation'>Annotations</MenuItem>
                         </Select>
                     </FormControl>
 
@@ -373,16 +330,21 @@ export const BadgeCard = ({ user }: { user: User }) => {
                     >
                         {badgeCategory === 'current'
                             ? '🏆 These are the badges you have achieved! Keep grinding to earn more!'
-                            : '🔒 These are locked badges. Meet the badge requirement to unlock them!'}
+                            : badgeCategory === 'all'
+                              ? '🌟 View all available badges'
+                              : ''}
                     </Typography>
 
+                    <BadgeProgress
+                        badgeCategory={badgeCategory}
+                        allBadges={allBadges}
+                        allGradBadges={allGradBadges}
+                    />
+
                     <Stack
-                        direction='row'
-                        columnGap={1}
-                        flexWrap='wrap'
-                        rowGap={2}
+                        direction='column'
+                        spacing={2}
                         alignItems='center'
-                        justifyContent='center'
                         sx={{
                             padding: 2,
                             background: 'rgba(255, 255, 255, 0.2)',
@@ -391,44 +353,87 @@ export const BadgeCard = ({ user }: { user: User }) => {
                             boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2)',
                         }}
                     >
-                        {(badgeCategory === 'current'
-                            ? badges
-                            : badgeCategory === 'polgar'
-                              ? ineligiblePolgarBadges
-                              : badgeCategory === 'games'
-                                ? ineligibleGameBadges
-                                : badgeCategory === 'annotation'
-                                  ? ineligibleAnnoBadges
-                                  : inelgibleCohortBadges
-                        ).map((badge, idx) => (
-                            <Box
-                                key={idx}
-                                sx={{
-                                    height: '120px',
-                                    width: '120px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    background:
-                                        badgeCategory === 'current'
-                                            ? 'rgba(255, 223, 186, 0.8)'
-                                            : 'rgba(255,255,255,0.1)',
-                                    borderRadius: '50%',
-                                    border: '3px solid',
-                                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                                    transition: 'transform 0.2s',
-                                    filter:
-                                        badgeCategory === 'current'
-                                            ? 'none'
-                                            : 'grayscale(60%) opacity(0.6)',
-                                    '&:hover': {
-                                        transform: 'scale(1.1)',
-                                    },
-                                }}
-                            >
-                                {badge}
-                            </Box>
-                        ))}
+                        {[
+                            ...(badgeCategory === 'all'
+                                ? allGradBadges.concat(allBadges)
+                                : badgeCategory === 'current'
+                                  ? allGradBadges
+                                        .filter((badge) => badge.isEarned)
+                                        .concat(
+                                            allBadges.filter((badge) => badge.isEarned),
+                                        )
+                                  : badgeCategory === 'polgar'
+                                    ? allBadges.filter(
+                                          (badge) =>
+                                              badge.type === BadgeType.PolgarMateOne ||
+                                              badge.type === BadgeType.PolgarMateTwo ||
+                                              badge.type === BadgeType.PolgarMateThree,
+                                      )
+                                    : badgeCategory === 'games'
+                                      ? allBadges.filter(
+                                            (badge) =>
+                                                badge.type === BadgeType.ClassicalGames,
+                                        )
+                                      : badgeCategory === 'annotation'
+                                        ? allBadges.filter(
+                                              (badge) =>
+                                                  badge.type === BadgeType.AnnotateGames,
+                                          )
+                                        : allGradBadges),
+                        ]
+                            .sort((a, b) => (b.isEarned ? 1 : -1)) // Sort to show earned badges on top
+                            .map((badge, idx) => (
+                                <Card
+                                    key={idx}
+                                    sx={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: 2,
+                                        boxShadow: 3,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            height: '80px',
+                                            width: '80px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            background: badge.isEarned
+                                                ? 'rgba(255, 223, 186, 0.8)'
+                                                : 'rgba(255,255,255,0.1)',
+                                            borderRadius: '50%',
+                                            border: '3px solid',
+                                            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                                            filter: badge.isEarned
+                                                ? 'none'
+                                                : 'grayscale(60%) opacity(0.6)',
+                                            marginRight: 2,
+                                        }}
+                                    >
+                                        <CustomBadge
+                                            badge={badge}
+                                            handleBadgeClick={handleBadgeClick}
+                                            isBlocked={!badge.isEarned}
+                                        />
+                                    </Box>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography
+                                            variant='h6'
+                                            fontWeight='bold'
+                                            color={
+                                                badge.isEarned ? 'text' : 'text.secondary'
+                                            }
+                                        >
+                                            {badge.title}
+                                        </Typography>
+                                        <Typography variant='body2'>
+                                            {badge.isEarned ? badge.message : ''}
+                                        </Typography>
+                                    </Box>
+                                </Card>
+                            ))}
                     </Stack>
                 </DialogContent>
             </Dialog>
