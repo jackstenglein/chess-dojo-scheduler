@@ -381,7 +381,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
                                           )
                                         : allGradBadges),
                         ]
-                            .sort((a, b) => (b.isEarned ? 1 : -1)) // Sort to show earned badges on top
+                            .sort((a, b) => (b.isEarned ? 1 : 0) - (a.isEarned ? 1 : 0))
                             .map((badge, idx) => (
                                 <Card
                                     key={idx}
