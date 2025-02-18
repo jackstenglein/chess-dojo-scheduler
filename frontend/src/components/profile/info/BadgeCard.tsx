@@ -1,43 +1,29 @@
 import { Link } from '@/components/navigation/Link';
 import { User } from '@/database/user';
-import { Close as CloseIcon, ZoomOutMap } from '@mui/icons-material';
+import { ZoomOutMap } from '@mui/icons-material';
 import {
     Box,
     Card,
     CardContent,
     CardHeader,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    FormControl,
     IconButton,
-    MenuItem,
-    Select,
     Stack,
     Tooltip,
-    Typography,
 } from '@mui/material';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
-import {
-    Badge,
-    BadgeType,
-    getAllCohortBadges,
-    getBadges,
-    getDojoerBadge,
-} from './badgeHandler';
-import BadgeProgress from './BadgeProgress';
+import { BadgCabinetDialog } from './BadgeCabinetDialog';
+import BadgeDialog from './BadgeDialog';
+import { Badge, getAllGradBadges, getBadges, getDojoerBadge } from './badgeHandler';
 import CustomBadge from './CustomBadge';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge | undefined>(undefined);
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
     const allBadges: Badge[] = getBadges(user);
-    console.log(allBadges);
-    const allGradBadges: Badge[] = getAllCohortBadges(user);
-    console.log(allGradBadges);
+    const allGradBadges: Badge[] = getAllGradBadges(user);
     const badgeData: Badge[] = allBadges.filter((badge) => badge.isEarned);
     const [previousBadgeData, setPreviousBadgeData] = useState<Badge[]>(badgeData);
     const [badgeCategory, setBadgeCategory] = useState('all');
@@ -200,243 +186,20 @@ export const BadgeCard = ({ user }: { user: User }) => {
                 </CardContent>
             </Card>
 
-            <Dialog open={selectedBadge !== undefined} onClose={handleCloseDialog}>
-                {selectedBadge && (
-                    <>
-                        <DialogTitle
-                            sx={{
-                                textAlign: 'center',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            {selectedBadge.title}
-                            <IconButton
-                                aria-label='close'
-                                onClick={handleCloseDialog}
-                                sx={{
-                                    position: 'absolute',
-                                    right: 8,
-                                    top: 8,
-                                }}
-                            >
-                                <CloseIcon />
-                            </IconButton>
-                        </DialogTitle>
-                        <DialogContent
-                            sx={{
-                                textAlign: 'center',
-                                overflow: 'visible',
-                                '@keyframes glow-animation': selectedBadge.glowHexcode
-                                    ? {
-                                          '0%': {
-                                              filter: `drop-shadow(0 0 8px ${selectedBadge.glowHexcode})`,
-                                          },
-                                          '100%': {
-                                              filter: `drop-shadow(0 0 16px ${selectedBadge.glowHexcode})`,
-                                          },
-                                      }
-                                    : undefined,
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    position: 'relative',
-                                    width: '90%',
-                                    aspectRatio: 1,
-                                    margin: 'auto',
-                                }}
-                            >
-                                <Image
-                                    src={selectedBadge.image}
-                                    alt={selectedBadge.title}
-                                    fill
-                                    style={{
-                                        borderRadius: '10px',
-                                        animation: selectedBadge.glowHexcode
-                                            ? 'glow-animation 1.5s infinite alternate'
-                                            : undefined,
-                                        filter: selectedBadge.glowHexcode
-                                            ? `drop-shadow(0 0 12px ${selectedBadge.glowHexcode})`
-                                            : undefined,
-                                    }}
-                                />
-                            </Box>
-                            <Typography variant='body1'>
-                                {selectedBadge.message}
-                            </Typography>
-                        </DialogContent>
-                    </>
-                )}
-            </Dialog>
+            <BadgeDialog
+                selectedBadge={selectedBadge}
+                handleCloseDialog={handleCloseDialog}
+            />
 
-            <Dialog
-                open={isViewAllModalOpen}
+            <BadgCabinetDialog
+                isOpen={isViewAllModalOpen}
                 onClose={() => setIsViewAllModalOpen(false)}
-                sx={{
-                    '& .MuiDialog-paper': {
-                        width: '80vw',
-                        maxWidth: '1000px',
-                        minHeight: '500px',
-                        borderRadius: 4,
-                        boxShadow: 10,
-                        padding: 3,
-                    },
-                }}
-            >
-                <DialogTitle
-                    sx={{
-                        fontSize: '1.5rem',
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                        position: 'relative',
-                    }}
-                >
-                    All Badges
-                    <IconButton
-                        aria-label='close'
-                        onClick={() => setIsViewAllModalOpen(false)}
-                        sx={{
-                            position: 'absolute',
-                            right: 8,
-                            top: 8,
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    <FormControl sx={{ mb: 2, minWidth: 200 }}>
-                        <Select
-                            value={badgeCategory}
-                            onChange={(e) => setBadgeCategory(e.target.value)}
-                        >
-                            <MenuItem value='all'>All Badges</MenuItem>
-                            <MenuItem value='current'>Achieved Badges</MenuItem>
-                            <MenuItem value='cohorts'>Graduations</MenuItem>
-                            <MenuItem value='polgar'>Polgar Mates</MenuItem>
-                            <MenuItem value='games'>Games</MenuItem>
-                            <MenuItem value='annotation'>Annotations</MenuItem>
-                        </Select>
-                    </FormControl>
-
-                    <Typography
-                        variant='body1'
-                        sx={{
-                            textAlign: 'center',
-                            fontWeight: 'bold',
-                            mb: 2,
-                        }}
-                    >
-                        {badgeCategory === 'current'
-                            ? '🏆 These are the badges you have achieved! Keep grinding to earn more!'
-                            : badgeCategory === 'all'
-                              ? '🌟 View all available badges'
-                              : ''}
-                    </Typography>
-
-                    <BadgeProgress
-                        badgeCategory={badgeCategory}
-                        allBadges={allBadges}
-                        allGradBadges={allGradBadges}
-                    />
-
-                    <Stack
-                        direction='column'
-                        spacing={2}
-                        alignItems='center'
-                        sx={{
-                            padding: 2,
-                            background: 'rgba(255, 255, 255, 0.2)',
-                            borderRadius: 3,
-                            backdropFilter: 'blur(8px)',
-                            boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2)',
-                        }}
-                    >
-                        {[
-                            ...(badgeCategory === 'all'
-                                ? allGradBadges.concat(allBadges)
-                                : badgeCategory === 'current'
-                                  ? allGradBadges
-                                        .filter((badge) => badge.isEarned)
-                                        .concat(
-                                            allBadges.filter((badge) => badge.isEarned),
-                                        )
-                                  : badgeCategory === 'polgar'
-                                    ? allBadges.filter(
-                                          (badge) =>
-                                              badge.type === BadgeType.PolgarMateOne ||
-                                              badge.type === BadgeType.PolgarMateTwo ||
-                                              badge.type === BadgeType.PolgarMateThree,
-                                      )
-                                    : badgeCategory === 'games'
-                                      ? allBadges.filter(
-                                            (badge) =>
-                                                badge.type === BadgeType.ClassicalGames,
-                                        )
-                                      : badgeCategory === 'annotation'
-                                        ? allBadges.filter(
-                                              (badge) =>
-                                                  badge.type === BadgeType.AnnotateGames,
-                                          )
-                                        : allGradBadges),
-                        ]
-                            .sort((a, b) => (b.isEarned ? 1 : 0) - (a.isEarned ? 1 : 0))
-                            .map((badge, idx) => (
-                                <Card
-                                    key={idx}
-                                    sx={{
-                                        width: '100%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        padding: 2,
-                                        boxShadow: 3,
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            height: '80px',
-                                            width: '80px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            background: badge.isEarned
-                                                ? 'rgba(255, 223, 186, 0.8)'
-                                                : 'rgba(255,255,255,0.1)',
-                                            borderRadius: '50%',
-                                            border: '3px solid',
-                                            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                                            filter: badge.isEarned
-                                                ? 'none'
-                                                : 'grayscale(60%) opacity(0.6)',
-                                            marginRight: 2,
-                                        }}
-                                    >
-                                        <CustomBadge
-                                            badge={badge}
-                                            handleBadgeClick={handleBadgeClick}
-                                            isBlocked={!badge.isEarned}
-                                        />
-                                    </Box>
-                                    <Box sx={{ flex: 1 }}>
-                                        <Typography
-                                            variant='h6'
-                                            fontWeight='bold'
-                                            color={
-                                                badge.isEarned ? 'text' : 'text.secondary'
-                                            }
-                                        >
-                                            {badge.title}
-                                        </Typography>
-                                        <Typography variant='body2'>
-                                            {badge.isEarned ? badge.message : ''}
-                                        </Typography>
-                                    </Box>
-                                </Card>
-                            ))}
-                    </Stack>
-                </DialogContent>
-            </Dialog>
+                badgeCategory={badgeCategory}
+                setBadgeCategory={setBadgeCategory}
+                allBadges={allBadges}
+                allGradBadges={allGradBadges}
+                handleBadgeClick={handleBadgeClick}
+            />
         </>
     );
 };

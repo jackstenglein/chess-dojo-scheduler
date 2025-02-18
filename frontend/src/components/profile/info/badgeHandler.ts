@@ -216,11 +216,12 @@ function getBadgeGlow(level: number, badge: BadgeType): string | undefined {
 }
 
 /**
- * Gets the cohort badge
- * @param cohort the cohort
- * @returns the badge
+ * Gets the grad badge builded by given cohort, isEarned
+ * @param cohort the users grad cohort
+ * @param isEarned badge is earned or locked
+ * @returns the Grad Badge
  */
-function getCohortBadge(cohort: string, isEarned: boolean): Badge {
+function getGradBadgeBuilder(cohort: string, isEarned: boolean): Badge {
     const cohortBadge: Badge = {
         image: cohortIcons[cohort],
         title: `Graduated from ${cohort}`,
@@ -267,7 +268,14 @@ export function getDojoerBadge(): Badge {
     return dojoerBadge;
 }
 
-function getBadge(level: number, badge: BadgeType, isEarned: boolean): Badge {
+/**
+ * builds the badge for given level, badge type, and earned or not
+ * @param level the level
+ * @param badge the non misc badge type
+ * @param isEarned is earned or not
+ * @returns the Badge with builded info
+ */
+function getBadgeBuilder(level: number, badge: BadgeType, isEarned: boolean): Badge {
     const Badge: Badge = {
         image: getBadgeImage(level, badge),
         title: getBadgeTitle(level, badge),
@@ -281,10 +289,10 @@ function getBadge(level: number, badge: BadgeType, isEarned: boolean): Badge {
 }
 
 /**
- * gets the ineligible badge list
+ * gets all possible badges that are non misc badge type
  * @param user the user
- * @param badge the badge type
- * @returns the badges user *dreams* to get
+ * @param badge the non misc badge type
+ * @returns gets the earned and locked badges for non misc badge type
  */
 export function getBadges(user: User): Badge[] {
     const keys = Object.values(BadgeType);
@@ -294,9 +302,9 @@ export function getBadges(user: User): Badge[] {
         const levels: number[] = BADGE_LIMITS[badge];
         for (const level of levels) {
             if (level <= eligibleLevel) {
-                badges.push(getBadge(level, badge, true));
+                badges.push(getBadgeBuilder(level, badge, true));
             } else {
-                badges.push(getBadge(level, badge, false));
+                badges.push(getBadgeBuilder(level, badge, false));
             }
         }
     });
@@ -305,11 +313,11 @@ export function getBadges(user: User): Badge[] {
 }
 
 /**
- * gets the ineligible cohort badges
+ * gets thes the all grad badge
  * @param user the user
- * @returns the cohort badges the user *dreams* to get
+ * @returns the earned and locked badge of graduation type
  */
-export function getAllCohortBadges(user: User): Badge[] {
+export function getAllGradBadges(user: User): Badge[] {
     const eligibleCohorts = user.graduationCohorts;
     console.log(eligibleCohorts);
     const allBadges: Badge[] = [];
@@ -318,15 +326,15 @@ export function getAllCohortBadges(user: User): Badge[] {
         for (const key of keys) {
             console.log(key);
             if (eligibleCohorts.includes(key)) {
-                allBadges.push(getCohortBadge(key, true));
+                allBadges.push(getGradBadgeBuilder(key, true));
                 continue;
             }
 
-            allBadges.push(getCohortBadge(key, false));
+            allBadges.push(getGradBadgeBuilder(key, false));
         }
     } else {
         keys.forEach((key) => {
-            allBadges.push(getCohortBadge(key, false));
+            allBadges.push(getGradBadgeBuilder(key, false));
         });
     }
 
