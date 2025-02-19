@@ -24,6 +24,7 @@ export enum BadgeType {
 export enum MiscBadgeType {
     Graduation = 'Graduation',
     Dojoer = 'Dojo 1.0 Member',
+    BetaTester = 'Beta Tester',
 }
 /**
  * Current Badge limits
@@ -254,7 +255,7 @@ function getGradBadgeBuilder(cohort: string, isEarned: boolean): Badge {
  * gets the Dojo 1.0 badge
  * @returns the Dojo 1.0 badge
  */
-export function getDojoerBadge(): Badge {
+function getDojoerBadge(): Badge {
     const dojoerBadge = {
         image: '/static/badges/misc/DojoHeart.png',
         title: 'Dojo member since 1.0',
@@ -266,6 +267,23 @@ export function getDojoerBadge(): Badge {
     };
 
     return dojoerBadge;
+}
+
+/**
+ * Gets the beta tester badge
+ * @returns the beta tester badge
+ */
+function getBetaTesterBadge(): Badge {
+    const TesterBadge = {
+        image: '/static/badges/misc/betatest.png',
+        title: 'Dojo Beta Tester',
+        message: 'Thanks for testing newer features!',
+        isEarned: true,
+        glowHexcode: '#6305BC',
+        type: MiscBadgeType.BetaTester,
+    };
+
+    return TesterBadge;
 }
 
 /**
@@ -289,42 +307,26 @@ function getBadgeBuilder(level: number, badge: BadgeType, isEarned: boolean): Ba
 }
 
 /**
- * gets all possible badges that are non misc badge type
+ * gets all possible badges
  * @param user the user
- * @param badge the non misc badge type
- * @returns gets the earned and locked badges for non misc badge type
+ * @param badge all badge types
+ * @returns gets all the earned and locked badges
  */
 export function getBadges(user: User): Badge[] {
-    const keys = Object.values(BadgeType);
-    const badges: Badge[] = [];
-    keys.forEach((badge) => {
-        const eligibleLevel: number = getBadgeLevel(user, badge, BADGE_LIMITS[badge]);
-        const levels: number[] = BADGE_LIMITS[badge];
-        for (const level of levels) {
-            if (level <= eligibleLevel) {
-                badges.push(getBadgeBuilder(level, badge, true));
-            } else {
-                badges.push(getBadgeBuilder(level, badge, false));
-            }
-        }
-    });
-
-    return badges;
-}
-
-/**
- * gets thes the all grad badge
- * @param user the user
- * @returns the earned and locked badge of graduation type
- */
-export function getAllGradBadges(user: User): Badge[] {
     const eligibleCohorts = user.graduationCohorts;
-    console.log(eligibleCohorts);
     const allBadges: Badge[] = [];
-    const keys = Object.keys(cohortIcons);
+
+    if (!user.createdAt) {
+        allBadges.push(getDojoerBadge());
+    }
+
+    if (user.isBetaTester) {
+        allBadges.push(getBetaTesterBadge());
+    }
+
+    const cohorts = Object.keys(cohortIcons);
     if (eligibleCohorts !== undefined) {
-        for (const key of keys) {
-            console.log(key);
+        for (const key of cohorts) {
             if (eligibleCohorts.includes(key)) {
                 allBadges.push(getGradBadgeBuilder(key, true));
                 continue;
@@ -333,10 +335,24 @@ export function getAllGradBadges(user: User): Badge[] {
             allBadges.push(getGradBadgeBuilder(key, false));
         }
     } else {
-        keys.forEach((key) => {
+        cohorts.forEach((key) => {
             allBadges.push(getGradBadgeBuilder(key, false));
         });
     }
+
+    const keys = Object.values(BadgeType);
+
+    keys.forEach((badge) => {
+        const eligibleLevel: number = getBadgeLevel(user, badge, BADGE_LIMITS[badge]);
+        const levels: number[] = BADGE_LIMITS[badge];
+        for (const level of levels) {
+            if (level <= eligibleLevel) {
+                allBadges.push(getBadgeBuilder(level, badge, true));
+            } else {
+                allBadges.push(getBadgeBuilder(level, badge, false));
+            }
+        }
+    });
 
     return allBadges;
 }

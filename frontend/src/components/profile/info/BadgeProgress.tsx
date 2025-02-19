@@ -1,48 +1,14 @@
 import { Box, LinearProgress, Typography } from '@mui/material';
-import { Badge, BadgeType } from './badgeHandler';
+import { Badge } from './badgeHandler';
 
 interface BadgeProgressProps {
-    badgeCategory: string;
-    allBadges: Badge[];
-    allGradBadges: Badge[];
+    filteredBadges: () => Badge[];
 }
 
-const BadgeProgress: React.FC<BadgeProgressProps> = ({
-    badgeCategory,
-    allBadges,
-    allGradBadges,
-}) => {
-    const getFilteredBadges = () => {
-        switch (badgeCategory) {
-            case 'all':
-                return allGradBadges.concat(allBadges);
-            case 'current':
-                return allGradBadges
-                    .filter((badge) => badge.isEarned)
-                    .concat(allBadges.filter((badge) => badge.isEarned));
-            case 'polgar':
-                return allBadges.filter(
-                    (badge) =>
-                        badge.type === BadgeType.PolgarMateOne ||
-                        badge.type === BadgeType.PolgarMateTwo ||
-                        badge.type === BadgeType.PolgarMateThree,
-                );
-            case 'games':
-                return allBadges.filter(
-                    (badge) => badge.type === BadgeType.ClassicalGames,
-                );
-            case 'annotation':
-                return allBadges.filter(
-                    (badge) => badge.type === BadgeType.AnnotateGames,
-                );
-            default:
-                return allGradBadges;
-        }
-    };
-
-    const filteredBadges = getFilteredBadges();
-    const earnedBadges = filteredBadges.filter((badge) => badge.isEarned).length;
-    const totalBadges = filteredBadges.length;
+const BadgeProgress: React.FC<BadgeProgressProps> = ({ filteredBadges }) => {
+    const allBadges = filteredBadges();
+    const earnedBadges = allBadges.filter((badge) => badge.isEarned).length;
+    const totalBadges = allBadges.length;
     const progress = totalBadges > 0 ? (earnedBadges / totalBadges) * 100 : 0;
 
     return (

@@ -12,29 +12,55 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { Badge, BadgeType } from './badgeHandler';
+import { useState } from 'react';
+import { Badge, BadgeType, MiscBadgeType } from './badgeHandler';
 import BadgeProgress from './BadgeProgress';
 import CustomBadge from './CustomBadge';
 
 interface BadgeCabinetDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    badgeCategory: string;
-    setBadgeCategory: (category: string) => void;
     allBadges: Badge[];
-    allGradBadges: Badge[];
-    handleBadgeClick: (badge: Badge) => void;
 }
 
-export const BadgCabinetDialog: React.FC<BadgeCabinetDialogProps> = ({
+export enum BadgeCategory {
+    All = 'All Badges',
+    Achieved = 'Achieved Badges',
+    Graduation = 'Graduations',
+    Polgar = 'Polgar Mates',
+    Games = 'Games',
+    Annotation = 'Annotations',
+}
+
+export function BadgCabinetDialog({
     isOpen,
     onClose,
-    badgeCategory,
-    setBadgeCategory,
     allBadges,
-    allGradBadges,
-    handleBadgeClick,
-}) => {
+}: BadgeCabinetDialogProps) {
+    const [badgeCategory, setBadgeCategory] = useState(BadgeCategory.All);
+
+    const filteredBadges = () => {
+        switch (badgeCategory) {
+            case BadgeCategory.Achieved:
+                return allBadges.filter((b) => b.isEarned);
+            case BadgeCategory.Graduation:
+                return allBadges.filter((b) => b.type === MiscBadgeType.Graduation);
+            case BadgeCategory.Polgar:
+                return allBadges.filter(
+                    (b) =>
+                        b.type === BadgeType.PolgarMateOne ||
+                        b.type === BadgeType.PolgarMateTwo ||
+                        b.type === BadgeType.PolgarMateThree,
+                );
+            case BadgeCategory.Games:
+                return allBadges.filter((b) => b.type === BadgeType.ClassicalGames);
+            case BadgeCategory.Annotation:
+                return allBadges.filter((b) => b.type === BadgeType.AnnotateGames);
+            default:
+                return allBadges;
+        }
+    };
+
     return (
         <Dialog
             open={isOpen}
@@ -68,71 +94,25 @@ export const BadgCabinetDialog: React.FC<BadgeCabinetDialogProps> = ({
                 </IconButton>
             </DialogTitle>
             <DialogContent>
-                <FormControl sx={{ mb: 2, minWidth: 200 }}>
+                <FormControl>
                     <Select
                         value={badgeCategory}
-                        onChange={(e) => setBadgeCategory(e.target.value)}
+                        onChange={(e) =>
+                            setBadgeCategory(e.target.value as BadgeCategory)
+                        }
                     >
-                        <MenuItem value='all'>All Badges</MenuItem>
-                        <MenuItem value='current'>Achieved Badges</MenuItem>
-                        <MenuItem value='cohorts'>Graduations</MenuItem>
-                        <MenuItem value='polgar'>Polgar Mates</MenuItem>
-                        <MenuItem value='games'>Games</MenuItem>
-                        <MenuItem value='annotation'>Annotations</MenuItem>
+                        {Object.entries(BadgeCategory).map(([key, value]) => (
+                            <MenuItem key={key} value={value}>
+                                {value}
+                            </MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
-                <Typography
-                    variant='body1'
-                    sx={{ textAlign: 'center', fontWeight: 'bold', mb: 2 }}
-                >
-                    {badgeCategory === 'current'
-                        ? '🏆 These are the badges you have achieved! Keep grinding to earn more!'
-                        : badgeCategory === 'all'
-                          ? '🌟 View all available badges'
-                          : ''}
-                </Typography>
-                <BadgeProgress
-                    badgeCategory={badgeCategory}
-                    allBadges={allBadges}
-                    allGradBadges={allGradBadges}
-                />
-                <Stack
-                    direction='column'
-                    spacing={2}
-                    alignItems='center'
-                    sx={{
-                        padding: 2,
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        borderRadius: 3,
-                        backdropFilter: 'blur(8px)',
-                        boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2)',
-                    }}
-                >
-                    {[
-                        ...(badgeCategory === 'all'
-                            ? allGradBadges.concat(allBadges)
-                            : badgeCategory === 'current'
-                              ? allGradBadges
-                                    .filter((b) => b.isEarned)
-                                    .concat(allBadges.filter((b) => b.isEarned))
-                              : badgeCategory === 'polgar'
-                                ? allBadges.filter(
-                                      (b) =>
-                                          b.type === BadgeType.PolgarMateOne ||
-                                          b.type === BadgeType.PolgarMateTwo ||
-                                          b.type === BadgeType.PolgarMateThree,
-                                  )
-                                : badgeCategory === 'games'
-                                  ? allBadges.filter(
-                                        (b) => b.type === BadgeType.ClassicalGames,
-                                    )
-                                  : badgeCategory === 'annotation'
-                                    ? allBadges.filter(
-                                          (b) => b.type === BadgeType.AnnotateGames,
-                                      )
-                                    : allGradBadges),
-                    ]
-                        .sort((a, b) => (b.isEarned ? 1 : 0) - (a.isEarned ? 1 : 0))
+
+                <BadgeProgress filteredBadges={filteredBadges} />
+                <Stack>
+                    {filteredBadges()
+                        .sort((a, b) => Number(b.isEarned) - Number(a.isEarned))
                         .map((badge, idx) => (
                             <Card
                                 key={idx}
@@ -165,7 +145,6 @@ export const BadgCabinetDialog: React.FC<BadgeCabinetDialogProps> = ({
                                 >
                                     <CustomBadge
                                         badge={badge}
-                                        handleBadgeClick={handleBadgeClick}
                                         isBlocked={!badge.isEarned}
                                     />
                                 </Box>
@@ -187,4 +166,4 @@ export const BadgCabinetDialog: React.FC<BadgeCabinetDialogProps> = ({
             </DialogContent>
         </Dialog>
     );
-};
+}

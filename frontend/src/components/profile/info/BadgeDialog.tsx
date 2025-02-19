@@ -8,7 +8,6 @@ import {
     Typography,
 } from '@mui/material';
 import Image from 'next/image';
-import React from 'react';
 import { Badge } from './badgeHandler';
 
 interface BadgeDialogProps {
@@ -16,10 +15,7 @@ interface BadgeDialogProps {
     handleCloseDialog: () => void;
 }
 
-const BadgeDialog: React.FC<BadgeDialogProps> = ({
-    selectedBadge,
-    handleCloseDialog,
-}) => {
+export function BadgeDialog({ selectedBadge, handleCloseDialog }: BadgeDialogProps) {
     return (
         <Dialog open={selectedBadge !== undefined} onClose={handleCloseDialog}>
             {selectedBadge && (
@@ -80,6 +76,6 @@ const BadgeDialog: React.FC<BadgeDialogProps> = ({
             )}
         </Dialog>
     );
-};
+}
 
 export default BadgeDialog;

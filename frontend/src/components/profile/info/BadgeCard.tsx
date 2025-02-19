@@ -16,17 +16,17 @@ import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
 import { BadgCabinetDialog } from './BadgeCabinetDialog';
 import BadgeDialog from './BadgeDialog';
-import { Badge, getAllGradBadges, getBadges, getDojoerBadge } from './badgeHandler';
+import { Badge, getBadges } from './badgeHandler';
 import CustomBadge from './CustomBadge';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge | undefined>(undefined);
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
     const allBadges: Badge[] = getBadges(user);
-    const allGradBadges: Badge[] = getAllGradBadges(user);
     const badgeData: Badge[] = allBadges.filter((badge) => badge.isEarned);
     const [previousBadgeData, setPreviousBadgeData] = useState<Badge[]>(badgeData);
-    const [badgeCategory, setBadgeCategory] = useState('all');
+    const badges: JSX.Element[] = [];
+
     // const { requirements } = useRequirements(ALL_COHORTS, true);
     // const tacticsRating = calculateTacticsRating(user, requirements);
     // const minCohort = parseInt(user.dojoCohort);
@@ -51,17 +51,6 @@ export const BadgeCard = ({ user }: { user: User }) => {
             setPreviousBadgeData(badgeData);
         }
     }, [badgeData, previousBadgeData, setSelectedBadge, setPreviousBadgeData]);
-
-    const badges =
-        allGradBadges
-            .filter((c) => c.isEarned)
-            .map((c) => (
-                <CustomBadge
-                    key={c.title}
-                    badge={c}
-                    handleBadgeClick={handleBadgeClick}
-                />
-            )) ?? [];
 
     if (!user.createdAt || user.createdAt < '2023-12') {
         badges.push(
@@ -124,11 +113,6 @@ export const BadgeCard = ({ user }: { user: User }) => {
     //         </Tooltip>,
     //     );
     // }
-
-    if (!user.createdAt) {
-        const badge = getDojoerBadge();
-        badges.push(<CustomBadge badge={badge} handleBadgeClick={handleBadgeClick} />);
-    }
 
     for (const badge of badgeData) {
         badges.push(<CustomBadge badge={badge} handleBadgeClick={handleBadgeClick} />);
@@ -194,11 +178,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
             <BadgCabinetDialog
                 isOpen={isViewAllModalOpen}
                 onClose={() => setIsViewAllModalOpen(false)}
-                badgeCategory={badgeCategory}
-                setBadgeCategory={setBadgeCategory}
                 allBadges={allBadges}
-                allGradBadges={allGradBadges}
-                handleBadgeClick={handleBadgeClick}
             />
         </>
     );
