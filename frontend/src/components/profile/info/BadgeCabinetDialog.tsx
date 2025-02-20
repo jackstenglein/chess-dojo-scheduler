@@ -13,23 +13,14 @@ import {
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { Badge, BadgeType, MiscBadgeType } from './badgeHandler';
-import BadgeProgress from './BadgeProgress';
-import CustomBadge from './CustomBadge';
+import { Badge, BadgeCategory } from './badgeHandler';
+import { BadgeImage } from './BadgeImage';
+import { BadgeProgress } from './BadgeProgress';
 
 interface BadgeCabinetDialogProps {
     isOpen: boolean;
     onClose: () => void;
     allBadges: Badge[];
-}
-
-export enum BadgeCategory {
-    All = 'All Badges',
-    Achieved = 'Achieved Badges',
-    Graduation = 'Graduations',
-    Polgar = 'Polgar Mates',
-    Games = 'Games',
-    Annotation = 'Annotations',
 }
 
 export function BadgCabinetDialog({
@@ -39,43 +30,15 @@ export function BadgCabinetDialog({
 }: BadgeCabinetDialogProps) {
     const [badgeCategory, setBadgeCategory] = useState(BadgeCategory.All);
 
-    const filteredBadges = () => {
-        switch (badgeCategory) {
-            case BadgeCategory.Achieved:
-                return allBadges.filter((b) => b.isEarned);
-            case BadgeCategory.Graduation:
-                return allBadges.filter((b) => b.type === MiscBadgeType.Graduation);
-            case BadgeCategory.Polgar:
-                return allBadges.filter(
-                    (b) =>
-                        b.type === BadgeType.PolgarMateOne ||
-                        b.type === BadgeType.PolgarMateTwo ||
-                        b.type === BadgeType.PolgarMateThree,
-                );
-            case BadgeCategory.Games:
-                return allBadges.filter((b) => b.type === BadgeType.ClassicalGames);
-            case BadgeCategory.Annotation:
-                return allBadges.filter((b) => b.type === BadgeType.AnnotateGames);
-            default:
-                return allBadges;
-        }
-    };
+    let displayedBadges = allBadges;
+    if (badgeCategory === BadgeCategory.Achieved) {
+        displayedBadges = allBadges.filter((b) => b.isEarned);
+    } else if (badgeCategory !== BadgeCategory.All) {
+        displayedBadges = allBadges.filter((b) => b.category === badgeCategory);
+    }
 
     return (
-        <Dialog
-            open={isOpen}
-            onClose={onClose}
-            sx={{
-                '& .MuiDialog-paper': {
-                    width: '80vw',
-                    maxWidth: '1000px',
-                    minHeight: '500px',
-                    borderRadius: 4,
-                    boxShadow: 10,
-                    padding: 3,
-                },
-            }}
-        >
+        <Dialog open={isOpen} onClose={onClose} maxWidth='md' fullWidth>
             <DialogTitle
                 sx={{
                     fontSize: '1.5rem',
@@ -93,8 +56,8 @@ export function BadgCabinetDialog({
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
-            <DialogContent>
-                <FormControl>
+            <DialogContent sx={{ pb: 3 }}>
+                <FormControl sx={{ mb: 2 }}>
                     <Select
                         value={badgeCategory}
                         onChange={(e) =>
@@ -109,59 +72,64 @@ export function BadgCabinetDialog({
                     </Select>
                 </FormControl>
 
-                <BadgeProgress filteredBadges={filteredBadges} />
-                <Stack>
-                    {filteredBadges()
-                        .sort((a, b) => Number(b.isEarned) - Number(a.isEarned))
-                        .map((badge, idx) => (
-                            <Card
-                                key={idx}
+                <BadgeProgress
+                    total={
+                        badgeCategory === BadgeCategory.Achieved
+                            ? allBadges.length
+                            : displayedBadges.length
+                    }
+                    earned={displayedBadges.filter((b) => b.isEarned).length}
+                />
+
+                <Stack spacing={1}>
+                    {displayedBadges.map((badge, idx) => (
+                        <Card
+                            key={idx}
+                            sx={{
+                                width: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: 2,
+                                boxShadow: 3,
+                            }}
+                        >
+                            <Box
                                 sx={{
-                                    width: '100%',
+                                    height: '80px',
+                                    width: '80px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    padding: 2,
-                                    boxShadow: 3,
+                                    justifyContent: 'center',
+                                    background: badge.isEarned
+                                        ? 'rgba(255, 223, 186, 0.8)'
+                                        : 'rgba(255,255,255,0.1)',
+                                    borderRadius: '50%',
+                                    border: '3px solid',
+                                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                                    filter: badge.isEarned
+                                        ? 'none'
+                                        : 'grayscale(60%) opacity(0.6)',
+                                    marginRight: 2,
                                 }}
                             >
-                                <Box
-                                    sx={{
-                                        height: '80px',
-                                        width: '80px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        background: badge.isEarned
-                                            ? 'rgba(255, 223, 186, 0.8)'
-                                            : 'rgba(255,255,255,0.1)',
-                                        borderRadius: '50%',
-                                        border: '3px solid',
-                                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                                        filter: badge.isEarned
-                                            ? 'none'
-                                            : 'grayscale(60%) opacity(0.6)',
-                                        marginRight: 2,
-                                    }}
+                                <BadgeImage badge={badge} />
+                            </Box>
+                            <Box sx={{ flex: 1 }}>
+                                <Typography
+                                    variant='h6'
+                                    fontWeight='bold'
+                                    color={badge.isEarned ? 'text' : 'text.secondary'}
                                 >
-                                    <CustomBadge
-                                        badge={badge}
-                                        isBlocked={!badge.isEarned}
-                                    />
-                                </Box>
-                                <Box sx={{ flex: 1 }}>
-                                    <Typography
-                                        variant='h6'
-                                        fontWeight='bold'
-                                        color={badge.isEarned ? 'text' : 'text.secondary'}
-                                    >
-                                        {badge.title}
-                                    </Typography>
+                                    {badge.title}
+                                </Typography>
+                                {badge.isEarned && (
                                     <Typography variant='body2'>
-                                        {badge.isEarned ? badge.message : ''}
+                                        {badge.message}
                                     </Typography>
-                                </Box>
-                            </Card>
-                        ))}
+                                )}
+                            </Box>
+                        </Card>
+                    ))}
                 </Stack>
             </DialogContent>
         </Dialog>

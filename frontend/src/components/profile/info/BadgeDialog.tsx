@@ -17,7 +17,7 @@ interface BadgeDialogProps {
 
 export function BadgeDialog({ selectedBadge, handleCloseDialog }: BadgeDialogProps) {
     return (
-        <Dialog open={selectedBadge !== undefined} onClose={handleCloseDialog}>
+        <Dialog open={selectedBadge !== undefined} onClose={handleCloseDialog} fullWidth>
             {selectedBadge && (
                 <>
                     <DialogTitle sx={{ textAlign: 'center', fontWeight: 'bold' }}>
@@ -70,7 +70,9 @@ export function BadgeDialog({ selectedBadge, handleCloseDialog }: BadgeDialogPro
                                 }}
                             />
                         </Box>
-                        <Typography variant='body1'>{selectedBadge.message}</Typography>
+                        <Typography variant='body1' sx={{ mt: 1 }}>
+                            {selectedBadge.message}
+                        </Typography>
                     </DialogContent>
                 </>
             )}

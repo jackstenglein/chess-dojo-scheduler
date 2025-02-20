@@ -11,26 +11,26 @@ import {
     Tooltip,
 } from '@mui/material';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
 import { BadgCabinetDialog } from './BadgeCabinetDialog';
 import BadgeDialog from './BadgeDialog';
 import { Badge, getBadges } from './badgeHandler';
-import CustomBadge from './CustomBadge';
+import { BadgeImage } from './BadgeImage';
 
 export const BadgeCard = ({ user }: { user: User }) => {
-    const [selectedBadge, setSelectedBadge] = useState<Badge | undefined>(undefined);
+    const [selectedBadge, setSelectedBadge] = useState<Badge>();
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
-    const allBadges: Badge[] = getBadges(user);
-    const badgeData: Badge[] = allBadges.filter((badge) => badge.isEarned);
-    const [previousBadgeData, setPreviousBadgeData] = useState<Badge[]>(badgeData);
-    const badges: JSX.Element[] = [];
 
-    // const { requirements } = useRequirements(ALL_COHORTS, true);
-    // const tacticsRating = calculateTacticsRating(user, requirements);
-    // const minCohort = parseInt(user.dojoCohort);
-    // const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
+    const [allBadges, earnedBadges] = useMemo(() => {
+        const allBadges = getBadges(user);
+        const earnedBadges = allBadges.filter((badge) => badge.isEarned);
+        return [allBadges, earnedBadges];
+    }, [user]);
+
+    const [previousEarnedBadges, setPreviousEarnedBadges] = useState(earnedBadges);
+    const badges: JSX.Element[] = [];
 
     const handleBadgeClick = (badge: Badge) => {
         setSelectedBadge(badge);
@@ -41,16 +41,16 @@ export const BadgeCard = ({ user }: { user: User }) => {
     };
 
     useEffect(() => {
-        const newBadge = badgeData.find(
+        const newBadge = earnedBadges.find(
             (badge, index) =>
-                !previousBadgeData[index] ||
-                badge.image !== previousBadgeData[index].image,
+                !previousEarnedBadges[index] ||
+                badge.image !== previousEarnedBadges[index].image,
         );
         if (newBadge) {
             setSelectedBadge(newBadge);
-            setPreviousBadgeData(badgeData);
+            setPreviousEarnedBadges(earnedBadges);
         }
-    }, [badgeData, previousBadgeData, setSelectedBadge, setPreviousBadgeData]);
+    }, [earnedBadges, previousEarnedBadges, setSelectedBadge, setPreviousEarnedBadges]);
 
     if (!user.createdAt || user.createdAt < '2023-12') {
         badges.push(
@@ -88,34 +88,8 @@ export const BadgeCard = ({ user }: { user: User }) => {
         );
     }
 
-    // if (!isProvisional && tacticsRating.overall > minCohort) {
-    //     const champion = getTacticsChampionBadge();
-    //     badges.push(
-    //         <Tooltip title={champion.title}>
-    //             <img
-    //                 src={champion.image}
-    //                 style={{
-    //                     height: '50px',
-    //                     width: '50px',
-    //                     cursor: 'pointer',
-    //                     filter: champion.israre
-    //                         ? `drop-shadow(0 0 12px ${champion.rareglowhexcode})`
-    //                         : undefined,
-    //                     borderRadius: '8px',
-    //                     transition: 'transform 0.2s',
-    //                 }}
-    //                 alt={champion.title}
-    //                 onClick={() => handleBadgeClick(champion)}
-    //                 onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
-    //                 onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-    //                 className={champion.israre ? 'glow' : ''}
-    //             />
-    //         </Tooltip>,
-    //     );
-    // }
-
-    for (const badge of badgeData) {
-        badges.push(<CustomBadge badge={badge} handleBadgeClick={handleBadgeClick} />);
+    for (const badge of earnedBadges) {
+        badges.push(<BadgeImage badge={badge} onClick={handleBadgeClick} />);
     }
 
     if (badges.length === 0) {
@@ -142,7 +116,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
                         </IconButton>
                     </Tooltip>
                 </Stack>
-                <CardContent sx={{ pt: 0, pb: 2, px: 2 }}>
+                <CardContent sx={{ pt: 1, pb: 2, px: 2 }}>
                     <Stack
                         direction='row'
                         columnGap={0.75}

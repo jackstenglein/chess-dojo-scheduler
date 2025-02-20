@@ -1,20 +1,16 @@
 import { Box, LinearProgress, Typography } from '@mui/material';
-import { Badge } from './badgeHandler';
 
 interface BadgeProgressProps {
-    filteredBadges: () => Badge[];
+    total: number;
+    earned: number;
 }
 
-const BadgeProgress: React.FC<BadgeProgressProps> = ({ filteredBadges }) => {
-    const allBadges = filteredBadges();
-    const earnedBadges = allBadges.filter((badge) => badge.isEarned).length;
-    const totalBadges = allBadges.length;
-    const progress = totalBadges > 0 ? (earnedBadges / totalBadges) * 100 : 0;
-
+export function BadgeProgress({ total, earned }: BadgeProgressProps) {
+    const progress = total > 0 ? (earned / total) * 100 : 0;
     return (
         <Box sx={{ mb: 2, width: '100%' }}>
             <Typography variant='body2' fontWeight='bold' textAlign='center' gutterBottom>
-                {`You have earned ${earnedBadges} out of ${totalBadges} badges (${Math.round((earnedBadges / totalBadges) * 100)}%)`}
+                {`You have earned ${earned} out of ${total} badges (${Math.round((earned / total) * 100)}%)`}
             </Typography>
             <LinearProgress
                 variant='determinate'
@@ -24,6 +20,4 @@ const BadgeProgress: React.FC<BadgeProgressProps> = ({ filteredBadges }) => {
             />
         </Box>
     );
-};
-
-export default BadgeProgress;
+}

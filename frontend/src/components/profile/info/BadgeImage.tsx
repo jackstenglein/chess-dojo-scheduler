@@ -2,19 +2,18 @@ import { Tooltip } from '@mui/material';
 import Image from 'next/image';
 import { Badge } from './badgeHandler';
 
-interface CustomBadgeProps {
+interface BadgeImageProps {
     badge: Badge;
-    handleBadgeClick?: (badge: Badge) => void;
-    isBlocked?: boolean;
+    onClick?: (badge: Badge) => void;
 }
 
-function CustomBadge({ badge, handleBadgeClick, isBlocked }: CustomBadgeProps) {
-    const onClick = () => {
-        if (!isBlocked && handleBadgeClick) {
-            handleBadgeClick(badge);
-        }
-    };
-
+/**
+ * Renders an image for the given badge.
+ * @param badge The badge to render.
+ * @param onClick A callback invoked when the image is clicked.
+ * @returns
+ */
+export function BadgeImage({ badge, onClick }: BadgeImageProps) {
     return (
         <Tooltip title={badge.title} arrow>
             <Image
@@ -22,17 +21,15 @@ function CustomBadge({ badge, handleBadgeClick, isBlocked }: CustomBadgeProps) {
                 width={50}
                 height={50}
                 style={{
-                    cursor: isBlocked || !handleBadgeClick ? 'default' : 'pointer',
+                    cursor: !badge.isEarned || !onClick ? 'default' : 'pointer',
                     filter: badge.glowHexcode
                         ? `drop-shadow(0 0 12px ${badge.glowHexcode})`
                         : undefined,
                     borderRadius: '8px',
                 }}
                 alt={badge.title}
-                onClick={onClick}
+                onClick={() => onClick?.(badge)}
             />
         </Tooltip>
     );
 }
-
-export default CustomBadge;
