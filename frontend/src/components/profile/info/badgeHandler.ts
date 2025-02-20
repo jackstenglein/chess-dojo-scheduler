@@ -1,34 +1,41 @@
-import { User } from '@/database/user';
+import { cohortColors, dojoCohorts, User } from '@/database/user';
+import { cohortIcons } from '@/scoreboard/CohortIcon';
 
 export interface Badge {
     image: string;
     title: string;
     message: string;
+    isEarned: boolean;
+    category: BadgeCategory;
     glowHexcode?: string;
 }
 
-/**
- * BADGE enum representation
- */
-export enum BadgeType {
+/** Task IDs that map to badges. */
+enum BadgeTask {
     PolgarMateOne = '917be358-e6d9-47e6-9cad-66fc2fdb5da6',
     PolgarMateTwo = 'f815084f-b9bc-408d-9db9-ba9b1c260ff3',
     PolgarMateThree = '657fd4c7-461c-4503-b5f7-38a5a3480008',
     ClassicalGames = '38f46441-7a4e-4506-8632-166bcbe78baf',
     AnnotateGames = '4d23d689-1284-46e6-b2a2-4b4bfdc37174',
-    DailyStreak = 'DAILY_STREAK',
 }
 
-/**
- * Current Badge limits
- */
-const BADGE_LIMITS: Record<BadgeType, number[]> = {
-    [BadgeType.PolgarMateOne]: [50, 306],
-    [BadgeType.PolgarMateTwo]: [500, 750, 1471, 2000, 2500, 3000, 3718],
-    [BadgeType.PolgarMateThree]: [4462],
-    [BadgeType.ClassicalGames]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
-    [BadgeType.AnnotateGames]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
-    [BadgeType.DailyStreak]: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
+/** The categories a badge can be in. */
+export enum BadgeCategory {
+    All = 'All Badges',
+    Achieved = 'Achieved Badges',
+    Graduation = 'Graduations',
+    Polgar = 'Polgar Mates',
+    Games = 'Games',
+    Annotation = 'Annotations',
+}
+
+/** Badge limits mapped by task. */
+const BADGE_LIMITS: Record<BadgeTask, number[]> = {
+    [BadgeTask.PolgarMateOne]: [50, 306],
+    [BadgeTask.PolgarMateTwo]: [500, 750, 1471, 2000, 2500, 3000, 3718],
+    [BadgeTask.PolgarMateThree]: [4462],
+    [BadgeTask.ClassicalGames]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
+    [BadgeTask.AnnotateGames]: [1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500],
 };
 
 const classicalGameMilestones: Record<number, string> = {
@@ -76,62 +83,47 @@ const polgarMateMilestones: Record<number, string> = {
     4462: "Amazing achievement! You've mastered all mate-in-threes. Tactical artistry!",
 };
 
-const BADGE_MAX_GLOW_COLOR: Record<BadgeType, string> = {
-    [BadgeType.PolgarMateOne]: '#AB2ECE',
-    [BadgeType.PolgarMateTwo]: '#33C0C6',
-    [BadgeType.PolgarMateThree]: '#C67B09',
-    [BadgeType.AnnotateGames]: '#72B526',
-    [BadgeType.ClassicalGames]: '#39A99A',
-    [BadgeType.DailyStreak]: '#B19110',
+const BADGE_MAX_GLOW_COLOR: Record<BadgeTask, string> = {
+    [BadgeTask.PolgarMateOne]: '#AB2ECE',
+    [BadgeTask.PolgarMateTwo]: '#33C0C6',
+    [BadgeTask.PolgarMateThree]: '#C67B09',
+    [BadgeTask.AnnotateGames]: '#72B526',
+    [BadgeTask.ClassicalGames]: '#39A99A',
 };
 
-const BADGE_TITLE: Record<BadgeType, string> = {
-    [BadgeType.PolgarMateOne]: 'Polgar M1',
-    [BadgeType.PolgarMateTwo]: 'Polgar M2',
-    [BadgeType.PolgarMateThree]: 'Polgar M3',
-    [BadgeType.AnnotateGames]: 'Classical Games Annotated',
-    [BadgeType.ClassicalGames]: 'Classical Games Played',
-    [BadgeType.DailyStreak]: 'Daily Streak',
+const BADGE_TITLE: Record<BadgeTask, string> = {
+    [BadgeTask.PolgarMateOne]: 'Polgar M1',
+    [BadgeTask.PolgarMateTwo]: 'Polgar M2',
+    [BadgeTask.PolgarMateThree]: 'Polgar M3',
+    [BadgeTask.AnnotateGames]: 'Classical Games Annotated',
+    [BadgeTask.ClassicalGames]: 'Classical Games Played',
 };
 
-// const ROUND_ROBIN_BADGES: string[] = ['fall', 'summer', 'winter', 'spring'];
-
 /**
- * gets the RR badge
- * @param season the RR season
- * @returns RR image
+ * Gets the image URL for the given badge task and level.
+ * @param level The level to fetch the badge for.
+ * @param task The task of the badge.
+ * @returns The image URL for the badge.
  */
-export function getRRbadge(season: string): string {
-    return `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/rr/clean/RR_${season}-removebg-preview.png?raw=true`;
-}
-
-/**
- * Get the image for the given badge and level.
- * @param level the level to fetch the badge for
- * @param badge the type of badge
- * @returns the image of the badge
- */
-function getBadgeImage(level: number, badge: BadgeType): string {
-    switch (badge) {
-        case BadgeType.PolgarMateOne:
-        case BadgeType.PolgarMateTwo:
-        case BadgeType.PolgarMateThree:
+function getBadgeImage(level: number, task: BadgeTask): string | undefined {
+    switch (task) {
+        case BadgeTask.PolgarMateOne:
+        case BadgeTask.PolgarMateTwo:
+        case BadgeTask.PolgarMateThree:
             return `/static/badges/polgar/v1/${level}.png`;
-        case BadgeType.ClassicalGames:
+        case BadgeTask.ClassicalGames:
             return `/static/badges/classical_games_played/v1/${level}.png`;
-        case BadgeType.AnnotateGames:
+        case BadgeTask.AnnotateGames:
             return `/static/badges/classical_games_annotated/v1/${level}.png`;
-        case BadgeType.DailyStreak:
-            return `https://github.com/jalpp/DojoIcons/blob/main/milestones/DojoBadges/streak/clean/streak${level}paper-clean.png?raw=true`;
     }
 }
 
 /**
- * check if the user is eligible for badge limit for given requirement
- * @param user the current user
- * @param requirementId requirement id
- * @param levels the badge requirement levels
- * @returns the badge limit user is eligible for level
+ * Returns the badge level for the given user and requirement.
+ * @param user The user to get the level for.
+ * @param requirementId The requirement to get the level for.
+ * @param levels The badge requirement levels.
+ * @returns The max level the user has achieved in the badge.
  */
 function getBadgeLevel(user: User, requirementId: string, levels: number[]): number {
     const progress = user.progress[requirementId];
@@ -156,136 +148,162 @@ function getBadgeLevel(user: User, requirementId: string, levels: number[]): num
 }
 
 /**
- * gets the badge message
- * @param level the level for badge
- * @param badge the badge type
- * @returns the message
+ * Returns the message for the given level and badge task.
+ * @param level The level of the badge.
+ * @param task The task of the badge.
+ * @returns The message for the badge.
  */
-function getBadgeMessage(level: number, badge: BadgeType): string {
-    let msg: string;
-    switch (badge) {
-        case BadgeType.PolgarMateOne:
-            msg = polgarMateMilestones[level];
-            break;
-        case BadgeType.PolgarMateTwo:
-            msg = polgarMateMilestones[level];
-            break;
-        case BadgeType.PolgarMateThree:
-            msg = polgarMateMilestones[level];
-            break;
-        case BadgeType.AnnotateGames:
-            msg = annotationMilestones[level];
-            break;
-        case BadgeType.ClassicalGames:
-            msg = classicalGameMilestones[level];
-            break;
-        case BadgeType.DailyStreak:
-            msg = `Wowza! Your daily streak hit ${level}!`;
-            break;
+function getBadgeMessage(level: number, task: BadgeTask): string {
+    switch (task) {
+        case BadgeTask.PolgarMateOne:
+        case BadgeTask.PolgarMateTwo:
+        case BadgeTask.PolgarMateThree:
+            return polgarMateMilestones[level];
+        case BadgeTask.AnnotateGames:
+            return annotationMilestones[level];
+        case BadgeTask.ClassicalGames:
+            return classicalGameMilestones[level];
     }
-
-    return msg;
 }
 
 /**
- * gets the badge title
- * @param level the current level
- * @param badge the badge type
- * @returns the badge title
+ * Returns the badge category associated with the given task.
+ * @param task The task of the badge.
+ * @returns The badge category associated with the given task.
  */
-function getBadgeTitle(level: number, badge: BadgeType): string {
-    return `${BADGE_TITLE[badge]} - ${level}`;
-}
-
-/**
- * check if badge is the highest max badge as possible
- * @param level the level at we are at
- * @param badge the badge type
- * @returns is the badge at the max level
- */
-function isMaxBadge(level: number, badge: BadgeType): boolean {
-    return level === BADGE_LIMITS[badge][BADGE_LIMITS[badge].length - 1];
-}
-
-/**
- * gets the badge glow
- * @param level the level
- * @param badge the badge type
- * @returns if badge is max returns the glow or undefined
- */
-function getBadgeGlow(level: number, badge: BadgeType): string | undefined {
-    return isMaxBadge(level, badge) ? BADGE_MAX_GLOW_COLOR[badge] : undefined;
-}
-
-/**
- * gets the info and badge image for eligible badge
- * @param user current user
- * @param badge the badge type
- * @returns info and image for the badge
- */
-function getEligibleBadgeInfo(user: User, badge: BadgeType): Badge | undefined {
-    const level: number = getBadgeLevel(user, badge, BADGE_LIMITS[badge]);
-
-    if (level === -1) {
-        return undefined;
+function getBadgeCategory(task: BadgeTask): BadgeCategory {
+    switch (task) {
+        case BadgeTask.PolgarMateOne:
+        case BadgeTask.PolgarMateTwo:
+        case BadgeTask.PolgarMateThree:
+            return BadgeCategory.Polgar;
+        case BadgeTask.ClassicalGames:
+            return BadgeCategory.Games;
+        case BadgeTask.AnnotateGames:
+            return BadgeCategory.Annotation;
     }
+}
 
-    const currentBadge: Badge = {
-        image: getBadgeImage(level, badge),
-        title: getBadgeTitle(level, badge),
-        message: getBadgeMessage(level, badge),
-        glowHexcode: getBadgeGlow(level, badge),
+/**
+ * Returns the title for the given level and badge task.
+ * @param level The level of the badge.
+ * @param task The task of the badge.
+ * @returns The title of the badge.
+ */
+function getBadgeTitle(level: number, task: BadgeTask): string {
+    return `${BADGE_TITLE[task]} - ${level}`;
+}
+
+/**
+ * Checks if the given level is the maximum level for the badge task.
+ * @param level The level to check.
+ * @param task The task of the badge to check.
+ * @returns True if level is equal to the badge type's max level.
+ */
+function isMaxBadge(level: number, task: BadgeTask): boolean {
+    return level === BADGE_LIMITS[task][BADGE_LIMITS[task].length - 1];
+}
+
+/**
+ * Returns the glow color for the given level and badge task.
+ * @param level The level of the badge.
+ * @param task The task of the badge.
+ * @returns The glow color for the badge.
+ */
+function getBadgeGlow(level: number, task: BadgeTask): string | undefined {
+    return isMaxBadge(level, task) ? BADGE_MAX_GLOW_COLOR[task] : undefined;
+}
+
+/**
+ * Returns the graduation badge for the given cohort.
+ * @param cohort The cohort graduated from.
+ * @param isEarned Whether the user has earned the badge.
+ * @returns The graduation badge for the given cohort.
+ */
+function getGraduationBadge(cohort: string, isEarned: boolean): Badge {
+    return {
+        image: cohortIcons[cohort],
+        title: `Graduated from ${cohort}`,
+        message: `Congratulations! You have graduated from ${cohort}`,
+        isEarned,
+        category: BadgeCategory.Graduation,
+        glowHexcode: cohortColors[cohort],
     };
-
-    return currentBadge;
 }
 
-// /**
-//  * gets the tactics champion badge
-//  * @returns the tactics champion badge
-//  */
-// export function getTacticsChampionBadge(): Badge {
-//     const championBadge: Badge = {
-//         image: 'https://github.com/jalpp/DojoIcons/blob/main/milestones/Dojobadgesv3/clean/Tactics_champion-removebg-preview.png?raw=true',
-//         title: 'Tactics Champion',
-//         message:
-//             'Wowza! Your tactics rating is higher than your cohort, keep it up or you will lose it!',
-//         glowHexcode: '#CABC56',
-//     };
-
-//     return championBadge;
-// }
-
 /**
- * gets the Dojo 1.0 badge
- * @returns the Dojo 1.0 badge
+ * @param isEarned Whether the user has earned the badge.
+ * @returns A badge for being a Dojo 1.0 member.
  */
-export function getDojoerBadge(): Badge {
-    const dojoerBadge = {
+function getDojoerBadge(isEarned: boolean): Badge {
+    return {
         image: '/static/badges/misc/DojoHeart.png',
         title: 'Dojo member since 1.0',
         message:
             'You have been a valuable Dojo member from the start! Thanks for your support!',
+        isEarned,
         glowHexcode: '#BD01F2',
+        category: BadgeCategory.All,
     };
-
-    return dojoerBadge;
 }
 
 /**
- * Gets all possible elgible badges for user
- * @param user the current user
- * @returns all possible badges
+ * @param isEarned Whether the user has earned the badge.
+ * @returns A badge for being a beta tester.
  */
-export function getEligibleBadges(user: User): Badge[] {
-    const keys = Object.values(BadgeType);
-    const overallInfo: Badge[] = [];
-    keys.forEach((key) => {
-        const badge = getEligibleBadgeInfo(user, key);
-        if (badge) {
-            overallInfo.push(badge);
-        }
-    });
+function getBetaTesterBadge(isEarned: boolean): Badge {
+    return {
+        image: '/static/badges/misc/betatest.png',
+        title: 'Participated in a Beta Test',
+        message: 'Thanks for testing new features!',
+        isEarned,
+        glowHexcode: '#6305BC',
+        category: BadgeCategory.All,
+    };
+}
 
-    return overallInfo;
+/**
+ * Returns the badge for the given level and task.
+ * @param level The level of the badge.
+ * @param task The task of the badge.
+ * @param isEarned Whether the badge is earned.
+ * @returns The badge for the given information.
+ */
+function getTaskBadge(level: number, task: BadgeTask, isEarned: boolean): Badge {
+    return {
+        image: getBadgeImage(level, task) || '',
+        title: getBadgeTitle(level, task),
+        message: getBadgeMessage(level, task) || '',
+        category: getBadgeCategory(task),
+        isEarned,
+        glowHexcode: getBadgeGlow(level, task),
+    };
+}
+
+/**
+ * Returns a list of all possible badges.
+ * @param user The user to get badges for.
+ * @returns A list of all possible badges, both earned and not earned.
+ */
+export function getBadges(user: User): Badge[] {
+    const allBadges = [
+        getDojoerBadge(!user.createdAt),
+        getBetaTesterBadge(user.isBetaTester),
+    ];
+
+    for (const cohort of dojoCohorts) {
+        allBadges.push(
+            getGraduationBadge(cohort, user.graduationCohorts?.includes(cohort) ?? false),
+        );
+    }
+
+    for (const task of Object.values(BadgeTask)) {
+        const eligibleLevel = getBadgeLevel(user, task, BADGE_LIMITS[task]);
+        const levels = BADGE_LIMITS[task];
+        for (const level of levels) {
+            allBadges.push(getTaskBadge(level, task, level <= eligibleLevel));
+        }
+    }
+
+    return allBadges;
 }

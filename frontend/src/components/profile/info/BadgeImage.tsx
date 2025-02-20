@@ -1,14 +1,19 @@
 import { Tooltip } from '@mui/material';
 import Image from 'next/image';
-import React from 'react';
 import { Badge } from './badgeHandler';
 
-interface CustomBadgeProps {
+interface BadgeImageProps {
     badge: Badge;
-    handleBadgeClick: (badge: Badge) => void;
+    onClick?: (badge: Badge) => void;
 }
 
-const CustomBadge: React.FC<CustomBadgeProps> = ({ badge, handleBadgeClick }) => {
+/**
+ * Renders an image for the given badge.
+ * @param badge The badge to render.
+ * @param onClick A callback invoked when the image is clicked.
+ * @returns
+ */
+export function BadgeImage({ badge, onClick }: BadgeImageProps) {
     return (
         <Tooltip title={badge.title} arrow>
             <Image
@@ -16,17 +21,15 @@ const CustomBadge: React.FC<CustomBadgeProps> = ({ badge, handleBadgeClick }) =>
                 width={50}
                 height={50}
                 style={{
-                    cursor: 'pointer',
+                    cursor: !badge.isEarned || !onClick ? 'default' : 'pointer',
                     filter: badge.glowHexcode
                         ? `drop-shadow(0 0 12px ${badge.glowHexcode})`
                         : undefined,
                     borderRadius: '8px',
                 }}
                 alt={badge.title}
-                onClick={() => handleBadgeClick(badge)}
+                onClick={() => onClick?.(badge)}
             />
         </Tooltip>
     );
-};
-
-export default CustomBadge;
+}
