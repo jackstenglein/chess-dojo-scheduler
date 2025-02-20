@@ -33,6 +33,10 @@ interface RatingsEditorProps {
     ratingEditors: Record<RatingSystem, RatingEditor>;
     /** A callback to set the rating editor information. */
     setRatingEditors: (ratingEditors: Record<RatingSystem, RatingEditor>) => void;
+    /** Whether zen mode is enabled in the profile editor. */
+    enableZenMode: boolean;
+    /** A callback to set whether zen mode is enabled. */
+    setEnableZenMode: (enabled: boolean) => void;
     /** The errors in the profile editor. */
     errors: Record<string, string>;
 }
@@ -44,6 +48,8 @@ export function RatingsEditor({
     setRatingSystem,
     ratingEditors,
     setRatingEditors,
+    enableZenMode,
+    setEnableZenMode,
     errors,
 }: RatingsEditorProps) {
     const setUsername = (ratingSystem: RatingSystem, username: string) => {
@@ -265,6 +271,16 @@ export function RatingsEditor({
                     </Grid2>
                 </Grid2>
             ))}
+
+            <FormControlLabel
+                label='Enable Zen Mode (hide ratings when viewing your own profile)'
+                control={
+                    <Checkbox
+                        checked={enableZenMode}
+                        onChange={(e) => setEnableZenMode(e.target.checked)}
+                    />
+                }
+            />
         </Stack>
     );
 }

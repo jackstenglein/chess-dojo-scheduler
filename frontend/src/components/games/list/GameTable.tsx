@@ -209,7 +209,7 @@ export default function GameTable({
         if (isListView) {
             return 105;
         }
-        const density = apiRef.current.state.density;
+        const density = apiRef.current?.state?.density;
         switch (density) {
             case 'compact':
                 return 50;
@@ -217,6 +217,8 @@ export default function GameTable({
                 return 65;
             case 'comfortable':
                 return 75;
+            default:
+                return 65;
         }
     }, [isListView, apiRef]);
 
@@ -224,7 +226,7 @@ export default function GameTable({
         if (isListView) {
             return 'auto';
         }
-        const density = apiRef.current.state.density;
+        const density = apiRef.current?.state?.density;
         switch (density) {
             case 'compact':
                 return 50;
@@ -232,6 +234,8 @@ export default function GameTable({
                 return 65;
             case 'comfortable':
                 return 75;
+            default:
+                return 65;
         }
     }, [isListView, apiRef]);
 

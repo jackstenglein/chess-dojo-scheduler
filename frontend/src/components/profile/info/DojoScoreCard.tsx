@@ -1,4 +1,5 @@
 import { useRequirements } from '@/api/cache/requirements';
+import { useAuth } from '@/auth/Auth';
 import {
     getCategoryScore,
     getCohortScore,
@@ -75,6 +76,7 @@ interface DojoScoreCardProps {
 }
 
 const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
+    const { user: viewer } = useAuth();
     const { requirements } = useRequirements(cohort, false);
 
     const totalScore = getTotalScore(cohort, requirements);
@@ -85,7 +87,10 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     const graduationBoundary = getRatingBoundary(cohort, user.ratingSystem);
     const currentRating = getCurrentRating(user);
     const showRatingProgress =
-        graduationBoundary && graduationBoundary > 0 && currentRating > 0;
+        (!viewer?.enableZenMode || viewer.username !== user.username) &&
+        graduationBoundary &&
+        graduationBoundary > 0 &&
+        currentRating > 0;
 
     return (
         <Card id='cohort-score-card'>

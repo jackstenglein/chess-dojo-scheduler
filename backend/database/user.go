@@ -241,6 +241,9 @@ type User struct {
 	// Whether to enable light mode on the site
 	EnableLightMode bool `dynamodbav:"enableLightMode" json:"enableLightMode"`
 
+	// Whether to enable zen mode on the site
+	EnableZenMode bool `dynamodbav:"enableZenMode,omitempty" json:"enableZenMode"`
+
 	// The user's preferred timezone on the calendar
 	TimezoneOverride string `dynamodbav:"timezoneOverride" json:"timezoneOverride"`
 
@@ -639,6 +642,9 @@ type UserUpdate struct {
 
 	// Whether to enable light mode on the site
 	EnableLightMode *bool `dynamodbav:"enableLightMode,omitempty" json:"enableLightMode,omitempty"`
+
+	// Whether to enable zen mode on the site
+	EnableZenMode *bool `dynamodbav:"enableZenMode,omitempty" json:"enableZenMode,omitempty"`
 
 	// The user's preferred timezone on the calendar
 	TimezoneOverride *string `dynamodbav:"timezoneOverride,omitempty" json:"timezoneOverride,omitempty"`

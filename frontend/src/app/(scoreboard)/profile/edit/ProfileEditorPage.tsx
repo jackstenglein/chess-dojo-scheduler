@@ -150,6 +150,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
 
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
     const [ratingEditors, setRatingEditors] = useState(getRatingEditors(user.ratings));
+    const [enableZenMode, setEnableZenMode] = useState(user.enableZenMode);
 
     const [notificationSettings, setNotificationSettings] = useState(
         user.notificationSettings,
@@ -172,6 +173,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
             timezoneOverride: timezone,
             ratingSystem,
             ratings: getRatingsFromEditors(ratingEditors),
+            enableZenMode,
 
             notificationSettings,
         },
@@ -435,6 +437,8 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             setRatingSystem={setRatingSystem}
                             ratingEditors={ratingEditors}
                             setRatingEditors={setRatingEditors}
+                            enableZenMode={enableZenMode}
+                            setEnableZenMode={setEnableZenMode}
                             errors={errors}
                         />
 
