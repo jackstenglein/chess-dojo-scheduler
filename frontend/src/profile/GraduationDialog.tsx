@@ -56,7 +56,7 @@ const GraduationDialog = () => {
                 });
                 setUserCohort(response.data.userUpdate.dojoCohort);
                 setShowGraduationDialog(false);
-                setShareDialog(true);
+                setShareDialog(!user?.enableZenMode);
             })
             .catch((err) => {
                 request.onFailure(err);
@@ -98,7 +98,7 @@ const GraduationDialog = () => {
                 <DialogContent>
                     <Stack spacing={2}>
                         <DialogContentText>
-                            This will move you to the next cohort and add a belt to your
+                            This will move you to the next cohort and add a badge to your
                             profile. You will also be added to the list of recent
                             graduates, and Jesse will review your profile in the next grad
                             show on Twitch. If you just want to look at tasks from other

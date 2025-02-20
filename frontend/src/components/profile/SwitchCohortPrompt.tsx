@@ -51,9 +51,11 @@ export function SwitchCohortPrompt() {
                 sx={{ width: 1 }}
             >
                 {showGraduation
-                    ? `Congrats on reaching ${getCurrentRating(
-                          user,
-                      )}! Click the graduate button at the top of your profile to move to the next cohort!`
+                    ? `${
+                          user?.enableZenMode
+                              ? `It's time to graduate!`
+                              : `Congrats on reaching ${getCurrentRating(user)}!`
+                      } Click the graduate button at the top of your profile to move to the next cohort!`
                     : `Your rating has been less than your cohort's minimum rating for 90 days. We recommend moving down a cohort in your settings.`}
             </Alert>
         </Snackbar>
