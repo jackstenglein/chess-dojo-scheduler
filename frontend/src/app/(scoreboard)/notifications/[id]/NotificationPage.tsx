@@ -53,6 +53,7 @@ export function NotificationPage({ id }: { id: string }) {
                     onDelete: noop,
                 }}
                 onRowClick={(params, event) => onClick(params.row, event)}
+                contextMenu={contextMenu}
             />
             <ListItemContextMenu
                 games={contextMenu.rowIds
