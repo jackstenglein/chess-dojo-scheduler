@@ -128,7 +128,7 @@ export function BadgCabinetDialog({
                                         {badge.message}
                                     </Typography>
                                 ) : (
-                                    badge.currentCount &&
+                                    badge.currentCount !== undefined &&
                                     badge.level && (
                                         <Stack
                                             direction='row'
