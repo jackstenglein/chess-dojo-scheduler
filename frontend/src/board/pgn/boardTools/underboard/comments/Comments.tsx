@@ -198,7 +198,11 @@ function getCommentsForFen(
     const selectedComments: PositionComment[] = [];
 
     for (const comment of Object.values(fenComments)) {
-        if (comment.ply === (move?.ply || 0) && comment.san === move?.san) {
+        if (
+            comment.content &&
+            comment.ply === (move?.ply || 0) &&
+            comment.san === move?.san
+        ) {
             selectedComments.push(comment);
         }
     }

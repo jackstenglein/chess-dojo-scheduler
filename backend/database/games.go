@@ -132,7 +132,8 @@ type PositionComment struct {
 	// Replies to this comment, mapped by their IDs
 	Replies map[string]PositionComment `dynamodbav:"replies" json:"replies"`
 
-	// TODO: figure out how to support suggesting variations
+	// A PGN starting from the comment's position, which suggests a variation.
+	SuggestedVariation string `dynamodbav:"suggestedVariation,omitempty" json:"suggestedVariation,omitempty"`
 }
 
 type PositionCommentUpdate struct {

@@ -136,6 +136,9 @@ export interface PositionComment {
 
     /** Replies to this comment, mapped by their IDs. */
     replies: Record<string, PositionComment>;
+
+    /** A PGN starting from the comment's position, which suggests a variation. */
+    suggestedVariation?: string;
 }
 
 export type Game = GameInfo & {

@@ -93,8 +93,8 @@ func getComment(event api.Request) (database.PositionComment, error) {
 		return comment, errors.New(400, "Invalid request: ply must be non-negative", "")
 	}
 
-	if comment.Content == "" {
-		return comment, errors.New(400, "Invalid request: content must not be empty", "")
+	if comment.Content == "" && comment.SuggestedVariation == "" {
+		return comment, errors.New(400, "Invalid request: one of content and suggestedVariation must be non-empty", "")
 	}
 
 	comment.Id = uuid.NewString()

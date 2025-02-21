@@ -6,7 +6,7 @@ import PgnBoard from '@/board/pgn/PgnBoard';
 import SaveGameDialog, {
     SaveGameDialogType,
 } from '@/components/games/edit/SaveGameDialog';
-import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
+import { GameMoveButtonExtras } from '@/components/games/view/GameMoveButtonExtras';
 import { GameContext } from '@/context/useGame';
 import { User } from '@/database/user';
 import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
@@ -79,7 +79,7 @@ export default function AnalysisBoard() {
                     allowDeleteBefore={true}
                     showElapsedMoveTimes
                     slots={{
-                        moveButtonExtras: EngineMoveButtonExtras,
+                        moveButtonExtras: GameMoveButtonExtras,
                     }}
                     initialUnderboardTab={DefaultUnderboardTab.Explorer}
                     disableNullMoves={false}

@@ -1,8 +1,12 @@
+import { useApi } from '@/api/Api';
+import { useAuth } from '@/auth/Auth';
 import { useReconcile } from '@/board/Board';
+import useGame from '@/context/useGame';
+import { PositionComment } from '@/database/game';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
-import { Backspace, Help, Merge } from '@mui/icons-material';
+import { Backspace, Chat, Help, Merge } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import {
@@ -192,8 +196,11 @@ interface MoveMenuProps {
 
 const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
     const { chess, config } = useChess();
+    const { game, onUpdateGame } = useGame();
     const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
     const [showMerge, setShowMerge] = useState(false);
+    const { user } = useAuth();
+    const api = useApi();
 
     if (!chess) {
         return null;
@@ -211,6 +218,48 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
     const onPromote = () => {
         chess.promoteVariation(move);
         onClose();
+    };
+
+    const onSaveVariationAsComment = () => {
+        if (!user || !game) {
+            return;
+        }
+
+        let root = move;
+        while (root.previous?.commentDiag?.dojoComment?.endsWith(',unsaved')) {
+            root = root.previous;
+        }
+
+        const suggestion = chess.renderFrom(root, {
+            skipHeader: true,
+            skipComments: true,
+        });
+        const positionComment: PositionComment = {
+            id: '',
+            fen: chess.fen(root.previous),
+            ply: root.previous?.ply || 0,
+            san: root.previous?.san,
+            owner: {
+                username: user.username,
+                displayName: user.displayName,
+                cohort: user.dojoCohort,
+                previousCohort: user.previousCohort,
+            },
+            createdAt: '',
+            updatedAt: '',
+            content: '',
+            parentIds: '',
+            replies: {},
+            suggestedVariation: suggestion,
+        };
+        const existingComments = Boolean(game.positionComments[positionComment.fen]);
+        api.createComment(game.cohort, game.id, positionComment, existingComments)
+            .then((resp) => {
+                onUpdateGame?.(resp.data);
+            })
+            .catch((err) => {
+                console.error('onSaveVariationAsComment: ', err);
+            });
     };
 
     return (
@@ -261,6 +310,15 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                         </ListItemIcon>
                         <ListItemText>Merge Line into Game</ListItemText>
                     </MenuItem>
+
+                    {game && move.commentDiag?.dojoComment?.endsWith(',unsaved') && (
+                        <MenuItem onClick={onSaveVariationAsComment}>
+                            <ListItemIcon>
+                                <Chat />
+                            </ListItemIcon>
+                            <ListItemText>Save Variation as Comment</ListItemText>
+                        </MenuItem>
+                    )}
                 </MenuList>
             </Menu>
 
