@@ -2,10 +2,15 @@
 
 import { useNotifications } from '@/api/cache/Cache';
 import { NotificationListItem } from '@/components/notifications/NotificationListItem';
+import LoadingPage from '@/loading/LoadingPage';
 import { Container, Stack, Typography } from '@mui/material';
 
 export function NotificationsPage() {
-    const { notifications } = useNotifications();
+    const { notifications, request } = useNotifications();
+
+    if (!request.isSent() || request.isLoading()) {
+        return <LoadingPage />;
+    }
 
     return (
         <Container sx={{ py: 4 }}>

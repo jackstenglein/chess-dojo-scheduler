@@ -1,5 +1,8 @@
+import { ExplorerPositionFollower } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import { Game } from './game';
 import { isObject } from './scoreboard';
+
+export type { ExplorerPositionFollower };
 
 /** A single position in the games explorer, aggregating results across all games. */
 export interface ExplorerPosition {
@@ -110,42 +113,6 @@ export interface ExplorerGame {
 
     /** The game that generated this ExplorerGame. The PGN is not included. */
     game: Game;
-}
-
-/**
- * A user following this position. The user will be notified when a new
- * analysis is uploaded containing this position.
- */
-export interface ExplorerPositionFollower {
-    /**
-     * This is the hash key of the explorer table. See the comment on ExplorerPosition
-     * for more info on the format.
-     */
-    normalizedFen: string;
-
-    /**
-     * The range key of the table, in the form FOLLOWER#username, where FOLLOWER is the
-     * literal value `FOLLOWER` and username is the username of the follower.
-     */
-    id: string;
-
-    /**
-     * The minimum cohort the new analysis must be in for the user to be notified
-     * (inclusive). If not provided, then there is no minimum cohort.
-     */
-    minCohort?: string;
-
-    /**
-     * The maximum cohort the new analysis must be in for the user to be notified
-     * (inclusive). If not provided, then there is no maximum cohort.
-     */
-    maxCohort?: string;
-
-    /**
-     * Whether to disable notifications if the position only appears in a variation
-     * of the analysis and not the mainline.
-     */
-    disableVariations?: boolean;
 }
 
 /** A single position in the games explorer, as returned from the Lichess API. */

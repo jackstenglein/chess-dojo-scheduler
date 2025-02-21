@@ -1,5 +1,6 @@
 import { Request } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';
+import GameTable from '@/components/games/list/GameTable';
 import { Link } from '@/components/navigation/Link';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
@@ -13,7 +14,9 @@ import {
     isExplorerMove,
     isExplorerPosition,
 } from '@/database/explorer';
+import { GameInfo } from '@/database/game';
 import { dojoCohorts, getCohortRange } from '@/database/user';
+import { PaginationResult } from '@/hooks/usePagination';
 import LoadingPage from '@/loading/LoadingPage';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
@@ -35,6 +38,7 @@ import {
 import {
     DataGridPro,
     GridColDef,
+    GridPaginationModel,
     GridRenderCellParams,
     GridRowModel,
     GridRowParams,
@@ -69,6 +73,7 @@ interface DatabaseProps<T> {
     setMaxCohort: (v: string) => void;
     timeControls: string[];
     setTimeControls: (v: string[]) => void;
+    pagination: PaginationResult;
 }
 
 function Database<T>({
@@ -82,6 +87,7 @@ function Database<T>({
     setMaxCohort,
     timeControls,
     setTimeControls,
+    pagination,
 }: DatabaseProps<T>) {
     const { chess } = useChess();
     const reconcile = useReconcile();
@@ -286,6 +292,17 @@ function Database<T>({
         }
     };
 
+    const onPaginationModelChange = (model: GridPaginationModel) => {
+        if (model.pageSize !== pagination.pageSize) {
+            pagination.setPageSize(model.pageSize);
+        }
+    };
+
+    const onClickGame = ({ cohort, id }: GameInfo) => {
+        const url = `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`;
+        window.open(url, '_blank');
+    };
+
     return (
         <Grid2
             data-cy={`explorer-tab-${type}`}
@@ -419,17 +436,38 @@ function Database<T>({
                     }}
                 />
             </Grid2>
+
             {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
-                <Grid2 display='flex' justifyContent='center' size={12}>
-                    <Link
-                        href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
-                        target='_blank'
-                        rel='noopener'
-                    >
-                        View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'}{' '}
-                        games containing this position
-                    </Link>
-                </Grid2>
+                <>
+                    {pagination && (
+                        <GameTable
+                            namespace='explorer'
+                            limitFreeTier
+                            pagination={pagination}
+                            onPaginationModelChange={onPaginationModelChange}
+                            defaultVisibility={{
+                                cohort: false,
+                                publishedAt: false,
+                                owner: false,
+                            }}
+                            unstable_listView={true}
+                            disableRowSelectionOnClick
+                            onRowClick={(params) => onClickGame(params.row)}
+                        />
+                    )}
+
+                    <Grid2 display='flex' justifyContent='center' size={12}>
+                        <Link
+                            href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
+                            target='_blank'
+                            rel='noopener'
+                        >
+                            View all{' '}
+                            {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'} games
+                            containing this position
+                        </Link>
+                    </Grid2>
+                </>
             )}
         </Grid2>
     );
@@ -437,7 +475,7 @@ function Database<T>({
 
 export default Database;
 
-const masterTimeControlOptions = [
+export const masterTimeControlOptions = [
     {
         value: 'standard',
         label: 'Standard',

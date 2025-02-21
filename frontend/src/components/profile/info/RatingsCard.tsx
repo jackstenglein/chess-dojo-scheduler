@@ -1,3 +1,4 @@
+import { useAuth } from '@/auth/Auth';
 import {
     formatRatingSystem,
     getSystemCurrentRating,
@@ -9,6 +10,11 @@ import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import { Card, CardContent, Grid2, Typography } from '@mui/material';
 
 export const RatingsCard = ({ user }: { user: User }) => {
+    const { user: viewer } = useAuth();
+    if (viewer?.enableZenMode && viewer.username === user.username) {
+        return null;
+    }
+
     const systems = Object.values(RatingSystem)
         .filter((rs) => user.ratings[rs])
         .sort(

@@ -22,7 +22,7 @@ import {
     GridRenderCellParams,
     GridRowModel,
 } from '@mui/x-data-grid-pro';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 const AllColumns: GridColDef<User>[] = [
     {
@@ -170,6 +170,10 @@ export function SearchPage() {
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [columns, setColumns] = useState(AllColumns);
+    const latestSearch = useRef<{ fields: string[]; query: string }>({
+        fields: [],
+        query,
+    });
 
     const onChangeField = (field: string, value: boolean) => {
         setFields({
@@ -209,9 +213,15 @@ export function SearchPage() {
             setColumns(AllColumns.filter((c, i) => i <= 1 || fields[c.field]));
         }
 
+        latestSearch.current = { fields: selectedFields, query: query.trim() };
         searchUsers(query.trim(), selectedFields)
             .then((resp) => {
-                onSuccess(resp);
+                if (
+                    latestSearch.current.fields === selectedFields &&
+                    latestSearch.current.query === query.trim()
+                ) {
+                    onSuccess(resp);
+                }
             })
             .catch((err) => {
                 console.error(err);

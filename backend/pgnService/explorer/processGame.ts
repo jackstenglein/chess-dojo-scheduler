@@ -411,6 +411,7 @@ async function putExplorerGame(
                 BlackElo: game.headers.BlackElo,
                 Result: game.headers.Result,
                 PlyCount: game.headers.PlyCount,
+                Date: game.headers.Date,
             },
         },
     };

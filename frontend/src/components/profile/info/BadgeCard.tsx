@@ -24,6 +24,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
 
     const [allBadges, earnedBadges] = useMemo(() => {
+
         const allBadges = getBadges(user, false);
         const earnedBadges = getBadges(user, true).filter((badge) => badge.isEarned);
         return [allBadges, earnedBadges];

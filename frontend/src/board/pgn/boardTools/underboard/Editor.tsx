@@ -48,7 +48,7 @@ interface NagButtonProps extends ToggleButtonProps {
 
 const NagButton: React.FC<NagButtonProps> = ({ text, description, ...props }) => {
     return (
-        <Tooltip title={description}>
+        <Tooltip title={description} disableInteractive>
             <span style={{ width: `${100 / 8}%` }}>
                 <ToggleButton
                     {...props}
@@ -330,7 +330,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             />
                         ))}
 
-                        <Tooltip title='View more'>
+                        <Tooltip title='View more' disableInteractive>
                             <span style={{ width: `${100 / 8}%` }}>
                                 <ToggleButton
                                     value='more'

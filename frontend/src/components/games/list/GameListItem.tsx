@@ -5,12 +5,19 @@ import {
 import { Link } from '@/components/navigation/Link';
 import { GameInfo, GameResult } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
+import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { useLightMode } from '@/style/useLightMode';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { Box, Stack, Typography } from '@mui/material';
-import { GridRenderCellParams } from '@mui/x-data-grid-pro';
+import { Box, Grid2, Stack, Typography } from '@mui/material';
+import {
+    gridColumnVisibilityModelSelector,
+    GridRenderCellParams,
+    useGridApiContext,
+    useGridSelector,
+} from '@mui/x-data-grid-pro';
 
 export const MastersCohort = 'masters';
 export const MastersOwnerDisplayName = 'Masters DB';
@@ -251,9 +258,11 @@ export function RenderCohort({ cohort }: { cohort: string }) {
 export function RenderOwner({
     ownerDisplayName,
     owner,
+    avatarSize = 24,
 }: {
     ownerDisplayName: GameInfo['ownerDisplayName'];
     owner: GameInfo['owner'];
+    avatarSize?: number;
 }) {
     if (ownerDisplayName === '' || ownerDisplayName === MastersOwnerDisplayName) {
         return '';
@@ -266,6 +275,13 @@ export function RenderOwner({
             alignItems='center'
             onClick={(e) => e.stopPropagation()}
         >
+            {avatarSize > 0 && (
+                <Avatar
+                    username={owner}
+                    displayName={ownerDisplayName}
+                    size={avatarSize}
+                />
+            )}
             <Link href={`/profile/${owner}`}>{ownerDisplayName}</Link>
         </Stack>
     );
@@ -318,4 +334,101 @@ function getPlayerRating(rating?: string | number, provisional?: boolean) {
     str += ')';
 
     return str;
+}
+
+export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
+    const apiRef = useGridApiContext();
+    const columnVisibilityModel = useGridSelector(
+        apiRef,
+        gridColumnVisibilityModelSelector,
+    );
+
+    const showVisibility = columnVisibilityModel.unlisted;
+
+    let description =
+        getTimeControl({ timeControl: params.row.headers.TimeControl }) || '';
+
+    const moves = formatMoves(params.row.headers.PlyCount);
+    if (moves !== '?') {
+        if (description) {
+            description += ' • ';
+        }
+        description += `${moves} move${moves !== 1 ? 's' : ''}`;
+    }
+
+    if (params.row.date) {
+        if (description) {
+            description += ' • ';
+        }
+        description += params.row.date;
+    }
+
+    return (
+        <Stack height={1} justifyContent='center' py={1}>
+            <Grid2 container>
+                <Grid2 size={1}>
+                    <RenderGameResultStack result={params.row.headers.Result} />
+                </Grid2>
+
+                <Grid2 size={11}>
+                    <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        justifyContent='space-between'
+                        alignItems='center'
+                    >
+                        {RenderPlayersCell(params)}
+
+                        {showVisibility && params.row.unlisted && (
+                            <VisibilityOff sx={{ color: 'text.secondary' }} />
+                        )}
+                        {showVisibility && !params.row.unlisted && (
+                            <Visibility sx={{ color: 'text.secondary' }} />
+                        )}
+                    </Stack>
+                </Grid2>
+
+                <Grid2 size={1}></Grid2>
+                <Grid2 size={11} sx={{ mt: 1 }}>
+                    <Typography variant='body2' color='text.secondary'>
+                        {description}
+                    </Typography>
+                </Grid2>
+
+                <Grid2 size={1}></Grid2>
+                <Grid2 size={11}>
+                    <Stack direction='row' alignItems='center'>
+                        <CohortIcon
+                            cohort={params.row.cohort}
+                            tooltip={params.row.cohort}
+                            size={16}
+                        />
+                        <Typography
+                            variant='body2'
+                            color='text.secondary'
+                            sx={{ ml: 0.5 }}
+                        >
+                            {params.row.cohort === MastersCohort
+                                ? 'Masters DB'
+                                : params.row.cohort}
+                        </Typography>
+
+                        {params.row.cohort !== MastersCohort &&
+                            params.row.ownerDisplayName && (
+                                <>
+                                    <Typography
+                                        variant='body2'
+                                        sx={{ mx: 0.5 }}
+                                        color='text.secondary'
+                                    >
+                                        •
+                                    </Typography>
+                                    {RenderOwner({ ...params.row, avatarSize: 0 })}
+                                </>
+                            )}
+                    </Stack>
+                </Grid2>
+            </Grid2>
+        </Stack>
+    );
 }

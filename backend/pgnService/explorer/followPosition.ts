@@ -1,40 +1,21 @@
 'use strict';
 
-import {
-    DeleteItemCommand,
-    DynamoDBClient,
-    PutItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import { DeleteItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
-import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { ExplorerPositionFollower } from './types';
-
-const dynamo = new DynamoDBClient({ region: 'us-east-1' });
-const explorerTable = process.env.stage + '-explorer';
-
-interface UserInfo {
-    username: string;
-    email: string;
-}
-
-/** A request to create or update an ExplorerPositionFollower. */
-interface FollowPositionRequest {
-    /** The FEN of the position to update. */
-    fen: string;
-
-    /** The minimum cohort to trigger game notifications. */
-    minCohort?: string;
-
-    /** The maximum cohort to trigger game notifications. */
-    maxCohort?: string;
-
-    /** Whether to disable notifications for variations. */
-    disableVariations?: boolean;
-
-    /** Whether to delete an existing ExplorerPositionFollower. */
-    unfollow?: boolean;
-}
+import {
+    ExplorerPositionFollower,
+    followPositionSchema,
+} from '@jackstenglein/chess-dojo-common/src/explorer/follower';
+import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import {
+    errToApiGatewayProxyResultV2,
+    parseEvent,
+    requireUserInfo,
+    success,
+} from 'chess-dojo-directory-service/api';
+import { dynamo } from 'chess-dojo-directory-service/database';
+import { explorerTable } from './listGames';
 
 /**
  * Creates, updates or deletes an ExplorerPositionFollower with the provided FEN.
@@ -44,19 +25,10 @@ interface FollowPositionRequest {
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     console.log('Event: %j', event);
 
-    const userInfo = getUserInfo(event);
-    if (!userInfo.username) {
-        return handleError(400, {
-            publicMessage: 'Invalid request: username is required',
-        });
-    }
-
-    const request: FollowPositionRequest = JSON.parse(event.body || '');
-    if (!request || !request.fen) {
-        return handleError(400, { publicMessage: 'Invalid request: fen is required' });
-    }
-
     try {
+        const userInfo = requireUserInfo(event);
+        const request = parseEvent(event, followPositionSchema);
+
         const chess = new Chess({ fen: request.fen });
         const normalizedFen = chess.normalizedFen();
 
@@ -70,18 +42,14 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                     TableName: explorerTable,
                 }),
             );
-            return {
-                statusCode: 200,
-                body: 'null',
-            };
+            return success(null);
         }
 
         const follower: ExplorerPositionFollower = {
+            follower: userInfo.username,
             normalizedFen,
             id: `FOLLOWER#${userInfo.username}`,
-            minCohort: request.minCohort,
-            maxCohort: request.maxCohort,
-            disableVariations: request.disableVariations,
+            followMetadata: request.metadata,
         };
         await dynamo.send(
             new PutItemCommand({
@@ -89,42 +57,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 TableName: explorerTable,
             }),
         );
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify(follower),
-        };
+        return success(follower);
     } catch (err) {
-        console.error(`Failed to follow FEN: ${request.fen}:`, err);
-        return handleError(500, err);
+        return errToApiGatewayProxyResultV2(err);
     }
 };
-
-function getUserInfo(event: any): UserInfo {
-    const claims = event.requestContext?.authorizer?.jwt?.claims;
-    if (!claims) {
-        return {
-            username: '',
-            email: '',
-        };
-    }
-
-    return {
-        username: claims['cognito:username'] || '',
-        email: claims['email'] || '',
-    };
-}
-
-export function handleError(code: number, err: any): APIGatewayProxyResultV2 {
-    console.error(err);
-
-    return {
-        statusCode: code,
-        isBase64Encoded: false,
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify(err),
-    };
-}

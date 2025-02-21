@@ -119,7 +119,7 @@ export interface Notification {
 
         /** The headers of the game. */
         headers: Record<string, string>;
-    };
+    }[];
 
     /** Metadata for a club join request notification. */
     clubMetadata?: {
@@ -143,7 +143,10 @@ export function getTitle(notification: Notification): string {
         case NotificationType.TimelineReaction:
             return `${notification.timelineCommentMetadata?.name}`;
         case NotificationType.ExplorerGame:
-            return `${notification.explorerGameMetadata?.headers.White} - ${notification.explorerGameMetadata?.headers.Black}`;
+            if (notification.count === 1) {
+                return `${notification.explorerGameMetadata?.[0].headers.White} - ${notification.explorerGameMetadata?.[0].headers.Black}`;
+            }
+            return `${notification.count} new games were added with a position you follow.`;
         case NotificationType.NewClubJoinRequest:
             return `${notification.clubMetadata?.name}`;
         case NotificationType.ClubJoinRequestApproved:
@@ -170,7 +173,10 @@ export function getDescription(notification: Notification): string {
                 count !== 1 ? 's' : ''
             } on your activity.`;
         case NotificationType.ExplorerGame:
-            return `A new game was added containing a position you follow.`;
+            if (notification.count === 1) {
+                return `A new game was added containing a position you follow.`;
+            }
+            return '';
         case NotificationType.NewClubJoinRequest:
             return `There ${count !== 1 ? `are ${count}` : 'is a'} new request${
                 count !== 1 ? 's' : ''

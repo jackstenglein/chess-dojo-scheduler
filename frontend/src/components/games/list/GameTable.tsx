@@ -4,26 +4,29 @@ import { GameInfo } from '@/database/game';
 import { DataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { PaginationResult } from '@/hooks/usePagination';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Tooltip } from '@mui/material';
+import { Tooltip, useMediaQuery, useTheme } from '@mui/material';
 import {
     DataGridPro,
     DataGridProProps,
     GridColDef,
     GridColumnVisibilityModel,
+    GridListColDef,
     GridRenderCellParams,
     GridRowParams,
     GridToolbarColumnsButton,
     GridToolbarContainer,
     GridToolbarDensitySelector,
     GridToolbarFilterButton,
+    useGridApiRef,
 } from '@mui/x-data-grid-pro';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import {
     formatMoves,
     formatPublishedAt,
     getPublishedAt,
     getTimeControl,
+    ListViewCell,
     RenderCohort,
     RenderGameResultStack,
     RenderOwner,
@@ -89,6 +92,14 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         width: 75,
     },
     {
+        field: 'moves',
+        headerName: 'Moves',
+        valueGetter: (_value, row) => formatMoves(row.headers?.PlyCount),
+        align: 'center',
+        headerAlign: 'center',
+        width: 75,
+    },
+    {
         field: 'date',
         headerName: 'Played',
         align: 'right',
@@ -108,14 +119,6 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
             RenderOwner(params.row),
         flex: 1,
-    },
-    {
-        field: 'moves',
-        headerName: 'Moves',
-        valueGetter: (_value, row) => formatMoves(row.headers?.PlyCount),
-        align: 'center',
-        headerAlign: 'center',
-        width: 75,
     },
     {
         field: 'unlisted',
@@ -140,6 +143,11 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         },
     },
 ];
+
+const listColDef: GridListColDef<GameInfo> = {
+    field: 'listColumn',
+    renderCell: ListViewCell,
+};
 
 interface GameTableProps
     extends Omit<
@@ -170,6 +178,7 @@ export default function GameTable({
     defaultVisibility,
     ...dataGridProps
 }: GameTableProps) {
+    const apiRef = useGridApiRef();
     const freeTierLimited = useFreeTier() && limitFreeTier;
     const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
     const [columnVisibility, setColumnVisibility] =
@@ -192,8 +201,47 @@ export default function GameTable({
         return transformedColumns;
     }, [freeTierLimited, columns]);
 
+    const theme = useTheme();
+    const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
+    const isListView = dataGridProps.unstable_listView || isSmall;
+
+    const getEstimatedRowHeight = useCallback(() => {
+        if (isListView) {
+            return 105;
+        }
+        const density = apiRef.current?.state?.density;
+        switch (density) {
+            case 'compact':
+                return 50;
+            case 'standard':
+                return 65;
+            case 'comfortable':
+                return 75;
+            default:
+                return 65;
+        }
+    }, [isListView, apiRef]);
+
+    const getRowHeight = useCallback(() => {
+        if (isListView) {
+            return 'auto';
+        }
+        const density = apiRef.current?.state?.density;
+        switch (density) {
+            case 'compact':
+                return 50;
+            case 'standard':
+                return 65;
+            case 'comfortable':
+                return 75;
+            default:
+                return 65;
+        }
+    }, [isListView, apiRef]);
+
     return (
         <DataGridPro
+            apiRef={apiRef}
             {...dataGridProps}
             data-cy='games-table'
             columns={transformedColumns}
@@ -210,10 +258,11 @@ export default function GameTable({
             loading={request.isLoading()}
             autoHeight
             sx={{ width: 1 }}
-            rowHeight={70}
+            getRowHeight={getRowHeight}
+            getEstimatedRowHeight={getEstimatedRowHeight}
             onRowClick={onRowClick}
             initialState={{
-                density: 'compact',
+                density: 'standard',
                 sorting: {
                     sortModel: [
                         {
@@ -234,7 +283,7 @@ export default function GameTable({
                         onNextPage={() => setPage(page + 1)}
                     />
                 ),
-                toolbar: CustomGridToolbar,
+                toolbar: isListView ? undefined : CustomGridToolbar,
             }}
             slotProps={
                 contextMenu
@@ -246,6 +295,8 @@ export default function GameTable({
                     : undefined
             }
             pagination
+            unstable_listView={isListView}
+            unstable_listColumn={dataGridProps.unstable_listColumn || listColDef}
         />
     );
 }

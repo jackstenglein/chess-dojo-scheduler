@@ -124,6 +124,8 @@ export interface User {
     lastGraduatedAt: string;
 
     enableLightMode: boolean;
+    /** Whether to enable zen mode. */
+    enableZenMode: boolean;
     timezoneOverride: string;
     timeFormat: TimeFormat;
 
