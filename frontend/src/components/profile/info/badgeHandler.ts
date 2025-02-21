@@ -283,25 +283,41 @@ function getTaskBadge(level: number, task: BadgeTask, isEarned: boolean): Badge 
 /**
  * Returns a list of all possible badges.
  * @param user The user to get badges for.
+ * @param isMaxView show all max earned or no
  * @returns A list of all possible badges, both earned and not earned.
  */
-export function getBadges(user: User): Badge[] {
+export function getBadges(user: User, isMaxView: boolean): Badge[] {
     const allBadges = [
         getDojoerBadge(!user.createdAt),
         getBetaTesterBadge(user.isBetaTester),
     ];
 
-    for (const cohort of dojoCohorts) {
-        allBadges.push(
-            getGraduationBadge(cohort, user.graduationCohorts?.includes(cohort) ?? false),
-        );
-    }
-
     for (const task of Object.values(BadgeTask)) {
         const eligibleLevel = getBadgeLevel(user, task, BADGE_LIMITS[task]);
         const levels = BADGE_LIMITS[task];
         for (const level of levels) {
-            allBadges.push(getTaskBadge(level, task, level <= eligibleLevel));
+            allBadges.push(
+                getTaskBadge(
+                    level,
+                    task,
+                    isMaxView ? level === eligibleLevel : level <= eligibleLevel,
+                ),
+            );
+        }
+    }
+
+    if (user.graduationCohorts) {
+        for (const cohort of user.graduationCohorts) {
+            allBadges.push(getGraduationBadge(cohort, true));
+        }
+    }
+
+    for (const cohort of dojoCohorts) {
+        if (
+            parseInt(user.dojoCohort.split('-')[0]) <= parseInt(cohort.split('-')[0]) ||
+            cohort.includes('+')
+        ) {
+            allBadges.push(getGraduationBadge(cohort, false));
         }
     }
 
