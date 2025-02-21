@@ -7,6 +7,7 @@ import {
     DialogTitle,
     FormControl,
     IconButton,
+    LinearProgress,
     MenuItem,
     Select,
     Stack,
@@ -122,10 +123,41 @@ export function BadgCabinetDialog({
                                 >
                                     {badge.title}
                                 </Typography>
-                                {badge.isEarned && (
+                                {badge.isEarned ? (
                                     <Typography variant='body2'>
                                         {badge.message}
                                     </Typography>
+                                ) : (
+                                    badge.currentCount &&
+                                    badge.level && (
+                                        <Stack
+                                            direction='row'
+                                            width={1}
+                                            gap={1}
+                                            alignItems='center'
+                                        >
+                                            <LinearProgress
+                                                variant='determinate'
+                                                color='success'
+                                                value={
+                                                    (100 * badge.currentCount) /
+                                                    badge.level
+                                                }
+                                                sx={{
+                                                    height: 10,
+                                                    borderRadius: 5,
+                                                    flexGrow: 1,
+                                                    filter: 'grayscale(20%) opacity(0.6)',
+                                                }}
+                                            />
+                                            <Typography
+                                                variant='body2'
+                                                color='text.secondary'
+                                            >
+                                                {badge.currentCount} / {badge.level}
+                                            </Typography>
+                                        </Stack>
+                                    )
                                 )}
                             </Box>
                         </Card>
