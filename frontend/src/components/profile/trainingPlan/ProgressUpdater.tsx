@@ -72,7 +72,6 @@ interface ProgressUpdaterProps {
     cohort: string;
     onClose: () => void;
     setView?: (view: TaskDialogView) => void;
-    initialTime?: number;
 }
 
 const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
@@ -81,7 +80,6 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     cohort,
     onClose,
     setView,
-    initialTime,
 }) => {
     const api = useApi();
     const { onNewEntry } = useTimelineContext();
@@ -93,10 +91,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     const [markComplete, setMarkComplete] = useState(true);
     const [date, setDate] = useState<DateTime | null>(DateTime.now());
 
-    const initialHours = Math.floor((initialTime ?? 0) / 60);
-    const initialMinutes = (initialTime ?? 0) % 60;
-    const [hours, setHours] = useState(initialHours ? `${initialHours}` : '');
-    const [minutes, setMinutes] = useState(initialMinutes ? `${initialMinutes}` : '');
+    const [hours, setHours] = useState('');
+    const [minutes, setMinutes] = useState('');
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [notes, setNotes] = useState('');

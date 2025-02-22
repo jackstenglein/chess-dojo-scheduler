@@ -180,7 +180,6 @@ export const TimeframeTrainingPlanItem = ({
                     initialView={taskDialogView}
                     progress={progress}
                     cohort={cohort}
-                    initialTime={goalMinutes - timeWorkedMinutes}
                 />
             )}
         </Stack>
