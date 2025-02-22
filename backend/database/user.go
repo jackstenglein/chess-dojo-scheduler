@@ -415,6 +415,9 @@ type SiteNotificationSettings struct {
 
 	// Whether to disable notifications on newsfeed reactions
 	DisableNewsfeedReaction bool `dynamodbav:"disableNewsfeedReaction" json:"disableNewsfeedReaction"`
+
+	// Whether to hide prompt of changing cohort. If value set, the prompt will not be shown until saved date.
+	HideCohortPromptUntil string `dynamodbav:"hideCohortPromptUntil" json:"hideCohortPromptUntil"`
 }
 
 func (sns *SiteNotificationSettings) GetDisableGameComment() bool {
