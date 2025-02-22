@@ -136,6 +136,7 @@ export const TimeframeTrainingPlanItem = ({
                             <Tooltip title='Update Progress'>
                                 <span>
                                     <CircularTimeProgress
+                                        data-cy='update-task-button'
                                         value={timeWorkedMinutes}
                                         max={goalMinutes}
                                         onClick={
