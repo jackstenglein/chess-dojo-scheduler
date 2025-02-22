@@ -13,7 +13,6 @@ import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { AddCircle, PushPin, PushPinOutlined } from '@mui/icons-material';
 import {
-    Checkbox,
     Chip,
     Divider,
     Grid2,
@@ -23,6 +22,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { CircularTimeProgress } from '../CircularTimeProgress';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
 
 interface TimeframeTrainingPlanItemProps {
@@ -132,20 +132,52 @@ export const TimeframeTrainingPlanItem = ({
                 </Grid2>
                 <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
-                        {goalMinutes > 0 && timeWorkedMinutes >= goalMinutes ? (
-                            <Checkbox
-                                checked
-                                onClick={() => setTaskDialogView(TaskDialogView.Progress)}
-                                disabled={!isCurrentUser}
-                            />
-                        ) : !isCurrentUser ? null : (
-                            <IconButton
-                                aria-label={`Update ${task.name}`}
-                                onClick={() => setTaskDialogView(TaskDialogView.Progress)}
-                                data-cy='update-task-button'
-                            >
-                                <AddCircle color='primary' />
-                            </IconButton>
+                        {goalMinutes > 0 ? (
+                            <Tooltip title='Update Progress'>
+                                <span>
+                                    <CircularTimeProgress
+                                        value={timeWorkedMinutes}
+                                        max={goalMinutes}
+                                        onClick={
+                                            isCurrentUser
+                                                ? () =>
+                                                      setTaskDialogView(
+                                                          TaskDialogView.Progress,
+                                                      )
+                                                : undefined
+                                        }
+                                    />
+                                </span>
+                            </Tooltip>
+                        ) : (
+                            <>
+                                <Typography
+                                    color='text.secondary'
+                                    sx={{
+                                        display: { xs: 'none', sm: 'initial' },
+                                        fontWeight: 'bold',
+                                    }}
+                                    noWrap
+                                    textOverflow='unset'
+                                    mr={1}
+                                >
+                                    {formatTime(timeWorkedMinutes)}
+                                </Typography>
+
+                                {isCurrentUser && (
+                                    <Tooltip title='Update Progress'>
+                                        <IconButton
+                                            aria-label={`Update ${task.name}`}
+                                            onClick={() =>
+                                                setTaskDialogView(TaskDialogView.Progress)
+                                            }
+                                            data-cy='update-task-button'
+                                        >
+                                            <AddCircle color='primary' />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+                            </>
                         )}
 
                         {isCurrentUser &&

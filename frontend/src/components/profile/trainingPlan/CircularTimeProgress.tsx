@@ -1,5 +1,11 @@
 import { formatTime } from '@/database/requirement';
-import { Box, CircularProgress, CircularProgressProps, Typography } from '@mui/material';
+import {
+    Box,
+    CircularProgress,
+    CircularProgressProps,
+    IconButton,
+    Typography,
+} from '@mui/material';
 
 const progressProps = [
     {
@@ -18,6 +24,7 @@ const progressProps = [
 export function CircularTimeProgress(
     props: CircularProgressProps & { value: number; max: number },
 ) {
+    const { onClick, ...rest } = props;
     let value = (props.value / props.max) * 100;
     const clampedValue = Math.min(100, value);
 
@@ -29,7 +36,7 @@ export function CircularTimeProgress(
     for (let i = 0; i < progressProps.length && value > 0; i++, value -= 100) {
         rings.push(
             <CircularProgress
-                {...props}
+                {...rest}
                 key={i}
                 variant='determinate'
                 {...progressProps[i]}
@@ -49,14 +56,17 @@ export function CircularTimeProgress(
 
     return (
         <Box
+            component={props.onClick ? IconButton : 'div'}
             sx={{
                 position: 'relative',
                 display: 'grid',
                 alignItems: 'center',
                 justifyItems: 'center',
             }}
+            onClick={props.onClick}
         >
             <CircularProgress
+                {...rest}
                 variant='determinate'
                 value={100}
                 sx={{

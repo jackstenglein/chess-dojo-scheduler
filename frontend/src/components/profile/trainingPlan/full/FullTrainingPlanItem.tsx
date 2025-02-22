@@ -64,29 +64,18 @@ export const FullTrainingPlanItem = ({
     let DescriptionElement = null;
     let UpdateElement = null;
 
-    let color: string | undefined = undefined;
-    if (isCurrentUser && currentCount >= totalCount) {
-        color = 'trainingPlanTaskComplete.main';
-    } else if (isCurrentUser) {
-        color = 'primary.main';
-    }
-
     switch (requirement.scoreboardDisplay) {
         case ScoreboardDisplay.Hidden:
         case ScoreboardDisplay.Checkbox:
             UpdateElement = (
-                <Checkbox
-                    aria-label={`Checkbox ${requirement.name}`}
-                    checked={currentCount >= totalCount}
-                    onClick={() => setTaskDialogView(TaskDialogView.Progress)}
-                    disabled={!isCurrentUser}
-                    sx={{
-                        color,
-                        '&.Mui-checked:not(.Mui-disabled)': {
-                            color,
-                        },
-                    }}
-                />
+                <Tooltip title='Update Progress'>
+                    <Checkbox
+                        aria-label={`Checkbox ${requirement.name}`}
+                        checked={currentCount >= totalCount}
+                        onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                        disabled={!isCurrentUser}
+                    />
+                </Tooltip>
             );
             break;
 
@@ -105,30 +94,35 @@ export const FullTrainingPlanItem = ({
             );
             UpdateElement =
                 currentCount >= totalCount ? (
-                    <Checkbox
-                        checked
-                        onClick={() => setTaskDialogView(TaskDialogView.Progress)}
-                        color={isCurrentUser ? 'trainingPlanTaskComplete' : undefined}
-                    />
+                    <Tooltip title='Update Progress'>
+                        <Checkbox
+                            checked
+                            onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                        />
+                    </Tooltip>
                 ) : !isCurrentUser ? null : (
-                    <IconButton
-                        aria-label={`Update ${requirement.name}`}
-                        onClick={() => setTaskDialogView(TaskDialogView.Progress)}
-                        data-cy='update-task-button'
-                    >
-                        <AddCircle color='primary' />
-                    </IconButton>
+                    <Tooltip title='Update Progress'>
+                        <IconButton
+                            aria-label={`Update ${requirement.name}`}
+                            onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                            data-cy='update-task-button'
+                        >
+                            <AddCircle color='primary' />
+                        </IconButton>
+                    </Tooltip>
                 );
             break;
 
         case ScoreboardDisplay.NonDojo:
             UpdateElement = (
-                <IconButton
-                    aria-label={`Update ${requirement.name}`}
-                    onClick={() => setTaskDialogView(TaskDialogView.Progress)}
-                >
-                    <AddCircle color='primary' />
-                </IconButton>
+                <Tooltip title='Update Progress'>
+                    <IconButton
+                        aria-label={`Update ${requirement.name}`}
+                        onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                    >
+                        <AddCircle color='primary' />
+                    </IconButton>
+                </Tooltip>
             );
             break;
     }
