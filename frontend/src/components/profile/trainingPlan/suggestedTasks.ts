@@ -3,7 +3,6 @@ import {
     Requirement,
     RequirementCategory,
     RequirementProgress,
-    getCurrentCount,
     getRemainingCategoryScorePercent,
     getRemainingScore,
     getTotalCount,
@@ -62,12 +61,6 @@ const SUGGESTED_TASK_CATEGORIES = [
     RequirementCategory.Endgame,
     RequirementCategory.Opening,
 ];
-
-/** The ID of the Play Classical Games task. */
-const CLASSICAL_GAMES_TASK = '38f46441-7a4e-4506-8632-166bcbe78baf';
-
-/** The ID of the Annotate Classical Games task. */
-const ANNOTATE_GAMES_TASK = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
 
 /**
  * Returns the remaining score of a task for the purposes of the suggested task algorithm.
@@ -132,25 +125,6 @@ export function getSuggestedTasks(
     );
     if (eligibleRequirements.length === 0) {
         return suggestedTasks;
-    }
-
-    const annotateTask = eligibleRequirements.find((r) => r.id === ANNOTATE_GAMES_TASK);
-    const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK);
-    if (
-        annotateTask &&
-        classicalGamesTask &&
-        getCurrentCount(
-            user.dojoCohort,
-            annotateTask,
-            user.progress[ANNOTATE_GAMES_TASK],
-        ) <
-            getCurrentCount(
-                user.dojoCohort,
-                classicalGamesTask,
-                user.progress[CLASSICAL_GAMES_TASK],
-            )
-    ) {
-        suggestedTasks.push(annotateTask);
     }
 
     const categoryPercentages = SUGGESTED_TASK_CATEGORIES.map((category) => ({
