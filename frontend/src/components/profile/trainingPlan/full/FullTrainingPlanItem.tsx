@@ -1,3 +1,18 @@
+import { useRequirements } from '@/api/cache/requirements';
+import {
+    CustomTask,
+    Requirement,
+    RequirementCategory,
+    RequirementProgress,
+    ScoreboardDisplay,
+    formatTime,
+    getCurrentCount,
+    getTotalTime,
+    isBlocked,
+    isExpired,
+} from '@/database/requirement';
+import { ALL_COHORTS, User } from '@/database/user';
+import ScoreboardProgress, { ProgressText } from '@/scoreboard/ScoreboardProgress';
 import { AddCircle, Lock, PushPin, PushPinOutlined } from '@mui/icons-material';
 import {
     Box,
@@ -11,24 +26,8 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { useRequirements } from '../../../../api/cache/requirements';
-import {
-    CustomTask,
-    Requirement,
-    RequirementCategory,
-    RequirementProgress,
-    ScoreboardDisplay,
-    formatTime,
-    getCurrentCount,
-    getTotalTime,
-    isBlocked,
-    isExpired,
-} from '../../../../database/requirement';
-import { ALL_COHORTS, User } from '../../../../database/user';
-import ScoreboardProgress, {
-    ProgressText,
-} from '../../../../scoreboard/ScoreboardProgress';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
+import { displayProgress } from '../daily/TimeframeTrainingPlanItem';
 
 interface FullTrainingPlanItemProps {
     user: User;
@@ -61,7 +60,6 @@ export const FullTrainingPlanItem = ({
     const time = formatTime(getTotalTime(cohort, progress));
     const expired = isExpired(requirement, progress);
 
-    let DescriptionElement = null;
     let UpdateElement = null;
 
     switch (requirement.scoreboardDisplay) {
@@ -82,16 +80,6 @@ export const FullTrainingPlanItem = ({
         case ScoreboardDisplay.ProgressBar:
         case ScoreboardDisplay.Minutes:
         case ScoreboardDisplay.Unspecified:
-            DescriptionElement = (
-                <ScoreboardProgress
-                    value={currentCount}
-                    max={totalCount}
-                    min={requirement.startCount || 0}
-                    isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
-                    hideProgressText={true}
-                    sx={{ height: '6px' }}
-                />
-            );
             UpdateElement =
                 currentCount >= totalCount ? (
                     <Tooltip title='Update Progress'>
@@ -183,7 +171,7 @@ export const FullTrainingPlanItem = ({
                                 {requirementName}
                             </Typography>
 
-                            {showCount(requirement) && (
+                            {displayProgress(requirement) && (
                                 <Box mr={1}>
                                     <ProgressText
                                         value={currentCount}
@@ -197,7 +185,19 @@ export const FullTrainingPlanItem = ({
                                 </Box>
                             )}
                         </Stack>
-                        {DescriptionElement}
+                        {displayProgress(requirement) && (
+                            <ScoreboardProgress
+                                value={currentCount}
+                                max={totalCount}
+                                min={requirement.startCount || 0}
+                                isTime={
+                                    requirement.scoreboardDisplay ===
+                                    ScoreboardDisplay.Minutes
+                                }
+                                hideProgressText={true}
+                                sx={{ height: '6px' }}
+                            />
+                        )}
                     </Grid2>
                     <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
                         <Stack direction='row' alignItems='center' justifyContent='end'>
@@ -224,8 +224,8 @@ export const FullTrainingPlanItem = ({
                                     <Tooltip
                                         title={
                                             isPinned
-                                                ? 'Unpin from Suggested Tasks'
-                                                : 'Pin to Suggested Tasks'
+                                                ? 'Unpin from Daily Tasks'
+                                                : 'Pin to Daily Tasks'
                                         }
                                     >
                                         <IconButton
@@ -258,11 +258,3 @@ export const FullTrainingPlanItem = ({
         </Tooltip>
     );
 };
-
-function showCount(requirement: Requirement | CustomTask): boolean {
-    return (
-        requirement.scoreboardDisplay !== ScoreboardDisplay.NonDojo &&
-        requirement.scoreboardDisplay !== ScoreboardDisplay.Checkbox &&
-        requirement.scoreboardDisplay !== ScoreboardDisplay.Hidden
-    );
-}
