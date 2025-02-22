@@ -161,6 +161,12 @@ export function TimeframeTrainingPlanSection({
                         />
                     );
                 })}
+
+                <Typography variant='body1' fontWeight={700} sx={{ mt: 6, mb: 1 }}>
+                    Unscheduled Work
+                </Typography>
+                <Divider sx={{ mb: 4 }} />
+
                 {extraTasks.map((task) => {
                     return (
                         <TimeframeTrainingPlanItem
