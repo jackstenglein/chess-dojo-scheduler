@@ -1,8 +1,9 @@
+import { TaskDialog, TaskDialogView } from '@/components/profile/trainingPlan/TaskDialog';
+import { TimelineProvider } from '@/profile/activity/useTimeline';
 import { Box, LinearProgress, LinearProgressProps, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Requirement, formatTime } from '../database/requirement';
-import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ProgressTextProps {
     value?: number;
@@ -110,14 +111,17 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 )}
             </Box>
 
-            {canUpdate && showUpdateDialog && (
-                <ProgressDialog
-                    open={showUpdateDialog}
-                    onClose={() => setShowUpdateDialog(false)}
-                    requirement={requirement}
-                    cohort={cohort}
-                    progress={user?.progress[requirement.id]}
-                />
+            {canUpdate && showUpdateDialog && user && (
+                <TimelineProvider owner={user.username}>
+                    <TaskDialog
+                        open
+                        onClose={() => setShowUpdateDialog(false)}
+                        task={requirement}
+                        initialView={TaskDialogView.Progress}
+                        cohort={cohort}
+                        progress={user.progress[requirement.id]}
+                    />
+                </TimelineProvider>
             )}
         </>
     );

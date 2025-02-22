@@ -1,3 +1,18 @@
+import { useRequirements } from '@/api/cache/requirements';
+import {
+    CustomTask,
+    Requirement,
+    RequirementCategory,
+    RequirementProgress,
+    ScoreboardDisplay,
+    formatTime,
+    getCurrentCount,
+    getTotalTime,
+    isBlocked,
+    isExpired,
+} from '@/database/requirement';
+import { ALL_COHORTS, User } from '@/database/user';
+import ScoreboardProgress, { ProgressText } from '@/scoreboard/ScoreboardProgress';
 import { AddCircle, Lock, PushPin, PushPinOutlined } from '@mui/icons-material';
 import {
     Box,
@@ -10,26 +25,11 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import React, { useMemo, useState } from 'react';
-import { useRequirements } from '../../api/cache/requirements';
-import {
-    CustomTask,
-    Requirement,
-    RequirementCategory,
-    RequirementProgress,
-    ScoreboardDisplay,
-    formatTime,
-    getCurrentCount,
-    getTotalTime,
-    isBlocked,
-    isExpired,
-} from '../../database/requirement';
-import { ALL_COHORTS, User } from '../../database/user';
-import RequirementModal from '../../requirements/RequirementModal';
-import ScoreboardProgress, { ProgressText } from '../../scoreboard/ScoreboardProgress';
-import ProgressDialog from './ProgressDialog';
+import { useMemo, useState } from 'react';
+import { TaskDialog, TaskDialogView } from '../TaskDialog';
+import { displayProgress } from '../daily/TimeframeTrainingPlanItem';
 
-interface ProgressItemProps {
+interface FullTrainingPlanItemProps {
     user: User;
     progress?: RequirementProgress;
     requirement: Requirement | CustomTask;
@@ -39,7 +39,7 @@ interface ProgressItemProps {
     isPinned: boolean;
 }
 
-const ProgressItem: React.FC<ProgressItemProps> = ({
+export const FullTrainingPlanItem = ({
     user,
     progress,
     requirement,
@@ -47,9 +47,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     isCurrentUser,
     togglePin,
     isPinned,
-}) => {
-    const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-    const [showReqModal, setShowReqModal] = useState(false);
+}: FullTrainingPlanItemProps) => {
+    const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
     const { requirements } = useRequirements(ALL_COHORTS, false);
 
     const blocker = useMemo(() => {
@@ -61,74 +60,57 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
     const time = formatTime(getTotalTime(cohort, progress));
     const expired = isExpired(requirement, progress);
 
-    let DescriptionElement = null;
     let UpdateElement = null;
-
-    let color: string | undefined = undefined;
-    if (isCurrentUser && currentCount >= totalCount) {
-        color = 'trainingPlanTaskComplete.main';
-    } else if (isCurrentUser) {
-        color = 'primary.main';
-    }
 
     switch (requirement.scoreboardDisplay) {
         case ScoreboardDisplay.Hidden:
         case ScoreboardDisplay.Checkbox:
             UpdateElement = (
-                <Checkbox
-                    aria-label={`Checkbox ${requirement.name}`}
-                    checked={currentCount >= totalCount}
-                    onClick={() => setShowUpdateDialog(true)}
-                    disabled={!isCurrentUser}
-                    sx={{
-                        color,
-                        '&.Mui-checked:not(.Mui-disabled)': {
-                            color,
-                        },
-                    }}
-                />
+                <Tooltip title='Update Progress'>
+                    <Checkbox
+                        aria-label={`Checkbox ${requirement.name}`}
+                        checked={currentCount >= totalCount}
+                        onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                        disabled={!isCurrentUser}
+                    />
+                </Tooltip>
             );
             break;
 
         case ScoreboardDisplay.ProgressBar:
         case ScoreboardDisplay.Minutes:
         case ScoreboardDisplay.Unspecified:
-            DescriptionElement = (
-                <ScoreboardProgress
-                    value={currentCount}
-                    max={totalCount}
-                    min={requirement.startCount || 0}
-                    isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
-                    hideProgressText={true}
-                    sx={{ height: '6px' }}
-                />
-            );
             UpdateElement =
                 currentCount >= totalCount ? (
-                    <Checkbox
-                        checked
-                        onClick={() => setShowUpdateDialog(true)}
-                        color={isCurrentUser ? 'trainingPlanTaskComplete' : undefined}
-                    />
+                    <Tooltip title='Update Progress'>
+                        <Checkbox
+                            checked
+                            onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                        />
+                    </Tooltip>
                 ) : !isCurrentUser ? null : (
-                    <IconButton
-                        aria-label={`Update ${requirement.name}`}
-                        onClick={() => setShowUpdateDialog(true)}
-                        data-cy='update-task-button'
-                    >
-                        <AddCircle color='primary' />
-                    </IconButton>
+                    <Tooltip title='Update Progress'>
+                        <IconButton
+                            aria-label={`Update ${requirement.name}`}
+                            onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                            data-cy='update-task-button'
+                        >
+                            <AddCircle color='primary' />
+                        </IconButton>
+                    </Tooltip>
                 );
             break;
 
         case ScoreboardDisplay.NonDojo:
             UpdateElement = (
-                <IconButton
-                    aria-label={`Update ${requirement.name}`}
-                    onClick={() => setShowUpdateDialog(true)}
-                >
-                    <AddCircle color='primary' />
-                </IconButton>
+                <Tooltip title='Update Progress'>
+                    <IconButton
+                        aria-label={`Update ${requirement.name}`}
+                        onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                    >
+                        <AddCircle color='primary' />
+                    </IconButton>
+                </Tooltip>
             );
             break;
     }
@@ -154,7 +136,7 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 >
                     <Grid2
                         size={9}
-                        onClick={() => setShowReqModal(true)}
+                        onClick={() => setTaskDialogView(TaskDialogView.Details)}
                         sx={{ cursor: 'pointer', position: 'relative' }}
                         id='task-details'
                         display='flex'
@@ -188,7 +170,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                             >
                                 {requirementName}
                             </Typography>
-                            {showCount(requirement) && (
+
+                            {displayProgress(requirement) && (
                                 <Box mr={1}>
                                     <ProgressText
                                         value={currentCount}
@@ -202,7 +185,19 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                                 </Box>
                             )}
                         </Stack>
-                        {DescriptionElement}
+                        {displayProgress(requirement) && (
+                            <ScoreboardProgress
+                                value={currentCount}
+                                max={totalCount}
+                                min={requirement.startCount || 0}
+                                isTime={
+                                    requirement.scoreboardDisplay ===
+                                    ScoreboardDisplay.Minutes
+                                }
+                                hideProgressText={true}
+                                sx={{ height: '6px' }}
+                            />
+                        )}
                     </Grid2>
                     <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
                         <Stack direction='row' alignItems='center' justifyContent='end'>
@@ -229,8 +224,8 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                                     <Tooltip
                                         title={
                                             isPinned
-                                                ? 'Unpin from Suggested Tasks'
-                                                : 'Pin to Suggested Tasks'
+                                                ? 'Unpin from Daily Tasks'
+                                                : 'Pin to Daily Tasks'
                                         }
                                     >
                                         <IconButton
@@ -249,35 +244,17 @@ const ProgressItem: React.FC<ProgressItemProps> = ({
                 </Grid2>
                 <Divider />
 
-                {showReqModal && (
-                    <RequirementModal
-                        open={showReqModal}
-                        onClose={() => setShowReqModal(false)}
-                        requirement={requirement}
-                        cohort={cohort}
-                    />
-                )}
-
-                {showUpdateDialog && (
-                    <ProgressDialog
-                        open={showUpdateDialog}
-                        onClose={() => setShowUpdateDialog(false)}
-                        requirement={requirement}
-                        cohort={cohort}
+                {taskDialogView && (
+                    <TaskDialog
+                        open
+                        onClose={() => setTaskDialogView(undefined)}
+                        task={requirement}
+                        initialView={taskDialogView}
                         progress={progress}
+                        cohort={cohort}
                     />
                 )}
             </Stack>
         </Tooltip>
     );
 };
-
-export default ProgressItem;
-
-function showCount(requirement: Requirement | CustomTask): boolean {
-    return (
-        requirement.scoreboardDisplay !== ScoreboardDisplay.NonDojo &&
-        requirement.scoreboardDisplay !== ScoreboardDisplay.Checkbox &&
-        requirement.scoreboardDisplay !== ScoreboardDisplay.Hidden
-    );
-}

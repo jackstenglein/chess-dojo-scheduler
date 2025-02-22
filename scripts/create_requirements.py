@@ -122,7 +122,6 @@ def main():
         'Middlegames + Strategy': [],
         'Endgame': [],
         'Opening': [],
-        'Non-Dojo': [],
     }
     updatedAt = datetime.datetime.utcnow().isoformat('T') + 'Z'
 
@@ -147,6 +146,7 @@ def main():
                 'category': row['Category'],
                 'name': row['Requirement Name'],
                 'shortName': row['Requirement Short Name'],
+                'dailyName': row['Daily Name'],
                 'description': row['Description'] if row['Description'] else '',
                 'freeDescription': row['Free Description'] if row['Free Description'] else '',
                 'counts': counts,
@@ -178,7 +178,6 @@ def main():
         f'Got {len(categories["Middlegames + Strategy"])} Middlegames + Strategy requirements')
     print(f'Got {len(categories["Endgame"])} Endgame requirements')
     print(f'Got {len(categories["Opening"])} Opening requirements')
-    print(f'Got {len(categories["Non-Dojo"])} Non-Dojo requirements')
 
     print('Uploading items')
 
