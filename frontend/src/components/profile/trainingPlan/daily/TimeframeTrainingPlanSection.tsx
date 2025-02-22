@@ -6,14 +6,12 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
-    Box,
-    CircularProgress,
-    CircularProgressProps,
     Divider,
     Stack,
     Typography,
 } from '@mui/material';
 import { ReactNode, useMemo } from 'react';
+import { CircularTimeProgress } from '../CircularTimeProgress';
 import { SuggestedTask } from '../suggestedTasks';
 import { TimeframeTrainingPlanItem } from './TimeframeTrainingPlanItem';
 
@@ -106,7 +104,17 @@ export function TimeframeTrainingPlanSection({
         <Accordion expanded={expanded} onChange={toggleExpanded} sx={{ width: 1 }}>
             <AccordionSummary
                 component='div'
-                sx={{ cursor: toggleExpanded ? undefined : 'unset !important' }}
+                sx={{
+                    cursor: toggleExpanded ? undefined : 'unset !important',
+                    paddingRight: 1,
+                    '& .MuiAccordionSummary-content': {
+                        marginTop: 1.5,
+                        marginBottom: 1.5,
+                        '&.Mui-expanded': {
+                            marginBottom: 0,
+                        },
+                    },
+                }}
             >
                 <Stack
                     direction='row'
@@ -121,7 +129,15 @@ export function TimeframeTrainingPlanSection({
                         {icon}
                         {title} - {formatTime(goalTime)}
                     </Typography>
-                    <CircularProgressWithLabel value={currentTime} max={goalTime} />
+                    <Stack
+                        sx={{
+                            width: '80px',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <CircularTimeProgress value={currentTime} max={goalTime} />
+                    </Stack>
                 </Stack>
             </AccordionSummary>
             <AccordionDetails>
@@ -163,52 +179,5 @@ export function TimeframeTrainingPlanSection({
                 })}
             </AccordionDetails>
         </Accordion>
-    );
-}
-
-function CircularProgressWithLabel(
-    props: CircularProgressProps & { value: number; max: number },
-) {
-    const clampedValue = Math.min(100, (props.value / props.max) * 100);
-
-    return (
-        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress
-                variant='determinate'
-                value={100}
-                sx={{
-                    position: 'absolute',
-                    color: 'var(--mui-palette-LinearProgress-primaryBg)',
-                }}
-                size='3.5rem'
-            />
-            <CircularProgress
-                variant='determinate'
-                {...props}
-                size='3.5rem'
-                value={clampedValue}
-                color={clampedValue === 100 ? 'success' : 'primary'}
-            />
-            <Box
-                sx={{
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Typography
-                    variant='caption'
-                    component='div'
-                    sx={{ color: 'text.secondary' }}
-                >
-                    {formatTime(props.value)}
-                </Typography>
-            </Box>
-        </Box>
     );
 }
