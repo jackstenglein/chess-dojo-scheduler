@@ -49,7 +49,7 @@ def main():
         try:
             pgn = chess.pgn.read_game(pgnfile)
             if pgn is not None:
-                for key in pgn.headers.keys():
+                for key in list(pgn.headers.keys()):
                     if key == 'FEN' or key == 'SetUp' or (args.keep_event and key == 'Event'):
                         continue
                     pgn.headers.pop(key)
