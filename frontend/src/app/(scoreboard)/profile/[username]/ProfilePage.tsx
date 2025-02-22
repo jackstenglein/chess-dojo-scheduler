@@ -347,8 +347,8 @@ function AuthProfilePage({
                     }}
                 >
                     <Stack spacing={2}>
-                        <DojoScoreCard user={user} cohort={user.dojoCohort} />
                         <HeatmapCard />
+                        <DojoScoreCard user={user} cohort={user.dojoCohort} />
                         <BadgeCard user={user} />
                     </Stack>
                 </Container>
