@@ -25,7 +25,9 @@ export const BadgeCard = ({ user }: { user: User }) => {
 
     const [allBadges, earnedBadges] = useMemo(() => {
         const allBadges = getBadges(user);
-        const earnedBadges = allBadges.filter((badge) => badge.isEarned);
+        const earnedBadges = allBadges.filter(
+            (badge) => badge.isEarned && !badge.isPreviousLevel,
+        );
         return [allBadges, earnedBadges];
     }, [user]);
 
