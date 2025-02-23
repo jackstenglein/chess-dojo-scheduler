@@ -3,7 +3,7 @@ import { useAuth } from '@/auth/Auth';
 import {
     getCurrentRating,
     getPartialUserHideCohortPrompt,
-    getUserHasHiddenCohortPrompt,
+    isCohortPromptHidden,
     shouldPromptDemotion,
     shouldPromptGraduation,
 } from '@/database/user';
@@ -12,46 +12,45 @@ import { Alert, Button, Snackbar, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 export function SwitchCohortPrompt() {
-    const { user, updateUser } = useAuth();
+    const { user } = useAuth();
     const api = useApi();
 
     const [showGraduation, setShowGraduation] = useState(false);
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        const userHasHiddenCohortPrompt = getUserHasHiddenCohortPrompt(user);
-        if (userHasHiddenCohortPrompt){
+        const userHasHiddenCohortPrompt = isCohortPromptHidden(user);
+        if (userHasHiddenCohortPrompt) {
             setOpen(false);
             return;
         }
 
         const promptGraudation = shouldPromptGraduation(user);
-        if (promptGraudation){
+        if (promptGraudation) {
             setShowGraduation(true);
             setOpen(true);
             return;
         }
 
         const promptDemotion = shouldPromptDemotion(user);
-        if (promptDemotion){
+        if (promptDemotion) {
             setShowGraduation(false);
             setOpen(true);
             return;
         }
-        
+
         setOpen(false);
     }, [user]);
 
     const handleHideCohortPrompt = () => {
-        const partialUser = getPartialUserHideCohortPrompt(user?.notificationSettings?.siteNotificationSettings);
-        api.updateUser(partialUser)
-            .then(_ => updateUser(partialUser));
+        const partialUser = getPartialUserHideCohortPrompt(user);
+        api.updateUser(partialUser);
         handleClose();
-    }
+    };
 
     const handleClose = () => {
         setOpen(false);
-    }
+    };
     return (
         <Snackbar
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
@@ -63,10 +62,10 @@ export function SwitchCohortPrompt() {
                 variant='filled'
                 severity={showGraduation ? 'success' : 'error'}
                 action={
-                    <Stack direction="row">
-                        <Button 
-                            color="inherit" 
-                            size="small" 
+                    <Stack direction='row'>
+                        <Button
+                            color='inherit'
+                            size='small'
                             onClick={handleHideCohortPrompt}
                         >
                             Hide for 1 month
@@ -76,7 +75,7 @@ export function SwitchCohortPrompt() {
                                 color='inherit'
                                 size='small'
                                 href='/profile/edit'
-                                sx={{ml: 2, px: 3}}
+                                sx={{ ml: 2, px: 3 }}
                                 endIcon={<NavigateNextIcon />}
                             >
                                 Settings
