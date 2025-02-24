@@ -44,13 +44,14 @@ export function SwitchCohortPrompt() {
 
     const handleHideCohortPrompt = () => {
         const partialUser = getPartialUserHideCohortPrompt(user);
-        api.updateUser(partialUser);
+        void api.updateUser(partialUser);
         handleClose();
     };
 
     const handleClose = () => {
         setOpen(false);
     };
+
     return (
         <Snackbar
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
