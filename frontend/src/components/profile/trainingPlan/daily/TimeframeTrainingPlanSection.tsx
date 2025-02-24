@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { ReactNode, useMemo } from 'react';
 import { CircularTimeProgress } from '../CircularTimeProgress';
+import { ScheduleClassicalGame } from '../ScheduleClassicalGame';
 import { SuggestedTask } from '../suggestedTasks';
 import { TimeframeTrainingPlanItem } from './TimeframeTrainingPlanItem';
 
@@ -142,6 +143,7 @@ export function TimeframeTrainingPlanSection({
             </AccordionSummary>
             <AccordionDetails>
                 <Divider />
+                <ScheduleClassicalGame />
                 {tasks.map(({ task, goalMinutes }) => {
                     if (goalMinutes === 0) {
                         return null;

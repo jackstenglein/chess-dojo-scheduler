@@ -85,7 +85,7 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
             {new Array(7).fill(0).map((_, idx) => {
                 const dayIdx = (user.weekStart + idx) % 7;
                 const suggestedTasks = suggestionsByDay[dayIdx];
-                if (suggestedTasks.length === 0) {
+                if (!suggestedTasks || suggestedTasks.length === 0) {
                     return null;
                 }
 

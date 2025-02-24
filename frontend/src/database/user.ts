@@ -176,6 +176,9 @@ export interface User {
 
     /** The user's weekly training plan. */
     weeklyPlan?: WeeklyPlan;
+
+    /** The user's schedule of upcoming classical games. */
+    gameSchedule?: GameScheduleEntry[];
 }
 
 export interface WorkGoalSettings {
@@ -212,6 +215,13 @@ export interface WeeklyPlan {
     progressUpdatedAt: string;
     /** The ids of the user's pinned tasks (in order) when the weekly plan was last generated. */
     pinnedTasks?: string[];
+}
+
+export interface GameScheduleEntry {
+    /** The date the game(s) will be played, in ISO 8601 format. */
+    date: string;
+    /** The number of games that will be played. */
+    count: number;
 }
 
 export type UserSummary = Pick<User, 'username' | 'displayName' | 'dojoCohort'>;

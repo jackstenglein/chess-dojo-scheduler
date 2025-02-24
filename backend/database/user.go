@@ -317,6 +317,9 @@ type User struct {
 
 	// The user's weekly training plan
 	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`
+
+	// The user's schedule of upcoming classical games
+	GameSchedule []GameScheduleEntry `dynamodbav:"gameSchedule,omitempty" json:"gameSchedule,omitempty"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -374,6 +377,14 @@ type WeeklyPlan struct {
 
 	// The ids of the user's pinned tasks (in order) when the weekly plan was last generated.
 	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks,omitempty"`
+}
+
+type GameScheduleEntry struct {
+	// The date the game(s) will be played, in ISO 8601 format.
+	Date string `dynamodbav:"date" json:"date"`
+
+	// The number of games that will be played.
+	Count int `dynamodbav:"count" json:"count"`
 }
 
 // Returns true if the given PaymentInfo indicates an active subscription.
@@ -706,6 +717,9 @@ type UserUpdate struct {
 
 	// The user's weekly training plan.
 	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`
+
+	// The user's schedule of upcoming classical games
+	GameSchedule *[]GameScheduleEntry `dynamodbav:"gameSchedule,omitempty" json:"gameSchedule,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
