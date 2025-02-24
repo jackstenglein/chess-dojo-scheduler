@@ -22,6 +22,8 @@ import {
 } from '@/database/user';
 import { DEFAULT_WORK_GOAL } from './workGoal';
 
+type Task = Requirement | CustomTask;
+
 /** A list of IDs of tasks which cannot be suggested, unless the user has pinned them. */
 const INELIGIBLE_SUGGESTED_TASKS = [
     '812adb60-d5fb-4655-8d22-d568a0dca547', // Postmortems
@@ -100,115 +102,336 @@ function getRemainingSuggestionScore(
     return getRemainingScore(cohort, requirement, progress);
 }
 
-/**
- * Returns a list of tasks to be shown to the user in the Suggested Tasks category.
- * We show at most MAX_SUGGESTED_TASKS tasks, in the following priority:
- *
- *   1. The user's pinned tasks.
- *   2. If the user's number of annotated games < their number of classical games played,
- *      the annotate classical games task is suggested.
- *   3. The unique task with the greatest remaining Dojo points in the unique category
- *      with the greatest remaining percentage of Dojo points.
- *
- * Only categories in SUGGESTED_TASK_CATEGORIES are suggested (unless pinned by the user).
- * Categories are only repeated within the suggested tasks if it is not possible to
- * pick a unique category. Ties between categories are broken using the
- * SUGGESTED_TASK_CATEGORIES list.
- *
- * NOTE: some tasks (such as postmortems) are ineligible to be suggested and will not
- * be suggested unless the user has pinned them. These task IDs are listed in
- * INELIGIBLE_SUGGESTED_TASKS.
- *
- * @param pinnedTasks The user's pinned tasks.
- * @param requirements All requirements in the training plan.
- * @param user The user to suggest tasks for.
- * @returns A list of at most MAX_SUGGESTED_TASKS suggested tasks.
- */
-function getSuggestedTasks(
-    pinnedTasks: (Requirement | CustomTask)[],
-    requirements: Requirement[],
-    user: User,
-): (Requirement | CustomTask)[] {
-    const suggestedTasks: (Requirement | CustomTask)[] = [];
-    suggestedTasks.push(...pinnedTasks);
+export class TaskSuggestionAlgorithm {
+    private user: User;
+    private readonly requirements: Requirement[];
+    private readonly customTasks: CustomTask[];
+    private readonly pinnedTasks: Task[];
 
-    if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
-        return suggestedTasks;
+    private timePerTask: Record<string, number> = {};
+
+    constructor(user: User, requirements: Requirement[]) {
+        this.user = JSON.parse(JSON.stringify(user)) as User;
+        this.requirements = requirements;
+        this.customTasks = this.user.customTasks ?? [];
+        this.pinnedTasks =
+            this.user.pinnedTasks
+                ?.map(
+                    (id) =>
+                        this.customTasks.find((task) => task.id === id) ||
+                        this.requirements.find((task) => task.id === id),
+                )
+                .filter((t) => !!t) ?? [];
     }
 
-    const eligibleRequirements = getEligibleTasks(suggestedTasks, requirements, user);
-    if (eligibleRequirements.length === 0) {
-        return suggestedTasks;
-    }
+    getWeeklySuggestions(): WeeklySuggestedTasks {
+        const { today, start: current, end } = getDates(this.user.weekStart);
+        const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
 
-    const categoryPercentages = SUGGESTED_TASK_CATEGORIES.map((category) => ({
-        category,
-        percent: getRemainingCategoryScorePercent(
-            user,
-            user.dojoCohort,
-            category,
-            requirements,
-        ),
-    })).sort((lhs, rhs) => rhs.percent - lhs.percent);
+        const workGoal = this.user.workGoal || DEFAULT_WORK_GOAL;
 
-    let scheduleGame = false;
+        this.timePerTask = {};
+        const progressUpdatedAt = lastProgressUpdate(this.user);
 
-    while (suggestedTasks.length < MAX_SUGGESTED_TASKS) {
-        const eligibleCategories = categoryPercentages.filter((item) =>
-            eligibleRequirements.some((r) => r.category === item.category),
-        );
-        if (eligibleCategories.length === 0) {
-            break;
+        let weeklyPlan = this.user.weeklyPlan;
+        if (weeklyPlan && new Date(weeklyPlan.endDate).getTime() < end.getTime()) {
+            weeklyPlan = undefined;
         }
 
-        let chosenCategories = eligibleCategories.filter(
-            (item) => !suggestedTasks.some((r) => r.category === item.category),
-        );
-        if (chosenCategories.length === 0) {
-            chosenCategories = eligibleCategories;
-        }
+        const reason = this.getGenerationReason(this.user, weeklyPlan);
 
-        for (const { category } of chosenCategories) {
-            const categoryRequirements = eligibleRequirements
-                .filter((r) => r.category === category)
-                .sort(
-                    (lhs, rhs) =>
-                        getRemainingSuggestionScore(
-                            user.dojoCohort,
-                            rhs,
-                            user.progress[rhs.id],
-                        ) -
-                        getRemainingSuggestionScore(
-                            user.dojoCohort,
-                            lhs,
-                            user.progress[lhs.id],
-                        ),
+        for (
+            ;
+            current.getTime() < end.getTime();
+            current.setDate(current.getDate() + 1)
+        ) {
+            console.log('Get tasks for day idx %d: %s', current.getDay(), current);
+            const dayIdx = current.getDay();
+            let suggestions: SuggestedTask[] = [];
+
+            if (current.getTime() < today.getTime()) {
+                if (!this.user.weeklyPlan) {
+                    console.log(
+                        `Day ${dayIdx} is in the past and this is user's first weekly plan, so skipping.`,
+                    );
+                    continue;
+                }
+
+                if (weeklyPlan) {
+                    console.log(
+                        `Day ${dayIdx} is in the past. Reusing valid plan without changing minutes.`,
+                    );
+                    for (const task of weeklyPlan.tasks[dayIdx]) {
+                        this.addTask(taskList[dayIdx], task);
+                    }
+                    continue;
+                }
+            } else if (current.getTime() === today.getTime()) {
+                if (!this.shouldRegenerateToday(reason)) {
+                    console.log(
+                        `Day ${dayIdx} is today. Reusing tasks, minutes may change.`,
+                    );
+                    weeklyPlan?.tasks[dayIdx].forEach((t) =>
+                        this.addTask(suggestions, t),
+                    );
+                }
+            } else if (!this.shouldRegenerateFuture(reason)) {
+                console.log(
+                    `Day ${dayIdx} is in the future. Reusing tasks, minutes may change.`,
                 );
-
-            if (categoryRequirements[0].id === CLASSICAL_GAMES_TASK_ID) {
-                scheduleGame = true;
-            } else {
-                suggestedTasks.push(categoryRequirements[0]);
+                weeklyPlan?.tasks[dayIdx].forEach((t) => this.addTask(suggestions, t));
             }
 
-            eligibleRequirements.splice(
-                eligibleRequirements.indexOf(categoryRequirements[0]),
-                1,
-            );
+            if (suggestions.length === 0) {
+                console.log(`Generating new task list for day ${dayIdx}`);
+                suggestions = this.getSuggestedTasks().map((t) => ({
+                    task: t,
+                    goalMinutes: 0,
+                }));
+            }
 
-            if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
+            const minutesToday = workGoal.minutesPerDay[dayIdx];
+            let maxTasksWithTime = Math.max(
+                1,
+                Math.floor(minutesToday / DEFAULT_WORK_GOAL.minutesPerTask),
+            );
+            maxTasksWithTime = Math.min(
+                maxTasksWithTime,
+                suggestions.filter((t) => t.task.id !== SCHEDULE_CLASSICAL_GAME_TASK_ID)
+                    .length,
+            );
+            const minutesPerTask = Math.floor(minutesToday / maxTasksWithTime);
+
+            let tasksWithTime = 0;
+            for (const suggestion of suggestions) {
+                if (
+                    tasksWithTime >= maxTasksWithTime ||
+                    suggestion.task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID
+                ) {
+                    suggestion.goalMinutes = 0;
+                } else {
+                    suggestion.goalMinutes = minutesPerTask;
+                    this.incrementProgress(suggestion.task, minutesPerTask);
+                    tasksWithTime++;
+                }
+            }
+
+            taskList[dayIdx] = suggestions;
+        }
+
+        const result = {
+            suggestionsByDay: taskList,
+            endDate: end.toISOString(),
+            progressUpdatedAt,
+        };
+        console.log('Weekly suggested tasks: ', result);
+        return result;
+    }
+
+    getGenerationReason(
+        user: User,
+        existingPlan?: WeeklyPlan,
+    ): SuggestedTaskGenerationReason {
+        if (!existingPlan) {
+            return SuggestedTaskGenerationReason.Init;
+        }
+
+        if (existingPlan.progressUpdatedAt !== lastProgressUpdate(user)) {
+            return SuggestedTaskGenerationReason.ProgressUpdate;
+        }
+
+        if (
+            !weeklyPlanMatchesWorkGoal(existingPlan, user.workGoal || DEFAULT_WORK_GOAL)
+        ) {
+            return SuggestedTaskGenerationReason.WorkGoalUpdate;
+        }
+
+        if (!weeklyPlanMatchesPinnedTasks(existingPlan, user.pinnedTasks ?? [])) {
+            return SuggestedTaskGenerationReason.PinnedTaskUpdate;
+        }
+
+        return SuggestedTaskGenerationReason.Init;
+    }
+
+    shouldRegenerateToday(reason: SuggestedTaskGenerationReason): boolean {
+        return reason === SuggestedTaskGenerationReason.PinnedTaskUpdate;
+    }
+
+    shouldRegenerateFuture(reason: SuggestedTaskGenerationReason): boolean {
+        return reason !== SuggestedTaskGenerationReason.Init;
+    }
+
+    addTask(to: SuggestedTask[], task: { id: string; minutes: number }) {
+        const { id, minutes } = task;
+
+        if (id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
+            to.push({
+                task: SCHEDULE_CLASSICAL_GAME_TASK,
+                goalMinutes: minutes,
+            });
+            return;
+        }
+
+        const fullTask =
+            this.customTasks.find((t) => t.id === id) ??
+            this.requirements.find((t) => t.id === id);
+        if (fullTask) {
+            to.push({ task: fullTask, goalMinutes: minutes });
+        }
+    }
+
+    incrementProgress(task: Task, time: number) {
+        if (!isRequirement(task)) {
+            return;
+        }
+
+        const totalTime = (this.timePerTask[task.id] ?? 0) + time;
+
+        let progress = this.user.progress[task.id];
+        if (!progress?.counts) {
+            progress = {
+                requirementId: task.id,
+                counts: {
+                    [this.user.dojoCohort]: task.startCount,
+                    [ALL_COHORTS]: task.startCount,
+                },
+                minutesSpent: { [this.user.dojoCohort]: 0 },
+                updatedAt: new Date().toISOString(),
+            };
+            this.user.progress[task.id] = progress;
+        }
+
+        const points = Math.floor(totalTime / 60);
+
+        let increment = 1;
+        const unitScore = getUnitScore(this.user.dojoCohort, task);
+        if (unitScore > 0 && unitScore < 1) {
+            increment = Math.ceil(1 / task.unitScore);
+        } else if (unitScore === 0) {
+            increment = getTotalCount(this.user.dojoCohort, task);
+        }
+        increment *= points;
+
+        if (progress.counts) {
+            if (task.numberOfCohorts === 0 || task.numberOfCohorts === 1) {
+                progress.counts[ALL_COHORTS] += increment;
+            } else {
+                progress.counts[this.user.dojoCohort] += increment;
+            }
+        }
+
+        this.timePerTask[task.id] = totalTime % 60;
+    }
+
+    /**
+     * Returns a list of tasks to be shown to the user in the Suggested Tasks category.
+     * We show at most MAX_SUGGESTED_TASKS tasks, in the following priority:
+     *
+     *   1. The user's pinned tasks.
+     *   2. The unique task with the greatest remaining Dojo points in the unique category
+     *      with the greatest remaining percentage of Dojo points.
+     *
+     * If play classical games would be suggested, then it is instead replaced with the
+     * SCHEDULE_CLASSICAL_GAME pseudo-task. Play classical games will not be suggested if
+     * the user already has an upcoming classical game scheduled.
+     *
+     * Only categories in SUGGESTED_TASK_CATEGORIES are suggested (unless pinned by the user).
+     * Categories are only repeated within the suggested tasks if it is not possible to
+     * pick a unique category. Ties between categories are broken using the
+     * SUGGESTED_TASK_CATEGORIES list.
+     *
+     * NOTE: some tasks (such as postmortems) are ineligible to be suggested and will not
+     * be suggested unless the user has pinned them. These task IDs are listed in
+     * INELIGIBLE_SUGGESTED_TASKS.
+     *
+     * @returns A list of at most MAX_SUGGESTED_TASKS suggested tasks.
+     */
+    getSuggestedTasks(): Task[] {
+        const suggestedTasks: Task[] = [];
+        suggestedTasks.push(...this.pinnedTasks);
+
+        if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
+            return suggestedTasks;
+        }
+
+        const eligibleRequirements = getEligibleTasks(
+            suggestedTasks,
+            this.requirements,
+            this.user,
+        );
+        if (eligibleRequirements.length === 0) {
+            return suggestedTasks;
+        }
+
+        const categoryPercentages = SUGGESTED_TASK_CATEGORIES.map((category) => ({
+            category,
+            percent: getRemainingCategoryScorePercent(
+                this.user,
+                this.user.dojoCohort,
+                category,
+                this.requirements,
+            ),
+        })).sort((lhs, rhs) => rhs.percent - lhs.percent);
+
+        let scheduleGame = false;
+
+        while (suggestedTasks.length < MAX_SUGGESTED_TASKS) {
+            const eligibleCategories = categoryPercentages.filter((item) =>
+                eligibleRequirements.some((r) => r.category === item.category),
+            );
+            if (eligibleCategories.length === 0) {
                 break;
             }
+
+            let chosenCategories = eligibleCategories.filter(
+                (item) => !suggestedTasks.some((r) => r.category === item.category),
+            );
+            if (chosenCategories.length === 0) {
+                chosenCategories = eligibleCategories;
+            }
+
+            for (const { category } of chosenCategories) {
+                const categoryRequirements = eligibleRequirements
+                    .filter((r) => r.category === category)
+                    .sort(
+                        (lhs, rhs) =>
+                            getRemainingSuggestionScore(
+                                this.user.dojoCohort,
+                                rhs,
+                                this.user.progress[rhs.id],
+                            ) -
+                            getRemainingSuggestionScore(
+                                this.user.dojoCohort,
+                                lhs,
+                                this.user.progress[lhs.id],
+                            ),
+                    );
+
+                if (categoryRequirements[0].id === CLASSICAL_GAMES_TASK_ID) {
+                    scheduleGame = true;
+                } else {
+                    suggestedTasks.push(categoryRequirements[0]);
+                }
+
+                eligibleRequirements.splice(
+                    eligibleRequirements.indexOf(categoryRequirements[0]),
+                    1,
+                );
+
+                if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
+                    break;
+                }
+            }
         }
-    }
 
-    if (scheduleGame) {
-        suggestedTasks.unshift({
-            id: SCHEDULE_CLASSICAL_GAME_TASK_ID,
-        } as Requirement);
-    }
+        if (scheduleGame) {
+            suggestedTasks.unshift({
+                id: SCHEDULE_CLASSICAL_GAME_TASK_ID,
+            } as Requirement);
+        }
 
-    return suggestedTasks;
+        return suggestedTasks;
+    }
 }
 
 /**
@@ -219,7 +442,7 @@ function getSuggestedTasks(
  * @returns A subset of requirements that are eligible to be suggested to the user.
  */
 function getEligibleTasks(
-    suggestedTasks: (Requirement | CustomTask)[],
+    suggestedTasks: Task[],
     requirements: Requirement[],
     user: User,
 ) {
@@ -272,7 +495,7 @@ function getEligibleTasks(
 }
 
 export interface SuggestedTask {
-    task: Requirement | CustomTask;
+    task: Task;
     goalMinutes: number;
 }
 
@@ -380,7 +603,7 @@ function weeklyPlanMatchesWorkGoal(
  */
 function weeklyPlanMatchesPinnedTasks(
     weeklyPlan: WeeklyPlan,
-    pinnedTasks: (Requirement | CustomTask)[],
+    pinnedTasks: string[],
 ): boolean {
     if (!weeklyPlan.pinnedTasks?.length && !pinnedTasks.length) {
         return true;
@@ -389,230 +612,18 @@ function weeklyPlanMatchesPinnedTasks(
         return false;
     }
     for (let i = 0; i < weeklyPlan.pinnedTasks.length; i++) {
-        if (weeklyPlan.pinnedTasks[i] !== pinnedTasks[i].id) {
+        if (weeklyPlan.pinnedTasks[i] !== pinnedTasks[i]) {
             return false;
         }
     }
     return true;
 }
 
-enum SuggestedTaskGenerationPrompt {
+enum SuggestedTaskGenerationReason {
     Init,
     ProgressUpdate,
     PinnedTaskUpdate,
     WorkGoalUpdate,
-}
-
-/**
- * TODO: add documentation. Also there may be an issue with progress from today being duplicated
- * in mock user.
- * @param param0
- */
-export function getWeeklySuggestedTasks({
-    user,
-    pinnedTasks,
-    requirements,
-}: {
-    user: User;
-    pinnedTasks: (Requirement | CustomTask)[];
-    requirements: Requirement[];
-}): WeeklySuggestedTasks {
-    const { today, start: current, end } = getDates(user.weekStart);
-    const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
-    const workGoal = user.workGoal || DEFAULT_WORK_GOAL;
-    const mockUser = JSON.parse(JSON.stringify(user)) as User;
-    const timePerTask: Record<string, number> = {};
-    const progressUpdatedAt = lastProgressUpdate(user);
-
-    let weeklyPlan = user.weeklyPlan;
-    if (weeklyPlan && new Date(weeklyPlan.endDate).getTime() < end.getTime()) {
-        weeklyPlan = undefined;
-    }
-
-    let prompt: SuggestedTaskGenerationPrompt;
-    if (!weeklyPlan) {
-        prompt = SuggestedTaskGenerationPrompt.Init;
-    } else if (weeklyPlan.progressUpdatedAt !== progressUpdatedAt) {
-        prompt = SuggestedTaskGenerationPrompt.ProgressUpdate;
-    } else if (!weeklyPlanMatchesWorkGoal(weeklyPlan, workGoal)) {
-        prompt = SuggestedTaskGenerationPrompt.WorkGoalUpdate;
-    } else if (!weeklyPlanMatchesPinnedTasks(weeklyPlan, pinnedTasks)) {
-        prompt = SuggestedTaskGenerationPrompt.PinnedTaskUpdate;
-    } else {
-        prompt = SuggestedTaskGenerationPrompt.Init;
-    }
-
-    for (; current.getTime() < end.getTime(); current.setDate(current.getDate() + 1)) {
-        console.log('Get tasks for day idx %d: %s', current.getDay(), current);
-        const dayIdx = current.getDay();
-        let tasks: (Requirement | CustomTask)[] = [];
-
-        if (current.getTime() < today.getTime()) {
-            if (!user.weeklyPlan) {
-                console.log(
-                    `Day ${dayIdx} is in the past and this is user's first weekly plan, so skipping.`,
-                );
-                continue;
-            }
-
-            if (weeklyPlan) {
-                console.log(`Day ${dayIdx} is in the past. Reusing valid plan.`);
-                const day = weeklyPlan.tasks[dayIdx];
-                for (const { id, minutes } of day) {
-                    if (id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
-                        taskList[dayIdx].push({
-                            task: SCHEDULE_CLASSICAL_GAME_TASK,
-                            goalMinutes: minutes,
-                        });
-                        continue;
-                    }
-                    const task =
-                        user.customTasks?.find((t) => t.id === id) ??
-                        requirements.find((t) => t.id === id);
-                    if (task) {
-                        taskList[dayIdx].push({ task, goalMinutes: minutes });
-                    }
-                }
-                continue;
-            }
-        } else if (current.getTime() === today.getTime()) {
-            if (weeklyPlan && prompt !== SuggestedTaskGenerationPrompt.PinnedTaskUpdate) {
-                console.log(
-                    `Day ${dayIdx} is today and pinned tasks have not changed. Reusing tasks from valid plan, but minutes may change.`,
-                );
-                tasks =
-                    user.weeklyPlan?.tasks[dayIdx]
-                        .map((task) => {
-                            if (task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
-                                return SCHEDULE_CLASSICAL_GAME_TASK;
-                            }
-                            return (
-                                user.customTasks?.find((t) => t.id === task.id) ??
-                                requirements.find((t) => t.id === task.id)
-                            );
-                        })
-                        .filter((task) => !!task) ?? [];
-            }
-        } else {
-            if (weeklyPlan && prompt === SuggestedTaskGenerationPrompt.Init) {
-                console.log(
-                    `Day ${dayIdx} is in the future, but prompt is init, so reusing tasks from valid plan. Minutes may change.`,
-                );
-                tasks =
-                    user.weeklyPlan?.tasks[dayIdx]
-                        .map((task) => {
-                            if (task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
-                                return SCHEDULE_CLASSICAL_GAME_TASK;
-                            }
-                            return (
-                                user.customTasks?.find((t) => t.id === task.id) ??
-                                requirements.find((t) => t.id === task.id)
-                            );
-                        })
-                        .filter((task) => !!task) ?? [];
-            }
-        }
-
-        if (tasks.length === 0) {
-            console.log(`Generating new task list for day ${dayIdx}`);
-            tasks = getSuggestedTasks(pinnedTasks, requirements, mockUser);
-        }
-
-        const minutesToday = workGoal.minutesPerDay[dayIdx];
-        const maxTasks = Math.max(
-            1,
-            Math.floor(minutesToday / DEFAULT_WORK_GOAL.minutesPerTask),
-        );
-        const maxTasksWithTime = (
-            tasks[0]?.id === SCHEDULE_CLASSICAL_GAME_TASK_ID
-                ? tasks.slice(1, maxTasks + 1)
-                : tasks.slice(0, maxTasks)
-        ).length;
-
-        let tasksWithTime = 0;
-        const suggestedTasks: SuggestedTask[] = [];
-        for (const task of tasks) {
-            if (
-                tasksWithTime >= maxTasksWithTime ||
-                task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID
-            ) {
-                suggestedTasks.push({ task, goalMinutes: 0 });
-                continue;
-            }
-
-            let totalTaskTime =
-                (timePerTask[task.id] ?? 0) + Math.floor(minutesToday / maxTasksWithTime);
-            updateMockProgress({ mockUser, task, time: totalTaskTime });
-            totalTaskTime %= 60;
-            timePerTask[task.id] = totalTaskTime;
-
-            suggestedTasks.push({
-                task,
-                goalMinutes: Math.floor(minutesToday / maxTasksWithTime),
-            });
-            tasksWithTime++;
-        }
-
-        taskList[dayIdx] = suggestedTasks;
-    }
-
-    const result = {
-        suggestionsByDay: taskList,
-        endDate: end.toISOString(),
-        progressUpdatedAt,
-    };
-    console.log('Weekly suggested tasks: ', result);
-    return result;
-}
-
-function updateMockProgress({
-    mockUser,
-    task,
-    time,
-}: {
-    mockUser: User;
-    task: Requirement | CustomTask;
-    time: number;
-}) {
-    if (!isRequirement(task)) {
-        return;
-    }
-
-    let progress = mockUser.progress[task.id];
-    if (!progress?.counts) {
-        progress = {
-            requirementId: task.id,
-            counts: {
-                [mockUser.dojoCohort]: task.startCount,
-                [ALL_COHORTS]: task.startCount,
-            },
-            minutesSpent: { [mockUser.dojoCohort]: 0 },
-            updatedAt: new Date().toISOString(),
-        };
-        mockUser.progress[task.id] = progress;
-    }
-
-    const points = Math.floor(time / 60);
-    if (points === 0) {
-        return;
-    }
-
-    let increment = 1;
-    const unitScore = getUnitScore(mockUser.dojoCohort, task);
-    if (unitScore > 0 && unitScore < 1) {
-        increment = Math.ceil(1 / task.unitScore);
-    } else if (unitScore === 0) {
-        increment = getTotalCount(mockUser.dojoCohort, task);
-    }
-    increment *= points;
-
-    if (progress.counts) {
-        if (task.numberOfCohorts === 0 || task.numberOfCohorts === 1) {
-            progress.counts[ALL_COHORTS] += increment;
-        } else {
-            progress.counts[mockUser.dojoCohort] += increment;
-        }
-    }
 }
 
 /**

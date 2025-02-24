@@ -4,7 +4,7 @@ import { useAuth } from '@/auth/Auth';
 import { CustomTask, Requirement } from '@/database/requirement';
 import { ALL_COHORTS, User, WeeklyPlan, WorkGoalSettings } from '@/database/user';
 import { useEffect, useMemo } from 'react';
-import { getWeeklySuggestedTasks, SuggestedTask } from './suggestedTasks';
+import { SuggestedTask, TaskSuggestionAlgorithm } from './suggestedTasks';
 
 /**
  * Returns common data and functions used across all Training Plan tabs.
@@ -56,11 +56,7 @@ export function useWeeklyTrainingPlan(user: User) {
     const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt } =
         useMemo(() => {
             const { suggestionsByDay, endDate, progressUpdatedAt } =
-                getWeeklySuggestedTasks({
-                    user,
-                    pinnedTasks,
-                    requirements,
-                });
+                new TaskSuggestionAlgorithm(user, requirements).getWeeklySuggestions();
 
             const weekSuggestions: SuggestedTask[] = [];
             for (const day of suggestionsByDay) {
@@ -77,7 +73,7 @@ export function useWeeklyTrainingPlan(user: User) {
             }
 
             return { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt };
-        }, [user, pinnedTasks, requirements]);
+        }, [user, requirements]);
 
     const savedPlan = user.weeklyPlan;
     useEffect(() => {
