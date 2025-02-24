@@ -273,6 +273,7 @@ export interface SiteNotificationSettings {
     disableNewFollower: boolean;
     disableNewsfeedComment: boolean;
     disableNewsfeedReaction: boolean;
+    hideCohortPromptUntil?: string;
 }
 
 export type MinutesSpentKey =
@@ -911,6 +912,7 @@ export function shouldPromptGraduation(user?: User): boolean {
     return getCurrentRating(user) >= ratingBoundary;
 }
 
+const ONE_MONTH = 1000 * 60 * 60 * 24 * 30;
 const THREE_MONTHS = 1000 * 60 * 60 * 24 * 90;
 
 /**
@@ -952,6 +954,59 @@ export function shouldPromptDemotion(user?: User): boolean {
         }
     }
     return haveFullHistory;
+}
+
+/**
+ * Checks if user has hidden the cohort prompt for demotion/graduation.
+ * A user hides the prompt until a date stored in the hideCohortPromptUntil field.
+ * @param user The user that might have hidden the cohort prompt
+ * @returns True if the user has hidden the cohort prompt
+ */
+export function isCohortPromptHidden(user?: User): boolean {
+    if (!user) {
+        return false;
+    }
+
+    const hideCohortPromptUntil =
+        user?.notificationSettings?.siteNotificationSettings?.hideCohortPromptUntil;
+    if (!hideCohortPromptUntil) {
+        return false;
+    }
+
+    const hideUntilDate = Date.parse(hideCohortPromptUntil);
+    if (!hideUntilDate) {
+        return false;
+    }
+
+    const now = new Date().getTime();
+    return now < hideUntilDate;
+}
+
+/**
+ * Creates a partial user object where hideCohortPrompt is one month (30 days) after todays date.
+ * @param user In order to update the hideCohortPromptUntil field, all the fields in the 
+ * UserNotificationSettings and SiteNotificationSettings needs to be provided.
+ * @returns A partial User object
+ */
+export function getPartialUserHideCohortPrompt(user?: User): Partial<User> {
+    const siteNotificationSettings = user?.notificationSettings
+        ?.siteNotificationSettings ?? {
+        disableGameComment: false,
+        disableNewFollower: false,
+        disableNewsfeedComment: false,
+        disableNewsfeedReaction: false,
+    };
+    const oneMonthForward = new Date();
+    oneMonthForward.setTime(new Date().getTime() + ONE_MONTH);
+    return {
+        notificationSettings: {
+            ...user?.notificationSettings,
+            siteNotificationSettings: {
+                ...siteNotificationSettings,
+                hideCohortPromptUntil: oneMonthForward.toISOString(),
+            },
+        },
+    };
 }
 
 export function hasCreatedProfile(user?: User): boolean {
