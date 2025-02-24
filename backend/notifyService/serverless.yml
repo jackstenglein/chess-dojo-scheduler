@@ -1,4 +1,4 @@
-# Deploys the notification service.
+# Deploys the directory service.
 
 service: chess-dojo-notify
 
@@ -15,19 +15,20 @@ provider:
   logRetentionInDays: 14
   environment:
     stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
   deploymentMethod: direct
 
+  # TODO: on inserts into the database, queue into the SQS
 functions:
   create:
-    handler: send.handler
+    handler: create.handler
     events:
       - sqs:
           arn:
             Fn::GetAtt:
               - NotificationQueue
               - Arn
-
-resources:
   Resources:
     NotificationQueue:
       Type: "AWS::SQS::Queue"
