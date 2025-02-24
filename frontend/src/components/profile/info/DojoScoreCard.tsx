@@ -8,17 +8,18 @@ import {
     RequirementCategory,
 } from '@/database/requirement';
 import {
+    dojoCohorts,
     formatRatingSystem,
     getCurrentRating,
     getMinRatingBoundary,
     getRatingBoundary,
     User,
 } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import { CategoryColors } from '@/style/ThemeProvider';
-import { Help } from '@mui/icons-material';
-import { Card, CardContent, Grid2, Stack, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
 import React from 'react';
 
 const categories = [
@@ -91,6 +92,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
         graduationBoundary &&
         graduationBoundary > 0 &&
         currentRating > 0;
+    const nextCohort = dojoCohorts[dojoCohorts.indexOf(cohort) + 1];
 
     return (
         <Card id='cohort-score-card'>
@@ -123,14 +125,12 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                                         label={`${currentRating} / ${graduationBoundary}`}
                                     />
 
-                                    <Tooltip title='Next graduation'>
-                                        <Help
-                                            sx={{
-                                                color: 'text.secondary',
-                                                fontSize: '16px',
-                                            }}
-                                        />
-                                    </Tooltip>
+                                    <CohortIcon
+                                        cohort={nextCohort}
+                                        tooltip={`Next graduation: from ${cohort} to ${nextCohort}`}
+                                        size={20}
+                                        sx={{ marginTop: '-3px' }}
+                                    />
                                 </Stack>
                             </Stack>
                         </Grid2>
