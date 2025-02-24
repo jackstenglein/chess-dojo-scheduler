@@ -3,6 +3,7 @@ import {
     Requirement,
     RequirementCategory,
     RequirementProgress,
+    getCurrentCount,
     getRemainingCategoryScorePercent,
     getRemainingScore,
     getTotalCount,
@@ -11,7 +12,14 @@ import {
     isComplete,
     isRequirement,
 } from '@/database/requirement';
-import { ALL_COHORTS, User, WeeklyPlan, WorkGoalSettings, isFree } from '@/database/user';
+import {
+    ALL_COHORTS,
+    GameScheduleEntry,
+    User,
+    WeeklyPlan,
+    WorkGoalSettings,
+    isFree,
+} from '@/database/user';
 import { DEFAULT_WORK_GOAL } from './workGoal';
 
 /** A list of IDs of tasks which cannot be suggested, unless the user has pinned them. */
@@ -45,6 +53,20 @@ const INELIGIBLE_SUGGESTED_TASKS = [
     'b1bd988e-a856-4829-81e9-b7b2fd1ebd6d',
     'cba150ad-b66c-4fd4-b041-f35e98dcd161',
 ];
+
+/** The id of the play classical games task. */
+const CLASSICAL_GAMES_TASK_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
+
+/** The id of the annotate classical games task. */
+const ANNOTATE_GAMES_TASK_ID = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
+
+/** The id of the schedule your next classical game task. */
+export const SCHEDULE_CLASSICAL_GAME_TASK_ID = 'SCHEDULE_CLASSICAL_GAME';
+
+/** Fake task for scheduling a classical game. */
+const SCHEDULE_CLASSICAL_GAME_TASK: Requirement = {
+    id: SCHEDULE_CLASSICAL_GAME_TASK_ID,
+} as Requirement;
 
 /** The maximum number of suggested tasks returned by the suggestion algorithm. */
 const MAX_SUGGESTED_TASKS = 3;
@@ -102,7 +124,7 @@ function getRemainingSuggestionScore(
  * @param user The user to suggest tasks for.
  * @returns A list of at most MAX_SUGGESTED_TASKS suggested tasks.
  */
-export function getSuggestedTasks(
+function getSuggestedTasks(
     pinnedTasks: (Requirement | CustomTask)[],
     requirements: Requirement[],
     user: User,
@@ -114,15 +136,7 @@ export function getSuggestedTasks(
         return suggestedTasks;
     }
 
-    const isFreeUser = isFree(user);
-    const eligibleRequirements = requirements.filter(
-        (r) =>
-            (!isFreeUser || r.isFree) &&
-            !INELIGIBLE_SUGGESTED_TASKS.includes(r.id) &&
-            !suggestedTasks.some((t) => r.id === t.id) &&
-            SUGGESTED_TASK_CATEGORIES.includes(r.category) &&
-            !isComplete(user.dojoCohort, r, user.progress[r.id]),
-    );
+    const eligibleRequirements = getEligibleTasks(suggestedTasks, requirements, user);
     if (eligibleRequirements.length === 0) {
         return suggestedTasks;
     }
@@ -136,6 +150,8 @@ export function getSuggestedTasks(
             requirements,
         ),
     })).sort((lhs, rhs) => rhs.percent - lhs.percent);
+
+    let scheduleGame = false;
 
     while (suggestedTasks.length < MAX_SUGGESTED_TASKS) {
         const eligibleCategories = categoryPercentages.filter((item) =>
@@ -168,7 +184,13 @@ export function getSuggestedTasks(
                             user.progress[lhs.id],
                         ),
                 );
-            suggestedTasks.push(categoryRequirements[0]);
+
+            if (categoryRequirements[0].id === CLASSICAL_GAMES_TASK_ID) {
+                scheduleGame = true;
+            } else {
+                suggestedTasks.push(categoryRequirements[0]);
+            }
+
             eligibleRequirements.splice(
                 eligibleRequirements.indexOf(categoryRequirements[0]),
                 1,
@@ -180,7 +202,73 @@ export function getSuggestedTasks(
         }
     }
 
+    if (scheduleGame) {
+        suggestedTasks.unshift({
+            id: SCHEDULE_CLASSICAL_GAME_TASK_ID,
+        } as Requirement);
+    }
+
     return suggestedTasks;
+}
+
+/**
+ * Returns the list of tasks that are eligible to be suggested to the user.
+ * @param suggestedTasks The list of already suggested tasks.
+ * @param requirements The list of all requirements.
+ * @param user The user to suggest tasks for.
+ * @returns A subset of requirements that are eligible to be suggested to the user.
+ */
+function getEligibleTasks(
+    suggestedTasks: (Requirement | CustomTask)[],
+    requirements: Requirement[],
+    user: User,
+) {
+    const isFreeUser = isFree(user);
+    let eligibleRequirements = requirements.filter(
+        (r) =>
+            (!isFreeUser || r.isFree) &&
+            !INELIGIBLE_SUGGESTED_TASKS.includes(r.id) &&
+            !suggestedTasks.some((t) => r.id === t.id) &&
+            SUGGESTED_TASK_CATEGORIES.includes(r.category) &&
+            !isComplete(user.dojoCohort, r, user.progress[r.id]),
+    );
+
+    const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK_ID);
+    const annotateTask = eligibleRequirements.find(
+        (r) => r.id === ANNOTATE_GAMES_TASK_ID,
+    );
+
+    if (
+        annotateTask &&
+        classicalGamesTask &&
+        getCurrentCount(
+            user.dojoCohort,
+            annotateTask,
+            user.progress[ANNOTATE_GAMES_TASK_ID],
+        ) >=
+            getCurrentCount(
+                user.dojoCohort,
+                classicalGamesTask,
+                user.progress[CLASSICAL_GAMES_TASK_ID],
+            )
+    ) {
+        // If the user is already caught up on annotations, then do not suggest that
+        // they annotate a game.
+        eligibleRequirements = eligibleRequirements.filter(
+            (r) => r.id !== ANNOTATE_GAMES_TASK_ID,
+        );
+    }
+
+    const upcomingGames = getUpcomingGameSchedule(user.gameSchedule);
+    if (upcomingGames.length > 0) {
+        // If the user already has a game scheduled, then do not suggest that they play
+        // a game.
+        eligibleRequirements = eligibleRequirements.filter(
+            (r) => r.id !== CLASSICAL_GAMES_TASK_ID,
+        );
+    }
+
+    return eligibleRequirements;
 }
 
 export interface SuggestedTask {
@@ -227,98 +315,6 @@ function getDates(weekStart = 0) {
 
     return { today, start, end };
 }
-
-// export function getWeeklySuggestedTasksOriginal({
-//     user,
-//     pinnedTasks,
-//     requirements,
-// }: {
-//     user: User;
-//     pinnedTasks: (Requirement | CustomTask)[];
-//     requirements: Requirement[];
-// }): WeeklySuggestedTasks {
-//     const { today, start: current, end } = getDates(user.weekStart);
-
-//     console.log('Current: ', current);
-//     console.log('End: ', end);
-
-//     const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
-
-//     const workGoal = user.workGoal || DEFAULT_WORK_GOAL;
-//     const mockUser = JSON.parse(JSON.stringify(user)) as User;
-
-//     const timePerTask: Record<string, number> = {};
-
-//     const reuseSavedPlan =
-//         user.weeklyPlan && new Date(user.weeklyPlan.endDate).getTime() >= end.getTime();
-
-//     for (; current.getTime() < end.getTime(); current.setDate(current.getDate() + 1)) {
-//         console.log('Get tasks for ', current);
-//         const dayIdx = current.getDay();
-
-//         let tasks: (Requirement | CustomTask)[];
-//         if (reuseSavedPlan && user.weeklyPlan) {
-//             console.log('Reusing saved weekly plan');
-
-//             if (current.getTime() < today.getTime()) {
-//                 console.log('Day is in the past, so not using new work goals');
-//                 const day = user.weeklyPlan.tasks[dayIdx];
-//                 for (const { id, minutes } of day) {
-//                     const task =
-//                         pinnedTasks.find((t) => t.id === id) ??
-//                         requirements.find((t) => t.id === id);
-//                     if (task) {
-//                         taskList[dayIdx].push({ task, goalMinutes: minutes });
-//                     }
-//                 }
-//                 continue;
-//             }
-
-//             tasks =
-//                 user.weeklyPlan?.tasks[dayIdx]
-//                     .map(
-//                         (task) =>
-//                             pinnedTasks.find((t) => t.id === task.id) ??
-//                             requirements.find((t) => t.id === task.id),
-//                     )
-//                     .filter((task) => !!task) ?? [];
-//         } else {
-//             console.log('Generating new task list');
-//             tasks = getSuggestedTasks(pinnedTasks, requirements, mockUser);
-//         }
-
-//         console.log('Tasks for dayIdx ', dayIdx, tasks);
-
-//         const minutesToday = workGoal.minutesPerDay[dayIdx];
-//         const maxTasks = Math.max(
-//             1,
-//             Math.floor(minutesToday / DEFAULT_WORK_GOAL.minutesPerTask),
-//         );
-//         const tasksWithTime = tasks.slice(0, maxTasks);
-
-//         for (const task of tasksWithTime) {
-//             let totalTaskTime =
-//                 (timePerTask[task.id] ?? 0) +
-//                 Math.floor(minutesToday / tasksWithTime.length);
-//             updateMockProgress({ mockUser, task, time: totalTaskTime });
-//             totalTaskTime %= 60;
-//             timePerTask[task.id] = totalTaskTime;
-//         }
-
-//         const suggestedTasks = tasksWithTime.map((task) => ({
-//             task,
-//             goalMinutes: Math.floor(minutesToday / tasksWithTime.length),
-//         }));
-//         suggestedTasks.push(
-//             ...tasks.slice(maxTasks).map((task) => ({ task, goalMinutes: 0 })),
-//         );
-
-//         taskList[dayIdx] = suggestedTasks;
-//     }
-
-//     console.log('Task List: ', taskList);
-//     return { suggestionsByDay: taskList, endDate: end.toISOString() };
-// }
 
 /**
  * Returns the date in ISO 8601 of the user's most recent progress update,
@@ -463,6 +459,13 @@ export function getWeeklySuggestedTasks({
                 console.log(`Day ${dayIdx} is in the past. Reusing valid plan.`);
                 const day = weeklyPlan.tasks[dayIdx];
                 for (const { id, minutes } of day) {
+                    if (id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
+                        taskList[dayIdx].push({
+                            task: SCHEDULE_CLASSICAL_GAME_TASK,
+                            goalMinutes: minutes,
+                        });
+                        continue;
+                    }
                     const task =
                         user.customTasks?.find((t) => t.id === id) ??
                         requirements.find((t) => t.id === id);
@@ -479,11 +482,15 @@ export function getWeeklySuggestedTasks({
                 );
                 tasks =
                     user.weeklyPlan?.tasks[dayIdx]
-                        .map(
-                            (task) =>
+                        .map((task) => {
+                            if (task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
+                                return SCHEDULE_CLASSICAL_GAME_TASK;
+                            }
+                            return (
                                 user.customTasks?.find((t) => t.id === task.id) ??
-                                requirements.find((t) => t.id === task.id),
-                        )
+                                requirements.find((t) => t.id === task.id)
+                            );
+                        })
                         .filter((task) => !!task) ?? [];
             }
         } else {
@@ -493,11 +500,15 @@ export function getWeeklySuggestedTasks({
                 );
                 tasks =
                     user.weeklyPlan?.tasks[dayIdx]
-                        .map(
-                            (task) =>
+                        .map((task) => {
+                            if (task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
+                                return SCHEDULE_CLASSICAL_GAME_TASK;
+                            }
+                            return (
                                 user.customTasks?.find((t) => t.id === task.id) ??
-                                requirements.find((t) => t.id === task.id),
-                        )
+                                requirements.find((t) => t.id === task.id)
+                            );
+                        })
                         .filter((task) => !!task) ?? [];
             }
         }
@@ -512,24 +523,35 @@ export function getWeeklySuggestedTasks({
             1,
             Math.floor(minutesToday / DEFAULT_WORK_GOAL.minutesPerTask),
         );
-        const tasksWithTime = tasks.slice(0, maxTasks);
+        const maxTasksWithTime = (
+            tasks[0]?.id === SCHEDULE_CLASSICAL_GAME_TASK_ID
+                ? tasks.slice(1, maxTasks + 1)
+                : tasks.slice(0, maxTasks)
+        ).length;
 
-        for (const task of tasksWithTime) {
+        let tasksWithTime = 0;
+        const suggestedTasks: SuggestedTask[] = [];
+        for (const task of tasks) {
+            if (
+                tasksWithTime >= maxTasksWithTime ||
+                task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID
+            ) {
+                suggestedTasks.push({ task, goalMinutes: 0 });
+                continue;
+            }
+
             let totalTaskTime =
-                (timePerTask[task.id] ?? 0) +
-                Math.floor(minutesToday / tasksWithTime.length);
+                (timePerTask[task.id] ?? 0) + Math.floor(minutesToday / maxTasksWithTime);
             updateMockProgress({ mockUser, task, time: totalTaskTime });
             totalTaskTime %= 60;
             timePerTask[task.id] = totalTaskTime;
-        }
 
-        const suggestedTasks = tasksWithTime.map((task) => ({
-            task,
-            goalMinutes: Math.floor(minutesToday / tasksWithTime.length),
-        }));
-        suggestedTasks.push(
-            ...tasks.slice(maxTasks).map((task) => ({ task, goalMinutes: 0 })),
-        );
+            suggestedTasks.push({
+                task,
+                goalMinutes: Math.floor(minutesToday / maxTasksWithTime),
+            });
+            tasksWithTime++;
+        }
 
         taskList[dayIdx] = suggestedTasks;
     }
@@ -591,4 +613,27 @@ function updateMockProgress({
             progress.counts[mockUser.dojoCohort] += increment;
         }
     }
+}
+
+/**
+ * Returns a subset of the give game schedule, only including entries that are on or
+ * after the current day, in the user's local timezone.
+ * @param gameSchedule
+ * @returns
+ */
+export function getUpcomingGameSchedule(
+    gameSchedule?: GameScheduleEntry[],
+): GameScheduleEntry[] {
+    const today = toLocalDateString(new Date());
+    return (
+        gameSchedule?.filter((e) => toLocalDateString(new Date(e.date)) >= today) ?? []
+    );
+}
+
+/**
+ * Returns a date in the format 2025-12-31 in the user's local timezone.
+ * @param date The date to convert.
+ */
+export function toLocalDateString(date: Date): string {
+    return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
 }

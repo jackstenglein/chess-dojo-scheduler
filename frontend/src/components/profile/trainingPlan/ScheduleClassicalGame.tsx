@@ -26,12 +26,15 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { TaskDialogView } from './TaskDialog';
+import { getUpcomingGameSchedule } from './suggestedTasks';
 
 export const ScheduleClassicalGame = () => {
+    const { user } = useAuth();
     const [taskDialogView, setTaskDialogView] = useState<
         TaskDialogView.Details | TaskDialogView.Progress
     >();
 
+    const upcomingGames = getUpcomingGameSchedule(user?.gameSchedule);
     return (
         <Stack spacing={2} mt={2}>
             <Grid2
@@ -73,7 +76,7 @@ export const ScheduleClassicalGame = () => {
                     <Stack direction='row' alignItems='center' justifyContent='end'>
                         <Tooltip title='Update'>
                             <Checkbox
-                                checked
+                                checked={upcomingGames.length > 0}
                                 onClick={() => setTaskDialogView(TaskDialogView.Progress)}
                             />
                         </Tooltip>
@@ -352,16 +355,12 @@ function ScheduleClassicalGameDialogProgress({
 }
 
 function getScheduleFormEntries(gameSchedule?: GameScheduleEntry[]): ScheduleFormEntry[] {
-    if (!gameSchedule) {
-        return [{ date: null, count: '1' }];
+    const upcomingGames = getUpcomingGameSchedule(gameSchedule);
+    if (upcomingGames.length) {
+        return upcomingGames.map((e) => ({
+            date: DateTime.fromISO(e.date),
+            count: `${e.count}`,
+        }));
     }
-
-    const now = toLocalDateString(new Date());
-    return gameSchedule
-        .filter((e) => toLocalDateString(new Date(e.date)) >= now)
-        .map((e) => ({ date: DateTime.fromISO(e.date), count: `${e.count}` }));
-}
-
-function toLocalDateString(date: Date): string {
-    return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
+    return [{ date: null, count: '1' }];
 }

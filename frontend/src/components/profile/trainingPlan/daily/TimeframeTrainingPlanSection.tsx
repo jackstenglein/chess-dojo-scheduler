@@ -13,7 +13,7 @@ import {
 import { ReactNode, useMemo } from 'react';
 import { CircularTimeProgress } from '../CircularTimeProgress';
 import { ScheduleClassicalGame } from '../ScheduleClassicalGame';
-import { SuggestedTask } from '../suggestedTasks';
+import { SCHEDULE_CLASSICAL_GAME_TASK_ID, SuggestedTask } from '../suggestedTasks';
 import { TimeframeTrainingPlanItem } from './TimeframeTrainingPlanItem';
 
 interface TimeframeTrainingPlanSectionProps {
@@ -143,8 +143,14 @@ export function TimeframeTrainingPlanSection({
             </AccordionSummary>
             <AccordionDetails>
                 <Divider />
-                <ScheduleClassicalGame />
                 {tasks.map(({ task, goalMinutes }) => {
+                    if (task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
+                        return (
+                            <ScheduleClassicalGame
+                                key={SCHEDULE_CLASSICAL_GAME_TASK_ID}
+                            />
+                        );
+                    }
                     if (goalMinutes === 0) {
                         return null;
                     }
@@ -164,10 +170,18 @@ export function TimeframeTrainingPlanSection({
                     );
                 })}
 
-                <Typography variant='body1' fontWeight={700} sx={{ mt: 6, mb: 1 }}>
-                    Unscheduled Work
-                </Typography>
-                <Divider sx={{ mb: 4 }} />
+                {extraTasks.length > 0 && (
+                    <>
+                        <Typography
+                            variant='body1'
+                            fontWeight={700}
+                            sx={{ mt: 6, mb: 1 }}
+                        >
+                            Unscheduled Work
+                        </Typography>
+                        <Divider sx={{ mb: 4 }} />
+                    </>
+                )}
 
                 {extraTasks.map((task) => {
                     return (
