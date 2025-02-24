@@ -319,7 +319,7 @@ type User struct {
 	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`
 
 	// The user's schedule of upcoming classical games
-	GameSchedule []GameScheduleEntry `dynamodbav:"gameSchedule,omitempty" json:"gameSchedule,omitempty"`
+	GameSchedule []GameScheduleEntry `dynamodbav:"gameSchedule,omitempty" json:"gameSchedule"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -377,6 +377,9 @@ type WeeklyPlan struct {
 
 	// The ids of the user's pinned tasks (in order) when the weekly plan was last generated.
 	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks,omitempty"`
+
+	// The date (in ISO 8601) of the user's next scheduled game when the weekly plan was last generated.
+	NextGame string `dynamodbav:"nextGame,omitempty" json:"nextGame"`
 }
 
 type GameScheduleEntry struct {

@@ -53,13 +53,15 @@ export function useWeeklyTrainingPlan(user: User) {
     const trainingPlan = useTrainingPlan(user);
     const { pinnedTasks, requirements, isCurrentUser } = trainingPlan;
 
-    const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt } =
+    const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt, nextGame } =
         useMemo(() => {
-            const { suggestionsByDay, endDate, progressUpdatedAt } =
-                new TaskSuggestionAlgorithm(user, requirements).getWeeklySuggestions();
+            const result = new TaskSuggestionAlgorithm(
+                user,
+                requirements,
+            ).getWeeklySuggestions();
 
             const weekSuggestions: SuggestedTask[] = [];
-            for (const day of suggestionsByDay) {
+            for (const day of result.suggestionsByDay) {
                 for (const suggestion of day) {
                     const existing = weekSuggestions.find(
                         (s) => s.task.id === suggestion.task.id,
@@ -72,7 +74,7 @@ export function useWeeklyTrainingPlan(user: User) {
                 }
             }
 
-            return { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt };
+            return { ...result, weekSuggestions };
         }, [user, requirements]);
 
     const savedPlan = user.weeklyPlan;
@@ -84,6 +86,7 @@ export function useWeeklyTrainingPlan(user: User) {
                 endDate,
                 progressUpdatedAt,
                 pinnedTasks: pinnedTasks.map((t) => t.id),
+                nextGame,
             }) ||
             isEmpty(suggestionsByDay)
         ) {
@@ -102,6 +105,7 @@ export function useWeeklyTrainingPlan(user: User) {
                 ),
                 progressUpdatedAt,
                 pinnedTasks: pinnedTasks.map((t) => t.id),
+                nextGame,
             },
         }).catch((err) => console.error('save weekly plan: ', err));
     }, [
@@ -111,6 +115,7 @@ export function useWeeklyTrainingPlan(user: User) {
         endDate,
         progressUpdatedAt,
         pinnedTasks,
+        nextGame,
         api,
     ]);
 
@@ -147,6 +152,7 @@ function equalPlans(
         endDate: string;
         progressUpdatedAt: string;
         pinnedTasks: string[];
+        nextGame: string;
     },
 ) {
     if (!savedPlan) {
@@ -161,6 +167,10 @@ function equalPlans(
         console.log(
             'Saved plan progressUpdatedAt does not match new plan progressUpdatedAt',
         );
+        return false;
+    }
+    if (savedPlan.nextGame !== newPlan.nextGame) {
+        console.log('Saved plan nextGame does not match new plan nextGame');
         return false;
     }
     for (let i = 0; i < newPlan.pinnedTasks.length; i++) {

@@ -22,8 +22,10 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import CustomTaskEditor from './CustomTaskEditor';
+import { ScheduleClassicalGame } from './ScheduleClassicalGame';
 import { TrainingPlanIcon } from './TrainingPlanCategory';
 import { FullTrainingPlanItem } from './full/FullTrainingPlanItem';
+import { SCHEDULE_CLASSICAL_GAME_TASK_ID } from './suggestedTasks';
 
 /** A section in the training plan view. */
 export interface Section {
@@ -118,6 +120,9 @@ export function TrainingPlanSection({
             <AccordionDetails data-cy={`progress-category-${section.category}`}>
                 <Divider />
                 {section.tasks.map((r) => {
+                    if (r.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
+                        return <ScheduleClassicalGame key={r.id} hideChip />;
+                    }
                     if (isFreeTier && isRequirement(r) && !r.isFree) {
                         return null;
                     }

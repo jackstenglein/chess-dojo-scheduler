@@ -20,6 +20,10 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import {
+    getUpcomingGameSchedule,
+    SCHEDULE_CLASSICAL_GAME_TASK_ID,
+} from '../suggestedTasks';
 import { Section, TrainingPlanSection } from '../TrainingPlanSection';
 import { useTrainingPlan } from '../useTrainingPlan';
 
@@ -76,7 +80,10 @@ export function FullTrainingPlan({ user }: { user: User }) {
             }
 
             const s = sections.find((s) => s.category === task.category);
-            const complete = isComplete(cohort, task, user.progress[task.id]);
+            const complete =
+                task.id !== SCHEDULE_CLASSICAL_GAME_TASK_ID
+                    ? isComplete(cohort, task, user.progress[task.id])
+                    : getUpcomingGameSchedule(user.gameSchedule).length > 0;
 
             if (s === undefined) {
                 sections.push({
@@ -95,6 +102,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
                 }
             }
         });
+
         return sections;
     }, [requirements, user, cohort, showCompleted, pinnedTasks]);
 

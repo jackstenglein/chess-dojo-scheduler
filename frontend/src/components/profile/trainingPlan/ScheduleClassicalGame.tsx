@@ -28,13 +28,14 @@ import { useState } from 'react';
 import { TaskDialogView } from './TaskDialog';
 import { getUpcomingGameSchedule } from './suggestedTasks';
 
-export const ScheduleClassicalGame = () => {
+export const ScheduleClassicalGame = ({ hideChip }: { hideChip?: boolean }) => {
     const { user } = useAuth();
     const [taskDialogView, setTaskDialogView] = useState<
         TaskDialogView.Details | TaskDialogView.Progress
     >();
 
     const upcomingGames = getUpcomingGameSchedule(user?.gameSchedule);
+    console.log('Upcoming Games: ', upcomingGames);
     return (
         <Stack spacing={2} mt={2}>
             <Grid2
@@ -52,16 +53,18 @@ export const ScheduleClassicalGame = () => {
                     display='flex'
                     flexDirection='column'
                 >
-                    <Chip
-                        label={RequirementCategory.Games}
-                        variant='outlined'
-                        sx={{
-                            color: CategoryColors[RequirementCategory.Games],
-                            borderColor: CategoryColors[RequirementCategory.Games],
-                            alignSelf: 'start',
-                        }}
-                        size='small'
-                    />
+                    {!hideChip && (
+                        <Chip
+                            label={RequirementCategory.Games}
+                            variant='outlined'
+                            sx={{
+                                color: CategoryColors[RequirementCategory.Games],
+                                borderColor: CategoryColors[RequirementCategory.Games],
+                                alignSelf: 'start',
+                            }}
+                            size='small'
+                        />
+                    )}
 
                     <Typography
                         sx={{
@@ -151,6 +154,7 @@ function ScheduleClassicalGameDialog({
         request.onStart();
         parsed.sort((lhs, rhs) => lhs.date.localeCompare(rhs.date));
 
+        console.log('New game schedule: ', parsed);
         api.updateUser({ gameSchedule: parsed })
             .then(() => {
                 request.onSuccess();

@@ -22,10 +22,70 @@ import {
 } from '@/database/user';
 import { DEFAULT_WORK_GOAL } from './workGoal';
 
-type Task = Requirement | CustomTask;
+export type Task = Requirement | CustomTask;
+
+/** A suggestion to work on a task. */
+export interface SuggestedTask {
+    /** The suggested task. */
+    task: Task;
+    /** The suggested time to work on the task. */
+    goalMinutes: number;
+}
+
+/** A week's worth of task suggestions. */
+export interface WeeklySuggestedTasks {
+    /**
+     * The suggested tasks of the weekly plan indexed by day of the week.
+     * Sunday is index 0; Saturday is index 6.
+     */
+    suggestionsByDay: SuggestedTask[][];
+    /** The end date of the weekly plan. */
+    endDate: string;
+    /**
+     * The date (in ISO 8601) of the user's most recent progress update at the time this
+     * weekly plan was generated.
+     */
+    progressUpdatedAt: string;
+    /**
+     * The date (in ISO 8601) of the user's next scheduled game when the weekly plan
+     * was last generated.
+     */
+    nextGame: string;
+}
+
+/** The id of the play classical games task. */
+const CLASSICAL_GAMES_TASK_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
+
+/** The id of the annotate classical games task. */
+const ANNOTATE_GAMES_TASK_ID = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
+
+/** The id of the schedule your next classical game task. */
+export const SCHEDULE_CLASSICAL_GAME_TASK_ID = 'SCHEDULE_CLASSICAL_GAME';
+
+/** Fake task for scheduling a classical game. */
+export const SCHEDULE_CLASSICAL_GAME_TASK: Requirement = {
+    id: SCHEDULE_CLASSICAL_GAME_TASK_ID,
+} as Requirement;
+
+/** The maximum number of suggested tasks returned by the suggestion algorithm. */
+const MAX_SUGGESTED_TASKS = 3;
+
+/**
+ * The categories allowed in the suggested tasks algorithm. Their order here is used
+ * for breaking ties in the algorithm if two categories have the same remaining Dojo
+ * point percentage.
+ */
+const SUGGESTED_TASK_CATEGORIES = [
+    RequirementCategory.Games,
+    RequirementCategory.Tactics,
+    RequirementCategory.Middlegames,
+    RequirementCategory.Endgame,
+    RequirementCategory.Opening,
+];
 
 /** A list of IDs of tasks which cannot be suggested, unless the user has pinned them. */
 const INELIGIBLE_SUGGESTED_TASKS = [
+    SCHEDULE_CLASSICAL_GAME_TASK_ID,
     '812adb60-d5fb-4655-8d22-d568a0dca547', // Postmortems
     '25230066-4eda-4886-a12c-39a5175ea632', // Online tactics tune up 0-1400
     'b55eda1d-11dc-4f6f-aa7b-b83a6339513f', // Online tactics tune up 1400-1800
@@ -56,36 +116,6 @@ const INELIGIBLE_SUGGESTED_TASKS = [
     'cba150ad-b66c-4fd4-b041-f35e98dcd161',
 ];
 
-/** The id of the play classical games task. */
-const CLASSICAL_GAMES_TASK_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
-
-/** The id of the annotate classical games task. */
-const ANNOTATE_GAMES_TASK_ID = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
-
-/** The id of the schedule your next classical game task. */
-export const SCHEDULE_CLASSICAL_GAME_TASK_ID = 'SCHEDULE_CLASSICAL_GAME';
-
-/** Fake task for scheduling a classical game. */
-const SCHEDULE_CLASSICAL_GAME_TASK: Requirement = {
-    id: SCHEDULE_CLASSICAL_GAME_TASK_ID,
-} as Requirement;
-
-/** The maximum number of suggested tasks returned by the suggestion algorithm. */
-const MAX_SUGGESTED_TASKS = 3;
-
-/**
- * The categories allowed in the suggested tasks algorithm. Their order here is used
- * for breaking ties in the algorithm if two categories have the same remaining Dojo
- * point percentage.
- */
-const SUGGESTED_TASK_CATEGORIES = [
-    RequirementCategory.Games,
-    RequirementCategory.Tactics,
-    RequirementCategory.Middlegames,
-    RequirementCategory.Endgame,
-    RequirementCategory.Opening,
-];
-
 /**
  * Returns the remaining score of a task for the purposes of the suggested task algorithm.
  * If the task is atomic, the total score of the task is considered remaining. Otherwise,
@@ -102,12 +132,20 @@ function getRemainingSuggestionScore(
     return getRemainingScore(cohort, requirement, progress);
 }
 
+enum SuggestedTaskGenerationReason {
+    Init,
+    ProgressUpdate,
+    PinnedTaskUpdate,
+    WorkGoalUpdate,
+    ScheduledGamesUpdate,
+}
+
 export class TaskSuggestionAlgorithm {
-    private user: User;
     private readonly requirements: Requirement[];
     private readonly customTasks: CustomTask[];
     private readonly pinnedTasks: Task[];
 
+    private user: User;
     private timePerTask: Record<string, number> = {};
 
     constructor(user: User, requirements: Requirement[]) {
@@ -127,9 +165,6 @@ export class TaskSuggestionAlgorithm {
     getWeeklySuggestions(): WeeklySuggestedTasks {
         const { today, start: current, end } = getDates(this.user.weekStart);
         const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
-
-        const workGoal = this.user.workGoal || DEFAULT_WORK_GOAL;
-
         this.timePerTask = {};
         const progressUpdatedAt = lastProgressUpdate(this.user);
 
@@ -138,7 +173,7 @@ export class TaskSuggestionAlgorithm {
             weeklyPlan = undefined;
         }
 
-        const reason = this.getGenerationReason(this.user, weeklyPlan);
+        const reason = this.getGenerationReason(weeklyPlan);
 
         for (
             ;
@@ -184,13 +219,15 @@ export class TaskSuggestionAlgorithm {
 
             if (suggestions.length === 0) {
                 console.log(`Generating new task list for day ${dayIdx}`);
-                suggestions = this.getSuggestedTasks().map((t) => ({
+                suggestions = this.getSuggestedTasks(current).map((t) => ({
                     task: t,
                     goalMinutes: 0,
                 }));
             }
 
-            const minutesToday = workGoal.minutesPerDay[dayIdx];
+            const minutesToday = (this.user.workGoal || DEFAULT_WORK_GOAL).minutesPerDay[
+                dayIdx
+            ];
             let maxTasksWithTime = Math.max(
                 1,
                 Math.floor(minutesToday / DEFAULT_WORK_GOAL.minutesPerTask),
@@ -223,38 +260,53 @@ export class TaskSuggestionAlgorithm {
             suggestionsByDay: taskList,
             endDate: end.toISOString(),
             progressUpdatedAt,
+            nextGame: getUpcomingGameSchedule(this.user.gameSchedule)[0]?.date ?? '',
         };
         console.log('Weekly suggested tasks: ', result);
         return result;
     }
 
-    getGenerationReason(
-        user: User,
-        existingPlan?: WeeklyPlan,
-    ): SuggestedTaskGenerationReason {
+    /**
+     * Returns the reason for regenerating suggested tasks based on the current
+     * existing plan.
+     * @param existingPlan The existing weekly suggestions, which may be overridden in the regeneration.
+     * @returns The reason for regenerating suggested tasks.
+     */
+    getGenerationReason(existingPlan?: WeeklyPlan): SuggestedTaskGenerationReason {
         if (!existingPlan) {
             return SuggestedTaskGenerationReason.Init;
         }
 
-        if (existingPlan.progressUpdatedAt !== lastProgressUpdate(user)) {
+        if (existingPlan.progressUpdatedAt !== lastProgressUpdate(this.user)) {
             return SuggestedTaskGenerationReason.ProgressUpdate;
         }
 
         if (
-            !weeklyPlanMatchesWorkGoal(existingPlan, user.workGoal || DEFAULT_WORK_GOAL)
+            !weeklyPlanMatchesWorkGoal(
+                existingPlan,
+                this.user.workGoal || DEFAULT_WORK_GOAL,
+            )
         ) {
             return SuggestedTaskGenerationReason.WorkGoalUpdate;
         }
 
-        if (!weeklyPlanMatchesPinnedTasks(existingPlan, user.pinnedTasks ?? [])) {
+        if (!weeklyPlanMatchesPinnedTasks(existingPlan, this.user.pinnedTasks ?? [])) {
             return SuggestedTaskGenerationReason.PinnedTaskUpdate;
+        }
+
+        const upcomingGames = getUpcomingGameSchedule(this.user.gameSchedule);
+        if ((upcomingGames[0]?.date ?? '') !== existingPlan.nextGame) {
+            return SuggestedTaskGenerationReason.ScheduledGamesUpdate;
         }
 
         return SuggestedTaskGenerationReason.Init;
     }
 
     shouldRegenerateToday(reason: SuggestedTaskGenerationReason): boolean {
-        return reason === SuggestedTaskGenerationReason.PinnedTaskUpdate;
+        return (
+            reason === SuggestedTaskGenerationReason.PinnedTaskUpdate ||
+            reason === SuggestedTaskGenerationReason.ScheduledGamesUpdate
+        );
     }
 
     shouldRegenerateFuture(reason: SuggestedTaskGenerationReason): boolean {
@@ -324,7 +376,7 @@ export class TaskSuggestionAlgorithm {
     }
 
     /**
-     * Returns a list of tasks to be shown to the user in the Suggested Tasks category.
+     * Returns a list of tasks to be shown to the user as suggested tasks.
      * We show at most MAX_SUGGESTED_TASKS tasks, in the following priority:
      *
      *   1. The user's pinned tasks.
@@ -333,7 +385,9 @@ export class TaskSuggestionAlgorithm {
      *
      * If play classical games would be suggested, then it is instead replaced with the
      * SCHEDULE_CLASSICAL_GAME pseudo-task. Play classical games will not be suggested if
-     * the user already has an upcoming classical game scheduled.
+     * the user already has an upcoming classical game scheduled. If the requested date
+     * matches the date of the user's upcoming classical game, then play a classical game
+     * is included as the first suggested task.
      *
      * Only categories in SUGGESTED_TASK_CATEGORIES are suggested (unless pinned by the user).
      * Categories are only repeated within the suggested tasks if it is not possible to
@@ -344,11 +398,25 @@ export class TaskSuggestionAlgorithm {
      * be suggested unless the user has pinned them. These task IDs are listed in
      * INELIGIBLE_SUGGESTED_TASKS.
      *
+     * @param date The date to get suggested tasks for.
      * @returns A list of at most MAX_SUGGESTED_TASKS suggested tasks.
      */
-    getSuggestedTasks(): Task[] {
+    getSuggestedTasks(date: Date): Task[] {
         const suggestedTasks: Task[] = [];
         suggestedTasks.push(...this.pinnedTasks);
+
+        const upcomingGames = getUpcomingGameSchedule(this.user.gameSchedule);
+        for (const upcoming of upcomingGames) {
+            if (toLocalDateString(new Date(upcoming.date)) === toLocalDateString(date)) {
+                const playClassicalGames = this.requirements.find(
+                    (r) => r.id === CLASSICAL_GAMES_TASK_ID,
+                );
+                if (playClassicalGames) {
+                    suggestedTasks.push(playClassicalGames);
+                }
+                break;
+            }
+        }
 
         if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
             return suggestedTasks;
@@ -494,26 +562,6 @@ function getEligibleTasks(
     return eligibleRequirements;
 }
 
-export interface SuggestedTask {
-    task: Task;
-    goalMinutes: number;
-}
-
-export interface WeeklySuggestedTasks {
-    /**
-     * The suggested tasks of the weekly plan indexed by day of the week.
-     * Sunday is index 0; Saturday is index 6.
-     */
-    suggestionsByDay: SuggestedTask[][];
-    /** The end date of the weekly plan. */
-    endDate: string;
-    /**
-     * The date (in ISO 8601) of the user's most recent progress update at the time this
-     * weekly plan was generated.
-     */
-    progressUpdatedAt: string;
-}
-
 /**
  * Returns the start date, the end date and today's date for generating weekly
  * suggested tasks. All dates are set to 00:00 in the current user's local time.
@@ -619,13 +667,6 @@ function weeklyPlanMatchesPinnedTasks(
     return true;
 }
 
-enum SuggestedTaskGenerationReason {
-    Init,
-    ProgressUpdate,
-    PinnedTaskUpdate,
-    WorkGoalUpdate,
-}
-
 /**
  * Returns a subset of the give game schedule, only including entries that are on or
  * after the current day, in the user's local timezone.
@@ -637,7 +678,9 @@ export function getUpcomingGameSchedule(
 ): GameScheduleEntry[] {
     const today = toLocalDateString(new Date());
     return (
-        gameSchedule?.filter((e) => toLocalDateString(new Date(e.date)) >= today) ?? []
+        gameSchedule
+            ?.filter((e) => toLocalDateString(new Date(e.date)) >= today)
+            .sort((lhs, rhs) => lhs.date.localeCompare(rhs.date)) ?? []
     );
 }
 
