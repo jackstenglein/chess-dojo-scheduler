@@ -926,7 +926,7 @@ export function isCohortPromptHidden(user?: User): boolean {
 
 /**
  * Creates a partial user object where hideCohortPrompt is one month (30 days) after todays date.
- * @param user In order to update the hideCohortPromptUntil field, all the fields in the 
+ * @param user In order to update the hideCohortPromptUntil field, all the fields in the
  * UserNotificationSettings and SiteNotificationSettings needs to be provided.
  * @returns A partial User object
  */
