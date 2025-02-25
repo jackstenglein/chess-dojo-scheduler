@@ -41,6 +41,7 @@ const ReactionTypes = [
     '👍',
     '🤯',
     '🎉',
+    '📕',
 ];
 
 const ReactionTypesToImage = {
