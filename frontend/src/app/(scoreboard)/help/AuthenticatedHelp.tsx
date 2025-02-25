@@ -281,6 +281,56 @@ const helpSections = [
                     </>
                 ),
             },
+            {
+                title: 'How often are new master games added?',
+                content: (
+                    <>
+                        New master games are added weekly, on Fridays around midnight UTC.
+                    </>
+                ),
+            },
+        ],
+    },
+    {
+        title: 'Notifications',
+        items: [
+            {
+                title: 'How long are notifications kept before they are deleted?',
+                content: <>Notifications are kept until you delete them.</>,
+            },
+            {
+                title: 'Is there a limit on the number of notifications I can receive?',
+                content: <>No, there is no limit.</>,
+            },
+            {
+                title: 'Can I view all my notifications at once?',
+                content: (
+                    <>
+                        Yes, you can view them on the{' '}
+                        <Link href='/notifications'>notifications page</Link>.
+                    </>
+                ),
+            },
+            {
+                title: 'Are notifications aggregated together?',
+                content: (
+                    <>
+                        Notifications of the same type will be aggregated. For example, if
+                        you subscribe to a position, then notifications for that position
+                        will be aggregated together.
+                    </>
+                ),
+            },
+            {
+                title: 'How often are notifications sent out?',
+                content: (
+                    <>
+                        Notifications are sent as soon as the action that generates them
+                        is performed. For position subscriptions on master games, master
+                        games are added weekly on Fridays around midnight UTC.
+                    </>
+                ),
+            },
         ],
     },
 ];
