@@ -31,6 +31,7 @@ import { MergeLineDialog } from '../boardTools/underboard/share/MergeLineDialog'
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { nagIcons } from '../NagIcon';
 import { useChess } from '../PgnBoard';
+import { markSuggestedVariationSaved } from './suggestVariation';
 
 export function getTextColor(
     move: Move,
@@ -256,6 +257,8 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
         api.createComment(game.cohort, game.id, positionComment, existingComments)
             .then((resp) => {
                 onUpdateGame?.(resp.data);
+                markSuggestedVariationSaved(chess, root);
+                onClose();
             })
             .catch((err) => {
                 console.error('onSaveVariationAsComment: ', err);
