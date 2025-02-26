@@ -123,8 +123,6 @@
         "@types/uuid": "^10.0.0",
         "@typescript-eslint/eslint-plugin": "^7.12.0",
         "@typescript-eslint/parser": "^7.12.0",
-        "command-line-args": "^6.0.1",
-        "command-line-usage": "^7.0.3",
         "cypress": "^14.0.2",
         "cypress-parallel": "^0.14.0",
         "eslint": "^8.57.0",
@@ -146,6 +144,9 @@
     "overrides": {
         "d3-interpolate": "^3.0.1",
         "d3-color": "^3.1.0",
-        "d3-scale": "^4.0.2"
+        "d3-scale": "^4.0.2",
+        "yargs-parser": "^21.1.1",
+        "nanoid": "^5.1.2",
+        "serialize-javascript": "^6.0.2"
     }
 }
