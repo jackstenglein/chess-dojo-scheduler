@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  gif
+
+  Sample SAM Template for gif
+
+Parameters:
+  Stage:
+    Type: String
+    Default: simple
+    
+
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${Stage}-chess-dojo-scheduler"
+      StageName: !Ref Stage
+      Cors:
+        AllowHeaders:
+          - Content-Type
+          - X-Amz-Date
+          - Authorization
+          - X-Api-Key
+          - X-Amz-Security-Token
+          - X-Amz-User-Agent
+          - X-Amzn-Trace-Id
+        AllowMethods:
+          - OPTIONS
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        AllowOrigins:
+          - '*'
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+  
+
+  GifFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Metadata:
+      BuildMethod: rust-cargolambda # More info about Cargo Lambda: https://github.com/cargo-lambda/cargo-lambda
+    Properties:
+      CodeUri: ./gif   # Points to dir of Cargo.toml
+      Handler: bootstrap    # Do not change, as this is the default executable name produced by Cargo Lambda
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      Events:
+        GetGifImage:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref HttpApi
+            Path: /public/pgn-export/image
+            Method: get
+        PostGif:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref HttpApi
+            Path: /public/pgn-export/gif
+            Method: post    
+
