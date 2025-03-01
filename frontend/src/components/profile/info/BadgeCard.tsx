@@ -1,5 +1,7 @@
+import { useRequirements } from '@/api/cache/requirements';
 import { Link } from '@/components/navigation/Link';
-import { User } from '@/database/user';
+import { ALL_COHORTS, User } from '@/database/user';
+import { calculateTacticsRating } from '@/exams/view/exam';
 import { ZoomOutMap } from '@mui/icons-material';
 import {
     Box,
@@ -16,12 +18,16 @@ import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
 import { BadgCabinetDialog } from './BadgeCabinetDialog';
 import BadgeDialog from './BadgeDialog';
-import { Badge, getBadges } from './badgeHandler';
+import { Badge, getBadges, getTacticsChampionBadge } from './badgeHandler';
 import { BadgeImage } from './BadgeImage';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge>();
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
+    const { requirements } = useRequirements(ALL_COHORTS, true);
+    const currentTacticsRating = calculateTacticsRating(user, requirements);
+    const minTacticsRating = parseInt(user.dojoCohort);
+    const isProvisional = currentTacticsRating.components.some((c) => c.rating < 0);
 
     const [allBadges, earnedBadges] = useMemo(() => {
         const allBadges = getBadges(user);
@@ -53,6 +59,11 @@ export const BadgeCard = ({ user }: { user: User }) => {
             setPreviousEarnedBadges(earnedBadges);
         }
     }, [earnedBadges, previousEarnedBadges, setSelectedBadge, setPreviousEarnedBadges]);
+
+    if (!isProvisional && currentTacticsRating.overall > minTacticsRating) {
+        const badge = getTacticsChampionBadge();
+        badges.push(<BadgeImage badge={badge} onClick={handleBadgeClick} />);
+    }
 
     if (!user.createdAt || user.createdAt < '2023-12') {
         badges.push(
