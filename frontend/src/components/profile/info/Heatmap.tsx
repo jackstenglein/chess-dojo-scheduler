@@ -11,6 +11,7 @@ import {
     Checkbox,
     Divider,
     FormControlLabel,
+    Paper,
     Stack,
     Tooltip,
     Typography,
@@ -22,6 +23,7 @@ import {
     BlockElement,
 } from 'react-activity-calendar';
 import { GiCrossedSwords } from 'react-icons/gi';
+import { MIN_BLOCK_SIZE } from './HeatmapCard';
 import { HeatmapOptions, TimelineEntryField, useHeatmapOptions } from './HeatmapOptions';
 
 interface CategoryCount {
@@ -94,13 +96,22 @@ const DARK_THEME = Array(MAX_LEVEL + 1)
     .fill(0)
     .map((_, level) => mixColors('#393939', MONOCHROME_COLOR, level / MAX_LEVEL));
 
+/** The margin above the first weekday label. */
+const WEEKDAY_LEGEND_TOP_MARGIN = 29;
+
+/** The space between adjacent blocks in the heatmap. */
+const BLOCK_SPACING = 4;
+
+/** Labels of the weekdays by their index. */
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+
 /**
  * Renders the Heatmap, including the options and legend, for the given timeline entries.
  */
 export function Heatmap({
     entries,
     description,
-    blockSize,
+    blockSize = MIN_BLOCK_SIZE,
     onPopOut,
     minDate,
     maxDate,
@@ -117,6 +128,7 @@ export function Heatmap({
     const [, setCalendarRef] = useState<HTMLElement | null>(null);
     const { field, colorMode, maxPoints, maxMinutes, weekStartOn } = useHeatmapOptions();
     const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
+    const theme = isLight ? LIGHT_THEME : DARK_THEME;
 
     if (!maxDate) {
         maxDate = new Date().toISOString().split('T')[0];
@@ -130,9 +142,7 @@ export function Heatmap({
     }, [field, entries, minDate, maxDate, viewer]);
 
     useEffect(() => {
-        const scroller = document.getElementsByClassName(
-            'react-activity-calendar__scroll-container',
-        )[0];
+        const scroller = document.getElementById('heatmap-scroll-container');
         if (scroller) {
             scroller.scrollLeft = scroller.scrollWidth;
         }
@@ -145,6 +155,7 @@ export function Heatmap({
                 '& .react-activity-calendar__scroll-container': {
                     paddingTop: '1px',
                     paddingBottom: '10px',
+                    overflow: 'visible !important',
                 },
                 '& .react-activity-calendar__footer': {
                     marginLeft: '0 !important',
@@ -153,54 +164,115 @@ export function Heatmap({
         >
             <HeatmapOptions onPopOut={onPopOut} />
 
-            <ActivityCalendar
-                ref={setCalendarRef}
-                colorScheme={isLight ? 'light' : 'dark'}
-                theme={{
-                    light: LIGHT_THEME,
-                    dark: DARK_THEME,
-                }}
-                data={activities}
-                renderBlock={(block, activity) =>
-                    colorMode === 'monochrome' ? (
-                        <MonochromeBlock
-                            block={block}
-                            activity={activity as Activity}
-                            field={field}
-                            baseColor={isLight ? LIGHT_THEME[0] : DARK_THEME[0]}
-                            clamp={clamp}
-                        />
-                    ) : (
-                        <Block
-                            block={block}
-                            activity={activity as Activity}
-                            field={field}
-                            baseColor={isLight ? LIGHT_THEME[0] : DARK_THEME[0]}
-                            clamp={clamp}
-                        />
-                    )
-                }
-                labels={{
-                    totalCount:
-                        field === 'dojoPoints'
-                            ? `{{count}} Dojo points ${description}`
-                            : `${formatTime(totalCount)} ${description}`,
-                }}
-                totalCount={Math.round(10 * totalCount) / 10}
-                maxLevel={MAX_LEVEL}
-                showWeekdayLabels
-                weekStart={weekStartOn}
-                renderColorLegend={(block, level) => (
-                    <LegendTooltip
-                        key={level}
-                        block={block}
-                        level={level}
-                        clamp={clamp}
-                        field={field}
-                    />
-                )}
-                blockSize={blockSize}
-            />
+            <Stack
+                id='heatmap-scroll-container'
+                direction='row'
+                sx={{ overflowX: 'auto' }}
+            >
+                <Paper
+                    elevation={1}
+                    sx={{ position: 'sticky', left: 0, pr: 0.5, borderRadius: 0 }}
+                >
+                    <Stack>
+                        {Array(3)
+                            .fill(0)
+                            .map((_, i) => (
+                                <Stack
+                                    key={i}
+                                    sx={{
+                                        mt: `${blockSize + (i === 0 ? WEEKDAY_LEGEND_TOP_MARGIN : 2 * BLOCK_SPACING)}px`,
+                                        height: `${blockSize}px`,
+                                    }}
+                                    alignItems='center'
+                                    justifyContent='center'
+                                >
+                                    <Typography variant='caption'>
+                                        {WEEKDAY_LABELS[(i * 2 + 1 + weekStartOn) % 7]}
+                                    </Typography>
+                                </Stack>
+                            ))}
+                    </Stack>
+                </Paper>
+
+                <ActivityCalendar
+                    ref={setCalendarRef}
+                    colorScheme={isLight ? 'light' : 'dark'}
+                    theme={{
+                        light: LIGHT_THEME,
+                        dark: DARK_THEME,
+                    }}
+                    data={activities}
+                    renderBlock={(block, activity) =>
+                        colorMode === 'monochrome' ? (
+                            <MonochromeBlock
+                                block={block}
+                                activity={activity as Activity}
+                                field={field}
+                                baseColor={theme[0]}
+                                clamp={clamp}
+                            />
+                        ) : (
+                            <Block
+                                block={block}
+                                activity={activity as Activity}
+                                field={field}
+                                baseColor={theme[0]}
+                                clamp={clamp}
+                            />
+                        )
+                    }
+                    maxLevel={MAX_LEVEL}
+                    weekStart={weekStartOn}
+                    hideColorLegend
+                    hideTotalCount
+                    blockSize={blockSize}
+                />
+            </Stack>
+            <Stack
+                direction='row'
+                justifyContent='space-between'
+                alignItems='center'
+                flexWrap='wrap'
+                gap='4px 16px'
+                mt={0.5}
+            >
+                <Typography sx={{ fontSize: '14px' }}>
+                    {field === 'dojoPoints'
+                        ? `${Math.round(10 * totalCount) / 10} Dojo points ${description}`
+                        : `${formatTime(totalCount)} ${description}`}
+                </Typography>
+
+                <Stack direction='row' alignItems='center' gap='3px'>
+                    <Typography sx={{ fontSize: '14px', mr: '0.4em' }}>Less</Typography>
+
+                    {Array(MAX_LEVEL + 1)
+                        .fill(0)
+                        .map((_, i) => (
+                            <LegendTooltip
+                                key={i}
+                                block={
+                                    <svg width={blockSize} height={blockSize}>
+                                        <rect
+                                            width={blockSize}
+                                            height={blockSize}
+                                            fill={theme[i]}
+                                            rx='2'
+                                            ry='2'
+                                            style={{
+                                                stroke: 'rgba(255, 255, 255, 0.04)',
+                                            }}
+                                        ></rect>
+                                    </svg>
+                                }
+                                level={i}
+                                clamp={clamp}
+                                field={field}
+                            />
+                        ))}
+
+                    <Typography sx={{ fontSize: '14px', ml: '0.4em' }}>More</Typography>
+                </Stack>
+            </Stack>
             <CategoryLegend />
         </Stack>
     );
