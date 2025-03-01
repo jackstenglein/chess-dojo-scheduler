@@ -6,6 +6,7 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
+    Box,
     Divider,
     Stack,
     Typography,
@@ -170,35 +171,37 @@ export function TimeframeTrainingPlanSection({
                     );
                 })}
 
-                {extraTasks.length > 0 && (
-                    <>
-                        <Typography
-                            variant='body1'
-                            fontWeight={700}
-                            sx={{ mt: 6, mb: 1 }}
-                        >
-                            Unscheduled Work
-                        </Typography>
-                        <Divider sx={{ mb: 4 }} />
-                    </>
-                )}
+                <Box sx={{ opacity: 0.75 }}>
+                    {extraTasks.length > 0 && (
+                        <>
+                            <Typography
+                                variant='body1'
+                                fontWeight={700}
+                                sx={{ mt: 6, mb: 1 }}
+                            >
+                                Unscheduled Work
+                            </Typography>
+                            <Divider sx={{ mb: 4 }} />
+                        </>
+                    )}
 
-                {extraTasks.map((task) => {
-                    return (
-                        <TimeframeTrainingPlanItem
-                            key={task.id}
-                            startDate={startDate}
-                            endDate={endDate}
-                            task={task}
-                            goalMinutes={0}
-                            progress={user.progress[task.id]}
-                            cohort={user.dojoCohort}
-                            isCurrentUser={isCurrentUser}
-                            isPinned={pinnedTasks.some((t) => t.id === task.id)}
-                            togglePin={togglePin}
-                        />
-                    );
-                })}
+                    {extraTasks.map((task) => {
+                        return (
+                            <TimeframeTrainingPlanItem
+                                key={task.id}
+                                startDate={startDate}
+                                endDate={endDate}
+                                task={task}
+                                goalMinutes={0}
+                                progress={user.progress[task.id]}
+                                cohort={user.dojoCohort}
+                                isCurrentUser={isCurrentUser}
+                                isPinned={pinnedTasks.some((t) => t.id === task.id)}
+                                togglePin={togglePin}
+                            />
+                        );
+                    })}
+                </Box>
             </AccordionDetails>
         </Accordion>
     );

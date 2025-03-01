@@ -11,15 +11,15 @@ const progressProps = [
     {
         size: '3.5rem',
     },
-    {
-        size: '4.25rem',
-        thickness: 3,
-    },
-    {
-        size: '4.95rem',
-        thickness: 2.3,
-    },
-];
+    // {
+    //     size: '4.25rem',
+    //     thickness: 3,
+    // },
+    // {
+    //     size: '4.95rem',
+    //     thickness: 2.3,
+    // },
+] as const;
 
 export function CircularTimeProgress(
     props: CircularProgressProps & { value: number; max: number },
@@ -54,6 +54,7 @@ export function CircularTimeProgress(
         );
     }
 
+    const time = formatTime(props.value);
     return (
         <Box
             component={props.onClick ? IconButton : 'div'}
@@ -95,9 +96,12 @@ export function CircularTimeProgress(
                 <Typography
                     variant='caption'
                     component='div'
-                    sx={{ color: 'text.secondary' }}
+                    sx={{
+                        color: 'text.secondary',
+                        fontSize: time.length === 7 ? '0.65rem' : undefined,
+                    }}
                 >
-                    {formatTime(props.value)}
+                    {time}
                 </Typography>
             </Box>
         </Box>
