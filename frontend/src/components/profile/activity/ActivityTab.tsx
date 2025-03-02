@@ -4,6 +4,7 @@ import { Grid2 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Heatmap } from '../info/Heatmap';
 import { getBlockSize, MIN_BLOCK_SIZE } from '../info/HeatmapCard';
+import { DEFAULT_WORK_GOAL } from '../trainingPlan/workGoal';
 import ActivityPieChart from './ActivityPieChart';
 import ActivityTimeline from './ActivityTimeline';
 import { useTimelineContext } from './useTimeline';
@@ -35,6 +36,11 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ user }) => {
                             elevation: 0,
                         },
                     }}
+                    workGoalHistory={
+                        user.workGoalHistory ?? [
+                            { date: '', workGoal: user.workGoal ?? DEFAULT_WORK_GOAL },
+                        ]
+                    }
                 />
             </Grid2>
             <Grid2 size={12} sx={{ mt: 4 }}>

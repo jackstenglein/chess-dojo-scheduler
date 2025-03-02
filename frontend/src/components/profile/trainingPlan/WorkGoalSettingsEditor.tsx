@@ -1,6 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { WorkGoalSettings } from '@/database/user';
+import { WorkGoalHistory, WorkGoalSettings } from '@/database/user';
 import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { Settings } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -29,6 +29,7 @@ const NUMBER_REGEX = /^[0-9]*$/;
 export function WorkGoalSettingsEditor({
     initialWeekStart = 0,
     workGoal = DEFAULT_WORK_GOAL,
+    workGoalHistory = [],
     disabled,
     view,
 }: {
@@ -36,6 +37,8 @@ export function WorkGoalSettingsEditor({
     initialWeekStart?: WeekDays;
     /** The initial work goal settings. If undefined, the default settings will be used. */
     workGoal?: WorkGoalSettings;
+    /** The user's history of the work goal. */
+    workGoalHistory?: WorkGoalHistory[];
     /** Whether the editor is disabled. */
     disabled: boolean;
     /** Whether to display the goal on the dialog trigger in daily or weekly terms. */
@@ -45,12 +48,12 @@ export function WorkGoalSettingsEditor({
     const api = useApi();
     const request = useRequest();
 
-    const [originalWeekStart, setOriginalWeekStart] = useLocalStorage<WeekDays>(
+    const [originalWeekStart] = useLocalStorage<WeekDays>(
         'calendarFilters.weekStartOn',
         0,
     );
 
-    const [weekStart, setWeekStart] = useState(originalWeekStart || initialWeekStart);
+    const [weekStart, setWeekStart] = useState(initialWeekStart ?? originalWeekStart);
     const timePerDay = useTimePerDay(workGoal);
     const minutesPerWeek = timePerDay.reduce((sum, t) => sum + t.total, 0);
 
@@ -72,16 +75,29 @@ export function WorkGoalSettingsEditor({
             return;
         }
 
+        let newWorkGoalHistory: WorkGoalHistory[] | undefined = undefined;
+        if (
+            workGoalHistory.length === 0 ||
+            workGoalHistory
+                .at(-1)
+                ?.workGoal.minutesPerDay.some((min, i) => timePerDay[i].total !== min)
+        ) {
+            newWorkGoalHistory = workGoalHistory.concat({
+                date: new Date().toISOString(),
+                workGoal: {
+                    minutesPerDay: timePerDay.map((t) => t.total),
+                },
+            });
+        }
         try {
             request.onStart();
             await api.updateUser({
                 weekStart,
                 workGoal: {
-                    minutesPerTask: DEFAULT_WORK_GOAL.minutesPerTask,
                     minutesPerDay: timePerDay.map((t) => t.total),
                 },
+                workGoalHistory: newWorkGoalHistory,
             });
-            setOriginalWeekStart(weekStart);
             request.onSuccess();
             setOpen(false);
         } catch (err) {

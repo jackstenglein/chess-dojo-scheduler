@@ -315,6 +315,9 @@ type User struct {
 	// The user's work goal settings
 	WorkGoal *WorkGoalSettings `dynamodbav:"workGoal,omitempty" json:"workGoal,omitempty"`
 
+	// The user's history of the work goal. New entries are added only when the work goal is changed.
+	WorkGoalHistory []WorkGoalHistory `dynamodbav:"workGoalHistory,omitempty" json:"workGoalHistory,omitempty"`
+
 	// The user's weekly training plan
 	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`
 
@@ -352,10 +355,14 @@ type WorkGoalSettings struct {
 	// A list of the minutes the user wants to work per day of the week.
 	// Sunday is index 0; Saturday is index 6.
 	MinutesPerDay []int `dynamodbav:"minutesPerDay" json:"minutesPerDay"`
+}
 
-	// The minimum minutes the user will spend on each task per day. In conjunction
-	// with minutes per day, this affects how many tasks the user is suggested.
-	MinutesPerTask int `dynamodbav:"minutesPerTask" json:"minutesPerTask"`
+type WorkGoalHistory struct {
+	// The date the user set the work goal, in ISO 8601.
+	Date string `dynamodbav:"date" json:"date"`
+
+	// The user's work goal on the given date.
+	WorkGoal WorkGoalSettings `dynamodbav:"workGoal" json:"workGoal"`
 }
 
 type WeeklyPlan struct {
@@ -720,6 +727,9 @@ type UserUpdate struct {
 
 	// The work goal settings of the user.
 	WorkGoal *WorkGoalSettings `dynamodbav:"workGoal,omitempty" json:"workGoal,omitempty"`
+
+	// The user's history of the work goal. New entries are added only when the work goal is changed.
+	WorkGoalHistory *[]WorkGoalHistory `dynamodbav:"workGoalHistory,omitempty" json:"workGoalHistory,omitempty"`
 
 	// The user's weekly training plan.
 	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`

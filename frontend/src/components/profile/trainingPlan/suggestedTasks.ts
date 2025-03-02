@@ -1,3 +1,4 @@
+import { getTimeZonedDate } from '@/calendar/displayDate';
 import {
     CustomTask,
     Requirement,
@@ -20,7 +21,7 @@ import {
     WorkGoalSettings,
     isFree,
 } from '@/database/user';
-import { DEFAULT_WORK_GOAL } from './workGoal';
+import { DEFAULT_MINUTES_PER_TASK, DEFAULT_WORK_GOAL } from './workGoal';
 
 export type Task = Requirement | CustomTask;
 
@@ -230,7 +231,7 @@ export class TaskSuggestionAlgorithm {
             ];
             let maxTasksWithTime = Math.max(
                 1,
-                Math.floor(minutesToday / DEFAULT_WORK_GOAL.minutesPerTask),
+                Math.floor(minutesToday / DEFAULT_MINUTES_PER_TASK),
             );
             maxTasksWithTime = Math.min(
                 maxTasksWithTime,
@@ -623,7 +624,7 @@ function weeklyPlanMatchesWorkGoal(
 
         const maxTasks = Math.max(
             1,
-            Math.floor(workGoal.minutesPerDay[i] / DEFAULT_WORK_GOAL.minutesPerTask),
+            Math.floor(workGoal.minutesPerDay[i] / DEFAULT_MINUTES_PER_TASK),
         );
         const tasksWithTime = day.slice(0, maxTasks).length;
         const expectedTime =
@@ -688,6 +689,7 @@ export function getUpcomingGameSchedule(
  * Returns a date in the format 2025-12-31 in the user's local timezone.
  * @param date The date to convert.
  */
-export function toLocalDateString(date: Date): string {
+export function toLocalDateString(date: Date, timezone?: string): string {
+    date = getTimeZonedDate(date, timezone);
     return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
 }

@@ -174,6 +174,9 @@ export interface User {
     /** The user's work goal settings. */
     workGoal?: WorkGoalSettings;
 
+    /** The user's history of the work goal. New entries are added only when the work goal is changed. */
+    workGoalHistory?: WorkGoalHistory[];
+
     /** The user's weekly training plan. */
     weeklyPlan?: WeeklyPlan;
 
@@ -188,11 +191,13 @@ export interface WorkGoalSettings {
      * user is suggested. Sunday is index 0; Saturday is index 6.
      */
     minutesPerDay: number[];
-    /**
-     * The minimum minutes the user will spend on each task per day. In conjunction
-     * with minutesPerDay, this affects how many tasks the user is suggested.
-     */
-    minutesPerTask: number;
+}
+
+export interface WorkGoalHistory {
+    /** The date the user set the work goal, in ISO 8601. */
+    date: string;
+    /** The user's work goal on the given date. */
+    workGoal: WorkGoalSettings;
 }
 
 export interface WeeklyPlan {
@@ -984,7 +989,7 @@ export function isCohortPromptHidden(user?: User): boolean {
 
 /**
  * Creates a partial user object where hideCohortPrompt is one month (30 days) after todays date.
- * @param user In order to update the hideCohortPromptUntil field, all the fields in the 
+ * @param user In order to update the hideCohortPromptUntil field, all the fields in the
  * UserNotificationSettings and SiteNotificationSettings needs to be provided.
  * @returns A partial User object
  */
