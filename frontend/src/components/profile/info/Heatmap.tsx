@@ -228,7 +228,7 @@ export function Heatmap({
             >
                 <Paper
                     elevation={1}
-                    sx={{ position: 'sticky', left: 0, pr: 0.5, borderRadius: 0, pb: 4 }}
+                    sx={{ position: 'sticky', left: 0, pr: 0.75, borderRadius: 0, pb: 4 }}
                     {...slotProps?.weekdayLabelPaper}
                 >
                     <Stack>
