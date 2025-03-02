@@ -1,4 +1,4 @@
-import { useTimelineContext } from '@/profile/activity/useTimeline';
+import { useTimelineContext } from '@/components/profile/activity/useTimeline';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { Close } from '@mui/icons-material';
 import { Card, CardContent, Dialog, DialogContent, IconButton } from '@mui/material';

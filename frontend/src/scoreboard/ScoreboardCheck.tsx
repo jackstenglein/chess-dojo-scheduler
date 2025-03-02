@@ -1,5 +1,5 @@
+import { TimelineProvider } from '@/components/profile/activity/useTimeline';
 import { TaskDialog, TaskDialogView } from '@/components/profile/trainingPlan/TaskDialog';
-import { TimelineProvider } from '@/profile/activity/useTimeline';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { Box } from '@mui/material';

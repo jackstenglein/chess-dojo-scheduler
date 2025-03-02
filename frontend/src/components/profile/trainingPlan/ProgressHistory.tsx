@@ -1,6 +1,7 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useTimelineContext } from '@/components/profile/activity/useTimeline';
 import {
     CustomTask,
     Requirement,
@@ -12,7 +13,6 @@ import {
 import { TimelineEntry } from '@/database/timeline';
 import { ALL_COHORTS, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import { useTimelineContext } from '@/profile/activity/useTimeline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 import {

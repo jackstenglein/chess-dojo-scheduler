@@ -1,3 +1,6 @@
+import { useApi } from '@/api/Api';
+import { Request, useRequest } from '@/api/Request';
+import { TimelineEntry } from '@/database/timeline';
 import React, {
     createContext,
     ReactNode,
@@ -6,9 +9,6 @@ import React, {
     useEffect,
     useState,
 } from 'react';
-import { useApi } from '../../api/Api';
-import { Request, useRequest } from '../../api/Request';
-import { TimelineEntry } from '../../database/timeline';
 
 export interface UseTimelineResponse {
     request: Request;

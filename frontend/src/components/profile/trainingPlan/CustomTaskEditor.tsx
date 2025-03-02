@@ -2,6 +2,7 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
+import { useTimelineContext } from '@/components/profile/activity/useTimeline';
 import { CohortSelect } from '@/components/ui/CohortSelect';
 import {
     CustomTask,
@@ -11,7 +12,6 @@ import {
     ScoreboardDisplay,
 } from '@/database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '@/database/user';
-import { useTimelineContext } from '@/profile/activity/useTimeline';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,

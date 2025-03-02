@@ -1,3 +1,4 @@
+import { useTimelineContext } from '@/components/profile/activity/useTimeline';
 import {
     CustomTask,
     Requirement,
@@ -8,7 +9,6 @@ import {
     getCurrentCount,
     getTotalCount,
 } from '@/database/requirement';
-import { useTimelineContext } from '@/profile/activity/useTimeline';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { AddCircle, PushPin, PushPinOutlined } from '@mui/icons-material';

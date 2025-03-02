@@ -1,6 +1,7 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useTimelineContext } from '@/components/profile/activity/useTimeline';
 import {
     CustomTask,
     Requirement,
@@ -9,7 +10,6 @@ import {
     getCurrentCount,
     isRequirement,
 } from '@/database/requirement';
-import { useTimelineContext } from '@/profile/activity/useTimeline';
 import { LoadingButton } from '@mui/lab';
 import {
     Alert,

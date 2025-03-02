@@ -1,6 +1,6 @@
 import { useAuth } from '@/auth/Auth';
+import { TimelineProvider } from '@/components/profile/activity/useTimeline';
 import { TaskDialog, TaskDialogView } from '@/components/profile/trainingPlan/TaskDialog';
-import { TimelineProvider } from '@/profile/activity/useTimeline';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
 import React, { useState } from 'react';
 import { Graduation, isGraduation } from '../database/graduation';

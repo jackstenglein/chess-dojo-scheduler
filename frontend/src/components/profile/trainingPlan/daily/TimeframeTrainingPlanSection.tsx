@@ -1,7 +1,7 @@
 import { useRequirements } from '@/api/cache/requirements';
+import { useTimelineContext } from '@/components/profile/activity/useTimeline';
 import { CustomTask, formatTime, Requirement } from '@/database/requirement';
 import { ALL_COHORTS, User } from '@/database/user';
-import { useTimelineContext } from '@/profile/activity/useTimeline';
 import {
     Accordion,
     AccordionDetails,

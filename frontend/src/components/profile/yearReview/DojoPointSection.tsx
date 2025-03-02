@@ -1,7 +1,7 @@
 import { useAuth } from '@/auth/Auth';
+import { ScoreCategories } from '@/components/profile/activity/activity';
 import { RequirementCategory } from '@/database/requirement';
 import { YearReviewDataSection } from '@/database/yearReview';
-import { ScoreCategories } from '@/profile/activity/activity';
 import { CategoryColors } from '@/style/ThemeProvider';
 import {
     Box,

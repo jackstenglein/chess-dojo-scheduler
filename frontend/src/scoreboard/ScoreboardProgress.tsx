@@ -1,5 +1,5 @@
+import { TimelineProvider } from '@/components/profile/activity/useTimeline';
 import { TaskDialog, TaskDialogView } from '@/components/profile/trainingPlan/TaskDialog';
-import { TimelineProvider } from '@/profile/activity/useTimeline';
 import { Box, LinearProgress, LinearProgressProps, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
