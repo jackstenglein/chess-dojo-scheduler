@@ -13,6 +13,7 @@ import {
     Divider,
     FormControlLabel,
     Paper,
+    PaperProps,
     Stack,
     Tooltip,
     Typography,
@@ -116,6 +117,7 @@ export function Heatmap({
     onPopOut,
     minDate,
     maxDate,
+    slotProps,
 }: {
     entries: TimelineEntry[];
     description: string;
@@ -123,6 +125,9 @@ export function Heatmap({
     onPopOut?: () => void;
     minDate?: string;
     maxDate?: string;
+    slotProps?: {
+        weekdayLabelPaper?: PaperProps;
+    };
 }) {
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
@@ -173,6 +178,7 @@ export function Heatmap({
                 <Paper
                     elevation={1}
                     sx={{ position: 'sticky', left: 0, pr: 0.5, borderRadius: 0, pb: 4 }}
+                    {...slotProps?.weekdayLabelPaper}
                 >
                     <Stack>
                         {Array(3)
