@@ -6,6 +6,7 @@ import { User } from '@/database/user';
 import CohortIcon, { cohortIcons } from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
+import { CheckCircle, Close } from '@mui/icons-material';
 import {
     Box,
     Checkbox,
@@ -171,7 +172,7 @@ export function Heatmap({
             >
                 <Paper
                     elevation={1}
-                    sx={{ position: 'sticky', left: 0, pr: 0.5, borderRadius: 0 }}
+                    sx={{ position: 'sticky', left: 0, pr: 0.5, borderRadius: 0, pb: 4 }}
                 >
                     <Stack>
                         {Array(3)
@@ -191,42 +192,56 @@ export function Heatmap({
                                     </Typography>
                                 </Stack>
                             ))}
+                        <Stack
+                            sx={{
+                                mt: `${blockSize + 2 * BLOCK_SPACING + 7}px`,
+                                height: `${blockSize}px`,
+                            }}
+                            alignItems='center'
+                            justifyContent='center'
+                        >
+                            <Typography variant='caption'>Week</Typography>
+                        </Stack>
                     </Stack>
                 </Paper>
 
-                <ActivityCalendar
-                    ref={setCalendarRef}
-                    colorScheme={isLight ? 'light' : 'dark'}
-                    theme={{
-                        light: LIGHT_THEME,
-                        dark: DARK_THEME,
-                    }}
-                    data={activities}
-                    renderBlock={(block, activity) =>
-                        colorMode === 'monochrome' ? (
-                            <MonochromeBlock
-                                block={block}
-                                activity={activity as Activity}
-                                field={field}
-                                baseColor={theme[0]}
-                                clamp={clamp}
-                            />
-                        ) : (
-                            <Block
-                                block={block}
-                                activity={activity as Activity}
-                                field={field}
-                                baseColor={theme[0]}
-                                clamp={clamp}
-                            />
-                        )
-                    }
-                    maxLevel={MAX_LEVEL}
-                    weekStart={weekStartOn}
-                    hideColorLegend
-                    hideTotalCount
-                    blockSize={blockSize}
-                />
+                <Stack>
+                    <ActivityCalendar
+                        ref={setCalendarRef}
+                        colorScheme={isLight ? 'light' : 'dark'}
+                        theme={{
+                            light: LIGHT_THEME,
+                            dark: DARK_THEME,
+                        }}
+                        data={activities}
+                        renderBlock={(block, activity) =>
+                            colorMode === 'monochrome' ? (
+                                <MonochromeBlock
+                                    block={block}
+                                    activity={activity as Activity}
+                                    field={field}
+                                    baseColor={theme[0]}
+                                    clamp={clamp}
+                                />
+                            ) : (
+                                <Block
+                                    block={block}
+                                    activity={activity as Activity}
+                                    field={field}
+                                    baseColor={theme[0]}
+                                    clamp={clamp}
+                                />
+                            )
+                        }
+                        maxLevel={MAX_LEVEL}
+                        weekStart={weekStartOn}
+                        hideColorLegend
+                        hideTotalCount
+                        blockSize={blockSize}
+                    />
+                    <Divider sx={{ mt: '-6px' }} />
+                    <Divider sx={{ mt: '2px' }} />
+                </Stack>
             </Stack>
             <Stack
                 direction='row'
@@ -494,6 +509,8 @@ function Block({
     const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
     const icon = Boolean(activity.graduation || activity.gamePlayed);
 
+    const isEndOfWeek = new Date(activity.date).getUTCDay() === 6;
+
     return (
         <>
             {activity.graduation ? (
@@ -555,6 +572,32 @@ function Block({
                     })
                 )}
             </Tooltip>
+
+            {isEndOfWeek && Math.random() < 0.5 ? (
+                <CheckCircle
+                    x={block.props.x}
+                    y={(block.props.y as number) + (block.props.height as number) + 12}
+                    width={block.props.width}
+                    height={block.props.height}
+                    sx={{ fontSize: `${block.props.width}px` }}
+                    color='success'
+                />
+            ) : (
+                isEndOfWeek && (
+                    <Close
+                        x={block.props.x}
+                        y={
+                            (block.props.y as number) +
+                            (block.props.height as number) +
+                            12
+                        }
+                        width={block.props.width}
+                        height={block.props.height}
+                        sx={{ fontSize: `${block.props.width}px` }}
+                        color='error'
+                    />
+                )
+            )}
         </>
     );
 }
