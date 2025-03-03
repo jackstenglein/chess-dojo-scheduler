@@ -63,6 +63,10 @@ const sections: NotificationSettingsSection[] = [
                 path: 'siteNotificationSettings.disableGameComment',
             },
             {
+                label: 'Notify me when a reply is added to a game comment thread I participated in',
+                path: 'siteNotificationSettings.disableGameCommentReplies',
+            },
+            {
                 label: 'Notify me when I have a new follower',
                 path: 'siteNotificationSettings.disableNewFollower',
             },
