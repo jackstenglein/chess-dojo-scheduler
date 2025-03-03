@@ -139,9 +139,10 @@ const NotificationMenuItem: React.FC<
     );
 };
 
-function getLink(notification: Notification) {
+function getLink(notification: Notification): string {
     switch (notification.type) {
         case NotificationType.GameComment:
+        case NotificationType.GameCommentReply:
             return `/games/${notification.gameCommentMetadata?.cohort}/${notification.gameCommentMetadata?.id}`;
         case NotificationType.GameReviewComplete:
             return `/games/${notification.gameReviewMetadata?.cohort}/${notification.gameReviewMetadata?.id}`;

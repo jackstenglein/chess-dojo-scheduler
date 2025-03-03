@@ -407,6 +407,9 @@ type SiteNotificationSettings struct {
 	// Whether to disable notifications on game comments
 	DisableGameComment bool `dynamodbav:"disableGameComment" json:"disableGameComment"`
 
+	// Whether to disable notifications on game comment replies
+	DisableGameCommentReplies bool `dynamodbav:"disableGameCommentReplies" json:"disableGameCommentReplies"`
+
 	// Whether to disable notifications on game reviews
 	DisableGameReview bool `dynamodbav:"disableGameReview" json:"disableGameReview"`
 
@@ -428,6 +431,13 @@ func (sns *SiteNotificationSettings) GetDisableGameComment() bool {
 		return false
 	}
 	return sns.DisableGameComment
+}
+
+func (sns *SiteNotificationSettings) GetDisableGameCommentReplies() bool {
+	if sns == nil {
+		return false
+	}
+	return sns.DisableGameCommentReplies
 }
 
 func (sns *SiteNotificationSettings) GetDisableGameReview() bool {
