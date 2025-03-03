@@ -74,9 +74,9 @@ export function FullTrainingPlan({ user }: { user: User }) {
         const tasks = (requirements as (Requirement | CustomTask)[]).concat(
             user.customTasks ?? [],
         );
-        tasks.forEach((task) => {
-            if (!(cohort in task.counts)) {
-                return;
+        for (const task of tasks) {
+            if (task.counts[cohort] === undefined) {
+                continue;
             }
 
             const s = sections.find((s) => s.category === task.category);
@@ -88,7 +88,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
             if (s === undefined) {
                 sections.push({
                     category: task.category,
-                    tasks: complete && showCompleted ? [task] : [],
+                    tasks: !complete || showCompleted ? [task] : [],
                     complete: complete ? 1 : 0,
                     total: 1,
                 });
@@ -101,7 +101,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
                     s.tasks.push(task);
                 }
             }
-        });
+        }
 
         return sections;
     }, [requirements, user, cohort, showCompleted, pinnedTasks]);
