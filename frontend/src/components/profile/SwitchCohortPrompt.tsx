@@ -17,8 +17,13 @@ export function SwitchCohortPrompt() {
 
     const [showGraduation, setShowGraduation] = useState(false);
     const [open, setOpen] = useState(false);
+    const [forceClose, setForceClose] = useState(false);
 
     useEffect(() => {
+        if (forceClose) {
+            return;
+        }
+
         const userHasHiddenCohortPrompt = isCohortPromptHidden(user);
         if (userHasHiddenCohortPrompt) {
             setOpen(false);
@@ -40,7 +45,7 @@ export function SwitchCohortPrompt() {
         }
 
         setOpen(false);
-    }, [user]);
+    }, [user, forceClose]);
 
     const handleHideCohortPrompt = () => {
         const partialUser = getPartialUserHideCohortPrompt(user);
@@ -50,6 +55,7 @@ export function SwitchCohortPrompt() {
 
     const handleClose = () => {
         setOpen(false);
+        setForceClose(true);
     };
 
     return (

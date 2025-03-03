@@ -275,6 +275,7 @@ export interface EmailNotificationSettings {
 
 export interface SiteNotificationSettings {
     disableGameComment: boolean;
+    disableGameCommentReplies: boolean;
     disableNewFollower: boolean;
     disableNewsfeedComment: boolean;
     disableNewsfeedReaction: boolean;
@@ -997,6 +998,7 @@ export function getPartialUserHideCohortPrompt(user?: User): Partial<User> {
     const siteNotificationSettings = user?.notificationSettings
         ?.siteNotificationSettings ?? {
         disableGameComment: false,
+        disableGameCommentReplies: false,
         disableNewFollower: false,
         disableNewsfeedComment: false,
         disableNewsfeedReaction: false,

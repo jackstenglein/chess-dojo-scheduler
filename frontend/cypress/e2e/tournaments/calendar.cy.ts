@@ -132,9 +132,10 @@ describe('Calendar Tab', () => {
 
     it('allows switching between month, week and day views', () => {
         cy.get('[data-testid="rs-wrapper"]').contains('Month').click();
-        cy.get('.rs__cell').should('have.length', 6 * 7);
+        cy.get('.rs__header').should('have.length', 7);
 
         cy.get('[data-testid="rs-wrapper"]').contains('Week').click();
+        cy.get('.rs__header').should('have.length', 31);
         cy.get('.rs__cell').should('have.length', 25 * 8);
 
         cy.get('[data-testid="rs-wrapper"]').contains('Day').click();
