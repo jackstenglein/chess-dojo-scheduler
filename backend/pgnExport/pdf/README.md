@@ -13,9 +13,9 @@ mkdir bin
 tar -xJf "typst.tar.xz" -C typst-container
 mv typst-container/typst-x86_64-unknown-linux-musl/typst bin/typst
 
-curl -SL https://packages.typst.org/preview/board-n-pieces-0.5.0.tar.gz -o board-n-pieces-0.5.0.tar.gz
+curl -SL https://packages.typst.org/preview/board-n-pieces-0.6.0.tar.gz -o board-n-pieces-0.6.0.tar.gz
 mkdir -p lib/typst/packages/preview/board-n-pieces/
-tar -xvzf board-n-pieces-0.5.0.tar.gz -C lib/typst/packages/preview/board-n-pieces/0.5.0
+tar -xvzf board-n-pieces-0.6.0.tar.gz -C lib/typst/packages/preview/board-n-pieces/0.6.0
 zip -r layer.zip bin lib
 ```
 
@@ -29,7 +29,7 @@ lib/
       packages/
          preview/
             board-n-pieces/
-               0.5.0/
+               0.6.0/
                   LICENSE
                   README.md
                   assets
