@@ -404,7 +404,11 @@ export class TaskSuggestionAlgorithm {
      */
     getSuggestedTasks(date: Date): Task[] {
         const suggestedTasks: Task[] = [];
-        suggestedTasks.push(...this.pinnedTasks);
+        suggestedTasks.push(
+            ...this.pinnedTasks.filter(
+                (t) => !isComplete(this.user.dojoCohort, t, this.user.progress[t.id]),
+            ),
+        );
 
         const upcomingGames = getUpcomingGameSchedule(this.user.gameSchedule);
         for (const upcoming of upcomingGames) {
