@@ -8,6 +8,7 @@ import {
     formatTime,
     getCurrentCount,
     getTotalCount,
+    isRequirement,
 } from '@/database/requirement';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { CategoryColors } from '@/style/ThemeProvider';
@@ -78,9 +79,13 @@ export const TimeframeTrainingPlanItem = ({
     const currentCount = getCurrentCount(cohort, task, progress);
 
     const name = goalMinutes > 0 ? task.dailyName : task.name;
-    const requirementName = (name || task.name)
+    let requirementName = (name || task.name)
         .replaceAll('{{count}}', `${totalCount}`)
         .replaceAll('{{time}}', formatTime(goalMinutes));
+
+    if (!isRequirement(task) && goalMinutes > 0) {
+        requirementName += ` - ${formatTime(goalMinutes)}`;
+    }
 
     return (
         <Stack spacing={2} mt={2}>
