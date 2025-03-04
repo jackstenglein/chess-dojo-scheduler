@@ -27,9 +27,12 @@ import {
     CardContent,
     Checkbox,
     Divider,
+    FormControl,
     FormControlLabel,
     FormGroup,
     FormLabel,
+    Radio,
+    RadioGroup,
     Slider,
     Stack,
 } from '@mui/material';
@@ -74,6 +77,8 @@ export function ShareTab() {
         setSkipHeader,
         skipClocks,
         setSkipClocks,
+        pdfDiagramMode,
+        setPdfDiagramMode,
         plyBetweenDiagrams,
         setPlyBetweenDiagrams,
     } = usePgnExportOptions();
@@ -277,7 +282,8 @@ export function ShareTab() {
                 skipNags,
                 skipVariations,
                 skipNullMoves,
-                plyBetweenDiagrams,
+                plyBetweenDiagrams:
+                    pdfDiagramMode === 'markedPositions' ? -1 : plyBetweenDiagrams,
             });
 
             const white = getPlayer(chess, 'White', 'WhiteElo');
@@ -470,22 +476,50 @@ export function ShareTab() {
                     </FormGroup>
                 </Stack>
 
-                <FormGroup sx={{ mt: 1.5, mb: 1 }}>
-                    <FormLabel>
-                        {plyBetweenDiagrams / 2} Moves Between Diagrams (PDF Only)
-                    </FormLabel>
-                    <Slider
-                        value={plyBetweenDiagrams}
-                        onChange={(_, value) => setPlyBetweenDiagrams(value as number)}
-                        step={2}
-                        min={pgnExportOptions.plyBetweenDiagrams.min}
-                        max={pgnExportOptions.plyBetweenDiagrams.max}
-                        valueLabelFormat={(value) => {
-                            return value / 2;
-                        }}
-                        valueLabelDisplay='auto'
-                    />
-                </FormGroup>
+                <FormControl sx={{ mt: 1.5, mb: 1 }}>
+                    <FormLabel>PDF Diagrams</FormLabel>
+                    <RadioGroup
+                        row
+                        value={pdfDiagramMode}
+                        onChange={(e) =>
+                            setPdfDiagramMode(
+                                e.target.value as 'markedPositions' | 'numMoves',
+                            )
+                        }
+                    >
+                        <FormControlLabel
+                            value='markedPositions'
+                            control={<Radio />}
+                            label='Marked Positions Only'
+                        />
+                        <FormControlLabel
+                            value='numMoves'
+                            control={<Radio />}
+                            label={`Marked Positions + Every ${plyBetweenDiagrams / 2} Moves`}
+                        />
+                    </RadioGroup>
+                </FormControl>
+
+                {pdfDiagramMode === 'numMoves' && (
+                    <FormGroup>
+                        <FormLabel>
+                            {plyBetweenDiagrams / 2} Moves Between Diagrams
+                        </FormLabel>
+                        <Slider
+                            value={plyBetweenDiagrams}
+                            onChange={(_, value) =>
+                                setPlyBetweenDiagrams(value as number)
+                            }
+                            step={2}
+                            min={pgnExportOptions.plyBetweenDiagrams.min}
+                            max={pgnExportOptions.plyBetweenDiagrams.max}
+                            valueLabelFormat={(value) => {
+                                return value / 2;
+                            }}
+                            valueLabelDisplay='auto'
+                        />
+                    </FormGroup>
+                )}
 
                 <Stack
                     direction='row'

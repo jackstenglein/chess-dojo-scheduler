@@ -60,6 +60,7 @@ export const positionalNags: Nag[] = [
     '$1301',
     '$1302',
     '$1303',
+    '$1304',
 ];
 
 export function getNagInSet(nagSet: Nag[], nags: string[] | undefined): Nag {
