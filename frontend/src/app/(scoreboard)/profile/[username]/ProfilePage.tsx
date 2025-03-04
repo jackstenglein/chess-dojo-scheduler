@@ -47,7 +47,16 @@ import {
     Timeline,
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
-import { Box, Container, IconButton, Stack, Tab, Tabs, Tooltip } from '@mui/material';
+import {
+    Box,
+    Container,
+    IconButton,
+    Stack,
+    Tab,
+    Tabs,
+    Tooltip,
+    useMediaQuery,
+} from '@mui/material';
 import { useEffect } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
@@ -73,6 +82,7 @@ function AuthProfilePage({
     const auth = useAuth();
     const request = useRequest<User>();
     const followRequest = useRequest<FollowerEntry>();
+    const isLarge = useMediaQuery((theme) => theme.breakpoints.up('lg'));
 
     const currentUserProfile = !username || username === currentUser?.username;
 
@@ -340,28 +350,29 @@ function AuthProfilePage({
                     )}
                 </Container>
 
-                <Container
-                    sx={{
-                        marginLeft: 0,
-                        gridArea: 'stats',
-                        display: { xs: 'none', lg: 'initial' },
-                    }}
-                >
-                    <Stack spacing={2}>
-                        <HeatmapCard
-                            workGoalHistory={
-                                user.workGoalHistory ?? [
-                                    {
-                                        date: '',
-                                        workGoal: user.workGoal ?? DEFAULT_WORK_GOAL,
-                                    },
-                                ]
-                            }
-                        />
-                        <DojoScoreCard user={user} cohort={user.dojoCohort} />
-                        <BadgeCard user={user} />
-                    </Stack>
-                </Container>
+                {isLarge && (
+                    <Container
+                        sx={{
+                            marginLeft: 0,
+                            gridArea: 'stats',
+                        }}
+                    >
+                        <Stack spacing={2}>
+                            <HeatmapCard
+                                workGoalHistory={
+                                    user.workGoalHistory ?? [
+                                        {
+                                            date: '',
+                                            workGoal: user.workGoal ?? DEFAULT_WORK_GOAL,
+                                        },
+                                    ]
+                                }
+                            />
+                            <DojoScoreCard user={user} cohort={user.dojoCohort} />
+                            <BadgeCard user={user} />
+                        </Stack>
+                    </Container>
+                )}
             </TimelineProvider>
         </Box>
     );
