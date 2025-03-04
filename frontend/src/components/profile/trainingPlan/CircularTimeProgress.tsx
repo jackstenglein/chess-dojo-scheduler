@@ -7,52 +7,15 @@ import {
     Typography,
 } from '@mui/material';
 
-const progressProps = [
-    {
-        size: '3.5rem',
-    },
-    // {
-    //     size: '4.25rem',
-    //     thickness: 3,
-    // },
-    // {
-    //     size: '4.95rem',
-    //     thickness: 2.3,
-    // },
-] as const;
-
 export function CircularTimeProgress(
     props: CircularProgressProps & { value: number; max: number },
 ) {
     const { onClick, ...rest } = props;
-    let value = (props.value / props.max) * 100;
+    const value = (props.value / props.max) * 100;
     const clampedValue = Math.min(100, value);
 
     const color =
         clampedValue < 50 ? 'error' : clampedValue < 100 ? 'warning' : 'success';
-
-    const rings: JSX.Element[] = [];
-
-    for (let i = 0; i < progressProps.length && value > 0; i++, value -= 100) {
-        rings.push(
-            <CircularProgress
-                {...rest}
-                key={i}
-                variant='determinate'
-                {...progressProps[i]}
-                value={Math.min(100, value)}
-                color={color}
-                sx={{
-                    gridRow: 1,
-                    gridColumn: 1,
-                    zIndex: 2,
-                    '& .MuiCircularProgress-circle': {
-                        strokeLinecap: 'round',
-                    },
-                }}
-            />,
-        );
-    }
 
     const time = formatTime(props.value);
     return (
@@ -79,7 +42,21 @@ export function CircularTimeProgress(
                 size='3.5rem'
             />
 
-            {rings}
+            <CircularProgress
+                {...rest}
+                variant='determinate'
+                size='3.5rem'
+                value={Math.min(100, value)}
+                color={color}
+                sx={{
+                    gridRow: 1,
+                    gridColumn: 1,
+                    zIndex: 2,
+                    '& .MuiCircularProgress-circle': {
+                        strokeLinecap: 'round',
+                    },
+                }}
+            />
 
             <Box
                 sx={{

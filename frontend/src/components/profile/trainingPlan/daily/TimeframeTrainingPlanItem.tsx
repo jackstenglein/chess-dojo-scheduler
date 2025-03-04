@@ -91,13 +91,14 @@ export const TimeframeTrainingPlanItem = ({
         <Stack spacing={2} mt={2}>
             <Grid2
                 container
-                columnGap={0.5}
+                columnGap={1}
                 alignItems='center'
                 justifyContent='space-between'
                 position='relative'
+                wrap='wrap'
             >
                 <Grid2
-                    size={9}
+                    size={{ xs: 'grow', sm: 9 }}
                     onClick={() => setTaskDialogView(TaskDialogView.Details)}
                     sx={{ cursor: 'pointer', position: 'relative' }}
                     id='task-details'
@@ -135,7 +136,8 @@ export const TimeframeTrainingPlanItem = ({
                         />
                     )}
                 </Grid2>
-                <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
+
+                <Grid2 size={{ xs: 'auto' }} id='task-status'>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
                         {goalMinutes > 0 ? (
                             <Tooltip title='Update Progress'>

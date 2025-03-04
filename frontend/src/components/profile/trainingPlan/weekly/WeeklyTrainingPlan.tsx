@@ -10,18 +10,19 @@ import { Button, Stack } from '@mui/material';
 import { TimeframeTrainingPlanSection } from '../daily/TimeframeTrainingPlanSection';
 import { useExpanded } from '../useExpanded';
 import { useWeeklyTrainingPlan } from '../useTrainingPlan';
-import { DAY_NAMES } from '../workGoal';
+import { DAY_ABBREVIATIONS } from '../workGoal';
 
 export function WeeklyTrainingPlan({ user }: { user: User }) {
+    const todayIdx = new Date().getDay();
     const { expanded, toggleExpand, onExpandAll, onCollapseAll } = useExpanded({
         total: true,
-        '0': false,
-        '1': false,
-        '2': false,
-        '3': false,
-        '4': false,
-        '5': false,
-        '6': false,
+        '0': todayIdx === 0,
+        '1': todayIdx === 1,
+        '2': todayIdx === 2,
+        '3': todayIdx === 3,
+        '4': todayIdx === 4,
+        '5': todayIdx === 5,
+        '6': todayIdx === 6,
     });
 
     const {
@@ -100,7 +101,7 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
                         key={dayIdx}
                         startDate={dayStart}
                         endDate={dayEnd}
-                        title={`${DAY_NAMES[dayIdx]} ${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
+                        title={`${DAY_ABBREVIATIONS[dayIdx]} ${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
                         icon={
                             expanded[`${dayIdx}`] ? (
                                 <ExpandLess

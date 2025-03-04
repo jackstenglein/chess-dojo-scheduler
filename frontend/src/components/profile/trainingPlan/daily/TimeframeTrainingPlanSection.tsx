@@ -122,8 +122,6 @@ export function TimeframeTrainingPlanSection({
                     direction='row'
                     justifyContent='space-between'
                     alignItems='center'
-                    flexWrap='wrap'
-                    columnGap='1rem'
                     rowGap={0.5}
                     sx={{ width: 1, mr: 2 }}
                 >
