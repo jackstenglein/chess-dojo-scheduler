@@ -404,11 +404,6 @@ export class TaskSuggestionAlgorithm {
      */
     getSuggestedTasks(date: Date): Task[] {
         const suggestedTasks: Task[] = [];
-        suggestedTasks.push(
-            ...this.pinnedTasks.filter(
-                (t) => !isComplete(this.user.dojoCohort, t, this.user.progress[t.id]),
-            ),
-        );
 
         const upcomingGames = getUpcomingGameSchedule(this.user.gameSchedule);
         for (const upcoming of upcomingGames) {
@@ -423,7 +418,12 @@ export class TaskSuggestionAlgorithm {
             }
         }
 
-        if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
+        const pinnedTasks = this.pinnedTasks.filter(
+            (t) => !isComplete(this.user.dojoCohort, t, this.user.progress[t.id]),
+        );
+        suggestedTasks.push(...pinnedTasks);
+
+        if (pinnedTasks.length >= MAX_SUGGESTED_TASKS) {
             return suggestedTasks;
         }
 
