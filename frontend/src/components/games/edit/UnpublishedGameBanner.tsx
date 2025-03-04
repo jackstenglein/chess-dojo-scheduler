@@ -1,5 +1,6 @@
 import { toPgnDate } from '@/api/gameApi';
 import { RequestSnackbar } from '@/api/Request';
+import { useFreeTier } from '@/auth/Auth';
 import { UnderboardApi } from '@/board/pgn/boardTools/underboard/Underboard';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import { useChess } from '@/board/pgn/PgnBoard';
@@ -24,6 +25,7 @@ import SaveGameDialog, { SaveGameDialogType, SaveGameForm } from './SaveGameDial
 
 /** A hook that encapsulates functionality for the UnpublishedGameBanner and VisibilityIcon. */
 function useUnpublishedGame() {
+    const isFreeTier = useFreeTier();
     const [showDialog, setShowDialog] = useState(false);
     const [showBanner, setShowBanner] = useState(true);
     const { game, onUpdateGame } = useGame();
@@ -59,7 +61,14 @@ function useUnpublishedGame() {
         });
     };
 
-    return { showBanner, setShowBanner, showDialog, setShowDialog, request, onSubmit };
+    return {
+        showBanner: showBanner && !isFreeTier,
+        setShowBanner,
+        showDialog,
+        setShowDialog,
+        request,
+        onSubmit,
+    };
 }
 
 interface UnpublishedGameBannerProps {
