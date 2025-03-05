@@ -1,4 +1,5 @@
 import { parsePgnDate, stripTagValue } from '@/api/gameApi';
+import { useFreeTier } from '@/auth/Auth';
 import { useChess } from '@/board/pgn/PgnBoard';
 import { GameResult, isGameResult } from '@/database/game';
 import { GameOrientations } from '@jackstenglein/chess-dojo-common/src/database/game';
@@ -19,6 +20,7 @@ import {
     RadioGroup,
     Stack,
     TextField,
+    Tooltip,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTime } from 'luxon';
@@ -64,6 +66,7 @@ export default function SaveGameDialog({
     onClose,
     onSubmit,
 }: SaveGameDialogProps) {
+    const isFreeTier = useFreeTier();
     const { chess, orientation: initialOrientation } = useChess();
     const initialTags = chess?.pgn.header.tags;
 
@@ -139,14 +142,22 @@ export default function SaveGameDialog({
                     </LoadingButton>
                 )}
 
-                <LoadingButton
-                    data-cy='publish-dialogue-button'
-                    onClick={() => submit(true)}
-                    loading={loading && selectedButton === 'publish'}
-                    disabled={loading && selectedButton !== 'publish'}
-                >
-                    {type === SaveGameDialogType.Save ? 'Save & Publish' : 'Publish'}
-                </LoadingButton>
+                {type === SaveGameDialogType.Save && isFreeTier ? (
+                    <Tooltip title='Free users are not able to publish games. Upgrade to publish your game.'>
+                        <span>
+                            <Button disabled>Save & Publish</Button>
+                        </span>
+                    </Tooltip>
+                ) : (
+                    <LoadingButton
+                        data-cy='publish-dialogue-button'
+                        onClick={() => submit(true)}
+                        loading={loading && selectedButton === 'publish'}
+                        disabled={loading && selectedButton !== 'publish'}
+                    >
+                        {type === SaveGameDialogType.Save ? 'Save & Publish' : 'Publish'}
+                    </LoadingButton>
+                )}
             </DialogActions>
         </Dialog>
     );

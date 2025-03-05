@@ -33,7 +33,7 @@ export const PdfExportSchema = z.object({
     skipNullMoves: z.boolean().optional(),
 
     /** The number of ply between diagrams. */
-    plyBetweenDiagrams: z.number().int().min(8).max(40),
+    plyBetweenDiagrams: z.number().int().min(-1).max(40),
 });
 
 /** A request to export a PGN as a PDF. */
