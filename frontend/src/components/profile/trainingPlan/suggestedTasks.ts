@@ -181,22 +181,15 @@ export class TaskSuggestionAlgorithm {
             current.getTime() < end.getTime();
             current.setDate(current.getDate() + 1)
         ) {
-            console.log('Get tasks for day idx %d: %s', current.getDay(), current);
             const dayIdx = current.getDay();
             let suggestions: SuggestedTask[] = [];
 
             if (current.getTime() < today.getTime()) {
                 if (!this.user.weeklyPlan) {
-                    console.log(
-                        `Day ${dayIdx} is in the past and this is user's first weekly plan, so skipping.`,
-                    );
                     continue;
                 }
 
                 if (weeklyPlan) {
-                    console.log(
-                        `Day ${dayIdx} is in the past. Reusing valid plan without changing minutes.`,
-                    );
                     for (const task of weeklyPlan.tasks[dayIdx]) {
                         this.addTask(taskList[dayIdx], task);
                     }
@@ -204,22 +197,17 @@ export class TaskSuggestionAlgorithm {
                 }
             } else if (current.getTime() === today.getTime()) {
                 if (!this.shouldRegenerateToday(reason)) {
-                    console.log(
-                        `Day ${dayIdx} is today. Reusing tasks, minutes may change.`,
-                    );
-                    weeklyPlan?.tasks[dayIdx].forEach((t) =>
-                        this.addTask(suggestions, t),
-                    );
+                    for (const task of weeklyPlan?.tasks[dayIdx] ?? []) {
+                        this.addTask(suggestions, task);
+                    }
                 }
             } else if (!this.shouldRegenerateFuture(reason)) {
-                console.log(
-                    `Day ${dayIdx} is in the future. Reusing tasks, minutes may change.`,
-                );
-                weeklyPlan?.tasks[dayIdx].forEach((t) => this.addTask(suggestions, t));
+                for (const task of weeklyPlan?.tasks[dayIdx] ?? []) {
+                    this.addTask(suggestions, task);
+                }
             }
 
             if (suggestions.length === 0) {
-                console.log(`Generating new task list for day ${dayIdx}`);
                 suggestions = this.getSuggestedTasks(current).map((t) => ({
                     task: t,
                     goalMinutes: 0,
@@ -263,7 +251,6 @@ export class TaskSuggestionAlgorithm {
             progressUpdatedAt,
             nextGame: getUpcomingGameSchedule(this.user.gameSchedule)[0]?.date ?? '',
         };
-        console.log('Weekly suggested tasks: ', result);
         return result;
     }
 

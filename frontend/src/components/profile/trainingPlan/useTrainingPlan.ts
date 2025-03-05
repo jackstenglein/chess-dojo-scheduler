@@ -93,7 +93,6 @@ export function useWeeklyTrainingPlan(user: User) {
             return;
         }
 
-        console.log('Saving user plan');
         api.updateUser({
             weeklyPlan: {
                 endDate,
@@ -156,26 +155,19 @@ function equalPlans(
     },
 ) {
     if (!savedPlan) {
-        console.log('Saved plan does not exist');
         return false;
     }
     if (savedPlan.endDate !== newPlan.endDate) {
-        console.log('Saved plan end date does not match new plan end date');
         return false;
     }
     if (savedPlan.progressUpdatedAt !== newPlan.progressUpdatedAt) {
-        console.log(
-            'Saved plan progressUpdatedAt does not match new plan progressUpdatedAt',
-        );
         return false;
     }
     if (savedPlan.nextGame !== newPlan.nextGame) {
-        console.log('Saved plan nextGame does not match new plan nextGame');
         return false;
     }
     for (let i = 0; i < newPlan.pinnedTasks.length; i++) {
         if (savedPlan.pinnedTasks?.[i] !== newPlan.pinnedTasks[i]) {
-            console.log('Saved plan pinnedTasks does not match new plan pinnedTasks');
             return false;
         }
     }
