@@ -1,6 +1,11 @@
 'use client';
 
-import { Info as InfoIcon, TableChart as TableChartIcon } from '@mui/icons-material';
+import { RoundRobinStatuses } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import {
+    History,
+    Info as InfoIcon,
+    TableChart as TableChartIcon,
+} from '@mui/icons-material';
 import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { Suspense, useState } from 'react';
 import { InfoPage } from './InfoPage';
@@ -60,6 +65,12 @@ export const RoundRobinPage = () => {
                         iconPosition='start'
                         sx={{ minHeight: '48px' }}
                     />
+                    <Tab
+                        label='History'
+                        icon={<History />}
+                        iconPosition='start'
+                        sx={{ minHeight: '48px' }}
+                    />
                 </Tabs>
             </Box>
 
@@ -69,6 +80,11 @@ export const RoundRobinPage = () => {
             <TabPanel value={tabValue} index={1}>
                 <Suspense>
                     <TournamentsPage />
+                </Suspense>
+            </TabPanel>
+            <TabPanel value={tabValue} index={2}>
+                <Suspense>
+                    <TournamentsPage status={RoundRobinStatuses.COMPLETE} />
                 </Suspense>
             </TabPanel>
         </Container>

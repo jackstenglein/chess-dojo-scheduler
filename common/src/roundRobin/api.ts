@@ -54,6 +54,10 @@ export type RoundRobinSubmitGameRequest = z.infer<typeof RoundRobinSubmitGameSch
 
 const roundRobinStatus = z.enum(['ACTIVE', 'WAITING', 'COMPLETE']);
 
+/** The status of a round robin tournament. */
+export type RoundRobinStatus = z.infer<typeof roundRobinStatus>;
+
+/** The status of a round robin tournament. */
 export const RoundRobinStatuses = roundRobinStatus.enum;
 
 /** Verifies a request to list round robin tournaments. */

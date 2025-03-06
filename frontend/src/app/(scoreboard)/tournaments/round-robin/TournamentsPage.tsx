@@ -11,13 +11,18 @@ import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     RoundRobin,
+    RoundRobinStatus,
     RoundRobinStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { Container, MenuItem, Stack, TextField } from '@mui/material';
 import { ChangeEvent, useEffect } from 'react';
 
 /** Renders the Round Robin tournaments page. */
-export function TournamentsPage() {
+export function TournamentsPage({
+    status = RoundRobinStatuses.ACTIVE,
+}: {
+    status?: RoundRobinStatus;
+}) {
     const { user } = useAuth();
     const { searchParams, updateSearchParams } = useNextSearchParams({
         cohort: user?.dojoCohort || '0-300',
@@ -40,7 +45,7 @@ export function TournamentsPage() {
         if (!request.isSent()) {
             request.onStart();
 
-            listRoundRobins({ cohort, status: RoundRobinStatuses.ACTIVE })
+            listRoundRobins({ cohort, status })
                 .then((resp) => {
                     request.onSuccess(resp.data);
                 })
@@ -49,10 +54,10 @@ export function TournamentsPage() {
                     request.onFailure(err);
                 });
         }
-    }, [request, cohort]);
+    }, [request, cohort, status]);
 
     useEffect(() => {
-        if (!waitlistRequest.isSent()) {
+        if (!waitlistRequest.isSent() && status === RoundRobinStatuses.ACTIVE) {
             waitlistRequest.onStart();
 
             listRoundRobins({ cohort, status: RoundRobinStatuses.WAITING })
@@ -62,7 +67,7 @@ export function TournamentsPage() {
                     waitlistRequest.onFailure(err);
                 });
         }
-    });
+    }, [waitlistRequest, status, cohort]);
 
     const onChangeCohort = (e: ChangeEvent<HTMLInputElement>) => {
         updateSearchParams({ cohort: e.target.value });
