@@ -1,5 +1,7 @@
 import { Link } from '@/components/navigation/Link';
 import {
+    calculatePlayerStats,
+    PlayerStats,
     RoundRobin,
     RoundRobinPlayerStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
@@ -349,79 +351,6 @@ function ListView({
     );
 }
 
-interface PlayerStats {
-    /** The player's total score in the tournament so far. */
-    score: number;
-    /** The player's win count in the tournament so far. */
-    wins: number;
-    /** The player's draw count in the tournament so far. */
-    draws: number;
-    /** The player's loss count in the tournament so far. */
-    losses: number;
-    /** The number of games the player has played in the tournament so far. */
-    played: number;
-}
-
-/**
- * Calculates the PlayerStats for active players in the given tournament.
- * Only active players are included.
- * @param tournament The tournament to calculate the counts for.
- * @returns A map from username to stats for each active player in the tournament.
- */
-export function calculatePlayerStats(tournament: RoundRobin) {
-    const results: Record<string, PlayerStats> = {};
-
-    for (const round of tournament.pairings) {
-        for (const pairing of round) {
-            if (
-                !pairing.result ||
-                tournament.players[pairing.white].status ===
-                    RoundRobinPlayerStatuses.WITHDRAWN ||
-                tournament.players[pairing.black].status ===
-                    RoundRobinPlayerStatuses.WITHDRAWN
-            ) {
-                continue;
-            }
-
-            const white = results[pairing.white] || {
-                score: 0,
-                wins: 0,
-                losses: 0,
-                draws: 0,
-                played: 0,
-            };
-            const black = results[pairing.black] || {
-                score: 0,
-                wins: 0,
-                losses: 0,
-                draws: 0,
-                played: 0,
-            };
-            results[pairing.white] = white;
-            results[pairing.black] = black;
-
-            white.played++;
-            black.played++;
-
-            if (pairing.result === '1-0') {
-                white.wins++;
-                black.losses++;
-            } else if (pairing.result === '1/2-1/2') {
-                white.draws++;
-                black.draws++;
-            } else {
-                white.losses++;
-                black.wins++;
-            }
-
-            white.score = white.wins + white.draws / 2;
-            black.score = black.wins + black.draws / 2;
-        }
-    }
-
-    return results;
-}
-
 /**
  * Calculates the W/D/L counts for the given tournament. Only active players
  * are included.
@@ -454,6 +383,8 @@ function calculatePlayerStatsList(tournament: RoundRobin) {
         });
     }
 
-    resultList.sort((lhs, rhs) => rhs.score - lhs.score);
+    resultList.sort(
+        (lhs, rhs) => rhs.score - lhs.score || rhs.tiebreakScore - lhs.tiebreakScore,
+    );
     return resultList;
 }
