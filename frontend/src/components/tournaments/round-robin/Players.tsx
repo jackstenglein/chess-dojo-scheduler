@@ -3,6 +3,7 @@ import {
     RoundRobin,
     RoundRobinPlayerStatuses,
     RoundRobinWaitlist,
+    calculatePlayerStats,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import {
     Table,
@@ -12,7 +13,6 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-import { calculatePlayerStats } from './Stats';
 
 export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWaitlist }) {
     if (Object.values(tournament.players).length === 0) {
