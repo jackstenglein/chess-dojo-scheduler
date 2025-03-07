@@ -182,10 +182,12 @@ export class TaskSuggestionAlgorithm {
             current.setDate(current.getDate() + 1)
         ) {
             const dayIdx = current.getDay();
-            let suggestions: SuggestedTask[] = [];
+            const suggestions: SuggestedTask[] = [];
 
             if (current.getTime() < today.getTime()) {
                 if (!this.user.weeklyPlan) {
+                    // This is the user's first weekly plan, so we skip this day
+                    // and start them halfway through the week.
                     continue;
                 }
 
@@ -193,6 +195,7 @@ export class TaskSuggestionAlgorithm {
                     for (const task of weeklyPlan.tasks[dayIdx]) {
                         this.addTask(taskList[dayIdx], task);
                     }
+                    // We never update days in the past if the weekly plan is valid.
                     continue;
                 }
             } else if (current.getTime() === today.getTime()) {
@@ -207,11 +210,19 @@ export class TaskSuggestionAlgorithm {
                 }
             }
 
-            if (suggestions.length === 0) {
-                suggestions = this.getSuggestedTasks(current).map((t) => ({
+            if (suggestions.length < MAX_SUGGESTED_TASKS) {
+                const algoSuggestions = this.getSuggestedTasks(current).map((t) => ({
                     task: t,
                     goalMinutes: 0,
                 }));
+                suggestions.push(
+                    ...algoSuggestions
+                        .filter(
+                            (lhs) =>
+                                !suggestions.some((rhs) => lhs.task.id === rhs.task.id),
+                        )
+                        .slice(0, MAX_SUGGESTED_TASKS - suggestions.length),
+                );
             }
 
             const minutesToday = (this.user.workGoal || DEFAULT_WORK_GOAL).minutesPerDay[

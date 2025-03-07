@@ -131,9 +131,9 @@ export function TimeframeTrainingPlanSection({
                     </Typography>
                     <Stack
                         sx={{
-                            width: '80px',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            pr: { xs: 0, sm: isCurrentUser ? '40px' : 0 },
                         }}
                     >
                         <CircularTimeProgress value={currentTime} max={goalTime} />

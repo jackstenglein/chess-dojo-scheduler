@@ -1,5 +1,6 @@
 import { RequestSnackbar } from '@/api/Request';
 import { User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import { CalendarToday } from '@mui/icons-material';
 import { useMemo } from 'react';
 import { useWeeklyTrainingPlan } from '../useTrainingPlan';
@@ -28,22 +29,26 @@ export function DailyTrainingPlan({ user }: { user: User }) {
         <>
             <RequestSnackbar request={request} />
 
-            <TimeframeTrainingPlanSection
-                startDate={startDate}
-                endDate={endDate}
-                title='Today'
-                icon={
-                    <CalendarToday
-                        sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
-                    />
-                }
-                user={user}
-                isCurrentUser={isCurrentUser}
-                tasks={suggestedTasks}
-                pinnedTasks={pinnedTasks}
-                togglePin={togglePin}
-                expanded
-            />
+            {request.isLoading() || !request.isSent() ? (
+                <LoadingPage />
+            ) : (
+                <TimeframeTrainingPlanSection
+                    startDate={startDate}
+                    endDate={endDate}
+                    title='Today'
+                    icon={
+                        <CalendarToday
+                            sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
+                        />
+                    }
+                    user={user}
+                    isCurrentUser={isCurrentUser}
+                    tasks={suggestedTasks}
+                    pinnedTasks={pinnedTasks}
+                    togglePin={togglePin}
+                    expanded
+                />
+            )}
         </>
     );
 }
