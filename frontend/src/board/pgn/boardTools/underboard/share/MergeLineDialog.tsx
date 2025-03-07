@@ -8,10 +8,7 @@ import { GameInfo } from '@/database/game';
 import { usePagination } from '@/hooks/usePagination';
 import { usePgnExportOptions } from '@/hooks/usePgnExportOptions';
 import { Move } from '@jackstenglein/chess';
-import {
-    PgnMergeType,
-    PgnMergeTypes,
-} from '@jackstenglein/chess-dojo-common/src/pgn/merge';
+import { PgnMergeType, PgnMergeTypes } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -55,13 +52,9 @@ export function MergeLineDialog({
 
     const { skipVariations, setSkipVariations, skipNullMoves, setSkipNullMoves } =
         usePgnExportOptions();
-    const [commentMergeType, setCommentMergeType] = useState<PgnMergeType>(
-        PgnMergeTypes.MERGE,
-    );
+    const [commentMergeType, setCommentMergeType] = useState<PgnMergeType>(PgnMergeTypes.MERGE);
     const [nagMergeType, setNagMergeType] = useState<PgnMergeType>(PgnMergeTypes.MERGE);
-    const [drawableMergeType, setDrawableMergeType] = useState<PgnMergeType>(
-        PgnMergeTypes.MERGE,
-    );
+    const [drawableMergeType, setDrawableMergeType] = useState<PgnMergeType>(PgnMergeTypes.MERGE);
     const [citeSource, setCiteSource] = useState(true);
     const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
 
@@ -181,12 +174,7 @@ export function MergeLineDialog({
 
                     <FormGroup sx={{ mt: 2 }}>
                         <FormLabel>Import Options</FormLabel>
-                        <Stack
-                            direction='row'
-                            flexWrap='wrap'
-                            columnGap={1}
-                            alignItems='center'
-                        >
+                        <Stack direction='row' flexWrap='wrap' columnGap={1} alignItems='center'>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -237,9 +225,7 @@ export function MergeLineDialog({
                                 label='Glyphs'
                                 select
                                 value={nagMergeType}
-                                onChange={(e) =>
-                                    setNagMergeType(e.target.value as PgnMergeType)
-                                }
+                                onChange={(e) => setNagMergeType(e.target.value as PgnMergeType)}
                                 slotProps={{
                                     select: {
                                         renderValue: (value) =>

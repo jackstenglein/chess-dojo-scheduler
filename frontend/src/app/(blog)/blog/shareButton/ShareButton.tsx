@@ -7,10 +7,7 @@ import { useState } from 'react';
 function objectToGetParams(object: Record<string, string | number | undefined | null>) {
     const params = Object.entries(object)
         .filter(([, value]) => value !== undefined && value !== null)
-        .map(
-            ([key, value]) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
-        );
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
 
     return params.length > 0 ? `?${params.join('&')}` : '';
 }
@@ -48,8 +45,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ title, href }) => {
                 break;
             case 'reddit':
                 link =
-                    `https://www.reddit.com/submit` +
-                    objectToGetParams({ url: fullHref, title });
+                    `https://www.reddit.com/submit` + objectToGetParams({ url: fullHref, title });
                 break;
             case 'copy':
                 await navigator.clipboard.writeText(fullHref);
@@ -70,11 +66,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ title, href }) => {
             >
                 Share
             </Button>
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={() => setAnchorEl(null)}
-            >
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
                 <MenuItem onClick={() => onShare('facebook')}>
                     <ListItemIcon>
                         <FacebookOutlined />

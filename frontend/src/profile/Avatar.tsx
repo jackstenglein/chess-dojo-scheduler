@@ -89,14 +89,7 @@ interface ClubAvatarProps extends Pick<AvatarProps, 'size' | 'fontSize' | 'url'>
     name?: string;
 }
 
-export const ClubAvatar: React.FC<ClubAvatarProps> = ({
-    club,
-    id,
-    name,
-    size,
-    fontSize,
-    url,
-}) => {
+export const ClubAvatar: React.FC<ClubAvatarProps> = ({ club, id, name, size, fontSize, url }) => {
     const { imageBypass } = useCache();
     if (club) {
         id = club.id;

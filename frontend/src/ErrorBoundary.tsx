@@ -40,18 +40,15 @@ class ErrorBoundary extends Component<React.PropsWithChildren, ErrorBoundaryStat
                 <Stack spacing={4}>
                     <Typography variant='h5'>Unknown Error</Typography>
                     <Typography variant='h6'>
-                        Congratulations! You have broken the site in a new and interesting
-                        way. To report this error, please send a Discord message to
-                        @jackstenglein with a description of what you were doing when the
-                        site broke and a copy of the error message below. Then refresh the
-                        page to continue using the site.
+                        Congratulations! You have broken the site in a new and interesting way. To
+                        report this error, please send a Discord message to @jackstenglein with a
+                        description of what you were doing when the site broke and a copy of the
+                        error message below. Then refresh the page to continue using the site.
                     </Typography>
 
                     <Typography variant='body1' color='error' whiteSpace='pre-line'>
                         {this.state.error ? this.state.error.toString() : 'Null error'}
-                        {this.state.info
-                            ? this.state.info.componentStack
-                            : 'No component stack'}
+                        {this.state.info ? this.state.info.componentStack : 'No component stack'}
                     </Typography>
                 </Stack>
             </Container>

@@ -69,14 +69,9 @@ export function TimeframeTrainingPlanSection({
         for (const entry of timeline) {
             const date = entry.date || entry.createdAt;
             const isSuggestedTask = tasks.some(
-                ({ task, goalMinutes }) =>
-                    goalMinutes > 0 && task.id === entry.requirementId,
+                ({ task, goalMinutes }) => goalMinutes > 0 && task.id === entry.requirementId,
             );
-            if (
-                date >= startDate &&
-                date < endDate &&
-                (!disableExtraTasks || isSuggestedTask)
-            ) {
+            if (date >= startDate && date < endDate && (!disableExtraTasks || isSuggestedTask)) {
                 timeWorked += entry.minutesSpent;
                 if (!isSuggestedTask) {
                     extraTaskIds.add(entry.requirementId);
@@ -92,8 +87,7 @@ export function TimeframeTrainingPlanSection({
 
         extraTaskIds.forEach((id) => {
             const task =
-                requirements.find((t) => t.id === id) ||
-                user.customTasks?.find((t) => t.id === id);
+                requirements.find((t) => t.id === id) || user.customTasks?.find((t) => t.id === id);
             if (task) {
                 extraTasks.push(task);
             }
@@ -144,11 +138,7 @@ export function TimeframeTrainingPlanSection({
                 <Divider />
                 {tasks.map(({ task, goalMinutes }) => {
                     if (task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
-                        return (
-                            <ScheduleClassicalGame
-                                key={SCHEDULE_CLASSICAL_GAME_TASK_ID}
-                            />
-                        );
+                        return <ScheduleClassicalGame key={SCHEDULE_CLASSICAL_GAME_TASK_ID} />;
                     }
                     if (goalMinutes === 0) {
                         return null;
@@ -172,11 +162,7 @@ export function TimeframeTrainingPlanSection({
                 <Box sx={{ opacity: 0.75 }}>
                     {extraTasks.length > 0 && (
                         <>
-                            <Typography
-                                variant='body1'
-                                fontWeight={700}
-                                sx={{ mt: 6, mb: 1 }}
-                            >
+                            <Typography variant='body1' fontWeight={700} sx={{ mt: 6, mb: 1 }}>
                                 Unscheduled Work
                             </Typography>
                             <Divider sx={{ mb: 4 }} />

@@ -53,11 +53,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
     const cache = useCache();
     const request = useRequest();
 
-    const editor = useEventEditor(
-        defaultStart,
-        defaultEnd,
-        originalEvent?.event as Event,
-    );
+    const editor = useEventEditor(defaultStart, defaultEnd, originalEvent?.event as Event);
 
     const onSubmit = async () => {
         let event: Event | null = null;
@@ -108,12 +104,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
     };
 
     return (
-        <Dialog
-            data-cy='event-editor'
-            fullScreen
-            open={true}
-            TransitionComponent={Transition}
-        >
+        <Dialog data-cy='event-editor' fullScreen open={true} TransitionComponent={Transition}>
             <RequestSnackbar request={request} />
 
             <AppBar sx={{ position: 'relative' }}>
@@ -185,9 +176,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                             <FormControl>
                                 <RadioGroup
                                     value={editor.type}
-                                    onChange={(e) =>
-                                        editor.setType(e.target.value as EventType)
-                                    }
+                                    onChange={(e) => editor.setType(e.target.value as EventType)}
                                 >
                                     <FormControlLabel
                                         value={EventType.Availability}
@@ -255,12 +244,8 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                     {editor.type === EventType.Availability && (
                         <AvailabilityEditor editor={editor} />
                     )}
-                    {editor.type === EventType.Dojo && (
-                        <DojoEventEditor editor={editor} />
-                    )}
-                    {editor.type === EventType.Coaching && (
-                        <CoachingEditor editor={editor} />
-                    )}
+                    {editor.type === EventType.Dojo && <DojoEventEditor editor={editor} />}
+                    {editor.type === EventType.Coaching && <CoachingEditor editor={editor} />}
                 </Stack>
             </DialogContent>
         </Dialog>

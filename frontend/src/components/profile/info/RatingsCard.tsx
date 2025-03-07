@@ -19,8 +19,7 @@ export const RatingsCard = ({ user }: { user: User }) => {
         .filter((rs) => user.ratings[rs])
         .sort(
             (lhs, rhs) =>
-                (user.ratings[rhs]?.currentRating ?? 0) -
-                (user.ratings[lhs]?.currentRating ?? 0),
+                (user.ratings[rhs]?.currentRating ?? 0) - (user.ratings[lhs]?.currentRating ?? 0),
         );
 
     if (systems.length === 0) {
@@ -68,8 +67,7 @@ const RatingRow = ({
             </Grid2>
             <Grid2 size={8}>
                 <Typography>
-                    {formatRatingSystem(system)}{' '}
-                    {isCustom(system) && name && ` (${name})`}
+                    {formatRatingSystem(system)} {isCustom(system) && name && ` (${name})`}
                 </Typography>
             </Grid2>
             <Grid2 size={2}>

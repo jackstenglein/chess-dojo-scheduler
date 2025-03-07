@@ -13,15 +13,7 @@ import {
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { AddCircle, PushPin, PushPinOutlined } from '@mui/icons-material';
-import {
-    Chip,
-    Divider,
-    Grid2,
-    IconButton,
-    Stack,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { Chip, Divider, Grid2, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { CircularTimeProgress } from '../CircularTimeProgress';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
@@ -148,10 +140,7 @@ export const TimeframeTrainingPlanItem = ({
                                         max={goalMinutes}
                                         onClick={
                                             isCurrentUser
-                                                ? () =>
-                                                      setTaskDialogView(
-                                                          TaskDialogView.Progress,
-                                                      )
+                                                ? () => setTaskDialogView(TaskDialogView.Progress)
                                                 : undefined
                                         }
                                     />
@@ -193,9 +182,7 @@ export const TimeframeTrainingPlanItem = ({
                             task.category !== RequirementCategory.Welcome && (
                                 <Tooltip
                                     title={
-                                        isPinned
-                                            ? 'Unpin from Daily Tasks'
-                                            : 'Pin to Daily Tasks'
+                                        isPinned ? 'Unpin from Daily Tasks' : 'Pin to Daily Tasks'
                                     }
                                 >
                                     <IconButton onClick={() => togglePin(task)}>

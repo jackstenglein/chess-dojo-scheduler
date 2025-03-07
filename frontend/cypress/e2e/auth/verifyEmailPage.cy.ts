@@ -16,10 +16,7 @@ describe('Verify Email Page', () => {
 
     it('has correct content', () => {
         cy.getBySel('title').should('have.text', 'ChessDojo');
-        cy.getBySel('description').should(
-            'contain',
-            'please enter the verification code',
-        );
+        cy.getBySel('description').should('contain', 'please enter the verification code');
     });
 
     it('requires code to submit', () => {

@@ -87,9 +87,7 @@ export const PGNForm: React.FC<ImportDialogProps> = ({ onSubmit, loading, onClos
         <>
             <DialogTitle sx={{ pb: 0 }}>Import PGN</DialogTitle>
             <DialogContent>
-                <DialogContentText sx={{ mb: 2 }}>
-                    Up to 100 games per file
-                </DialogContentText>
+                <DialogContentText sx={{ mb: 2 }}>Up to 100 games per file</DialogContentText>
                 <FormControl error={!!error} fullWidth>
                     <OutlinedInput
                         onClick={handleFileClick}

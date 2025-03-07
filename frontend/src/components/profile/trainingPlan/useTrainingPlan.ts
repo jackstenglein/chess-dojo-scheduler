@@ -55,17 +55,12 @@ export function useWeeklyTrainingPlan(user: User) {
 
     const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt, nextGame } =
         useMemo(() => {
-            const result = new TaskSuggestionAlgorithm(
-                user,
-                requirements,
-            ).getWeeklySuggestions();
+            const result = new TaskSuggestionAlgorithm(user, requirements).getWeeklySuggestions();
 
             const weekSuggestions: SuggestedTask[] = [];
             for (const day of result.suggestionsByDay) {
                 for (const suggestion of day) {
-                    const existing = weekSuggestions.find(
-                        (s) => s.task.id === suggestion.task.id,
-                    );
+                    const existing = weekSuggestions.find((s) => s.task.id === suggestion.task.id);
                     if (existing) {
                         existing.goalMinutes += suggestion.goalMinutes;
                     } else {

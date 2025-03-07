@@ -90,18 +90,7 @@ export function useRequest<T = undefined>(): Request<T> {
             isSent,
             isFailure,
         }),
-        [
-            status,
-            data,
-            error,
-            onStart,
-            onSuccess,
-            onFailure,
-            reset,
-            isLoading,
-            isSent,
-            isFailure,
-        ],
+        [status, data, error, onStart, onSuccess, onFailure, reset, isLoading, isSent, isFailure],
     );
 }
 
@@ -109,11 +98,7 @@ function isReactNode(node: unknown): node is ReactNode {
     if (node === null || node === undefined) {
         return true;
     }
-    if (
-        typeof node === 'string' ||
-        typeof node === 'number' ||
-        typeof node === 'boolean'
-    ) {
+    if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') {
         return true;
     }
     return false;

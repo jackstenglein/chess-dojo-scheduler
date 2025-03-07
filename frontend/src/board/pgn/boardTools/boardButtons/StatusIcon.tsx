@@ -9,14 +9,7 @@ import { Game } from '@/database/game';
 import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
 import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { CloudDone, CloudOff } from '@mui/icons-material';
-import {
-    Box,
-    CircularProgress,
-    IconButton,
-    Menu,
-    MenuItem,
-    Tooltip,
-} from '@mui/material';
+import { Box, CircularProgress, IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import debounce from 'lodash.debounce';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useChess } from '../../PgnBoard';
@@ -173,9 +166,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
             ) : request.isFailure() ? (
                 <Tooltip title='Failed to save. Click to retry.'>
                     <IconButton
-                        onClick={() =>
-                            chess && onSave(game.cohort, game.id, chess.renderPgn())
-                        }
+                        onClick={() => chess && onSave(game.cohort, game.id, chess.renderPgn())}
                     >
                         <CloudOff color='error' />
                     </IconButton>
@@ -200,11 +191,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                     }
                 >
                     <IconButton
-                        onClick={
-                            undoLog.length
-                                ? (e) => setAnchorEl(e.currentTarget)
-                                : undefined
-                        }
+                        onClick={undoLog.length ? (e) => setAnchorEl(e.currentTarget) : undefined}
                     >
                         <CloudDone sx={{ color: 'text.secondary' }} />
                     </IconButton>
@@ -228,9 +215,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                             )
                         </MenuItem>
                     ) : (
-                        <MenuItem onClick={() => setAnchorEl(null)}>
-                            No Previous Versions
-                        </MenuItem>
+                        <MenuItem onClick={() => setAnchorEl(null)}>No Previous Versions</MenuItem>
                     )}
                 </Menu>
             )}

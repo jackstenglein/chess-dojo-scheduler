@@ -206,10 +206,8 @@ function getTimeframeScoreChartData(
         } else {
             const unitScore = getUnitScore(entry.cohort, requirement);
             score =
-                Math.max(
-                    entry.newCount - entry.previousCount - requirement.startCount,
-                    0,
-                ) * unitScore;
+                Math.max(entry.newCount - entry.previousCount - requirement.startCount, 0) *
+                unitScore;
         }
 
         if (data[requirement.category]) {
@@ -278,10 +276,8 @@ function getCategoryScoreChartData(
         } else {
             const unitScore = getUnitScore(entry.cohort, requirement);
             score =
-                Math.max(
-                    entry.newCount - entry.previousCount - requirement.startCount,
-                    0,
-                ) * unitScore;
+                Math.max(entry.newCount - entry.previousCount - requirement.startCount, 0) *
+                unitScore;
         }
         if (score === 0) {
             continue;
@@ -291,15 +287,12 @@ function getCategoryScoreChartData(
         if (data[name]) {
             data[name].value += score;
             data[name].count =
-                (data[name].count || 0) +
-                Math.max(entry.newCount - entry.previousCount, 0);
+                (data[name].count || 0) + Math.max(entry.newCount - entry.previousCount, 0);
         } else {
             data[name] = {
                 name,
                 value: score,
-                color: RequirementColors[
-                    Object.values(data).length % RequirementColors.length
-                ],
+                color: RequirementColors[Object.values(data).length % RequirementColors.length],
                 count: Math.max(entry.newCount - entry.previousCount, 0),
             };
         }
@@ -342,18 +335,10 @@ function getAllTimeCategoryScoreChartData(
         }
 
         for (const cohort of reqCohorts) {
-            const cohortScore = getCurrentScore(
-                cohort,
-                requirement,
-                user.progress[requirement.id],
-            );
+            const cohortScore = getCurrentScore(cohort, requirement, user.progress[requirement.id]);
             if (cohortScore > score) {
                 score = cohortScore;
-                count = getCurrentCount(
-                    cohort,
-                    requirement,
-                    user.progress[requirement.id],
-                );
+                count = getCurrentCount(cohort, requirement, user.progress[requirement.id]);
             }
         }
 
@@ -369,9 +354,7 @@ function getAllTimeCategoryScoreChartData(
             data[name] = {
                 name,
                 value: score,
-                color: RequirementColors[
-                    Object.values(data).length % RequirementColors.length
-                ],
+                color: RequirementColors[Object.values(data).length % RequirementColors.length],
                 count,
             };
         }
@@ -399,14 +382,7 @@ export function getTimeChartData(
     requirements: Requirement[],
 ): PieChartData[] {
     if (category) {
-        return getCategoryTimeChartData(
-            user,
-            cohorts,
-            timeframe,
-            timeline,
-            category,
-            requirements,
-        );
+        return getCategoryTimeChartData(user, cohorts, timeframe, timeline, category, requirements);
     }
 
     return getTimeframeTimeChartData(user, cohorts, timeframe, timeline, requirements);
@@ -574,9 +550,7 @@ function getCategoryTimeChartData(
             data[name] = {
                 name,
                 value: entry.minutesSpent,
-                color: RequirementColors[
-                    Object.values(data).length % RequirementColors.length
-                ],
+                color: RequirementColors[Object.values(data).length % RequirementColors.length],
             };
         }
     }
@@ -631,9 +605,7 @@ function getAllTimeCategoryTimeChartData(
                 data[name] = {
                     name,
                     value: progress.minutesSpent[cohort],
-                    color: RequirementColors[
-                        Object.values(data).length % RequirementColors.length
-                    ],
+                    color: RequirementColors[Object.values(data).length % RequirementColors.length],
                 };
             }
         }

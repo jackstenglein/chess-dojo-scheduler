@@ -3,15 +3,7 @@ import { ScoreCategories } from '@/components/profile/activity/activity';
 import { RequirementCategory } from '@/database/requirement';
 import { YearReviewDataSection } from '@/database/yearReview';
 import { CategoryColors } from '@/style/ThemeProvider';
-import {
-    Box,
-    Card,
-    CardContent,
-    CardHeader,
-    Grid2,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Box, Card, CardContent, CardHeader, Grid2, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import Percentiles from './Percentiles';
@@ -35,18 +27,10 @@ export const secondaryAxes: AxisOptions<Datum>[] = [
     },
 ];
 
-export function getCategoryData(
-    label: string,
-    data: YearReviewDataSection,
-    nonDojo?: boolean,
-) {
+export function getCategoryData(label: string, data: YearReviewDataSection, nonDojo?: boolean) {
     let categories = [...ScoreCategories];
     if (nonDojo) {
-        categories = [
-            RequirementCategory.Welcome,
-            ...categories,
-            RequirementCategory.NonDojo,
-        ];
+        categories = [RequirementCategory.Welcome, ...categories, RequirementCategory.NonDojo];
     }
 
     return [
@@ -167,9 +151,7 @@ const DojoPointSection = ({ review }: SectionProps) => {
                                     secondaryAxes,
                                     dark,
                                     getDatumStyle: (datum) => ({
-                                        color: CategoryColors[
-                                            datum.originalDatum.primary
-                                        ],
+                                        color: CategoryColors[datum.originalDatum.primary],
                                     }),
                                 }}
                             />

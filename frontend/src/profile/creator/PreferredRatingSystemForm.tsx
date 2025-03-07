@@ -99,11 +99,7 @@ export function getUsernameType(rs: RatingSystem): string {
     }
 }
 
-function getUpdate(
-    rs: RatingSystem,
-    username: string,
-    hideUsername: boolean,
-): Partial<User> {
+function getUpdate(rs: RatingSystem, username: string, hideUsername: boolean): Partial<User> {
     const result: Partial<User> = {
         ratingSystem: rs,
         ratings: {
@@ -131,9 +127,7 @@ const PreferredRatingSystemForm: React.FC<ProfileCreatorFormProps> = ({
 
     const [ratingSystem, setRatingSystem] = useState(user.ratingSystem);
     const [username, setUsername] = useState(getRatingUsername(user, ratingSystem) || '');
-    const [hideUsername, setHideUsername] = useState(
-        hideRatingUsername(user, ratingSystem),
-    );
+    const [hideUsername, setHideUsername] = useState(hideRatingUsername(user, ratingSystem));
 
     const canSave = (ratingSystem as string) !== '' && username !== '';
 
@@ -150,10 +144,10 @@ const PreferredRatingSystemForm: React.FC<ProfileCreatorFormProps> = ({
     return (
         <Stack spacing={4}>
             <Typography>
-                Enter your preferred rating system, and we will place you in a cohort
-                based on your rating. You should choose the rating system that best
-                reflects your strength (IE: the one you play most often). You can always
-                change your cohort later if the program is too hard or too easy.
+                Enter your preferred rating system, and we will place you in a cohort based on your
+                rating. You should choose the rating system that best reflects your strength (IE:
+                the one you play most often). You can always change your cohort later if the program
+                is too hard or too easy.
             </Typography>
 
             <TextField
@@ -185,24 +179,16 @@ const PreferredRatingSystemForm: React.FC<ProfileCreatorFormProps> = ({
                         control={
                             <Checkbox
                                 checked={hideUsername}
-                                onChange={(event) =>
-                                    setHideUsername(event.target.checked)
-                                }
+                                onChange={(event) => setHideUsername(event.target.checked)}
                             />
                         }
-                        label={`Hide my ${getUsernameType(
-                            ratingSystem,
-                        )} from other dojo members`}
+                        label={`Hide my ${getUsernameType(ratingSystem)} from other dojo members`}
                     />
                 </Stack>
             )}
 
             <Stack direction='row' justifyContent='space-between'>
-                <Button
-                    disabled={request.isLoading()}
-                    onClick={onPrevStep}
-                    variant='contained'
-                >
+                <Button disabled={request.isLoading()} onClick={onPrevStep} variant='contained'>
                     Back
                 </Button>
 

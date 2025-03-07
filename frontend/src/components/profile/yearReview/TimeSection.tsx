@@ -1,24 +1,10 @@
 import { useAuth } from '@/auth/Auth';
 import { formatTime } from '@/database/requirement';
 import { CategoryColors } from '@/style/ThemeProvider';
-import {
-    Box,
-    Card,
-    CardContent,
-    CardHeader,
-    Grid2,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Box, Card, CardContent, CardHeader, Grid2, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
-import {
-    Datum,
-    getCategoryData,
-    getMonthData,
-    getTaskData,
-    primaryAxis,
-} from './DojoPointSection';
+import { Datum, getCategoryData, getMonthData, getTaskData, primaryAxis } from './DojoPointSection';
 import Percentiles from './Percentiles';
 import { SectionProps } from './section';
 
@@ -100,9 +86,7 @@ const TimeSection = ({ review }: SectionProps) => {
                                         secondaryAxes,
                                         dark,
                                         getDatumStyle: (datum) => ({
-                                            color: CategoryColors[
-                                                datum.originalDatum.primary
-                                            ],
+                                            color: CategoryColors[datum.originalDatum.primary],
                                         }),
                                     }}
                                 />

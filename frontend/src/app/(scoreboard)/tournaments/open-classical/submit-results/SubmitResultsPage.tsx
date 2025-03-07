@@ -70,10 +70,7 @@ const SubmitResultsPage = () => {
             });
             return;
         }
-        const gameId = gameUrl
-            .replace('https://lichess.org/', '')
-            .split('/')[0]
-            ?.split('#')[0];
+        const gameId = gameUrl.replace('https://lichess.org/', '').split('/')[0]?.split('#')[0];
 
         axios
             .get<LichessGameResponse>(`https://lichess.org/api/game/${gameId}`)
@@ -145,8 +142,7 @@ const SubmitResultsPage = () => {
             .then((resp) => {
                 request.onSuccess();
                 const round =
-                    resp.data.sections[`${region}_${section}`]?.rounds.length ||
-                    'standings';
+                    resp.data.sections[`${region}_${section}`]?.rounds.length || 'standings';
                 router.push(
                     `/tournaments/open-classical?region=${region}&ratingRange=${section}&view=${round}`,
                 );
@@ -167,8 +163,8 @@ const SubmitResultsPage = () => {
                         Submit Results for the Dojo Open Classical
                     </Typography>
                     <Typography>
-                        Results are submitted for the current active round. No late
-                        results will be accepted.
+                        Results are submitted for the current active round. No late results will be
+                        accepted.
                     </Typography>
                 </Stack>
 
@@ -278,8 +274,7 @@ const SubmitResultsPage = () => {
                         },
                     }}
                     helperText={
-                        errors.white ||
-                        'Lichess username of the player with the white pieces'
+                        errors.white || 'Lichess username of the player with the white pieces'
                     }
                 />
                 <TextField
@@ -299,8 +294,7 @@ const SubmitResultsPage = () => {
                         },
                     }}
                     helperText={
-                        errors.black ||
-                        'Lichess username of the player with the black pieces'
+                        errors.black || 'Lichess username of the player with the black pieces'
                     }
                 />
 
@@ -337,9 +331,7 @@ const SubmitResultsPage = () => {
                         control={
                             <Checkbox
                                 checked={reportOpponent}
-                                onChange={(event) =>
-                                    setReportOpponent(event.target.checked)
-                                }
+                                onChange={(event) => setReportOpponent(event.target.checked)}
                             />
                         }
                         label='Report opponent for unresponsiveness or unwillingness to schedule?'

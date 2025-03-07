@@ -14,11 +14,7 @@ export function ScoreboardToolbar() {
                 <GridToolbarDensitySelector />
                 <GridToolbarFilterButton />
             </GridToolbarContainer>
-            <Typography
-                variant='caption'
-                color='text.secondary'
-                sx={{ ml: 0.5, mt: 0.5 }}
-            >
+            <Typography variant='caption' color='text.secondary' sx={{ ml: 0.5, mt: 0.5 }}>
                 Tip: hold shift while scrolling to scroll horizontally
             </Typography>
         </Stack>

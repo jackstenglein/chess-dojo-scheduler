@@ -80,12 +80,7 @@ export interface GetCourseResponse {
  * @param checkoutId The Stripe checkout session id of the purchase for anonymous users.
  * @returns An AxiosResponse containing the requested course.
  */
-export function getCourse(
-    idToken: string,
-    type: string,
-    id: string,
-    checkoutId?: string,
-) {
+export function getCourse(idToken: string, type: string, id: string, checkoutId?: string) {
     if (idToken) {
         return axios.get<GetCourseResponse>(`${BASE_URL}/courses/${type}/${id}`, {
             headers: {

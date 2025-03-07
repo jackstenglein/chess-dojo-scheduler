@@ -73,9 +73,7 @@ export default function BooksPage() {
         if (addedCohorts.includes(ALL_COHORTS)) {
             finalCohorts = [ALL_COHORTS];
         } else {
-            finalCohorts = newCohorts
-                .filter((c) => c !== ALL_COHORTS)
-                .sort(compareCohorts);
+            finalCohorts = newCohorts.filter((c) => c !== ALL_COHORTS).sort(compareCohorts);
         }
 
         setCohorts(finalCohorts);
@@ -88,10 +86,9 @@ export default function BooksPage() {
                     ChessDojo Recommended Books
                 </Typography>
                 <Typography>
-                    The following books have been handpicked by the Senseis for each
-                    cohort. Below you'll see the list of books that are assigned for each
-                    rating band, split among the main recommendations, tactics books, and
-                    endgame books.
+                    The following books have been handpicked by the Senseis for each cohort. Below
+                    you'll see the list of books that are assigned for each rating band, split among
+                    the main recommendations, tactics books, and endgame books.
                 </Typography>
             </Stack>
             <Stack mt={3} spacing={3}>
@@ -119,52 +116,46 @@ export default function BooksPage() {
                 />
 
                 <Grid2 container rowGap={2} columnSpacing={2}>
-                    {(cohorts[0] === ALL_COHORTS ? dojoCohorts : cohorts).map(
-                        (cohort) => (
-                            <Grid2
-                                key={cohort}
-                                size={{
-                                    xs: 12,
-                                    sm: 6,
+                    {(cohorts[0] === ALL_COHORTS ? dojoCohorts : cohorts).map((cohort) => (
+                        <Grid2
+                            key={cohort}
+                            size={{
+                                xs: 12,
+                                sm: 6,
+                            }}
+                        >
+                            <Card
+                                variant='outlined'
+                                sx={{
+                                    height: 1,
                                 }}
                             >
-                                <Card
-                                    variant='outlined'
-                                    sx={{
-                                        height: 1,
-                                    }}
-                                >
-                                    <CardHeader
-                                        title={
-                                            <>
-                                                <CohortIcon
-                                                    cohort={cohort}
-                                                    sx={{
-                                                        marginRight: '0.6rem',
-                                                        verticalAlign: 'middle',
-                                                    }}
-                                                    tooltip=''
-                                                />{' '}
-                                                {cohort}
-                                            </>
-                                        }
-                                    />
+                                <CardHeader
+                                    title={
+                                        <>
+                                            <CohortIcon
+                                                cohort={cohort}
+                                                sx={{
+                                                    marginRight: '0.6rem',
+                                                    verticalAlign: 'middle',
+                                                }}
+                                                tooltip=''
+                                            />{' '}
+                                            {cohort}
+                                        </>
+                                    }
+                                />
 
-                                    <CardContent>
-                                        <Stack spacing={3}>
-                                            {sections.map((s) => (
-                                                <Section
-                                                    key={s.title}
-                                                    section={s}
-                                                    cohort={cohort}
-                                                />
-                                            ))}
-                                        </Stack>
-                                    </CardContent>
-                                </Card>
-                            </Grid2>
-                        ),
-                    )}
+                                <CardContent>
+                                    <Stack spacing={3}>
+                                        {sections.map((s) => (
+                                            <Section key={s.title} section={s} cohort={cohort} />
+                                        ))}
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Grid2>
+                    ))}
                 </Grid2>
             </Stack>
         </Container>

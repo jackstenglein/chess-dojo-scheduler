@@ -135,8 +135,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
     const ratingRange = searchParams.get('ratingRange') || ratingRangeOptions[0];
     const view = searchParams.get('view') || 'standings';
 
-    const maxRound =
-        openClassical.sections[`${region}_${ratingRange}`]?.rounds.length || 0;
+    const maxRound = openClassical.sections[`${region}_${ratingRange}`]?.rounds.length || 0;
 
     const registrationCloseDate = openClassical.registrationClose
         ? toDojoDateString(
@@ -153,8 +152,8 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                 <Stack mt={4} pb={5} spacing={2} alignItems='start'>
                     <Typography>
                         The tournament is still accepting registrations. Round one begins{' '}
-                        {registrationCloseDate || 'soon'}. Register beforehand if you
-                        would like to play.
+                        {registrationCloseDate || 'soon'}. Register beforehand if you would like to
+                        play.
                     </Typography>
 
                     <Button
@@ -169,8 +168,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                 </Stack>
             ) : openClassical.startsAt === 'CURRENT' ? (
                 <Typography>
-                    Results for each round will be posted after the full round is
-                    complete.{' '}
+                    Results for each round will be posted after the full round is complete.{' '}
                     <Button
                         variant='text'
                         startIcon={<PublishIcon />}
@@ -247,10 +245,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                                 startAdornment: (
                                     <InputAdornment position='start'>
                                         {view.includes('standing') ? (
-                                            <Leaderboard
-                                                fontSize={'medium'}
-                                                color='primary'
-                                            />
+                                            <Leaderboard fontSize={'medium'} color='primary' />
                                         ) : (
                                             <People fontSize={'medium'} color='primary' />
                                         )}

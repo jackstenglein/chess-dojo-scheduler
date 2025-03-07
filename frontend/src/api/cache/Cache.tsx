@@ -261,10 +261,7 @@ export function useNotifications(): UseNotificationsResponse {
     const cache = useCache();
     const request = useRequest();
 
-    const notifications = useMemo(
-        () => cache.notifications.list(),
-        [cache.notifications],
-    );
+    const notifications = useMemo(() => cache.notifications.list(), [cache.notifications]);
 
     useEffect(() => {
         if (auth.status === AuthStatus.Authenticated && !request.isSent()) {

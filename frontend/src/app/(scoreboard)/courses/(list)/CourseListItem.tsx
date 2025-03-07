@@ -65,8 +65,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
     let percentOff = 0;
     if (purchaseOption && purchaseOption.currentPrice > 0) {
         percentOff = Math.round(
-            ((purchaseOption.fullPrice - purchaseOption.currentPrice) /
-                purchaseOption.fullPrice) *
+            ((purchaseOption.fullPrice - purchaseOption.currentPrice) / purchaseOption.fullPrice) *
                 100,
         );
     }
@@ -75,12 +74,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
 
     const onBuy = () => {
         request.onStart();
-        api.purchaseCourse(
-            course.type,
-            course.id,
-            purchaseOption?.name,
-            window.location.href,
-        )
+        api.purchaseCourse(course.type, course.id, purchaseOption?.name, window.location.href)
             .then((resp) => {
                 router.push(resp.data.url);
                 request.onSuccess();
@@ -132,8 +126,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                                 variant='h6'
                                 sx={{
                                     color: percentOff > 0 ? 'error.main' : undefined,
-                                    textDecoration:
-                                        percentOff > 0 ? 'line-through' : undefined,
+                                    textDecoration: percentOff > 0 ? 'line-through' : undefined,
                                 }}
                             >
                                 ${displayPrice(purchaseOption.fullPrice / 100)}
@@ -145,9 +138,7 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                                         ${displayPrice(purchaseOption.currentPrice / 100)}
                                     </Typography>
 
-                                    <Typography color='text.secondary'>
-                                        (-{percentOff}%)
-                                    </Typography>
+                                    <Typography color='text.secondary'>(-{percentOff}%)</Typography>
                                 </>
                             )}
                         </Stack>
@@ -158,17 +149,11 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                     )}
 
                     <Stack direction='row' mb={2} spacing={1}>
-                        <Chip
-                            size='small'
-                            label={category}
-                            color={getCategoryColor(category)}
-                        />
+                        <Chip size='small' label={category} color={getCategoryColor(category)} />
 
                         <Chip size='small' label={course.cohortRange} />
 
-                        {course.color !== 'None' && (
-                            <Chip size='small' label={course.color} />
-                        )}
+                        {course.color !== 'None' && <Chip size='small' label={course.color} />}
                     </Stack>
 
                     <Typography variant='body2'>{course.description}</Typography>

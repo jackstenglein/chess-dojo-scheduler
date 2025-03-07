@@ -43,9 +43,7 @@ const UnauthenticatedMenu = () => {
 
 export default UnauthenticatedMenu;
 
-function unauthenticatedStartItems(
-    toggleExpansion: (item: string) => void,
-): NavbarItem[] {
+function unauthenticatedStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
     return [
         {
             name: 'Tournaments',
@@ -311,9 +309,7 @@ export const ExtraSmallMenuUnauthenticated = () => {
                                                 <ChevronRight />
                                             </ListItemIcon>
                                         )}
-                                        <Typography textAlign='center'>
-                                            {child.name}
-                                        </Typography>
+                                        <Typography textAlign='center'>{child.name}</Typography>
                                     </MenuItem>
                                 ))}
                             </List>

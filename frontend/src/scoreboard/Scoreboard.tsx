@@ -143,12 +143,7 @@ const graduatedColumn: GridColDef<ScoreboardRow> = {
     headerAlign: 'center',
 };
 
-const summaryUserInfoColumns = [
-    rankColumn,
-    displayNameColumn,
-    cohortColumn,
-    graduatedColumn,
-];
+const summaryUserInfoColumns = [rankColumn, displayNameColumn, cohortColumn, graduatedColumn];
 const defaultUserInfoColumns = [rankColumn, displayNameColumn, graduatedColumn];
 
 const ratingsColumnGroup = {
@@ -327,9 +322,7 @@ function getActionColumns(
                         </Tooltip>
                     }
                     label='Pin Row'
-                    onClick={() =>
-                        setPinnedRowIds((prevPinnedRowIds) => [...prevPinnedRowIds, id])
-                    }
+                    onClick={() => setPinnedRowIds((prevPinnedRowIds) => [...prevPinnedRowIds, id])}
                 />,
             ];
         },
@@ -359,8 +352,7 @@ function getTrainingPlanColumns(
                 field: 'percentComplete',
                 headerName: 'Percent Complete',
                 minWidth: 175,
-                valueGetter: (_value, row) =>
-                    getPercentComplete(row, cohort, requirements),
+                valueGetter: (_value, row) => getPercentComplete(row, cohort, requirements),
                 renderCell: (params: GridRenderCellParams<ScoreboardRow, number>) => (
                     <ScoreboardProgress
                         fullHeight
@@ -407,10 +399,7 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
             field: 'last7DaysTime',
             headerName: 'Last 7 Days',
             valueGetter: (_value, row) =>
-                getMinutesSpent(
-                    row,
-                    allCohorts ? 'ALL_COHORTS_LAST_7_DAYS' : 'LAST_7_DAYS',
-                ),
+                getMinutesSpent(row, allCohorts ? 'ALL_COHORTS_LAST_7_DAYS' : 'LAST_7_DAYS'),
             valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
@@ -420,10 +409,7 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
             field: 'last30DaysTime',
             headerName: 'Last 30 Days',
             valueGetter: (_value, row) =>
-                getMinutesSpent(
-                    row,
-                    allCohorts ? 'ALL_COHORTS_LAST_30_DAYS' : 'LAST_30_DAYS',
-                ),
+                getMinutesSpent(row, allCohorts ? 'ALL_COHORTS_LAST_30_DAYS' : 'LAST_30_DAYS'),
             valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
@@ -433,10 +419,7 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
             field: 'last90DaysTime',
             headerName: 'Last 90 Days',
             valueGetter: (_value, row) =>
-                getMinutesSpent(
-                    row,
-                    allCohorts ? 'ALL_COHORTS_LAST_90_DAYS' : 'LAST_90_DAYS',
-                ),
+                getMinutesSpent(row, allCohorts ? 'ALL_COHORTS_LAST_90_DAYS' : 'LAST_90_DAYS'),
             valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
@@ -446,10 +429,7 @@ function getTimeSpentColumns(allCohorts?: boolean): GridColDef<ScoreboardRow>[] 
             field: 'last365DaysTime',
             headerName: 'Last 365 Days',
             valueGetter: (_value, row) =>
-                getMinutesSpent(
-                    row,
-                    allCohorts ? 'ALL_COHORTS_LAST_365_DAYS' : 'LAST_365_DAYS',
-                ),
+                getMinutesSpent(row, allCohorts ? 'ALL_COHORTS_LAST_365_DAYS' : 'LAST_365_DAYS'),
             valueFormatter: (value) => formatTime(value),
             align: 'center',
             minWidth: 125,
@@ -494,9 +474,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
     const isSummary = cohort === undefined;
     const isFreeTier = useFreeTier();
 
-    const [pinnedRowIds, setPinnedRowIds] = useState<GridRowId[]>(
-        user ? [user.username] : [],
-    );
+    const [pinnedRowIds, setPinnedRowIds] = useState<GridRowId[]>(user ? [user.username] : []);
 
     const actionColumn = useMemo(
         () => getActionColumns(pinnedRowIds, setPinnedRowIds),
@@ -548,41 +526,32 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                 timeSpentColumns,
                 requirementColumns,
             ),
-        [
-            actionColumn,
-            isSummary,
-            trainingPlanColumns,
-            timeSpentColumns,
-            requirementColumns,
-        ],
+        [actionColumn, isSummary, trainingPlanColumns, timeSpentColumns, requirementColumns],
     );
 
     const columnGroups = useMemo(
         () =>
-            (isSummary ? summaryColumnGroups : defaultColumnGroups).concat(
-                requirementColumnGroups,
-            ),
+            (isSummary ? summaryColumnGroups : defaultColumnGroups).concat(requirementColumnGroups),
         [isSummary, requirementColumnGroups],
     );
 
     const [rows, pinnedRows] = useMemo(() => {
         const pinnedRows: ScoreboardRow[] = [];
 
-        const rows =
-            addUser && user && !isFreeTier ? initialRows.concat(user) : initialRows;
+        const rows = addUser && user && !isFreeTier ? initialRows.concat(user) : initialRows;
         for (const row of rows) {
             if (pinnedRowIds.includes(row.username)) {
-                pinnedRows.push(
-                    Object.assign({}, row, { username: `${row.username}#pinned` }),
-                );
+                pinnedRows.push(Object.assign({}, row, { username: `${row.username}#pinned` }));
             }
         }
 
         return [rows, { top: pinnedRows }];
     }, [user, initialRows, pinnedRowIds, isFreeTier, addUser]);
 
-    const [columnVisibility, setColumnVisibility] =
-        useLocalStorage<GridColumnVisibilityModel>(`/scoreboard/columns`, {});
+    const [columnVisibility, setColumnVisibility] = useLocalStorage<GridColumnVisibilityModel>(
+        `/scoreboard/columns`,
+        {},
+    );
 
     return (
         <DataGridPro

@@ -76,9 +76,9 @@ export const ShareDialog = ({
     const [copied, setCopied] = useState(false);
     const [addedUsers, setAddedUsers] = useState<User[]>([]);
     const [addedRole, setAddedRole] = useState(DirectoryAccessRole.Viewer);
-    const [editAccess, setEditAccess] = useState<
-        Record<string, RemovableDirectoryAccessRole>
-    >(directory.access || {});
+    const [editAccess, setEditAccess] = useState<Record<string, RemovableDirectoryAccessRole>>(
+        directory.access || {},
+    );
 
     const request = useRequest();
     const { put: putDirectory } = useDirectoryCache();
@@ -101,9 +101,7 @@ export const ShareDialog = ({
     }, [editAccess, addedRole, addedUsers]);
 
     const changesMade = useMemo(() => {
-        if (
-            Object.keys(newAccess).length !== Object.keys(directory.access || {}).length
-        ) {
+        if (Object.keys(newAccess).length !== Object.keys(directory.access || {}).length) {
             return true;
         }
         for (const username of Object.keys(directory.access || {})) {
@@ -233,9 +231,7 @@ function AddAccessSection({
         fetch(inputValue, (results?: User[]) => {
             if (active && results) {
                 setOptions(
-                    results.filter(
-                        (r) => !currentAccess[r.username] && r.username !== owner,
-                    ),
+                    results.filter((r) => !currentAccess[r.username] && r.username !== owner),
                 );
             }
         });
@@ -265,11 +261,7 @@ function AddAccessSection({
                             <Chip
                                 key={key}
                                 avatar={
-                                    <Avatar
-                                        user={user}
-                                        size={24}
-                                        sx={{ ml: '5px', mr: '-6px' }}
-                                    />
+                                    <Avatar user={user} size={24} sx={{ ml: '5px', mr: '-6px' }} />
                                 }
                                 label={user.displayName}
                                 {...tagProps}
@@ -280,10 +272,7 @@ function AddAccessSection({
                 renderOption={({ key, ...props }, user) => {
                     return (
                         <Fragment key={user.username}>
-                            <ListItem
-                                {...props}
-                                sx={{ alignItems: 'flex-start !important' }}
-                            >
+                            <ListItem {...props} sx={{ alignItems: 'flex-start !important' }}>
                                 <ListItemAvatar>
                                     <Avatar user={user} size={40} sx={{ mt: 0.5 }} />
                                 </ListItemAvatar>
@@ -306,12 +295,7 @@ function AddAccessSection({
                 noOptionsText='Search for users...'
             />
 
-            <RoleSelect
-                label='Role'
-                sx={{ width: 1, mt: 2 }}
-                value={role}
-                onChange={setRole}
-            />
+            <RoleSelect label='Role' sx={{ width: 1, mt: 2 }} value={role} onChange={setRole} />
         </>
     );
 }
@@ -423,9 +407,7 @@ function ListItemSecondary({ user }: { user: User }) {
         <Stack direction='row' flexWrap='wrap' columnGap={1.5}>
             {chesscom && (
                 <span>
-                    <SiChessdotcom
-                        style={{ color: '#81b64c', verticalAlign: 'middle' }}
-                    />{' '}
+                    <SiChessdotcom style={{ color: '#81b64c', verticalAlign: 'middle' }} />{' '}
                     {chesscom}
                 </span>
             )}

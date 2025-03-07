@@ -193,9 +193,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                             control={
                                 <Checkbox
                                     checked={markComplete}
-                                    onChange={(event) =>
-                                        setMarkComplete(event.target.checked)
-                                    }
+                                    onChange={(event) => setMarkComplete(event.target.checked)}
                                 />
                             }
                             label='Mark as Completed?'
@@ -256,13 +254,12 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                             </Grid2>
                         </Grid2>
                         <DialogContentText>
-                            Total Time:{' '}
-                            {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
+                            Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
                         </DialogContentText>
                         {addedTime > TIME_WARNING_THRESHOLD_MINS && (
                             <Alert severity='warning' variant='filled'>
-                                You're adding a lot of time! Please double-check your
-                                input before saving.
+                                You're adding a lot of time! Please double-check your input before
+                                saving.
                             </Alert>
                         )}
                     </Stack>

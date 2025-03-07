@@ -67,14 +67,8 @@ export const DirectoryBreadcrumbs = ({
             {hiddenBreadcrumbs > 0 && (
                 <>
                     <Tooltip title='Show path'>
-                        <IconButton
-                            size='small'
-                            onClick={(e) => setMenuAnchor(e.currentTarget)}
-                        >
-                            <MoreHoriz
-                                fontSize='inherit'
-                                sx={{ color: 'text.secondary' }}
-                            />
+                        <IconButton size='small' onClick={(e) => setMenuAnchor(e.currentTarget)}>
+                            <MoreHoriz fontSize='inherit' sx={{ color: 'text.secondary' }} />
                         </IconButton>
                     </Tooltip>
 
@@ -102,10 +96,7 @@ export const DirectoryBreadcrumbs = ({
 
             <Breadcrumbs separator={<NavigateNext fontSize='small' />}>
                 {currentBreadcrumbs.slice(hiddenBreadcrumbs).map((b) => (
-                    <Tooltip
-                        key={b.id}
-                        title={b.name.length > MAX_ITEM_LENGTH ? b.name : ''}
-                    >
+                    <Tooltip key={b.id} title={b.name.length > MAX_ITEM_LENGTH ? b.name : ''}>
                         <Typography variant={variant}>
                             <Link
                                 key={b.id}

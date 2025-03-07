@@ -26,11 +26,7 @@ import { RequestSnackbar, useRequest } from '../../../../../api/Request';
 import { ListGamesResponse } from '../../../../../api/gameApi';
 import { useAuth } from '../../../../../auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
-import {
-    Game,
-    GameReviewType,
-    displayGameReviewType,
-} from '../../../../../database/game';
+import { Game, GameReviewType, displayGameReviewType } from '../../../../../database/game';
 import Avatar from '../../../../../profile/Avatar';
 
 const estimatedReviewDate = new Date(new Date().getTime() + ONE_WEEK_IN_MS);
@@ -55,11 +51,7 @@ const RequestReviewDialog: React.FC<RequestReviewDialogProps> = ({ game }) => {
             </Button>
             <Dialog open={open} onClose={onClose} fullWidth>
                 {!game.review ? (
-                    <SubmitDialogContent
-                        cohort={game.cohort}
-                        id={game.id}
-                        onClose={onClose}
-                    />
+                    <SubmitDialogContent cohort={game.cohort} id={game.id} onClose={onClose} />
                 ) : game.review.reviewedAt ? (
                     <CompletedDialogContent game={game} />
                 ) : (
@@ -146,11 +138,7 @@ const SubmitDialogContent: React.FC<{
             <DialogContent>
                 <DialogContentText mb={3}>
                     One of the senseis will review this game on a future{' '}
-                    <Link
-                        href='https://www.twitch.tv/chessdojo'
-                        target='_blank'
-                        rel='noreferrer'
-                    >
+                    <Link href='https://www.twitch.tv/chessdojo' target='_blank' rel='noreferrer'>
                         Twitch stream
                     </Link>
                     . If you miss the live stream, you can watch the review in the{' '}
@@ -209,10 +197,7 @@ const SubmitDialogContent: React.FC<{
                         }
                         slotProps={{
                             typography: {
-                                color:
-                                    errors.isConfirmed && !isConfirmed
-                                        ? 'error'
-                                        : undefined,
+                                color: errors.isConfirmed && !isConfirmed ? 'error' : undefined,
                             },
                         }}
                         label='I confirm that this game is annotated and that the senseis will skip reviewing unannotated games'
@@ -261,19 +246,11 @@ const CompletedDialogContent: React.FC<{ game: Game }> = ({ game }) => {
 
     const requestDate = new Date(game.reviewRequestedAt || '');
     const requestDateStr = toDojoDateString(requestDate, user?.timezoneOverride);
-    const requestTimeStr = toDojoTimeString(
-        requestDate,
-        user?.timezoneOverride,
-        user?.timeFormat,
-    );
+    const requestTimeStr = toDojoTimeString(requestDate, user?.timezoneOverride, user?.timeFormat);
 
     const reviewDate = new Date(review.reviewedAt || '');
     const reviewDateStr = toDojoDateString(reviewDate, user?.timezoneOverride);
-    const reviewTimeStr = toDojoTimeString(
-        reviewDate,
-        user?.timezoneOverride,
-        user?.timeFormat,
-    );
+    const reviewTimeStr = toDojoTimeString(reviewDate, user?.timezoneOverride, user?.timeFormat);
 
     return (
         <>
@@ -281,11 +258,7 @@ const CompletedDialogContent: React.FC<{ game: Game }> = ({ game }) => {
             <DialogContent>
                 <DialogContentText>
                     Your game review was reviewed on a previous{' '}
-                    <Link
-                        href='https://www.twitch.tv/chessdojo'
-                        target='_blank'
-                        rel='noreferrer'
-                    >
+                    <Link href='https://www.twitch.tv/chessdojo' target='_blank' rel='noreferrer'>
                         Twitch stream
                     </Link>
                     . If you missed the live stream, you can watch the review in the{' '}
@@ -329,9 +302,7 @@ const CompletedDialogContent: React.FC<{ game: Game }> = ({ game }) => {
                         </Typography>
                     )}
                     {review.type && (
-                        <Typography>
-                            Review Type: {displayGameReviewType(review.type)}
-                        </Typography>
+                        <Typography>Review Type: {displayGameReviewType(review.type)}</Typography>
                     )}
                 </Stack>
             </DialogContent>
@@ -399,13 +370,9 @@ const PendingDialogContent: React.FC<{ game: Game }> = ({ game }) => {
             <DialogTitle>Game Review Pending</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Your game review is still in the queue. One of the senseis will review
-                    this game on a future{' '}
-                    <Link
-                        href='https://www.twitch.tv/chessdojo'
-                        target='_blank'
-                        rel='noreferrer'
-                    >
+                    Your game review is still in the queue. One of the senseis will review this game
+                    on a future{' '}
+                    <Link href='https://www.twitch.tv/chessdojo' target='_blank' rel='noreferrer'>
                         Twitch stream
                     </Link>
                     . If you miss the live stream, you can watch the review in the{' '}

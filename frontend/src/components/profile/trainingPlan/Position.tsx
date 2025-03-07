@@ -83,8 +83,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
 
     const turn = turnColor(position.fen);
 
-    const timeControlName =
-        getLigaIconBasedOnTimeControl(position.limitSeconds) ?? 'unknown';
+    const timeControlName = getLigaIconBasedOnTimeControl(position.limitSeconds) ?? 'unknown';
 
     return (
         <Card variant='outlined' sx={{ px: 0 }}>
@@ -96,24 +95,17 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     <Stack px={1}>
                         <Stack direction='row' justifyContent='space-between'>
                             <Typography variant='h6'> {position.title}</Typography>
-                            <Tooltip
-                                title={timeControlName
-                                    .toLowerCase()
-                                    .concat(' time control')}
-                            >
+                            <Tooltip title={timeControlName.toLowerCase().concat(' time control')}>
                                 <Typography>
                                     <Icon
-                                        name={getLigaIconBasedOnTimeControl(
-                                            position.limitSeconds,
-                                        )}
+                                        name={getLigaIconBasedOnTimeControl(position.limitSeconds)}
                                         color='dojoOrange'
                                         sx={{
                                             marginRight: '0.3',
                                             verticalAlign: 'middle',
                                         }}
                                     />{' '}
-                                    {position.limitSeconds / 60}+
-                                    {position.incrementSeconds}
+                                    {position.limitSeconds / 60}+{position.incrementSeconds}
                                 </Typography>
                             </Tooltip>
                         </Stack>
@@ -121,8 +113,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                         <Stack direction='row' justifyContent='space-between'>
                             <Typography variant='body1' color='text.secondary'>
                                 {turn[0].toLocaleUpperCase() + turn.slice(1)} to play
-                                {position.result &&
-                                    ` and ${position.result.toLocaleLowerCase()}`}
+                                {position.result && ` and ${position.result.toLocaleLowerCase()}`}
                             </Typography>
                         </Stack>
                     </Stack>

@@ -37,15 +37,12 @@ export async function getScoreboard(
     const result: (User | ScoreboardSummary)[] = [];
 
     do {
-        const resp = await axios.get<GetScoreboardResponse>(
-            BASE_URL + `/scoreboard/${type}`,
-            {
-                params,
-                headers: {
-                    Authorization: 'Bearer ' + idToken,
-                },
+        const resp = await axios.get<GetScoreboardResponse>(BASE_URL + `/scoreboard/${type}`, {
+            params,
+            headers: {
+                Authorization: 'Bearer ' + idToken,
             },
-        );
+        });
         result.push(...resp.data.data);
         params.startKey = resp.data.lastEvaluatedKey;
     } while (params.startKey);

@@ -325,10 +325,7 @@ export function getCurrentCount(
     if (!progress) {
         return 0;
     }
-    if (
-        isRequirement(requirement) &&
-        requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo
-    ) {
+    if (isRequirement(requirement) && requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
         return 0;
     }
 
@@ -368,10 +365,7 @@ export function getCurrentCount(
  * @param requirement The requirement to get the total count for.
  * @returns The total count for the given cohort and requirement.
  */
-export function getTotalCount(
-    cohort: string,
-    requirement: Requirement | CustomTask,
-): number {
+export function getTotalCount(cohort: string, requirement: Requirement | CustomTask): number {
     return requirement.counts[cohort] || 0;
 }
 
@@ -421,10 +415,7 @@ export function isComplete(
     if (requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
         return false;
     }
-    return (
-        getCurrentCount(cohort, requirement, progress) >=
-        getTotalCount(cohort, requirement)
-    );
+    return getCurrentCount(cohort, requirement, progress) >= getTotalCount(cohort, requirement);
 }
 
 /**

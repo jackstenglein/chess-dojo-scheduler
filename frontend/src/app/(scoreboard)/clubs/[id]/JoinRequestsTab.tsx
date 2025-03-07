@@ -7,24 +7,14 @@ import { Link } from '@/components/navigation/Link';
 import { ClubDetails, ClubJoinRequest, ClubJoinRequestStatus } from '@/database/club';
 import Avatar from '@/profile/Avatar';
 import { Block, Check } from '@mui/icons-material';
-import {
-    CircularProgress,
-    Divider,
-    IconButton,
-    Stack,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { CircularProgress, Divider, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 
 interface JoinRequestsTabProps {
     club: ClubDetails;
     onProcessRequest: (club: GetClubResponse, snackbarText: string) => void;
 }
 
-export const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({
-    club,
-    onProcessRequest,
-}) => {
+export const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({ club, onProcessRequest }) => {
     const viewer = useAuth().user;
     if (viewer?.username !== club.owner) {
         return null;
@@ -51,9 +41,7 @@ export const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({
                         onProcessRequest={onProcessRequest}
                     />
                 ))}
-                {pendingRequests.length === 0 && (
-                    <Typography>No pending requests</Typography>
-                )}
+                {pendingRequests.length === 0 && <Typography>No pending requests</Typography>}
             </Stack>
 
             <Stack spacing={3}>
@@ -67,9 +55,7 @@ export const JoinRequestsTab: React.FC<JoinRequestsTabProps> = ({
                         onProcessRequest={onProcessRequest}
                     />
                 ))}
-                {rejectedRequests.length === 0 && (
-                    <Typography>No rejected requests</Typography>
-                )}
+                {rejectedRequests.length === 0 && <Typography>No rejected requests</Typography>}
             </Stack>
         </Stack>
     );
@@ -137,9 +123,7 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                         <Link href={`/profile/${joinRequest.username}`}>
                             {joinRequest.displayName}
                         </Link>
-                        <Typography color='text.secondary'>
-                            {joinRequest.cohort}
-                        </Typography>
+                        <Typography color='text.secondary'>{joinRequest.cohort}</Typography>
                         <Typography color='text.secondary' variant='body2'>
                             {dateStr} • {timeStr}
                         </Typography>
@@ -168,9 +152,7 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                                         <Block
                                             color='error'
                                             onClick={() =>
-                                                handleRequest(
-                                                    ClubJoinRequestStatus.Rejected,
-                                                )
+                                                handleRequest(ClubJoinRequestStatus.Rejected)
                                             }
                                         />
                                     </IconButton>

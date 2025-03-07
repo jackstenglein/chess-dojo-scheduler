@@ -190,10 +190,7 @@ export const FullTrainingPlanItem = ({
                                 value={currentCount}
                                 max={totalCount}
                                 min={requirement.startCount || 0}
-                                isTime={
-                                    requirement.scoreboardDisplay ===
-                                    ScoreboardDisplay.Minutes
-                                }
+                                isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
                                 hideProgressText={true}
                                 sx={{ height: '6px' }}
                             />
@@ -218,8 +215,7 @@ export const FullTrainingPlanItem = ({
                             {UpdateElement}
 
                             {isCurrentUser &&
-                                requirement.scoreboardDisplay !==
-                                    ScoreboardDisplay.Hidden &&
+                                requirement.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
                                 requirement.category !== RequirementCategory.Welcome && (
                                     <Tooltip
                                         title={
@@ -228,9 +224,7 @@ export const FullTrainingPlanItem = ({
                                                 : 'Pin to Daily Tasks'
                                         }
                                     >
-                                        <IconButton
-                                            onClick={() => togglePin(requirement)}
-                                        >
+                                        <IconButton onClick={() => togglePin(requirement)}>
                                             {isPinned ? (
                                                 <PushPin color='dojoOrange' />
                                             ) : (

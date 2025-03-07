@@ -97,8 +97,7 @@ export interface ListFollowedPositionsResponse {
  * @returns The list of followed positions.
  */
 export function listFollowedPositions(idToken: string) {
-    return axios.get<ListFollowedPositionsResponse>(
-        `${BASE_URL}/explorer/position/follower`,
-        { headers: { Authorization: `Bearer ${idToken}` } },
-    );
+    return axios.get<ListFollowedPositionsResponse>(`${BASE_URL}/explorer/position/follower`, {
+        headers: { Authorization: `Bearer ${idToken}` },
+    });
 }

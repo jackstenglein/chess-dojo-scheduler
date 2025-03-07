@@ -39,10 +39,7 @@ const Navbar = () => {
         if (Object.values(e.participants).length === 0) {
             return false;
         }
-        if (
-            e.owner !== auth.user?.username &&
-            !e.participants[auth.user?.username || '']
-        ) {
+        if (e.owner !== auth.user?.username && !e.participants[auth.user?.username || '']) {
             return false;
         }
         return e.status !== EventStatus.Canceled && e.endTime >= filterTime;

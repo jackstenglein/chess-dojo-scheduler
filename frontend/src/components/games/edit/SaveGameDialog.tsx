@@ -80,10 +80,7 @@ export default function SaveGameDialog({
     });
     const [errors, setErrors] = useState<Partial<FormError>>({});
 
-    function onChangeField(
-        key: keyof SaveGameForm,
-        value: string | DateTime | null,
-    ): void {
+    function onChangeField(key: keyof SaveGameForm, value: string | DateTime | null): void {
         setForm((oldForm) => ({ ...oldForm, [key]: value }));
     }
 
@@ -185,8 +182,8 @@ function SaveGameDialogBody({
                         children
                     ) : (
                         <>
-                            Review these fields before proceeding. You can update them
-                            later in the game settings section of the editor.
+                            Review these fields before proceeding. You can update them later in the
+                            game settings section of the editor.
                         </>
                     )}
                 </DialogContentText>
@@ -249,9 +246,7 @@ function SaveGameDialogBody({
                                 <MenuItem value={GameResult.White}>White Won</MenuItem>
                                 <MenuItem value={GameResult.Draw}>Draw</MenuItem>
                                 <MenuItem value={GameResult.Black}>Black Won</MenuItem>
-                                <MenuItem value={GameResult.Incomplete}>
-                                    Analysis
-                                </MenuItem>
+                                <MenuItem value={GameResult.Incomplete}>Analysis</MenuItem>
                             </TextField>
                         </Grid2>
 
@@ -286,9 +281,7 @@ function SaveGameDialogBody({
                                 <RadioGroup
                                     row
                                     value={form.orientation}
-                                    onChange={(e) =>
-                                        onChangeField('orientation', e.target.value)
-                                    }
+                                    onChange={(e) => onChangeField('orientation', e.target.value)}
                                 >
                                     <FormControlLabel
                                         value='white'

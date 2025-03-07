@@ -201,9 +201,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 size='small'
                                 exclusive
                                 value={underboard}
-                                onChange={(_, val: string | null) =>
-                                    val && setUnderboard(val)
-                                }
+                                onChange={(_, val: string | null) => val && setUnderboard(val)}
                                 fullWidth
                             >
                                 {tabs.map((tab, index) => {
@@ -218,8 +216,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                             sx={{
                                                 borderTop: light ? 0 : undefined,
 
-                                                borderLeft:
-                                                    index === 0 && light ? 0 : undefined,
+                                                borderLeft: index === 0 && light ? 0 : undefined,
                                                 borderRight:
                                                     index === tabs.length - 1 && light
                                                         ? 0
@@ -238,17 +235,12 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                     )}
 
                     <Stack sx={{ overflowY: 'auto', flexGrow: 1 }}>
-                        {underboard === DefaultUnderboardTab.Directories && (
-                            <Directories />
-                        )}
+                        {underboard === DefaultUnderboardTab.Directories && <Directories />}
                         {underboard === DefaultUnderboardTab.Tags && (
                             <Tags game={game} allowEdits={isOwner} />
                         )}
                         {underboard === DefaultUnderboardTab.Editor && (
-                            <Editor
-                                focusEditor={focusEditor}
-                                setFocusEditor={setFocusEditor}
-                            />
+                            <Editor focusEditor={focusEditor} setFocusEditor={setFocusEditor} />
                         )}
                         {underboard === DefaultUnderboardTab.Explorer && <Explorer />}
                         {underboard === DefaultUnderboardTab.Settings && (

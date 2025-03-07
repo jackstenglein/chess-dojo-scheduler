@@ -51,9 +51,7 @@ const PieChart: React.FC<PieChartProps> = ({
                 <Container maxWidth='sm' sx={{ mt: 1 }}>
                     <Box data-tip='' data-for={id}>
                         <ReactPieChart
-                            label={({ dataEntry }) =>
-                                `${Math.round(dataEntry.percentage)}%`
-                            }
+                            label={({ dataEntry }) => `${Math.round(dataEntry.percentage)}%`}
                             labelStyle={defaultLabelStyle}
                             labelPosition={65}
                             data={data}

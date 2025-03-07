@@ -58,18 +58,14 @@ const DeleteCustomTaskModal: React.FC<DeleteCustomTaskModalProps> = ({
     };
 
     return (
-        <Dialog
-            open={open}
-            onClose={request.isLoading() ? undefined : onCancel}
-            maxWidth='sm'
-        >
+        <Dialog open={open} onClose={request.isLoading() ? undefined : onCancel} maxWidth='sm'>
             <RequestSnackbar request={request} />
 
             <DialogTitle>Delete {task.name}?</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    This custom task will be removed from your profile, and all time
-                    logged will be lost. This action is irreverisble.
+                    This custom task will be removed from your profile, and all time logged will be
+                    lost. This action is irreverisble.
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -77,11 +73,7 @@ const DeleteCustomTaskModal: React.FC<DeleteCustomTaskModalProps> = ({
                     Cancel
                 </Button>
 
-                <LoadingButton
-                    color='error'
-                    loading={request.isLoading()}
-                    onClick={handleDelete}
-                >
+                <LoadingButton color='error' loading={request.isLoading()} onClick={handleDelete}>
                     Delete Task
                 </LoadingButton>
             </DialogActions>

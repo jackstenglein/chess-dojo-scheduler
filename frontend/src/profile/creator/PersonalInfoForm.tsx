@@ -53,11 +53,7 @@ const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep 
                 onChange={(event) => setBio(event.target.value)}
             />
 
-            <TimezoneSelector
-                label='Timezone (Optional)'
-                value={timezone}
-                onChange={setTimezone}
-            />
+            <TimezoneSelector label='Timezone (Optional)' value={timezone} onChange={setTimezone} />
 
             <LoadingButton
                 disabled={!canSave}

@@ -1,11 +1,6 @@
 import { FontAwesomeSvgIcon } from '@/style/Icon';
 import { faBookSkull } from '@fortawesome/free-solid-svg-icons';
-import {
-    PhoneInTalk,
-    PictureAsPdf,
-    Visibility,
-    VisibilityOff,
-} from '@mui/icons-material';
+import { PhoneInTalk, PictureAsPdf, Visibility, VisibilityOff } from '@mui/icons-material';
 
 export const nagIcons: Record<string, JSX.Element> = {
     $1300: <Visibility fontSize='inherit' sx={{ verticalAlign: 'middle' }} />,

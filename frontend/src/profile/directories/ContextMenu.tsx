@@ -41,8 +41,7 @@ export const ContextMenu = ({
     }
 
     const isDirectory =
-        editor.items.length === 1 &&
-        editor.items[0].type === DirectoryItemTypes.DIRECTORY;
+        editor.items.length === 1 && editor.items[0].type === DirectoryItemTypes.DIRECTORY;
 
     const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
@@ -80,12 +79,8 @@ export const ContextMenu = ({
                         </MenuItem>
                         <Divider />
                         <MenuItem onClick={editor.onRemove}>
-                            <ListItemIcon>
-                                {isDirectory ? <Delete /> : <FolderOff />}
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={isDirectory ? 'Delete' : 'Remove from Folder'}
-                            />
+                            <ListItemIcon>{isDirectory ? <Delete /> : <FolderOff />}</ListItemIcon>
+                            <ListItemText primary={isDirectory ? 'Delete' : 'Remove from Folder'} />
                         </MenuItem>
                     </>
                 )}

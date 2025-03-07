@@ -2,14 +2,7 @@ import { Chess, Move } from '@jackstenglein/chess';
 import { Box, Stack, SxProps, Theme, Typography } from '@mui/material';
 import { useCallback, useState } from 'react';
 
-import Board, {
-    BoardApi,
-    PrimitiveMove,
-    reconcile,
-    toColor,
-    toDests,
-    toShapes,
-} from '../Board';
+import Board, { BoardApi, PrimitiveMove, reconcile, toColor, toDests, toShapes } from '../Board';
 import { ChessContext } from '../pgn/PgnBoard';
 import HintSection from './HintSection';
 
@@ -108,10 +101,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             const isCorrect = chess.isMainline(move);
             if (isCorrect) {
                 chess.seek(chess.nextMove());
-                if (
-                    chess.lastMove() === chess.currentMove() ||
-                    chess.hasNagInRange(10, 140)
-                ) {
+                if (chess.lastMove() === chess.currentMove() || chess.hasNagInRange(10, 140)) {
                     onComplete(board, chess);
                     return;
                 }

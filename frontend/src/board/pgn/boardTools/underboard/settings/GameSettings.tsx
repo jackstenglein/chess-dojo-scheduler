@@ -59,9 +59,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
 
     const unlisted = visibility === 'unlisted';
     const dirty =
-        headersChanged ||
-        orientation !== game.orientation ||
-        (game.unlisted ?? false) !== unlisted;
+        headersChanged || orientation !== game.orientation || (game.unlisted ?? false) !== unlisted;
 
     const onChangeHeader = (name: string, value: string) => {
         setHeaders((oldHeaders) => ({ ...oldHeaders, [name]: value }));
@@ -111,9 +109,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ game, onSaveGame }) => {
                         <RadioGroup
                             row
                             value={orientation}
-                            onChange={(e) =>
-                                setOrientation(e.target.value as GameOrientation)
-                            }
+                            onChange={(e) => setOrientation(e.target.value as GameOrientation)}
                         >
                             <FormControlLabel
                                 value={GameOrientations.white}
@@ -300,8 +296,7 @@ const SaveGameButton = ({
                 onSubmit={onSave}
                 loading={loading}
             >
-                Your game is missing data. Please fill out these fields to publish your
-                analysis.
+                Your game is missing data. Please fill out these fields to publish your analysis.
             </MissingGameDataPreflight>
         </>
     );

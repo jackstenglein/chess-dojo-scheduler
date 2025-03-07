@@ -31,11 +31,7 @@ interface EntrantsTableProps {
     ratingRange: string;
 }
 
-const EntrantsTable: React.FC<EntrantsTableProps> = ({
-    openClassical,
-    region,
-    ratingRange,
-}) => {
+const EntrantsTable: React.FC<EntrantsTableProps> = ({ openClassical, region, ratingRange }) => {
     const rows = useMemo(() => {
         if (!openClassical) {
             return [];

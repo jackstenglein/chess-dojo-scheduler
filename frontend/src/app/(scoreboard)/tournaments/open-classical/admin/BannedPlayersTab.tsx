@@ -23,10 +23,7 @@ interface BannedPlayersTabProps {
     onUpdate: (openClassical: OpenClassical) => void;
 }
 
-const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({
-    openClassical,
-    onUpdate,
-}) => {
+const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({ openClassical, onUpdate }) => {
     const [unbanPlayer, setUnbanPlayer] = useState('');
     const api = useApi();
     const unbanRequest = useRequest<string>();
@@ -48,10 +45,7 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({
         });
     }, []);
 
-    const players = useMemo(
-        () => Object.values(openClassical.bannedPlayers),
-        [openClassical],
-    );
+    const players = useMemo(() => Object.values(openClassical.bannedPlayers), [openClassical]);
 
     const onConfirmUnban = () => {
         unbanRequest.onStart();
@@ -70,8 +64,7 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({
     return (
         <Stack spacing={3}>
             <Typography>
-                Banned players are prevented from playing in any section of the Open
-                Classical.
+                Banned players are prevented from playing in any section of the Open Classical.
             </Typography>
 
             <DataGridPro
@@ -95,21 +88,15 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({
                 <DialogTitle>Unban {unbanPlayer}?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        This will allow the player to register and participate in future
-                        open classicals.
+                        This will allow the player to register and participate in future open
+                        classicals.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button
-                        onClick={() => setUnbanPlayer('')}
-                        disabled={unbanRequest.isLoading()}
-                    >
+                    <Button onClick={() => setUnbanPlayer('')} disabled={unbanRequest.isLoading()}>
                         Cancel
                     </Button>
-                    <LoadingButton
-                        loading={unbanRequest.isLoading()}
-                        onClick={onConfirmUnban}
-                    >
+                    <LoadingButton loading={unbanRequest.isLoading()} onClick={onConfirmUnban}>
                         Unban Player
                     </LoadingButton>
                 </DialogActions>

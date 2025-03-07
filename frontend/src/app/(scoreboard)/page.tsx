@@ -56,25 +56,12 @@ const LandingPage = ({
                             md: 6,
                         }}
                     >
-                        <Stack
-                            height={1}
-                            justifyContent='center'
-                            alignItems='center'
-                            spacing={6}
-                        >
+                        <Stack height={1} justifyContent='center' alignItems='center' spacing={6}>
                             <Stack alignItems='center' spacing={2}>
-                                <Typography
-                                    variant='h2'
-                                    textAlign='center'
-                                    data-cy='title'
-                                >
+                                <Typography variant='h2' textAlign='center' data-cy='title'>
                                     ChessDojo
                                 </Typography>
-                                <Typography
-                                    variant='h5'
-                                    textAlign='center'
-                                    data-cy='subtitle'
-                                >
+                                <Typography variant='h5' textAlign='center' data-cy='subtitle'>
                                     The ChessDojo{' '}
                                     <Typography
                                         variant='h5'
@@ -83,8 +70,8 @@ const LandingPage = ({
                                     >
                                         Training Program
                                     </Typography>{' '}
-                                    offers structured training plans for all levels
-                                    0-2500, along with an active and supportive community
+                                    offers structured training plans for all levels 0-2500, along
+                                    with an active and supportive community
                                 </Typography>
                             </Stack>
 

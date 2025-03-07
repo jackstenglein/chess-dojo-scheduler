@@ -21,12 +21,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import {
-    DataGridPro,
-    GridColDef,
-    GridRenderCellParams,
-    GridRowParams,
-} from '@mui/x-data-grid-pro';
+import { DataGridPro, GridColDef, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid-pro';
 import { useEffect, useMemo, useState } from 'react';
 
 interface CohortRangeExams {
@@ -76,9 +71,7 @@ function getExamInfo(e: Exam, username?: string, timezoneOverride?: string): Exa
         averageRating,
         userScore: e.answers[username || '']?.score,
         userRating,
-        dateTaken: answer
-            ? toDojoDateString(new Date(answer.createdAt), timezoneOverride)
-            : '',
+        dateTaken: answer ? toDojoDateString(new Date(answer.createdAt), timezoneOverride) : '',
     };
 }
 
@@ -104,9 +97,7 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                 .then((exams) => {
                     console.log('Exams: ', exams);
                     request.onSuccess(
-                        exams.map((e) =>
-                            getExamInfo(e, user?.username, user?.timezoneOverride),
-                        ),
+                        exams.map((e) => getExamInfo(e, user?.username, user?.timezoneOverride)),
                     );
                 })
                 .catch((err) => {
@@ -154,11 +145,7 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
                         <Stack key={range.name}>
                             <Stack spacing={1} direction='row' alignItems='center'>
                                 <Tooltip
-                                    title={
-                                        expanded[i]
-                                            ? 'Collapse Section'
-                                            : 'Expand Section'
-                                    }
+                                    title={expanded[i] ? 'Collapse Section' : 'Expand Section'}
                                 >
                                     <ButtonBase onClick={() => onChangeExpanded(i)}>
                                         {expanded[i] ? <ExpandLess /> : <ExpandMore />}
@@ -316,9 +303,7 @@ export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
                 headerName: 'Name',
                 valueGetter: (_value, row) => row.exam.name,
                 renderCell(params: GridRenderCellParams<ExamInfo, string>) {
-                    const hasAnswered = Boolean(
-                        params.row.exam.answers[user?.username || ''],
-                    );
+                    const hasAnswered = Boolean(params.row.exam.answers[user?.username || '']);
 
                     const i = exams.findIndex((e) => e.id === params.row.id);
                     if (
@@ -351,11 +336,7 @@ export const ExamsTable = ({ exams }: { exams: ExamInfo[] }) => {
         }
 
         const i = exams.findIndex((e) => e.id === params.row.id);
-        if (
-            !user?.isAdmin &&
-            i >= 1 &&
-            !exams[i - 1].exam.answers[user?.username || '']
-        ) {
+        if (!user?.isAdmin && i >= 1 && !exams[i - 1].exam.answers[user?.username || '']) {
             setSnackbarOpen(true);
         } else if (i >= 1 && isFreeTier) {
             setUpsellOpen(true);

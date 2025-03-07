@@ -198,9 +198,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
         <MuiThemeProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <DefaultDarkModeSetter>
-                <Box sx={{ '--navbar-height': { xs: '60px', md: '75px' } }}>
-                    {children}
-                </Box>
+                <Box sx={{ '--navbar-height': { xs: '60px', md: '75px' } }}>{children}</Box>
             </DefaultDarkModeSetter>
         </MuiThemeProvider>
     );

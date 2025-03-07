@@ -93,11 +93,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 onClick={onClick}
             >
                 <Box sx={{ flexGrow: 1, mr: 1 }}>
-                    <LinearProgress
-                        variant='determinate'
-                        {...rest}
-                        value={displayValue}
-                    />
+                    <LinearProgress variant='determinate' {...rest} value={displayValue} />
                 </Box>
                 {!hideProgressText && (
                     <ProgressText

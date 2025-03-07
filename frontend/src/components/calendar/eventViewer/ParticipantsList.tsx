@@ -25,11 +25,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
         <Stack spacing={1}>
             {!hideOwner && (
                 <Stack direction='row' spacing={1} alignItems='center'>
-                    <Avatar
-                        username={event.owner}
-                        displayName={event.ownerDisplayName}
-                        size={25}
-                    />
+                    <Avatar username={event.owner} displayName={event.ownerDisplayName} size={25} />
                     <Link href={`/profile/${event.owner}`}>
                         <Typography variant='body1'>
                             {event.ownerDisplayName} ({event.ownerCohort})
@@ -42,17 +38,8 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
             {Object.values(event.participants)
                 .slice(0, maxItems ? maxItems - 1 : undefined)
                 .map((p) => (
-                    <Stack
-                        key={p.username}
-                        direction='row'
-                        spacing={1}
-                        alignItems='center'
-                    >
-                        <Avatar
-                            username={p.username}
-                            displayName={p.displayName}
-                            size={25}
-                        />
+                    <Stack key={p.username} direction='row' spacing={1} alignItems='center'>
+                        <Avatar username={p.username} displayName={p.displayName} size={25} />
                         <Link href={`/profile/${p.username}`}>
                             <Typography variant='body1'>
                                 {p.displayName} ({p.cohort})
@@ -62,8 +49,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
 
                         {showPaymentWarning &&
                             !p.hasPaid &&
-                            (user?.username === event.owner ||
-                                user?.username === p.username) && (
+                            (user?.username === event.owner || user?.username === p.username) && (
                                 <Tooltip
                                     title={
                                         user.username === event.owner

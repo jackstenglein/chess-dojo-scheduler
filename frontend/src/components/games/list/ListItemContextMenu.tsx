@@ -46,9 +46,7 @@ export const ListItemContextMenu = ({
     const handleDelete = (keys: GameKey[]) => {
         setGames?.((gs) =>
             gs.filter((g) => {
-                const key = keys.find(
-                    (key) => key.cohort === g.cohort && key.id === g.id,
-                );
+                const key = keys.find((key) => key.cohort === g.cohort && key.id === g.id);
                 return !key;
             }),
         );
@@ -131,11 +129,7 @@ export const ListItemContextMenu = ({
                 )}
             </Menu>
 
-            <AddToDirectoryDialog
-                open={directoryPickerOpen}
-                games={games}
-                onClose={handleClose}
-            />
+            <AddToDirectoryDialog open={directoryPickerOpen} games={games} onClose={handleClose} />
 
             {games && (
                 <DeleteGamesDialog
@@ -159,15 +153,10 @@ export const ListItemContextMenu = ({
                 open={visibilitySkipped.length > 0}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert
-                    severity='error'
-                    variant='filled'
-                    onClose={() => setVisibilitySkipped([])}
-                >
+                <Alert severity='error' variant='filled' onClose={() => setVisibilitySkipped([])}>
                     {visibilitySkipped.length} game
-                    {visibilitySkipped.length !== 1 ? 's were' : ' was'} not able to be
-                    published because{' '}
-                    {visibilitySkipped.length !== 1 ? 'they are' : 'it is'} missing data.
+                    {visibilitySkipped.length !== 1 ? 's were' : ' was'} not able to be published
+                    because {visibilitySkipped.length !== 1 ? 'they are' : 'it is'} missing data.
                 </Alert>
             </Snackbar>
         </DirectoryCacheProvider>

@@ -51,16 +51,14 @@ import { ExplorerDatabaseType } from './Explorer';
 export const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
 
-const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(
-    ({ theme }) => ({
-        '& .chess-dojo-explorer--total': {
-            backgroundColor: `${getBackgroundColor(
-                theme.palette.info.main,
-                theme.palette.mode,
-            )} !important`,
-        },
-    }),
-);
+const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)(({ theme }) => ({
+    '& .chess-dojo-explorer--total': {
+        backgroundColor: `${getBackgroundColor(
+            theme.palette.info.main,
+            theme.palette.mode,
+        )} !important`,
+    },
+}));
 
 interface DatabaseProps<T> {
     type: ExplorerDatabaseType;
@@ -109,9 +107,7 @@ function Database<T>({
             .filter((move) => {
                 return cohortRange.some((cohort) => {
                     const result = move.results?.[cohort] || {};
-                    return (
-                        result.white || result.black || result.draws || result.analysis
-                    );
+                    return result.white || result.black || result.draws || result.analysis;
                 });
             })
             .sort((lhs, rhs) => {
@@ -163,10 +159,7 @@ function Database<T>({
                 minWidth: 55,
                 width: 55,
                 renderCell: (
-                    params: GridRenderCellParams<
-                        ExplorerMove | LichessExplorerMove,
-                        string
-                    >,
+                    params: GridRenderCellParams<ExplorerMove | LichessExplorerMove, string>,
                 ) => {
                     if (params.value === 'Total') {
                         return <FunctionsIcon fontSize='small' sx={{ height: 1 }} />;
@@ -186,19 +179,13 @@ function Database<T>({
                     return row.white + row.black + row.draws;
                 },
                 renderCell: (
-                    params: GridRenderCellParams<
-                        ExplorerMove | LichessExplorerMove,
-                        number
-                    >,
+                    params: GridRenderCellParams<ExplorerMove | LichessExplorerMove, number>,
                 ) => {
                     const gameCount = params.value || 0;
                     return (
                         <Stack direction='row' spacing={2}>
                             <div>
-                                {totalGames === 0
-                                    ? 0
-                                    : Math.round(100 * (gameCount / totalGames))}
-                                %
+                                {totalGames === 0 ? 0 : Math.round(100 * (gameCount / totalGames))}%
                             </div>
                             <div>{gameCount.toLocaleString()}</div>
                         </Stack>
@@ -217,9 +204,7 @@ function Database<T>({
                     }
                     return row.white;
                 },
-                renderCell: (
-                    params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>,
-                ) => {
+                renderCell: (params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>) => {
                     let graphParams: ResultGraphProps = {
                         totalGames: 0,
                         resultCount: {
@@ -236,17 +221,12 @@ function Database<T>({
                                 white: getResultCount(params.row, 'white', cohortRange),
                                 black: getResultCount(params.row, 'black', cohortRange),
                                 draws: getResultCount(params.row, 'draws', cohortRange),
-                                analysis: getResultCount(
-                                    params.row,
-                                    'analysis',
-                                    cohortRange,
-                                ),
+                                analysis: getResultCount(params.row, 'analysis', cohortRange),
                             },
                         };
                     } else {
                         graphParams = {
-                            totalGames:
-                                params.row.white + params.row.black + params.row.draws,
+                            totalGames: params.row.white + params.row.black + params.row.draws,
                             resultCount: {
                                 white: params.row.white,
                                 black: params.row.black,
@@ -266,8 +246,8 @@ function Database<T>({
         return (
             <Box mt={2}>
                 <UpsellAlert>
-                    Upgrade to a full account to search the Dojo databases by position and
-                    subscribe to positions.
+                    Upgrade to a full account to search the Dojo databases by position and subscribe
+                    to positions.
                 </UpsellAlert>
             </Box>
         );
@@ -304,13 +284,7 @@ function Database<T>({
     };
 
     return (
-        <Grid2
-            data-cy={`explorer-tab-${type}`}
-            container
-            columnSpacing={1}
-            rowSpacing={2}
-            mt={2}
-        >
+        <Grid2 data-cy={`explorer-tab-${type}`} container columnSpacing={1} rowSpacing={2} mt={2}>
             {type === ExplorerDatabaseType.Dojo && (
                 <>
                     <Grid2
@@ -351,8 +325,7 @@ function Database<T>({
                                     key={cohort}
                                     value={cohort}
                                     disabled={
-                                        Boolean(minCohort) &&
-                                        dojoCohorts.indexOf(minCohort) > i
+                                        Boolean(minCohort) && dojoCohorts.indexOf(minCohort) > i
                                     }
                                 >
                                     {cohort}
@@ -403,29 +376,18 @@ function Database<T>({
                     columns={columns}
                     rows={sortedMoves}
                     pinnedRows={pinnedRows}
-                    getRowId={(row: GridRowModel<ExplorerMove | LichessExplorerMove>) =>
-                        row.san
-                    }
+                    getRowId={(row: GridRowModel<ExplorerMove | LichessExplorerMove>) => row.san}
                     isRowSelectable={(params) => params.id !== 'Total'}
                     getRowClassName={(params) =>
                         params.id === 'Total' ? 'chess-dojo-explorer--total' : ''
                     }
                     slots={{
                         noRowsOverlay: () => (
-                            <Stack
-                                height={1}
-                                width={1}
-                                alignItems='center'
-                                justifyContent='center'
-                            >
-                                <Typography>
-                                    No moves played from this position.
-                                </Typography>
+                            <Stack height={1} width={1} alignItems='center' justifyContent='center'>
+                                <Typography>No moves played from this position.</Typography>
                                 {type === ExplorerDatabaseType.Dojo &&
                                     cohortRange.length < dojoCohorts.length && (
-                                        <Typography>
-                                            Try expanding your cohort range.
-                                        </Typography>
+                                        <Typography>Try expanding your cohort range.</Typography>
                                     )}
                             </Stack>
                         ),
@@ -462,8 +424,7 @@ function Database<T>({
                             target='_blank'
                             rel='noopener'
                         >
-                            View all{' '}
-                            {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'} games
+                            View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'} games
                             containing this position
                         </Link>
                     </Grid2>

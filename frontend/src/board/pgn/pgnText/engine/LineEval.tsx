@@ -41,8 +41,7 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
     const wdl = formatResultPercentages(Color.white, Color.white, line, ' ');
 
     const isBlackCp =
-        (line.cp !== undefined && line.cp < 0) ||
-        (line.mate !== undefined && line.mate < 0);
+        (line.cp !== undefined && line.cp < 0) || (line.mate !== undefined && line.mate < 0);
 
     const showSkeleton = line.depth === 0 || line.fen !== chess?.fen();
     const moves = line.pv.map(moveLineUciToMove(line.fen));
@@ -118,11 +117,7 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
                 data-to={moves.at(-1)?.to}
             >
                 {showSkeleton ? (
-                    <Skeleton
-                        variant='rounded'
-                        animation='wave'
-                        sx={{ color: 'transparent' }}
-                    >
+                    <Skeleton variant='rounded' animation='wave' sx={{ color: 'transparent' }}>
                         placeholder
                     </Skeleton>
                 ) : (

@@ -107,9 +107,11 @@ const NotificationItem: React.FC<NotificationListItemProps & DeletableNotificati
     );
 };
 
-const NotificationMenuItem: React.FC<
-    NotificationListItemProps & DeletableNotification
-> = ({ notification, onDelete, deleteRequest }) => {
+const NotificationMenuItem: React.FC<NotificationListItemProps & DeletableNotification> = ({
+    notification,
+    onDelete,
+    deleteRequest,
+}) => {
     const href = getLink(notification);
     return (
         <Stack>

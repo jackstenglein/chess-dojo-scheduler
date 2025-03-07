@@ -94,10 +94,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             data-cy='calendar-filters'
             sx={{ pt: 0.5, pb: 2, position: { md: 'sticky' }, top: { md: '88px' } }}
         >
-            <Accordion
-                expanded={forceExpansion || expanded}
-                onChange={(_, e) => setExpanded(e)}
-            >
+            <Accordion expanded={forceExpansion || expanded} onChange={(_, e) => setExpanded(e)}>
                 {!forceExpansion && (
                     <AccordionSummary forceExpansion={forceExpansion}>
                         <Typography variant='h6' color='text.secondary'>

@@ -95,9 +95,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
 
         const disableNullMoves = disableNullMovesProp ?? !game;
         const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
-        const [orientation, setOrientation] = useState(
-            game?.orientation || startOrientation,
-        );
+        const [orientation, setOrientation] = useState(game?.orientation || startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
 
         const toggleOrientation = useCallback(() => {

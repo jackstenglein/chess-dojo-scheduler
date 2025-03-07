@@ -118,9 +118,7 @@ export function ListFollowedPositionsPage() {
                             </CardMedia>
                             <CardContent>
                                 <Typography>Dojo: {dojoDescription(position)}</Typography>
-                                <Typography>
-                                    Masters: {mastersDescription(position)}
-                                </Typography>
+                                <Typography>Masters: {mastersDescription(position)}</Typography>
                             </CardContent>
                             <CardActions sx={{ flexWrap: 'wrap', columnGap: 1 }}>
                                 <Tooltip title='Edit subscription'>
@@ -154,9 +152,7 @@ export function ListFollowedPositionsPage() {
 
                                 <Tooltip title='Open in position explorer'>
                                     <Button
-                                        startIcon={
-                                            <Icon name='explore' color='dojoOrange' />
-                                        }
+                                        startIcon={<Icon name='explore' color='dojoOrange' />}
                                         href={`/games/explorer?fen=${position.normalizedFen}`}
                                         rel='noopener'
                                         target='_blank'

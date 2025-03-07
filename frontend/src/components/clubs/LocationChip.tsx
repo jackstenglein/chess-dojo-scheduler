@@ -31,7 +31,5 @@ export const LocationChip: React.FC<LocationChipProps> = ({ location }) => {
         }
     }
 
-    return (
-        <Chip color='secondary' icon={<Place sx={{ pl: '4px' }} />} label={locationStr} />
-    );
+    return <Chip color='secondary' icon={<Place sx={{ pl: '4px' }} />} label={locationStr} />;
 };

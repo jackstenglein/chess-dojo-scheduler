@@ -176,11 +176,7 @@ export class TaskSuggestionAlgorithm {
 
         const reason = this.getGenerationReason(weeklyPlan);
 
-        for (
-            ;
-            current.getTime() < end.getTime();
-            current.setDate(current.getDate() + 1)
-        ) {
+        for (; current.getTime() < end.getTime(); current.setDate(current.getDate() + 1)) {
             const dayIdx = current.getDay();
             const suggestions: SuggestedTask[] = [];
 
@@ -217,25 +213,16 @@ export class TaskSuggestionAlgorithm {
                 }));
                 suggestions.push(
                     ...algoSuggestions
-                        .filter(
-                            (lhs) =>
-                                !suggestions.some((rhs) => lhs.task.id === rhs.task.id),
-                        )
+                        .filter((lhs) => !suggestions.some((rhs) => lhs.task.id === rhs.task.id))
                         .slice(0, MAX_SUGGESTED_TASKS - suggestions.length),
                 );
             }
 
-            const minutesToday = (this.user.workGoal || DEFAULT_WORK_GOAL).minutesPerDay[
-                dayIdx
-            ];
-            let maxTasksWithTime = Math.max(
-                1,
-                Math.floor(minutesToday / DEFAULT_MINUTES_PER_TASK),
-            );
+            const minutesToday = (this.user.workGoal || DEFAULT_WORK_GOAL).minutesPerDay[dayIdx];
+            let maxTasksWithTime = Math.max(1, Math.floor(minutesToday / DEFAULT_MINUTES_PER_TASK));
             maxTasksWithTime = Math.min(
                 maxTasksWithTime,
-                suggestions.filter((t) => t.task.id !== SCHEDULE_CLASSICAL_GAME_TASK_ID)
-                    .length,
+                suggestions.filter((t) => t.task.id !== SCHEDULE_CLASSICAL_GAME_TASK_ID).length,
             );
             const minutesPerTask = Math.floor(minutesToday / maxTasksWithTime);
 
@@ -280,12 +267,7 @@ export class TaskSuggestionAlgorithm {
             return SuggestedTaskGenerationReason.ProgressUpdate;
         }
 
-        if (
-            !weeklyPlanMatchesWorkGoal(
-                existingPlan,
-                this.user.workGoal || DEFAULT_WORK_GOAL,
-            )
-        ) {
+        if (!weeklyPlanMatchesWorkGoal(existingPlan, this.user.workGoal || DEFAULT_WORK_GOAL)) {
             return SuggestedTaskGenerationReason.WorkGoalUpdate;
         }
 
@@ -324,8 +306,7 @@ export class TaskSuggestionAlgorithm {
         }
 
         const fullTask =
-            this.customTasks.find((t) => t.id === id) ??
-            this.requirements.find((t) => t.id === id);
+            this.customTasks.find((t) => t.id === id) ?? this.requirements.find((t) => t.id === id);
         if (fullTask) {
             to.push({ task: fullTask, goalMinutes: minutes });
         }
@@ -425,11 +406,7 @@ export class TaskSuggestionAlgorithm {
             return suggestedTasks;
         }
 
-        const eligibleRequirements = getEligibleTasks(
-            suggestedTasks,
-            this.requirements,
-            this.user,
-        );
+        const eligibleRequirements = getEligibleTasks(suggestedTasks, this.requirements, this.user);
         if (eligibleRequirements.length === 0) {
             return suggestedTasks;
         }
@@ -512,11 +489,7 @@ export class TaskSuggestionAlgorithm {
  * @param user The user to suggest tasks for.
  * @returns A subset of requirements that are eligible to be suggested to the user.
  */
-function getEligibleTasks(
-    suggestedTasks: Task[],
-    requirements: Requirement[],
-    user: User,
-) {
+function getEligibleTasks(suggestedTasks: Task[], requirements: Requirement[], user: User) {
     const isFreeUser = isFree(user);
     let eligibleRequirements = requirements.filter(
         (r) =>
@@ -528,18 +501,12 @@ function getEligibleTasks(
     );
 
     const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK_ID);
-    const annotateTask = eligibleRequirements.find(
-        (r) => r.id === ANNOTATE_GAMES_TASK_ID,
-    );
+    const annotateTask = eligibleRequirements.find((r) => r.id === ANNOTATE_GAMES_TASK_ID);
 
     if (
         annotateTask &&
         classicalGamesTask &&
-        getCurrentCount(
-            user.dojoCohort,
-            annotateTask,
-            user.progress[ANNOTATE_GAMES_TASK_ID],
-        ) >=
+        getCurrentCount(user.dojoCohort, annotateTask, user.progress[ANNOTATE_GAMES_TASK_ID]) >=
             getCurrentCount(
                 user.dojoCohort,
                 classicalGamesTask,
@@ -548,18 +515,14 @@ function getEligibleTasks(
     ) {
         // If the user is already caught up on annotations, then do not suggest that
         // they annotate a game.
-        eligibleRequirements = eligibleRequirements.filter(
-            (r) => r.id !== ANNOTATE_GAMES_TASK_ID,
-        );
+        eligibleRequirements = eligibleRequirements.filter((r) => r.id !== ANNOTATE_GAMES_TASK_ID);
     }
 
     const upcomingGames = getUpcomingGameSchedule(user.gameSchedule);
     if (upcomingGames.length > 0) {
         // If the user already has a game scheduled, then do not suggest that they play
         // a game.
-        eligibleRequirements = eligibleRequirements.filter(
-            (r) => r.id !== CLASSICAL_GAMES_TASK_ID,
-        );
+        eligibleRequirements = eligibleRequirements.filter((r) => r.id !== CLASSICAL_GAMES_TASK_ID);
     }
 
     return eligibleRequirements;
@@ -576,9 +539,7 @@ function getDates(weekStart = 0) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diff =
-        weekEnd >= today.getDay()
-            ? weekEnd - today.getDay()
-            : 7 - today.getDay() + weekEnd;
+        weekEnd >= today.getDay() ? weekEnd - today.getDay() : 7 - today.getDay() + weekEnd;
 
     const end = new Date();
     end.setDate(end.getDate() + diff + 1);
@@ -614,10 +575,7 @@ function lastProgressUpdate(user: User): string {
  * @param workGoal The work goal to check.
  * @returns True if the weekly plan matches the work goal.
  */
-function weeklyPlanMatchesWorkGoal(
-    weeklyPlan: WeeklyPlan,
-    workGoal: WorkGoalSettings,
-): boolean {
+function weeklyPlanMatchesWorkGoal(weeklyPlan: WeeklyPlan, workGoal: WorkGoalSettings): boolean {
     for (let i = 0; i < weeklyPlan.tasks.length; i++) {
         const day = weeklyPlan.tasks[i];
         if (day.length === 0) {
@@ -629,8 +587,7 @@ function weeklyPlanMatchesWorkGoal(
             Math.floor(workGoal.minutesPerDay[i] / DEFAULT_MINUTES_PER_TASK),
         );
         const tasksWithTime = day.slice(0, maxTasks).length;
-        const expectedTime =
-            tasksWithTime * Math.floor(workGoal.minutesPerDay[i] / tasksWithTime);
+        const expectedTime = tasksWithTime * Math.floor(workGoal.minutesPerDay[i] / tasksWithTime);
 
         let total = 0;
         for (const { minutes } of day) {
@@ -652,10 +609,7 @@ function weeklyPlanMatchesWorkGoal(
  * @param pinnedTasks The pinned tasks to check.
  * @returns True if the weekly plan matches the pinned tasks.
  */
-function weeklyPlanMatchesPinnedTasks(
-    weeklyPlan: WeeklyPlan,
-    pinnedTasks: string[],
-): boolean {
+function weeklyPlanMatchesPinnedTasks(weeklyPlan: WeeklyPlan, pinnedTasks: string[]): boolean {
     if (!weeklyPlan.pinnedTasks?.length && !pinnedTasks.length) {
         return true;
     }
@@ -676,9 +630,7 @@ function weeklyPlanMatchesPinnedTasks(
  * @param gameSchedule
  * @returns
  */
-export function getUpcomingGameSchedule(
-    gameSchedule?: GameScheduleEntry[],
-): GameScheduleEntry[] {
+export function getUpcomingGameSchedule(gameSchedule?: GameScheduleEntry[]): GameScheduleEntry[] {
     const today = toLocalDateString(new Date());
     return (
         gameSchedule

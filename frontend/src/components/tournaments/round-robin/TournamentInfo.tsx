@@ -38,11 +38,7 @@ export function TournamentInfo({ tournament }: { tournament: RoundRobin }) {
                 />
             ))}
 
-            <Chip
-                label={`${numPlayers} players`}
-                icon={<PeopleAltIcon />}
-                color='secondary'
-            />
+            <Chip label={`${numPlayers} players`} icon={<PeopleAltIcon />} color='secondary' />
 
             <TimeControlChip cohort={tournament.cohort} />
 

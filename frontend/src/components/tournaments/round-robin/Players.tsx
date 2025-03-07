@@ -36,8 +36,7 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
         }
         return (
             (stats[rhs.username]?.score ?? 0) - (stats[lhs.username]?.score ?? 0) ||
-            (stats[rhs.username]?.tiebreakScore ?? 0) -
-                (stats[lhs.username]?.tiebreakScore ?? 0)
+            (stats[rhs.username]?.tiebreakScore ?? 0) - (stats[lhs.username]?.tiebreakScore ?? 0)
         );
     });
 
@@ -69,22 +68,20 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
                     <TableRow key={player.username}>
                         <TableCell>
                             <Stack direction='row' alignItems='center' gap={1}>
-                                {isTournament &&
-                                    tournament.winners?.includes(player.username) && (
-                                        <Chip
-                                            color='success'
-                                            size='small'
-                                            icon={<EmojiEvents />}
-                                            sx={{ '& .MuiChip-label': { pr: 0 } }}
-                                        />
-                                    )}
+                                {isTournament && tournament.winners?.includes(player.username) && (
+                                    <Chip
+                                        color='success'
+                                        size='small'
+                                        icon={<EmojiEvents />}
+                                        sx={{ '& .MuiChip-label': { pr: 0 } }}
+                                    />
+                                )}
 
                                 <Typography>
                                     <Link href={`/profile/${player.username}`}>
                                         {player.displayName}
                                     </Link>
-                                    {player.status ===
-                                        RoundRobinPlayerStatuses.WITHDRAWN &&
+                                    {player.status === RoundRobinPlayerStatuses.WITHDRAWN &&
                                         ' (Withdrawn)'}
                                 </Typography>
                             </Stack>
@@ -100,9 +97,7 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
                         </TableCell>
                         {stats && (
                             <TableCell align='center'>
-                                <Typography>
-                                    {stats[player.username]?.score ?? 0}
-                                </Typography>
+                                <Typography>{stats[player.username]?.score ?? 0}</Typography>
                             </TableCell>
                         )}
                     </TableRow>

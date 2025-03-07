@@ -34,9 +34,7 @@ const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevSte
     const redirectUri = useSearchParams().get('redirectUri');
     const router = useRouter();
 
-    const [referralSource, setReferralSource] = useState(
-        getReferralSource(user.referralSource),
-    );
+    const [referralSource, setReferralSource] = useState(getReferralSource(user.referralSource));
     const [otherSource, setOtherSource] = useState(
         defaultSources.includes(user.referralSource) ? '' : user.referralSource,
     );
@@ -47,10 +45,7 @@ const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevSte
         if (referralSource.trim() === '') {
             newErrors.referralSource = 'This field is required';
         }
-        if (
-            !defaultSources.includes(referralSource.trim()) &&
-            otherSource.trim() === ''
-        ) {
+        if (!defaultSources.includes(referralSource.trim()) && otherSource.trim() === '') {
             newErrors.otherSource = 'This field is required';
         }
         setErrors(newErrors);
@@ -59,8 +54,7 @@ const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevSte
             return;
         }
 
-        const source =
-            referralSource === 'Other' ? otherSource.trim() : referralSource.trim();
+        const source = referralSource === 'Other' ? otherSource.trim() : referralSource.trim();
         request.onStart();
         api.updateUser({
             referralSource: source,
@@ -112,11 +106,7 @@ const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevSte
             )}
 
             <Stack direction='row' justifyContent='space-between'>
-                <Button
-                    disabled={request.isLoading()}
-                    onClick={onPrevStep}
-                    variant='contained'
-                >
+                <Button disabled={request.isLoading()} onClick={onPrevStep} variant='contained'>
                     Back
                 </Button>
 

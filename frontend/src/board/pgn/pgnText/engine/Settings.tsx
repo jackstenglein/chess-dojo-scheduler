@@ -38,10 +38,7 @@ import Slider from './Slider';
 
 export default function Settings() {
     const [open, setOpen] = useState(false);
-    const [depth, setDepth] = useLocalStorage<number>(
-        ENGINE_DEPTH.Key,
-        ENGINE_DEPTH.Default,
-    );
+    const [depth, setDepth] = useLocalStorage<number>(ENGINE_DEPTH.Key, ENGINE_DEPTH.Default);
     const [multiPv, setMultiPv] = useLocalStorage<number>(
         ENGINE_LINE_COUNT.Key,
         ENGINE_LINE_COUNT.Default,
@@ -185,9 +182,7 @@ export default function Settings() {
                             control={
                                 <Checkbox
                                     checked={addEngineInfoOnEval}
-                                    onChange={(e) =>
-                                        setAddEngineInfoOnEval(e.target.checked)
-                                    }
+                                    onChange={(e) => setAddEngineInfoOnEval(e.target.checked)}
                                 />
                             }
                             label='Add engine info as a comment when clicking eval'
@@ -197,9 +192,7 @@ export default function Settings() {
                             control={
                                 <Checkbox
                                     checked={addEngineInfoOnMove}
-                                    onChange={(e) =>
-                                        setAddEngineInfoOnMove(e.target.checked)
-                                    }
+                                    onChange={(e) => setAddEngineInfoOnMove(e.target.checked)}
                                 />
                             }
                             label='Add engine info as a comment when clicking move'
@@ -209,9 +202,7 @@ export default function Settings() {
                             control={
                                 <Checkbox
                                     checked={highlightEngineLines}
-                                    onChange={(e) =>
-                                        setHighlightEngineLines(e.target.checked)
-                                    }
+                                    onChange={(e) => setHighlightEngineLines(e.target.checked)}
                                 />
                             }
                             label='Highlight engine lines in PGN text'

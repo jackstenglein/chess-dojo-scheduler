@@ -296,10 +296,7 @@ export type MinutesSpentKey =
     | 'ALL_COHORTS_LAST_365_DAYS'
     | 'ALL_COHORTS_NON_DOJO';
 
-export function parseUser(
-    apiResponse: Omit<User, 'cognitoUser'>,
-    cognitoUser?: CognitoUser,
-): User {
+export function parseUser(apiResponse: Omit<User, 'cognitoUser'>, cognitoUser?: CognitoUser): User {
     return {
         ...apiResponse,
         cognitoUser,
@@ -342,10 +339,7 @@ export function getSystemCurrentRating(
     return rating?.currentRating || 0;
 }
 
-export function getRatingUsername(
-    user: User | undefined,
-    ratingSystem: RatingSystem,
-): string {
+export function getRatingUsername(user: User | undefined, ratingSystem: RatingSystem): string {
     if (!user) {
         return '';
     }
@@ -353,10 +347,7 @@ export function getRatingUsername(
     return rating?.username || '';
 }
 
-export function hideRatingUsername(
-    user: User | undefined,
-    ratingSystem: RatingSystem,
-): boolean {
+export function hideRatingUsername(user: User | undefined, ratingSystem: RatingSystem): boolean {
     if (!user) {
         return true;
     }
@@ -456,8 +447,7 @@ export function isCohortInRange(cohort: string | undefined, range: string): bool
     }
 
     const minCohort = parseInt(range);
-    const maxCohort =
-        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : undefined;
+    const maxCohort = range.split('-').length > 1 ? parseInt(range.split('-')[1]) : undefined;
     const userCohort = parseInt(cohort);
 
     if (!maxCohort) {
@@ -995,8 +985,7 @@ export function isCohortPromptHidden(user?: User): boolean {
  * @returns A partial User object
  */
 export function getPartialUserHideCohortPrompt(user?: User): Partial<User> {
-    const siteNotificationSettings = user?.notificationSettings
-        ?.siteNotificationSettings ?? {
+    const siteNotificationSettings = user?.notificationSettings?.siteNotificationSettings ?? {
         disableGameComment: false,
         disableGameCommentReplies: false,
         disableNewFollower: false,

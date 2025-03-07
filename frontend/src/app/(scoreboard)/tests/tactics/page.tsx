@@ -13,10 +13,7 @@ export default function ListTacticsExamsPage() {
         <Container sx={{ py: 5 }}>
             <Stack spacing={4}>
                 <Typography variant='h4'>
-                    <QueenIcon
-                        fontSize='inherit'
-                        sx={{ mr: 2, verticalAlign: 'center' }}
-                    />
+                    <QueenIcon fontSize='inherit' sx={{ mr: 2, verticalAlign: 'center' }} />
                     Tactics Tests
                 </Typography>
                 <ExamList cohortRanges={TACTICS_RANGES} examType={ExamType.Tactics} />

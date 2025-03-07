@@ -8,15 +8,7 @@ import {
 } from '@/database/user';
 import { calculateTacticsRating } from '@/exams/view/exam';
 import { Help } from '@mui/icons-material';
-import {
-    Card,
-    CardContent,
-    Grid2,
-    Stack,
-    SxProps,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { Card, CardContent, Grid2, Stack, SxProps, Tooltip, Typography } from '@mui/material';
 
 interface MetricsDashboardProps {
     user: User;
@@ -51,9 +43,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
                             </Tooltip>
                             <Typography ml={1} fontWeight='bold'>
                                 {Math.round(
-                                    10 *
-                                        calculateTacticsRating(user, requirements)
-                                            .overall,
+                                    10 * calculateTacticsRating(user, requirements).overall,
                                 ) / 10}
                             </Typography>
                         </Stack>

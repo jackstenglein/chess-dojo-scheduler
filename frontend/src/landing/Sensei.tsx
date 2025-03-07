@@ -36,13 +36,7 @@ const Sensei = () => {
             <Typography variant='h4' mb={3} textAlign='center'>
                 World-class teachers who have been in your shoes
             </Typography>
-            <Grid2
-                container
-                sx={{ width: 1 }}
-                rowGap={2}
-                columnSpacing={3}
-                justifyContent='center'
-            >
+            <Grid2 container sx={{ width: 1 }} rowGap={2} columnSpacing={3} justifyContent='center'>
                 {senseis.map((sensei) => (
                     <Grid2
                         key={sensei.name}
@@ -66,9 +60,7 @@ const Sensei = () => {
                                 <Typography variant='subtitle1' gutterBottom>
                                     {sensei.title}
                                 </Typography>
-                                <Typography color='text.secondary'>
-                                    {sensei.description}
-                                </Typography>
+                                <Typography color='text.secondary'>{sensei.description}</Typography>
                             </CardContent>
                         </Card>
                     </Grid2>

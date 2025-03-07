@@ -89,9 +89,8 @@ export function TournamentsPage({
         }
         if (tournament) {
             const idx =
-                request.data?.tournaments.findIndex(
-                    (t) => t.startsAt === tournament.startsAt,
-                ) ?? -1;
+                request.data?.tournaments.findIndex((t) => t.startsAt === tournament.startsAt) ??
+                -1;
             if (idx < 0) {
                 request.onSuccess({
                     ...request.data,

@@ -1,9 +1,4 @@
-import {
-    compareNags,
-    Nag,
-    NagDetails,
-    nags,
-} from '@jackstenglein/chess-dojo-common/src/pgn/nag';
+import { compareNags, Nag, NagDetails, nags } from '@jackstenglein/chess-dojo-common/src/pgn/nag';
 import { nagSvgs } from './NagIcon';
 
 export { compareNags, nags };

@@ -71,13 +71,7 @@ export function ProfilePage({ username }: { username?: string }) {
     return <AuthProfilePage currentUser={user} username={username} />;
 }
 
-function AuthProfilePage({
-    currentUser,
-    username,
-}: {
-    currentUser: User;
-    username?: string;
-}) {
+function AuthProfilePage({ currentUser, username }: { currentUser: User; username?: string }) {
     const api = useApi();
     const auth = useAuth();
     const request = useRequest<User>();
@@ -172,10 +166,7 @@ function AuthProfilePage({
             }}
         >
             <TimelineProvider owner={user.username}>
-                <Container
-                    maxWidth='md'
-                    sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}
-                >
+                <Container maxWidth='md' sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}>
                     <RequestSnackbar request={followRequest} />
 
                     <Stack>
@@ -207,9 +198,7 @@ function AuthProfilePage({
                                     variant='contained'
                                     onClick={onFollow}
                                     loading={followRequest.isLoading()}
-                                    startIcon={
-                                        followRequest.data ? <ThumbDown /> : <ThumbUp />
-                                    }
+                                    startIcon={followRequest.data ? <ThumbDown /> : <ThumbUp />}
                                 >
                                     {followRequest.data ? 'Unfollow' : 'Follow'}
                                 </LoadingButton>
@@ -249,9 +238,7 @@ function AuthProfilePage({
                                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                     <Tabs
                                         value={searchParams.get('view') || 'stats'}
-                                        onChange={(_, t: string) =>
-                                            updateSearchParams({ view: t })
-                                        }
+                                        onChange={(_, t: string) => updateSearchParams({ view: t })}
                                         aria-label='profile tabs'
                                         variant='scrollable'
                                     >
@@ -318,9 +305,7 @@ function AuthProfilePage({
                                     <DirectoryCacheProvider>
                                         <DirectoriesSection
                                             namespace={
-                                                currentUserProfile
-                                                    ? 'own-profile'
-                                                    : 'other-profile'
+                                                currentUserProfile ? 'own-profile' : 'other-profile'
                                             }
                                             defaultDirectoryOwner={user.username}
                                             enableNavigationMenu={currentUserProfile}

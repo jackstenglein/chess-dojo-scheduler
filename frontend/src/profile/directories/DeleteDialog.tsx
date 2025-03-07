@@ -125,25 +125,15 @@ export const DeleteDialog = ({
     };
 
     return (
-        <Dialog
-            open={true}
-            onClose={request.isLoading() ? undefined : onCancel}
-            fullWidth
-        >
+        <Dialog open={true} onClose={request.isLoading() ? undefined : onCancel} fullWidth>
             <DialogTitle>{getDialogTitle(type, items)}</DialogTitle>
             <DialogContent data-cy='delete-directory-form'>
                 <Stack spacing={1}>
-                    <DeleteDialogContentText
-                        type={type}
-                        directory={directory}
-                        items={items}
-                    />
+                    <DeleteDialogContentText type={type} directory={directory} items={items} />
 
                     {requiresConfirmation && (
                         <>
-                            <DialogContentText>
-                                To confirm, type `delete` below:
-                            </DialogContentText>
+                            <DialogContentText>To confirm, type `delete` below:</DialogContentText>
                             <TextField
                                 data-cy='delete-directory-confirm'
                                 placeholder='delete'
@@ -172,9 +162,7 @@ export const DeleteDialog = ({
                     loading={request.isLoading()}
                     onClick={onDelete}
                 >
-                    {type === DeleteDialogType.Delete || requiresConfirmation
-                        ? 'Delete'
-                        : 'Remove'}
+                    {type === DeleteDialogType.Delete || requiresConfirmation ? 'Delete' : 'Remove'}
                 </LoadingButton>
             </DialogActions>
 
@@ -239,9 +227,9 @@ const DeleteDialogContentText = ({
         if (items[0].type === DirectoryItemTypes.DIRECTORY) {
             return (
                 <DialogContentText>
-                    This will <strong>permanently delete</strong> {items[0].metadata.name}{' '}
-                    and any folders it contains. Any of your games within these folders
-                    will not be deleted and will still be available in the Games tab.
+                    This will <strong>permanently delete</strong> {items[0].metadata.name} and any
+                    folders it contains. Any of your games within these folders will not be deleted
+                    and will still be available in the Games tab.
                 </DialogContentText>
             );
         }
@@ -252,8 +240,8 @@ const DeleteDialogContentText = ({
                     <strong>
                         {items[0].metadata.white} - {items[0].metadata.black}
                     </strong>{' '}
-                    from the <strong>{directory.name}</strong> folder. The game will still
-                    be accessible from the Games tab and from any other folders it is in.
+                    from the <strong>{directory.name}</strong> folder. The game will still be
+                    accessible from the Games tab and from any other folders it is in.
                 </DialogContentText>
             );
         }
@@ -263,8 +251,8 @@ const DeleteDialogContentText = ({
                 <strong>
                     {items[0].metadata.white} - {items[0].metadata.black}
                 </strong>
-                . It will be removed from the Games tab and will no longer be accessible
-                from other folders.
+                . It will be removed from the Games tab and will no longer be accessible from other
+                folders.
             </DialogContentText>
         );
     }
@@ -283,10 +271,10 @@ const DeleteDialogContentText = ({
     if (directoryCount > 0 && gameCount === 0) {
         return (
             <DialogContentText>
-                This will <strong>permanently delete</strong> {directoryCount} folders and
-                any subfolders. Any of your games within these folders will not be
-                permanently deleted and will still be available in the Games tab and from
-                any other folders they may be in.
+                This will <strong>permanently delete</strong> {directoryCount} folders and any
+                subfolders. Any of your games within these folders will not be permanently deleted
+                and will still be available in the Games tab and from any other folders they may be
+                in.
             </DialogContentText>
         );
     }
@@ -295,18 +283,16 @@ const DeleteDialogContentText = ({
         if (type === DeleteDialogType.Remove) {
             return (
                 <DialogContentText>
-                    This will remove {gameCount} games from the{' '}
-                    <strong>{directory.name}</strong> folder. The games will still be
-                    accessible from the Games tab and from any other folders they may be
-                    in.
+                    This will remove {gameCount} games from the <strong>{directory.name}</strong>{' '}
+                    folder. The games will still be accessible from the Games tab and from any other
+                    folders they may be in.
                 </DialogContentText>
             );
         }
         return (
             <DialogContentText>
-                This will <strong>permanently delete</strong> {gameCount} games. The games
-                will be removed from the Games tab and will no longer be accessible from
-                other folders.
+                This will <strong>permanently delete</strong> {gameCount} games. The games will be
+                removed from the Games tab and will no longer be accessible from other folders.
             </DialogContentText>
         );
     }
@@ -314,12 +300,12 @@ const DeleteDialogContentText = ({
     if (type === DeleteDialogType.Remove) {
         return (
             <DialogContentText>
-                This will delete {directoryCount} folder{directoryCount > 1 && 's'} and
-                remove {gameCount} game{gameCount > 1 && 's'} from the {directory.name}{' '}
-                folder. The game{gameCount > 1 && 's'} will still be available in the
-                Games tab and from any other folders they may be in. However, the folder
-                {directoryCount > 1 && 's'} will be <strong>permanently deleted</strong>,
-                along with any subfolders.
+                This will delete {directoryCount} folder{directoryCount > 1 && 's'} and remove{' '}
+                {gameCount} game{gameCount > 1 && 's'} from the {directory.name} folder. The game
+                {gameCount > 1 && 's'} will still be available in the Games tab and from any other
+                folders they may be in. However, the folder
+                {directoryCount > 1 && 's'} will be <strong>permanently deleted</strong>, along with
+                any subfolders.
             </DialogContentText>
         );
     }
@@ -327,9 +313,9 @@ const DeleteDialogContentText = ({
     return (
         <DialogContentText>
             This will <strong>permanently delete</strong> {directoryCount} folder
-            {directoryCount > 1 && 's'} and {gameCount} game{gameCount > 1 && 's'}. The
-            game{gameCount > 1 && 's'} will be removed from the Games tab and will no
-            longer be accessible from other folders. Any subfolders will also be{' '}
+            {directoryCount > 1 && 's'} and {gameCount} game{gameCount > 1 && 's'}. The game
+            {gameCount > 1 && 's'} will be removed from the Games tab and will no longer be
+            accessible from other folders. Any subfolders will also be{' '}
             <strong>permanently deleted</strong>.
         </DialogContentText>
     );

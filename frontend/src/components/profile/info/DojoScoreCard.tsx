@@ -102,10 +102,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                         <Grid2 size={12}>
                             <Stack width={1}>
                                 <Stack direction='row' alignItems='center' gap={0.5}>
-                                    <RatingSystemIcon
-                                        system={user.ratingSystem}
-                                        size='small'
-                                    />
+                                    <RatingSystemIcon system={user.ratingSystem} size='small' />
                                     <Typography
                                         variant='body2'
                                         color='text.secondary'

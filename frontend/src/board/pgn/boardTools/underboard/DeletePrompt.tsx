@@ -59,9 +59,7 @@ function getDeleteFromStats(move: Move | null) {
         }
 
         for (const variation of move.variations) {
-            const { moves: vMoves, comments: vComments } = getDeleteFromStats(
-                variation[0],
-            );
+            const { moves: vMoves, comments: vComments } = getDeleteFromStats(variation[0]);
             moves += vMoves;
             comments += vComments;
         }
@@ -97,10 +95,7 @@ function getDeleteBeforeStats(
         }
 
         for (const variation of move.variations) {
-            const { moves: vMoves, comments: vComments } = getDeleteBeforeStats(
-                variation[0],
-                stop,
-            );
+            const { moves: vMoves, comments: vComments } = getDeleteBeforeStats(variation[0], stop);
             moves += vMoves;
             comments += vComments;
         }
