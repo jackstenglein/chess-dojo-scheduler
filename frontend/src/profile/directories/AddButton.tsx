@@ -87,19 +87,14 @@ export const AddButton = ({
             <Menu open={!!anchorEl} onClose={handleClose} anchorEl={anchorEl}>
                 <AddCurrentGameMenuItem directory={directory} onSuccess={handleClose} />
 
-                <MenuItem
-                    disabled={!canCreateNewFolders}
-                    onClick={() => setNewDirectoryOpen(true)}
-                >
+                <MenuItem disabled={!canCreateNewFolders} onClick={() => setNewDirectoryOpen(true)}>
                     <ListItemIcon>
                         <CreateNewFolder />
                     </ListItemIcon>
                     <ListItemText
                         primary='New Folder'
                         secondary={
-                            canCreateNewFolders
-                                ? undefined
-                                : 'Missing required admin permissions'
+                            canCreateNewFolders ? undefined : 'Missing required admin permissions'
                         }
                     />
                 </MenuItem>

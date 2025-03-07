@@ -216,11 +216,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                         <ProcessedEventViewer processedEvent={event} />
                     )}
                     events={processedEvents}
-                    timeZone={
-                        filters.timezone === DefaultTimezone
-                            ? undefined
-                            : filters.timezone
-                    }
+                    timeZone={filters.timezone === DefaultTimezone ? undefined : filters.timezone}
                     hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                 />
             </Grid2>

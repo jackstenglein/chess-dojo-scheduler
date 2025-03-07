@@ -19,10 +19,7 @@ export function DailyTrainingPlan({ user }: { user: User }) {
     const { request, pinnedTasks, togglePin, isCurrentUser, suggestionsByDay } =
         useWeeklyTrainingPlan(user);
 
-    const suggestedTasks = useMemo(
-        () => suggestionsByDay[new Date().getDay()],
-        [suggestionsByDay],
-    );
+    const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
 
     return (
         <>
@@ -32,11 +29,7 @@ export function DailyTrainingPlan({ user }: { user: User }) {
                 startDate={startDate}
                 endDate={endDate}
                 title='Today'
-                icon={
-                    <CalendarToday
-                        sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
-                    />
-                }
+                icon={<CalendarToday sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }} />}
                 user={user}
                 isCurrentUser={isCurrentUser}
                 tasks={suggestedTasks}

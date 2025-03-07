@@ -12,15 +12,7 @@ export const DAY_NAMES = [
 ] as const;
 
 /** The abbreivations of the days of the week. */
-export const DAY_ABBREVIATIONS = [
-    'Sun',
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-] as const;
+export const DAY_ABBREVIATIONS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
 /** The default work goal settings if the user has not saved any. */
 export const DEFAULT_WORK_GOAL: WorkGoalSettings = {

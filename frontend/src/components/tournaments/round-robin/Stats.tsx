@@ -39,8 +39,7 @@ export function Stats({ tournament }: { tournament: RoundRobin }) {
                     Time Remaining: {calculateRemainingTime(tournament.endDate)}
                 </Typography>
                 <Typography variant='subtitle1'>
-                    Games Completed: {countCompletedGames(tournament)}/
-                    {countTotalGames(tournament)}
+                    Games Completed: {countCompletedGames(tournament)}/{countTotalGames(tournament)}
                 </Typography>
             </Stack>
 
@@ -145,10 +144,8 @@ export function countCompletedGames(tournament: RoundRobin): number {
         for (const pairing of round) {
             if (
                 pairing.result &&
-                tournament.players[pairing.white].status !==
-                    RoundRobinPlayerStatuses.WITHDRAWN &&
-                tournament.players[pairing.black].status !==
-                    RoundRobinPlayerStatuses.WITHDRAWN
+                tournament.players[pairing.white].status !== RoundRobinPlayerStatuses.WITHDRAWN &&
+                tournament.players[pairing.black].status !== RoundRobinPlayerStatuses.WITHDRAWN
             ) {
                 count++;
             }
@@ -169,10 +166,8 @@ export function countTotalGames(tournament: RoundRobin): number {
     for (const round of tournament.pairings) {
         for (const pairing of round) {
             if (
-                tournament.players[pairing.white].status !==
-                    RoundRobinPlayerStatuses.WITHDRAWN &&
-                tournament.players[pairing.black].status !==
-                    RoundRobinPlayerStatuses.WITHDRAWN
+                tournament.players[pairing.white].status !== RoundRobinPlayerStatuses.WITHDRAWN &&
+                tournament.players[pairing.black].status !== RoundRobinPlayerStatuses.WITHDRAWN
             ) {
                 count++;
             }
@@ -300,9 +295,7 @@ function ListView({
                         <TableRow key={idx}>
                             <TableCell>
                                 <Typography>
-                                    <Link href={`/profile/${stat.username}`}>
-                                        {stat.player}
-                                    </Link>
+                                    <Link href={`/profile/${stat.username}`}>{stat.player}</Link>
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>
@@ -338,9 +331,7 @@ function ListView({
                                         ? stat.losses
                                         : stat.played === 0
                                           ? 0
-                                          : ((stat.losses / stat.played) * 100).toFixed(
-                                                2,
-                                            )}
+                                          : ((stat.losses / stat.played) * 100).toFixed(2)}
                                 </Typography>
                             </TableCell>
                         </TableRow>
@@ -383,8 +374,6 @@ function calculatePlayerStatsList(tournament: RoundRobin) {
         });
     }
 
-    resultList.sort(
-        (lhs, rhs) => rhs.score - lhs.score || rhs.tiebreakScore - lhs.tiebreakScore,
-    );
+    resultList.sort((lhs, rhs) => rhs.score - lhs.score || rhs.tiebreakScore - lhs.tiebreakScore);
     return resultList;
 }

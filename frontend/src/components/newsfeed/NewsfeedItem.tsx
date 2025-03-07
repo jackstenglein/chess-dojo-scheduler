@@ -69,8 +69,7 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
     return (
         <Stack spacing={0.5}>
             <Typography>
-                {isComplete ? 'Completed' : 'Updated'}{' '}
-                <strong>{entry.requirementName}</strong>
+                {isComplete ? 'Completed' : 'Updated'} <strong>{entry.requirementName}</strong>
             </Typography>
 
             {(entry.dojoPoints > 0 || entry.totalDojoPoints > 0) && (
@@ -79,13 +78,10 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
                         Dojo Points:
                     </Typography>
                     <Typography>
-                        {Math.round(100 * (entry.totalDojoPoints - entry.dojoPoints)) /
-                            100}
+                        {Math.round(100 * (entry.totalDojoPoints - entry.dojoPoints)) / 100}
                     </Typography>
                     <ArrowRightAltIcon sx={{ color: 'text.secondary' }} />
-                    <Typography>
-                        {Math.round(100 * entry.totalDojoPoints) / 100}
-                    </Typography>
+                    <Typography>{Math.round(100 * entry.totalDojoPoints) / 100}</Typography>
                 </Stack>
             )}
 

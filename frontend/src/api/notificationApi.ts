@@ -14,9 +14,7 @@ export interface NotificationApiContextType {
      * @param startKey The startKey to use when searching for Notifications.
      * @returns A list of notifications and the next start key.
      */
-    listNotifications: (
-        startKey?: string,
-    ) => Promise<AxiosResponse<ListNotificationsResponse>>;
+    listNotifications: (startKey?: string) => Promise<AxiosResponse<ListNotificationsResponse>>;
 
     /**
      * deleteNotification deletes the Notification with the provided id.

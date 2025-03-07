@@ -22,11 +22,7 @@ const OwnerField: React.FC<OwnerFieldProps> = ({ title, event }) => {
                 {title}
             </Typography>
             <Stack direction='row' spacing={1} alignItems='center'>
-                <Avatar
-                    username={event.owner}
-                    displayName={event.ownerDisplayName}
-                    size={25}
-                />
+                <Avatar username={event.owner} displayName={event.ownerDisplayName} size={25} />
                 <Link href={`/profile/${event.owner}`}>
                     <Typography variant='body1'>
                         {event.ownerDisplayName} ({event.ownerCohort})

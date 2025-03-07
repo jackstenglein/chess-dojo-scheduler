@@ -71,10 +71,7 @@ function datesAreSameDay(first: Date, second: Date) {
     );
 }
 
-export function getChartData(
-    ratingHistory: RatingHistory[] | undefined,
-    currentRating: number,
-) {
+export function getChartData(ratingHistory: RatingHistory[] | undefined, currentRating: number) {
     if (!ratingHistory || ratingHistory.length === 0) {
         return [];
     }
@@ -136,11 +133,7 @@ function RatingProfileLink({
             <Typography variant='subtitle1' color='text.secondary'>
                 {username}
             </Typography>
-            <Link
-                target='_blank'
-                rel='noopener noreferrer'
-                href={getMemberLink(system, username)}
-            >
+            <Link target='_blank' rel='noopener noreferrer' href={getMemberLink(system, username)}>
                 <OpenInNewIcon sx={{ fontSize: '1rem', ml: '3px' }} />
             </Link>
         </Stack>
@@ -223,9 +216,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         </Stack>
                     </Stack>
 
-                    {isPreferred && (
-                        <Chip label='Preferred' variant='outlined' color='success' />
-                    )}
+                    {isPreferred && <Chip label='Preferred' variant='outlined' color='success' />}
                 </Stack>
 
                 <Grid2 container justifyContent='space-around' rowGap={2}>
@@ -320,9 +311,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                         lineHeight: 1,
                                         fontWeight: 'bold',
                                     }}
-                                    color={
-                                        ratingChange >= 0 ? 'success.main' : 'error.main'
-                                    }
+                                    color={ratingChange >= 0 ? 'success.main' : 'error.main'}
                                 >
                                     {Math.abs(ratingChange)}
                                 </Typography>
@@ -348,9 +337,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {Math.round(
-                                            getNormalizedRating(currentRating, system),
-                                        )}
+                                        {Math.round(getNormalizedRating(currentRating, system))}
                                     </Typography>
                                     <Tooltip title='Normalized Dojo rating using the table on Material > Rating Conversions'>
                                         <HelpIcon
@@ -407,12 +394,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 }}
                             />
                         </Box>
-                        <Typography
-                            variant='caption'
-                            color='text.secondary'
-                            mt={0.5}
-                            ml={0.5}
-                        >
+                        <Typography variant='caption' color='text.secondary' mt={0.5} ml={0.5}>
                             *Graphs are updated weekly
                         </Typography>
                     </Stack>

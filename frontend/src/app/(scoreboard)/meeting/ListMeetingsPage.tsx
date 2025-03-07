@@ -33,9 +33,7 @@ export const ListMeetingsPage = () => {
 
     const meetings: Event[] = events.filter(meetingFilter);
     meetings.sort((lhs, rhs) =>
-        (lhs.bookedStartTime || lhs.startTime).localeCompare(
-            rhs.bookedStartTime || rhs.startTime,
-        ),
+        (lhs.bookedStartTime || lhs.startTime).localeCompare(rhs.bookedStartTime || rhs.startTime),
     );
 
     const requestLoading = request.isLoading() || !request.isSent();
@@ -52,8 +50,8 @@ export const ListMeetingsPage = () => {
                 {!requestLoading && meetings.length === 0 && (
                     <>
                         <Typography variant='body1'>
-                            Looks like you don't have any meetings. Go to the calendar and
-                            schedule one now!
+                            Looks like you don't have any meetings. Go to the calendar and schedule
+                            one now!
                         </Typography>
                         <Button variant='contained' component={Link} href='/calendar'>
                             Go to Calendar

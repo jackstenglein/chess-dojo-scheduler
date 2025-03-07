@@ -9,11 +9,7 @@ import DescriptionFormSection from './form/DescriptionFormSection';
 import LocationFormSection from './form/LocationFormSection';
 import TimesFormSection from './form/TimesFormSection';
 import TitleFormSection from './form/TitleFormSection';
-import {
-    getDefaultRRuleCount,
-    RRuleEnds,
-    UseEventEditorResponse,
-} from './useEventEditor';
+import { getDefaultRRuleCount, RRuleEnds, UseEventEditorResponse } from './useEventEditor';
 
 export function validateDojoEventEditor(
     user: User,
@@ -77,8 +73,7 @@ export function validateDojoEventEditor(
 
         if (editor.rruleOptions.ends === RRuleEnds.Count) {
             options.count =
-                editor.rruleOptions.count ??
-                getDefaultRRuleCount(editor.rruleOptions.freq);
+                editor.rruleOptions.count ?? getDefaultRRuleCount(editor.rruleOptions.freq);
         }
 
         if (editor.rruleOptions.ends === RRuleEnds.Until) {

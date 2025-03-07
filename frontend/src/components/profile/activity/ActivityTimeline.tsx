@@ -97,17 +97,13 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
     }
 
     const setFiltersWrapper = (proposedFilters: string[]) => {
-        const addedFilters = proposedFilters.filter(
-            (filter) => !filters.includes(filter),
-        );
+        const addedFilters = proposedFilters.filter((filter) => !filters.includes(filter));
 
         let finalFilters = [];
         if (addedFilters.includes(AllCategoriesFilterName)) {
             finalFilters = [AllCategoriesFilterName];
         } else {
-            finalFilters = proposedFilters.filter(
-                (filter) => filter !== AllCategoriesFilterName,
-            );
+            finalFilters = proposedFilters.filter((filter) => filter !== AllCategoriesFilterName);
         }
 
         setFilters(finalFilters);
@@ -138,10 +134,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
                     </Tooltip>
 
                     <Tooltip title='Calendar'>
-                        <ToggleButton
-                            value='calendar'
-                            onClick={() => setView('calendar')}
-                        >
+                        <ToggleButton value='calendar' onClick={() => setView('calendar')}>
                             <CalendarMonth />
                         </ToggleButton>
                     </Tooltip>
@@ -312,17 +305,13 @@ const ActivityTimelineCalendar = ({
                     step: 0,
                 }}
                 hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
-                timeZone={
-                    filters.timezone === DefaultTimezone ? undefined : filters.timezone
-                }
+                timeZone={filters.timezone === DefaultTimezone ? undefined : filters.timezone}
                 editable={false}
                 customViewer={(event) =>
                     event.entry ? (
                         <NewsfeedItem
                             entry={event.entry as TimelineEntry}
-                            onEdit={(e) =>
-                                onEdit(entries.indexOf(event.entry as TimelineEntry), e)
-                            }
+                            onEdit={(e) => onEdit(entries.indexOf(event.entry as TimelineEntry), e)}
                             maxComments={3}
                         />
                     ) : event.user ? (

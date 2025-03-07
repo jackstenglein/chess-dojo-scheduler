@@ -21,10 +21,7 @@ interface WithdrawModalProps {
     user: User | undefined;
     cohort: string;
     startsAt: string;
-    onUpdateTournaments: (props: {
-        waitlist?: RoundRobin;
-        tournament?: RoundRobin;
-    }) => void;
+    onUpdateTournaments: (props: { waitlist?: RoundRobin; tournament?: RoundRobin }) => void;
 }
 
 export function WithdrawModal({
@@ -67,16 +64,12 @@ export function WithdrawModal({
 
     return (
         <>
-            <Dialog
-                open={open}
-                onClose={request.isLoading() ? undefined : handleClose}
-                fullWidth
-            >
+            <Dialog open={open} onClose={request.isLoading() ? undefined : handleClose} fullWidth>
                 <DialogTitle>Withdraw from Round Robin?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        You will not be able to rejoin, and all your games will be counted
-                        as losses, even those you have already played.
+                        You will not be able to rejoin, and all your games will be counted as
+                        losses, even those you have already played.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

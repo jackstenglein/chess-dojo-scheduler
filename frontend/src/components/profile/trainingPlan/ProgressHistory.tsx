@@ -125,9 +125,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                                 data-cy='task-history-count'
                                 label='Count'
                                 value={count}
-                                onChange={(event) =>
-                                    onChange('count', event.target.value)
-                                }
+                                onChange={(event) => onChange('count', event.target.value)}
                                 fullWidth
                                 error={!!error.count}
                                 helperText={error.count}
@@ -234,10 +232,7 @@ function getTimelineUpdate(
             itemErrors.count = 'This field must be a non-negative integer';
         }
 
-        if (
-            item.hours !== '' &&
-            (!NUMBER_REGEX.test(item.hours) || isNaN(parseInt(item.hours)))
-        ) {
+        if (item.hours !== '' && (!NUMBER_REGEX.test(item.hours) || isNaN(parseInt(item.hours)))) {
             itemErrors.hours = 'This field must be an integer';
         }
 
@@ -271,12 +266,10 @@ function getTimelineUpdate(
             continue;
         }
 
-        const minutesSpent =
-            60 * parseInt(item.hours || '0') + parseInt(item.minutes || '0');
+        const minutesSpent = 60 * parseInt(item.hours || '0') + parseInt(item.minutes || '0');
         totalMinutesSpent += minutesSpent;
 
-        const previousCount =
-            updated.length === 0 ? 0 : updated[updated.length - 1].newCount;
+        const previousCount = updated.length === 0 ? 0 : updated[updated.length - 1].newCount;
         const newCount =
             item.entry.scoreboardDisplay === ScoreboardDisplay.Minutes
                 ? previousCount + minutesSpent
@@ -422,9 +415,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
             cohort,
             update.updated,
             update.deleted,
-            requirement.scoreboardDisplay === ScoreboardDisplay.Minutes
-                ? totalTime
-                : totalCount,
+            requirement.scoreboardDisplay === ScoreboardDisplay.Minutes ? totalTime : totalCount,
             totalTime,
         )
             .then((response) => {
@@ -464,8 +455,8 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
             <DialogContent>
                 {items.length === 0 ? (
                     <DialogContentText>
-                        You have no history for this requirement in cohort {cohort}.
-                        Please choose a different cohort to edit your history.
+                        You have no history for this requirement in cohort {cohort}. Please choose a
+                        different cohort to edit your history.
                     </DialogContentText>
                 ) : (
                     <Stack spacing={3} mt={1} width={1}>
@@ -490,8 +481,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                                 </Typography>
                             )}
                             <Typography color='text.secondary'>
-                                Total Time:{' '}
-                                {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
+                                Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
                             </Typography>
                         </Stack>
                     </Stack>

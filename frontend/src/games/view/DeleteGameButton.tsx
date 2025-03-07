@@ -128,9 +128,8 @@ export function DeleteGamesDialog({
                 {games.length !== 1 ? 's' : ''}?
             </DialogTitle>
             <DialogContent>
-                Are you sure you want to delete{' '}
-                {games.length === 1 ? 'this game' : 'these games'}? This action cannot be
-                undone.
+                Are you sure you want to delete {games.length === 1 ? 'this game' : 'these games'}?
+                This action cannot be undone.
             </DialogContent>
             <DialogActions>
                 <Button disabled={request.isLoading()} onClick={handleClose}>

@@ -70,11 +70,7 @@ export function SwitchCohortPrompt() {
                 severity={showGraduation ? 'success' : 'error'}
                 action={
                     <Stack direction='row'>
-                        <Button
-                            color='inherit'
-                            size='small'
-                            onClick={handleHideCohortPrompt}
-                        >
+                        <Button color='inherit' size='small' onClick={handleHideCohortPrompt}>
                             Hide for 1 month
                         </Button>
                         {!showGraduation && (

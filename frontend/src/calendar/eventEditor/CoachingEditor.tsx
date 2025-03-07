@@ -72,11 +72,7 @@ export function validateCoachingEditor(
         errors.maxParticipants = 'This field is required';
     } else {
         maxParticipants = parseFloat(editor.maxParticipants);
-        if (
-            isNaN(maxParticipants) ||
-            !Number.isInteger(maxParticipants) ||
-            maxParticipants < 1
-        ) {
+        if (isNaN(maxParticipants) || !Number.isInteger(maxParticipants) || maxParticipants < 1) {
             errors.maxParticipants = 'You must specify an integer greater than 0';
         } else {
             maxParticipants = Math.round(maxParticipants);
@@ -174,9 +170,8 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                     </Button>
                 }
             >
-                Your coach account has missing or outdated information. You cannot create
-                coaching sessions until you have updated your information in the coach
-                portal.
+                Your coach account has missing or outdated information. You cannot create coaching
+                sessions until you have updated your information in the coach portal.
             </Alert>
         );
     }
@@ -212,8 +207,7 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
     } = editor;
 
     const percentOff = Math.round(
-        ((parseFloat(fullPrice) - parseFloat(currentPrice)) / parseFloat(fullPrice)) *
-            100,
+        ((parseFloat(fullPrice) - parseFloat(currentPrice)) / parseFloat(fullPrice)) * 100,
     );
 
     return (
@@ -302,9 +296,7 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                         error={Boolean(errors.fullPrice)}
                         helperText={errors.fullPrice}
                         InputProps={{
-                            startAdornment: (
-                                <InputAdornment position='start'>$</InputAdornment>
-                            ),
+                            startAdornment: <InputAdornment position='start'>$</InputAdornment>,
                         }}
                     />
                     <TextField
@@ -319,9 +311,7 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                             'If you want your coaching session to display as being on sale, enter a sale price and it will be shown as a discount off the full price. If left blank, students must pay the full price.'
                         }
                         InputProps={{
-                            startAdornment: (
-                                <InputAdornment position='start'>$</InputAdornment>
-                            ),
+                            startAdornment: <InputAdornment position='start'>$</InputAdornment>,
                         }}
                     />
 

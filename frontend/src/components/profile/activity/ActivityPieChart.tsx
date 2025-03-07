@@ -6,12 +6,7 @@ import CohortIcon from '@/scoreboard/CohortIcon';
 import { Button, Grid2, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import {
-    displayTimeframe,
-    getScoreChartData,
-    getTimeChartData,
-    Timeframe,
-} from './activity';
+import { displayTimeframe, getScoreChartData, getTimeChartData, Timeframe } from './activity';
 import PieChart, { PieChartData } from './PieChart';
 import { UseTimelineResponse } from './useTimeline';
 
@@ -187,9 +182,7 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
                     select
                     label='Timeframe'
                     value={timeframe}
-                    onChange={(event) =>
-                        onChangeTimeframe(event.target.value as Timeframe)
-                    }
+                    onChange={(event) => onChangeTimeframe(event.target.value as Timeframe)}
                     sx={{ mb: 3, height: 1 }}
                     fullWidth
                 >
@@ -210,9 +203,7 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
             <Grid2 size={{ xs: 12, sm: 6 }} mt={4}>
                 <PieChart
                     id='score-chart'
-                    title={`Score Breakdown${
-                        scoreChartCategory && `: ${scoreChartCategory}`
-                    }`}
+                    title={`Score Breakdown${scoreChartCategory && `: ${scoreChartCategory}`}`}
                     data={scoreChartData}
                     renderTotal={(score) => (
                         <Stack alignItems='center'>
@@ -235,9 +226,7 @@ const ActivityPieChart: React.FC<ActivityPieChartProps> = ({ user, timeline }) =
             <Grid2 size={{ xs: 12, sm: 6 }} mt={4}>
                 <PieChart
                     id='time-chart'
-                    title={`Time Breakdown${
-                        timeChartCategory && `: ${timeChartCategory}`
-                    }`}
+                    title={`Time Breakdown${timeChartCategory && `: ${timeChartCategory}`}`}
                     data={timeChartData}
                     renderTotal={(time) => (
                         <Stack alignItems='center'>

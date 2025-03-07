@@ -1,15 +1,7 @@
 import { Link } from '@/components/navigation/Link';
 import { User } from '@/database/user';
 import { ZoomOutMap } from '@mui/icons-material';
-import {
-    Box,
-    Card,
-    CardContent,
-    CardHeader,
-    IconButton,
-    Stack,
-    Tooltip,
-} from '@mui/material';
+import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import postmortem2023 from './2023-postmortem.png';
@@ -25,9 +17,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
 
     const [allBadges, earnedBadges] = useMemo(() => {
         const allBadges = getBadges(user);
-        const earnedBadges = allBadges.filter(
-            (badge) => badge.isEarned && !badge.isPreviousLevel,
-        );
+        const earnedBadges = allBadges.filter((badge) => badge.isEarned && !badge.isPreviousLevel);
         return [allBadges, earnedBadges];
     }, [user]);
 
@@ -45,8 +35,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
     useEffect(() => {
         const newBadge = earnedBadges.find(
             (badge, index) =>
-                !previousEarnedBadges[index] ||
-                badge.image !== previousEarnedBadges[index].image,
+                !previousEarnedBadges[index] || badge.image !== previousEarnedBadges[index].image,
         );
         if (newBadge) {
             setSelectedBadge(newBadge);
@@ -56,17 +45,9 @@ export const BadgeCard = ({ user }: { user: User }) => {
 
     if (!user.createdAt || user.createdAt < '2023-12') {
         badges.push(
-            <Link
-                key='postmortem-2023'
-                href={`/profile/${user.username}/postmortem/2023`}
-            >
+            <Link key='postmortem-2023' href={`/profile/${user.username}/postmortem/2023`}>
                 <Tooltip title='View my 2023 postmortem!'>
-                    <Image
-                        src={postmortem2023}
-                        alt='2023 postmortem'
-                        width={50}
-                        height={50}
-                    />
+                    <Image src={postmortem2023} alt='2023 postmortem' width={50} height={50} />
                 </Tooltip>
             </Link>,
         );
@@ -74,17 +55,9 @@ export const BadgeCard = ({ user }: { user: User }) => {
 
     if (!user.createdAt || user.createdAt < '2024-12') {
         badges.push(
-            <Link
-                key='postmortem-2024'
-                href={`/profile/${user.username}/postmortem/2024`}
-            >
+            <Link key='postmortem-2024' href={`/profile/${user.username}/postmortem/2024`}>
                 <Tooltip title='View my 2024 postmortem!'>
-                    <Image
-                        src={postmortem2024}
-                        alt='2024 postmortem'
-                        width={50}
-                        height={50}
-                    />
+                    <Image src={postmortem2024} alt='2024 postmortem' width={50} height={50} />
                 </Tooltip>
             </Link>,
         );
@@ -110,10 +83,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
                 >
                     <CardHeader title='Badges' sx={{ p: 0 }} />
                     <Tooltip title='View All Badges'>
-                        <IconButton
-                            color='primary'
-                            onClick={() => setIsViewAllModalOpen(true)}
-                        >
+                        <IconButton color='primary' onClick={() => setIsViewAllModalOpen(true)}>
                             <ZoomOutMap />
                         </IconButton>
                     </Tooltip>
@@ -146,10 +116,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
                 </CardContent>
             </Card>
 
-            <BadgeDialog
-                selectedBadge={selectedBadge}
-                handleCloseDialog={handleCloseDialog}
-            />
+            <BadgeDialog selectedBadge={selectedBadge} handleCloseDialog={handleCloseDialog} />
 
             <BadgCabinetDialog
                 isOpen={isViewAllModalOpen}

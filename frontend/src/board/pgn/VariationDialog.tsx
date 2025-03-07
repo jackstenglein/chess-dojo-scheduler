@@ -120,10 +120,7 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
             </DialogTitle>
             <DialogContent>
                 <List>
-                    <ListItemButton
-                        selected={selected === 0}
-                        onClick={() => selectMove(move)}
-                    >
+                    <ListItemButton selected={selected === 0} onClick={() => selectMove(move)}>
                         <ListItemText sx={{ color: getTextColor(move) }}>
                             {move.san}
                             {move.nags
@@ -152,11 +149,7 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
                                         .map((n) => nags[getStandardNag(n)]?.label || '')
                                         .join('')}
                                 </ListItemText>
-                                {i < 9 && (
-                                    <Typography variant='body2'>
-                                        {(i + 2) % 10}
-                                    </Typography>
-                                )}
+                                {i < 9 && <Typography variant='body2'>{(i + 2) % 10}</Typography>}
                             </ListItemButton>
                         );
                     })}

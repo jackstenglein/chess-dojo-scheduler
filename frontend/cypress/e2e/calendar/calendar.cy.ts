@@ -9,10 +9,7 @@ describe('Calendar Page', () => {
                 const startDate = event.startTime.slice(0, 10);
                 const endDate = event.endTime.slice(0, 10);
 
-                event.startTime = event.startTime.replace(
-                    startDate,
-                    dateMapper[startDate],
-                );
+                event.startTime = event.startTime.replace(startDate, dateMapper[startDate]);
                 event.endTime = event.endTime.replace(endDate, dateMapper[endDate]);
             }
 

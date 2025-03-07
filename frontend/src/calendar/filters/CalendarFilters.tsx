@@ -24,9 +24,7 @@ import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { Button, Stack, SvgIconOwnProps, Typography, useMediaQuery } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import MuiAccordionSummary, {
-    AccordionSummaryProps,
-} from '@mui/material/AccordionSummary';
+import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary';
 import { Theme, styled } from '@mui/material/styles';
 import { DateTime } from 'luxon';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -43,16 +41,9 @@ export const Accordion = styled((props: AccordionProps) => (
 }));
 
 export const AccordionSummary = styled(
-    ({
-        forceExpansion,
-        ...props
-    }: AccordionSummaryProps & { forceExpansion: boolean }) => (
+    ({ forceExpansion, ...props }: AccordionSummaryProps & { forceExpansion: boolean }) => (
         <MuiAccordionSummary
-            expandIcon={
-                !forceExpansion && (
-                    <ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />
-                )
-            }
+            expandIcon={!forceExpansion && <ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />}
             {...props}
         />
     ),
@@ -126,10 +117,7 @@ export function useFilters(): Filters {
     const [timeFormat, setTimeFormat] = useState<TimeFormat>(
         user?.timeFormat || TimeFormat.TwelveHour,
     );
-    const [originalWeekStartOn] = useLocalStorage<WeekDays>(
-        'calendarFilters.weekStartOn',
-        0,
-    );
+    const [originalWeekStartOn] = useLocalStorage<WeekDays>('calendarFilters.weekStartOn', 0);
     const [minHour, setMinHour] = useLocalStorage<DateTime | null>(
         'calendarFilters.minHour',
         DateTime.now().set({ hour: 0 }),
@@ -149,9 +137,7 @@ export function useFilters(): Filters {
         AvailabilityType.AllTypes,
     ]);
 
-    const [cohorts, setCohorts] = useLocalStorage('calendarFilters.cohorts.2', [
-        ALL_COHORTS,
-    ]);
+    const [cohorts, setCohorts] = useLocalStorage('calendarFilters.cohorts.2', [ALL_COHORTS]);
 
     const [tournamentTypes, setTournamentTypes] = useLocalStorage(
         'calendarFilters.tournamentTypes.2',
@@ -239,10 +225,7 @@ export function useFilters(): Filters {
  * @param maxDate The maximum date.
  * @returns The hours of the minimum and maximum dates.
  */
-export function getHours(
-    minDate: DateTime | null,
-    maxDate: DateTime | null,
-): [DayHours, DayHours] {
+export function getHours(minDate: DateTime | null, maxDate: DateTime | null): [DayHours, DayHours] {
     let minHour = minDate?.hour || 0;
     let maxHour = (maxDate?.hour || 23) + 1;
 
@@ -290,10 +273,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         if (Object.values(e.participants).length === 0) {
             return false;
         }
-        if (
-            e.owner !== auth.user?.username &&
-            !e.participants[auth.user?.username || '']
-        ) {
+        if (e.owner !== auth.user?.username && !e.participants[auth.user?.username || '']) {
             return false;
         }
         return e.status !== EventStatus.Canceled && e.endTime >= filterTime;
@@ -307,9 +287,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         };
 
     const onChangeType = (newTypes: string[]) => {
-        const addedTypes = newTypes.filter(
-            (t) => !filters.types.includes(t as AvailabilityType),
-        );
+        const addedTypes = newTypes.filter((t) => !filters.types.includes(t as AvailabilityType));
         let finalTypes = [];
         if (addedTypes.includes(AvailabilityType.AllTypes)) {
             finalTypes = [AvailabilityType.AllTypes];
@@ -326,9 +304,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         if (addedCohorts.includes(ALL_COHORTS)) {
             finalCohorts = [ALL_COHORTS];
         } else {
-            finalCohorts = newCohorts
-                .filter((c) => c !== ALL_COHORTS)
-                .sort(compareCohorts);
+            finalCohorts = newCohorts.filter((c) => c !== ALL_COHORTS).sort(compareCohorts);
         }
 
         filters.setCohorts(finalCohorts);
@@ -358,9 +334,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
         if (addedSessions.includes(CalendarSessionType.AllSessions)) {
             finalSessions = [CalendarSessionType.AllSessions];
         } else {
-            finalSessions = sessionTypes.filter(
-                (s) => s !== CalendarSessionType.AllSessions,
-            );
+            finalSessions = sessionTypes.filter((s) => s !== CalendarSessionType.AllSessions);
         }
         filters.setSessions(finalSessions as CalendarSessionType[]);
     };
@@ -432,9 +406,7 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({ filters }) => 
                                 options={Object.values(CalendarSessionType).map((t) => ({
                                     value: t,
                                     label: getDisplaySessionString(t),
-                                    icon: (
-                                        <Icon name={t} color={getSessionTypeColor(t)} />
-                                    ),
+                                    icon: <Icon name={t} color={getSessionTypeColor(t)} />,
                                 }))}
                                 displayEmpty='None'
                                 size='small'

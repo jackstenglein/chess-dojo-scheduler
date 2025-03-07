@@ -30,9 +30,9 @@ export default function DojoTalksTop2025() {
             />
 
             <Typography mb={3}>
-                GM Jesse Kraai, IM David Pruess, and IM Kostya Kavutskiy forecast who will
-                be the top 10 FIDE rated chess players in June 2025 in today's episode of
-                Dojo Talks, the ChessDojo podcast.
+                GM Jesse Kraai, IM David Pruess, and IM Kostya Kavutskiy forecast who will be the
+                top 10 FIDE rated chess players in June 2025 in today's episode of Dojo Talks, the
+                ChessDojo podcast.
             </Typography>
 
             <iframe
@@ -52,19 +52,14 @@ export default function DojoTalksTop2025() {
 
             <SectionHeader>Introduction - 00:04 to 00:46</SectionHeader>
             <Typography>
-                Kostya introduces the episode's topic: Predicting the top 10 chess players
-                for June 2025.
+                Kostya introduces the episode's topic: Predicting the top 10 chess players for June
+                2025.
             </Typography>
 
-            <SectionHeader>
-                Update on Junior Draft Standings - 00:46 to 03:33
-            </SectionHeader>
+            <SectionHeader>Update on Junior Draft Standings - 00:46 to 03:33</SectionHeader>
             <Typography>
                 Discussion on the{' '}
-                <Link
-                    href='https://youtu.be/8BnPNbpE1Qc?si=GfIt2hTyDLIeZy6u'
-                    target='_blank'
-                >
+                <Link href='https://youtu.be/8BnPNbpE1Qc?si=GfIt2hTyDLIeZy6u' target='_blank'>
                     Junior Draft
                 </Link>{' '}
                 from October 2023 and how those players are performing.
@@ -72,45 +67,37 @@ export default function DojoTalksTop2025() {
 
             <SectionHeader>Recent Changes in Top 10 - 03:33 to 06:17</SectionHeader>
             <Typography>
-                New players entering the top 10, particularly Juniors like Arjun and
-                Nodirbek.
+                New players entering the top 10, particularly Juniors like Arjun and Nodirbek.
             </Typography>
 
             <SectionHeader>Juniors' Performance Overview - 06:17 to 08:52</SectionHeader>
-            <Typography>
-                Analysis of drafted juniors' performance over the past year.
-            </Typography>
+            <Typography>Analysis of drafted juniors' performance over the past year.</Typography>
 
             <SectionHeader>Top 10 Players (Current) - 10:04 to 12:43</SectionHeader>
             <Typography>
                 Listing and discussion of the current top 10 players as of June 2024.
             </Typography>
 
-            <SectionHeader>
-                Comparison to Last Year's Top 10 - 11:47 to 15:28
-            </SectionHeader>
+            <SectionHeader>Comparison to Last Year's Top 10 - 11:47 to 15:28</SectionHeader>
             <Typography>
-                Comparing the current top 10 to the list from June 2023 and discussing
-                notable changes.
+                Comparing the current top 10 to the list from June 2023 and discussing notable
+                changes.
             </Typography>
 
             <SectionHeader>
                 Individual Predictions for Top 10 in 2025 - 13:50 to 55:28
             </SectionHeader>
             <Typography>
-                Jesse, David, and Kostya share and debate their predictions for the top 10
-                chess players in June 2025.
+                Jesse, David, and Kostya share and debate their predictions for the top 10 chess
+                players in June 2025.
             </Typography>
 
             <SectionHeader>Average Rankings - 55:28 to 58:03</SectionHeader>
-            <Typography>
-                Combining individual rankings to create an average top 10 list.
-            </Typography>
+            <Typography>Combining individual rankings to create an average top 10 list.</Typography>
 
             <SectionHeader>Final Thoughts - 58:03 to 1:02:35</SectionHeader>
             <Typography>
-                Jesse, Kostya, and David discuss possible changes to the FIDE rating
-                system.
+                Jesse, Kostya, and David discuss possible changes to the FIDE rating system.
             </Typography>
 
             <Divider sx={{ my: 6 }} />
@@ -119,13 +106,7 @@ export default function DojoTalksTop2025() {
                 Make sure to follow the DojoTalks podcast
             </Typography>
 
-            <Stack
-                direction='row'
-                justifyContent='center'
-                alignItems='center'
-                gap='20px'
-                mt={2}
-            >
+            <Stack direction='row' justifyContent='center' alignItems='center' gap='20px' mt={2}>
                 <a
                     href='https://www.youtube.com/chessdojo'
                     target='_blank'

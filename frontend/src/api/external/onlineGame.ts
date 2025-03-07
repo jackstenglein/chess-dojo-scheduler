@@ -4,12 +4,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { useEffect, useMemo } from 'react';
 import { GameResult } from '../../database/game';
-import {
-    ChesscomGame,
-    ChesscomGameResult,
-    ChesscomTimeClass,
-    useChesscomGames,
-} from './chesscom';
+import { ChesscomGame, ChesscomGameResult, ChesscomTimeClass, useChesscomGames } from './chesscom';
 import { LichessGame, LichessPerfType, useLichessUserGames } from './lichess';
 
 /** A unified interface for online games from any source. */
@@ -118,10 +113,7 @@ export enum OnlineGameTimeClass {
  * @param skipVariant Whether to return null for variants. Defaults to true.
  * @returns The OnlineGame version of the ChesscomGame.
  */
-export function chesscomOnlineGame(
-    game: ChesscomGame,
-    skipVariant = true,
-): OnlineGame | null {
+export function chesscomOnlineGame(game: ChesscomGame, skipVariant = true): OnlineGame | null {
     if (skipVariant && game.rules !== 'chess') {
         return null;
     }
@@ -222,10 +214,7 @@ function getTimeClass(tc: ChesscomTimeClass | OnlineGameTimeClass): OnlineGameTi
  * @param skipVariant Whether to return null for variants. Defaults to true.
  * @returns The OnlineGame version of the LichessGame.
  */
-export function lichessOnlineGame(
-    game: LichessGame,
-    skipVariant = true,
-): OnlineGame | null {
+export function lichessOnlineGame(game: LichessGame, skipVariant = true): OnlineGame | null {
     if (
         skipVariant &&
         game.variant !== OnlineGameVariant.Standard &&

@@ -155,9 +155,7 @@ export enum AvailabilityType {
     BookStudy = 'BOOK_STUDY',
 }
 
-export function getDisplaySessionString(
-    type: CalendarSessionType | null | undefined,
-): string {
+export function getDisplaySessionString(type: CalendarSessionType | null | undefined): string {
     if (!type) {
         return '';
     }

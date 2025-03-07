@@ -16,12 +16,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import {
-    DataGridPro,
-    GridColDef,
-    GridRenderCellParams,
-    GridRowModel,
-} from '@mui/x-data-grid-pro';
+import { DataGridPro, GridColDef, GridRenderCellParams, GridRowModel } from '@mui/x-data-grid-pro';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 const AllColumns: GridColDef<User>[] = [
@@ -38,11 +33,7 @@ const AllColumns: GridColDef<User>[] = [
         renderCell: (params: GridRenderCellParams<User, string>) => {
             return (
                 <Stack direction='row' spacing={1} alignItems='center'>
-                    <Avatar
-                        username={params.row.username}
-                        displayName={params.value}
-                        size={32}
-                    />
+                    <Avatar username={params.row.username} displayName={params.value} size={32} />
                     <Link href={`/profile/${params.row.username}`}>{params.value}</Link>
                 </Stack>
             );
@@ -143,11 +134,7 @@ function getDisplayString(field: string): string {
     return '';
 }
 
-function useDebounce(
-    effect: () => void,
-    dependencies: React.DependencyList,
-    delay: number,
-) {
+function useDebounce(effect: () => void, dependencies: React.DependencyList, delay: number) {
     const callback = useCallback(effect, [effect, ...dependencies]);
 
     useEffect(() => {
@@ -188,9 +175,7 @@ export function SearchPage() {
     const onFailure = request.onFailure;
     const handleSearch = useCallback(() => {
         const newErrors: Record<string, string> = {};
-        const selectedFields = allFields
-            ? ['all']
-            : Object.keys(fields).filter((f) => fields[f]);
+        const selectedFields = allFields ? ['all'] : Object.keys(fields).filter((f) => fields[f]);
         if (selectedFields.length === 0) {
             newErrors.fields = 'At least one search field is required';
         }
@@ -259,17 +244,12 @@ export function SearchPage() {
                                 control={
                                     <Checkbox
                                         checked={allFields}
-                                        onChange={(event) =>
-                                            setAllFields(event.target.checked)
-                                        }
+                                        onChange={(event) => setAllFields(event.target.checked)}
                                     />
                                 }
                                 label='All Fields'
                             />
-                            <Stack
-                                direction='row'
-                                sx={{ flexWrap: 'wrap', columnGap: 2.5 }}
-                            >
+                            <Stack direction='row' sx={{ flexWrap: 'wrap', columnGap: 2.5 }}>
                                 {SearchFields.map((field) => {
                                     if (isCustom(field)) {
                                         return null;
@@ -282,10 +262,7 @@ export function SearchPage() {
                                                 <Checkbox
                                                     checked={allFields || fields[field]}
                                                     onChange={(event) =>
-                                                        onChangeField(
-                                                            field,
-                                                            event.target.checked,
-                                                        )
+                                                        onChangeField(field, event.target.checked)
                                                     }
                                                 />
                                             }

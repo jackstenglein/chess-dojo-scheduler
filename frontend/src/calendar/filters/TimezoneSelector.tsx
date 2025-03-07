@@ -40,9 +40,7 @@ export const TimezoneSelector = ({
             onChange={(e) => onChange(e.target.value)}
             {...textFieldProps}
         >
-            <MenuItem value={DefaultTimezone}>
-                Browser Default ({browserDefaultLabel})
-            </MenuItem>
+            <MenuItem value={DefaultTimezone}>Browser Default ({browserDefaultLabel})</MenuItem>
             {getTimezoneOptions()}
         </TextField>
     );

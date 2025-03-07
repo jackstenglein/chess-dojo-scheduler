@@ -42,13 +42,7 @@ interface HeaderProps {
     setFollower: (f: ExplorerPositionFollower | null) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({
-    fen,
-    follower,
-    minCohort,
-    maxCohort,
-    setFollower,
-}) => {
+const Header: React.FC<HeaderProps> = ({ fen, follower, minCohort, maxCohort, setFollower }) => {
     const isFreeTier = useFreeTier();
     const [copied, setCopied] = useState('');
     const [showFollowDialog, setShowFollowDialog] = useState(false);
@@ -90,11 +84,7 @@ const Header: React.FC<HeaderProps> = ({
                 {!isFreeTier && (
                     <>
                         <Tooltip
-                            title={
-                                follower
-                                    ? 'Edit subscription'
-                                    : 'Subscribe to this position'
-                            }
+                            title={follower ? 'Edit subscription' : 'Subscribe to this position'}
                         >
                             <IconButton
                                 color={follower ? 'success' : 'info'}
@@ -153,12 +143,8 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
 }) => {
     const metadata = follower?.followMetadata;
     const [enableDojo, setEnableDojo] = useState(metadata?.dojo.enabled ?? true);
-    const [minCohort, setMinCohort] = useState(
-        metadata?.dojo.minCohort ?? initialMinCohort,
-    );
-    const [maxCohort, setMaxCohort] = useState(
-        metadata?.dojo.maxCohort ?? initialMaxCohort,
-    );
+    const [minCohort, setMinCohort] = useState(metadata?.dojo.minCohort ?? initialMinCohort);
+    const [maxCohort, setMaxCohort] = useState(metadata?.dojo.maxCohort ?? initialMaxCohort);
     const [disableVariations, setDisableVariations] = useState(
         metadata?.dojo.disableVariations ?? false,
     );
@@ -166,9 +152,7 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
     const [timeControls, setTimeControls] = useState(
         metadata?.masters.timeControls ?? masterTimeControlOptions.map((t) => t.value),
     );
-    const [avgRating, setAvgRating] = useState(
-        `${metadata?.masters.minAverageRating ?? ''}`,
-    );
+    const [avgRating, setAvgRating] = useState(`${metadata?.masters.minAverageRating ?? ''}`);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const api = useApi();
@@ -182,8 +166,7 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
             newErrors.avgRating = 'This must be an integer';
         }
         if (enableMasters && timeControls.length === 0) {
-            newErrors.timeControls =
-                'At least one time control is required if masters is enabled';
+            newErrors.timeControls = 'At least one time control is required if masters is enabled';
         }
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) {
@@ -247,8 +230,8 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
             </DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    You will receive a notification whenever a new game is posted
-                    containing this position.
+                    You will receive a notification whenever a new game is posted containing this
+                    position.
                 </DialogContentText>
 
                 <Typography variant='h6' sx={{ mt: 3 }}>
@@ -285,9 +268,7 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                             control={
                                 <Checkbox
                                     checked={disableVariations}
-                                    onChange={(e) =>
-                                        setDisableVariations(e.target.checked)
-                                    }
+                                    onChange={(e) => setDisableVariations(e.target.checked)}
                                 />
                             }
                             label={
@@ -357,10 +338,7 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                         <Stack direction='row' spacing={1} alignItems='center'>
                             <Typography>Enabled</Typography>
                             <Tooltip title='Uncheck this if you only want to receive notifications for games added to the Dojo Database.'>
-                                <HelpIcon
-                                    fontSize='small'
-                                    sx={{ color: 'text.secondary' }}
-                                />
+                                <HelpIcon fontSize='small' sx={{ color: 'text.secondary' }} />
                             </Tooltip>
                         </Stack>
                     }

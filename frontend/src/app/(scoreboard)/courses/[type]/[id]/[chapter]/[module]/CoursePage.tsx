@@ -9,16 +9,7 @@ import { Link } from '@/components/navigation/Link';
 import { Course } from '@/database/course';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
-import {
-    Alert,
-    Box,
-    Button,
-    Container,
-    Divider,
-    Grid2,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Container, Divider, Grid2, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../../../../localStorage';
 import Contents from './Contents';
@@ -44,12 +35,7 @@ export const CoursePage = ({
     }, [setCheckoutId, params.id]);
 
     useEffect(() => {
-        if (
-            !request.isSent() &&
-            auth.status !== AuthStatus.Loading &&
-            params.type &&
-            params.id
-        ) {
+        if (!request.isSent() && auth.status !== AuthStatus.Loading && params.type && params.id) {
             request.onStart();
             api.getCourse(params.type, params.id, checkoutId)
                 .then((resp) => {
@@ -105,19 +91,13 @@ export const CoursePage = ({
                     variant='filled'
                     sx={{ mb: 4 }}
                     action={
-                        <Button
-                            component={Link}
-                            href='/signup'
-                            size='small'
-                            color='inherit'
-                        >
+                        <Button component={Link} href='/signup' size='small' color='inherit'>
                             Create Account
                         </Button>
                     }
                 >
-                    You are not signed into an account, so this course is available only
-                    on this device and browser. Create an account to access this course
-                    anywhere.
+                    You are not signed into an account, so this course is available only on this
+                    device and browser. Create an account to access this course anywhere.
                 </Alert>
             )}
             <Grid2 container rowGap={2}>

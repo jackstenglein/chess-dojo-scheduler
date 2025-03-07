@@ -140,16 +140,11 @@ export function TrainingPlanSection({
                     );
                 })}
 
-                {!isFreeTier &&
-                    isCustomTaskCategory(section.category) &&
-                    isCurrentUser && (
-                        <Button
-                            sx={{ mt: 2 }}
-                            onClick={() => setShowCustomTaskEditor(true)}
-                        >
-                            Add Custom Task
-                        </Button>
-                    )}
+                {!isFreeTier && isCustomTaskCategory(section.category) && isCurrentUser && (
+                    <Button sx={{ mt: 2 }} onClick={() => setShowCustomTaskEditor(true)}>
+                        Add Custom Task
+                    </Button>
+                )}
 
                 {isFreeTier &&
                     section.category !== RequirementCategory.NonDojo &&
@@ -157,8 +152,7 @@ export function TrainingPlanSection({
                         <Stack mt={2} spacing={2} alignItems='center'>
                             <Typography>
                                 Unlock {hiddenTaskCount} more task
-                                {hiddenTaskCount > 1 ? 's' : ''} by upgrading to a full
-                                account
+                                {hiddenTaskCount > 1 ? 's' : ''} by upgrading to a full account
                             </Typography>
                             <Button variant='outlined' href='/prices'>
                                 View Prices

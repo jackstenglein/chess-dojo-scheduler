@@ -84,11 +84,7 @@ export function getColumnDefinition(
     };
 
     const renderCell = (params: GridRenderCellParams<ScoreboardRow>) => {
-        const score = getCurrentCount(
-            cohort,
-            requirement,
-            getProgress(params.row)[requirement.id],
-        );
+        const score = getCurrentCount(cohort, requirement, getProgress(params.row)[requirement.id]);
         switch (requirement.scoreboardDisplay) {
             case ScoreboardDisplay.Checkbox:
                 return (
@@ -116,9 +112,7 @@ export function getColumnDefinition(
                         cohort={cohort}
                         requirement={requirement}
                         suffix={requirement.progressBarSuffix}
-                        isTime={
-                            requirement.scoreboardDisplay === ScoreboardDisplay.Minutes
-                        }
+                        isTime={requirement.scoreboardDisplay === ScoreboardDisplay.Minutes}
                     />
                 );
         }
@@ -168,9 +162,7 @@ export function getTotalTime(
     }
 
     const requirementIds = new Set(
-        requirements
-            .filter((r) => (r.category === 'Non-Dojo') === nonDojoOnly)
-            .map((r) => r.id),
+        requirements.filter((r) => (r.category === 'Non-Dojo') === nonDojoOnly).map((r) => r.id),
     );
 
     let result = 0;
@@ -221,11 +213,7 @@ export function formatPercentComplete(value: number) {
 }
 
 export function getRatingSystem(row: ScoreboardRow) {
-    if (
-        isCustom(row.ratingSystem) &&
-        !isGraduation(row) &&
-        row.ratings[row.ratingSystem]?.name
-    ) {
+    if (isCustom(row.ratingSystem) && !isGraduation(row) && row.ratings[row.ratingSystem]?.name) {
         return `Custom (${row.ratings[row.ratingSystem]?.name})`;
     }
     return formatRatingSystem(row.ratingSystem);

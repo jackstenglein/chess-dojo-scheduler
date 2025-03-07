@@ -33,10 +33,7 @@ export interface ObjectStorage<V, K extends IDBValidKey = IDBValidKey> {
     count(key?: K | IDBKeyRange): Promise<number>;
     remove(key: K | IDBKeyRange): Promise<void>;
     clear(): Promise<void>; // remove all
-    cursor(
-        range?: IDBKeyRange,
-        dir?: IDBCursorDirection,
-    ): Promise<IDBCursorWithValue | undefined>;
+    cursor(range?: IDBKeyRange, dir?: IDBCursorDirection): Promise<IDBCursorWithValue | undefined>;
     txn(mode: IDBTransactionMode): IDBTransaction; // do anything else
 }
 
@@ -62,12 +59,10 @@ export async function objectStorage<V, K extends IDBValidKey = IDBValidKey>(
         get: (key: K) => actionPromise<V>(() => objectStore('readonly').get(key)),
         getMany: (keys?: IDBKeyRange) =>
             actionPromise<V[]>(() => objectStore('readonly').getAll(keys)),
-        put: (key: K, value: V) =>
-            actionPromise<K>(() => objectStore('readwrite').put(value, key)),
+        put: (key: K, value: V) => actionPromise<K>(() => objectStore('readwrite').put(value, key)),
         count: (key?: K | IDBKeyRange) =>
             actionPromise<number>(() => objectStore('readonly').count(key)),
-        remove: (key: K | IDBKeyRange) =>
-            actionPromise(() => objectStore('readwrite').delete(key)),
+        remove: (key: K | IDBKeyRange) => actionPromise(() => objectStore('readwrite').delete(key)),
         clear: () => actionPromise(() => objectStore('readwrite').clear()),
         cursor: (keys?: IDBKeyRange, dir?: IDBCursorDirection) =>
             actionPromise<IDBCursorWithValue | undefined>(() =>
@@ -85,10 +80,7 @@ export async function dbConnect(dbInfo: DbInfo): Promise<IDBDatabase> {
 
         result.onsuccess = (e: Event) => resolve((e.target as IDBOpenDBRequest).result);
         result.onerror = (e: Event) =>
-            reject(
-                ((e.target as IDBOpenDBRequest).error as Error) ??
-                    'IndexedDB Unavailable',
-            );
+            reject(((e.target as IDBOpenDBRequest).error as Error) ?? 'IndexedDB Unavailable');
         result.onupgradeneeded = (e: IDBVersionChangeEvent) => {
             const db = (e.target as IDBOpenDBRequest).result;
             const txn = (e.target as IDBOpenDBRequest).transaction;

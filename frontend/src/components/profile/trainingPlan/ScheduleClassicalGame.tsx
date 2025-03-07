@@ -114,9 +114,7 @@ function ScheduleClassicalGameDialog({
     const [entries, setEntries] = useState<ScheduleFormEntry[]>(
         getScheduleFormEntries(user?.gameSchedule),
     );
-    const [errors, setErrors] = useState<
-        Record<number, { date?: string; count?: string }>
-    >({});
+    const [errors, setErrors] = useState<Record<number, { date?: string; count?: string }>>({});
 
     const api = useApi();
     const request = useRequest();
@@ -175,9 +173,7 @@ function ScheduleClassicalGameDialog({
             <DialogTitle>Schedule Your Next Classical Game</DialogTitle>
 
             <DialogContent>
-                {view === TaskDialogView.Details && (
-                    <ScheduleClassicalGameDialogDetails />
-                )}
+                {view === TaskDialogView.Details && <ScheduleClassicalGameDialogDetails />}
                 {view === TaskDialogView.Progress && (
                     <ScheduleClassicalGameDialogProgress
                         entries={entries}
@@ -233,39 +229,36 @@ function ScheduleClassicalGameDialogDetails() {
     return (
         <Stack>
             <Typography>
-                It is essential to play longer games to build your intuition and
-                calculation skills. You will also need something substantive to review
-                afterwards. In general, blitz/rapid games are far less useful for
-                maximizing long-term improvement.
+                It is essential to play longer games to build your intuition and calculation skills.
+                You will also need something substantive to review afterwards. In general,
+                blitz/rapid games are far less useful for maximizing long-term improvement.
             </Typography>
 
             <Typography mt={3}>
                 For the {user?.dojoCohort} cohort,{' '}
-                <strong>we recommend a minimum time control of {minTimeControl}</strong>.
-                You can also play an alternate time control as long as the base time +
-                increment is greater than or equal to what we've suggested. E.g. for 60+30
-                (which adds up to 90), 45+45 would also be acceptable, as well as 75+15,
-                85+5, etc. as long as you have a minimum starting time of 30 minutes (you
-                cannot play 1+90).
+                <strong>we recommend a minimum time control of {minTimeControl}</strong>. You can
+                also play an alternate time control as long as the base time + increment is greater
+                than or equal to what we've suggested. E.g. for 60+30 (which adds up to 90), 45+45
+                would also be acceptable, as well as 75+15, 85+5, etc. as long as you have a minimum
+                starting time of 30 minutes (you cannot play 1+90).
             </Typography>
 
             <Typography mt={3}>
-                We recommend playing OTB at local tournaments or clubs. The Dojo also
-                offers multiple options for playing classical games online:
+                We recommend playing OTB at local tournaments or clubs. The Dojo also offers
+                multiple options for playing classical games online:
                 <ul>
                     <li>
                         <Link href='/tournaments/round-robin'>Round Robin</Link> — 9-round
-                        tournament, with up to 3 months to schedule and play all your
-                        games. Registration is always open.
+                        tournament, with up to 3 months to schedule and play all your games.
+                        Registration is always open.
                     </li>
                     <li>
-                        <Link href='/tournaments/open-classical'>Open Classical</Link> —
-                        7-round tournament, with one game per week. Registration opens
-                        every 7 weeks.
+                        <Link href='/tournaments/open-classical'>Open Classical</Link> — 7-round
+                        tournament, with one game per week. Registration opens every 7 weeks.
                     </li>
                     <li>
-                        <Link href='/calendar'>Calendar</Link> — Schedule one-off games
-                        with other Dojo members.
+                        <Link href='/calendar'>Calendar</Link> — Schedule one-off games with other
+                        Dojo members.
                     </li>
                 </ul>
             </Typography>
@@ -288,19 +281,11 @@ function ScheduleClassicalGameDialogProgress({
     errors: Record<number, { date?: string; count?: string }>;
 }) {
     const onChangeDate = (i: number, date: DateTime | null) => {
-        setEntries([
-            ...entries.slice(0, i),
-            { ...entries[i], date },
-            ...entries.slice(i + 1),
-        ]);
+        setEntries([...entries.slice(0, i), { ...entries[i], date }, ...entries.slice(i + 1)]);
     };
 
     const onChangeCount = (i: number, count: string) => {
-        setEntries([
-            ...entries.slice(0, i),
-            { ...entries[i], count },
-            ...entries.slice(i + 1),
-        ]);
+        setEntries([...entries.slice(0, i), { ...entries[i], count }, ...entries.slice(i + 1)]);
     };
 
     const onRemove = (i: number) => {
@@ -314,13 +299,7 @@ function ScheduleClassicalGameDialogProgress({
     return (
         <Stack mt={0.75} alignItems='start' rowGap={3}>
             {entries.map((entry, i) => (
-                <Stack
-                    key={i}
-                    direction='row'
-                    columnGap={2}
-                    width={1}
-                    alignItems='baseline'
-                >
+                <Stack key={i} direction='row' columnGap={2} width={1} alignItems='baseline'>
                     <DatePicker
                         label='Date'
                         disablePast

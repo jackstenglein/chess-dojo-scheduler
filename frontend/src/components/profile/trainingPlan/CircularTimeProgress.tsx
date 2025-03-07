@@ -14,8 +14,7 @@ export function CircularTimeProgress(
     const value = (props.value / props.max) * 100;
     const clampedValue = Math.min(100, value);
 
-    const color =
-        clampedValue < 50 ? 'error' : clampedValue < 100 ? 'warning' : 'success';
+    const color = clampedValue < 50 ? 'error' : clampedValue < 100 ? 'warning' : 'success';
 
     const time = formatTime(props.value);
     return (

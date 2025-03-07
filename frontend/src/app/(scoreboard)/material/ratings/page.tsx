@@ -1,9 +1,4 @@
-import {
-    RatingSystem,
-    dojoCohorts,
-    formatRatingSystem,
-    getRatingBoundary,
-} from '@/database/user';
+import { RatingSystem, dojoCohorts, formatRatingSystem, getRatingBoundary } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     Container,
@@ -52,11 +47,7 @@ export default function RatingConversionsPage() {
                         {dojoCohorts.slice(0, dojoCohorts.length - 1).map((c, i) => (
                             <TableRow key={c}>
                                 <TableCell>
-                                    <Stack
-                                        direction='row'
-                                        spacing={2}
-                                        alignItems='center'
-                                    >
+                                    <Stack direction='row' spacing={2} alignItems='center'>
                                         <CohortIcon cohort={c} tooltip='' />
                                         <Typography variant='body2'>{c}</Typography>
                                     </Stack>
@@ -65,8 +56,7 @@ export default function RatingConversionsPage() {
                                     let minRating =
                                         i === 0
                                             ? '0'
-                                            : getRatingBoundary(dojoCohorts[i - 1], rs) ||
-                                              0;
+                                            : getRatingBoundary(dojoCohorts[i - 1], rs) || 0;
 
                                     if (minRating === 0 && rs === RatingSystem.Fide) {
                                         minRating = 1400;
@@ -100,11 +90,7 @@ export default function RatingConversionsPage() {
                             </TableCell>
                             {ratingSystems.map((rs) => (
                                 <TableCell key={rs}>
-                                    {getRatingBoundary(
-                                        dojoCohorts[dojoCohorts.length - 2],
-                                        rs,
-                                    )}
-                                    +
+                                    {getRatingBoundary(dojoCohorts[dojoCohorts.length - 2], rs)}+
                                 </TableCell>
                             ))}
                         </TableRow>

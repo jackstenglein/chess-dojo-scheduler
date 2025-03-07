@@ -46,9 +46,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
 
         request.onStart();
         metaInitiateCheckout(
-            interval === 'month'
-                ? [config.stripe.monthlyPriceId]
-                : [config.stripe.yearlyPriceId],
+            interval === 'month' ? [config.stripe.monthlyPriceId] : [config.stripe.yearlyPriceId],
             'USD',
             interval === 'month' ? 15 : 100,
         );

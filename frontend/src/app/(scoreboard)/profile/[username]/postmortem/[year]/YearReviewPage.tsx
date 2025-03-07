@@ -159,8 +159,8 @@ const YearReviewPage = ({ username, year }: { username: string; year: string }) 
                         textAlign='center'
                         pt={5}
                     >
-                        The Dojo is all about sweat work! Let's take a look at the work
-                        you've done this year!
+                        The Dojo is all about sweat work! Let's take a look at the work you've done
+                        this year!
                     </Typography>
                 </Stack>
             </Container>
@@ -181,9 +181,8 @@ const YearReviewPage = ({ username, year }: { username: string; year: string }) 
                         fontSize='clamp(16px,3vw,32px)'
                         textAlign='center'
                     >
-                        Thank you for being part of the Dojo this year! We can't wait to
-                        see what you and the rest of the Dojo will accomplish in{' '}
-                        {parseInt(year) + 1}!
+                        Thank you for being part of the Dojo this year! We can't wait to see what
+                        you and the rest of the Dojo will accomplish in {parseInt(year) + 1}!
                     </Typography>
                 </Stack>
             </Container>

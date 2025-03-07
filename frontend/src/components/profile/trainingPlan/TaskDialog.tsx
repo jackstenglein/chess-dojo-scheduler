@@ -60,9 +60,7 @@ export function TaskDialog({ open, initialView, ...props }: TaskDialogProps) {
             maxWidth={view === TaskDialogView.Details ? 'lg' : 'md'}
             fullWidth
         >
-            {view === TaskDialogView.Details && (
-                <DetailsDialog {...props} setView={setView} />
-            )}
+            {view === TaskDialogView.Details && <DetailsDialog {...props} setView={setView} />}
             {(view === TaskDialogView.Progress || view === TaskDialogView.History) && (
                 <ProgressDialog {...props} view={view} setView={setView} />
             )}
@@ -75,14 +73,7 @@ type ProgressDialogProps = Omit<TaskDialogProps, 'open' | 'initialView'> & {
     setView: (v: TaskDialogView) => void;
 };
 
-function ProgressDialog({
-    onClose,
-    task,
-    progress,
-    cohort,
-    view,
-    setView,
-}: ProgressDialogProps) {
+function ProgressDialog({ onClose, task, progress, cohort, view, setView }: ProgressDialogProps) {
     const { user } = useAuth();
 
     const cohortOptions = task.counts[ALL_COHORTS]
@@ -174,9 +165,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
             return cohort || user?.dojoCohort;
         }
 
-        const cohortOptions = task.counts[ALL_COHORTS]
-            ? dojoCohorts
-            : Object.keys(task.counts);
+        const cohortOptions = task.counts[ALL_COHORTS] ? dojoCohorts : Object.keys(task.counts);
 
         if (cohort && cohortOptions.includes(cohort)) {
             return cohort;
@@ -199,13 +188,10 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
             return { isBlocked: false };
         }
 
-        const requirementMap = requirements.reduce<Record<string, Requirement>>(
-            (acc, r) => {
-                acc[r.id] = r;
-                return acc;
-            },
-            {},
-        );
+        const requirementMap = requirements.reduce<Record<string, Requirement>>((acc, r) => {
+            acc[r.id] = r;
+            return acc;
+        }, {});
         for (const blockerId of task.blockers) {
             const blocker = requirementMap[blockerId];
             if (
@@ -229,8 +215,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
     const progress = user?.progress[task.id];
 
     const totalCount = task.counts[selectedCohort] || task.counts[ALL_COHORTS];
-    const currentCount =
-        progress?.counts?.[selectedCohort] || progress?.counts?.[ALL_COHORTS] || 0;
+    const currentCount = progress?.counts?.[selectedCohort] || progress?.counts?.[ALL_COHORTS] || 0;
     const isCompleted = currentCount >= totalCount;
 
     let requirementName = task.name.replaceAll('{{count}}', `${totalCount}`);
@@ -264,20 +249,13 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
                             </Tooltip>
                         ) : (
                             isCompleted && (
-                                <Chip
-                                    icon={<Check />}
-                                    label='Completed'
-                                    color='success'
-                                />
+                                <Chip icon={<Check />} label='Completed' color='success' />
                             )
                         )}
 
                         {!isRequirement(task) && task.owner === user?.username && (
                             <>
-                                <Button
-                                    variant='contained'
-                                    onClick={() => setShowEditor(true)}
-                                >
+                                <Button variant='contained' onClick={() => setShowEditor(true)}>
                                     Edit Task
                                 </Button>
                                 <Button
@@ -347,12 +325,8 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <Button onClick={() => setView(TaskDialogView.Progress)}>
-                    Update Progress
-                </Button>
-                <Button onClick={() => setView(TaskDialogView.History)}>
-                    Show History
-                </Button>
+                <Button onClick={() => setView(TaskDialogView.Progress)}>Update Progress</Button>
+                <Button onClick={() => setView(TaskDialogView.History)}>Show History</Button>
             </DialogActions>
         </>
     );
@@ -390,13 +364,7 @@ function dojoPointDescription(requirement: Requirement, cohort: string) {
     } per ${unit} completed.`;
 }
 
-function DojoPointChip({
-    requirement,
-    cohort,
-}: {
-    requirement: Requirement;
-    cohort: string;
-}) {
+function DojoPointChip({ requirement, cohort }: { requirement: Requirement; cohort: string }) {
     if (!isRequirement(requirement)) {
         return null;
     }
@@ -436,8 +404,7 @@ function ExpirationChip({ requirement }: { requirement: Requirement }) {
         return null;
     }
 
-    const value =
-        expirationYears >= 1 ? expirationYears : Math.round(expirationYears * 12);
+    const value = expirationYears >= 1 ? expirationYears : Math.round(expirationYears * 12);
 
     const title = `Progress on this task expires after ${value} ${
         expirationYears >= 1 ? 'year' : 'month'

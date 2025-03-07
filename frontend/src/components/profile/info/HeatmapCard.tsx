@@ -13,9 +13,7 @@ const LABEL_WIDTH = 30;
 export const MIN_BLOCK_SIZE = 12;
 
 export function getBlockSize() {
-    const parentWidth = document
-        .getElementsByTagName('html')[0]
-        ?.getBoundingClientRect().width;
+    const parentWidth = document.getElementsByTagName('html')[0]?.getBoundingClientRect().width;
     if (!parentWidth) {
         return MIN_BLOCK_SIZE;
     }
@@ -31,11 +29,7 @@ export function getBlockSize() {
  * Renders a card showing the user's activity heatmap.
  * @param user The user whose activity will be displayed in the heatmap.
  */
-export const HeatmapCard = ({
-    workGoalHistory,
-}: {
-    workGoalHistory: WorkGoalHistory[];
-}) => {
+export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHistory[] }) => {
     const { entries } = useTimelineContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);

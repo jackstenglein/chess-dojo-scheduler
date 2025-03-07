@@ -6,12 +6,7 @@ import { useEvents } from '@/api/cache/Cache';
 import { useAuth, useFreeTier } from '@/auth/Auth';
 import { getTimeZonedDate } from '@/calendar/displayDate';
 import EventEditor from '@/calendar/eventEditor/EventEditor';
-import {
-    CalendarFilters,
-    Filters,
-    getHours,
-    useFilters,
-} from '@/calendar/filters/CalendarFilters';
+import { CalendarFilters, Filters, getHours, useFilters } from '@/calendar/filters/CalendarFilters';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
 import CalendarTutorial from '@/components/tutorial/CalendarTutorial';
@@ -92,8 +87,7 @@ function processAvailability(
             return null;
         }
 
-        const title =
-            event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group';
+        const title = event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group';
         return {
             event_id: event.id,
             title: title,
@@ -288,10 +282,7 @@ export function getProcessedEvents(
     for (const event of events) {
         let processedEvent: ProcessedEvent | null = null;
 
-        const startHour = getTimeZonedDate(
-            new Date(event.startTime),
-            filters?.timezone,
-        ).getHours();
+        const startHour = getTimeZonedDate(new Date(event.startTime), filters?.timezone).getHours();
         if (
             startHour < (filters?.minHour?.hour || 0) ||
             startHour > (filters?.maxHour?.hour || 24)
@@ -438,8 +429,7 @@ export default function CalendarPage() {
     }, [processedEvents, calendarRef]);
 
     useEffect(() => {
-        const timezone =
-            filters.timezone === DefaultTimezone ? undefined : filters.timezone;
+        const timezone = filters.timezone === DefaultTimezone ? undefined : filters.timezone;
         calendarRef.current?.scheduler.handleState(timezone, 'timeZone');
     }, [calendarRef, filters.timezone]);
 
@@ -529,9 +519,8 @@ export default function CalendarPage() {
                     <Stack spacing={3}>
                         {isFreeTier && (
                             <UpsellAlert>
-                                Free-tier users can book events but cannot post their own
-                                events. Upgrade your account to add new events to the
-                                calendar.
+                                Free-tier users can book events but cannot post their own events.
+                                Upgrade your account to add new events to the calendar.
                             </UpsellAlert>
                         )}
 
@@ -577,9 +566,7 @@ export default function CalendarPage() {
                             )}
                             events={processedEvents}
                             timeZone={
-                                filters.timezone === DefaultTimezone
-                                    ? undefined
-                                    : filters.timezone
+                                filters.timezone === DefaultTimezone ? undefined : filters.timezone
                             }
                             hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                             eventRenderer={(props) =>
@@ -636,11 +623,7 @@ function getLocationIcon(dojoEvent: Event | undefined): keyof typeof icons | und
     return dojoEvent.type;
 }
 
-export function CustomEventRenderer({
-    event,
-    timeFormat,
-    ...props
-}: CustomEventRendererProps) {
+export function CustomEventRenderer({ event, timeFormat, ...props }: CustomEventRendererProps) {
     const textColor = event.color?.endsWith('.main')
         ? event.color.replace('.main', '.contrastText')
         : 'common.black';

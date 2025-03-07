@@ -1,11 +1,7 @@
 'use client';
 
 import { RoundRobinStatuses } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import {
-    History,
-    Info as InfoIcon,
-    TableChart as TableChartIcon,
-} from '@mui/icons-material';
+import { History, Info as InfoIcon, TableChart as TableChartIcon } from '@mui/icons-material';
 import { Box, Container, Tab, Tabs } from '@mui/material';
 import React, { Suspense, useState } from 'react';
 import { InfoPage } from './InfoPage';

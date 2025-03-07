@@ -10,13 +10,7 @@ interface HeaderProps {
     hideDivider?: boolean;
 }
 
-export const Header = ({
-    title,
-    subtitle,
-    image,
-    imageCaption,
-    hideDivider,
-}: HeaderProps) => {
+export const Header = ({ title, subtitle, image, imageCaption, hideDivider }: HeaderProps) => {
     return (
         <>
             <Stack mb={3}>

@@ -142,9 +142,7 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                             <FormLabel>Ends</FormLabel>
                             <RadioGroup
                                 value={rruleOptions.ends}
-                                onChange={(e) =>
-                                    onChangeEnds(e.target.value as RRuleEnds)
-                                }
+                                onChange={(e) => onChangeEnds(e.target.value as RRuleEnds)}
                                 sx={{ rowGap: 1.5 }}
                             >
                                 <FormControlLabel
@@ -153,11 +151,7 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                                     label='Never'
                                 />
 
-                                <Stack
-                                    direction='row'
-                                    columnGap={2.4}
-                                    alignItems='center'
-                                >
+                                <Stack direction='row' columnGap={2.4} alignItems='center'>
                                     <FormControlLabel
                                         value={RRuleEnds.Until}
                                         control={<Radio />}
@@ -167,9 +161,7 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                                     <DatePicker
                                         disabled={rruleOptions.ends !== RRuleEnds.Until}
                                         value={
-                                            rruleOptions.until ||
-                                            start?.plus({ months: 1 }) ||
-                                            null
+                                            rruleOptions.until || start?.plus({ months: 1 }) || null
                                         }
                                         onChange={(value) =>
                                             setRRuleOptions({
@@ -187,11 +179,7 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                                     />
                                 </Stack>
 
-                                <Stack
-                                    direction='row'
-                                    columnGap={1}
-                                    alignItems='flex-start'
-                                >
+                                <Stack direction='row' columnGap={1} alignItems='flex-start'>
                                     <FormControlLabel
                                         value={RRuleEnds.Count}
                                         control={<Radio />}
@@ -209,9 +197,7 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                                                 getDefaultRRuleCount(rruleOptions.freq)
                                             }
                                             size='small'
-                                            onChange={(e) =>
-                                                onChangeCount(e.target.value)
-                                            }
+                                            onChange={(e) => onChangeCount(e.target.value)}
                                             endAdornment={
                                                 <InputAdornment position='end'>
                                                     Occurrences

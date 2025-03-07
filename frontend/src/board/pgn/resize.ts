@@ -226,10 +226,7 @@ function mdSizes(
     };
 }
 
-export function getNewSizes(
-    currentSizes: AreaSizes,
-    hidePlayerHeaders?: boolean,
-): AreaSizes {
+export function getNewSizes(currentSizes: AreaSizes, hidePlayerHeaders?: boolean): AreaSizes {
     if (currentSizes.breakpoint === 'xs') {
         return currentSizes;
     }
@@ -272,9 +269,7 @@ export function getNewSizes(
         underboard: {
             ...currentSizes.underboard,
             maxWidth:
-                currentSizes.availableWidth -
-                currentSizes.board.width -
-                currentSizes.pgn.width,
+                currentSizes.availableWidth - currentSizes.board.width - currentSizes.pgn.width,
         },
     };
 }

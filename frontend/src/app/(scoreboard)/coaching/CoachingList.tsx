@@ -36,8 +36,7 @@ export function displayEvent(event: Event, viewer?: User): boolean {
         return false;
     }
 
-    const isFreeTier =
-        !viewer || viewer.subscriptionStatus === SubscriptionStatus.FreeTier;
+    const isFreeTier = !viewer || viewer.subscriptionStatus === SubscriptionStatus.FreeTier;
     if (!isOwner && isFreeTier && !event.coaching?.bookableByFreeUsers) {
         return false;
     }
@@ -125,19 +124,11 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
                 subheader={`${toDojoDateString(
                     start,
                     viewer?.timezoneOverride,
-                )} • ${toDojoTimeString(
-                    start,
-                    viewer?.timezoneOverride,
-                    viewer?.timeFormat,
-                )}`}
+                )} • ${toDojoTimeString(start, viewer?.timezoneOverride, viewer?.timeFormat)}`}
                 sx={{ pb: 0 }}
                 action={
                     isOwner || isParticipant ? (
-                        <Button
-                            variant='contained'
-                            component={Link}
-                            href={`/meeting/${event.id}`}
-                        >
+                        <Button variant='contained' component={Link} href={`/meeting/${event.id}`}>
                             View Details
                         </Button>
                     ) : (

@@ -58,12 +58,12 @@ const SupportTicket = () => {
             <Stack id='support-ticket'>
                 <Typography variant='h4'>Contact Support</Typography>
                 <Typography color='text.secondary' mb={2}>
-                    Please note that we are a small team, and it may take a few business
-                    days for us to get back to you. Thank you for your patience.
+                    Please note that we are a small team, and it may take a few business days for us
+                    to get back to you. Thank you for your patience.
                     <br />
                     <br />
-                    Your ticket has been submitted with ID <strong>{request.data}</strong>
-                    . You have been CC'd on the support email.
+                    Your ticket has been submitted with ID <strong>{request.data}</strong>. You have
+                    been CC'd on the support email.
                 </Typography>
             </Stack>
         );
@@ -73,8 +73,8 @@ const SupportTicket = () => {
         <Stack id='support-ticket'>
             <Typography variant='h4'>Contact Support</Typography>
             <Typography color='text.secondary' mb={2}>
-                Please note that we are a small team, and it may take a few business days
-                for us to get back to you. Thank you for your patience.
+                Please note that we are a small team, and it may take a few business days for us to
+                get back to you. Thank you for your patience.
             </Typography>
             <Grid2 container rowSpacing={2} columnSpacing={2}>
                 <Grid2

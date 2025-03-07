@@ -43,9 +43,7 @@ const CoachesTab = () => {
         <Stack spacing={3}>
             <RequestSnackbar request={request} />
 
-            {request.data?.map((coach) => (
-                <CoachListItem key={coach.username} coach={coach} />
-            ))}
+            {request.data?.map((coach) => <CoachListItem key={coach.username} coach={coach} />)}
         </Stack>
     );
 };
@@ -57,11 +55,7 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
     const api = useApi();
 
     useEffect(() => {
-        if (
-            currentUser &&
-            currentUser.username !== coach.username &&
-            !followRequest.isSent()
-        ) {
+        if (currentUser && currentUser.username !== coach.username && !followRequest.isSent()) {
             followRequest.onStart();
             api.getFollower(coach.username)
                 .then((resp) => {

@@ -77,9 +77,7 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
     const club = request.data?.club;
     const isOwner = Boolean(viewer?.username && club?.owner === viewer.username);
     const isMember = Boolean(viewer?.username && club?.members[viewer.username]);
-    const hasSentJoinRequest = Boolean(
-        viewer?.username && club?.joinRequests[viewer.username],
-    );
+    const hasSentJoinRequest = Boolean(viewer?.username && club?.joinRequests[viewer.username]);
 
     const onProcessRequest = (data: GetClubResponse, snackbarText: string) => {
         request.onSuccess({
@@ -118,9 +116,7 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
         if (request.data) {
             request.onSuccess({
                 club,
-                scoreboard: request.data.scoreboard?.filter(
-                    (s) => s.username !== viewer?.username,
-                ),
+                scoreboard: request.data.scoreboard?.filter((s) => s.username !== viewer?.username),
             });
         }
         setShowLeaveDialog(false);
@@ -161,19 +157,12 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
                                         justifyContent='space-between'
                                         alignItems='center'
                                     >
-                                        <Stack
-                                            direction='row'
-                                            alignItems='center'
-                                            spacing={2}
-                                        >
+                                        <Stack direction='row' alignItems='center' spacing={2}>
                                             <ClubAvatar club={club} />
-                                            <Typography variant='h4'>
-                                                {club.name}
-                                            </Typography>
+                                            <Typography variant='h4'>{club.name}</Typography>
                                         </Stack>
 
-                                        {auth.status ===
-                                        AuthStatus.Loading ? null : isOwner ? (
+                                        {auth.status === AuthStatus.Loading ? null : isOwner ? (
                                             <Button
                                                 variant='contained'
                                                 onClick={() =>
@@ -207,11 +196,7 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
                                         )}
                                     </Stack>
 
-                                    <Stack
-                                        direction='row'
-                                        spacing={1}
-                                        alignItems='center'
-                                    >
+                                    <Stack direction='row' spacing={1} alignItems='center'>
                                         <MemberCountChip count={club.memberCount} />
                                         <LocationChip location={club.location} />
                                         <UrlChip url={club.externalUrl} />
@@ -224,10 +209,7 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
                                     <Tabs
                                         value={searchParams.get('view')}
                                         onChange={(_, t: string) =>
-                                            setSearchParams(
-                                                { view: t },
-                                                { scroll: false },
-                                            )
+                                            setSearchParams({ view: t }, { scroll: false })
                                         }
                                         aria-label='profile tabs'
                                         variant='scrollable'
@@ -235,10 +217,7 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
                                         <Tab label='Scoreboard' value='scoreboard' />
                                         <Tab label='Newsfeed' value='newsfeed' />
                                         {isOwner && club.approvalRequired && (
-                                            <Tab
-                                                label='Join Requests'
-                                                value='joinRequests'
-                                            />
+                                            <Tab label='Join Requests' value='joinRequests' />
                                         )}
                                     </Tabs>
                                 </Box>
@@ -249,18 +228,12 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
                             </TabPanel>
 
                             <TabPanel value='joinRequests'>
-                                <JoinRequestsTab
-                                    club={club}
-                                    onProcessRequest={onProcessRequest}
-                                />
+                                <JoinRequestsTab club={club} onProcessRequest={onProcessRequest} />
                             </TabPanel>
                         </Container>
 
                         {request.data?.scoreboard && (
-                            <TabPanel
-                                value='scoreboard'
-                                sx={{ width: 1, px: { xs: 0, sm: 3 } }}
-                            >
+                            <TabPanel value='scoreboard' sx={{ width: 1, px: { xs: 0, sm: 3 } }}>
                                 <ScoreboardTab data={request.data.scoreboard} />
                             </TabPanel>
                         )}

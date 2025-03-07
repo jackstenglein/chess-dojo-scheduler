@@ -30,10 +30,10 @@ export default function DojoTalks2024WorldRapidBlitz() {
             />
 
             <Typography mb={3}>
-                The sensei are joined by GM Jon Ludvig Hammer to discuss the 2024 World
-                Rapid Blitz Championship and Magnus Carlsen's controversial decision to
-                split the championship title with Ian Nepomniachtchi, drawing significant
-                criticism for bending competition rules and setting a troubling precedent.
+                The sensei are joined by GM Jon Ludvig Hammer to discuss the 2024 World Rapid Blitz
+                Championship and Magnus Carlsen's controversial decision to split the championship
+                title with Ian Nepomniachtchi, drawing significant criticism for bending competition
+                rules and setting a troubling precedent.
             </Typography>
 
             <iframe
@@ -53,8 +53,8 @@ export default function DojoTalks2024WorldRapidBlitz() {
 
             <SectionHeader>Introduction and Guest Introduction (00:06)</SectionHeader>
             <Typography>
-                Introduction of GM Jon Ludvig Hammer, his background, and promotion of his
-                new Chessable course.
+                Introduction of GM Jon Ludvig Hammer, his background, and promotion of his new
+                Chessable course.
             </Typography>
 
             <SectionHeader>
@@ -65,79 +65,60 @@ export default function DojoTalks2024WorldRapidBlitz() {
                 Championship.
             </Typography>
 
-            <SectionHeader>
-                Impressions of Abdusattorov and Rising Stars (01:16)
-            </SectionHeader>
+            <SectionHeader>Impressions of Abdusattorov and Rising Stars (01:16)</SectionHeader>
             <Typography>
-                Hammer discusses Abdusattorov’s rise and breakout performances in
-                Blitz/Rapid formats.
+                Hammer discusses Abdusattorov’s rise and breakout performances in Blitz/Rapid
+                formats.
             </Typography>
             <SectionHeader>
                 Magnus Carlsen and Nepomniachtchi Sharing the Title Controversy (02:32)
             </SectionHeader>
             <Typography>
-                Analysis of Magnus and Nepomniachtchi’s decision to share the Blitz
-                Championship title and the public reaction.
+                Analysis of Magnus and Nepomniachtchi’s decision to share the Blitz Championship
+                title and the public reaction.
             </Typography>
 
-            <SectionHeader>
-                Social Media and Viewer Perspectives on the Tie (03:15)
-            </SectionHeader>
+            <SectionHeader>Social Media and Viewer Perspectives on the Tie (03:15)</SectionHeader>
             <Typography>
-                Hammer reflects on how perspectives differ depending on social circles and
-                broadcast narratives.
+                Hammer reflects on how perspectives differ depending on social circles and broadcast
+                narratives.
             </Typography>
             <SectionHeader>
                 Hammer’s Stance on Sportsmanship and Rule-breaking (04:08)
             </SectionHeader>
             <Typography>
-                Arguments against sharing titles and comparisons to other sports
-                regulations.
+                Arguments against sharing titles and comparisons to other sports regulations.
             </Typography>
-            <SectionHeader>
-                Comparisons to Past Events and Grandmaster Draws (08:21)
-            </SectionHeader>
+            <SectionHeader>Comparisons to Past Events and Grandmaster Draws (08:21)</SectionHeader>
             <Typography>
-                Parallels drawn to the "Grandmaster draw" era and Magnus’s evolving
-                mindset.
+                Parallels drawn to the "Grandmaster draw" era and Magnus’s evolving mindset.
             </Typography>
             <SectionHeader>
                 Magnus Carlsen’s Motivation Behind Sharing the Title (12:20)
             </SectionHeader>
             <Typography>
-                Speculations on Magnus’s motivations, including fatigue, strategy, and
-                respect for Nepomniachtchi.
+                Speculations on Magnus’s motivations, including fatigue, strategy, and respect for
+                Nepomniachtchi.
             </Typography>
-            <SectionHeader>
-                Hammer’s View on Magnus’s Changing Chess Career (29:03)
-            </SectionHeader>
+            <SectionHeader>Hammer’s View on Magnus’s Changing Chess Career (29:03)</SectionHeader>
             <Typography>
-                Insights into Magnus’s current form, work ethic, and future direction in
-                chess.
+                Insights into Magnus’s current form, work ethic, and future direction in chess.
             </Typography>
-            <SectionHeader>
-                FIDE’s Role in Allowing the Shared Title (34:15)
-            </SectionHeader>
+            <SectionHeader>FIDE’s Role in Allowing the Shared Title (34:15)</SectionHeader>
             <Typography>
-                Analysis of FIDE’s decision-making and its implications for chess
-                governance.
+                Analysis of FIDE’s decision-making and its implications for chess governance.
             </Typography>
             <SectionHeader>Freestyle Chess and FIDE Rivalries (41:04)</SectionHeader>
             <Typography>
-                Discussion on the growing divide between FIDE and freestyle chess
-                organizers.
+                Discussion on the growing divide between FIDE and freestyle chess organizers.
             </Typography>
-            <SectionHeader>
-                Hammer’s Final Thoughts on the Controversy (48:22)
-            </SectionHeader>
+            <SectionHeader>Hammer’s Final Thoughts on the Controversy (48:22)</SectionHeader>
             <Typography>
-                Hammer critiques Magnus’s recent decisions and shares predictions for the
-                future.
+                Hammer critiques Magnus’s recent decisions and shares predictions for the future.
             </Typography>
             <SectionHeader>Conclusion and Upcoming Topics (52:06)</SectionHeader>
             <Typography>
-                Closing remarks and teaser for an upcoming episode on openings for
-                beginners.
+                Closing remarks and teaser for an upcoming episode on openings for beginners.
             </Typography>
 
             <Divider sx={{ my: 6 }} />
@@ -146,13 +127,7 @@ export default function DojoTalks2024WorldRapidBlitz() {
                 Make sure to follow the DojoTalks podcast
             </Typography>
 
-            <Stack
-                direction='row'
-                justifyContent='center'
-                alignItems='center'
-                gap='20px'
-                mt={2}
-            >
+            <Stack direction='row' justifyContent='center' alignItems='center' gap='20px' mt={2}>
                 <a
                     href='https://www.youtube.com/chessdojo'
                     target='_blank'

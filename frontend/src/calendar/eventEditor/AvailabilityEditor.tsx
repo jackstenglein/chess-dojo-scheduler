@@ -83,11 +83,7 @@ export function validateAvailabilityEditor(
     );
     if (editor.maxParticipants !== '') {
         maxParticipants = parseFloat(editor.maxParticipants);
-        if (
-            isNaN(maxParticipants) ||
-            !Number.isInteger(maxParticipants) ||
-            maxParticipants < 1
-        ) {
+        if (isNaN(maxParticipants) || !Number.isInteger(maxParticipants) || maxParticipants < 1) {
             errors.maxParticipants = 'You must specify an integer greater than 0';
         } else {
             maxParticipants = Math.round(maxParticipants);
@@ -181,22 +177,16 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
 
     const selectedTypes = allAvailabilityTypes
         ? [AllTypes]
-        : Object.keys(availabilityTypes).filter(
-              (t) => availabilityTypes[t as AvailabilityType],
-          );
+        : Object.keys(availabilityTypes).filter((t) => availabilityTypes[t as AvailabilityType]);
 
     const onChangeType = (newTypes: string[]) => {
         const addedTypes = newTypes.filter((t) => !selectedTypes.includes(t));
         if (addedTypes.includes(AllTypes)) {
             setAllAvailabilityTypes(true);
-            Object.values(AvailabilityTypes).forEach((t) =>
-                setAvailabilityType(t, false),
-            );
+            Object.values(AvailabilityTypes).forEach((t) => setAvailabilityType(t, false));
         } else {
             setAllAvailabilityTypes(false);
-            Object.values(AvailabilityTypes).forEach((t) =>
-                setAvailabilityType(t, false),
-            );
+            Object.values(AvailabilityTypes).forEach((t) => setAvailabilityType(t, false));
             newTypes.forEach((t) => {
                 if (t !== AllTypes) {
                     setAvailabilityType(t as AvailabilityType, true);

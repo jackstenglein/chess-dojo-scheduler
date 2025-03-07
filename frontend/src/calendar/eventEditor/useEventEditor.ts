@@ -242,9 +242,7 @@ export default function useEventEditor(
 ): UseEventEditorResponse {
     const { user } = useAuth();
 
-    const [type, setType] = useState<EventType>(
-        initialEvent?.type ?? EventType.Availability,
-    );
+    const [type, setType] = useState<EventType>(initialEvent?.type ?? EventType.Availability);
     const [title, setTitle] = useState<string>(initialEvent?.title || '');
 
     const [start, setStart] = useState<DateTime | null>(
@@ -261,9 +259,7 @@ export default function useEventEditor(
     );
 
     const [allAvailabilityTypes, setAllAvailabilityTypes] = useState(false);
-    const [availabilityTypes, setAvailabilityTypes] = useState<
-        Record<AvailabilityType, boolean>
-    >(
+    const [availabilityTypes, setAvailabilityTypes] = useState<Record<AvailabilityType, boolean>>(
         Object.values(AvailabilityType).reduce<Record<string, boolean>>((map, type) => {
             map[type] = false;
             return map;
@@ -298,9 +294,7 @@ export default function useEventEditor(
     );
 
     const [fullPrice, setFullPrice] = useState(
-        initialEvent?.coaching?.fullPrice
-            ? `${initialEvent.coaching.fullPrice / 100}`
-            : '',
+        initialEvent?.coaching?.fullPrice ? `${initialEvent.coaching.fullPrice / 100}` : '',
     );
     const [currentPrice, setCurrentPrice] = useState(
         (initialEvent?.coaching?.currentPrice ?? 0) > 0
@@ -321,11 +315,7 @@ export default function useEventEditor(
     const options = initialEvent?.rrule ? RRule.parseString(initialEvent.rrule) : {};
     const [rruleOptions, setRRuleOptions] = useState<RRuleOptions>({
         freq: options.freq,
-        ends: options.count
-            ? RRuleEnds.Count
-            : options.until
-              ? RRuleEnds.Until
-              : RRuleEnds.Never,
+        ends: options.count ? RRuleEnds.Count : options.until ? RRuleEnds.Until : RRuleEnds.Never,
         until: options.until ? DateTime.fromJSDate(options.until) : null,
         count: options.count || undefined,
     });
@@ -334,13 +324,10 @@ export default function useEventEditor(
 
     const onChangeEventType = useCallback(
         (value: EventType) => {
-            const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>(
-                (map, cohort) => {
-                    map[cohort] = false;
-                    return map;
-                },
-                {},
-            );
+            const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>((map, cohort) => {
+                map[cohort] = false;
+                return map;
+            }, {});
 
             setType(value);
 
@@ -359,15 +346,11 @@ export default function useEventEditor(
                     );
                 } else {
                     setCohorts(
-                        dojoCohorts.reduce<Record<string, boolean>>(
-                            (map, cohort, index) => {
-                                map[cohort] =
-                                    userCohortIndex >= 0 &&
-                                    Math.abs(index - userCohortIndex) <= 1;
-                                return map;
-                            },
-                            {},
-                        ),
+                        dojoCohorts.reduce<Record<string, boolean>>((map, cohort, index) => {
+                            map[cohort] =
+                                userCohortIndex >= 0 && Math.abs(index - userCohortIndex) <= 1;
+                            return map;
+                        }, {}),
                     );
                 }
             } else {
@@ -394,13 +377,10 @@ export default function useEventEditor(
 
         const originalCohorts: string[] = initialEvent?.cohorts || [];
         if (originalCohorts.length > 0) {
-            const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>(
-                (map, cohort) => {
-                    map[cohort] = false;
-                    return map;
-                },
-                {},
-            );
+            const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>((map, cohort) => {
+                map[cohort] = false;
+                return map;
+            }, {});
             setCohorts(() =>
                 originalCohorts.reduce(
                     (map, cohort) => {

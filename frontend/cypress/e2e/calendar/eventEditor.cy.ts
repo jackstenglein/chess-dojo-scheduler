@@ -25,16 +25,12 @@ describe('Event Editor', () => {
         cy.getBySel('event-editor-date').contains('Sunday');
 
         cy.getBySel('event-editor').contains('Times');
-        cy.getBySel('event-editor').contains(
-            'Availabilities must be at least one hour long',
-        );
+        cy.getBySel('event-editor').contains('Availabilities must be at least one hour long');
         cy.getBySel('event-editor').find('#start-time');
         cy.getBySel('event-editor').find('#end-time');
 
         cy.getBySel('event-editor').contains('Location (Optional)');
-        cy.getBySel('event-editor').contains(
-            'Add a Zoom link, specify a Discord classroom, etc.',
-        );
+        cy.getBySel('event-editor').contains('Add a Zoom link, specify a Discord classroom, etc.');
         cy.getBySel('location-textfield');
 
         cy.getBySel('event-editor').contains('Description (Optional)');
@@ -55,9 +51,7 @@ describe('Event Editor', () => {
         cy.getBySel('participants-textfield');
 
         cy.getBySel('event-editor').contains('Cohorts');
-        cy.getBySel('event-editor').contains(
-            'Choose the cohorts that can book your availability.',
-        );
+        cy.getBySel('event-editor').contains('Choose the cohorts that can book your availability.');
     });
 
     it('selects default cohorts on open', () => {
@@ -96,11 +90,7 @@ describe('Event Editor', () => {
         cy.getBySel('availability-type-selector').click();
         cy.get('.MuiPopover-root').contains('All Types').click();
         cy.getBySel('save-button').click({ force: true });
-        cy.get('.rs__today_cell')
-            .not('.rs__header')
-            .first()
-            .contains('Available - Group')
-            .click();
+        cy.get('.rs__today_cell').not('.rs__header').first().contains('Available - Group').click();
 
         cy.getBySel('availability-viewer').contains('Number of Participants');
         cy.getBySel('availability-viewer').contains('0 / 100');

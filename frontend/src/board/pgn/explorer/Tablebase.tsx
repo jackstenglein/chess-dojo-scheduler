@@ -97,15 +97,11 @@ export function Tablebase({ fen, position, request }: TablebaseProps) {
                     <Stack direction='row' spacing={0.5}>
                         {move.dtz !== null && move.dtz !== 0 && (
                             <Tooltip title='Distance to zeroing the 50-move rule (number of moves until a pawn move or capture)'>
-                                <Chip
-                                    label={`DTZ ${Math.ceil(Math.abs(move.dtz) / 2)}`}
-                                />
+                                <Chip label={`DTZ ${Math.ceil(Math.abs(move.dtz) / 2)}`} />
                             </Tooltip>
                         )}
                         {move.dtm !== null && move.dtm !== 0 && (
-                            <Tooltip
-                                title={`Mate in ${Math.ceil(Math.abs(move.dtm) / 2)} moves`}
-                            >
+                            <Tooltip title={`Mate in ${Math.ceil(Math.abs(move.dtm) / 2)} moves`}>
                                 <Chip label={`M${Math.ceil(Math.abs(move.dtm) / 2)}`} />
                             </Tooltip>
                         )}

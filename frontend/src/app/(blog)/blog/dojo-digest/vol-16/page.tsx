@@ -33,10 +33,10 @@ export default function DojoDigestVol16() {
                     Updates
                 </Typography>
                 <Typography mt={2}>
-                    <strong>Free Month at the Dojo</strong> - Make your New Year’s
-                    resolution and join the Dojo for the month of January at no cost! Use
-                    the code <strong>NY25</strong> when signing up. The code only lasts
-                    until the 7th, so don't wait!
+                    <strong>Free Month at the Dojo</strong> - Make your New Year’s resolution and
+                    join the Dojo for the month of January at no cost! Use the code{' '}
+                    <strong>NY25</strong> when signing up. The code only lasts until the 7th, so
+                    don't wait!
                 </Typography>
 
                 <Typography mt={2}>
@@ -45,8 +45,8 @@ export default function DojoDigestVol16() {
                         shop
                     </Link>{' '}
                     with the code
-                    <strong> WINTERDOJO</strong>. It’s time to gear up for the 2025
-                    tournament season.
+                    <strong> WINTERDOJO</strong>. It’s time to gear up for the 2025 tournament
+                    season.
                 </Typography>
 
                 <Stack mt={2} alignItems='center'>
@@ -64,20 +64,16 @@ export default function DojoDigestVol16() {
                     />
                 </Stack>
                 <Typography mt={4}>
-                    How to Analyze Your Games – Our book has finally been released! You
-                    can order it{' '}
+                    How to Analyze Your Games – Our book has finally been released! You can order it{' '}
                     <Link href='https://amzn.to/40iwtHf' target='_blank'>
                         here.
                     </Link>{' '}
-                    The entire Dojo helped made this book happen. As Sensei Kraai likes to
-                    say: the miracle of the Dojo is that players of all levels took up and
-                    enjoyed the task of annotating their games. It was not at all clear
-                    that we could get players to do it, but we knew they would have to if
-                    they wanted to progress. Watch Jesse's video about the book{' '}
-                    <Link
-                        href='https://www.youtube.com/watch?v=yqg4yRWECqk'
-                        target='_blank'
-                    >
+                    The entire Dojo helped made this book happen. As Sensei Kraai likes to say: the
+                    miracle of the Dojo is that players of all levels took up and enjoyed the task
+                    of annotating their games. It was not at all clear that we could get players to
+                    do it, but we knew they would have to if they wanted to progress. Watch Jesse's
+                    video about the book{' '}
+                    <Link href='https://www.youtube.com/watch?v=yqg4yRWECqk' target='_blank'>
                         here.
                     </Link>{' '}
                 </Typography>
@@ -93,8 +89,7 @@ export default function DojoDigestVol16() {
                 </Typography>
 
                 <Typography mt={2}>
-                    <strong>ChessDojo Postmortem</strong> - See a review of your 2024 with
-                    the Dojo{' '}
+                    <strong>ChessDojo Postmortem</strong> - See a review of your 2024 with the Dojo{' '}
                     <Link
                         href='https://www.chessdojo.club/profile/google_111981832898340390525/postmortem/2024'
                         target='_blank'
@@ -123,35 +118,27 @@ export default function DojoDigestVol16() {
                 </Stack>
 
                 <Typography mt={4}>
-                    <strong>Best Social Media Prize</strong> - Sebastian Bastoun
-                    (SBastoun) won our first social media contest, winning a free year at
-                    the Dojo. Congratulations, Sebastian! Check out his video{' '}
-                    <Link
-                        href='https://www.youtube.com/watch?v=K__kPy9xn84'
-                        target='_blank'
-                    >
+                    <strong>Best Social Media Prize</strong> - Sebastian Bastoun (SBastoun) won our
+                    first social media contest, winning a free year at the Dojo. Congratulations,
+                    Sebastian! Check out his video{' '}
+                    <Link href='https://www.youtube.com/watch?v=K__kPy9xn84' target='_blank'>
                         here.
                     </Link>{' '}
-                    We will be running more contests like this in the near future, so get
-                    those vids ready.
+                    We will be running more contests like this in the near future, so get those vids
+                    ready.
                 </Typography>
                 <Typography mt={4}>
-                    <strong>Round Robins</strong> - Our tournaments are now accepting
-                    registrations again! We've migrated registration from Discord onto the
-                    site, so sign up{' '}
-                    <Link
-                        href='https://www.chessdojo.club/tournaments/round-robin'
-                        target='_blank'
-                    >
+                    <strong>Round Robins</strong> - Our tournaments are now accepting registrations
+                    again! We've migrated registration from Discord onto the site, so sign up{' '}
+                    <Link href='https://www.chessdojo.club/tournaments/round-robin' target='_blank'>
                         here.
                     </Link>{' '}
-                    It’s the best way to get a regular classical game when you can’t make
-                    it to a tournament – no cheaters or players moving ultra fast, and
-                    you’ll often get a post-mortem. We now have at least one tournament in
-                    most cohorts. The tournaments are currently limited to Dojo
-                    subscribers, but we’re hoping to open the tournaments up to non-Dojo
-                    players in the near future. Below is the crosstable for the 16-1700
-                    cohort.
+                    It’s the best way to get a regular classical game when you can’t make it to a
+                    tournament – no cheaters or players moving ultra fast, and you’ll often get a
+                    post-mortem. We now have at least one tournament in most cohorts. The
+                    tournaments are currently limited to Dojo subscribers, but we’re hoping to open
+                    the tournaments up to non-Dojo players in the near future. Below is the
+                    crosstable for the 16-1700 cohort.
                 </Typography>
 
                 <Stack mt={2} alignItems='center'>
@@ -162,13 +149,13 @@ export default function DojoDigestVol16() {
                     />
                 </Stack>
                 <Typography mt={4}>
-                    Patreon and DojoTalks - The Dojo is trying to be more consistent with
-                    our podcast, but we need your help! Head over to our{' '}
+                    Patreon and DojoTalks - The Dojo is trying to be more consistent with our
+                    podcast, but we need your help! Head over to our{' '}
                     <Link href='https://www.patreon.com/c/ChessDojo' target='_blank'>
                         Patreon
                     </Link>{' '}
-                    where you can get episodes early, vote on coming topics, suggest
-                    topics and discuss the pod on our private Discord.
+                    where you can get episodes early, vote on coming topics, suggest topics and
+                    discuss the pod on our private Discord.
                 </Typography>
 
                 <Typography mt={4} variant='h5'>
@@ -182,12 +169,12 @@ export default function DojoDigestVol16() {
                     >
                         Patterson Clippers
                     </Link>{' '}
-                    continue to dominate their scholastic league, training with the Dojo.
-                    Below is their victory pic from Mid-Atlantic Regionals. Kanniya
-                    Gardner didn’t lose a single game and tied for first in the advanced
-                    division while Brandon Lopez tied for second in the u/800. Are you
-                    part of a team that wants to have their own scoreboard where you can
-                    all follow a program? Get that team on the Dojo and win some trophies.
+                    continue to dominate their scholastic league, training with the Dojo. Below is
+                    their victory pic from Mid-Atlantic Regionals. Kanniya Gardner didn’t lose a
+                    single game and tied for first in the advanced division while Brandon Lopez tied
+                    for second in the u/800. Are you part of a team that wants to have their own
+                    scoreboard where you can all follow a program? Get that team on the Dojo and win
+                    some trophies.
                 </Typography>
                 <Stack mt={2} alignItems='center'>
                     <Image
@@ -203,9 +190,8 @@ export default function DojoDigestVol16() {
                     >
                         DMStewart1981
                     </Link>{' '}
-                    was the Chief Tournament Director for the Tulsa Holiday Open, which
-                    was the last credit he needed to test for the USCF Local TD
-                    certification!
+                    was the Chief Tournament Director for the Tulsa Holiday Open, which was the last
+                    credit he needed to test for the USCF Local TD certification!
                 </Typography>
                 <Typography mt={2}>
                     <Link
@@ -214,9 +200,8 @@ export default function DojoDigestVol16() {
                     >
                         Mattchess
                     </Link>{' '}
-                    recently got his 2nd ICCF Correspondence IM norm so he's officially
-                    qualified for his ICCF IM title! Check out the "Dojo Effect" in his
-                    chess journey:{' '}
+                    recently got his 2nd ICCF Correspondence IM norm so he's officially qualified
+                    for his ICCF IM title! Check out the "Dojo Effect" in his chess journey:{' '}
                 </Typography>
                 <Stack mt={2} alignItems='center'>
                     <Image

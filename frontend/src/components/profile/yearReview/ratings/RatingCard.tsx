@@ -4,12 +4,7 @@ import {
     primaryAxis,
     secondaryAxes,
 } from '@/components/profile/stats/RatingCard';
-import {
-    RatingSystem,
-    formatRatingSystem,
-    getNormalizedRating,
-    isCustom,
-} from '@/database/user';
+import { RatingSystem, formatRatingSystem, getNormalizedRating, isCustom } from '@/database/user';
 import { YearReviewRatingData } from '@/database/yearReview';
 import { ArrowDownward, ArrowUpward, Help, OpenInNew } from '@mui/icons-material';
 import {
@@ -39,17 +34,8 @@ interface RatingCardProps {
     period: string;
 }
 
-const RatingCard: React.FC<RatingCardProps> = ({
-    cohort,
-    system,
-    data,
-    dark,
-    period,
-}) => {
-    const historyData = useMemo(
-        () => getChartData(data.history, data.currentRating.value),
-        [data],
-    );
+const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, period }) => {
+    const historyData = useMemo(() => getChartData(data.history, data.currentRating.value), [data]);
 
     return (
         <Card variant='outlined' sx={{ width: 1 }}>
@@ -60,10 +46,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                         <Stack direction='row' alignItems='center' sx={{ mb: 2 }}>
                             {Boolean(data.username) && (
                                 <>
-                                    <Typography
-                                        variant='subtitle1'
-                                        color='text.secondary'
-                                    >
+                                    <Typography variant='subtitle1' color='text.secondary'>
                                         {data.username}
                                     </Typography>
                                     <Link
@@ -183,11 +166,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                         lineHeight: 1,
                                         fontWeight: 'bold',
                                     }}
-                                    color={
-                                        data.ratingChange >= 0
-                                            ? 'success.main'
-                                            : 'error.main'
-                                    }
+                                    color={data.ratingChange >= 0 ? 'success.main' : 'error.main'}
                                 >
                                     {Math.abs(data.ratingChange)}
                                 </Typography>
@@ -207,15 +186,8 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 }}
                             >
                                 <Stack alignItems={{ xs: 'end', sm: 'center' }}>
-                                    <Stack
-                                        spacing={0.5}
-                                        direction='row'
-                                        alignItems='center'
-                                    >
-                                        <Typography
-                                            variant='caption'
-                                            color='text.secondary'
-                                        >
+                                    <Stack spacing={0.5} direction='row' alignItems='center'>
+                                        <Typography variant='caption' color='text.secondary'>
                                             Normalized
                                         </Typography>
                                         <Tooltip title='Normalized Dojo rating using the table on Material > Rating Conversions'>
@@ -236,10 +208,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                         }}
                                     >
                                         {Math.round(
-                                            getNormalizedRating(
-                                                data.currentRating.value,
-                                                system,
-                                            ),
+                                            getNormalizedRating(data.currentRating.value, system),
                                         )}
                                     </Typography>
                                 </Stack>
@@ -255,15 +224,8 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 }}
                             >
                                 <Stack alignItems={{ xs: 'start', sm: 'center' }}>
-                                    <Stack
-                                        spacing={0.5}
-                                        direction='row'
-                                        alignItems='center'
-                                    >
-                                        <Typography
-                                            variant='caption'
-                                            color='text.secondary'
-                                        >
+                                    <Stack spacing={0.5} direction='row' alignItems='center'>
+                                        <Typography variant='caption' color='text.secondary'>
                                             Percentile
                                         </Typography>
                                         <Tooltip
@@ -291,9 +253,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {Math.round(10 * data.currentRating.percentile) /
-                                            10}
-                                        %
+                                        {Math.round(10 * data.currentRating.percentile) / 10}%
                                     </Typography>
                                 </Stack>
                             </Grid2>
@@ -308,15 +268,8 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 }}
                             >
                                 <Stack alignItems={{ xs: 'end', sm: 'center' }}>
-                                    <Stack
-                                        spacing={0.5}
-                                        direction='row'
-                                        alignItems='center'
-                                    >
-                                        <Typography
-                                            variant='caption'
-                                            color='text.secondary'
-                                        >
+                                    <Stack spacing={0.5} direction='row' alignItems='center'>
+                                        <Typography variant='caption' color='text.secondary'>
                                             Cohort Percentile
                                         </Typography>
                                         <Tooltip
@@ -344,10 +297,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {Math.round(
-                                            10 * data.currentRating.cohortPercentile,
-                                        ) / 10}
-                                        %
+                                        {Math.round(10 * data.currentRating.cohortPercentile) / 10}%
                                     </Typography>
                                 </Stack>
                             </Grid2>

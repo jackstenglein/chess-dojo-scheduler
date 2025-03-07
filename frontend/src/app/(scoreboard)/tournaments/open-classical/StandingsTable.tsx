@@ -47,10 +47,7 @@ function getRoundColumns(rounds: number): GridColDef<StandingsTableRow>[] {
             renderCell: (params) => {
                 const round = params.row.rounds[i];
                 if (!round) {
-                    if (
-                        params.row.lastActiveRound === 0 ||
-                        params.row.lastActiveRound >= i + 1
-                    ) {
+                    if (params.row.lastActiveRound === 0 || params.row.lastActiveRound >= i + 1) {
                         return Bye;
                     }
                     return (
@@ -218,11 +215,7 @@ interface StandingsTableProps {
     ratingRange: string;
 }
 
-const StandingsTable: React.FC<StandingsTableProps> = ({
-    openClassical,
-    region,
-    ratingRange,
-}) => {
+const StandingsTable: React.FC<StandingsTableProps> = ({ openClassical, region, ratingRange }) => {
     const rows: StandingsTableRow[] = useMemo(() => {
         if (!openClassical) {
             return [];
@@ -271,9 +264,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({
             });
         });
 
-        const rows = Object.values(players).filter(
-            (v) => v.lichessUsername !== 'No Opponent',
-        );
+        const rows = Object.values(players).filter((v) => v.lichessUsername !== 'No Opponent');
 
         rows.forEach((player) => {
             for (let i = 0; i < section.rounds.length; i++) {

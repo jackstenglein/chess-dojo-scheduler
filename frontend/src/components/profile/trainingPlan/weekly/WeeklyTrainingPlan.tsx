@@ -65,13 +65,9 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
                 title='This Week'
                 icon={
                     expanded.total ? (
-                        <ExpandLess
-                            sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
-                        />
+                        <ExpandLess sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }} />
                     ) : (
-                        <ExpandMore
-                            sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
-                        />
+                        <ExpandMore sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }} />
                     )
                 }
                 user={user}

@@ -1,8 +1,4 @@
-import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-} from '@/calendar/filters/CalendarFilters';
+import { Accordion, AccordionDetails, AccordionSummary } from '@/calendar/filters/CalendarFilters';
 import { CourseType, displayCourseType } from '@/database/course';
 import { dojoCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -89,11 +85,7 @@ export const CourseFilterEditor: React.FC<CourseFilterEditorProps> = ({ filters 
     };
 
     return (
-        <Stack
-            data-cy='course-filters'
-            sx={{ pt: 0.5, pb: 2 }}
-            spacing={{ xs: 3, sm: 4 }}
-        >
+        <Stack data-cy='course-filters' sx={{ pt: 0.5, pb: 2 }} spacing={{ xs: 3, sm: 4 }}>
             <Accordion
                 expanded={forceExpansion || expanded === 'categories'}
                 onChange={handleAccordionChange('categories')}
@@ -112,10 +104,7 @@ export const CourseFilterEditor: React.FC<CourseFilterEditorProps> = ({ filters 
                                     <Checkbox
                                         checked={filters.categories[category]}
                                         onChange={(event) =>
-                                            onChangeCategories(
-                                                category,
-                                                event.target.checked,
-                                            )
+                                            onChangeCategories(category, event.target.checked)
                                         }
                                         color={getCategoryColor(category)}
                                     />

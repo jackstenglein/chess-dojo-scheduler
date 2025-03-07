@@ -15,13 +15,7 @@ const TRAINING_PLAN_VIEW = {
     Default: TrainingPlanView.Weekly,
 };
 
-export function TrainingPlanTab({
-    user,
-    isCurrentUser,
-}: {
-    user: User;
-    isCurrentUser: boolean;
-}) {
+export function TrainingPlanTab({ user, isCurrentUser }: { user: User; isCurrentUser: boolean }) {
     const [trainingPlanView, setTrainingPlanView] = useLocalStorage(
         TRAINING_PLAN_VIEW.Key,
         TRAINING_PLAN_VIEW.Default,
@@ -30,10 +24,7 @@ export function TrainingPlanTab({
     return (
         <Stack alignItems='start' mb={6}>
             <Box sx={{ mb: 2 }}>
-                <TrainingPlanViewSelect
-                    value={trainingPlanView}
-                    onChange={setTrainingPlanView}
-                />
+                <TrainingPlanViewSelect value={trainingPlanView} onChange={setTrainingPlanView} />
             </Box>
 
             {trainingPlanView !== TrainingPlanView.Full && (
@@ -45,17 +36,11 @@ export function TrainingPlanTab({
                 />
             )}
 
-            {trainingPlanView === TrainingPlanView.Daily && (
-                <DailyTrainingPlan user={user} />
-            )}
+            {trainingPlanView === TrainingPlanView.Daily && <DailyTrainingPlan user={user} />}
 
-            {trainingPlanView === TrainingPlanView.Weekly && (
-                <WeeklyTrainingPlan user={user} />
-            )}
+            {trainingPlanView === TrainingPlanView.Weekly && <WeeklyTrainingPlan user={user} />}
 
-            {trainingPlanView === TrainingPlanView.Full && (
-                <FullTrainingPlan user={user} />
-            )}
+            {trainingPlanView === TrainingPlanView.Full && <FullTrainingPlan user={user} />}
         </Stack>
     );
 }

@@ -8,13 +8,7 @@ interface InputSliderProps {
     suffix?: string;
 }
 
-const InputSlider: React.FC<InputSliderProps> = ({
-    value,
-    setValue,
-    max,
-    min,
-    suffix,
-}) => {
+const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max, min, suffix }) => {
     const handleSliderChange = (_: Event, newValue: number | number[]) => {
         setValue(newValue as number);
     };

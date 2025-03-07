@@ -65,10 +65,7 @@ interface StripeUrlResponse {
  * @param request The SubscriptionCheckoutRequest.
  * @returns A subscription checkout session URL.
  */
-export function subscriptionCheckout(
-    idToken: string,
-    request: SubscriptionCheckoutRequest,
-) {
+export function subscriptionCheckout(idToken: string, request: SubscriptionCheckoutRequest) {
     return axios.post<StripeUrlResponse>(`${BASE_URL}/subscription/checkout`, request, {
         headers: {
             Authorization: 'Bearer ' + idToken,

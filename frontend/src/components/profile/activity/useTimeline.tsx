@@ -34,10 +34,7 @@ interface TimelineProviderProps {
     children: ReactNode;
 }
 
-export const TimelineProvider: React.FC<TimelineProviderProps> = ({
-    owner,
-    children,
-}) => {
+export const TimelineProvider: React.FC<TimelineProviderProps> = ({ owner, children }) => {
     const api = useApi();
     const [entries, setEntries] = useState<TimelineEntry[]>([]);
     const [startKey, setStartKey] = useState<string>();
@@ -54,9 +51,7 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({
                         entries
                             .concat(res.entries)
                             .sort((a, b) =>
-                                (b.date || b.createdAt).localeCompare(
-                                    a.date || a.createdAt,
-                                ),
+                                (b.date || b.createdAt).localeCompare(a.date || a.createdAt),
                             ),
                     );
                     setStartKey(res.lastEvaluatedKey);
@@ -108,9 +103,5 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({
         onNewEntry,
     };
 
-    return (
-        <TimelineContext.Provider value={timelineData}>
-            {children}
-        </TimelineContext.Provider>
-    );
+    return <TimelineContext.Provider value={timelineData}>{children}</TimelineContext.Provider>;
 };

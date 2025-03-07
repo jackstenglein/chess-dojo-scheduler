@@ -55,12 +55,7 @@ const Line: React.FC<LineProps> = ({ line, depth, handleScroll, onExpand }) => {
         result.push(
             <Fragment key={`fragment-${i}`}>
                 <Comment move={move} type={CommentType.Before} inline />
-                <MoveButton
-                    inline
-                    forceShowPly={i === 0}
-                    move={move}
-                    handleScroll={handleScroll}
-                />
+                <MoveButton inline forceShowPly={i === 0} move={move} handleScroll={handleScroll} />
                 <Comment move={move} inline />
             </Fragment>,
         );
@@ -112,9 +107,7 @@ const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll, expandParent 
     }, [chess, lines]);
 
     depth = depth ?? 0;
-    const [expanded, setExpanded] = useState(
-        forceExpansion || depth < 3 || depth % 2 === 0,
-    );
+    const [expanded, setExpanded] = useState(forceExpansion || depth < 3 || depth % 2 === 0);
     const expandRef = useRef<HTMLHRElement>(null);
 
     useEffect(() => {

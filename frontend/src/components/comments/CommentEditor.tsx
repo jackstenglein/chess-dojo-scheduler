@@ -8,18 +8,13 @@ import { useState } from 'react';
 
 interface CommentEditorProps<T, CreateFunctionProps> {
     createFunctionProps: CreateFunctionProps;
-    createFunction: (
-        props: CreateFunctionProps,
-        content: string,
-    ) => Promise<AxiosResponse<T>>;
+    createFunction: (props: CreateFunctionProps, content: string) => Promise<AxiosResponse<T>>;
     onSuccess: (item: T) => void;
     label?: string;
     tooltip?: string;
 }
 
-function CommentEditor<T, CreateFunctionProps>(
-    props: CommentEditorProps<T, CreateFunctionProps>,
-) {
+function CommentEditor<T, CreateFunctionProps>(props: CommentEditorProps<T, CreateFunctionProps>) {
     const { createFunctionProps, createFunction, onSuccess, label, tooltip } = props;
 
     const { user } = useAuth();

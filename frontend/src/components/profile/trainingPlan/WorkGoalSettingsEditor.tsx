@@ -48,10 +48,7 @@ export function WorkGoalSettingsEditor({
     const api = useApi();
     const request = useRequest();
 
-    const [originalWeekStart] = useLocalStorage<WeekDays>(
-        'calendarFilters.weekStartOn',
-        0,
-    );
+    const [originalWeekStart] = useLocalStorage<WeekDays>('calendarFilters.weekStartOn', 0);
 
     const [weekStart, setWeekStart] = useState(initialWeekStart ?? originalWeekStart);
     const timePerDay = useTimePerDay(workGoal);
@@ -130,10 +127,7 @@ export function WorkGoalSettingsEditor({
                             readOnly: true,
                             endAdornment: disabled ? undefined : (
                                 <InputAdornment position='end'>
-                                    <Settings
-                                        color='primary'
-                                        onClick={() => setOpen(true)}
-                                    />
+                                    <Settings color='primary' onClick={() => setOpen(true)} />
                                 </InputAdornment>
                             ),
                             sx: { cursor: 'pointer !important' },
@@ -167,9 +161,7 @@ export function WorkGoalSettingsEditor({
                         label='Start Week On'
                         select
                         value={weekStart}
-                        onChange={(e) =>
-                            setWeekStart(parseInt(e.target.value) as WeekDays)
-                        }
+                        onChange={(e) => setWeekStart(parseInt(e.target.value) as WeekDays)}
                         fullWidth
                         sx={{ mb: 3 }}
                     >
@@ -202,18 +194,14 @@ export function WorkGoalSettingsEditor({
                                             <TextField
                                                 label='Hours'
                                                 value={time.hours}
-                                                onChange={(e) =>
-                                                    time.setHours(e.target.value)
-                                                }
+                                                onChange={(e) => time.setHours(e.target.value)}
                                                 error={!!time.errors.hours}
                                                 helperText={time.errors.hours}
                                             />
                                             <TextField
                                                 label='Minutes'
                                                 value={time.minutes}
-                                                onChange={(e) =>
-                                                    time.setMinutes(e.target.value)
-                                                }
+                                                onChange={(e) => time.setMinutes(e.target.value)}
                                                 error={!!time.errors.minutes}
                                                 helperText={time.errors.minutes}
                                             />
@@ -224,9 +212,7 @@ export function WorkGoalSettingsEditor({
                         })}
 
                         <Grid2 size={12} mt={1}>
-                            <Typography>
-                                Total Per Week: {formatTime(minutesPerWeek)}
-                            </Typography>
+                            <Typography>Total Per Week: {formatTime(minutesPerWeek)}</Typography>
                         </Grid2>
                     </Grid2>
                 </DialogContent>

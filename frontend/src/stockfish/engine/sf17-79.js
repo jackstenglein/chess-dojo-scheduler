@@ -49,8 +49,7 @@ var Sf1779Web = (() => {
         var ENVIRONMENT_IS_PTHREAD = ENVIRONMENT_IS_WORKER && self.name == 'em-pthread';
         if (!Module['listen']) Module['listen'] = (data) => console.log(data);
         if (!Module['onError']) Module['onError'] = (data) => console.error(data);
-        Module['getRecommendedNnue'] = (index = 0) =>
-            UTF8ToString(_getRecommendedNnue(index));
+        Module['getRecommendedNnue'] = (index = 0) => UTF8ToString(_getRecommendedNnue(index));
         Module['setNnueBuffer'] = function (buf, index = 0) {
             if (!buf) throw new Error('buf is null');
             if (buf.byteLength <= 0) throw new Error(`${buf.byteLength} bytes?`);
@@ -108,9 +107,7 @@ var Sf1779Web = (() => {
                         if (response.ok) {
                             return response.arrayBuffer();
                         }
-                        return Promise.reject(
-                            new Error(response.status + ' : ' + response.url),
-                        );
+                        return Promise.reject(new Error(response.status + ' : ' + response.url));
                     });
             }
         } else {
@@ -359,16 +356,14 @@ var Sf1779Web = (() => {
                 typeof fetch == 'function'
             ) {
                 console.log('Fetching binary file: ', binaryFile);
-                return fetch(binaryFile, { credentials: 'same-origin' }).then(
-                    (response) => {
-                        var result = WebAssembly.instantiateStreaming(response, imports);
-                        return result.then(callback, function (reason) {
-                            err(`wasm streaming compile failed: ${reason}`);
-                            err('falling back to ArrayBuffer instantiation');
-                            return instantiateArrayBuffer(binaryFile, imports, callback);
-                        });
-                    },
-                );
+                return fetch(binaryFile, { credentials: 'same-origin' }).then((response) => {
+                    var result = WebAssembly.instantiateStreaming(response, imports);
+                    return result.then(callback, function (reason) {
+                        err(`wasm streaming compile failed: ${reason}`);
+                        err('falling back to ArrayBuffer instantiation');
+                        return instantiateArrayBuffer(binaryFile, imports, callback);
+                    });
+                });
             }
             console.log('Instantiating array buffer: ', binaryFile);
 
@@ -402,12 +397,9 @@ var Sf1779Web = (() => {
                 }
             }
             if (!wasmBinaryFile) wasmBinaryFile = findWasmBinary();
-            instantiateAsync(
-                wasmBinary,
-                wasmBinaryFile,
-                info,
-                receiveInstantiationResult,
-            ).catch(readyPromiseReject);
+            instantiateAsync(wasmBinary, wasmBinaryFile, info, receiveInstantiationResult).catch(
+                readyPromiseReject,
+            );
             return {};
         }
         function ExitStatus(status) {
@@ -665,8 +657,7 @@ var Sf1779Web = (() => {
         var getWasmTableEntry = (funcPtr) => {
             var func = wasmTableMirror[funcPtr];
             if (!func) {
-                if (funcPtr >= wasmTableMirror.length)
-                    wasmTableMirror.length = funcPtr + 1;
+                if (funcPtr >= wasmTableMirror.length) wasmTableMirror.length = funcPtr + 1;
                 wasmTableMirror[funcPtr] = func = wasmTable.get(funcPtr);
             }
             return func;
@@ -687,8 +678,7 @@ var Sf1779Web = (() => {
         var runtimeKeepalivePush = () => {
             runtimeKeepaliveCounter += 1;
         };
-        var UTF8Decoder =
-            typeof TextDecoder != 'undefined' ? new TextDecoder() : undefined;
+        var UTF8Decoder = typeof TextDecoder != 'undefined' ? new TextDecoder() : undefined;
         var UTF8ArrayToString = (heapOrArray, idx, maxBytesToRead) => {
             var endIdx = idx + maxBytesToRead;
             var endPtr = idx;
@@ -716,11 +706,7 @@ var Sf1779Web = (() => {
                 if ((u0 & 240) == 224) {
                     u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
                 } else {
-                    u0 =
-                        ((u0 & 7) << 18) |
-                        (u1 << 12) |
-                        (u2 << 6) |
-                        (heapOrArray[idx++] & 63);
+                    u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
                 }
                 if (u0 < 65536) {
                     str += String.fromCharCode(u0);
@@ -782,14 +768,12 @@ var Sf1779Web = (() => {
             },
         };
         function ___syscall_fcntl64(fd, cmd, varargs) {
-            if (ENVIRONMENT_IS_PTHREAD)
-                return proxyToMainThread(3, 0, 1, fd, cmd, varargs);
+            if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(3, 0, 1, fd, cmd, varargs);
             SYSCALLS.varargs = varargs;
             return 0;
         }
         function ___syscall_ioctl(fd, op, varargs) {
-            if (ENVIRONMENT_IS_PTHREAD)
-                return proxyToMainThread(4, 0, 1, fd, op, varargs);
+            if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(4, 0, 1, fd, op, varargs);
             SYSCALLS.varargs = varargs;
             return 0;
         }
@@ -840,11 +824,7 @@ var Sf1779Web = (() => {
         };
         var __emscripten_thread_mailbox_await = (pthread_ptr) => {
             if (typeof Atomics.waitAsync === 'function') {
-                var wait = Atomics.waitAsync(
-                    GROWABLE_HEAP_I32(),
-                    pthread_ptr >> 2,
-                    pthread_ptr,
-                );
+                var wait = Atomics.waitAsync(GROWABLE_HEAP_I32(), pthread_ptr >> 2, pthread_ptr);
                 wait.value.then(checkMailbox);
                 var waitingAsync = pthread_ptr + 128;
                 Atomics.store(GROWABLE_HEAP_I32(), waitingAsync >> 2, 1);
@@ -906,8 +886,7 @@ var Sf1779Web = (() => {
         var _emscripten_get_now;
         _emscripten_get_now = () => performance.timeOrigin + performance.now();
         function __setitimer_js(which, timeout_ms) {
-            if (ENVIRONMENT_IS_PTHREAD)
-                return proxyToMainThread(7, 0, 1, which, timeout_ms);
+            if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(7, 0, 1, which, timeout_ms);
             if (timers[which]) {
                 clearTimeout(timers[which].id);
                 delete timers[which];
@@ -915,9 +894,7 @@ var Sf1779Web = (() => {
             if (!timeout_ms) return 0;
             var id = setTimeout(() => {
                 delete timers[which];
-                callUserCallback(() =>
-                    __emscripten_timeout(which, _emscripten_get_now()),
-                );
+                callUserCallback(() => __emscripten_timeout(which, _emscripten_get_now()));
             }, timeout_ms);
             timers[which] = { id: id, timeout_ms: timeout_ms };
             return 0;
@@ -1027,10 +1004,7 @@ var Sf1779Web = (() => {
             }
             for (var cutDown = 1; cutDown <= 4; cutDown *= 2) {
                 var overGrownHeapSize = oldSize * (1 + 0.2 / cutDown);
-                overGrownHeapSize = Math.min(
-                    overGrownHeapSize,
-                    requestedSize + 100663296,
-                );
+                overGrownHeapSize = Math.min(overGrownHeapSize, requestedSize + 100663296);
                 var newSize = Math.min(
                     maxHeapSize,
                     alignMemory(Math.max(requestedSize, overGrownHeapSize), 65536),
@@ -1082,8 +1056,7 @@ var Sf1779Web = (() => {
             GROWABLE_HEAP_I8()[buffer] = 0;
         };
         var _environ_get = function (__environ, environ_buf) {
-            if (ENVIRONMENT_IS_PTHREAD)
-                return proxyToMainThread(8, 0, 1, __environ, environ_buf);
+            if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(8, 0, 1, __environ, environ_buf);
             var bufSize = 0;
             getEnvStrings().forEach((string, i) => {
                 var ptr = environ_buf + bufSize;
@@ -1108,22 +1081,12 @@ var Sf1779Web = (() => {
             return 52;
         }
         function _fd_read(fd, iov, iovcnt, pnum) {
-            if (ENVIRONMENT_IS_PTHREAD)
-                return proxyToMainThread(11, 0, 1, fd, iov, iovcnt, pnum);
+            if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(11, 0, 1, fd, iov, iovcnt, pnum);
             return 52;
         }
         function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
             if (ENVIRONMENT_IS_PTHREAD)
-                return proxyToMainThread(
-                    12,
-                    0,
-                    1,
-                    fd,
-                    offset_low,
-                    offset_high,
-                    whence,
-                    newOffset,
-                );
+                return proxyToMainThread(12, 0, 1, fd, offset_low, offset_high, whence, newOffset);
             var offset = convertI32PairToI53Checked(offset_low, offset_high);
             return 70;
         }
@@ -1143,8 +1106,7 @@ var Sf1779Web = (() => {
             if (printCharBuffers[2].length) printChar(2, 10);
         };
         function _fd_write(fd, iov, iovcnt, pnum) {
-            if (ENVIRONMENT_IS_PTHREAD)
-                return proxyToMainThread(13, 0, 1, fd, iov, iovcnt, pnum);
+            if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(13, 0, 1, fd, iov, iovcnt, pnum);
             var num = 0;
             for (var i = 0; i < iovcnt; i++) {
                 var ptr = GROWABLE_HEAP_U32()[iov >> 2];
@@ -1240,8 +1202,7 @@ var Sf1779Web = (() => {
             (_main = Module['_main'] = wasmExports['G'])(a0, a1));
         var __Z10js_getlinev = (Module['__Z10js_getlinev'] = (a0) =>
             (__Z10js_getlinev = Module['__Z10js_getlinev'] = wasmExports['H'])(a0));
-        var _uci = (Module['_uci'] = (a0) =>
-            (_uci = Module['_uci'] = wasmExports['I'])(a0));
+        var _uci = (Module['_uci'] = (a0) => (_uci = Module['_uci'] = wasmExports['I'])(a0));
         var _setNnueBuffer = (Module['_setNnueBuffer'] = (a0, a1, a2) =>
             (_setNnueBuffer = Module['_setNnueBuffer'] = wasmExports['J'])(a0, a1, a2));
         var _getRecommendedNnue = (Module['_getRecommendedNnue'] = (a0) =>
@@ -1249,13 +1210,14 @@ var Sf1779Web = (() => {
         var __emscripten_tls_init = () => (__emscripten_tls_init = wasmExports['L'])();
         var _pthread_self = () => (_pthread_self = wasmExports['M'])();
         var __emscripten_proxy_main = (Module['__emscripten_proxy_main'] = (a0, a1) =>
-            (__emscripten_proxy_main = Module['__emscripten_proxy_main'] =
-                wasmExports['N'])(a0, a1));
+            (__emscripten_proxy_main = Module['__emscripten_proxy_main'] = wasmExports['N'])(
+                a0,
+                a1,
+            ));
         var ___funcs_on_exit = () => (___funcs_on_exit = wasmExports['P'])();
         var __emscripten_thread_init = (a0, a1, a2, a3, a4, a5) =>
             (__emscripten_thread_init = wasmExports['Q'])(a0, a1, a2, a3, a4, a5);
-        var __emscripten_thread_crashed = () =>
-            (__emscripten_thread_crashed = wasmExports['R'])();
+        var __emscripten_thread_crashed = () => (__emscripten_thread_crashed = wasmExports['R'])();
         var _fflush = (a0) => (_fflush = wasmExports['S'])(a0);
         var _malloc = (Module['_malloc'] = (a0) =>
             (_malloc = Module['_malloc'] = wasmExports['T'])(a0));
@@ -1263,18 +1225,14 @@ var Sf1779Web = (() => {
             (__emscripten_run_on_main_thread_js = wasmExports['U'])(a0, a1, a2, a3, a4);
         var __emscripten_thread_free_data = (a0) =>
             (__emscripten_thread_free_data = wasmExports['V'])(a0);
-        var __emscripten_thread_exit = (a0) =>
-            (__emscripten_thread_exit = wasmExports['W'])(a0);
-        var __emscripten_timeout = (a0, a1) =>
-            (__emscripten_timeout = wasmExports['X'])(a0, a1);
-        var __emscripten_check_mailbox = () =>
-            (__emscripten_check_mailbox = wasmExports['Y'])();
+        var __emscripten_thread_exit = (a0) => (__emscripten_thread_exit = wasmExports['W'])(a0);
+        var __emscripten_timeout = (a0, a1) => (__emscripten_timeout = wasmExports['X'])(a0, a1);
+        var __emscripten_check_mailbox = () => (__emscripten_check_mailbox = wasmExports['Y'])();
         var _emscripten_stack_set_limits = (a0, a1) =>
             (_emscripten_stack_set_limits = wasmExports['Z'])(a0, a1);
         var __emscripten_stack_restore = (a0) =>
             (__emscripten_stack_restore = wasmExports['_'])(a0);
-        var __emscripten_stack_alloc = (a0) =>
-            (__emscripten_stack_alloc = wasmExports['$'])(a0);
+        var __emscripten_stack_alloc = (a0) => (__emscripten_stack_alloc = wasmExports['$'])(a0);
         var _emscripten_stack_get_current = () =>
             (_emscripten_stack_get_current = wasmExports['aa'])();
         Module['UTF8ToString'] = UTF8ToString;

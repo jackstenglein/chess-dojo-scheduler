@@ -95,8 +95,8 @@ const AccountStatusCard: React.FC<AccountStatusCardProps> = ({ account }) => {
                     {anyDisabled && (
                         <Stack>
                             <Alert severity='warning'>
-                                Your account is missing some functionality. Update your
-                                Stripe account info to re-enable full functionality.
+                                Your account is missing some functionality. Update your Stripe
+                                account info to re-enable full functionality.
                             </Alert>
                         </Stack>
                     )}
@@ -128,9 +128,7 @@ const AccountStatusCard: React.FC<AccountStatusCardProps> = ({ account }) => {
                                 <TableCell>Tax Reporting Enabled</TableCell>
                                 <TableCell>
                                     <StatusIcon
-                                        status={
-                                            account.capabilities.tax_reporting_us_1099_k
-                                        }
+                                        status={account.capabilities.tax_reporting_us_1099_k}
                                     />
                                 </TableCell>
                             </TableRow>

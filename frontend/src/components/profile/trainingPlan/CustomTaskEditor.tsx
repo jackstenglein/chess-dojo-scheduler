@@ -131,8 +131,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
             scoreboardDisplay,
             category,
             numberOfCohorts: trackCountPerCohort ? -1 : 1,
-            progressBarSuffix:
-                countType === OTHER_COUNT_TYPE ? otherType.trim() : countType,
+            progressBarSuffix: countType === OTHER_COUNT_TYPE ? otherType.trim() : countType,
             updatedAt: new Date().toISOString(),
         };
 
@@ -153,9 +152,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
             customTasks: newTasks,
         })
             .then(() => {
-                const eventType = task
-                    ? EventType.EditNondojoTask
-                    : EventType.CreateNondojoTask;
+                const eventType = task ? EventType.EditNondojoTask : EventType.CreateNondojoTask;
                 trackEvent(eventType, {
                     task_id: newTask.id,
                     task_name: name,
@@ -190,9 +187,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
                         label='Category'
                         required
                         value={category}
-                        onChange={(e) =>
-                            setCategory(e.target.value as CustomTaskCategory)
-                        }
+                        onChange={(e) => setCategory(e.target.value as CustomTaskCategory)}
                         fullWidth
                         select
                     >

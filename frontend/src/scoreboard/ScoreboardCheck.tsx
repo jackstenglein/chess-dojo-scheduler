@@ -42,11 +42,7 @@ const ScoreboardCheck: React.FC<ScoreboardCheckProps> = ({
                 }}
                 onClick={onClick}
             >
-                {value < total ? (
-                    <CheckBoxOutlineBlankIcon />
-                ) : (
-                    <CheckBoxIcon color='primary' />
-                )}
+                {value < total ? <CheckBoxOutlineBlankIcon /> : <CheckBoxIcon color='primary' />}
             </Box>
             {canUpdate && showUpdateDialog && user && (
                 <TimelineProvider owner={user.username}>

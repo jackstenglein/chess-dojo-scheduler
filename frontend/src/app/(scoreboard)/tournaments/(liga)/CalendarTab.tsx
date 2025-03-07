@@ -5,20 +5,10 @@ import { CustomEventRenderer } from '@/app/(scoreboard)/calendar/CalendarPage';
 import { Filters, getHours, useFilters } from '@/calendar/filters/CalendarFilters';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
-import {
-    Event,
-    EventType,
-    PositionType,
-    TimeControlType,
-    TournamentType,
-} from '@/database/event';
+import { Event, EventType, PositionType, TimeControlType, TournamentType } from '@/database/event';
 import { TimeFormat } from '@/database/user';
 import { Scheduler } from '@aldabil/react-scheduler';
-import {
-    EventRendererProps,
-    ProcessedEvent,
-    SchedulerRef,
-} from '@aldabil/react-scheduler/types';
+import { EventRendererProps, ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Button, Grid2 } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -107,8 +97,7 @@ const CalendarTab = () => {
     }, [processedEvents, calendarRef]);
 
     useEffect(() => {
-        const timezone =
-            filters.timezone === DefaultTimezone ? undefined : filters.timezone;
+        const timezone = filters.timezone === DefaultTimezone ? undefined : filters.timezone;
         console.log('Setting timezone: ', timezone);
         calendarRef.current?.scheduler.handleState(timezone, 'timeZone');
     }, [calendarRef, filters.timezone]);
@@ -205,11 +194,7 @@ const CalendarTab = () => {
                         <ProcessedEventViewer processedEvent={event} />
                     )}
                     events={processedEvents}
-                    timeZone={
-                        filters.timezone === DefaultTimezone
-                            ? undefined
-                            : filters.timezone
-                    }
+                    timeZone={filters.timezone === DefaultTimezone ? undefined : filters.timezone}
                     hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                     eventRenderer={(props) =>
                         CustomEventRenderer({ ...props, timeFormat: filters.timeFormat })

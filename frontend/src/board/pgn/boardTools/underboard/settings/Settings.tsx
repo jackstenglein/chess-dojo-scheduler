@@ -17,12 +17,8 @@ const Settings: React.FC<SettingsProps> = ({ showEditor }) => {
     return (
         <CardContent data-cy='underboard-tab-settings'>
             <Stack spacing={6}>
-                {showEditor && game && (
-                    <GameSettings game={game} onSaveGame={onSaveGame} />
-                )}
-                {viewer?.isAdmin && game && (
-                    <AdminSettings game={game} onSaveGame={onSaveGame} />
-                )}
+                {showEditor && game && <GameSettings game={game} onSaveGame={onSaveGame} />}
+                {viewer?.isAdmin && game && <AdminSettings game={game} onSaveGame={onSaveGame} />}
                 <EditorSettings />
                 <ViewerSettings />
             </Stack>

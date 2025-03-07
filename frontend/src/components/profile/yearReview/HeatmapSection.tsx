@@ -1,7 +1,4 @@
-import {
-    TimelineProvider,
-    useTimelineContext,
-} from '@/components/profile/activity/useTimeline';
+import { TimelineProvider, useTimelineContext } from '@/components/profile/activity/useTimeline';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { useCallback, useEffect, useState } from 'react';
 import { Heatmap } from '../info/Heatmap';

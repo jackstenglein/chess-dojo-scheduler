@@ -5,10 +5,6 @@ export function generateStaticParams() {
     return [];
 }
 
-export default function Page({
-    params: { type, id },
-}: {
-    params: { type: ExamType; id: string };
-}) {
+export default function Page({ params: { type, id } }: { params: { type: ExamType; id: string } }) {
     return <ExamInstructionsPage type={type} id={id} />;
 }

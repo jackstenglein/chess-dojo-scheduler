@@ -50,11 +50,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
                     subheader={`${toDojoDateString(
                         start,
                         user.timezoneOverride,
-                    )} • ${toDojoTimeString(
-                        start,
-                        user.timezoneOverride,
-                        user.timeFormat,
-                    )}`}
+                    )} • ${toDojoTimeString(start, user.timezoneOverride, user.timeFormat)}`}
                     sx={{ pb: 0 }}
                 />
                 <CardContent sx={{ pt: 0, mt: 1 }}>
