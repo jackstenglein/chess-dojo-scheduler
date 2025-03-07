@@ -81,7 +81,7 @@ export const ListItemContextMenu = ({
                 anchorPosition={position}
                 slotProps={{
                     root: {
-                        onContextMenu: (e) => {
+                        onContextMenu: (e: React.MouseEvent) => {
                             e.preventDefault();
                             handleClose();
                         },
