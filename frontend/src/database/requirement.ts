@@ -1,5 +1,5 @@
 import { isObject } from './scoreboard';
-import { isFree, SubscriptionStatus, User } from './user';
+import { SubscriptionStatus, User } from './user';
 
 /** The status of a requirement. */
 export enum RequirementStatus {
@@ -43,6 +43,12 @@ export interface CustomTask {
 
     /** The name of the CustomTask. */
     name: string;
+
+    /**
+     * Does not exist for CustomTasks, but makes the type system happy when
+     * working with both Requirements and CustomTasks.
+     */
+    dailyName?: undefined;
 
     /** The description of the CustomTask. */
     description: string;
@@ -108,6 +114,7 @@ export enum RequirementCategory {
     Graduation = 'Graduation',
     NonDojo = 'Non-Dojo',
     SuggestedTasks = 'Suggested Tasks',
+    Pinned = 'Pinned Tasks',
 }
 
 /** The categories of a custom task. This is a subset of RequirementCategory. */
@@ -153,6 +160,12 @@ export interface Requirement {
      * like the pie charts.
      */
     shortName?: string;
+
+    /**
+     * The optional daily name for the requirement, which is displayed in contexts
+     * like the training plan daily tab.
+     */
+    dailyName?: string;
 
     /** The description of the requirement. */
     description: string;
@@ -383,6 +396,9 @@ export function getTotalTime(cohort: string, progress?: RequirementProgress): nu
 export function formatTime(value: number): string {
     const hours = Math.floor(value / 60);
     const minutes = Math.round(value % 60);
+    if (hours === 0) {
+        return `${minutes}m`;
+    }
     if (minutes === 0) {
         return `${hours}h`;
     }
@@ -656,198 +672,4 @@ export function isBlocked(
         }
     }
     return { isBlocked: false };
-}
-
-/** A list of IDs of tasks which cannot be suggested, unless the user has pinned them. */
-const INELIGIBLE_SUGGESTED_TASKS = [
-    '812adb60-d5fb-4655-8d22-d568a0dca547', // Postmortems
-    '25230066-4eda-4886-a12c-39a5175ea632', // Online tactics tune up 0-1400
-    'b55eda1d-11dc-4f6f-aa7b-b83a6339513f', // Online tactics tune up 1400-1800
-    'b9ef52d2-795d-4005-b15a-437ee36a2c0a', // Online tactics tune up 1800+
-
-    // Review Master Games, all cohorts
-    'ec86ff17-f9ec-4ef9-aa12-60a2ace17963',
-    '4e42201e-cd58-471f-9359-515e5c669b0c',
-    '90d7cd05-5219-49cc-900b-efe392d28736',
-    'ca281c97-f0fc-4c25-9a66-99eae875c578',
-    'c3db57da-be74-4e71-b061-a16a9d80f101',
-    '5b91042b-1da2-4138-99dd-c6e1732b45a9',
-    'd3192026-cda6-4d1e-a1c2-1dee3f68b063',
-    'fbb5ece4-f7f0-4fdd-b194-298397cb8bca',
-    '89acdc78-ae38-4390-942b-8359116a9620',
-    '8a68cb46-f935-4457-92d1-82ff3eafec64',
-    '5d560e7c-ee48-46c8-affe-6fef6b2bf2f0',
-    '539f93c8-db55-4a00-b786-962c3bdd86ac',
-    '0fe8b57a-0f82-4a72-b89a-a3d56ff3b46b',
-    'bdc8cbb1-b592-42f2-a1c8-896024838c05',
-    '7fabaa5a-95d0-4ddc-b711-afd8fccf5aca',
-    'ec27f1fe-6f9e-4be2-a869-f979eef555a5',
-    '666cb454-5242-453f-83f3-d9daac487d75',
-    'b2ff90b7-5900-4d33-b31b-426ee750bed4',
-    'bdb1580b-421e-4501-86d9-316c77118d44',
-    '8667a8d4-eafe-4855-85c2-d8580869135f',
-    'b1bd988e-a856-4829-81e9-b7b2fd1ebd6d',
-    'cba150ad-b66c-4fd4-b041-f35e98dcd161',
-];
-
-/** The maximum number of suggested tasks returned by the suggestion algorithm. */
-const MAX_SUGGESTED_TASKS = 3;
-
-/**
- * The categories allowed in the suggested tasks algorithm. Their order here is used
- * for breaking ties in the algorithm if two categories have the same remaining Dojo
- * point percentage.
- */
-const SUGGESTED_TASK_CATEGORIES = [
-    RequirementCategory.Games,
-    RequirementCategory.Tactics,
-    RequirementCategory.Middlegames,
-    RequirementCategory.Endgame,
-    RequirementCategory.Opening,
-];
-
-/** The ID of the Play Classical Games task. */
-export const CLASSICAL_GAMES_TASK = '38f46441-7a4e-4506-8632-166bcbe78baf';
-
-/** The ID of the Annotate Classical Games task. */
-export const ANNOTATE_GAMES_TASK = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
-
-/**
- * Returns the remaining score of a task for the purposes of the suggested task algorithm.
- * If the task is atomic, the total score of the task is considered remaining. Otherwise,
- * the actual remaining score is returned.
- */
-function getRemainingSuggestionScore(
-    cohort: string,
-    requirement: Requirement,
-    progress: RequirementProgress,
-): number {
-    if (requirement.atomic) {
-        return getTotalScore(cohort, [requirement]);
-    }
-    return getRemainingScore(cohort, requirement, progress);
-}
-
-/**
- * Returns a list of tasks to be shown to the user in the Suggested Tasks category.
- * We show at most MAX_SUGGESTED_TASKS tasks, in the following priority:
- *
- *   1. The user's pinned tasks.
- *   2. If the user's number of annotated games < their number of classical games played,
- *      the annotate classical games task is suggested.
- *   3. The unique task with the greatest remaining Dojo points in the unique category
- *      with the greatest remaining percentage of Dojo points.
- *
- * Only categories in SUGGESTED_TASK_CATEGORIES are suggested (unless pinned by the user).
- * Categories are only repeated within the suggested tasks if it is not possible to
- * pick a unique category. Ties between categories are broken using the
- * SUGGESTED_TASK_CATEGORIES list.
- *
- * NOTE: some tasks (such as postmortems) are ineligible to be suggested and will not
- * be suggested unless the user has pinned them. These task IDs are listed in
- * INELIGIBLE_SUGGESTED_TASKS.
- *
- * @param pinnedTasks The user's pinned tasks.
- * @param requirements All requirements in the training plan.
- * @param user The user to suggest tasks for.
- * @returns A list of at most MAX_SUGGESTED_TASKS suggested tasks.
- */
-export function getSuggestedTasks(
-    pinnedTasks: (Requirement | CustomTask)[],
-    requirements: Requirement[],
-    user: User,
-): (Requirement | CustomTask)[] {
-    const suggestedTasks: (Requirement | CustomTask)[] = [];
-    suggestedTasks.push(...pinnedTasks);
-
-    if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
-        return suggestedTasks;
-    }
-
-    const isFreeUser = isFree(user);
-    const eligibleRequirements = requirements.filter(
-        (r) =>
-            (!isFreeUser || r.isFree) &&
-            !INELIGIBLE_SUGGESTED_TASKS.includes(r.id) &&
-            !suggestedTasks.some((t) => r.id === t.id) &&
-            SUGGESTED_TASK_CATEGORIES.includes(r.category) &&
-            !isComplete(user.dojoCohort, r, user.progress[r.id]),
-    );
-    if (eligibleRequirements.length === 0) {
-        return suggestedTasks;
-    }
-
-    const annotateTask = eligibleRequirements.find((r) => r.id === ANNOTATE_GAMES_TASK);
-    const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK);
-    if (
-        annotateTask &&
-        classicalGamesTask &&
-        getCurrentCount(
-            user.dojoCohort,
-            annotateTask,
-            user.progress[ANNOTATE_GAMES_TASK],
-        ) <
-            getCurrentCount(
-                user.dojoCohort,
-                classicalGamesTask,
-                user.progress[CLASSICAL_GAMES_TASK],
-            )
-    ) {
-        suggestedTasks.push(annotateTask);
-    }
-
-    const categoryPercentages = SUGGESTED_TASK_CATEGORIES.map((category) => ({
-        category,
-        percent: getRemainingCategoryScorePercent(
-            user,
-            user.dojoCohort,
-            category,
-            requirements,
-        ),
-    })).sort((lhs, rhs) => rhs.percent - lhs.percent);
-
-    while (suggestedTasks.length < MAX_SUGGESTED_TASKS) {
-        const eligibleCategories = categoryPercentages.filter((item) =>
-            eligibleRequirements.some((r) => r.category === item.category),
-        );
-        if (eligibleCategories.length === 0) {
-            break;
-        }
-
-        let chosenCategories = eligibleCategories.filter(
-            (item) => !suggestedTasks.some((r) => r.category === item.category),
-        );
-        if (chosenCategories.length === 0) {
-            chosenCategories = eligibleCategories;
-        }
-
-        for (const { category } of chosenCategories) {
-            const categoryRequirements = eligibleRequirements
-                .filter((r) => r.category === category)
-                .sort(
-                    (lhs, rhs) =>
-                        getRemainingSuggestionScore(
-                            user.dojoCohort,
-                            rhs,
-                            user.progress[rhs.id],
-                        ) -
-                        getRemainingSuggestionScore(
-                            user.dojoCohort,
-                            lhs,
-                            user.progress[lhs.id],
-                        ),
-                );
-            suggestedTasks.push(categoryRequirements[0]);
-            eligibleRequirements.splice(
-                eligibleRequirements.indexOf(categoryRequirements[0]),
-                1,
-            );
-
-            if (suggestedTasks.length >= MAX_SUGGESTED_TASKS) {
-                break;
-            }
-        }
-    }
-
-    return suggestedTasks;
 }

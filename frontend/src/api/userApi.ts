@@ -86,7 +86,7 @@ export interface UserApiContextType {
      * @param incrementalMinutesSpent The amount by which the user is increasing their time spent.
      * @param date The optional date for which the update should apply.
      * @param notes The user's optional comments for the progress update.
-     * @returns An AxiosResponse containing the updated user in the data field.
+     * @returns An AxiosResponse containing the updated user and timeline entry in the data field.
      */
     updateUserProgress: (
         cohort: string,
@@ -95,7 +95,7 @@ export interface UserApiContextType {
         incrementalMinutesSpent: number,
         date: DateTime | null,
         notes: string,
-    ) => Promise<AxiosResponse<User>>;
+    ) => Promise<AxiosResponse<{ user: User; timelineEntry: TimelineEntry }>>;
 
     /**
      * updateUserTimeline sets the current user's timeline for the provided requirement.
@@ -341,8 +341,8 @@ export async function updateUserProgress(
     notes: string,
     callback: (update: Partial<User>) => void,
 ) {
-    const result = await axios.post<User>(
-        BASE_URL + '/user/progress',
+    const result = await axios.post<{ user: User; timelineEntry: TimelineEntry }>(
+        BASE_URL + '/user/progress/v2',
         {
             cohort,
             requirementId,
@@ -357,7 +357,7 @@ export async function updateUserProgress(
             },
         },
     );
-    callback(result.data);
+    callback(result.data.user);
     return result;
 }
 

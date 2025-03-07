@@ -1,3 +1,6 @@
+import { useApi } from '@/api/Api';
+import { Request, useRequest } from '@/api/Request';
+import { TimelineEntry } from '@/database/timeline';
 import React, {
     createContext,
     ReactNode,
@@ -6,9 +9,6 @@ import React, {
     useEffect,
     useState,
 } from 'react';
-import { useApi } from '../../api/Api';
-import { Request, useRequest } from '../../api/Request';
-import { TimelineEntry } from '../../database/timeline';
 
 export interface UseTimelineResponse {
     request: Request;
@@ -17,6 +17,7 @@ export interface UseTimelineResponse {
     onLoadMore: () => void;
     resetRequest: () => void;
     onEdit: (i: number, entry: TimelineEntry) => void;
+    onNewEntry: (entry: TimelineEntry) => void;
 }
 
 const TimelineContext = createContext<UseTimelineResponse | undefined>(undefined);
@@ -86,6 +87,17 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({
         [setEntries],
     );
 
+    const onNewEntry = useCallback(
+        (entry: TimelineEntry) => {
+            setEntries((e) =>
+                [entry, ...e].sort((a, b) =>
+                    (b.date || b.createdAt).localeCompare(a.date || a.createdAt),
+                ),
+            );
+        },
+        [setEntries],
+    );
+
     const timelineData = {
         request,
         entries,
@@ -93,6 +105,7 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({
         onLoadMore,
         resetRequest,
         onEdit,
+        onNewEntry,
     };
 
     return (

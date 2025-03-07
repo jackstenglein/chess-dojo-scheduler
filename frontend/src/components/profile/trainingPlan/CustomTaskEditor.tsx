@@ -2,6 +2,7 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
+import { useTimelineContext } from '@/components/profile/activity/useTimeline';
 import { CohortSelect } from '@/components/ui/CohortSelect';
 import {
     CustomTask,
@@ -26,7 +27,6 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { useTimelineContext } from '../activity/useTimeline';
 
 const OTHER_COUNT_TYPE = 'Other';
 const MINUTES_COUNT_TYPE = 'Minutes';

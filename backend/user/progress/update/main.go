@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -23,6 +24,13 @@ type ProgressUpdateRequest struct {
 	IncrementalMinutesSpent int                 `json:"incrementalMinutesSpent"`
 	Date                    string              `json:"date"`
 	Notes                   string              `json:"notes"`
+}
+
+type ProgressUpdateResponse struct {
+	// The updated user
+	User *database.User `json:"user"`
+	// The new timeline entry
+	TimelineEntry *database.TimelineEntry `json:"timelineEntry"`
 }
 
 func main() {
@@ -56,22 +64,22 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	for _, t := range user.CustomTasks {
 		if t.Id == request.RequirementId {
-			return handleTask(request, user, t)
+			return handleTask(event, request, user, t)
 		}
 	}
 
-	return handleDefaultTask(request, user)
+	return handleDefaultTask(event, request, user)
 }
 
-func handleDefaultTask(request *ProgressUpdateRequest, user *database.User) (api.Response, error) {
+func handleDefaultTask(event api.Request, request *ProgressUpdateRequest, user *database.User) (api.Response, error) {
 	requirement, err := repository.GetRequirement(request.RequirementId)
 	if err != nil {
 		return api.Failure(err), nil
 	}
-	return handleTask(request, user, requirement)
+	return handleTask(event, request, user, requirement)
 }
 
-func handleTask(request *ProgressUpdateRequest, user *database.User, task database.Task) (api.Response, error) {
+func handleTask(event api.Request, request *ProgressUpdateRequest, user *database.User, task database.Task) (api.Response, error) {
 	totalCount, ok := task.GetCounts()[request.Cohort]
 	if !ok {
 		return api.Failure(errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` does not apply to this requirement", request.Cohort), "")), nil
@@ -151,6 +159,10 @@ func handleTask(request *ProgressUpdateRequest, user *database.User, task databa
 	user, err := repository.UpdateUserProgress(user.Username, progress)
 	if err != nil {
 		return api.Failure(err), nil
+	}
+
+	if strings.Contains(event.RawPath, "/v2") {
+		return api.Success(ProgressUpdateResponse{User: user, TimelineEntry: timelineEntry}), nil
 	}
 	return api.Success(user), nil
 }

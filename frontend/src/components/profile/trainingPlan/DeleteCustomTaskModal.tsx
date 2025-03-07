@@ -1,3 +1,8 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { CustomTask } from '@/database/requirement';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -7,11 +12,6 @@ import {
     DialogContentText,
     DialogTitle,
 } from '@mui/material';
-import { EventType, trackEvent } from '../analytics/events';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth } from '../auth/Auth';
-import { CustomTask } from '../database/requirement';
 
 interface DeleteCustomTaskModalProps {
     task: CustomTask;

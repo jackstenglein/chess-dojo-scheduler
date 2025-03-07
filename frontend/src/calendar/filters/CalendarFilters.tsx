@@ -1,3 +1,4 @@
+import { useApi } from '@/api/Api';
 import { useEvents } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
@@ -28,7 +29,7 @@ import MuiAccordionSummary, {
 } from '@mui/material/AccordionSummary';
 import { Theme, styled } from '@mui/material/styles';
 import { DateTime } from 'luxon';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import TimezoneFilter from './TimezoneFilter';
 import { DefaultTimezone } from './TimezoneSelector';
@@ -112,7 +113,8 @@ export interface Filters {
 }
 
 export function useFilters(): Filters {
-    const user = useAuth().user;
+    const { user, updateUser } = useAuth();
+    const api = useApi();
 
     const [timezone, setTimezone] = useState(user?.timezoneOverride || DefaultTimezone);
     useEffect(() => {
@@ -124,7 +126,7 @@ export function useFilters(): Filters {
     const [timeFormat, setTimeFormat] = useState<TimeFormat>(
         user?.timeFormat || TimeFormat.TwelveHour,
     );
-    const [weekStartOn, setWeekStartOn] = useLocalStorage<WeekDays>(
+    const [originalWeekStartOn] = useLocalStorage<WeekDays>(
         'calendarFilters.weekStartOn',
         0,
     );
@@ -164,6 +166,16 @@ export function useFilters(): Filters {
     const [tournamentPositions, setTournamentPositions] = useLocalStorage(
         'calendarFilters.tournamentPositions.2',
         [PositionType.AllPositions],
+    );
+
+    const weekStartOn = user?.weekStart ?? originalWeekStartOn;
+
+    const setWeekStartOn = useCallback(
+        (weekStart: WeekDays) => {
+            updateUser({ weekStart });
+            api.updateUser({ weekStart }).catch(console.error);
+        },
+        [api, updateUser],
     );
 
     const result = useMemo(

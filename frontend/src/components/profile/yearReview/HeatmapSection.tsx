@@ -1,8 +1,12 @@
-import { TimelineProvider, useTimelineContext } from '@/profile/activity/useTimeline';
+import {
+    TimelineProvider,
+    useTimelineContext,
+} from '@/components/profile/activity/useTimeline';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { useCallback, useEffect, useState } from 'react';
 import { Heatmap } from '../info/Heatmap';
 import { getBlockSize, MIN_BLOCK_SIZE } from '../info/HeatmapCard';
+import { DEFAULT_WORK_GOAL } from '../trainingPlan/workGoal';
 import { SectionProps } from './section';
 
 const endDateByPeriod: Record<string, string> = {
@@ -36,6 +40,7 @@ function Section({ review }: SectionProps) {
             description={`in ${review.period}`}
             minDate={`${review.period}-01-01`}
             maxDate={endDateByPeriod[review.period]}
+            workGoalHistory={[{ date: '', workGoal: DEFAULT_WORK_GOAL }]}
         />
     );
 }

@@ -1,3 +1,15 @@
+import { EventType, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useTimelineContext } from '@/components/profile/activity/useTimeline';
+import {
+    CustomTask,
+    Requirement,
+    RequirementProgress,
+    ScoreboardDisplay,
+    getCurrentCount,
+    isRequirement,
+} from '@/database/requirement';
 import { LoadingButton } from '@mui/lab';
 import {
     Alert,
@@ -11,23 +23,11 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { useState } from 'react';
-
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
-import { EventType, trackEvent } from '../../analytics/events';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import {
-    CustomTask,
-    Requirement,
-    RequirementProgress,
-    ScoreboardDisplay,
-    getCurrentCount,
-    isRequirement,
-} from '../../database/requirement';
-import { useTimelineContext } from '../../profile/activity/useTimeline';
+import { useState } from 'react';
 import InputSlider from './InputSlider';
+import { TaskDialogView } from './TaskDialog';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
@@ -71,7 +71,7 @@ interface ProgressUpdaterProps {
     progress?: RequirementProgress;
     cohort: string;
     onClose: () => void;
-    toggleView?: () => void;
+    setView?: (view: TaskDialogView) => void;
 }
 
 const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
@@ -79,10 +79,10 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     progress,
     cohort,
     onClose,
-    toggleView,
+    setView,
 }) => {
     const api = useApi();
-    const { resetRequest: timelineNewRequest } = useTimelineContext();
+    const { onNewEntry } = useTimelineContext();
 
     const totalCount = requirement.counts[cohort] || 0;
     const currentCount = getCurrentCount(cohort, requirement, progress);
@@ -90,8 +90,10 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     const [value, setValue] = useState<number>(currentCount);
     const [markComplete, setMarkComplete] = useState(true);
     const [date, setDate] = useState<DateTime | null>(DateTime.now());
+
     const [hours, setHours] = useState('');
     const [minutes, setMinutes] = useState('');
+
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [notes, setNotes] = useState('');
     const request = useRequest();
@@ -151,7 +153,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             date,
             notes,
         )
-            .then(() => {
+            .then((resp) => {
                 trackEvent(EventType.UpdateProgress, {
                     requirement_id: requirement.id,
                     requirement_name: requirement.name,
@@ -160,13 +162,11 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     incremental_count: incrementalCount,
                     incremental_minutes: hoursInt * 60 + minutesInt,
                 });
+                onNewEntry(resp.data.timelineEntry);
                 onClose();
                 setHours('');
                 setMinutes('');
                 request.reset();
-                // The timeline needs to know that the update request is done
-                // So we go get the new activity
-                timelineNewRequest();
             })
             .catch((err) => {
                 console.error('updateUserProgress: ', err);
@@ -272,14 +272,22 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                 <Button onClick={onClose} disabled={request.isLoading()}>
                     Cancel
                 </Button>
-                {toggleView && (
-                    <Button
-                        data-cy='task-updater-show-history-button'
-                        onClick={toggleView}
-                        disabled={request.isLoading()}
-                    >
-                        Show History
-                    </Button>
+                {setView && (
+                    <>
+                        <Button
+                            onClick={() => setView(TaskDialogView.Details)}
+                            disabled={request.isLoading()}
+                        >
+                            Task Details
+                        </Button>
+                        <Button
+                            data-cy='task-updater-show-history-button'
+                            onClick={() => setView(TaskDialogView.History)}
+                            disabled={request.isLoading()}
+                        >
+                            Show History
+                        </Button>
+                    </>
                 )}
                 <LoadingButton
                     data-cy='task-updater-save-button'
