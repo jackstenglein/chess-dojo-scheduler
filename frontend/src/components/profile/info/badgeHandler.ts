@@ -270,6 +270,22 @@ function getBetaTesterBadge(isEarned: boolean): Badge {
 }
 
 /**
+ * @param isEarned Whether the user has earned the badge.
+ * @returns A badge for being a tactics champion (feet Gukesh ⚡)
+ */
+export function getTacticsChampionBadge() {
+    return {
+        image: `/static/badges/misc/tacticschampion.png`,
+        title: 'Tactics Champion',
+        message:
+            'Congratulations, your tactics rating is greater than your cohort rating!',
+        isEarned: true,
+        glowHexcode: '#D4AA02',
+        category: BadgeCategory.All,
+    };
+}
+
+/**
  * Returns the badge for the given level and task.
  * @param level The level of the badge.
  * @param task The task of the badge.
