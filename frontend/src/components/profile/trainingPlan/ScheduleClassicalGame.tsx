@@ -49,7 +49,6 @@ export const ScheduleClassicalGame = ({ hideChip }: { hideChip?: boolean }) => {
                     size={9}
                     onClick={() => setTaskDialogView(TaskDialogView.Details)}
                     sx={{ cursor: 'pointer', position: 'relative' }}
-                    id='task-details'
                     display='flex'
                     flexDirection='column'
                 >
@@ -75,7 +74,7 @@ export const ScheduleClassicalGame = ({ hideChip }: { hideChip?: boolean }) => {
                         Schedule Your Next Classical Game
                     </Typography>
                 </Grid2>
-                <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
+                <Grid2 size={{ xs: 2, sm: 'auto' }}>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
                         <Tooltip title='Update'>
                             <Checkbox

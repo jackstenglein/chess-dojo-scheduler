@@ -113,6 +113,7 @@ export function WorkGoalSettingsEditor({
                 onClick={() => setOpen(true)}
                 sx={{ width: 1 }}
                 disabled={disabled}
+                id='work-goal-editor'
             >
                 <TextField
                     disabled={disabled}

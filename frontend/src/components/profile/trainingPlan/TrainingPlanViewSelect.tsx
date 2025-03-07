@@ -17,7 +17,7 @@ export function TrainingPlanViewSelect({
     onChange: (value: TrainingPlanView) => void;
 }) {
     return (
-        <Stack direction='row' gap={1}>
+        <Stack id='training-plan-view-select' direction='row' gap={1}>
             <Chip
                 label='Daily'
                 color='secondary'

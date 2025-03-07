@@ -12,7 +12,7 @@ import { WorkGoalSettingsEditor } from './WorkGoalSettingsEditor';
 
 const TRAINING_PLAN_VIEW = {
     Key: 'trainingPlanView',
-    Default: TrainingPlanView.Daily,
+    Default: TrainingPlanView.Weekly,
 };
 
 export function TrainingPlanTab({
