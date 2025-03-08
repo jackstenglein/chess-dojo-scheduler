@@ -1,10 +1,9 @@
-import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import { MenuItem, Stack, TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers';
 import { useApi } from '../../api/Api';
 import { useAuth } from '../../auth/Auth';
 import { TimeFormat } from '../../database/user';
-import { Filters } from './CalendarFilters';
+import { Filters, WeekDays } from './CalendarFilters';
 import { TimezoneSelector } from './TimezoneSelector';
 
 interface TimezoneFilterProps {

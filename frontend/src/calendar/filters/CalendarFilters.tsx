@@ -19,7 +19,6 @@ import { ALL_COHORTS, TimeFormat, compareCohorts, dojoCohorts } from '@/database
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
 import { DayHours } from '@aldabil/react-scheduler/types';
-import { WeekDays } from '@aldabil/react-scheduler/views/Month';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { Button, Stack, SvgIconOwnProps, Typography, useMediaQuery } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
@@ -31,6 +30,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import TimezoneFilter from './TimezoneFilter';
 import { DefaultTimezone } from './TimezoneSelector';
+
+export type WeekDays = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
