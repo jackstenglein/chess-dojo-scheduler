@@ -165,6 +165,9 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 
 	sb.WriteString(fmt.Sprintf("\n<t:%d:f> — <t:%d:t>", startTime.Unix(), endTime.Unix()))
 
+	if event.Title != "" {
+		sb.WriteString(fmt.Sprintf("\n **Title:** %s", event.Title))
+	}
 	if event.Description != "" {
 		sb.WriteString(fmt.Sprintf("\n **Description:** %s", event.Description))
 	}
