@@ -3,7 +3,11 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
-import { getTimeZonedDate, toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import {
+    getTimeZonedDate,
+    toDojoDateString,
+    toDojoTimeString,
+} from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { AvailabilityType, Event, getDisplayString } from '@/database/event';
 import { TimeFormat } from '@/database/user';

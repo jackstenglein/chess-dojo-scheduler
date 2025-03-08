@@ -2,7 +2,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { GetClubResponse } from '@/api/clubApi';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { ClubDetails, ClubJoinRequest, ClubJoinRequestStatus } from '@/database/club';
 import Avatar from '@/profile/Avatar';

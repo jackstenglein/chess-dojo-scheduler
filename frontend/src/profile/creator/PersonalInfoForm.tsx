@@ -1,4 +1,4 @@
-import { DefaultTimezone, TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
+import { DefaultTimezone, TimezoneSelector } from '@/components/calendar/filters/TimezoneSelector';
 import { LoadingButton } from '@mui/lab';
 import { Stack, TextField } from '@mui/material';
 import { useState } from 'react';

@@ -3,7 +3,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { displayPrice } from '@/app/(scoreboard)/courses/(list)/CourseListItem';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { Event } from '@/database/event';
 import { TimeFormat, dojoCohorts } from '@/database/user';

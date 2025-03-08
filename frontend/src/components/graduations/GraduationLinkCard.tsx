@@ -1,6 +1,6 @@
 'use client';
 
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Graduation } from '@/database/graduation';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Card, CardActionArea, CardContent, Grid2, Stack, Typography } from '@mui/material';

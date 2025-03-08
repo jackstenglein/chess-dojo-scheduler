@@ -1,6 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { WeekDays } from '@/calendar/filters/CalendarFilters';
+import { WeekDays } from '@/components/calendar/filters/CalendarFilters';
 import { WorkGoalHistory, WorkGoalSettings } from '@/database/user';
 import { Settings } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';

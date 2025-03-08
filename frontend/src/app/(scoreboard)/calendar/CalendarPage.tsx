@@ -4,11 +4,16 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useEvents } from '@/api/cache/Cache';
 import { useAuth, useFreeTier } from '@/auth/Auth';
-import { getTimeZonedDate } from '@/calendar/displayDate';
-import EventEditor from '@/calendar/eventEditor/EventEditor';
-import { CalendarFilters, Filters, getHours, useFilters } from '@/calendar/filters/CalendarFilters';
-import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import { getTimeZonedDate } from '@/components/calendar/displayDate';
+import EventEditor from '@/components/calendar/eventEditor/EventEditor';
 import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
+import {
+    CalendarFilters,
+    Filters,
+    getHours,
+    useFilters,
+} from '@/components/calendar/filters/CalendarFilters';
+import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import CalendarTutorial from '@/components/tutorial/CalendarTutorial';
 import {
     AvailabilityType,

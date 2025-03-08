@@ -1,5 +1,5 @@
 import { Request } from '@/api/Request';
-import { TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
+import { TimezoneSelector } from '@/components/calendar/filters/TimezoneSelector';
 import { User } from '@/database/user';
 import Avatar from '@/profile/Avatar';
 import { Delete, Info, Upload } from '@mui/icons-material';

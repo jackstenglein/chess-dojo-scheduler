@@ -1,4 +1,4 @@
-import { getTimeZonedDate } from '@/calendar/displayDate';
+import { getTimeZonedDate } from '@/components/calendar/displayDate';
 import {
     CustomTask,
     Requirement,

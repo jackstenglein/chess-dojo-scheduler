@@ -2,7 +2,7 @@ import { EventType as AnalyticsEventType, trackEvent } from '@/analytics/events'
 import { useApi } from '@/api/Api';
 import { Request, RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import Field from '@/components/calendar/eventViewer/Field';
 import OwnerField from '@/components/calendar/eventViewer/OwnerField';
 import PriceField from '@/components/calendar/eventViewer/PriceField';

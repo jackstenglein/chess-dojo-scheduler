@@ -4,7 +4,7 @@ import { EventType, setUserCohort, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
-import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import { Link } from '@/components/navigation/Link';
 import NotificationSettingsEditor from '@/components/profile/edit/NotificationSettingsEditor';
 import { PersonalInfoEditor } from '@/components/profile/edit/PersonalInfoEditor';
