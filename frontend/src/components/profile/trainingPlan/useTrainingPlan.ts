@@ -51,7 +51,7 @@ export function useTrainingPlan(user: User, cohort?: string) {
 export function useWeeklyTrainingPlan(user: User) {
     const api = useApi();
     const trainingPlan = useTrainingPlan(user);
-    const { pinnedTasks, requirements, isCurrentUser, request } = trainingPlan;
+    const { pinnedTasks, requirements, isCurrentUser } = trainingPlan;
 
     const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt, nextGame } =
         useMemo(() => {
@@ -73,7 +73,7 @@ export function useWeeklyTrainingPlan(user: User) {
         }, [user, requirements]);
 
     const savedPlan = user.weeklyPlan;
-    const isLoading = request.isLoading();
+    const isLoading = requirements.length === 0;
     useEffect(() => {
         if (
             !isCurrentUser ||
@@ -125,6 +125,7 @@ export function useWeeklyTrainingPlan(user: User) {
         weekSuggestions,
         endDate,
         startDate: startDate.toISOString(),
+        isLoading,
     };
 }
 

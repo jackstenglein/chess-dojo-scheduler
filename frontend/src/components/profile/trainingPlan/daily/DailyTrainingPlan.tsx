@@ -1,6 +1,8 @@
 import { RequestSnackbar } from '@/api/Request';
 import { User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import { CalendarToday } from '@mui/icons-material';
+import { Stack } from '@mui/material';
 import { useMemo } from 'react';
 import { useWeeklyTrainingPlan } from '../useTrainingPlan';
 import { TimeframeTrainingPlanSection } from './TimeframeTrainingPlanSection';
@@ -16,7 +18,7 @@ export function DailyTrainingPlan({ user }: { user: User }) {
         return [startDate.toISOString(), endDate.toISOString()];
     }, []);
 
-    const { request, pinnedTasks, togglePin, isCurrentUser, suggestionsByDay } =
+    const { request, pinnedTasks, togglePin, isCurrentUser, suggestionsByDay, isLoading } =
         useWeeklyTrainingPlan(user);
 
     const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
@@ -25,18 +27,24 @@ export function DailyTrainingPlan({ user }: { user: User }) {
         <>
             <RequestSnackbar request={request} />
 
-            <TimeframeTrainingPlanSection
-                startDate={startDate}
-                endDate={endDate}
-                title='Today'
-                icon={<CalendarToday sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }} />}
-                user={user}
-                isCurrentUser={isCurrentUser}
-                tasks={suggestedTasks}
-                pinnedTasks={pinnedTasks}
-                togglePin={togglePin}
-                expanded
-            />
+            {isLoading ? (
+                <Stack width={1} alignItems='center' justifyContent='center'>
+                    <LoadingPage />
+                </Stack>
+            ) : (
+                <TimeframeTrainingPlanSection
+                    startDate={startDate}
+                    endDate={endDate}
+                    title='Today'
+                    icon={<CalendarToday sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }} />}
+                    user={user}
+                    isCurrentUser={isCurrentUser}
+                    tasks={suggestedTasks}
+                    pinnedTasks={pinnedTasks}
+                    togglePin={togglePin}
+                    expanded
+                />
+            )}
         </>
     );
 }

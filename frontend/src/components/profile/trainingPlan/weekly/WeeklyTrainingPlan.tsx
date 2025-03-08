@@ -1,5 +1,6 @@
 import { RequestSnackbar } from '@/api/Request';
 import { User } from '@/database/user';
+import LoadingPage from '@/loading/LoadingPage';
 import {
     ExpandLess,
     ExpandMore,
@@ -34,10 +35,8 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
         weekSuggestions,
         startDate,
         endDate,
+        isLoading,
     } = useWeeklyTrainingPlan(user);
-
-    console.log('Week Start: ', startDate);
-    console.log('Week End: ', endDate);
 
     return (
         <>
@@ -59,72 +58,84 @@ export function WeeklyTrainingPlan({ user }: { user: User }) {
                 </Button>
             </Stack>
 
-            <TimeframeTrainingPlanSection
-                startDate={startDate}
-                endDate={endDate}
-                title='This Week'
-                icon={
-                    expanded.total ? (
-                        <ExpandLess sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }} />
-                    ) : (
-                        <ExpandMore sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }} />
-                    )
-                }
-                user={user}
-                isCurrentUser={isCurrentUser}
-                tasks={weekSuggestions}
-                pinnedTasks={pinnedTasks}
-                togglePin={togglePin}
-                expanded={expanded.total}
-                toggleExpanded={() => toggleExpand('total')}
-            />
-
-            {new Array(7).fill(0).map((_, idx) => {
-                const dayIdx = (user.weekStart + idx) % 7;
-                const suggestedTasks = suggestionsByDay[dayIdx];
-                if (!suggestedTasks || suggestedTasks.length === 0) {
-                    return null;
-                }
-
-                const dayStart = getDayOfWeekAfterDate(new Date(startDate), dayIdx);
-                const start = new Date(dayStart);
-                const end = new Date(dayStart);
-                end.setDate(end.getDate() + 1);
-                const dayEnd = end.toISOString();
-
-                return (
+            {isLoading ? (
+                <Stack width={1} alignItems='center' justifyContent='center'>
+                    <LoadingPage />
+                </Stack>
+            ) : (
+                <>
                     <TimeframeTrainingPlanSection
-                        key={dayIdx}
-                        startDate={dayStart}
-                        endDate={dayEnd}
-                        title={`${DAY_ABBREVIATIONS[dayIdx]} ${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
+                        startDate={startDate}
+                        endDate={endDate}
+                        title='This Week'
                         icon={
-                            expanded[`${dayIdx}`] ? (
+                            expanded.total ? (
                                 <ExpandLess
-                                    sx={{
-                                        marginRight: '0.6rem',
-                                        verticalAlign: 'middle',
-                                    }}
+                                    sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
                                 />
                             ) : (
                                 <ExpandMore
-                                    sx={{
-                                        marginRight: '0.6rem',
-                                        verticalAlign: 'middle',
-                                    }}
+                                    sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
                                 />
                             )
                         }
                         user={user}
                         isCurrentUser={isCurrentUser}
-                        tasks={suggestedTasks}
+                        tasks={weekSuggestions}
                         pinnedTasks={pinnedTasks}
                         togglePin={togglePin}
-                        expanded={expanded[`${dayIdx}`]}
-                        toggleExpanded={() => toggleExpand(`${dayIdx}`)}
+                        expanded={expanded.total}
+                        toggleExpanded={() => toggleExpand('total')}
                     />
-                );
-            })}
+
+                    {new Array(7).fill(0).map((_, idx) => {
+                        const dayIdx = (user.weekStart + idx) % 7;
+                        const suggestedTasks = suggestionsByDay[dayIdx];
+                        if (!suggestedTasks || suggestedTasks.length === 0) {
+                            return null;
+                        }
+
+                        const dayStart = getDayOfWeekAfterDate(new Date(startDate), dayIdx);
+                        const start = new Date(dayStart);
+                        const end = new Date(dayStart);
+                        end.setDate(end.getDate() + 1);
+                        const dayEnd = end.toISOString();
+
+                        return (
+                            <TimeframeTrainingPlanSection
+                                key={dayIdx}
+                                startDate={dayStart}
+                                endDate={dayEnd}
+                                title={`${DAY_ABBREVIATIONS[dayIdx]} ${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
+                                icon={
+                                    expanded[`${dayIdx}`] ? (
+                                        <ExpandLess
+                                            sx={{
+                                                marginRight: '0.6rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                        />
+                                    ) : (
+                                        <ExpandMore
+                                            sx={{
+                                                marginRight: '0.6rem',
+                                                verticalAlign: 'middle',
+                                            }}
+                                        />
+                                    )
+                                }
+                                user={user}
+                                isCurrentUser={isCurrentUser}
+                                tasks={suggestedTasks}
+                                pinnedTasks={pinnedTasks}
+                                togglePin={togglePin}
+                                expanded={expanded[`${dayIdx}`]}
+                                toggleExpanded={() => toggleExpand(`${dayIdx}`)}
+                            />
+                        );
+                    })}
+                </>
+            )}
         </>
     );
 }
