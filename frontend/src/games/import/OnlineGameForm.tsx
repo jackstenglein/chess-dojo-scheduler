@@ -21,7 +21,7 @@ import {
     PgnImportResult,
 } from '@/app/(scoreboard)/games/analysis/server';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { RenderPlayers } from '@/components/games/list/GameListItem';
 import { Link } from '@/components/navigation/Link';
 import { isCohortInRange, RatingSystem } from '@/database/user';

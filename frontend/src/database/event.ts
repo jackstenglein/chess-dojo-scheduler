@@ -153,6 +153,7 @@ export enum AvailabilityType {
     ClassicAnalysis = 'CLASSIC_ANALYSIS',
     AnalyzeOwnGame = 'ANALYZE_OWN_GAME',
     BookStudy = 'BOOK_STUDY',
+    Lesson = 'LESSON',
 }
 
 export function getDisplaySessionString(type: CalendarSessionType | null | undefined): string {
@@ -198,28 +199,25 @@ export function getDisplayString(type: AvailabilityType | null | undefined): str
             return 'Analyze Own Game';
         case AvailabilityType.BookStudy:
             return 'Book Study';
+        case AvailabilityType.Lesson:
+            return 'Lesson/Lecture';
     }
 }
 
 export function getDefaultNumberOfParticipants(type: AvailabilityType): number {
     switch (type) {
-        case AvailabilityType.AllTypes:
-            return 100;
         case AvailabilityType.ClassicalGame:
-            return 1;
         case AvailabilityType.OpeningSparring:
-            return 1;
         case AvailabilityType.MiddlegameSparring:
-            return 1;
         case AvailabilityType.EndgameSparring:
-            return 1;
         case AvailabilityType.RookEndgameProgression:
             return 1;
+
+        case AvailabilityType.AllTypes:
         case AvailabilityType.ClassicAnalysis:
-            return 100;
         case AvailabilityType.AnalyzeOwnGame:
-            return 100;
         case AvailabilityType.BookStudy:
+        case AvailabilityType.Lesson:
             return 100;
     }
 }

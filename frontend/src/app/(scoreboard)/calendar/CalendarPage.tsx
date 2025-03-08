@@ -4,11 +4,16 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useEvents } from '@/api/cache/Cache';
 import { useAuth, useFreeTier } from '@/auth/Auth';
-import { getTimeZonedDate } from '@/calendar/displayDate';
-import EventEditor from '@/calendar/eventEditor/EventEditor';
-import { CalendarFilters, Filters, getHours, useFilters } from '@/calendar/filters/CalendarFilters';
-import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import { getTimeZonedDate } from '@/components/calendar/displayDate';
+import EventEditor from '@/components/calendar/eventEditor/EventEditor';
 import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
+import {
+    CalendarFilters,
+    Filters,
+    getHours,
+    useFilters,
+} from '@/components/calendar/filters/CalendarFilters';
+import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import CalendarTutorial from '@/components/tutorial/CalendarTutorial';
 import {
     AvailabilityType,
@@ -54,11 +59,12 @@ function processAvailability(
         }
 
         const title =
-            event.maxParticipants === 1
+            event.title ||
+            (event.maxParticipants === 1
                 ? 'Meeting'
                 : `Group Meeting (${Object.values(event.participants).length}/${
                       event.maxParticipants
-                  })`;
+                  })`);
 
         const isOwner = event.owner === user.username;
         const editable =
@@ -87,7 +93,9 @@ function processAvailability(
             return null;
         }
 
-        const title = event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group';
+        const title =
+            event.title ||
+            (event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group');
         return {
             event_id: event.id,
             title: title,
@@ -130,11 +138,12 @@ function processAvailability(
     return {
         event_id: event.id,
         title:
-            event.maxParticipants > 1
+            event.title ||
+            (event.maxParticipants > 1
                 ? `Bookable - Group (${Object.values(event.participants).length}/${
                       event.maxParticipants
                   })`
-                : `Bookable - ${event.ownerDisplayName}`,
+                : `Bookable - ${event.ownerDisplayName}`),
         start: new Date(event.startTime),
         end: new Date(event.endTime),
         color: 'book.main',

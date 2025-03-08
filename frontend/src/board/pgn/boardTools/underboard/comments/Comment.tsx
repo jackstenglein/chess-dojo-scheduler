@@ -3,7 +3,7 @@ import { UpdateCommentRequest } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import useGame from '@/context/useGame';
 import { PositionComment } from '@/database/game';

@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString } from '@/calendar/displayDate';
+import { toDojoDateString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { PawnIcon } from '@/style/ChessIcons';
 import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';

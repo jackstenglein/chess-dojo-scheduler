@@ -4,7 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { useReconcile } from '@/board/Board';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Game } from '@/database/game';
 import { EventType as ChessEventType, Event } from '@jackstenglein/chess';
 import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';

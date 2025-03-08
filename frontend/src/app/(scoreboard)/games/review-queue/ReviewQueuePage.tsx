@@ -2,7 +2,7 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
-import { isValidDate } from '@/calendar/eventEditor/useEventEditor';
+import { isValidDate } from '@/components/calendar/eventEditor/useEventEditor';
 import { RenderGameResultStack, RenderPlayersCell } from '@/components/games/list/GameListItem';
 import { Link } from '@/components/navigation/Link';
 import { ONE_WEEK_IN_MS } from '@/components/time/time';

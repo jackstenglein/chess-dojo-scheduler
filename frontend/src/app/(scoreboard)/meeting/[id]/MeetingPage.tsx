@@ -5,7 +5,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import Field from '@/components/calendar/eventViewer/Field';
 import ParticipantsList from '@/components/calendar/eventViewer/ParticipantsList';
 import { Link } from '@/components/navigation/Link';

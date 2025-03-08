@@ -3,7 +3,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString } from '@/calendar/displayDate';
+import { toDojoDateString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { getRatingRanges, OpenClassical } from '@/database/tournament';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';

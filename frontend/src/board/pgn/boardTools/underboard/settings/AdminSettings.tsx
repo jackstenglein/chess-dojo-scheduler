@@ -1,13 +1,13 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { ONE_WEEK_IN_MS } from '@/components/time/time';
+import { displayGameReviewType, Game } from '@/database/game';
+import Avatar from '@/profile/Avatar';
 import { LoadingButton } from '@mui/lab';
 import { Stack, Typography } from '@mui/material';
-import { useApi } from '../../../../../api/Api';
-import { RequestSnackbar, useRequest } from '../../../../../api/Request';
-import { useAuth } from '../../../../../auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '../../../../../calendar/displayDate';
-import { displayGameReviewType, Game } from '../../../../../database/game';
-import Avatar from '../../../../../profile/Avatar';
 
 interface AdminSettingsProps {
     game: Game;

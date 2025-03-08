@@ -1,5 +1,5 @@
 import { useRequiredAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Event, EventStatus, getDisplayString } from '@/database/event';
 import Avatar from '@/profile/Avatar';
 import {

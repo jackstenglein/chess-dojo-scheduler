@@ -1,21 +1,22 @@
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
-import { Stack, Typography } from '@mui/material';
 import {
     AvailabilityType,
     Event,
     EventStatus,
     getDefaultNumberOfParticipants,
     getDisplayString,
-} from '../../database/event';
-import { User, dojoCohorts } from '../../database/user';
-import Icon from '../../style/Icon';
+} from '@/database/event';
+import { User, dojoCohorts } from '@/database/user';
+import Icon from '@/style/Icon';
+import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { Stack, Typography } from '@mui/material';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
 import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
 import TimesFormSection from './form/TimesFormSection';
+import TitleFormSection from './form/TitleFormSection';
 import { UseEventEditorResponse, getMinEnd } from './useEventEditor';
 
 const { AllTypes, ...AvailabilityTypes } = AvailabilityType;
@@ -116,7 +117,7 @@ export function validateAvailabilityEditor(
             ownerDisplayName: user.displayName,
             ownerCohort: user.dojoCohort,
             ownerPreviousCohort: user.previousCohort,
-            title: '',
+            title: editor.title,
             startTime,
             endTime,
             types: selectedTypes,
@@ -140,6 +141,8 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
         setStart,
         end,
         setEnd,
+        title,
+        setTitle,
         location,
         setLocation,
         description,
@@ -208,6 +211,13 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                 minEnd={minEnd}
                 rruleOptions={rruleOptions}
                 setRRuleOptions={setRRuleOptions}
+            />
+
+            <TitleFormSection
+                label='Title (Optional)'
+                title={title}
+                setTitle={setTitle}
+                error={errors.title}
             />
 
             <LocationFormSection

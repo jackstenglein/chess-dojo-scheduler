@@ -1,3 +1,6 @@
+import { useAuth } from '@/auth/Auth';
+import { TimeFormat } from '@/database/user';
+import Icon from '@/style/Icon';
 import {
     FormControl,
     FormControlLabel,
@@ -15,9 +18,6 @@ import {
 import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { Frequency, RRule } from 'rrule';
-import { useAuth } from '../../../auth/Auth';
-import { TimeFormat } from '../../../database/user';
-import Icon from '../../../style/Icon';
 import { getDefaultRRuleCount, RRuleEnds, RRuleOptions } from '../useEventEditor';
 
 interface TimesFormSectionProps {

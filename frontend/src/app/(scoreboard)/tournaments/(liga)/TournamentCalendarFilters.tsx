@@ -3,8 +3,8 @@ import {
     AccordionDetails,
     AccordionSummary,
     Filters,
-} from '@/calendar/filters/CalendarFilters';
-import TimezoneFilter from '@/calendar/filters/TimezoneFilter';
+} from '@/components/calendar/filters/CalendarFilters';
+import TimezoneFilter from '@/components/calendar/filters/TimezoneFilter';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
     PositionType,

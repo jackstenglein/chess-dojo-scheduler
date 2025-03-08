@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { getTimeZonedDate } from '@/calendar/displayDate';
+import { getTimeZonedDate } from '@/components/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
 import { User, WorkGoalHistory, WorkGoalSettings } from '@/database/user';

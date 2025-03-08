@@ -1,4 +1,8 @@
-import { Accordion, AccordionDetails, AccordionSummary } from '@/calendar/filters/CalendarFilters';
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+} from '@/components/calendar/filters/CalendarFilters';
 import { CourseType, displayCourseType } from '@/database/course';
 import { dojoCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';

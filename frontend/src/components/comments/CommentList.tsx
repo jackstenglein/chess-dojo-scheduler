@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { Comment } from '@/database/game';
 import Avatar from '@/profile/Avatar';

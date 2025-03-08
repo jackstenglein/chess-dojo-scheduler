@@ -3,7 +3,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
-import { toDojoDateString } from '@/calendar/displayDate';
+import { toDojoDateString } from '@/components/calendar/displayDate';
 import { isCohortInRange } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';

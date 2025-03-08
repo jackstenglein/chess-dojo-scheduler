@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString } from '@/calendar/displayDate';
+import { toDojoDateString } from '@/components/calendar/displayDate';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Chip, Tooltip } from '@mui/material';
 

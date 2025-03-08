@@ -1,7 +1,8 @@
+import Icon from '@/style/Icon';
 import { Stack, TextField, Typography } from '@mui/material';
-import Icon from '../../../style/Icon';
 
 interface TitleFormSectionProps {
+    label?: string;
     title: string;
     subtitle?: string;
     setTitle: (value: string) => void;
@@ -9,6 +10,7 @@ interface TitleFormSectionProps {
 }
 
 const TitleFormSection: React.FC<TitleFormSectionProps> = ({
+    label = 'Event Title',
     title,
     subtitle,
     setTitle,
@@ -23,7 +25,7 @@ const TitleFormSection: React.FC<TitleFormSectionProps> = ({
                     sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
                     fontSize='medium'
                 />
-                Event Title
+                {label}
             </Typography>
             {subtitle && (
                 <Typography variant='subtitle1' color='text.secondary'>

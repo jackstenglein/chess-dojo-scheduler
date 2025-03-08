@@ -1,4 +1,4 @@
-import { WeekDays } from '@/calendar/filters/CalendarFilters';
+import { WeekDays } from '@/components/calendar/filters/CalendarFilters';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { AuthTokens } from 'aws-amplify/auth';
 import { ExamType } from './exam';

@@ -1,6 +1,6 @@
 import { Request, RequestSnackbar } from '@/api/Request';
-import { useFilters } from '@/calendar/filters/CalendarFilters';
-import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import { useFilters } from '@/components/calendar/filters/CalendarFilters';
+import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import LoadMoreButton from '@/components/newsfeed/LoadMoreButton';
 import NewsfeedItem from '@/components/newsfeed/NewsfeedItem';
 import NewsfeedItemHeader from '@/components/newsfeed/NewsfeedItemHeader';

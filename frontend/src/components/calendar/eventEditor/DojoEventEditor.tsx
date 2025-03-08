@@ -1,8 +1,8 @@
+import { Event, EventStatus } from '@/database/event';
+import { dojoCohorts, User } from '@/database/user';
 import { ProcessedEvent } from '@aldabil/react-scheduler/types';
 import { Checkbox, FormControlLabel } from '@mui/material';
 import { Options, RRule } from 'rrule';
-import { Event, EventStatus } from '../../database/event';
-import { dojoCohorts, User } from '../../database/user';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
