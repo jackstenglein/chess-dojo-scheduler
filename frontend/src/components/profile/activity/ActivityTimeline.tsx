@@ -29,6 +29,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { EditTimelinEntryDialog } from './EditTimelineEntryDialog';
 import { UseTimelineResponse } from './useTimeline';
 
 export function getTimeSpent(timelineItem: TimelineEntry): string {
@@ -81,6 +82,7 @@ interface ActivityTimelineProps {
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) => {
     const { request, entries, hasMore, onLoadMore, onEdit } = timeline;
+    const [editEntry, setEditEntry] = useState<TimelineEntry>();
     const [filters, setFilters] = useState<string[]>([AllCategoriesFilterName]);
     const [numShown, setNumShown] = useState(25);
     const [view, setView] = useState('list');
@@ -160,15 +162,21 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ user, timeline }) =
                     hasMore={hasMore}
                     handleLoadMore={handleLoadMore}
                     request={request}
+                    setEditEntry={setEditEntry}
                 />
             ) : (
                 <ActivityTimelineCalendar
                     user={user}
                     timeline={{ ...timeline, entries: shownEntries }}
+                    setEditEntry={setEditEntry}
                 />
             )}
 
             <RequestSnackbar request={request} />
+
+            {editEntry && (
+                <EditTimelinEntryDialog entry={editEntry} onClose={() => setEditEntry(undefined)} />
+            )}
         </Stack>
     );
 };
@@ -181,6 +189,7 @@ const ActivityTimelineList = ({
     hasMore,
     handleLoadMore,
     request,
+    setEditEntry,
 }: {
     user: User;
     entries: TimelineEntry[];
@@ -189,6 +198,7 @@ const ActivityTimelineList = ({
     hasMore: boolean;
     handleLoadMore: () => void;
     request: Request;
+    setEditEntry: (e: TimelineEntry) => void;
 }) => {
     return (
         <Stack spacing={3}>
@@ -198,6 +208,7 @@ const ActivityTimelineList = ({
                     entry={entry}
                     onEdit={(e) => onEdit(i, e)}
                     maxComments={3}
+                    onChangeActivity={setEditEntry}
                 />
             ))}
 
@@ -217,9 +228,11 @@ const ActivityTimelineList = ({
 const ActivityTimelineCalendar = ({
     user,
     timeline,
+    setEditEntry,
 }: {
     user: User;
     timeline: UseTimelineResponse;
+    setEditEntry: (e: TimelineEntry) => void;
 }) => {
     const filters = useFilters();
     const { entries, hasMore, onLoadMore, onEdit } = timeline;
@@ -313,6 +326,7 @@ const ActivityTimelineCalendar = ({
                             entry={event.entry as TimelineEntry}
                             onEdit={(e) => onEdit(entries.indexOf(event.entry as TimelineEntry), e)}
                             maxComments={3}
+                            onChangeActivity={setEditEntry}
                         />
                     ) : event.user ? (
                         <CreatedAtItem user={event.user as User} />
