@@ -40,10 +40,10 @@ interface CategoryCount {
 
 interface ExtendedBaseActivity extends BaseActivity {
     /** The total number of Dojo points earned on the given day. */
-    dojoPoints: number;
+    dojoPoints?: number;
 
     /** The total number of minutes spent on the given day. */
-    minutesSpent: number;
+    minutesSpent?: number;
 
     /** The count of the activity by category and field. */
     categoryCounts?: Partial<
@@ -58,6 +58,12 @@ interface ExtendedBaseActivity extends BaseActivity {
 }
 
 interface Activity extends ExtendedBaseActivity {
+    /** The total number of Dojo points earned on the given day. */
+    dojoPoints: number;
+
+    /** The total number of minutes spent on the given day. */
+    minutesSpent: number;
+
     /** The count of the activity by category and field. */
     categoryCounts: Partial<
         Record<RequirementCategory, { dojoPoints: CategoryCount; minutesSpent: CategoryCount }>
@@ -151,6 +157,7 @@ export function Heatmap({
     minDate,
     maxDate,
     workGoalHistory,
+    defaultWorkGoal,
     slotProps,
 }: {
     entries: TimelineEntry[];
@@ -160,6 +167,7 @@ export function Heatmap({
     minDate?: string;
     maxDate?: string;
     workGoalHistory: WorkGoalHistory[];
+    defaultWorkGoal?: WorkGoalSettings;
     slotProps?: {
         weekdayLabelPaper?: PaperProps;
     };
@@ -256,30 +264,21 @@ export function Heatmap({
                             dark: DARK_THEME,
                         }}
                         data={activities}
-                        renderBlock={(block, activity) =>
-                            colorMode === 'monochrome' ? (
-                                <MonochromeBlock
-                                    block={block}
-                                    activity={activity as Activity}
-                                    field={field}
-                                    baseColor={theme[0]}
-                                    clamp={clamp}
-                                    weekSummaries={weekSummaries}
-                                    workGoalHistory={workGoalHistory}
-                                />
-                            ) : (
-                                <Block
-                                    block={block}
-                                    activity={activity as Activity}
-                                    field={field}
-                                    baseColor={theme[0]}
-                                    clamp={clamp}
-                                    weekEndOn={weekEndOn}
-                                    weekSummaries={weekSummaries}
-                                    workGoalHistory={workGoalHistory}
-                                />
-                            )
-                        }
+                        renderBlock={(block, activity) => (
+                            <Block
+                                key={activity.date}
+                                block={block}
+                                activity={activity as Activity}
+                                field={field}
+                                baseColor={theme[0]}
+                                clamp={clamp}
+                                weekEndOn={weekEndOn}
+                                weekSummaries={weekSummaries}
+                                workGoalHistory={workGoalHistory}
+                                defaultWorkGoal={defaultWorkGoal}
+                                monochrome={colorMode === 'monochrome'}
+                            />
+                        )}
                         maxLevel={MAX_LEVEL}
                         weekStart={weekStartOn as DayIndex}
                         hideColorLegend
@@ -575,6 +574,11 @@ function mergeActivity(target: WeekSummary, source: Activity) {
  * @param field The field (dojo points/minutes) being displayed.
  * @param baseColor The level 0 color.
  * @param clamp The maximum count used for determining color level.
+ * @param weekEndOn The index of the day the viewer's week ends on.
+ * @param weekSummaries A map from date to the week summary for the week ending on that date.
+ * @param workGoalHistory A list of the user's work goal history.
+ * @param defaultWorkGoal The default work goal to use if not found in the history.
+ * @param monochrome Whether to render the block in single-color mode or not.
  * @returns A block representing the given activity.
  */
 function Block({
@@ -586,6 +590,8 @@ function Block({
     weekEndOn,
     weekSummaries,
     workGoalHistory,
+    defaultWorkGoal,
+    monochrome,
 }: {
     block: BlockElement;
     activity: Activity | ExtendedBaseActivity;
@@ -595,6 +601,8 @@ function Block({
     weekEndOn: number;
     weekSummaries: Record<string, WeekSummary>;
     workGoalHistory: WorkGoalHistory[];
+    defaultWorkGoal?: WorkGoalSettings;
+    monochrome?: boolean;
 }) {
     let maxCategory: RequirementCategory | undefined = undefined;
     let totalCount = 0;
@@ -602,26 +610,31 @@ function Block({
     let color: string | undefined = undefined;
     let isCustom = false;
 
-    for (const category of Object.values(RequirementCategory)) {
-        const count = activity.categoryCounts?.[category as RequirementCategory];
-        if (!count) {
-            continue;
+    if (monochrome) {
+        const level = calculateLevel(activity[field], clamp);
+        color = calculateColor([baseColor, MONOCHROME_COLOR], level);
+    } else {
+        for (const category of Object.values(RequirementCategory)) {
+            const count = activity.categoryCounts?.[category as RequirementCategory];
+            if (!count) {
+                continue;
+            }
+
+            const currentCount = count[field].custom + count[field].trainingPlan;
+            totalCount += currentCount;
+            if (maxCount === undefined || currentCount > maxCount) {
+                maxCategory = category as RequirementCategory;
+                maxCount = currentCount;
+            }
         }
 
-        const currentCount = count[field].custom + count[field].trainingPlan;
-        totalCount += currentCount;
-        if (maxCount === undefined || currentCount > maxCount) {
-            maxCategory = category as RequirementCategory;
-            maxCount = currentCount;
+        if (maxCount && maxCategory) {
+            const level = calculateLevel(totalCount, clamp);
+            color = calculateColor([baseColor, CategoryColors[maxCategory]], level);
+            isCustom =
+                (activity.categoryCounts?.[maxCategory]?.[field].custom ?? 0) >
+                (activity.categoryCounts?.[maxCategory]?.[field].trainingPlan ?? 0);
         }
-    }
-
-    if (maxCount && maxCategory) {
-        const level = calculateLevel(totalCount, clamp);
-        color = calculateColor([baseColor, CategoryColors[maxCategory]], level);
-        isCustom =
-            (activity.categoryCounts?.[maxCategory]?.[field].custom ?? 0) >
-            (activity.categoryCounts?.[maxCategory]?.[field].trainingPlan ?? 0);
     }
 
     const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
@@ -690,6 +703,7 @@ function Block({
             {isEndOfWeek && (
                 <WeekSummaryBlock
                     workGoalHistory={workGoalHistory}
+                    defaultWorkGoal={defaultWorkGoal}
                     weekSummary={weekSummaries[activity.date] ?? defaultWeekSummary(activity.date)}
                     x={block.props.x as number}
                     y={(block.props.y as number) + (block.props.height as number) + 12}
@@ -702,57 +716,19 @@ function Block({
 }
 
 /**
- * Renders a block in the heatmap for the monochrome view.
- * @param block The block to render, as passed from React Activity Calendar.
- * @param activity The activity associated with the block.
- * @param field The field (dojo points/minutes) being displayed.
- * @returns A block representing the given activity.
+ * Renders a block indicating whether the user met their weekly goal or not.
+ * @param workGoalHistory The user's work goal history.
+ * @param defaultWorkGoal The default work goal to use if not found in the history.
+ * @param weekSummary The week summary to render the block for.
+ * @param field The timeline field being displayed.
+ * @param x The x position of the block.
+ * @param y The y position of the block.
+ * @param size The size of the block.
+ * @returns
  */
-function MonochromeBlock({
-    block,
-    activity,
-    field,
-    baseColor,
-    clamp,
-    weekSummaries,
-    workGoalHistory,
-}: {
-    block: BlockElement;
-    activity: Activity | ExtendedBaseActivity;
-    field: TimelineEntryField;
-    baseColor: string;
-    clamp: number;
-    weekSummaries: Record<string, WeekSummary>;
-    workGoalHistory: WorkGoalHistory[];
-}) {
-    const level = calculateLevel(activity[field], clamp);
-    const color = calculateColor([baseColor, MONOCHROME_COLOR], level);
-    const style = color ? { ...block.props.style, fill: color } : block.props.style;
-
-    const isEndOfWeek = new Date(activity.date).getUTCDay() === 6;
-
-    return (
-        <>
-            <Tooltip disableInteractive title={<BlockTooltip activity={activity} field={field} />}>
-                {cloneElement(block, { style })}
-            </Tooltip>
-
-            {isEndOfWeek && (
-                <WeekSummaryBlock
-                    workGoalHistory={workGoalHistory}
-                    weekSummary={weekSummaries[activity.date] ?? defaultWeekSummary(activity.date)}
-                    x={block.props.x as number}
-                    y={(block.props.y as number) + (block.props.height as number) + 12}
-                    size={block.props.width as number}
-                    field={field}
-                />
-            )}
-        </>
-    );
-}
-
 function WeekSummaryBlock({
     workGoalHistory,
+    defaultWorkGoal,
     weekSummary,
     field,
     x,
@@ -760,6 +736,7 @@ function WeekSummaryBlock({
     size,
 }: {
     workGoalHistory: WorkGoalHistory[];
+    defaultWorkGoal?: WorkGoalSettings;
     weekSummary: WeekSummary;
     field: TimelineEntryField;
     x: number;
@@ -768,7 +745,9 @@ function WeekSummaryBlock({
 }) {
     const workGoal =
         workGoalHistory.findLast((history) => history.date.split('T')[0] <= weekSummary.date)
-            ?.workGoal ?? DEFAULT_WORK_GOAL;
+            ?.workGoal ??
+        defaultWorkGoal ??
+        DEFAULT_WORK_GOAL;
     const goalMinutes = workGoal.minutesPerDay.reduce((sum, value) => sum + value, 0);
 
     let Icon = Close;
@@ -805,8 +784,8 @@ function WeekSummaryBlock({
  * @param count The count to get the level for.
  * @param maxCount The max count. Counts >= this value will return MAX_LEVEL.
  */
-function calculateLevel(count: number, maxCount: number): number {
-    if (count === 0) {
+function calculateLevel(count: number | undefined, maxCount: number): number {
+    if (!count) {
         return 0;
     }
     for (let i = 1; i < MAX_LEVEL; i++) {
@@ -843,7 +822,7 @@ function BlockTooltip({
         <Stack alignItems='center'>
             <Typography variant='caption'>
                 {field === 'dojoPoints'
-                    ? `${Math.round(10 * activity.dojoPoints || 0) / 10} Dojo point${activity.dojoPoints !== 1 ? 's' : ''} on ${activity.date}`
+                    ? `${Math.round(10 * (activity.dojoPoints || 0)) / 10} Dojo point${activity.dojoPoints !== 1 ? 's' : ''} on ${activity.date}`
                     : `${formatTime(activity.minutesSpent || 0)} on ${activity.date}`}
             </Typography>
             <Divider sx={{ width: 1 }} />

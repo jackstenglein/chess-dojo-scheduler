@@ -21,7 +21,6 @@ import TimezoneChip from '@/components/profile/info/TimezoneChip';
 import UserInfo from '@/components/profile/info/UserInfo';
 import StatsTab from '@/components/profile/stats/StatsTab';
 import { TrainingPlanTab } from '@/components/profile/trainingPlan/TrainingPlanTab';
-import { DEFAULT_WORK_GOAL } from '@/components/profile/trainingPlan/workGoal';
 import ProfilePageTutorial from '@/components/tutorial/ProfilePageTutorial';
 import { FollowerEntry } from '@/database/follower';
 import { hasCreatedProfile, User } from '@/database/user';
@@ -344,14 +343,8 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                     >
                         <Stack spacing={2}>
                             <HeatmapCard
-                                workGoalHistory={
-                                    user.workGoalHistory ?? [
-                                        {
-                                            date: '',
-                                            workGoal: user.workGoal ?? DEFAULT_WORK_GOAL,
-                                        },
-                                    ]
-                                }
+                                workGoalHistory={user.workGoalHistory ?? []}
+                                defaultWorkGoal={user.workGoal}
                             />
                             <DojoScoreCard user={user} cohort={user.dojoCohort} />
                             <BadgeCard user={user} />

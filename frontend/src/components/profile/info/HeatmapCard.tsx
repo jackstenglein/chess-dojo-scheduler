@@ -1,5 +1,5 @@
 import { useTimelineContext } from '@/components/profile/activity/useTimeline';
-import { WorkGoalHistory } from '@/database/user';
+import { WorkGoalHistory, WorkGoalSettings } from '@/database/user';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { Close } from '@mui/icons-material';
 import { Card, CardContent, Dialog, DialogContent, IconButton } from '@mui/material';
@@ -27,9 +27,16 @@ export function getBlockSize() {
 
 /**
  * Renders a card showing the user's activity heatmap.
- * @param user The user whose activity will be displayed in the heatmap.
+ * @param workGoalHistory The work goal history of the user.
+ * @param defaultWorkGoal The default work goal to display if not found in the history.
  */
-export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHistory[] }) => {
+export const HeatmapCard = ({
+    workGoalHistory,
+    defaultWorkGoal,
+}: {
+    workGoalHistory: WorkGoalHistory[];
+    defaultWorkGoal?: WorkGoalSettings;
+}) => {
     const { entries } = useTimelineContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
@@ -52,6 +59,7 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
                         onPopOut={() => setIsModalOpen(true)}
                         description=''
                         workGoalHistory={workGoalHistory}
+                        defaultWorkGoal={defaultWorkGoal}
                     />
                 </CardContent>
             </Card>
