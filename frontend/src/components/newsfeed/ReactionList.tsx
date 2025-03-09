@@ -195,8 +195,14 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
     };
 
     return (
-        <Stack direction='row' spacing={1} mt={1}>
+        <>
             <RequestSnackbar request={request} />
+
+            <Tooltip title='Add Reaction'>
+                <IconButton color='primary' onClick={handleClick}>
+                    <AddReactionIcon />
+                </IconButton>
+            </Tooltip>
 
             {Object.entries(reactionMap).map(([type, reactors]) => (
                 <Tooltip key={type} title={`Reacted by ${reactors.join(', ')}`}>
@@ -224,12 +230,6 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                 </Tooltip>
             ))}
 
-            <Tooltip title='Add Reaction'>
-                <IconButton color='primary' onClick={handleClick}>
-                    <AddReactionIcon />
-                </IconButton>
-            </Tooltip>
-
             <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                 <Stack
                     px={1}
@@ -249,7 +249,7 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                     ))}
                 </Stack>
             </Menu>
-        </Stack>
+        </>
     );
 };
 

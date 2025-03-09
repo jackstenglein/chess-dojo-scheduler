@@ -18,6 +18,8 @@ export interface UseTimelineResponse {
     resetRequest: () => void;
     onEdit: (i: number, entry: TimelineEntry) => void;
     onNewEntry: (entry: TimelineEntry) => void;
+    onEditEntries: (entries: TimelineEntry[]) => void;
+    onDeleteEntries: (entries: TimelineEntry[]) => void;
 }
 
 const TimelineContext = createContext<UseTimelineResponse | undefined>(undefined);
@@ -93,6 +95,26 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({ owner, child
         [setEntries],
     );
 
+    const onEditEntries = useCallback(
+        (entries: TimelineEntry[]) => {
+            setEntries((currentEntries) =>
+                currentEntries
+                    .map((e) => entries.find((e2) => e.id === e2.id) ?? e)
+                    .sort((a, b) => (b.date || b.createdAt).localeCompare(a.date || a.createdAt)),
+            );
+        },
+        [setEntries],
+    );
+
+    const onDeleteEntries = useCallback(
+        (entries: TimelineEntry[]) => {
+            setEntries((currentEntries) =>
+                currentEntries.filter((e) => !entries.some((e2) => e.id === e2.id)),
+            );
+        },
+        [setEntries],
+    );
+
     const timelineData = {
         request,
         entries,
@@ -101,6 +123,8 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({ owner, child
         resetRequest,
         onEdit,
         onNewEntry,
+        onEditEntries,
+        onDeleteEntries,
     };
 
     return <TimelineContext.Provider value={timelineData}>{children}</TimelineContext.Provider>;
