@@ -36,6 +36,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TaskDialogView } from './TaskDialog';
 
 const NUMBER_REGEX = /^[0-9]*$/;
+const NEGATIVE_NUMBER_REGEX = /^-?[0-9]*$/;
 
 interface HistoryItem {
     date: DateTime | null;
@@ -225,11 +226,10 @@ function getTimelineUpdate(
         }
 
         if (
-            item.entry.scoreboardDisplay !== ScoreboardDisplay.NonDojo &&
-            item.entry.scoreboardDisplay !== ScoreboardDisplay.Minutes &&
-            (isNaN(parseInt(item.count)) || parseInt(item.count) < 0)
+            item.count !== '' &&
+            (!NEGATIVE_NUMBER_REGEX.test(item.count) || isNaN(parseInt(item.count)))
         ) {
-            itemErrors.count = 'This field must be a non-negative integer';
+            itemErrors.count = 'This field must be an integer';
         }
 
         if (item.hours !== '' && (!NUMBER_REGEX.test(item.hours) || isNaN(parseInt(item.hours)))) {
@@ -273,7 +273,7 @@ function getTimelineUpdate(
         const newCount =
             item.entry.scoreboardDisplay === ScoreboardDisplay.Minutes
                 ? previousCount + minutesSpent
-                : previousCount + parseInt(item.count);
+                : previousCount + parseInt(item.count || '0');
 
         let previousScore = 0;
         let newScore = 0;

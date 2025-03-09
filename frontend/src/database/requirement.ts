@@ -318,10 +318,13 @@ function clampCount(
  */
 export function getCurrentCount(
     cohort: string,
-    requirement: Requirement | CustomTask,
+    requirement?: Requirement | CustomTask,
     progress?: RequirementProgress,
     clamp?: boolean,
 ): number {
+    if (!requirement) {
+        return 0;
+    }
     if (!progress) {
         return 0;
     }
