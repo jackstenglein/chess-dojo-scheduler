@@ -323,7 +323,12 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     const request = useRequest<AxiosResponse<User>>();
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
-    const { entries, request: timelineRequest, resetRequest } = useTimelineContext();
+    const {
+        entries,
+        request: timelineRequest,
+        onEditEntries,
+        onDeleteEntries,
+    } = useTimelineContext();
 
     const isTimeOnly =
         requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
@@ -430,9 +435,10 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                             : totalCount,
                     total_minutes: totalTime,
                 });
-                onClose();
                 request.onSuccess(response);
-                resetRequest();
+                onEditEntries(update.updated);
+                onDeleteEntries(update.deleted);
+                onClose();
             })
             .catch((err) => {
                 console.error('updateUserTimeline: ', err);
