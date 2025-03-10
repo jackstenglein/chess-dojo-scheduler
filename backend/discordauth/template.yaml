@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  discordauth
+
+  Sample SAM Template for Discord OAuth2 Flow and verification
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  DiscordAuthFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: discordauth/
+      Handler: app.lambdaHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          DISCORD_CLIENT_ID: !Ref DiscordClientId
+          DISCORD_CLIENT_SECRET: !Ref DiscordClientSecret
+          DISCORD_REDIRECT_URI: !Ref DiscordRedirectUri
+          DISCORD_BOT_TOKEN: !Ref DiscordBotToken  
+      Events:
+        DiscordAuth:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /verify
+            Method: post
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+        - app.ts
+
+
+Parameters:
+  DiscordClientId:
+    Type: String
+    Description: Discord Client ID
+    Default: 977730277390577744
+
+  DiscordClientSecret:
+    Type: String
+    Description: Discord Client Secret
+    Default: insert-client-secret
+
+  DiscordRedirectUri:
+    Type: String
+    Description: Discord Redirect URI
+    Default: insert-redirect-url
+
+  DiscordBotToken:
+    Type: String
+    Description: Discord Bot Token
+    Default: insert-bot-token
+
+
+Outputs:
+  DiscordAuthApi:
+    Description: "API Gateway endpoint URL for Discord OAuth2 auth function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  DiscordAuthFunction:
+    Description: "Discord Auth Lambda Function ARN"
+    Value: !GetAtt DiscordAuthFunction.Arn
+  DiscordAuthFunctionIamRole:
+    Description: "Implicit IAM Role created for Discord Auth function"
+    Value: !GetAtt DiscordAuthFunctionRole.Arn
