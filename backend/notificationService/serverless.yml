@@ -1,0 +1,58 @@
+# Deploys the notification service.
+
+service: chess-dojo-notification
+
+plugins:
+  - serverless-esbuild
+  - serverless-plugin-custom-roles
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  deploymentMethod: direct
+
+functions:
+  handler:
+    handler: handler.handler
+    events:
+      - sqs:
+          arn: !GetAtt NotificationEventQueue.Arn
+          batchSize: 500
+          maximumBatchingWindow: 60
+          maximumConcurrency: 5
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:NotificationsTableArn}
+      - Effect: Allow
+        Action:
+          - sqs:ReceiveMessage
+          - sqs:DeleteMessage
+          - sqs:GetQueueAttributes
+        Resource: !GetAtt NotificationEventQueue.Arn
+
+resources:
+  Resources:
+    NotificationEventQueue:
+      Type: AWS::SQS::Queue
+      DeletionPolicy: Retain
+      Properties:
+        QueueName: ${sls:stage}-notification-events
+
+  Outputs:
+    NotificationEventQueueArn:
+      Value: !GetAtt NotificationEventQueue.Arn
+    NotificationEventQueueUrl:
+      Value: !Ref NotificationEventQueue

@@ -18,6 +18,8 @@ services:
       PicturesBucket: ${chess-dojo-scheduler.PicturesBucket}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
       AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
 
   coach:
     path: coach
@@ -174,8 +176,11 @@ services:
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
 
-  notifyService:
-    path: notifyService
+  notificationService:
+    path: notificationService
+    params:
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
 
   roundRobinService:
     path: roundRobinService

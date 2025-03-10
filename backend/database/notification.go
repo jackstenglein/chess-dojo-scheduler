@@ -1,12 +1,14 @@
 package database
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
+	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
@@ -278,6 +280,38 @@ func NewFollowerNotification(f *FollowerEntry, cohort DojoCohort) *Notification 
 			Cohort:      cohort,
 		},
 	}
+}
+
+func SendFollowerEvent(f *FollowerEntry, cohort DojoCohort) error {
+	type follower struct {
+		Username    string `json:"username"`
+		DisplayName string `json:"displayName"`
+		Cohort      string `json:"cohort"`
+	}
+
+	event := struct {
+		Type     string   `json:"type"`
+		Username string   `json:"username"`
+		Follower follower `json:"follower"`
+	}{
+		Type:     string(NotificationType_NewFollower),
+		Username: f.Poster,
+		Follower: follower{
+			Username:    f.Follower,
+			DisplayName: f.FollowerDisplayName,
+			Cohort:      string(cohort),
+		},
+	}
+	body, err := json.Marshal(event)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to marshal notification event", err)
+	}
+
+	_, err = sqsService.SendMessage(&sqs.SendMessageInput{
+		MessageBody: aws.String(string(body)),
+		QueueUrl:    aws.String(sqsUrl),
+	})
+	return errors.Wrap(500, "Temporary server error", "Failed to send SQS message", err)
 }
 
 // TimelineCommentNotification returns a Notification object for a comment on a
