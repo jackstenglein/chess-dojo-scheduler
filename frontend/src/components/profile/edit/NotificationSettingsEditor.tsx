@@ -77,20 +77,6 @@ const sections: NotificationSettingsSection[] = [
         ],
     },
     {
-        label: 'Discord',
-        icon: <DiscordIcon />,
-        settings: [
-            {
-                label: 'Notify me via a Discord DM when my meeting is booked',
-                path: 'discordNotificationSettings.disableMeetingBooking',
-            },
-            {
-                label: 'Notify me via a Discord DM when my meeting is cancelled',
-                path: 'discordNotificationSettings.disableMeetingCancellation',
-            },
-        ],
-    },
-    {
         label: 'Email',
         icon: <Email />,
         settings: [
@@ -101,6 +87,20 @@ const sections: NotificationSettingsSection[] = [
             {
                 label: 'Subscribe to the monthly Dojo Digest',
                 path: 'emailNotificationSettings.disableNewsletter',
+            },
+        ],
+    },
+    {
+        label: 'Discord',
+        icon: <DiscordIcon />,
+        settings: [
+            {
+                label: 'Notify me via a Discord DM when my meeting is booked',
+                path: 'discordNotificationSettings.disableMeetingBooking',
+            },
+            {
+                label: 'Notify me via a Discord DM when my meeting is cancelled',
+                path: 'discordNotificationSettings.disableMeetingCancellation',
             },
         ],
     },

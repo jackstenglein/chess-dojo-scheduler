@@ -6,6 +6,7 @@ import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
 import { Link } from '@/components/navigation/Link';
+import DiscordOAuthButton from '@/components/profile/edit/DiscordOAuthButton';
 import NotificationSettingsEditor from '@/components/profile/edit/NotificationSettingsEditor';
 import { PersonalInfoEditor } from '@/components/profile/edit/PersonalInfoEditor';
 import { RatingEditor, RatingsEditor } from '@/components/profile/edit/RatingsEditor';
@@ -446,6 +447,8 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             notificationSettings={notificationSettings}
                             setNotificationSettings={setNotificationSettings}
                         />
+
+                        <DiscordOAuthButton user={user} />
 
                         <SubscriptionManager user={user} />
                     </Stack>
