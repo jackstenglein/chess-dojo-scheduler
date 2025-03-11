@@ -101,6 +101,8 @@ services:
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
       GameDatabaseBucket: ${chess-dojo-scheduler.GameDatabaseBucket}
       AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
 
   paymentService:
     path: paymentService
@@ -181,6 +183,7 @@ services:
     params:
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
 
   roundRobinService:
     path: roundRobinService

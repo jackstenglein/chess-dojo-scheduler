@@ -27,9 +27,33 @@ const NotificationEventTypeSchema = z.enum([
 /** The types of a notification event. */
 export const NotificationEventTypes = NotificationEventTypeSchema.enum;
 
+/** The type of a notification event when a comment is left on a game. */
+const GameCommentEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.GAME_COMMENT),
+    /** The game the comment was left on. */
+    game: z.object({
+        /** The cohort of the game. */
+        cohort: z.string(),
+        /** The id of the game. */
+        id: z.string(),
+    }),
+    /** The comment left on the game. */
+    comment: z.object({
+        /** The normalized FEN the comment was left on. */
+        fen: z.string(),
+        /** The id of the comment. */
+        id: z.string(),
+    }),
+});
+
+/** The type of a notification event when a comment is left on a game. */
+export type GameCommentEvent = z.infer<typeof GameCommentEventSchema>;
+
+/** The type of a notification event when a user gets a new follower. */
 const NewFollowerEventSchema = z.object({
     /** The type of the event. */
-    type: z.literal(NotificationEventTypeSchema.Enum.NEW_FOLLOWER),
+    type: z.literal(NotificationEventTypes.NEW_FOLLOWER),
     /** The username of the person who was followed. */
     username: z.string(),
     /** The person who followed the given username. */
@@ -43,13 +67,47 @@ const NewFollowerEventSchema = z.object({
     }),
 });
 
+/** The type of a notification event when a user gets a new follower. */
 export type NewFollowerEvent = z.infer<typeof NewFollowerEventSchema>;
 
 /** The schema of an event that generates notifications. */
-export const NotificationEventSchema = z.discriminatedUnion('type', [NewFollowerEventSchema]);
+export const NotificationEventSchema = z.discriminatedUnion('type', [
+    NewFollowerEventSchema,
+    GameCommentEventSchema,
+]);
 
 /** An event that generates notifications. */
 export type NotificationEvent = z.infer<typeof NotificationEventSchema>;
+
+/** The types of notifications. */
+const NotificationTypeSchema = z.enum([
+    /** A comment is left on a game */
+    'GAME_COMMENT',
+
+    /** A reply is left on a game comment. */
+    'GAME_COMMENT_REPLY',
+
+    /** A user gets a new follower */
+    'NEW_FOLLOWER',
+
+    /** A comment is left on a timeline entry */
+    'TIMELINE_COMMENT',
+
+    /** An emoji reaction is left on a timeline entry */
+    'TIMELINE_REACTION',
+
+    /** Someone requests to join a club */
+    'NEW_CLUB_JOIN_REQUEST',
+
+    /** A request to join a club is approved */
+    'CLUB_JOIN_REQUEST_APPROVED',
+
+    /** A sensei game review is completed */
+    'GAME_REVIEW_COMPLETE',
+]);
+
+/** The types of notifications. */
+export const NotificationTypes = NotificationTypeSchema.enum;
 
 // export const GameCommentMetadata = z
 //     .object({

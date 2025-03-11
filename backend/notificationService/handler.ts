@@ -12,6 +12,7 @@ import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { SQSEvent, SQSHandler } from 'aws-lambda';
 import { ApiError } from 'chess-dojo-directory-service/api';
 import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
+import { handleGameComment } from './game';
 
 const userTable = process.env.stage + '-users';
 const notificationTable = process.env.stage + '-notifications';
@@ -36,8 +37,15 @@ export const handler: SQSHandler = async (event: SQSEvent): Promise<void> => {
 
 async function handleEvent(event: NotificationEvent) {
     switch (event.type) {
+        case NotificationEventTypes.GAME_COMMENT:
+            return handleGameComment(event);
         case NotificationEventTypes.NEW_FOLLOWER:
             return handleNewFollower(event);
+        default:
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `Invalid notification event type: ${(event as any).type}`,
+            });
     }
 }
 
@@ -56,7 +64,7 @@ async function handleNewFollower(event: NewFollowerEvent) {
     );
     if (!getItemOutput.Item) {
         throw new ApiError({
-            statusCode: 400,
+            statusCode: 404,
             publicMessage: `Invalid request: username ${event.username} not found `,
         });
     }

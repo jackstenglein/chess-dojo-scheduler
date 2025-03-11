@@ -282,6 +282,45 @@ func NewFollowerNotification(f *FollowerEntry, cohort DojoCohort) *Notification 
 	}
 }
 
+func SendGameCommentEvent(game *Game, comment *PositionComment) error {
+	event := struct {
+		Type string `json:"type"`
+		Game struct {
+			Cohort string `json:"cohort"`
+			Id     string `json:"id"`
+		} `json:"game"`
+		Comment struct {
+			Fen string `json:"fen"`
+			Id  string `json:"id"`
+		} `json:"comment"`
+	}{
+		Type: string(NotificationType_GameComment),
+		Game: struct {
+			Cohort string "json:\"cohort\""
+			Id     string "json:\"id\""
+		}{
+			Cohort: string(game.Cohort),
+			Id:     game.Id,
+		},
+		Comment: struct {
+			Fen string "json:\"fen\""
+			Id  string "json:\"id\""
+		}{
+			Fen: comment.Fen,
+			Id:  comment.Id,
+		},
+	}
+	body, err := json.Marshal(event)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to marshal notification event", err)
+	}
+	_, err = sqsService.SendMessage(&sqs.SendMessageInput{
+		MessageBody: aws.String(string(body)),
+		QueueUrl:    aws.String(sqsUrl),
+	})
+	return errors.Wrap(500, "Temporary server error", "Failed to send SQS message", err)
+}
+
 func SendFollowerEvent(f *FollowerEntry, cohort DojoCohort) error {
 	type follower struct {
 		Username    string `json:"username"`

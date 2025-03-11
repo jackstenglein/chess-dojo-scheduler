@@ -31,7 +31,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: ${param:UsersTableArn}
+        Resource:
+          - ${param:UsersTableArn}
+          - ${param:GamesTableArn}
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
