@@ -164,66 +164,6 @@ type NotificationPutter interface {
 	PutNotification(n *Notification) error
 }
 
-// GameCommentNotification returns a Notification object for a game comment.
-// If the owner of the game has game comment notifications turned off, nil
-// is returned.
-func GameCommentNotification(g *Game) *Notification {
-	if g == nil {
-		return nil
-	}
-
-	user, err := DynamoDB.GetUser(g.Owner)
-	if err != nil {
-		log.Errorf("Failed to get user: %v", err)
-		return nil
-	}
-	if user.NotificationSettings.SiteNotificationSettings.GetDisableGameComment() {
-		return nil
-	}
-
-	return &Notification{
-		Username:  g.Owner,
-		Id:        fmt.Sprintf("%s|%s|%s", NotificationType_GameComment, g.Cohort, g.Id),
-		Type:      NotificationType_GameComment,
-		UpdatedAt: time.Now().Format(time.RFC3339),
-		GameCommentMetadata: &GameCommentMetadata{
-			Cohort:  g.Cohort,
-			Id:      g.Id,
-			Headers: g.Headers,
-		},
-	}
-}
-
-// GameCommentReplyNotification returns a Notification object for a reply to a
-// game comment. If the user has notifications for replies turned off, nil is
-// returned.
-func GameCommentReplyNotification(g *Game, username string) *Notification {
-	if g == nil {
-		return nil
-	}
-
-	user, err := DynamoDB.GetUser(username)
-	if err != nil {
-		log.Errorf("Failed to get user: %v", err)
-		return nil
-	}
-	if user.NotificationSettings.SiteNotificationSettings.GetDisableGameCommentReplies() {
-		return nil
-	}
-
-	return &Notification{
-		Username:  username,
-		Id:        fmt.Sprintf("%s|%s|%s", NotificationType_GameCommentReply, g.Cohort, g.Id),
-		Type:      NotificationType_GameCommentReply,
-		UpdatedAt: time.Now().Format(time.RFC3339),
-		GameCommentMetadata: &GameCommentMetadata{
-			Cohort:  g.Cohort,
-			Id:      g.Id,
-			Headers: g.Headers,
-		},
-	}
-}
-
 // GameReviewNotification returns a Notification object for a game review.
 // If the owner of the game has game review notifications turned off, nil is
 // returned.
@@ -257,31 +197,6 @@ func GameReviewNotification(g *Game) *Notification {
 	}
 }
 
-// NewFollowerNotification returns a Notification object for a follower entry. If the
-// poster of the follower entry has follower notifications turned off, nil is returned.
-func NewFollowerNotification(f *FollowerEntry, cohort DojoCohort) *Notification {
-	user, err := DynamoDB.GetUser(f.Poster)
-	if err != nil {
-		log.Errorf("Failed to get user: %v", err)
-		return nil
-	}
-	if user.NotificationSettings.SiteNotificationSettings.GetDisableNewFollower() {
-		return nil
-	}
-
-	return &Notification{
-		Username:  f.Poster,
-		Id:        fmt.Sprintf("%s|%s", NotificationType_NewFollower, f.Follower),
-		Type:      NotificationType_NewFollower,
-		UpdatedAt: time.Now().Format(time.RFC3339),
-		NewFollowerMetadata: &NewFollowerMetadata{
-			Username:    f.Follower,
-			DisplayName: f.FollowerDisplayName,
-			Cohort:      cohort,
-		},
-	}
-}
-
 func SendGameCommentEvent(game *Game, comment *PositionComment) error {
 	event := struct {
 		Type string `json:"type"`
@@ -310,15 +225,7 @@ func SendGameCommentEvent(game *Game, comment *PositionComment) error {
 			Id:  comment.Id,
 		},
 	}
-	body, err := json.Marshal(event)
-	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Failed to marshal notification event", err)
-	}
-	_, err = sqsService.SendMessage(&sqs.SendMessageInput{
-		MessageBody: aws.String(string(body)),
-		QueueUrl:    aws.String(sqsUrl),
-	})
-	return errors.Wrap(500, "Temporary server error", "Failed to send SQS message", err)
+	return sendSqsEvent(event)
 }
 
 func SendFollowerEvent(f *FollowerEntry, cohort DojoCohort) error {
@@ -341,42 +248,34 @@ func SendFollowerEvent(f *FollowerEntry, cohort DojoCohort) error {
 			Cohort:      string(cohort),
 		},
 	}
+	return sendSqsEvent(event)
+}
+
+func SendTimelineCommentEvent(e *TimelineEntry, c *Comment) error {
+	event := struct {
+		Type      string `json:"type"`
+		Owner     string `json:"owner"`
+		Id        string `json:"id"`
+		CommentId string `json:"commentId"`
+	}{
+		Type:      string(NotificationType_TimelineComment),
+		Owner:     e.Owner,
+		Id:        e.Id,
+		CommentId: c.Id,
+	}
+	return sendSqsEvent(event)
+}
+
+func sendSqsEvent(event any) error {
 	body, err := json.Marshal(event)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Failed to marshal notification event", err)
 	}
-
 	_, err = sqsService.SendMessage(&sqs.SendMessageInput{
 		MessageBody: aws.String(string(body)),
 		QueueUrl:    aws.String(sqsUrl),
 	})
 	return errors.Wrap(500, "Temporary server error", "Failed to send SQS message", err)
-}
-
-// TimelineCommentNotification returns a Notification object for a comment on a
-// timeline entry. If the owner of the timeline entry has timeline comment
-// notifications turned off, nil is returned.
-func TimelineCommentNotification(e *TimelineEntry) *Notification {
-	user, err := DynamoDB.GetUser(e.Owner)
-	if err != nil {
-		log.Errorf("Failed to get user: %v", err)
-		return nil
-	}
-	if user.NotificationSettings.SiteNotificationSettings.GetDisableNewsfeedComment() {
-		return nil
-	}
-
-	return &Notification{
-		Username:  e.Owner,
-		Id:        fmt.Sprintf("%s|%s|%s", NotificationType_TimelineComment, e.Owner, e.Id),
-		Type:      NotificationType_TimelineComment,
-		UpdatedAt: time.Now().Format(time.RFC3339),
-		TimelineCommentMetadata: &TimelineCommentMetadata{
-			Owner: e.Owner,
-			Id:    e.Id,
-			Name:  e.RequirementName,
-		},
-	}
 }
 
 // TimelineReactionNotification returns a Notification object for a reaction

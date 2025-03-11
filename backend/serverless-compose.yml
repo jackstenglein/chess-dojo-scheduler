@@ -69,6 +69,8 @@ services:
       TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
 
   tournaments:
     path: tournament
@@ -184,6 +186,7 @@ services:
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
 
   roundRobinService:
     path: roundRobinService

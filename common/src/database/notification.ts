@@ -70,10 +70,26 @@ const NewFollowerEventSchema = z.object({
 /** The type of a notification event when a user gets a new follower. */
 export type NewFollowerEvent = z.infer<typeof NewFollowerEventSchema>;
 
+/** The type of a notification event when a comment is left on a timeline entry. */
+export const TimelineCommentEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.TIMELINE_COMMENT),
+    /** The owner of the timeline entry that was commented on. */
+    owner: z.string(),
+    /** The id of the timeline entry that was commented on. */
+    id: z.string(),
+    /** The id of the comment that was created. */
+    commentId: z.string(),
+});
+
+/** The type of a notification event when a comment is left on a timeline entry. */
+export type TimelineCommentEvent = z.infer<typeof TimelineCommentEventSchema>;
+
 /** The schema of an event that generates notifications. */
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
     GameCommentEventSchema,
+    TimelineCommentEventSchema,
 ]);
 
 /** An event that generates notifications. */

@@ -21,10 +21,11 @@ provider:
 functions:
   handler:
     handler: handler.handler
+    timeout: 300
     events:
       - sqs:
           arn: !GetAtt NotificationEventQueue.Arn
-          batchSize: 500
+          batchSize: 200
           maximumBatchingWindow: 60
           maximumConcurrency: 5
     iamRoleStatements:
@@ -34,6 +35,7 @@ functions:
         Resource:
           - ${param:UsersTableArn}
           - ${param:GamesTableArn}
+          - ${param:TimelineTableArn}
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
@@ -52,6 +54,7 @@ resources:
       DeletionPolicy: Retain
       Properties:
         QueueName: ${sls:stage}-notification-events
+        VisibilityTimeout: 300
 
   Outputs:
     NotificationEventQueueArn:
