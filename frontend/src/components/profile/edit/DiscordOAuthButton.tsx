@@ -21,59 +21,73 @@ function DiscordOAuthButton({ user }: DiscordOAuthButtonProps) {
     );
 
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
+        if (mode === 'connect') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
 
-        if (code) {
-            if (sessionStorage.getItem('discord_code') === code) return;
+            if (code) {
+                const payload = {
+                    code,
+                    ispaid: user.subscriptionStatus === SubscriptionStatus.Subscribed,
+                    cohort: user.dojoCohort,
+                    dojousernamekey: user.username,
+                };
 
-            sessionStorage.setItem('discord_code', code);
-
-            const payload =
-                mode === 'connect'
-                    ? {
-                          code,
-                          ispaid:
-                              user.subscriptionStatus === SubscriptionStatus.Subscribed,
-                          cohort: user.dojoCohort,
-                      }
-                    : { code };
-
-            fetch(
-                `${process.env.NEXT_PUBLIC_BETA_API_BASE_URL}/Prod/verify?mode=${mode}`,
-                {
+                fetch(`${process.env.NEXT_PUBLIC_BETA_API_BASE_URL}/verify?mode=connect`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
-                },
-            )
-                .then(async (res) => {
-                    const data = await res.json();
-                    if (res.ok) {
-                        setModalMessage(
-                            data.verification ||
-                                (mode === 'connect'
-                                    ? 'Successfully connected!'
-                                    : 'Successfully disconnected!'),
-                        );
-                        setIsSuccess(true);
-                    } else {
-                        setModalMessage(data.error || `Failed to ${mode} with Discord`);
-                        setIsSuccess(false);
-                    }
-                    setModalOpen(true);
                 })
-                .catch((err) => {
-                    console.error('Error:', err);
-                    setModalMessage('An unexpected error occurred.');
-                    setIsSuccess(false);
-                    setModalOpen(true);
-                });
+                    .then(async (res) => {
+                        const data = await res.json();
+                        if (res.ok) {
+                            setModalMessage(data.verification || 'Successfully connected!');
+                            setIsSuccess(true);
+                        } else {
+                            setModalMessage(data.error || 'Failed to connect with Discord');
+                            setIsSuccess(false);
+                        }
+                        setModalOpen(true);
+                    })
+                    .catch((err) => {
+                        console.error('Error:', err);
+                        setModalMessage('An unexpected error occurred.');
+                        setIsSuccess(false);
+                        setModalOpen(true);
+                    });
+            }
         }
     }, [user, mode]);
 
-    const handleButtonClick = () => {
+    const handleConnect = () => {
         window.location.href = DISCORD_AUTH_URL;
+    };
+
+    const handleDisconnect = () => {
+        const payload = { dojousernamekey: user.username };
+
+        fetch(`${process.env.NEXT_PUBLIC_BETA_API_BASE_URL}/verify?mode=disconnect`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        })
+            .then(async (res) => {
+                const data = await res.json();
+                if (res.status === 201) {
+                    setModalMessage(data.verification || 'Successfully disconnected!');
+                    setIsSuccess(true);
+                } else {
+                    setModalMessage(data.error || 'Failed to disconnect from Discord');
+                    setIsSuccess(false);
+                }
+                setModalOpen(true);
+            })
+            .catch((err) => {
+                console.error('Error:', err);
+                setModalMessage('An unexpected error occurred.');
+                setIsSuccess(false);
+                setModalOpen(true);
+            });
     };
 
     const handleClose = () => {
@@ -83,16 +97,25 @@ function DiscordOAuthButton({ user }: DiscordOAuthButtonProps) {
     return (
         <>
             <Stack spacing={2} alignItems='start'>
-                <Button
-                    variant='contained'
-                    sx={{ backgroundColor: mode === 'connect' ? '#5865f2' : '#AB080A' }}
-                    startIcon={<DiscordIcon />}
-                    onClick={handleButtonClick}
-                >
-                    {mode === 'connect'
-                        ? 'Connect Discord account'
-                        : 'Disconnect Discord account'}
-                </Button>
+                {mode === 'connect' ? (
+                    <Button
+                        variant='contained'
+                        sx={{ backgroundColor: '#5865f2' }}
+                        startIcon={<DiscordIcon />}
+                        onClick={handleConnect}
+                    >
+                        Connect Discord account
+                    </Button>
+                ) : (
+                    <Button
+                        variant='contained'
+                        sx={{ backgroundColor: '#AB080A' }}
+                        startIcon={<DiscordIcon />}
+                        onClick={handleDisconnect}
+                    >
+                        Disconnect Discord account
+                    </Button>
+                )}
             </Stack>
 
             <Modal open={modalOpen} onClose={handleClose}>
