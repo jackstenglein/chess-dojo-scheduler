@@ -85,11 +85,25 @@ export const TimelineCommentEventSchema = z.object({
 /** The type of a notification event when a comment is left on a timeline entry. */
 export type TimelineCommentEvent = z.infer<typeof TimelineCommentEventSchema>;
 
+/** The type of a notification event when a reaction is left on a timeline entry. */
+export const TimelineReactionEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.TIMELINE_REACTION),
+    /** The owner of the timeline entry that was reacted on. */
+    owner: z.string(),
+    /** The id of the timeline entry that was reacted on. */
+    id: z.string(),
+});
+
+/** The type of a notification event when a reaction is left on a timeline entry. */
+export type TimelineReactionEvent = z.infer<typeof TimelineReactionEventSchema>;
+
 /** The schema of an event that generates notifications. */
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
     GameCommentEventSchema,
     TimelineCommentEventSchema,
+    TimelineReactionEventSchema,
 ]);
 
 /** An event that generates notifications. */

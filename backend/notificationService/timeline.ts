@@ -3,6 +3,7 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     NotificationTypes,
     TimelineCommentEvent,
+    TimelineReactionEvent,
 } from '@jackstenglein/chess-dojo-common/src/database/notification';
 import { TimelineEntry } from '@jackstenglein/chess-dojo-common/src/database/timeline';
 import { ApiError } from 'chess-dojo-directory-service/api';
@@ -66,5 +67,51 @@ export async function handleTimelineComment(event: TimelineCommentEvent) {
     await dynamo.send(input);
     console.log(
         `Successfully created ${NotificationTypes.TIMELINE_COMMENT} notification for ${event.owner}`,
+    );
+}
+
+/**
+ * Creates notifications for TimelineReactionEvents.
+ * @param event The event to create notifications for.
+ */
+export async function handleTimelineReaction(event: TimelineReactionEvent) {
+    const user = await getNotificationSettings(event.owner);
+    if (!user || user.notificationSettings.siteNotificationSettings?.disableNewsfeedReaction) {
+        return;
+    }
+
+    const getTimelineEntry = await dynamo.send(
+        new GetItemCommand({
+            Key: {
+                owner: { S: event.owner },
+                id: { S: event.id },
+            },
+            TableName: timelineTable,
+        }),
+    );
+    if (!getTimelineEntry.Item) {
+        throw new ApiError({
+            statusCode: 404,
+            publicMessage: `timeline entry ${event.owner}/${event.id} not found`,
+        });
+    }
+
+    const entry = unmarshall(getTimelineEntry.Item) as TimelineEntry;
+    const input = new UpdateItemBuilder()
+        .key('username', event.owner)
+        .key('id', `${NotificationTypes.TIMELINE_REACTION}|${event.id}`)
+        .set('type', NotificationTypes.TIMELINE_REACTION)
+        .set('updatedAt', new Date().toISOString())
+        .set('timelineCommentMetadata', {
+            owner: event.owner,
+            id: event.id,
+            name: entry.requirementName,
+        })
+        .add('count', 1)
+        .table(notificationTable)
+        .build();
+    await dynamo.send(input);
+    console.log(
+        `Successfully created ${NotificationTypes.TIMELINE_REACTION} notification for ${event.owner}`,
     );
 }

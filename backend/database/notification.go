@@ -266,6 +266,19 @@ func SendTimelineCommentEvent(e *TimelineEntry, c *Comment) error {
 	return sendSqsEvent(event)
 }
 
+func SendTimelineReactionEvent(e *TimelineEntry) error {
+	event := struct {
+		Type  string `json:"type"`
+		Owner string `json:"owner"`
+		Id    string `json:"id"`
+	}{
+		Type:  string(NotificationType_TimelineReaction),
+		Owner: e.Owner,
+		Id:    e.Id,
+	}
+	return sendSqsEvent(event)
+}
+
 func sendSqsEvent(event any) error {
 	body, err := json.Marshal(event)
 	if err != nil {
@@ -276,32 +289,6 @@ func sendSqsEvent(event any) error {
 		QueueUrl:    aws.String(sqsUrl),
 	})
 	return errors.Wrap(500, "Temporary server error", "Failed to send SQS message", err)
-}
-
-// TimelineReactionNotification returns a Notification object for a reaction
-// on a timeline entry. If the owner of the timeline entry has timeline reaction
-// notifications turned off, nil is returned.
-func TimelineReactionNotification(e *TimelineEntry) *Notification {
-	user, err := DynamoDB.GetUser(e.Owner)
-	if err != nil {
-		log.Errorf("Failed to get user: %v", err)
-		return nil
-	}
-	if user.NotificationSettings.SiteNotificationSettings.GetDisableNewsfeedReaction() {
-		return nil
-	}
-
-	return &Notification{
-		Username:  e.Owner,
-		Id:        fmt.Sprintf("%s|%s|%s", NotificationType_TimelineReaction, e.Owner, e.Id),
-		Type:      NotificationType_TimelineReaction,
-		UpdatedAt: time.Now().Format(time.RFC3339),
-		TimelineCommentMetadata: &TimelineCommentMetadata{
-			Owner: e.Owner,
-			Id:    e.Id,
-			Name:  e.RequirementName,
-		},
-	}
 }
 
 // Returns a Notification object for a request to join the given club.

@@ -13,7 +13,7 @@ import { SQSEvent, SQSHandler } from 'aws-lambda';
 import { ApiError } from 'chess-dojo-directory-service/api';
 import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
 import { handleGameComment } from './game';
-import { handleTimelineComment } from './timeline';
+import { handleTimelineComment, handleTimelineReaction } from './timeline';
 
 const userTable = process.env.stage + '-users';
 const notificationTable = process.env.stage + '-notifications';
@@ -44,6 +44,8 @@ async function handleEvent(event: NotificationEvent) {
             return handleNewFollower(event);
         case NotificationEventTypes.TIMELINE_COMMENT:
             return handleTimelineComment(event);
+        case NotificationEventTypes.TIMELINE_REACTION:
+            return handleTimelineReaction(event);
         default:
             throw new ApiError({
                 statusCode: 400,

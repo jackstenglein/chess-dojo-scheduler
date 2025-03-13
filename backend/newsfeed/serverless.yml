@@ -186,4 +186,8 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - ${param:TimelineTableArn}
-          - ${param:NotificationsTableArn}
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+    environment:
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
