@@ -33,26 +33,41 @@ function DiscordOAuthButton({ user }: DiscordOAuthButtonProps) {
                     dojousernamekey: user.username,
                 };
 
-                fetch(`${process.env.NEXT_PUBLIC_BETA_API_BASE_URL}/verify?mode=connect`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                })
+                fetch(
+                    `${process.env.NEXT_PUBLIC_BETA_API_BASE_URL}/verify?mode=connect`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    },
+                )
                     .then(async (res) => {
-                        const data = await res.json();
+                        let data;
+                        try {
+                            data = await res.json();
+                        } catch (error) {
+                            console.error('Failed to parse JSON:', error);
+                            throw new Error('Invalid response from server');
+                        }
+
                         if (res.ok) {
-                            setModalMessage(data.verification || 'Successfully connected!');
+                            setModalMessage(
+                                data?.verification || 'Successfully connected!',
+                            );
                             setIsSuccess(true);
                         } else {
-                            setModalMessage(data.error || 'Failed to connect with Discord');
+                            setModalMessage(
+                                data?.error || 'Failed to connect with Discord',
+                            );
                             setIsSuccess(false);
                         }
-                        setModalOpen(true);
                     })
                     .catch((err) => {
-                        console.error('Error:', err);
+                        console.error('Error:', err.message);
                         setModalMessage('An unexpected error occurred.');
                         setIsSuccess(false);
+                    })
+                    .finally(() => {
                         setModalOpen(true);
                     });
             }
@@ -73,10 +88,11 @@ function DiscordOAuthButton({ user }: DiscordOAuthButtonProps) {
         })
             .then(async (res) => {
                 const data = await res.json();
-                if (res.status === 201) {
+                if (res.status === 200) {
                     setModalMessage(data.verification || 'Successfully disconnected!');
                     setIsSuccess(true);
                 } else {
+                    setModalOpen(false);
                     setModalMessage(data.error || 'Failed to disconnect from Discord');
                     setIsSuccess(false);
                 }
