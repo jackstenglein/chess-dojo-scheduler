@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -58,11 +57,8 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	notifications := getNotifications(game, &comment)
-	for _, n := range notifications {
-		if err := repository.PutNotification(n); err != nil {
-			log.Error("Failed to create game comment notification:", err)
-		}
+	if err := database.SendGameCommentEvent(game, &comment); err != nil {
+		log.Error("Failed to send game comment notification event:", err)
 	}
 
 	return api.Success(game), nil
@@ -103,41 +99,4 @@ func getComment(event api.Request) (database.PositionComment, error) {
 	comment.UpdatedAt = comment.CreatedAt
 
 	return comment, nil
-}
-
-func getNotifications(game *database.Game, comment *database.PositionComment) []*database.Notification {
-	parentIds := strings.Split(comment.ParentIds, ",")
-	notifications := make([]*database.Notification, 0)
-	notifiedUsers := make(map[string]bool)
-
-	var parent database.PositionComment
-	var ok bool
-
-	for _, parentId := range parentIds {
-		if !ok {
-			parent, ok = game.PositionComments[comment.Fen][parentId]
-		} else {
-			parent, ok = parent.Replies[parentId]
-		}
-
-		if !ok {
-			break
-		}
-		if parent.Owner.Username == comment.Owner.Username || notifiedUsers[parent.Owner.Username] {
-			continue
-		}
-		notifiedUsers[parent.Owner.Username] = true
-
-		if n := database.GameCommentReplyNotification(game, parent.Owner.Username); n != nil {
-			notifications = append(notifications, n)
-		}
-	}
-
-	if comment.ParentIds == "" && comment.Owner.Username != game.Owner {
-		if n := database.GameCommentNotification(game); n != nil {
-			notifications = append(notifications, n)
-		}
-	}
-
-	return notifications
 }

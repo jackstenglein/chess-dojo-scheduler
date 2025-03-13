@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/sqs"
 
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 )
@@ -24,6 +25,9 @@ var sess = session.Must(session.NewSession())
 var DynamoDB = &dynamoRepository{
 	svc: dynamodb.New(sess),
 }
+
+var sqsService = sqs.New(sess)
+var sqsUrl = os.Getenv("notificationEventSqsUrl")
 
 var stage = os.Getenv("stage")
 var userTable = stage + "-users"

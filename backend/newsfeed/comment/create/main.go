@@ -60,11 +60,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	if entry.Owner != comment.Owner {
-		notification := database.TimelineCommentNotification(entry)
-		if err := repository.PutNotification(notification); err != nil {
-			log.Error("Failed to create notification: ", err)
-		}
+	if err := database.SendTimelineCommentEvent(entry, &comment); err != nil {
+		log.Error("Failed to create notification event: ", err)
 	}
 
 	return api.Success(entry), nil

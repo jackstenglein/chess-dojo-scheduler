@@ -125,12 +125,16 @@ functions:
         Resource:
           - !GetAtt ClubsTable.Arn
           - ${param:UsersTableArn}
-          - ${param:NotificationsTableArn}
       - Effect: Allow
         Action:
           - dynamodb:GetItem
           - dynamodb:BatchGetItem
         Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+    environment:
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
 
   processJoinRequest:
     handler: processJoinRequest/main.go
@@ -148,7 +152,6 @@ functions:
         Resource:
           - !GetAtt ClubsTable.Arn
           - ${param:UsersTableArn}
-          - ${param:NotificationsTableArn}
       - Effect: Allow
         Action:
           - dynamodb:BatchGetItem

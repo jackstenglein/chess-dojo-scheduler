@@ -249,3 +249,159 @@ export type DeleteGamesRequest = z.infer<typeof DeleteGamesSchema>;
 
 /** The response to a delete games request. Contains the keys of the successfully deleted games. */
 export type DeleteGamesResponse = DeleteGamesRequest;
+
+/** The key of a game in the database. */
+export interface GameKey {
+    /** The cohort the game is in. */
+    cohort: string;
+    /** The id of the game. */
+    id: string;
+}
+
+export enum GameResult {
+    White = '1-0',
+    Black = '0-1',
+    Draw = '1/2-1/2',
+    Incomplete = '*',
+}
+
+export interface PgnHeaders {
+    White: string;
+    WhiteElo?: string;
+    Black: string;
+    BlackElo?: string;
+    Date: string;
+    Site: string;
+    Result: GameResult;
+    [key: string]: string | undefined;
+}
+
+export interface GameInfo extends GameKey {
+    date: string;
+    owner: string;
+    ownerDisplayName: string;
+    ownerPreviousCohort: string;
+    headers: PgnHeaders;
+    createdAt: string;
+
+    /** When the game was last updated. */
+    updatedAt?: string;
+
+    /** When the game was last changed from unlisted to public. */
+    publishedAt?: string;
+
+    /** Whether the game is unlisted or not. */
+    unlisted?: boolean;
+
+    /**
+     * The review status of the game. Omitted if the game
+     * is not submitted for review.
+     */
+    reviewStatus?: GameReviewStatus;
+
+    /**
+     * The date the user requested a review for this game in ISO
+     * format. Omitted if the game was not submitted for review.
+     */
+    reviewRequestedAt?: string;
+
+    /**
+     * The game review metadata. Omitted if the game was not submitted
+     * for review.
+     */
+    review?: GameReview;
+
+    /** The time class of the game. Currently set only on master games. */
+    timeClass?: string;
+}
+
+export interface CommentOwner {
+    /** The username of the comment owner. */
+    username: string;
+
+    /** The display name of the comment owner. */
+    displayName: string;
+
+    /** The current cohort of the comment owner, at the time of creating the comment. */
+    cohort: string;
+
+    /** The cohort the comment owner most recently graduated from, at the time of creating the comment. */
+    previousCohort: string;
+}
+
+export interface PositionComment {
+    /** A v4 UUID identifying the comment. */
+    id: string;
+
+    /** The normalized FEN of the position the comment was added to. */
+    fen: string;
+
+    /** The ply of the position the comment was added to. */
+    ply?: number;
+
+    /** The san of the position the comment was added to. */
+    san?: string;
+
+    /** The poster of the comment. */
+    owner: CommentOwner;
+
+    /** The time the comment was created. */
+    createdAt: string;
+
+    /** The time the comment was last updated. */
+    updatedAt: string;
+
+    /** The text content of the comment, which may contain mention markup. */
+    content: string;
+
+    /** A comma-separated list of the parent comment ids. Empty for a top-level comment. */
+    parentIds?: string;
+
+    /** Replies to this comment, mapped by their IDs. */
+    replies: Record<string, PositionComment>;
+}
+
+export type Game = GameInfo & {
+    pgn: string;
+    orientation?: 'white' | 'black';
+    timelineId?: string;
+    /**
+     * A map from the normalized FEN of a position to a map from the id of a comment
+     * to the comment.
+     */
+    positionComments: Record<string, Record<string, PositionComment>>;
+};
+
+/** The status of a game review. */
+export enum GameReviewStatus {
+    Pending = 'PENDING',
+    None = '',
+}
+
+export enum GameReviewType {
+    Quick = 'QUICK',
+    Deep = 'DEEP',
+}
+
+export interface GameReview {
+    /** The type of review requested. */
+    type: GameReviewType;
+
+    /**
+     * The date the game was reviewed in ISO format. Omitted if the game
+     * was not reviewed yet.
+     */
+    reviewedAt?: string;
+
+    /** The reviewer of the game. */
+    reviewer?: {
+        /** The username of the reviewer. */
+        username: string;
+
+        /** The display name of the reviewer. */
+        displayName: string;
+
+        /** The cohort of the reviewer. */
+        cohort: string;
+    };
+}

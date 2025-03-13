@@ -52,8 +52,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	if entry.Owner != reactor.Username {
-		notification := database.TimelineReactionNotification(entry)
-		if err := repository.PutNotification(notification); err != nil {
+		if err := database.SendTimelineReactionEvent(entry); err != nil {
 			log.Error("Failed to create notification: ", err)
 		}
 	}

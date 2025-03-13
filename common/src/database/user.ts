@@ -112,6 +112,7 @@ export interface EmailNotificationSettings {
 
 export interface SiteNotificationSettings {
     disableGameComment: boolean;
+    disableGameCommentReplies: boolean;
     disableNewFollower: boolean;
     disableNewsfeedComment: boolean;
     disableNewsfeedReaction: boolean;
