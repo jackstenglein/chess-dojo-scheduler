@@ -279,6 +279,21 @@ func SendTimelineReactionEvent(e *TimelineEntry) error {
 	return sendSqsEvent(event)
 }
 
+func SendClubJoinRequestEvent(club *Club) error {
+	event := struct {
+		Type  string `json:"type"`
+		Id    string `json:"id"`
+		Name  string `json:"name"`
+		Owner string `json:"owner"`
+	}{
+		Type:  string(NotificationType_NewClubJoinRequest),
+		Id:    club.Id,
+		Name:  club.Name,
+		Owner: club.Owner,
+	}
+	return sendSqsEvent(event)
+}
+
 func sendSqsEvent(event any) error {
 	body, err := json.Marshal(event)
 	if err != nil {
@@ -289,20 +304,6 @@ func sendSqsEvent(event any) error {
 		QueueUrl:    aws.String(sqsUrl),
 	})
 	return errors.Wrap(500, "Temporary server error", "Failed to send SQS message", err)
-}
-
-// Returns a Notification object for a request to join the given club.
-func NewClubJoinRequestNotification(club *Club) *Notification {
-	return &Notification{
-		Username:  club.Owner,
-		Id:        fmt.Sprintf("%s|%s", NotificationType_NewClubJoinRequest, club.Id),
-		Type:      NotificationType_NewClubJoinRequest,
-		UpdatedAt: time.Now().Format(time.RFC3339),
-		ClubMetadata: &ClubMetadata{
-			Id:   club.Id,
-			Name: club.Name,
-		},
-	}
 }
 
 // Returns a Notification object indicating that a request to join the given club

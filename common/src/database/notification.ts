@@ -98,12 +98,28 @@ export const TimelineReactionEventSchema = z.object({
 /** The type of a notification event when a reaction is left on a timeline entry. */
 export type TimelineReactionEvent = z.infer<typeof TimelineReactionEventSchema>;
 
+/** The type of a notification event when someone requests to join a club. */
+export const ClubJoinRequesetEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.NEW_CLUB_JOIN_REQUEST),
+    /** The id of the club that was requested to join. */
+    id: z.string(),
+    /** The name of the club that was requested to join. */
+    name: z.string(),
+    /** The owner of the club that was requested to join. */
+    owner: z.string(),
+});
+
+/** The type of a notification event when someone requests to join a club. */
+export type ClubJoinRequestEvent = z.infer<typeof ClubJoinRequesetEventSchema>;
+
 /** The schema of an event that generates notifications. */
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
     GameCommentEventSchema,
     TimelineCommentEventSchema,
     TimelineReactionEventSchema,
+    ClubJoinRequesetEventSchema,
 ]);
 
 /** An event that generates notifications. */
