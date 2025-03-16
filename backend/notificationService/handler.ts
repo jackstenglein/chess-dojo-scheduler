@@ -12,7 +12,7 @@ import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { SQSEvent, SQSHandler } from 'aws-lambda';
 import { ApiError } from 'chess-dojo-directory-service/api';
 import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
-import { handleClubJoinRequest } from './club';
+import { handleClubJoinRequest, handleClubJoinRequestApproved } from './club';
 import { handleGameComment } from './game';
 import { handleTimelineComment, handleTimelineReaction } from './timeline';
 
@@ -49,6 +49,8 @@ async function handleEvent(event: NotificationEvent) {
             return handleTimelineReaction(event);
         case NotificationEventTypes.NEW_CLUB_JOIN_REQUEST:
             return handleClubJoinRequest(event);
+        case NotificationEventTypes.CLUB_JOIN_REQUEST_APPROVED:
+            return handleClubJoinRequestApproved(event);
         default:
             throw new ApiError({
                 statusCode: 400,

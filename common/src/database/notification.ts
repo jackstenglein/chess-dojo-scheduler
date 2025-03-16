@@ -113,6 +113,21 @@ export const ClubJoinRequesetEventSchema = z.object({
 /** The type of a notification event when someone requests to join a club. */
 export type ClubJoinRequestEvent = z.infer<typeof ClubJoinRequesetEventSchema>;
 
+/** The type of a notification event when a request to join a club is approved. */
+export const ClubJoinRequestApprovedEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.CLUB_JOIN_REQUEST_APPROVED),
+    /** The id of the club that was joined. */
+    id: z.string(),
+    /** The name of the club that was joined. */
+    name: z.string(),
+    /** The user that was approved. */
+    username: z.string(),
+});
+
+/** The type of a notification event when a request to join a club is approved. */
+export type ClubJoinRequestApprovedEvent = z.infer<typeof ClubJoinRequestApprovedEventSchema>;
+
 /** The schema of an event that generates notifications. */
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
@@ -120,6 +135,7 @@ export const NotificationEventSchema = z.discriminatedUnion('type', [
     TimelineCommentEventSchema,
     TimelineReactionEventSchema,
     ClubJoinRequesetEventSchema,
+    ClubJoinRequestApprovedEventSchema,
 ]);
 
 /** An event that generates notifications. */

@@ -294,6 +294,21 @@ func SendClubJoinRequestEvent(club *Club) error {
 	return sendSqsEvent(event)
 }
 
+func SendClubJoinRequestApprovedEvent(club *Club, username string) error {
+	event := struct {
+		Type     string `json:"type"`
+		Id       string `json:"id"`
+		Name     string `json:"name"`
+		Username string `json:"username"`
+	}{
+		Type:     string(NotificationType_ClubJoinRequestApproved),
+		Id:       club.Id,
+		Name:     club.Name,
+		Username: username,
+	}
+	return sendSqsEvent(event)
+}
+
 func sendSqsEvent(event any) error {
 	body, err := json.Marshal(event)
 	if err != nil {
@@ -304,21 +319,6 @@ func sendSqsEvent(event any) error {
 		QueueUrl:    aws.String(sqsUrl),
 	})
 	return errors.Wrap(500, "Temporary server error", "Failed to send SQS message", err)
-}
-
-// Returns a Notification object indicating that a request to join the given club
-// was approved.
-func ClubJoinRequestApprovedNotification(username string, club *Club) *Notification {
-	return &Notification{
-		Username:  username,
-		Id:        fmt.Sprintf("%s|%s", NotificationType_ClubJoinRequestApproved, club.Id),
-		Type:      NotificationType_ClubJoinRequestApproved,
-		UpdatedAt: time.Now().Format(time.RFC3339),
-		ClubMetadata: &ClubMetadata{
-			Id:   club.Id,
-			Name: club.Name,
-		},
-	}
 }
 
 // PutNotification inserts the provided notification into the database.

@@ -156,6 +156,11 @@ functions:
         Action:
           - dynamodb:BatchGetItem
         Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+    environment:
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
 
   leave:
     handler: leave/main.go
