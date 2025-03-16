@@ -1,57 +1,13 @@
-import { Comment } from './game';
-import { RequirementCategory, ScoreboardDisplay } from './requirement';
+import {
+    Reaction,
+    TimelineEntry,
+    TimelineGameInfo,
+    TimelineGraduationInfo,
+} from '@jackstenglein/chess-dojo-common/src/database/timeline';
+
+export type { Reaction, TimelineEntry, TimelineGameInfo, TimelineGraduationInfo };
 
 export enum TimelineSpecialRequirementId {
     GameSubmission = 'GameSubmission',
     Graduation = 'Graduation',
-}
-
-export interface TimelineEntry {
-    owner: string;
-    ownerDisplayName: string;
-    id: string;
-    requirementId: string;
-    requirementName: string;
-    requirementCategory: RequirementCategory;
-    isCustomRequirement?: boolean;
-    cohort: string;
-    totalCount: number;
-    previousCount: number;
-    newCount: number;
-    dojoPoints: number;
-    totalDojoPoints: number;
-    minutesSpent: number;
-    totalMinutesSpent: number;
-    scoreboardDisplay: ScoreboardDisplay;
-    progressBarSuffix: string;
-    date?: string;
-    createdAt: string;
-
-    graduationInfo?: TimelineGraduationInfo;
-    gameInfo?: TimelineGameInfo;
-
-    notes: string;
-    comments: Comment[] | null;
-    reactions: Record<string, Reaction> | null;
-}
-
-export interface TimelineGraduationInfo {
-    comments: string;
-    dojoScore: number;
-    newCohort: string;
-    dojoMinutes: number;
-    nonDojoMinutes: number;
-}
-
-export interface TimelineGameInfo {
-    id: string;
-    headers: Record<string, string>;
-}
-
-export interface Reaction {
-    username: string;
-    displayName: string;
-    cohort: string;
-    updatedAt: string;
-    types?: string[];
 }
