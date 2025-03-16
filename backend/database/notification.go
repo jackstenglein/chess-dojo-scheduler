@@ -2,15 +2,11 @@ package database
 
 import (
 	"encoding/json"
-	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
 type NotificationType string
@@ -159,44 +155,6 @@ type ClubMetadata struct {
 	Name string `dynamodbav:"name" json:"name"`
 }
 
-type NotificationPutter interface {
-	// PutNotification inserts the provided notification into the database.
-	PutNotification(n *Notification) error
-}
-
-// GameReviewNotification returns a Notification object for a game review.
-// If the owner of the game has game review notifications turned off, nil is
-// returned.
-func GameReviewNotification(g *Game) *Notification {
-	if g == nil || g.Review == nil || g.Review.Reviewer == nil {
-		return nil
-	}
-
-	user, err := DynamoDB.GetUser(g.Owner)
-	if err != nil {
-		log.Errorf("Failed to get user: %v", err)
-		return nil
-	}
-	if user.NotificationSettings.SiteNotificationSettings.GetDisableGameReview() {
-		return nil
-	}
-
-	return &Notification{
-		Username:  g.Owner,
-		Id:        fmt.Sprintf("%s|%s|%s", NotificationType_GameReviewComplete, g.Cohort, g.Id),
-		Type:      NotificationType_GameReviewComplete,
-		UpdatedAt: time.Now().Format(time.RFC3339),
-		GameReviewMetadata: &GameReviewMetadata{
-			GameCommentMetadata: GameCommentMetadata{
-				Cohort:  g.Cohort,
-				Id:      g.Id,
-				Headers: g.Headers,
-			},
-			Reviewer: *g.Review.Reviewer,
-		},
-	}
-}
-
 func SendGameCommentEvent(game *Game, comment *PositionComment) error {
 	event := struct {
 		Type string `json:"type"`
@@ -223,6 +181,26 @@ func SendGameCommentEvent(game *Game, comment *PositionComment) error {
 		}{
 			Fen: comment.Fen,
 			Id:  comment.Id,
+		},
+	}
+	return sendSqsEvent(event)
+}
+
+func SendGameReviewCompleteEvent(game *Game) error {
+	event := struct {
+		Type string `json:"type"`
+		Game struct {
+			Cohort string `json:"cohort"`
+			Id     string `json:"id"`
+		} `json:"game"`
+	}{
+		Type: string(NotificationType_GameReviewComplete),
+		Game: struct {
+			Cohort string "json:\"cohort\""
+			Id     string "json:\"id\""
+		}{
+			Cohort: string(game.Cohort),
+			Id:     game.Id,
 		},
 	}
 	return sendSqsEvent(event)
@@ -319,53 +297,6 @@ func sendSqsEvent(event any) error {
 		QueueUrl:    aws.String(sqsUrl),
 	})
 	return errors.Wrap(500, "Temporary server error", "Failed to send SQS message", err)
-}
-
-// PutNotification inserts the provided notification into the database.
-func (repo *dynamoRepository) PutNotification(n *Notification) error {
-	if n == nil {
-		return nil
-	}
-
-	update := expression.
-		Set(expression.Name("type"), expression.Value(n.Type)).
-		Set(expression.Name("updatedAt"), expression.Value(n.UpdatedAt)).
-		Add(expression.Name("count"), expression.Value(1))
-
-	if n.GameCommentMetadata != nil {
-		update.Set(expression.Name("gameCommentMetadata"), expression.Value(n.GameCommentMetadata))
-	}
-	if n.GameReviewMetadata != nil {
-		update.Set(expression.Name("gameReviewMetadata"), expression.Value(n.GameReviewMetadata))
-	}
-	if n.NewFollowerMetadata != nil {
-		update.Set(expression.Name("newFollowerMetadata"), expression.Value(n.NewFollowerMetadata))
-	}
-	if n.TimelineCommentMetadata != nil {
-		update.Set(expression.Name("timelineCommentMetadata"), expression.Value(n.TimelineCommentMetadata))
-	}
-	if n.ClubMetadata != nil {
-		update.Set(expression.Name("clubMetadata"), expression.Value(n.ClubMetadata))
-	}
-
-	expr, err := expression.NewBuilder().WithUpdate(update).Build()
-	if err != nil {
-		return errors.Wrap(500, "Temporary server error", "Unable to build update expression", err)
-	}
-
-	input := &dynamodb.UpdateItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"username": {S: aws.String(n.Username)},
-			"id":       {S: aws.String(n.Id)},
-		},
-		UpdateExpression:          expr.Update(),
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		TableName:                 &notificationTable,
-	}
-
-	_, err = repo.svc.UpdateItem(input)
-	return errors.Wrap(500, "Temporary server error", "DynamoDB UpdateItem failure", err)
 }
 
 // ListNotifications returns a list of notifications for the provided username.

@@ -13,7 +13,7 @@ import { SQSEvent, SQSHandler } from 'aws-lambda';
 import { ApiError } from 'chess-dojo-directory-service/api';
 import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
 import { handleClubJoinRequest, handleClubJoinRequestApproved } from './club';
-import { handleGameComment } from './game';
+import { handleGameComment, handleGameReview } from './game';
 import { handleTimelineComment, handleTimelineReaction } from './timeline';
 
 const userTable = process.env.stage + '-users';
@@ -41,6 +41,8 @@ async function handleEvent(event: NotificationEvent) {
     switch (event.type) {
         case NotificationEventTypes.GAME_COMMENT:
             return handleGameComment(event);
+        case NotificationEventTypes.GAME_REVIEW_COMPLETE:
+            return handleGameReview(event);
         case NotificationEventTypes.NEW_FOLLOWER:
             return handleNewFollower(event);
         case NotificationEventTypes.TIMELINE_COMMENT:

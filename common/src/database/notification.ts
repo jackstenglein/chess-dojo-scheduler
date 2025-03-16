@@ -5,6 +5,9 @@ const NotificationEventTypeSchema = z.enum([
     /** A comment is left on a game */
     'GAME_COMMENT',
 
+    /** A sensei game review is completed */
+    'GAME_REVIEW_COMPLETE',
+
     /** A user gets a new follower */
     'NEW_FOLLOWER',
 
@@ -19,9 +22,6 @@ const NotificationEventTypeSchema = z.enum([
 
     /** A request to join a club is approved */
     'CLUB_JOIN_REQUEST_APPROVED',
-
-    /** A sensei game review is completed */
-    'GAME_REVIEW_COMPLETE',
 ]);
 
 /** The types of a notification event. */
@@ -49,6 +49,22 @@ const GameCommentEventSchema = z.object({
 
 /** The type of a notification event when a comment is left on a game. */
 export type GameCommentEvent = z.infer<typeof GameCommentEventSchema>;
+
+/** The type of a notification event when a game review is completed. */
+const GameReviewEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.GAME_REVIEW_COMPLETE),
+    /** The game the review was left on. */
+    game: z.object({
+        /** The cohort of the game. */
+        cohort: z.string(),
+        /** The id of the game. */
+        id: z.string(),
+    }),
+});
+
+/** The type of a notification event when a game review is completed. */
+export type GameReviewEvent = z.infer<typeof GameReviewEventSchema>;
 
 /** The type of a notification event when a user gets a new follower. */
 const NewFollowerEventSchema = z.object({
@@ -132,6 +148,7 @@ export type ClubJoinRequestApprovedEvent = z.infer<typeof ClubJoinRequestApprove
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
     GameCommentEventSchema,
+    GameReviewEventSchema,
     TimelineCommentEventSchema,
     TimelineReactionEventSchema,
     ClubJoinRequesetEventSchema,
@@ -170,117 +187,3 @@ const NotificationTypeSchema = z.enum([
 
 /** The types of notifications. */
 export const NotificationTypes = NotificationTypeSchema.enum;
-
-// export const GameCommentMetadata = z
-//     .object({
-//         // The cohort of the game
-//         cohort: DojoCohortSchema,
-//         // The sort key of the game
-//         id: z.string(),
-//         // The headers of the game
-//         headers: z.object({}),
-//     })
-//     .strict();
-
-// export type GameCommentMetadata = z.infer<typeof GameCommentMetadata>;
-
-// export const ReviewerSchema = z
-//     .object({
-//         username: z.string(),
-//         displayName: z.string(),
-//         cohort: DojoCohortSchema,
-//     })
-//     .strict();
-
-// export const GameReviewMetadata = z
-//     .object({
-//         // The cohort of the game
-//         cohort: DojoCohortSchema,
-//         // The sort key of the game
-//         id: z.string(),
-//         // The headers of the game
-//         headers: z.object({}),
-//         reviewer: ReviewerSchema,
-//     })
-//     .strict();
-
-// export type GameReviewMetadata = z.infer<typeof GameReviewMetadata>;
-
-// // Metadata for a new follower notification.
-// export const NewFollowerMetadata = z
-//     .object({
-//         // The username of the follower
-//         username: z.string(),
-//         // The display name of the follower
-//         displayName: z.string(),
-//         // The cohort of the follower
-//         cohort: DojoCohortSchema,
-//     })
-//     .strict();
-
-// export type NewFollowerMetadata = z.infer<typeof NewFollowerMetadata>;
-
-// export const TimelineCommentMetadata = z
-//     .object({
-//         // The owner of the timeline entry
-//         owner: z.string(),
-//         // The id of the timeline entry
-//         id: z.string(),
-//         // The requirement name of the timeline entry
-//         name: z.string(),
-//     })
-//     .strict();
-
-// export type TimeLineCommentMetadata = z.infer<typeof TimelineCommentMetadata>;
-
-// // Metadata for an explorer game notification.
-// export const ExplorerGameMetadata = z
-//     .object({
-//         // The normalized fen of the position
-//         normalizedFen: z.string(),
-
-//         // The cohort of the game
-//         cohort: DojoCohortSchema,
-
-//         // The sort key of the game
-//         id: z.string(),
-
-//         // The result of the explorer game, not the result of the game
-//         result: z.string(),
-
-//         // The headers of the game
-//         headers: z.object({}),
-//     })
-//     .strict();
-
-// export type ExplorerGameMetadata = z.infer<typeof ExplorerGameMetadata>;
-
-// // Metadata for a new request to join a club
-// export const ClubMetadata = z
-//     .object({
-//         // The id of the club
-//         id: z.string(),
-
-//         // The name of the club
-//         name: z.string(),
-//     })
-//     .strict();
-
-// export type ClubMetadata = z.infer<typeof ClubMetadata>;
-
-// export const Notification = z
-//     .object({
-//         username: z.string(),
-//         type: NotificationTypeSchema,
-//         updatedAt: z.date(),
-//         count: z.number(),
-//         gameCommentMetadata: GameCommentMetadata.nullable(),
-//         gameReviewMetadata: GameReviewMetadata.nullable(),
-//         newFollowerMetadata: NewFollowerMetadata.nullable(),
-//         timelineCommentMetadata: TimelineCommentMetadata.nullable(),
-//         explorerGameMetadata: ExplorerGameMetadata.nullable(),
-//         clubMetadata: ClubMetadata.nullable(),
-//     })
-//     .strict();
-
-// export type Notification = z.infer<typeof Notification>;

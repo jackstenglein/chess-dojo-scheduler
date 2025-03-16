@@ -321,8 +321,6 @@ type GameLister interface {
 type GameCommenter interface {
 	// PutComment puts the provided comment in the provided Game's position comments.
 	PutComment(cohort, id string, comment *PositionComment, skipMapCreation bool) (*Game, error)
-
-	NotificationPutter
 }
 
 // GetGame returns the game object with the provided cohort and id.
