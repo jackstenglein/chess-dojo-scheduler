@@ -4,6 +4,7 @@ import Board from '@/board/Board';
 import { getLigaIconBasedOnTimeControl } from '@/components/calendar/eventViewer/LigaTournamentViewer';
 import { Position as PositionModel } from '@/database/requirement';
 import Icon from '@/style/Icon';
+import { Computer } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { LoadingButton } from '@mui/lab';
@@ -86,7 +87,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     const timeControlName = getLigaIconBasedOnTimeControl(position.limitSeconds) ?? 'unknown';
 
     return (
-        <Card variant='outlined' sx={{ px: 0 }}>
+        <Card variant='outlined' sx={{ px: 0, maxWidth: '386px' }}>
             <RequestSnackbar request={lichessRequest} />
 
             <CardHeader
@@ -176,6 +177,17 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                         target='_blank'
                     >
                         Explorer
+                    </Button>
+                </Tooltip>
+
+                <Tooltip title='Play against computer on Chess.com'>
+                    <Button
+                        startIcon={<Computer color='dojoOrange' />}
+                        href={`https://www.chess.com/practice/custom?fen=${position.fen}&is960=false`}
+                        target='_blank'
+                        rel='noopener'
+                    >
+                        Play Computer
                     </Button>
                 </Tooltip>
             </CardActions>
