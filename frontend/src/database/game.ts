@@ -1,5 +1,6 @@
 import {
     CommentOwner,
+    Game,
     GameInfo,
     GameKey,
     GameResult,
@@ -11,7 +12,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 
 export { GameResult, GameReviewStatus, GameReviewType };
-export type { CommentOwner, GameInfo, GameKey, GameReview, PgnHeaders, PositionComment };
+export type { CommentOwner, Game, GameInfo, GameKey, GameReview, PgnHeaders, PositionComment };
 
 /**
  * Verifies whether the given value is a GameResult.
