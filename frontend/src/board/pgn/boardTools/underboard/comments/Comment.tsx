@@ -152,7 +152,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             id: comment.id,
             fen: comment.fen,
             content: editValue?.trim() || '',
-            parentIds: comment.parentIds,
+            parentIds: comment.parentIds || '',
         };
         request.onStart();
         api.updateComment(update)
@@ -174,7 +174,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             gameId: game?.id || '',
             id: comment.id,
             fen: comment.fen,
-            parentIds: comment.parentIds,
+            parentIds: comment.parentIds || '',
         })
             .then((resp) => {
                 onUpdateGame?.(resp.data);

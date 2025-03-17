@@ -1,8 +1,8 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
-import { Comment } from '@/database/game';
 import Avatar from '@/profile/Avatar';
+import { Comment } from '@jackstenglein/chess-dojo-common/src/database/timeline';
 import { Paper, Stack, Typography } from '@mui/material';
 
 interface CommentListProps {

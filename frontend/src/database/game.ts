@@ -22,17 +22,6 @@ export function isGameResult(result?: string): result is GameResult {
     return !!Object.values(GameResult).find((r) => r === result);
 }
 
-export interface Comment {
-    owner: string;
-    ownerDisplayName: string;
-    ownerCohort: string;
-    ownerPreviousCohort: string;
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    content: string;
-}
-
 export function isDefaultHeader(header: string): boolean {
     return (
         header === 'White' ||
