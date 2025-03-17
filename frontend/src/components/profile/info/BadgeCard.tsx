@@ -1,5 +1,7 @@
+import { useRequirements } from '@/api/cache/requirements';
 import { Link } from '@/components/navigation/Link';
-import { User } from '@/database/user';
+import { ALL_COHORTS, User } from '@/database/user';
+import { calculateTacticsRating } from '@/exams/view/exam';
 import { ZoomOutMap } from '@mui/icons-material';
 import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip } from '@mui/material';
 import Image from 'next/image';
@@ -14,14 +16,16 @@ import { BadgeImage } from './BadgeImage';
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge>();
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
+    const { requirements } = useRequirements(ALL_COHORTS, true);
 
     const [allBadges, earnedBadges] = useMemo(() => {
-        const allBadges = getBadges(user);
+        const tacticsRating = calculateTacticsRating(user, requirements);
+        const allBadges = getBadges(user, tacticsRating);
         const earnedBadges = allBadges.filter((badge) => badge.isEarned && !badge.isPreviousLevel);
         return [allBadges, earnedBadges];
-    }, [user]);
+    }, [user, requirements]);
 
-    const [previousEarnedBadges, setPreviousEarnedBadges] = useState(earnedBadges);
+    const [previousEarnedBadges, setPreviousEarnedBadges] = useState<Badge[]>();
     const badges: JSX.Element[] = [];
 
     const handleBadgeClick = (badge: Badge) => {
@@ -33,15 +37,27 @@ export const BadgeCard = ({ user }: { user: User }) => {
     };
 
     useEffect(() => {
-        const newBadge = earnedBadges.find(
-            (badge, index) =>
-                !previousEarnedBadges[index] || badge.image !== previousEarnedBadges[index].image,
+        if (!previousEarnedBadges) {
+            if (requirements.length) {
+                setPreviousEarnedBadges(earnedBadges);
+            }
+            return;
+        }
+
+        const newBadge = earnedBadges.find((b) =>
+            previousEarnedBadges.every((b2) => b.image !== b2.image),
         );
         if (newBadge) {
             setSelectedBadge(newBadge);
             setPreviousEarnedBadges(earnedBadges);
         }
-    }, [earnedBadges, previousEarnedBadges, setSelectedBadge, setPreviousEarnedBadges]);
+    }, [
+        earnedBadges,
+        previousEarnedBadges,
+        setSelectedBadge,
+        setPreviousEarnedBadges,
+        requirements,
+    ]);
 
     if (!user.createdAt || user.createdAt < '2023-12') {
         badges.push(
