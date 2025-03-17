@@ -1,5 +1,7 @@
 import { cohortColors, compareCohorts, dojoCohorts, User } from '@/database/user';
+import { TacticsRating } from '@/exams/view/exam';
 import { cohortIcons } from '@/scoreboard/CohortIcon';
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 
 export interface Badge {
     image: string;
@@ -271,15 +273,14 @@ function getBetaTesterBadge(isEarned: boolean): Badge {
 
 /**
  * @param isEarned Whether the user has earned the badge.
- * @returns A badge for being a tactics champion (feet Gukesh ⚡)
+ * @returns A badge for being a tactics champion.
  */
-export function getTacticsChampionBadge() {
+export function getTacticsChampionBadge(isEarned: boolean) {
     return {
         image: `/static/badges/misc/tacticschampion.png`,
         title: 'Tactics Champion',
-        message:
-            'Congratulations, your tactics rating is greater than your cohort rating!',
-        isEarned: true,
+        message: `Your tactics rating is at the level of the next cohort!`,
+        isEarned,
         glowHexcode: '#D4AA02',
         category: BadgeCategory.All,
     };
@@ -323,13 +324,22 @@ function getTaskBadge({
 /**
  * Returns a list of all possible badges.
  * @param user The user to get badges for.
+ * @param tacticsRating The current tactics rating of the user.
  * @returns A list of all possible badges, both earned and not earned.
  */
-export function getBadges(user: User): Badge[] {
+export function getBadges(user: User, tacticsRating: TacticsRating): Badge[] {
     const allBadges = [
         getDojoerBadge(!user.createdAt),
         getBetaTesterBadge(user.isBetaTester),
     ];
+
+    const [, minTacticsRating] = getCohortRangeInt(user.dojoCohort);
+    const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
+    allBadges.push(
+        getTacticsChampionBadge(
+            !isProvisional && tacticsRating.overall >= minTacticsRating,
+        ),
+    );
 
     for (const task of Object.values(BadgeTask)) {
         const { maxLevel: eligibleLevel, currentCount } = getBadgeLevel(

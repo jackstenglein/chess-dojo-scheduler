@@ -18,26 +18,24 @@ import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
 import { BadgCabinetDialog } from './BadgeCabinetDialog';
 import BadgeDialog from './BadgeDialog';
-import { Badge, getBadges, getTacticsChampionBadge } from './badgeHandler';
+import { Badge, getBadges } from './badgeHandler';
 import { BadgeImage } from './BadgeImage';
 
 export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge>();
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
     const { requirements } = useRequirements(ALL_COHORTS, true);
-    const currentTacticsRating = calculateTacticsRating(user, requirements);
-    const minTacticsRating = parseInt(user.dojoCohort);
-    const isProvisional = currentTacticsRating.components.some((c) => c.rating < 0);
 
     const [allBadges, earnedBadges] = useMemo(() => {
-        const allBadges = getBadges(user);
+        const tacticsRating = calculateTacticsRating(user, requirements);
+        const allBadges = getBadges(user, tacticsRating);
         const earnedBadges = allBadges.filter(
             (badge) => badge.isEarned && !badge.isPreviousLevel,
         );
         return [allBadges, earnedBadges];
-    }, [user]);
+    }, [user, requirements]);
 
-    const [previousEarnedBadges, setPreviousEarnedBadges] = useState(earnedBadges);
+    const [previousEarnedBadges, setPreviousEarnedBadges] = useState<Badge[]>();
     const badges: JSX.Element[] = [];
 
     const handleBadgeClick = (badge: Badge) => {
@@ -49,21 +47,27 @@ export const BadgeCard = ({ user }: { user: User }) => {
     };
 
     useEffect(() => {
-        const newBadge = earnedBadges.find(
-            (badge, index) =>
-                !previousEarnedBadges[index] ||
-                badge.image !== previousEarnedBadges[index].image,
+        if (!previousEarnedBadges) {
+            if (requirements.length) {
+                setPreviousEarnedBadges(earnedBadges);
+            }
+            return;
+        }
+
+        const newBadge = earnedBadges.find((b) =>
+            previousEarnedBadges.every((b2) => b.image !== b2.image),
         );
         if (newBadge) {
             setSelectedBadge(newBadge);
             setPreviousEarnedBadges(earnedBadges);
         }
-    }, [earnedBadges, previousEarnedBadges, setSelectedBadge, setPreviousEarnedBadges]);
-
-    if (!isProvisional && currentTacticsRating.overall > minTacticsRating) {
-        const badge = getTacticsChampionBadge();
-        badges.push(<BadgeImage badge={badge} onClick={handleBadgeClick} />);
-    }
+    }, [
+        earnedBadges,
+        previousEarnedBadges,
+        setSelectedBadge,
+        setPreviousEarnedBadges,
+        requirements,
+    ]);
 
     if (!user.createdAt || user.createdAt < '2023-12') {
         badges.push(
