@@ -1,4 +1,4 @@
-import { Comment } from './game';
+import { Comment } from '@jackstenglein/chess-dojo-common/src/database/timeline';
 
 export enum EventType {
     Availability = 'AVAILABILITY',

@@ -32,7 +32,6 @@ type FollowerEntry struct {
 // FollowerEditor provides an interface for creating and deleting follower relationships.
 type FollowerEditor interface {
 	UserGetter
-	NotificationPutter
 
 	// CreateFollower adds a FollowerEntry for the given poster and follower. The poster's and follower's
 	// followerCount/followingCount fields are also updated.

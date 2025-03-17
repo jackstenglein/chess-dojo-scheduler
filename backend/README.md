@@ -2,8 +2,48 @@
 
 ## Overview
 
-The backend is written in Golang and deployed to AWS using the [Serverless framework](https://www.serverless.com/). The API handlers are deployed to AWS
+The backend is written in Golang/TypeScript and deployed to AWS using the [Serverless framework](https://www.serverless.com/). The API handlers are deployed to AWS
 Lambda and are available through API Gateway. The backend uses DynamoDB as a database, and AWS Cognito in order to handle user sign-in. Each API handler is packaged into its own binary. This keeps the binary size smaller, which reduces the Lambda cold-start time when the API is called.
+
+## Deploying
+
+Deploying the entire backend can be quite complex. There are many resources, and some of them (such as Google SSO, AWS Secrets or Stripe Webhooks) have to be configured manually in their respective consoles. If you are working only on the frontend, consider using the existing and already deployed `dev` backend environment instead. If you do need to make backend changes. You can start by deploying the `simple` backend stage. This stage skips some resources and functions and deploys only the core functionality of the site. On the `simple` stage, you will not be able to login with Google or complete payment on Stripe. To deploy the `simple` stage, take the following steps:
+
+1. Install dependencies: 
+
+```
+cd backend
+npm install
+serverless plugin install -n serverless-esbuild
+```
+
+1. Create the `backend/oauth.yml` file with the following contents:
+
+```
+client_id: ''
+client_secret: ''
+```
+
+1. Create the `backend/discord.yml` file with the following contents:
+
+```
+discordAuth: ''
+```
+
+1. Create the `backend/tournament.yml` file with the following contents:
+
+```
+mongoConnectionString: ''
+botAccessToken: ''
+```
+
+1. Create the `backend/wix.yml` file with the following contents:
+
+```
+wixApiKey: ''
+```
+
+1. Run `sls deploy --stage simple`.
 
 ## Important Files/Directories
 
