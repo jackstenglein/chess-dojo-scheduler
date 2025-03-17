@@ -5,10 +5,7 @@ import { Ellipsis } from './Ellipsis';
 import Lines from './Lines';
 
 export function hasInterrupt(move: Move): boolean {
-    return (
-        (move.commentAfter?.trim().length || 0) > 0 ||
-        move.variations.some((v) => v.length > 0)
-    );
+    return (move.commentAfter?.trim().length || 0) > 0 || move.variations.some((v) => v.length > 0);
 }
 
 interface InterruptProps {
@@ -45,12 +42,8 @@ const Interrupt: React.FC<InterruptProps> = ({ move, handleScroll }) => {
                                 zIndex: 1,
                                 top: '-5px',
                                 left: {
-                                    xs: `calc(100% * ${
-                                        move.ply % 2 ? '2 / 12' : '7 / 12'
-                                    } + 5px)`,
-                                    md: `calc(100% * ${
-                                        move.ply % 2 ? '2 / 12' : '7 / 12'
-                                    } + 5px)`,
+                                    xs: `calc(100% * ${move.ply % 2 ? '2 / 12' : '7 / 12'} + 5px)`,
+                                    md: `calc(100% * ${move.ply % 2 ? '2 / 12' : '7 / 12'} + 5px)`,
                                 },
                                 transform: 'rotate(45deg)',
                                 backgroundColor: 'inherit',

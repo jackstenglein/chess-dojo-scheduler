@@ -21,9 +21,7 @@ export function CohortSelect(props: CohortSelectProps) {
             if (addedCohorts.includes(ALL_COHORTS)) {
                 finalCohorts = [ALL_COHORTS];
             } else {
-                finalCohorts = newCohorts
-                    .filter((c) => c !== ALL_COHORTS)
-                    .sort(compareCohorts);
+                finalCohorts = newCohorts.filter((c) => c !== ALL_COHORTS).sort(compareCohorts);
             }
 
             props.setSelected(finalCohorts);

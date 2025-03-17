@@ -123,8 +123,7 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                     '--underboard-width': '400px',
                     '--coach-width': '400px',
                     '--tools-height': '40px',
-                    '--board-width':
-                        'calc(100vw - var(--coach-width) - var(--coach-width) - 60px)',
+                    '--board-width': 'calc(100vw - var(--coach-width) - var(--coach-width) - 60px)',
                     '--board-height':
                         'calc(100vh - var(--navbar-height) - var(--site-header-margin) - var(--tools-height) - 2 * var(--player-header-height))',
                     '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
@@ -154,9 +153,7 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                             selectedIndex={selectedIndex}
                             setSelectedIndex={onSwitchGame}
                             fullHeight
-                            hiddenCount={
-                                isFreeTier ? listRequest.data.length - games.length : 0
-                            }
+                            hiddenCount={isFreeTier ? listRequest.data.length - games.length : 0}
                         />
                     </Stack>
 
@@ -210,9 +207,7 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                                         },
                                     }}
                                     onComplete={() => null}
-                                    coachUrl={
-                                        coachUrls[coaches[selectedIndex % coaches.length]]
-                                    }
+                                    coachUrl={coachUrls[coaches[selectedIndex % coaches.length]]}
                                 />
                             )}
                         </PgnErrorBoundary>

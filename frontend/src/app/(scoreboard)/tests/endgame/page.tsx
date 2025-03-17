@@ -13,10 +13,7 @@ export default function ListEndgameExamsPage() {
         <Container sx={{ py: 5 }}>
             <Stack spacing={4}>
                 <Typography variant='h4'>
-                    <RookIcon
-                        fontSize='inherit'
-                        sx={{ mr: 2, verticalAlign: 'center' }}
-                    />
+                    <RookIcon fontSize='inherit' sx={{ mr: 2, verticalAlign: 'center' }} />
                     Endgame Tests
                 </Typography>
                 <ExamList cohortRanges={COHORT_RANGES} examType={ExamType.Endgame} />

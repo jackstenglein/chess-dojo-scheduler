@@ -89,14 +89,7 @@ function getCapturedPieceCounts(fen: string) {
     return capturedPieces;
 }
 
-const rerenderHeaders = [
-    'White',
-    'WhiteElo',
-    'Black',
-    'BlackElo',
-    'Result',
-    'TimeControl',
-];
+const rerenderHeaders = ['White', 'WhiteElo', 'Black', 'BlackElo', 'Result', 'TimeControl'];
 
 const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
     const { chess, board } = useChess();
@@ -218,11 +211,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                     </Typography>
 
                     {playerElo && (
-                        <Typography
-                            variant='subtitle2'
-                            color='text.secondary'
-                            whiteSpace='nowrap'
-                        >
+                        <Typography variant='subtitle2' color='text.secondary' whiteSpace='nowrap'>
                             ({playerElo})
                         </Typography>
                     )}
@@ -267,31 +256,19 @@ function EmptyHeader({ type, light }: { type: string; light: boolean }) {
             <Stack direction='row' spacing={1} justifyContent='space-between'>
                 <Stack direction='row' spacing={1}>
                     <>
-                        <Typography
-                            variant='subtitle2'
-                            color='text.secondary'
-                            fontWeight='bold'
-                        >
+                        <Typography variant='subtitle2' color='text.secondary' fontWeight='bold'>
                             1
                         </Typography>
                         <Divider flexItem orientation='vertical' />
                     </>
 
-                    <Typography
-                        variant='subtitle2'
-                        color='text.secondary'
-                        fontWeight='bold'
-                    >
+                    <Typography variant='subtitle2' color='text.secondary' fontWeight='bold'>
                         Test
                     </Typography>
                 </Stack>
 
                 <Tooltip title='Test'>
-                    <Typography
-                        variant='subtitle2'
-                        color='text.secondary'
-                        display='inline'
-                    >
+                    <Typography variant='subtitle2' color='text.secondary' display='inline'>
                         1:30:00
                     </Typography>
                 </Tooltip>
@@ -326,8 +303,7 @@ const CapturedMaterial = ({
         displayedMaterialDiff = `+${Math.abs(materialDifference)}`;
     }
 
-    const pieceTypes =
-        color === 'w' ? ['p', 'n', 'b', 'r', 'q'] : ['P', 'N', 'B', 'R', 'Q'];
+    const pieceTypes = color === 'w' ? ['p', 'n', 'b', 'r', 'q'] : ['P', 'N', 'B', 'R', 'Q'];
     const capturedPieces = getCapturedPieceCounts(move?.after || chess.setUpFen());
 
     if (capturedMaterialBehavior === CapturedMaterialBehavior.Difference) {

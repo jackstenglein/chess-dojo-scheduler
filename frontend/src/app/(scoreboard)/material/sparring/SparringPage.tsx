@@ -4,10 +4,10 @@ import { RequestSnackbar } from '@/api/Request';
 import { useRequirements } from '@/api/cache/requirements';
 import { AuthStatus, useAuth, useFreeTier } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
+import Position from '@/components/profile/trainingPlan/Position';
 import { Requirement } from '@/database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import Position from '@/requirements/Position';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon, { IconProps } from '@/style/Icon';
 import {
@@ -65,11 +65,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                     </Typography>
                 </Stack>
                 <Collapse in={open} timeout='auto' unmountOnExit>
-                    <Grid2
-                        container
-                        spacing={2}
-                        justifyContent={{ xs: 'center', sm: 'start' }}
-                    >
+                    <Grid2 container spacing={2} justifyContent={{ xs: 'center', sm: 'start' }}>
                         {requirement.positions.map((p) => (
                             <Grid2
                                 key={p.fen}
@@ -198,14 +194,10 @@ const SparringSubsection: React.FC<SparringSubsectionProps> = ({ subsection }) =
                                 >
                                     <Typography textAlign='center'>
                                         Unlock {subsection.hidden} more position
-                                        {subsection.hidden > 1 ? 's' : ''} by upgrading to
-                                        a full account
+                                        {subsection.hidden > 1 ? 's' : ''} by upgrading to a full
+                                        account
                                     </Typography>
-                                    <Button
-                                        variant='outlined'
-                                        component={Link}
-                                        href='/prices'
-                                    >
+                                    <Button variant='outlined' component={Link} href='/prices'>
                                         View Prices
                                     </Button>
                                 </Stack>
@@ -259,12 +251,7 @@ const SparringSection: React.FC<SparringSectionProps> = ({ section }) => {
                             return null;
                         }
 
-                        return (
-                            <SparringSubsection
-                                key={subsection.name}
-                                subsection={subsection}
-                            />
-                        );
+                        return <SparringSubsection key={subsection.name} subsection={subsection} />;
                     })}
                 </Stack>
             </Collapse>
@@ -288,8 +275,7 @@ const sectionData = [
     {
         title: 'Middlegame Win Conversions',
         selector: (r: Requirement) =>
-            r.category === 'Middlegames + Strategy' &&
-            r.name.startsWith('Win Conversion'),
+            r.category === 'Middlegames + Strategy' && r.name.startsWith('Win Conversion'),
     },
     {
         title: 'Middlegame Sparring',
@@ -350,9 +336,7 @@ function AuthSparringPage() {
                 });
             } else {
                 section.subsections = dojoCohorts.map((cohort) => {
-                    let reqs = requirements.filter(
-                        (r) => datum.selector(r) && r.counts[cohort],
-                    );
+                    let reqs = requirements.filter((r) => datum.selector(r) && r.counts[cohort]);
                     const originalCount = reqs.length;
                     if (isFreeTier) {
                         reqs = reqs.filter((r) => r.isFree);
@@ -383,10 +367,9 @@ function AuthSparringPage() {
                     ChessDojo Recommended Sparring Positions
                 </Typography>
                 <Typography>
-                    Below are the recommended sparring positions per cohort. Ideally, you
-                    should spar positions with someone within one cohort of you and
-                    discuss the games afterward. Detailed instructions per position can be
-                    found in the training plan.
+                    Below are the recommended sparring positions per cohort. Ideally, you should
+                    spar positions with someone within one cohort of you and discuss the games
+                    afterward. Detailed instructions per position can be found in the training plan.
                 </Typography>
 
                 {sections.map((s) => (

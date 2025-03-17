@@ -117,8 +117,7 @@ export const BulkItemEditor = ({
     }
 
     const showEdit =
-        itemIds.length === 1 &&
-        directory.items[itemIds[0]]?.type === DirectoryItemTypes.DIRECTORY;
+        itemIds.length === 1 && directory.items[itemIds[0]]?.type === DirectoryItemTypes.DIRECTORY;
 
     return (
         <Paper elevation={4} sx={{ borderRadius: '1.5rem', flexGrow: 1, py: 0.5, px: 1 }}>
@@ -223,9 +222,7 @@ export const ItemEditorDialogs = ({ editor }: { editor: UseDirectoryEditorRespon
                 directory={editor.directory}
                 items={editor.items}
                 onCancel={editor.handleClose}
-                type={
-                    editor.removeOpen ? DeleteDialogType.Remove : DeleteDialogType.Delete
-                }
+                type={editor.removeOpen ? DeleteDialogType.Remove : DeleteDialogType.Delete}
             />
         );
     }

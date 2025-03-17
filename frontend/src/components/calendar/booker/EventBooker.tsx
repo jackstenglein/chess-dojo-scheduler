@@ -31,8 +31,8 @@ const EventBooker = ({ id }: { id: string }) => {
                     sx={{ width: '100%' }}
                     onClose={() => router.push('/calendar')}
                 >
-                    This event cannot be found. It is either fully booked, deleted or not
-                    available to your cohort.
+                    This event cannot be found. It is either fully booked, deleted or not available
+                    to your cohort.
                 </Alert>
             </Snackbar>
         );

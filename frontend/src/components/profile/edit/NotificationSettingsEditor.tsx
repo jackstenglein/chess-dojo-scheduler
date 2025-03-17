@@ -7,10 +7,7 @@ import { UserNotificationSettings } from '@/database/user';
 import { Email, Notifications, Web } from '@mui/icons-material';
 import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 
-function getSettingValue(
-    notificationSettings: UserNotificationSettings,
-    path: string,
-): boolean {
+function getSettingValue(notificationSettings: UserNotificationSettings, path: string): boolean {
     const components = path.split('.');
 
     let currentSetting: any = notificationSettings;
@@ -61,6 +58,10 @@ const sections: NotificationSettingsSection[] = [
             {
                 label: 'Notify me when a comment is added to my game',
                 path: 'siteNotificationSettings.disableGameComment',
+            },
+            {
+                label: 'Notify me when a reply is added to a game comment thread I participated in',
+                path: 'siteNotificationSettings.disableGameCommentReplies',
             },
             {
                 label: 'Notify me when I have a new follower',
@@ -124,9 +125,7 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                 }}
             >
                 <Typography variant='h5'>
-                    <Notifications
-                        style={{ verticalAlign: 'middle', marginRight: '0.1em' }}
-                    />{' '}
+                    <Notifications style={{ verticalAlign: 'middle', marginRight: '0.1em' }} />{' '}
                     Notifications
                 </Typography>
                 <Divider />
@@ -152,12 +151,7 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                             key={setting.path}
                             control={
                                 <Checkbox
-                                    checked={
-                                        !getSettingValue(
-                                            notificationSettings,
-                                            setting.path,
-                                        )
-                                    }
+                                    checked={!getSettingValue(notificationSettings, setting.path)}
                                     onChange={(e) =>
                                         setNotificationSettings(
                                             setSettingValue(

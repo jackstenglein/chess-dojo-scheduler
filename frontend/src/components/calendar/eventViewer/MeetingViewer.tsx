@@ -20,11 +20,7 @@ const MeetingViewer: React.FC<MeetingViewerProps> = ({ processedEvent }) => {
     return (
         <Stack sx={{ pt: 2 }} spacing={2}>
             <Field title='Description' body={event.description} iconName='notes' />
-            <Field
-                title='Location'
-                body={event.location || 'Discord'}
-                iconName='location'
-            />
+            <Field title='Location' body={event.location || 'Discord'} iconName='location' />
 
             {event.bookedType ? (
                 <Field

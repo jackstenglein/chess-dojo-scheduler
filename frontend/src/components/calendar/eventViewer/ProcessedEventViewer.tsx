@@ -12,9 +12,7 @@ interface ProcessedEventViewerProps {
     processedEvent: ProcessedEvent;
 }
 
-const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({
-    processedEvent,
-}) => {
+const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({ processedEvent }) => {
     const { user } = useAuth();
     const event = processedEvent.event as Event | undefined;
 

@@ -17,11 +17,7 @@ import { User } from '../../database/user';
 import UpsellDialog, { RestrictedAction } from '../../upsell/UpsellDialog';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
-const DiscordForm: React.FC<ProfileCreatorFormProps> = ({
-    user,
-    onNextStep,
-    onPrevStep,
-}) => {
+const DiscordForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep, onPrevStep }) => {
     const api = useApi();
     const request = useRequest();
     const isFreeTier = useFreeTier();
@@ -31,8 +27,9 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({
     const [disableBookingNotifications, setDisableBookingNotifications] = useState(
         user.disableBookingNotifications,
     );
-    const [disableCancellationNotifications, setDisableCancellationNotifications] =
-        useState(user.disableCancellationNotifications);
+    const [disableCancellationNotifications, setDisableCancellationNotifications] = useState(
+        user.disableCancellationNotifications,
+    );
 
     const onSave = () => {
         const update: Partial<User> = {
@@ -68,8 +65,8 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({
             )}
 
             <Typography>
-                We have an <strong>optional</strong> private Discord available only to
-                those in the training program.{' '}
+                We have an <strong>optional</strong> private Discord available only to those in the
+                training program.{' '}
                 <Link
                     href={isFreeTier ? undefined : 'https://discord.gg/br4MB6ur66'}
                     target='_blank'
@@ -80,8 +77,8 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({
                     Joining
                 </Link>{' '}
                 will allow you to message other members in the program, hear about new
-                announcements, participate in group study sessions and receive
-                notifications about meetings.
+                announcements, participate in group study sessions and receive notifications about
+                meetings.
             </Typography>
 
             <TextField
@@ -118,11 +115,7 @@ const DiscordForm: React.FC<ProfileCreatorFormProps> = ({
             </Stack>
 
             <Stack direction='row' justifyContent='space-between'>
-                <Button
-                    disabled={request.isLoading()}
-                    onClick={onPrevStep}
-                    variant='contained'
-                >
+                <Button disabled={request.isLoading()} onClick={onPrevStep} variant='contained'>
                     Back
                 </Button>
 

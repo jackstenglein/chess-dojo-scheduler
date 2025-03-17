@@ -158,30 +158,27 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 	discordId, err := GetDiscordIdByCognitoUsername(discord, event.Owner)
 	if err != nil {
 		log.Errorf("Failed to get discordId: %v", err)
-		sb.WriteString(fmt.Sprintf("## %s **Availability posted by** %s", MessageEmojiWave, event.OwnerDisplayName))
+		sb.WriteString(fmt.Sprintf("## **Availability posted by** %s", event.OwnerDisplayName))
 	} else {
-		sb.WriteString(fmt.Sprintf("## %s **Availability posted by** <@%s>", MessageEmojiWave, discordId))
+		sb.WriteString(fmt.Sprintf("## **Availability posted by** <@%s>", discordId))
 	}
 
-	sb.WriteString(fmt.Sprintf("\n  **Start Time %s:** <t:%d:f>", MessageEmojiClock, startTime.Unix()))
-	sb.WriteString(fmt.Sprintf("\n  **End Time %s:** <t:%d:f>", MessageEmojiClock, endTime.Unix()))
+	sb.WriteString(fmt.Sprintf("\n<t:%d:f> — <t:%d:t>", startTime.Unix(), endTime.Unix()))
 
+	if event.Title != "" {
+		sb.WriteString(fmt.Sprintf("\n **Title:** %s", event.Title))
+	}
 	if event.Description != "" {
-		sb.WriteString(fmt.Sprintf("\n **Description %s:** %s", MessageEmojiNotepad, event.Description))
+		sb.WriteString(fmt.Sprintf("\n **Description:** %s", event.Description))
 	}
 
-	sb.WriteString(fmt.Sprintf("\n **Types %s:** ", MessageEmojiArrow))
+	sb.WriteString("\n **Types:** ")
 	sb.WriteString(strings.Join(database.GetDisplayNames(event.Types), ", "))
 
-	sb.WriteString(fmt.Sprintf("\n **Cohorts %s:** ", MessageEmojiDojo))
-	for i, c := range event.Cohorts {
-		sb.WriteString(fmt.Sprintf("%s %s", string(c), CohortEmojiIds[c]))
-		if i+1 < len(event.Cohorts) {
-			sb.WriteString(", ")
-		}
-	}
+	sb.WriteString("\n **Cohorts:** ")
+	sb.WriteString(getEventCohorts(event.Cohorts))
 
-	sb.WriteString(fmt.Sprintf("\n **Current Participants %s:** %d/%d", MessageEmojiVote, len(event.Participants), event.MaxParticipants))
+	sb.WriteString(fmt.Sprintf("\n **Current Participants:** %d/%d", len(event.Participants), event.MaxParticipants))
 	sb.WriteString(fmt.Sprintf("\n %s [**Click to Book**](<%s/calendar/availability/%s>)", MessageEmojiArrow, frontendHost, event.Id))
 
 	if event.DiscordMessageId == "" {
@@ -194,6 +191,37 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 		_, err := discord.ChannelMessageEdit(findGameChannelId, event.DiscordMessageId, sb.String())
 		return event.DiscordMessageId, errors.Wrap(500, "Temporary server error", "Failed to edit discord channel message", err)
 	}
+}
+
+// Gets the cohort range as a user-friendly display string
+func getEventCohorts(cohorts []database.DojoCohort) string {
+	var sb strings.Builder
+	for i, c := range cohorts {
+		start, end := getCohortRange(c)
+		if i == 0 {
+			sb.WriteString(start)
+		}
+
+		if i+1 < len(cohorts) {
+			nextStart, _ := getCohortRange(cohorts[i+1])
+			if !strings.HasPrefix(nextStart, end) {
+				sb.WriteString(fmt.Sprintf("-%s, %s", end, nextStart))
+			}
+		} else {
+			sb.WriteString(fmt.Sprintf("-%s", end))
+		}
+	}
+	return sb.String()
+}
+
+// Returns the start and end of the cohort range as separate strings.
+// 2400+ returns itself for both the start and end
+func getCohortRange(cohort database.DojoCohort) (string, string) {
+	tokens := strings.Split(string(cohort), "-")
+	if len(tokens) < 2 {
+		return tokens[0], tokens[0]
+	}
+	return tokens[0], tokens[1]
 }
 
 // Sends a notification for coaching events. If the given event already has a Discord Message ID,

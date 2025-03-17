@@ -49,10 +49,7 @@ describe('Signin Page', () => {
 
         cy.get('[data-cy="signin-button"]').click();
 
-        cy.get('#password-helper-text').should(
-            'have.text',
-            'Incorrect email or password',
-        );
+        cy.get('#password-helper-text').should('have.text', 'Incorrect email or password');
     });
 
     it('logs in with correct credentials', () => {

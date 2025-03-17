@@ -1,4 +1,4 @@
-import { DefaultTimezone, TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
+import { DefaultTimezone, TimezoneSelector } from '@/components/calendar/filters/TimezoneSelector';
 import { LoadingButton } from '@mui/lab';
 import { Stack, TextField } from '@mui/material';
 import { useState } from 'react';
@@ -53,11 +53,7 @@ const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep 
                 onChange={(event) => setBio(event.target.value)}
             />
 
-            <TimezoneSelector
-                label='Timezone (Optional)'
-                value={timezone}
-                onChange={setTimezone}
-            />
+            <TimezoneSelector label='Timezone (Optional)' value={timezone} onChange={setTimezone} />
 
             <LoadingButton
                 disabled={!canSave}

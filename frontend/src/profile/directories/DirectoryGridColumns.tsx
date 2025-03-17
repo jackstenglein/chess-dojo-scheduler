@@ -1,9 +1,6 @@
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
-import {
-    RenderGameResultStack,
-    RenderPlayers,
-} from '@/components/games/list/GameListItem';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
+import { RenderGameResultStack, RenderPlayers } from '@/components/games/list/GameListItem';
 import { Link } from '@/components/navigation/Link';
 import { MastersCohort, MastersOwnerDisplayName } from '@/database/game';
 import { dojoCohorts } from '@/database/user';

@@ -14,8 +14,7 @@ interface ResizeHandleProps {
 }
 
 const ResizeHandle = forwardRef<HTMLSpanElement, ResizeHandleProps>((props, ref) => {
-    const { dark, position, right, bottom, fontSize, visibility, handleAxis, ...others } =
-        props;
+    const { dark, position, right, bottom, fontSize, visibility, handleAxis, ...others } = props;
     return (
         <span
             ref={ref}

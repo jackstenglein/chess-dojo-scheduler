@@ -36,9 +36,7 @@ const RegistrationPage = () => {
     const api = useApi();
 
     const [email, setEmail] = useState('');
-    const [lichessUsername, setLichessUsername] = useState(
-        user?.ratings.LICHESS?.username || '',
-    );
+    const [lichessUsername, setLichessUsername] = useState(user?.ratings.LICHESS?.username || '');
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [title, setTitle] = useState('');
     const [region, setRegion] = useState('');
@@ -66,11 +64,7 @@ const RegistrationPage = () => {
     }
 
     const onSetByeRequest = (idx: number, value: boolean) => {
-        setByeRequests([
-            ...byeRequests.slice(0, idx),
-            value,
-            ...byeRequests.slice(idx + 1),
-        ]);
+        setByeRequests([...byeRequests.slice(0, idx), value, ...byeRequests.slice(idx + 1)]);
     };
 
     const onRegister = () => {
@@ -183,10 +177,7 @@ const RegistrationPage = () => {
                         input: {
                             startAdornment: (
                                 <InputAdornment position='start'>
-                                    <SiDiscord
-                                        fontSize={23}
-                                        style={{ color: '#5865f2' }}
-                                    />
+                                    <SiDiscord fontSize={23} style={{ color: '#5865f2' }} />
                                 </InputAdornment>
                             ),
                         },
@@ -203,10 +194,7 @@ const RegistrationPage = () => {
                         input: {
                             startAdornment: (
                                 <InputAdornment position='start'>
-                                    <MilitaryTechIcon
-                                        color='dojoOrange'
-                                        fontSize='medium'
-                                    />
+                                    <MilitaryTechIcon color='dojoOrange' fontSize='medium' />
                                 </InputAdornment>
                             ),
                         },
@@ -260,10 +248,7 @@ const RegistrationPage = () => {
                         input: {
                             startAdornment: (
                                 <InputAdornment position='start'>
-                                    <TrendingUpIcon
-                                        color='dojoOrange'
-                                        fontSize='medium'
-                                    />
+                                    <TrendingUpIcon color='dojoOrange' fontSize='medium' />
                                 </InputAdornment>
                             ),
                         },
@@ -305,15 +290,11 @@ const RegistrationPage = () => {
                 </LoadingButton>
             </Stack>
 
-            <Dialog
-                open={request.status === RequestStatus.Success}
-                maxWidth='sm'
-                fullWidth
-            >
+            <Dialog open={request.status === RequestStatus.Success} maxWidth='sm' fullWidth>
                 <DialogTitle>Registration Complete</DialogTitle>
                 <DialogContent>
-                    You've successfully registered for the Open Classical. Make sure to
-                    follow these steps so that your opponents can contact you:
+                    You've successfully registered for the Open Classical. Make sure to follow these
+                    steps so that your opponents can contact you:
                     <ol>
                         <li>
                             Join the{' '}
@@ -332,8 +313,8 @@ const RegistrationPage = () => {
                             </Link>
                         </li>
                         <li>
-                            Make sure you are able to receive messages from people you
-                            share a server with (
+                            Make sure you are able to receive messages from people you share a
+                            server with (
                             <Link
                                 rel='noreferrer'
                                 target='_blank'

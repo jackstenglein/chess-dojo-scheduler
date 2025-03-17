@@ -1,8 +1,10 @@
-import { Chess, Color, Move, nullMoveNotation } from '@jackstenglein/chess';
+import { Chess, Color, Move, nullMoveNotation, Square } from '@jackstenglein/chess';
 import { PdfExportRequest } from '@jackstenglein/chess-dojo-common/src/pgn/export';
 import { compareNags, nags } from '@jackstenglein/chess-dojo-common/src/pgn/nag';
 import { ApiError } from 'chess-dojo-directory-service/api';
 import qrcode from 'qrcode';
+
+const SHOW_DIAGRAM_NAG = '$1304';
 
 interface TypstGeneratorOptions extends PdfExportRequest {
     qrcodeFilename?: string;
@@ -182,8 +184,10 @@ export class TypstGenerator {
             forceMoveNumber = false;
 
             const showDiagram =
-                (move.ply - this.startPly) % this.options.plyBetweenDiagrams === 0 &&
-                moves[0] !== move;
+                move.nags?.includes(SHOW_DIAGRAM_NAG) ||
+                (this.options.plyBetweenDiagrams > 0 &&
+                    (move.ply - this.startPly) % this.options.plyBetweenDiagrams === 0 &&
+                    moves[0] !== move);
 
             if (
                 (!this.options.skipComments && move.commentAfter) ||
@@ -304,13 +308,11 @@ export class TypstGenerator {
             `display-numbers: true,` +
             `white-square-fill: rgb("#d4e0e5"),` +
             `black-square-fill: rgb("#789ab0"),` +
-            `marking-color: rgb("#bdd687"),` +
-            `marked-white-square-background: rect(fill: rgb("#bbd585")),` +
-            `marked-black-square-background: rect(fill: rgb("#86ad68")),` +
-            `reverse: ${this.options.orientation === 'black'},` +
-            `marked-squares: "${move.from} ${move.to}",`;
+            `reverse: ${this.options.orientation === 'black'},`;
 
-        if (!this.options.skipDrawables) {
+        if (this.options.skipDrawables) {
+            this.result += `marked-squares: (`;
+        } else {
             const arrows = move.commentDiag?.colorArrows?.map((arrow) => {
                 const squares = `"${arrow.slice(1, 3)} ${arrow.slice(3)}"`;
                 return squares;
@@ -319,19 +321,23 @@ export class TypstGenerator {
                 this.result += `arrows: (${arrows.join(',')}),`;
             }
 
-            // const squaresByColor = move.commentDiag?.colorFields?.reduce(
-            //     (acc, field) => {
-            //         const color = field[0];
-            //         const square = field.slice(1);
-            //         acc[color] = (acc[color] || []).concat(square);
-            //         return acc;
-            //     },
-            //     {} as Record<string, string[]>,
-            // );
-            // for (const color of Object.keys(squaresByColor || {})) {
-            //     this.result += `,pgfstyle=circle,color=${boardColors[color]},markfields={${squaresByColor?.[color].join(',')}}`;
-            // }
+            this.result += `marked-squares: (`;
+
+            const squaresByColor = move.commentDiag?.colorFields?.reduce(
+                (acc, field) => {
+                    const color = field[0];
+                    const square = field.slice(1);
+                    acc[color] = (acc[color] || []).concat(square);
+                    return acc;
+                },
+                {} as Record<string, string[]>,
+            );
+            for (const color of Object.keys(squaresByColor || {})) {
+                this.result += `"${squaresByColor?.[color].join(' ')}": marks.circle(paint: ${boardColors[color]}),`;
+            }
         }
+
+        this.result += `"${move.from}": marks.fill(${lastMoveColor(move.from)}),"${move.to}": marks.fill(${lastMoveColor(move.to)}))`;
 
         this.result += `)]\n\n`;
 
@@ -361,7 +367,7 @@ export class TypstGenerator {
 }
 
 const STATIC_HEADER = `
-#import "@preview/board-n-pieces:0.5.0": *
+#import "@preview/board-n-pieces:0.6.0": *
 
 #set page(
     margin: (x: 1.25cm, y: 1.5cm),
@@ -394,10 +400,82 @@ function escape(value: string): string {
 }
 
 const boardColors: Record<string, string> = {
-    Y: 'Dandelion',
+    Y: 'yellow',
     R: 'red',
-    B: 'cyan',
-    G: 'Green',
+    B: 'blue',
+    G: 'green',
     O: 'orange',
-    C: 'magenta',
+    C: 'purple',
 };
+
+function lastMoveColor(square: Square): string {
+    switch (square) {
+        case 'a8':
+        case 'c8':
+        case 'e8':
+        case 'g8':
+        case 'h8':
+        case 'b7':
+        case 'd7':
+        case 'f7':
+        case 'h7':
+        case 'a6':
+        case 'c6':
+        case 'e6':
+        case 'g6':
+        case 'b5':
+        case 'd5':
+        case 'f5':
+        case 'h5':
+        case 'a4':
+        case 'c4':
+        case 'e4':
+        case 'g4':
+        case 'b3':
+        case 'd3':
+        case 'f3':
+        case 'h3':
+        case 'a2':
+        case 'c2':
+        case 'e2':
+        case 'g2':
+        case 'b1':
+        case 'd1':
+        case 'f1':
+        case 'h1':
+            return `rgb("#bbd585")`;
+
+        case 'b8':
+        case 'd8':
+        case 'f8':
+        case 'a7':
+        case 'c7':
+        case 'e7':
+        case 'g7':
+        case 'b6':
+        case 'd6':
+        case 'f6':
+        case 'h6':
+        case 'a5':
+        case 'c5':
+        case 'e5':
+        case 'g5':
+        case 'b4':
+        case 'd4':
+        case 'f4':
+        case 'h4':
+        case 'a3':
+        case 'c3':
+        case 'e3':
+        case 'g3':
+        case 'b2':
+        case 'd2':
+        case 'f2':
+        case 'h2':
+        case 'a1':
+        case 'c1':
+        case 'e1':
+        case 'g1':
+            return `rgb("#86ad68")`;
+    }
+}

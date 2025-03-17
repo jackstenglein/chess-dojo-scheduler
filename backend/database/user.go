@@ -308,6 +308,21 @@ type User struct {
 
 	// The IDs of the user's pinned tasks.
 	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks"`
+
+	// The day the user's week starts on. Sunday is 0; Saturday is 6.
+	WeekStart int `dynamodbav:"weekStart,omitempty" json:"weekStart"`
+
+	// The user's work goal settings
+	WorkGoal *WorkGoalSettings `dynamodbav:"workGoal,omitempty" json:"workGoal,omitempty"`
+
+	// The user's history of the work goal. New entries are added only when the work goal is changed.
+	WorkGoalHistory []WorkGoalHistory `dynamodbav:"workGoalHistory,omitempty" json:"workGoalHistory,omitempty"`
+
+	// The user's weekly training plan
+	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`
+
+	// The user's schedule of upcoming classical games
+	GameSchedule []GameScheduleEntry `dynamodbav:"gameSchedule,omitempty" json:"gameSchedule"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -334,6 +349,52 @@ type PaymentInfo struct {
 
 	// The status of the subscription
 	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+}
+
+type WorkGoalSettings struct {
+	// A list of the minutes the user wants to work per day of the week.
+	// Sunday is index 0; Saturday is index 6.
+	MinutesPerDay []int `dynamodbav:"minutesPerDay" json:"minutesPerDay"`
+}
+
+type WorkGoalHistory struct {
+	// The date the user set the work goal, in ISO 8601.
+	Date string `dynamodbav:"date" json:"date"`
+
+	// The user's work goal on the given date.
+	WorkGoal WorkGoalSettings `dynamodbav:"workGoal" json:"workGoal"`
+}
+
+type WeeklyPlan struct {
+	// The (exclusive) date the weekly plan ends, in ISO 8601.
+	EndDate string `dynamodbav:"endDate" json:"endDate"`
+
+	// The tasks in the plan, in a list ordered by the index of the day of the week.
+	// Sunday is index 0; Saturday is index 6.
+	Tasks [][]struct {
+		// The id of the task
+		Id string `dynamodbav:"id" json:"id"`
+		// The work goal of the task in minutes
+		Minutes int `dynamodbav:"minutes" json:"minutes"`
+	} `dynamodbav:"tasks" json:"tasks"`
+
+	// The date (in ISO 8601) the user's progress was most recently updated when the weekly plan was
+	// last generated.
+	ProgressUpdatedAt string `dynamodbav:"progressUpdatedAt" json:"progressUpdatedAt"`
+
+	// The ids of the user's pinned tasks (in order) when the weekly plan was last generated.
+	PinnedTasks []string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks,omitempty"`
+
+	// The date (in ISO 8601) of the user's next scheduled game when the weekly plan was last generated.
+	NextGame string `dynamodbav:"nextGame,omitempty" json:"nextGame"`
+}
+
+type GameScheduleEntry struct {
+	// The date the game(s) will be played, in ISO 8601 format.
+	Date string `dynamodbav:"date" json:"date"`
+
+	// The number of games that will be played.
+	Count int `dynamodbav:"count" json:"count"`
 }
 
 // Returns true if the given PaymentInfo indicates an active subscription.
@@ -407,6 +468,9 @@ type SiteNotificationSettings struct {
 	// Whether to disable notifications on game comments
 	DisableGameComment bool `dynamodbav:"disableGameComment" json:"disableGameComment"`
 
+	// Whether to disable notifications on game comment replies
+	DisableGameCommentReplies bool `dynamodbav:"disableGameCommentReplies" json:"disableGameCommentReplies"`
+
 	// Whether to disable notifications on game reviews
 	DisableGameReview bool `dynamodbav:"disableGameReview" json:"disableGameReview"`
 
@@ -428,6 +492,13 @@ func (sns *SiteNotificationSettings) GetDisableGameComment() bool {
 		return false
 	}
 	return sns.DisableGameComment
+}
+
+func (sns *SiteNotificationSettings) GetDisableGameCommentReplies() bool {
+	if sns == nil {
+		return false
+	}
+	return sns.DisableGameCommentReplies
 }
 
 func (sns *SiteNotificationSettings) GetDisableGameReview() bool {
@@ -660,6 +731,21 @@ type UserUpdate struct {
 
 	// The IDs of the user's pinned tasks.
 	PinnedTasks *[]string `dynamodbav:"pinnedTasks,omitempty" json:"pinnedTasks,omitempty"`
+
+	// The day the user's week starts on. Sunday is 0; Saturday is 6.
+	WeekStart *int `dynamodbav:"weekStart,omitempty" json:"weekStart,omitempty"`
+
+	// The work goal settings of the user.
+	WorkGoal *WorkGoalSettings `dynamodbav:"workGoal,omitempty" json:"workGoal,omitempty"`
+
+	// The user's history of the work goal. New entries are added only when the work goal is changed.
+	WorkGoalHistory *[]WorkGoalHistory `dynamodbav:"workGoalHistory,omitempty" json:"workGoalHistory,omitempty"`
+
+	// The user's weekly training plan.
+	WeeklyPlan *WeeklyPlan `dynamodbav:"weeklyPlan,omitempty" json:"weeklyPlan,omitempty"`
+
+	// The user's schedule of upcoming classical games
+	GameSchedule *[]GameScheduleEntry `dynamodbav:"gameSchedule,omitempty" json:"gameSchedule,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

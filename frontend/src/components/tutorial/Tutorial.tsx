@@ -36,8 +36,7 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
         [api, user?.tutorials, name, updateUser, updateSearchParams],
     );
 
-    const run =
-        (user && !user.tutorials?.[name]) || searchParams.get('tutorial') === 'true';
+    const run = (user && !user.tutorials?.[name]) || searchParams.get('tutorial') === 'true';
 
     const Joyride = useMemo(
         () => (

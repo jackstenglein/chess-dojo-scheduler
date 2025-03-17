@@ -75,8 +75,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                 title='Cohorts'
                 iconName='cohort'
                 body={
-                    dojoCohorts.length === event.cohorts.length ||
-                    event.cohorts.length === 0
+                    dojoCohorts.length === event.cohorts.length || event.cohorts.length === 0
                         ? 'All Cohorts'
                         : event.cohorts.join(', ')
                 }
@@ -94,9 +93,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                     body={
                         Object.values(event.participants).length === 0
                             ? 'No Participants Yet'
-                            : event.coaching.hideParticipants &&
-                                !isParticipant &&
-                                !isOwner
+                            : event.coaching.hideParticipants && !isParticipant && !isOwner
                               ? 'Participants hidden until after booking'
                               : undefined
                     }
@@ -128,14 +125,10 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                     >
                         Book
                     </LoadingButton>
-                    <Typography
-                        variant='caption'
-                        color='text.secondary'
-                        textAlign='center'
-                    >
-                        Upon booking, you will have 30 minutes to complete payment before
-                        losing your spot. Cancelations must be made more than 24 hours in
-                        advance to receive a refund.
+                    <Typography variant='caption' color='text.secondary' textAlign='center'>
+                        Upon booking, you will have 30 minutes to complete payment before losing
+                        your spot. Cancelations must be made more than 24 hours in advance to
+                        receive a refund.
                     </Typography>
                 </Stack>
             )}

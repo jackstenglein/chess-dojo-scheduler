@@ -63,8 +63,7 @@ export function Games({ tournament }: { tournament: RoundRobin }) {
                                         {tournament.players[game.white].displayName}
                                     </Link>
                                     {tournament.players[game.white].status ===
-                                        RoundRobinPlayerStatuses.WITHDRAWN &&
-                                        ' (Withdrawn)'}
+                                        RoundRobinPlayerStatuses.WITHDRAWN && ' (Withdrawn)'}
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>
@@ -73,8 +72,7 @@ export function Games({ tournament }: { tournament: RoundRobin }) {
                                         {tournament.players[game.black].displayName}
                                     </Link>
                                     {tournament.players[game.black].status ===
-                                        RoundRobinPlayerStatuses.WITHDRAWN &&
-                                        ' (Withdrawn)'}
+                                        RoundRobinPlayerStatuses.WITHDRAWN && ' (Withdrawn)'}
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>

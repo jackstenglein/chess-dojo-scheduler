@@ -75,26 +75,15 @@ const FAQSection = () => (
 export const InfoPage = () => {
     return (
         <Stack>
-            <Typography
-                variant='h5'
-                textAlign='center'
-                color='text.secondary'
-                sx={{ mt: 2 }}
-            >
+            <Typography variant='h5' textAlign='center' color='text.secondary' sx={{ mt: 2 }}>
                 Welcome to the Dojo Round Robin!
-                <WavingHandIcon
-                    sx={{ verticalAlign: 'middle', ml: 1 }}
-                    color='dojoOrange'
-                />
+                <WavingHandIcon sx={{ verticalAlign: 'middle', ml: 1 }} color='dojoOrange' />
             </Typography>
 
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
-                <MilitaryTechIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <MilitaryTechIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Overview
             </Typography>
             <List>
@@ -127,10 +116,7 @@ export const InfoPage = () => {
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
-                <MonetizationOn
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <MonetizationOn sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Entrance Fee
             </Typography>
 
@@ -158,10 +144,7 @@ export const InfoPage = () => {
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
-                <LeaderboardIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <LeaderboardIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Leaderboard
             </Typography>
 
@@ -193,16 +176,12 @@ export const InfoPage = () => {
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
-                <NotInterestedIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <NotInterestedIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Anti-cheat Info
             </Typography>
 
             <Typography sx={{ mt: 2, mb: 1 }}>
-                The Dojo takes cheating very seriously and has the following anti-cheat
-                policies:
+                The Dojo takes cheating very seriously and has the following anti-cheat policies:
             </Typography>
 
             <List>

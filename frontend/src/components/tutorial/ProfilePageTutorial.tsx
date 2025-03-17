@@ -24,34 +24,26 @@ const steps: Step[] = [
             'On the Training Plan tab, you can see the tasks you need to complete as part of the training program.',
     },
     {
-        target: '#training-plan-cohort-select',
-        title: 'Viewing Other Cohorts',
+        target: '#training-plan-view-select',
+        title: 'Training Plan View',
         content:
-            'If you want to view the tasks for other cohorts, you can use this selector to switch between them.',
+            'By default, you see a weekly view of your training plan, but you can use these buttons to switch to a daily view or a list of all tasks in the program.',
     },
     {
-        target: '#cohort-score-card',
-        title: 'Cohort Progress',
-        content:
-            "Here you can see at a glance how much progress you've made in your cohort tasks, both overall and by category.",
-    },
-    {
-        target: '#Welcome-to-the-Dojo-header',
-        title: 'Task Categories',
-        content:
-            'Tasks are divided into categories. You can click on a category header to expand it and view/update the tasks within that category.',
+        target: '#work-goal-editor',
+        title: 'Work Goal',
+        content: `You're currently set to spend one hour per day studying chess. If you want to adjust that, you can use this button.`,
     },
     {
         target: '#task-details',
         title: 'Task Details',
         content:
-            'Here you can see the name of each task, as well as your progress on it. You can click the task name to see the full description and instructions.',
+            'Here you can see the name and category of each task, as well as your progress on it. You can click the task name to see the full description and instructions.',
     },
     {
         target: '#task-status',
         title: 'Updating Progress',
-        content:
-            'Here you can see the time spent on each task and whether it is complete. You can click the checkbox to update your progress on the task.',
+        content: `Here you'll see how much time you've spent on each task and whether you've completed it. You can click the progress icon to update the task. You can also use the pin icon to force a task to stay in your weekly suggestions.`,
     },
     {
         target: '#graduate-button',

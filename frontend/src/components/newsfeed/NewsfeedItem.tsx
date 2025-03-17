@@ -2,8 +2,9 @@ import { useApi } from '@/api/Api';
 import { ScoreboardDisplay, formatTime } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
+import { Edit } from '@mui/icons-material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import GameNewsfeedItem from '../../app/(scoreboard)/newsfeed/(detail)/[owner]/[id]/GameNewsfeedItem';
 import GraduationNewsfeedItem from '../../app/(scoreboard)/newsfeed/(detail)/[owner]/[id]/GraduationNewsfeedItem';
 import CommentEditor from '../comments/CommentEditor';
@@ -15,9 +16,15 @@ interface NewsfeedItemProps {
     entry: TimelineEntry;
     onEdit: (entry: TimelineEntry) => void;
     maxComments?: number;
+    onChangeActivity?: (entry: TimelineEntry) => void;
 }
 
-const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments }) => {
+const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
+    entry,
+    onEdit,
+    maxComments,
+    onChangeActivity,
+}) => {
     const api = useApi();
 
     return (
@@ -27,12 +34,22 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({ entry, onEdit, maxComments 
                     <NewsfeedItemHeader entry={entry} />
                     <NewsfeedItemBody entry={entry} />
 
-                    <ReactionList
-                        owner={entry.owner}
-                        id={entry.id}
-                        reactions={entry.reactions}
-                        onEdit={onEdit}
-                    />
+                    <Stack direction='row' gap={1} mt={1} flexWrap='wrap'>
+                        {onChangeActivity && (
+                            <Tooltip title='Edit Activity'>
+                                <IconButton color='primary' onClick={() => onChangeActivity(entry)}>
+                                    <Edit />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+
+                        <ReactionList
+                            owner={entry.owner}
+                            id={entry.id}
+                            reactions={entry.reactions}
+                            onEdit={onEdit}
+                        />
+                    </Stack>
 
                     <Divider sx={{ width: 1, mt: 1, mb: 2 }} />
 
@@ -69,8 +86,7 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
     return (
         <Stack spacing={0.5}>
             <Typography>
-                {isComplete ? 'Completed' : 'Updated'}{' '}
-                <strong>{entry.requirementName}</strong>
+                {isComplete ? 'Completed' : 'Updated'} <strong>{entry.requirementName}</strong>
             </Typography>
 
             {(entry.dojoPoints > 0 || entry.totalDojoPoints > 0) && (
@@ -79,13 +95,10 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
                         Dojo Points:
                     </Typography>
                     <Typography>
-                        {Math.round(100 * (entry.totalDojoPoints - entry.dojoPoints)) /
-                            100}
+                        {Math.round(100 * (entry.totalDojoPoints - entry.dojoPoints)) / 100}
                     </Typography>
                     <ArrowRightAltIcon sx={{ color: 'text.secondary' }} />
-                    <Typography>
-                        {Math.round(100 * entry.totalDojoPoints) / 100}
-                    </Typography>
+                    <Typography>{Math.round(100 * entry.totalDojoPoints) / 100}</Typography>
                 </Stack>
             )}
 

@@ -40,8 +40,7 @@ export function toDests(chess?: Chess): Map<Key, Key[]> {
         return new Map();
     }
 
-    const disableNullMoves =
-        chess.disableNullMoves || Boolean(chess.currentMove()?.isNullMove);
+    const disableNullMoves = chess.disableNullMoves || Boolean(chess.currentMove()?.isNullMove);
     const dests = new Map<Key, Key[]>();
     SQUARES.forEach((s) => {
         const moves = chess.moves({ square: s, disableNullMoves });
@@ -64,9 +63,7 @@ const boardColors: Record<string, string> = {
     C: 'magenta',
 };
 
-const chessColors = Object.fromEntries(
-    Object.entries(boardColors).map(([k, v]) => [v, k]),
-);
+const chessColors = Object.fromEntries(Object.entries(boardColors).map(([k, v]) => [v, k]));
 
 export function toShapes(chess?: Chess): DrawShape[] {
     if (!chess) {
@@ -251,12 +248,7 @@ const promotionPieces = [
     },
 ] as const;
 
-const Board: React.FC<BoardProps> = ({
-    config,
-    onInitialize,
-    onInitializeBoard,
-    onMove,
-}) => {
+const Board: React.FC<BoardProps> = ({ config, onInitialize, onInitializeBoard, onMove }) => {
     const { chess, config: chessConfig } = useChess();
     const [board, setBoard] = useState<BoardApi | null>(null);
     const boardRef = useRef<HTMLDivElement>(null);
@@ -335,8 +327,7 @@ const Board: React.FC<BoardProps> = ({
                 drawable: {
                     shapes: config?.drawable?.shapes || toShapes(chess),
                     autoShapes: toAutoShapes(chess, showGlyphs),
-                    onChange:
-                        config?.drawable?.onChange || defaultOnDrawableChange(chess),
+                    onChange: config?.drawable?.onChange || defaultOnDrawableChange(chess),
                     eraseOnClick: false,
                 },
                 addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
@@ -434,19 +425,14 @@ const Board: React.FC<BoardProps> = ({
                 <DialogContent>
                     <Stack direction='row'>
                         {promotionPieces.map((piece) => (
-                            <Button
-                                key={piece.key}
-                                onClick={() => onFinishPromotion(piece.key)}
-                            >
+                            <Button key={piece.key} onClick={() => onFinishPromotion(piece.key)}>
                                 <Box
                                     sx={{
                                         width: '75px',
                                         aspectRatio: 1,
                                         backgroundSize: 'cover',
                                         backgroundImage: promotion
-                                            ? pieceSx[
-                                                  `--${promotion.color}-${piece.name}`
-                                              ]
+                                            ? pieceSx[`--${promotion.color}-${piece.name}`]
                                             : '',
                                     }}
                                 />

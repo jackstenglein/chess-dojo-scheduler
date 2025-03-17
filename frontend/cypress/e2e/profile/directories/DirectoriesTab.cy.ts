@@ -54,13 +54,9 @@ describe('Directories', () => {
     });
 
     it('requires confirmation to delete directory', () => {
-        cy.interceptApi(
-            'GET',
-            '/directory/398ee7df-13a1-4fbf-bae3-e156f252512d/home/v2',
-            {
-                fixture: 'profile/directories/basic.json',
-            },
-        );
+        cy.interceptApi('GET', '/directory/398ee7df-13a1-4fbf-bae3-e156f252512d/home/v2', {
+            fixture: 'profile/directories/basic.json',
+        });
 
         cy.getBySel('directories-data-grid')
             .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
@@ -94,13 +90,9 @@ describe('Directories', () => {
     });
 
     it('displays move directory dialog', () => {
-        cy.interceptApi(
-            'GET',
-            '/directory/398ee7df-13a1-4fbf-bae3-e156f252512d/home/v2',
-            {
-                fixture: 'profile/directories/basic.json',
-            },
-        );
+        cy.interceptApi('GET', '/directory/398ee7df-13a1-4fbf-bae3-e156f252512d/home/v2', {
+            fixture: 'profile/directories/basic.json',
+        });
 
         cy.getBySel('directories-data-grid')
             .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')
@@ -111,13 +103,9 @@ describe('Directories', () => {
     });
 
     it('disables renaming directory to empty/same name', () => {
-        cy.interceptApi(
-            'GET',
-            '/directory/398ee7df-13a1-4fbf-bae3-e156f252512d/home/v2',
-            {
-                fixture: 'profile/directories/basic.json',
-            },
-        );
+        cy.interceptApi('GET', '/directory/398ee7df-13a1-4fbf-bae3-e156f252512d/home/v2', {
+            fixture: 'profile/directories/basic.json',
+        });
 
         cy.getBySel('directories-data-grid')
             .contains(':not(.MuiDataGrid-rowReorderCellPlaceholder)', 'Test')

@@ -30,8 +30,8 @@ export default function DojoDigestVol15() {
                 </Typography>
 
                 <Typography mt={2}>
-                    <strong>THE WORLD CHAMPIONSHIP!</strong> - The Dojo is doing live
-                    commentary for all games on{' '}
+                    <strong>THE WORLD CHAMPIONSHIP!</strong> - The Dojo is doing live commentary for
+                    all games on{' '}
                     <Link href='https://www.twitch.tv/chessdojo' target='_blank'>
                         Twitch
                     </Link>{' '}
@@ -39,9 +39,9 @@ export default function DojoDigestVol15() {
                     <Link href='https://www.youtube.com/@ChessDojo' target='_blank'>
                         YouTube
                     </Link>
-                    . No engine commentary! Don’t follow a sad engine bar going up and
-                    down for reasons unknown! For the duration of the championship, use
-                    code WC24 to get a 20% discount on a subscription to the{' '}
+                    . No engine commentary! Don’t follow a sad engine bar going up and down for
+                    reasons unknown! For the duration of the championship, use code WC24 to get a
+                    20% discount on a subscription to the{' '}
                     <Link
                         href='https://www.chessdojo.club/?utm_source=newsletter&utm_medium=email&utm_campaign=digest15'
                         target='_blank'
@@ -51,8 +51,8 @@ export default function DojoDigestVol15() {
                 </Typography>
 
                 <Typography mt={4}>
-                    The heatmap has evolved! Many thanks to Jalp aka Noobmaster for making
-                    a vision into a reality. Take a look at{' '}
+                    The heatmap has evolved! Many thanks to Jalp aka Noobmaster for making a vision
+                    into a reality. Take a look at{' '}
                     <Link
                         href='https://www.chessdojo.club/profile/a01c4934-cf7b-4327-b71d-bb3e0a364a4c?utm_source=newsletter&utm_medium=email&utm_campaign=digest15'
                         target='_blank'
@@ -89,34 +89,27 @@ export default function DojoDigestVol15() {
                 </Stack>
 
                 <Typography mt={4}>
-                    At a glance, we can now see how much a Dojoer has been playing and
-                    what kind of work they’ve done. Sensei Kraai is seeing an immediate
-                    impact in the graduation show (Twitch.tv/ChessDojo at 12 ET every
-                    Wednesday and Thursday!). Dojoers are now thinking about the heatmap
-                    (I need to do some sweatwork today) and it’s showing up in the maps.
-                    It comes as no surprise that the best maps are being produced by those
-                    making progress and graduating. Senseis are feeling it too, I gotta do
-                    some sweatwork today. It becomes a subconscious urge that leads to
+                    At a glance, we can now see how much a Dojoer has been playing and what kind of
+                    work they’ve done. Sensei Kraai is seeing an immediate impact in the graduation
+                    show (Twitch.tv/ChessDojo at 12 ET every Wednesday and Thursday!). Dojoers are
+                    now thinking about the heatmap (I need to do some sweatwork today) and it’s
+                    showing up in the maps. It comes as no surprise that the best maps are being
+                    produced by those making progress and graduating. Senseis are feeling it too, I
+                    gotta do some sweatwork today. It becomes a subconscious urge that leads to
                     better habits.
                 </Typography>
 
                 <Typography mt={4}>
-                    <strong>Round Robin Tournaments</strong> - Jalp also gets credit for
-                    creating the{' '}
-                    <Link
-                        href='https://www.chessdojo.club/tournaments/round-robin'
-                        target='_blank'
-                    >
+                    <strong>Round Robin Tournaments</strong> - Jalp also gets credit for creating
+                    the{' '}
+                    <Link href='https://www.chessdojo.club/tournaments/round-robin' target='_blank'>
                         Dojo Round Robin.
                     </Link>{' '}
-                    It’s a beautiful new tournament with a simple idea: the first 10
-                    players to sign up from a cohort form a round robin that lasts three
-                    months. We already have several cohorts with more than one section!
-                    Below is a look at the 11-1200 cohort tournament already underway.{' '}
-                    <Link
-                        href='https://www.chessdojo.club/tournaments/round-robin'
-                        target='_blank'
-                    >
+                    It’s a beautiful new tournament with a simple idea: the first 10 players to sign
+                    up from a cohort form a round robin that lasts three months. We already have
+                    several cohorts with more than one section! Below is a look at the 11-1200
+                    cohort tournament already underway.{' '}
+                    <Link href='https://www.chessdojo.club/tournaments/round-robin' target='_blank'>
                         Sign up here.
                     </Link>
                 </Typography>
@@ -129,11 +122,10 @@ export default function DojoDigestVol15() {
                 </Stack>
 
                 <Typography mt={4}>
-                    <strong>Teams</strong> - Are you part of a scholastic or European club
-                    team? Let us know! We would like to bring your teammates to the Dojo
-                    and see you with them on a customized scoreboard. We believe the Dojo
-                    is the place for teams to track their progress, be competitive with
-                    one another and challenge other teams.
+                    <strong>Teams</strong> - Are you part of a scholastic or European club team? Let
+                    us know! We would like to bring your teammates to the Dojo and see you with them
+                    on a customized scoreboard. We believe the Dojo is the place for teams to track
+                    their progress, be competitive with one another and challenge other teams.
                 </Typography>
 
                 <Typography mt={4} variant='h5'>
@@ -141,8 +133,8 @@ export default function DojoDigestVol15() {
                 </Typography>
 
                 <Typography mt={4}>
-                    Are you part of a team that wants to have their own scoreboard where
-                    you can all follow a program? Then do as the{' '}
+                    Are you part of a team that wants to have their own scoreboard where you can all
+                    follow a program? Then do as the{' '}
                     <Link
                         href='https://www.chessdojo.club/clubs/cb7af173-8eea-4e28-8cdb-da76a7e9e00d?view=scoreboard'
                         target='_blank'
@@ -165,8 +157,8 @@ export default function DojoDigestVol15() {
                     >
                         LifeCanBeSoNice
                     </Link>{' '}
-                    defeated a GM in the Lichess Bundesliga with the Dojo Team! Check out
-                    his video of the game here.
+                    defeated a GM in the Lichess Bundesliga with the Dojo Team! Check out his video
+                    of the game here.
                 </Typography>
 
                 <Typography mt={2}>
@@ -187,8 +179,8 @@ export default function DojoDigestVol15() {
                     >
                         Chris
                     </Link>{' '}
-                    recently crosssed 1000 Chess.com Rapid rating! Chris has said he's
-                    seen a big improvement since joining the Dojo.
+                    recently crosssed 1000 Chess.com Rapid rating! Chris has said he's seen a big
+                    improvement since joining the Dojo.
                 </Typography>
 
                 <Typography mt={2}>

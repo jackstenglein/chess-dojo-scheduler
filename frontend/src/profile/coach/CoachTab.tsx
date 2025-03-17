@@ -37,11 +37,7 @@ const CoachTab: React.FC<CoachTabProps> = ({ user }) => {
                 filterFunction={filterFunction}
                 header={(view, onChangeView) => (
                     <Stack>
-                        <Stack
-                            direction='row'
-                            justifyContent='space-between'
-                            alignItems='center'
-                        >
+                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
                             <Typography variant='h6'>Upcoming Sessions</Typography>
                             <ToggleButtonGroup
                                 exclusive

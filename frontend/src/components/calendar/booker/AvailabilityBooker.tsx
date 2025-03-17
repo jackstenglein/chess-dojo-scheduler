@@ -7,7 +7,7 @@ import {
     getTimeZonedDate,
     toDojoDateString,
     toDojoTimeString,
-} from '@/calendar/displayDate';
+} from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { AvailabilityType, Event, getDisplayString } from '@/database/event';
 import { TimeFormat } from '@/database/user';
@@ -69,9 +69,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
     useEffect(() => {
         if (availability) {
             setStartTime(
-                DateTime.fromJSDate(
-                    getTimeZonedDate(new Date(availability.startTime), timezone),
-                ),
+                DateTime.fromJSDate(getTimeZonedDate(new Date(availability.startTime), timezone)),
             );
         }
     }, [availability, setStartTime, timezone]);
@@ -223,10 +221,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                 />
                                 Description
                             </Typography>
-                            <Typography
-                                variant='body1'
-                                style={{ whiteSpace: 'pre-line' }}
-                            >
+                            <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
                                 {availability.description}
                             </Typography>
                         </Stack>
@@ -267,8 +262,9 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                     Current Participants
                                 </Typography>
 
-                                {Object.values(availability.participants).length ===
-                                    0 && <Typography variant='body1'>None</Typography>}
+                                {Object.values(availability.participants).length === 0 && (
+                                    <Typography variant='body1'>None</Typography>
+                                )}
 
                                 {Object.values(availability.participants).map((p) => (
                                     <Stack
@@ -282,10 +278,7 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                             displayName={p.displayName}
                                             size={25}
                                         />
-                                        <Link
-                                            key={p.username}
-                                            href={`/profile/${p.username}`}
-                                        >
+                                        <Link key={p.username} href={`/profile/${p.username}`}>
                                             <Typography variant='body1'>
                                                 {p.displayName} ({p.cohort})
                                             </Typography>
@@ -305,17 +298,13 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                                     name='radio-buttons-group'
                                     value={selectedType}
                                     onChange={(event) =>
-                                        setSelectedType(
-                                            event.target.value as AvailabilityType,
-                                        )
+                                        setSelectedType(event.target.value as AvailabilityType)
                                     }
                                 >
                                     {availability.types?.map((t) => (
                                         <FormControlLabel
                                             key={t}
-                                            control={
-                                                <Radio data-cy='meeting-type-radio' />
-                                            }
+                                            control={<Radio data-cy='meeting-type-radio' />}
                                             value={t}
                                             label={getDisplayString(t)}
                                         />

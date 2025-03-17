@@ -27,11 +27,10 @@ export default function DojoDigestVol14() {
                 </Typography>
 
                 <Typography mt={2}>
-                    <strong>File Sharing</strong> - Two months ago, we announced our file
-                    system for organizing your games and repertoires. Today, we're
-                    releasing a major update, which allows you to share public or private
-                    folders with other users. You can add users as viewers, editors or
-                    admins.
+                    <strong>File Sharing</strong> - Two months ago, we announced our file system for
+                    organizing your games and repertoires. Today, we're releasing a major update,
+                    which allows you to share public or private folders with other users. You can
+                    add users as viewers, editors or admins.
                 </Typography>
 
                 <Stack mt={2} alignItems='center'>
@@ -41,58 +40,56 @@ export default function DojoDigestVol14() {
                         style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                     />
                     <Typography textAlign='center' color='text.secondary'>
-                        In this example, we are giving the user Jalp editor access to the
-                        White Repertoire folder.
+                        In this example, we are giving the user Jalp editor access to the White
+                        Repertoire folder.
                     </Typography>
                 </Stack>
 
                 <Typography mt={4}>
-                    Viewers can see all games and nested folders but cannot make any
-                    changes. Editors can add games and remove games that they added, but
-                    cannot create nested folders or remove games added by other users.
-                    Admins can do everything except delete the folder.
+                    Viewers can see all games and nested folders but cannot make any changes.
+                    Editors can add games and remove games that they added, but cannot create nested
+                    folders or remove games added by other users. Admins can do everything except
+                    delete the folder.
                 </Typography>
 
                 <Typography mt={2}>
-                    We see this as a great way for coaches and students to collaborate,
-                    and we're excited to see what people do with it!
+                    We see this as a great way for coaches and students to collaborate, and we're
+                    excited to see what people do with it!
                 </Typography>
 
                 <Typography mt={4}>
-                    <strong>Engines</strong> - If you missed it last month, Stockfish 16
-                    and 17 are now available in the Dojo's game annotator. Since then,
-                    we've added some new features:
+                    <strong>Engines</strong> - If you missed it last month, Stockfish 16 and 17 are
+                    now available in the Dojo's game annotator. Since then, we've added some new
+                    features:
                 </Typography>
 
                 <ul>
                     <li>
-                        You can view the engine's expected Win/Draw/Loss percentages under
-                        the main eval. In the engine settings, there is an option called
-                        Primary Eval Type. You can use this to display WDL percentages
-                        next to each line instead of the normal numeric eval.
+                        You can view the engine's expected Win/Draw/Loss percentages under the main
+                        eval. In the engine settings, there is an option called Primary Eval Type.
+                        You can use this to display WDL percentages next to each line instead of the
+                        normal numeric eval.
                     </li>
                     <li>
-                        Clicking on the eval box next to a line will add that full line to
-                        your PGN and insert a comment with the engine name, eval, depth
-                        and WDL percentages.
+                        Clicking on the eval box next to a line will add that full line to your PGN
+                        and insert a comment with the engine name, eval, depth and WDL percentages.
                     </li>
                     <li>
-                        There is now an option in the engine settings and the game viewer
-                        settings to highlight the full engine line in the PGN text, in
-                        addition to the fish icon that displays at the start of the line.
+                        There is now an option in the engine settings and the game viewer settings
+                        to highlight the full engine line in the PGN text, in addition to the fish
+                        icon that displays at the start of the line.
                     </li>
                 </ul>
                 <Typography>
-                    Remember, don't check your games with the engine until you've finished
-                    your own analysis.
+                    Remember, don't check your games with the engine until you've finished your own
+                    analysis.
                 </Typography>
 
                 <Typography mt={4}>
-                    <strong>Teams</strong> - Are you part of a scholastic or European club
-                    team? Let us know! We would like to bring your teammates to the Dojo
-                    and see you with them on a customized scoreboard. We believe the Dojo
-                    is the place for teams to track their progress, be competitive with
-                    one another and challenge other teams.
+                    <strong>Teams</strong> - Are you part of a scholastic or European club team? Let
+                    us know! We would like to bring your teammates to the Dojo and see you with them
+                    on a customized scoreboard. We believe the Dojo is the place for teams to track
+                    their progress, be competitive with one another and challenge other teams.
                 </Typography>
 
                 <Typography mt={4} variant='h5'>
@@ -100,8 +97,8 @@ export default function DojoDigestVol14() {
                 </Typography>
 
                 <Typography mt={2}>
-                    <strong>THE WORLD CHAMPIONSHIP!</strong> The Dojo will do commentary
-                    for all games. Tune in Nov 25 – Dec 15 on{' '}
+                    <strong>THE WORLD CHAMPIONSHIP!</strong> The Dojo will do commentary for all
+                    games. Tune in Nov 25 – Dec 15 on{' '}
                     <Link href='https://www.twitch.tv/chessdojo' target='_blank'>
                         Twitch
                     </Link>{' '}
@@ -113,12 +110,11 @@ export default function DojoDigestVol14() {
                 </Typography>
 
                 <Typography mt={3}>
-                    <strong>Alex Sherzer Memorial</strong> - Alex was a good friend of
-                    Sensei Kraai and loads of old champions are coming out to honor his
-                    memory Nov 1-3 in Washington DC: GMs Patrick Wolff, Benjamin, Fishbein
-                    and IM Stuart Rachels. Will Kraai continue his good form from this
-                    summer's senior and get the big 12 points he needs to re-graduate back
-                    into the 2400+ cohort?
+                    <strong>Alex Sherzer Memorial</strong> - Alex was a good friend of Sensei Kraai
+                    and loads of old champions are coming out to honor his memory Nov 1-3 in
+                    Washington DC: GMs Patrick Wolff, Benjamin, Fishbein and IM Stuart Rachels. Will
+                    Kraai continue his good form from this summer's senior and get the big 12 points
+                    he needs to re-graduate back into the 2400+ cohort?
                 </Typography>
 
                 <Typography mt={4} variant='h5'>
@@ -132,8 +128,8 @@ export default function DojoDigestVol14() {
                     >
                         Timpe
                     </Link>{' '}
-                    (2000-2100 cohort) won a local tournament with 6.5/7, beating two
-                    1900+ players and two 2000+ players!
+                    (2000-2100 cohort) won a local tournament with 6.5/7, beating two 1900+ players
+                    and two 2000+ players!
                 </Typography>
 
                 <Typography mt={2}>
@@ -143,8 +139,8 @@ export default function DojoDigestVol14() {
                     >
                         Dandeer
                     </Link>{' '}
-                    (1300-1400 cohort) made the traveling team for his club's first
-                    national chess championship (domestic division II in Hungary)!
+                    (1300-1400 cohort) made the traveling team for his club's first national chess
+                    championship (domestic division II in Hungary)!
                 </Typography>
 
                 <Typography mt={2}>
@@ -155,9 +151,8 @@ export default function DojoDigestVol14() {
                     >
                         JackStenglein
                     </Link>{' '}
-                    (1600-1700 cohort), reached 2000 in Chess.com rapid. This was his
-                    original goal when he first joined the Dojo two years ago. Next up:
-                    focusing on OTB!
+                    (1600-1700 cohort), reached 2000 in Chess.com rapid. This was his original goal
+                    when he first joined the Dojo two years ago. Next up: focusing on OTB!
                 </Typography>
 
                 <Typography mt={2}>

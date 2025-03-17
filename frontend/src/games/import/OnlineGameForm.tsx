@@ -21,7 +21,7 @@ import {
     PgnImportResult,
 } from '@/app/(scoreboard)/games/analysis/server';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { RenderPlayers } from '@/components/games/list/GameListItem';
 import { Link } from '@/components/navigation/Link';
 import { isCohortInRange, RatingSystem } from '@/database/user';
@@ -219,11 +219,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
             ],
             [GameImportTypes.lichessGame, isLichessGameURL, getLichessGame],
             [GameImportTypes.chesscomGame, isChesscomGameURL, getChesscomGame],
-            [
-                GameImportTypes.chesscomAnalysis,
-                isChesscomAnalysisURL,
-                getChesscomAnalysis,
-            ],
+            [GameImportTypes.chesscomAnalysis, isChesscomAnalysisURL, getChesscomAnalysis],
         ];
 
         // Import
@@ -284,10 +280,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                         paddingRight={1}
                         paddingTop={1}
                     >
-                        <Button
-                            disabled={loading || request.isLoading()}
-                            onClick={onClose}
-                        >
+                        <Button disabled={loading || request.isLoading()} onClick={onClose}>
                             Cancel
                         </Button>
                         <ImportButton
@@ -318,8 +311,8 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                         )
                     ) : (
                         <Typography variant='body2'>
-                            To list recent games, add your Chess.com or Lichess username
-                            to your <Link href='/profile/edit#ratings'>profile</Link>.
+                            To list recent games, add your Chess.com or Lichess username to your{' '}
+                            <Link href='/profile/edit#ratings'>profile</Link>.
                         </Typography>
                     )}
                 </Stack>

@@ -70,8 +70,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	notification := database.GameReviewNotification(game)
-	if err := repository.PutNotification(notification); err != nil {
+	if err := database.SendGameReviewCompleteEvent(game); err != nil {
 		log.Errorf("Failed to create notification: %v", err)
 	}
 

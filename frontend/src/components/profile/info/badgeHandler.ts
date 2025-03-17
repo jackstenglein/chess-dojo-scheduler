@@ -140,10 +140,7 @@ function getBadgeLevel(
         return { maxLevel: -1, currentCount: 0 };
     }
 
-    const currentCount = Object.values(progress.counts || {}).reduce(
-        (sum, v) => sum + v,
-        0,
-    );
+    const currentCount = Object.values(progress.counts || {}).reduce((sum, v) => sum + v, 0);
 
     let maxLevel = -1;
     for (const level of levels) {
@@ -248,8 +245,7 @@ function getDojoerBadge(isEarned: boolean): Badge {
     return {
         image: '/static/badges/misc/DojoHeart.png',
         title: 'Dojo member since 1.0',
-        message:
-            'You have been a valuable Dojo member from the start! Thanks for your support!',
+        message: 'You have been a valuable Dojo member from the start! Thanks for your support!',
         isEarned,
         glowHexcode: '#BD01F2',
         category: BadgeCategory.All,
@@ -328,17 +324,12 @@ function getTaskBadge({
  * @returns A list of all possible badges, both earned and not earned.
  */
 export function getBadges(user: User, tacticsRating: TacticsRating): Badge[] {
-    const allBadges = [
-        getDojoerBadge(!user.createdAt),
-        getBetaTesterBadge(user.isBetaTester),
-    ];
+    const allBadges = [getDojoerBadge(!user.createdAt), getBetaTesterBadge(user.isBetaTester)];
 
     const [, minTacticsRating] = getCohortRangeInt(user.dojoCohort);
     const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
     allBadges.push(
-        getTacticsChampionBadge(
-            !isProvisional && tacticsRating.overall >= minTacticsRating,
-        ),
+        getTacticsChampionBadge(!isProvisional && tacticsRating.overall >= minTacticsRating),
     );
 
     for (const task of Object.values(BadgeTask)) {
@@ -365,15 +356,11 @@ export function getBadges(user: User, tacticsRating: TacticsRating): Badge[] {
 
     for (let i = 0; i < dojoCohorts.length - 1; i++) {
         if (
-            (graduationCohorts.length === 0 &&
-                i >= dojoCohorts.indexOf(user.dojoCohort)) ||
+            (graduationCohorts.length === 0 && i >= dojoCohorts.indexOf(user.dojoCohort)) ||
             i >= dojoCohorts.indexOf(graduationCohorts[0])
         ) {
             allBadges.push(
-                getGraduationBadge(
-                    dojoCohorts[i],
-                    graduationCohorts.includes(dojoCohorts[i]),
-                ),
+                getGraduationBadge(dojoCohorts[i], graduationCohorts.includes(dojoCohorts[i])),
             );
         }
     }

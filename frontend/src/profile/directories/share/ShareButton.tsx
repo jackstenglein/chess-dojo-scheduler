@@ -23,11 +23,7 @@ export const ShareButton = ({
 
     return (
         <>
-            <Button
-                variant='contained'
-                startIcon={<PersonAddAlt1 />}
-                onClick={() => setOpen(true)}
-            >
+            <Button variant='contained' startIcon={<PersonAddAlt1 />} onClick={() => setOpen(true)}>
                 Share
             </Button>
 

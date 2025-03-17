@@ -15,11 +15,7 @@ interface PurchaseOptionProps {
     preview?: boolean;
 }
 
-const PurchaseOption: React.FC<PurchaseOptionProps> = ({
-    course,
-    purchaseOption,
-    preview,
-}) => {
+const PurchaseOption: React.FC<PurchaseOptionProps> = ({ course, purchaseOption, preview }) => {
     const api = useApi();
     const request = useRequest();
 
@@ -49,11 +45,7 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({
             <CardContent>
                 <Stack alignItems='center' spacing={3}>
                     <Stack alignItems='center'>
-                        <Typography
-                            variant='subtitle1'
-                            fontWeight='bold'
-                            color='text.secondary'
-                        >
+                        <Typography variant='subtitle1' fontWeight='bold' color='text.secondary'>
                             {name || course.name}
                         </Typography>
 
@@ -62,8 +54,7 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({
                                 variant='h6'
                                 sx={{
                                     color: currentPrice > 0 ? 'error.main' : undefined,
-                                    textDecoration:
-                                        currentPrice > 0 ? 'line-through' : undefined,
+                                    textDecoration: currentPrice > 0 ? 'line-through' : undefined,
                                 }}
                             >
                                 ${displayPrice(fullPrice / 100)}
@@ -75,9 +66,7 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({
                                         ${displayPrice(currentPrice / 100)}
                                     </Typography>
 
-                                    <Typography color='text.secondary'>
-                                        (-{percentOff}%)
-                                    </Typography>
+                                    <Typography color='text.secondary'>(-{percentOff}%)</Typography>
                                 </>
                             )}
                         </Stack>

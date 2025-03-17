@@ -132,12 +132,7 @@ export function createNewsfeedComment(
  * @param types The reaction types to set. An empty list deletes the reaction.
  * @returns An AxiosResponse containing the updated TimelineEntry.
  */
-export function setNewsfeedReaction(
-    idToken: string,
-    owner: string,
-    id: string,
-    types: string[],
-) {
+export function setNewsfeedReaction(idToken: string, owner: string, id: string, types: string[]) {
     return axios.put<TimelineEntry>(
         `${BASE_URL}/newsfeed/${owner}/${id}/reactions`,
         { types },

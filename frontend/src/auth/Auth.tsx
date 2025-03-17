@@ -19,14 +19,7 @@ import {
     SignUpOutput,
 } from 'aws-amplify/auth';
 import { AxiosResponse } from 'axios';
-import {
-    createContext,
-    ReactNode,
-    useCallback,
-    useContext,
-    useEffect,
-    useState,
-} from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { EventType, setUser as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { syncPurchases } from '../api/paymentApi';
@@ -83,11 +76,7 @@ interface AuthContextType {
     confirmSignup: (username: string, code: string) => Promise<ConfirmSignUpOutput>;
     resendSignupCode: (username: string) => Promise<ResendSignUpCodeOutput>;
     forgotPassword: (email: string) => Promise<ResetPasswordOutput>;
-    forgotPasswordConfirm: (
-        email: string,
-        code: string,
-        password: string,
-    ) => Promise<void>;
+    forgotPasswordConfirm: (email: string, code: string, password: string) => Promise<void>;
 
     signout: () => void;
 }

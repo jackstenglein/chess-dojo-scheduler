@@ -62,9 +62,7 @@ const Chart: React.FC<ChartProps> = ({
                                 icon={
                                     <CircleIcon
                                         sx={{
-                                            color: `${
-                                                colors[i % colors.length]
-                                            } !important`,
+                                            color: `${colors[i % colors.length]} !important`,
                                         }}
                                     />
                                 }

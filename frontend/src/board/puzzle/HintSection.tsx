@@ -22,13 +22,7 @@ interface HintSectionProps {
     onNextPuzzle?: () => void;
 }
 
-const TurnPrompt = ({
-    chess,
-    playBothSides,
-}: {
-    chess: Chess;
-    playBothSides: boolean;
-}) => {
+const TurnPrompt = ({ chess, playBothSides }: { chess: Chess; playBothSides: boolean }) => {
     return (
         <Stack>
             <Typography variant='h6' fontWeight='bold' color='text.secondary'>
@@ -93,9 +87,7 @@ const IncorrectMoveHint: React.FC<HintSectionProps> = ({
 
     return (
         <>
-            <ChatBubble>
-                {move?.commentAfter || 'Incorrect, please try again.'}
-            </ChatBubble>
+            <ChatBubble>{move?.commentAfter || 'Incorrect, please try again.'}</ChatBubble>
             <Stack direction='row' justifyContent='space-between'>
                 <Button
                     variant='contained'

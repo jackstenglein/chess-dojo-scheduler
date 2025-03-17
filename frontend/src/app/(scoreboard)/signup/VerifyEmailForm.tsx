@@ -115,8 +115,8 @@ export const VerifyEmailForm = ({
                     textAlign='center'
                     data-cy='description'
                 >
-                    In order to complete your account creation, please enter the
-                    verification code sent to {email}.
+                    In order to complete your account creation, please enter the verification code
+                    sent to {email}.
                 </Typography>
 
                 <TextField

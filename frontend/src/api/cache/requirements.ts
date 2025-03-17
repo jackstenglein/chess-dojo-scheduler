@@ -1,9 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import {
-    Requirement,
-    ScoreboardDisplay,
-    compareRequirements,
-} from '../../database/requirement';
+import { Requirement, ScoreboardDisplay, compareRequirements } from '../../database/requirement';
 import { ALL_COHORTS, dojoCohorts } from '../../database/user';
 import { useApi } from '../Api';
 import { Request, useRequest } from '../Request';
@@ -14,10 +10,7 @@ interface UseRequirementsResponse {
     request: Request<never>;
 }
 
-export function useRequirements(
-    cohort: string,
-    scoreboardOnly: boolean,
-): UseRequirementsResponse {
+export function useRequirements(cohort: string, scoreboardOnly: boolean): UseRequirementsResponse {
     const api = useApi();
     const cache = useCache();
     const request = useRequest<never>();

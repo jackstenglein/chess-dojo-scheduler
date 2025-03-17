@@ -60,10 +60,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
     }, [open, currentAction]);
 
     if (currentAction) {
-        bulletPoints = [
-            currentAction,
-            ...bulletPoints.filter((bp) => bp !== currentAction),
-        ];
+        bulletPoints = [currentAction, ...bulletPoints.filter((bp) => bp !== currentAction)];
     }
 
     return (
@@ -77,8 +74,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
             <DialogTitle>Upgrade to a Full Account</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    You're currently on the free plan. Subscribe to the full training plan
-                    to:
+                    You're currently on the free plan. Subscribe to the full training plan to:
                 </DialogContentText>
                 <DialogContentText component='div'>
                     <ul>
@@ -89,8 +85,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
                     </ul>
                 </DialogContentText>
                 <DialogContentText>
-                    Your progress on the free plan will be carried over when you
-                    subscribe.
+                    Your progress on the free plan will be carried over when you subscribe.
                 </DialogContentText>
             </DialogContent>
             <DialogActions>

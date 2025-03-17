@@ -40,10 +40,7 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
     const api = useApi();
     const router = useRouter();
 
-    const { requirements, request: requirementRequest } = useRequirements(
-        type || '',
-        false,
-    );
+    const { requirements, request: requirementRequest } = useRequirements(type || '', false);
 
     useEffect(() => {
         if (user && type && !dataRequest.isSent()) {
@@ -108,8 +105,8 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
             {isFreeTier && (
                 <Stack alignItems='center' mb={3}>
                     <UpsellAlert>
-                        Free-tier users are not displayed on the scoreboard. Upgrade to
-                        get your account added.
+                        Free-tier users are not displayed on the scoreboard. Upgrade to get your
+                        account added.
                     </UpsellAlert>
                 </Stack>
             )}
@@ -118,9 +115,7 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
 
             <GraduationChips cohort={type} />
 
-            {dojoCohorts.includes(type) && (
-                <Typography variant='h6'>Current Members</Typography>
-            )}
+            {dojoCohorts.includes(type) && <Typography variant='h6'>Current Members</Typography>}
             <Scoreboard
                 cypressId='current-members-scoreboard'
                 user={user}

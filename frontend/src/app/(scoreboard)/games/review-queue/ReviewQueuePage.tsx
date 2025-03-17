@@ -2,11 +2,8 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
-import { isValidDate } from '@/calendar/eventEditor/useEventEditor';
-import {
-    RenderGameResultStack,
-    RenderPlayersCell,
-} from '@/components/games/list/GameListItem';
+import { isValidDate } from '@/components/calendar/eventEditor/useEventEditor';
+import { RenderGameResultStack, RenderPlayersCell } from '@/components/games/list/GameListItem';
 import { Link } from '@/components/navigation/Link';
 import { ONE_WEEK_IN_MS } from '@/components/time/time';
 import { CustomPagination } from '@/components/ui/CustomPagination';
@@ -52,9 +49,7 @@ const columns: GridColDef<GameInfo>[] = [
                         displayName={params.row.ownerDisplayName}
                         size={32}
                     />
-                    <Link href={`/profile/${params.row.owner}`}>
-                        {params.row.ownerDisplayName}
-                    </Link>
+                    <Link href={`/profile/${params.row.owner}`}>{params.row.ownerDisplayName}</Link>
                 </Stack>
             );
         },
@@ -70,9 +65,7 @@ const columns: GridColDef<GameInfo>[] = [
         field: 'result',
         headerName: 'Result',
         valueGetter: (_value, row) => row.headers.Result,
-        renderCell: (params) => (
-            <RenderGameResultStack result={params.row.headers.Result} />
-        ),
+        renderCell: (params) => <RenderGameResultStack result={params.row.headers.Result} />,
         align: 'center',
         headerAlign: 'center',
         width: 75,
@@ -140,10 +133,7 @@ const columns: GridColDef<GameInfo>[] = [
 export function ReviewQueuePage() {
     const router = useRouter();
     const api = useApi();
-    const search = useCallback(
-        (startKey: string) => api.listGamesForReview(startKey),
-        [api],
-    );
+    const search = useCallback((startKey: string) => api.listGamesForReview(startKey), [api]);
 
     const { request, data, rowCount, page, pageSize, hasMore, setPage, setPageSize } =
         usePagination(search, 0, 10);
@@ -169,15 +159,11 @@ export function ReviewQueuePage() {
 
             <Typography color='text.secondary' mb={3}>
                 These games will be reviewed by one of the senseis on a future{' '}
-                <Link
-                    href='https://www.twitch.tv/chessdojo'
-                    target='_blank'
-                    rel='noreferrer'
-                >
+                <Link href='https://www.twitch.tv/chessdojo' target='_blank' rel='noreferrer'>
                     Twitch stream
                 </Link>
-                . To submit your <strong>annotated</strong> game for review, check the
-                settings tab on your game.
+                . To submit your <strong>annotated</strong> game for review, check the settings tab
+                on your game.
             </Typography>
 
             <DataGridPro

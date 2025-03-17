@@ -59,9 +59,7 @@ import React, { useState } from 'react';
 import { AuthStatus, useAuth, useFreeTier } from '../auth/Auth';
 import { hasCreatedProfile } from '../database/user';
 import ProfileButton from './ProfileButton';
-import UnauthenticatedMenu, {
-    ExtraSmallMenuUnauthenticated,
-} from './UnauthenticatedMenu';
+import UnauthenticatedMenu, { ExtraSmallMenuUnauthenticated } from './UnauthenticatedMenu';
 
 const config = getConfig();
 
@@ -77,9 +75,7 @@ export const Logo = () => {
                 marginRight: '15px',
             }}
         >
-            <ChessDojoIcon
-                sx={{ color: 'white', fontSize: { xs: '50px', md: '60px' } }}
-            />
+            <ChessDojoIcon sx={{ color: 'white', fontSize: { xs: '50px', md: '60px' } }} />
         </Link>
     );
 };
@@ -97,10 +93,7 @@ export interface NavbarItem {
     target?: '_blank';
 }
 
-function allStartItems(
-    toggleExpansion: (item: string) => void,
-    isFreeTier: boolean,
-): NavbarItem[] {
+function allStartItems(toggleExpansion: (item: string) => void, isFreeTier: boolean): NavbarItem[] {
     return [
         {
             name: 'Newsfeed',
@@ -219,9 +212,7 @@ function allStartItems(
                 {
                     name: 'Discord',
                     icon: <DiscordIcon sx={{ color: '#5865f2' }} />,
-                    href: isFreeTier
-                        ? config.discord.publicUrl
-                        : config.discord.privateUrl,
+                    href: isFreeTier ? config.discord.publicUrl : config.discord.privateUrl,
                     target: '_blank',
                 },
                 {
@@ -293,11 +284,7 @@ function NotificationsMenuItem(): JSX.Element {
     return (
         <MenuItem href='/notifications'>
             <ListItemIcon>
-                <Badge
-                    badgeContent={notifications.length}
-                    color='secondary'
-                    overlap='circular'
-                >
+                <Badge badgeContent={notifications.length} color='secondary' overlap='circular'>
                     <Notifications />
                 </Badge>
             </ListItemIcon>
@@ -327,11 +314,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                 onClick={item.onClick}
                 sx={{ color: 'white', whiteSpace: 'nowrap' }}
                 startIcon={
-                    <Badge
-                        badgeContent={meetingCount}
-                        color='secondary'
-                        overlap='circular'
-                    >
+                    <Badge badgeContent={meetingCount} color='secondary' overlap='circular'>
                         {item.icon}
                     </Badge>
                 }
@@ -498,9 +481,7 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => (
-            <StartItem key={item.name} item={item} meetingCount={meetingCount} />
-        ));
+        .map((item) => <StartItem key={item.name} item={item} meetingCount={meetingCount} />);
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
@@ -583,11 +564,7 @@ const LargeMenu = ({ meetingCount }: MenuProps) => {
             <>
                 <Logo />
                 <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
-                    <Button
-                        href='/profile'
-                        sx={{ color: 'white' }}
-                        startIcon={<Person2Icon />}
-                    >
+                    <Button href='/profile' sx={{ color: 'white' }} startIcon={<Person2Icon />}>
                         Profile
                     </Button>
                 </Stack>

@@ -101,10 +101,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     EventType.UpdateHeader,
                 ],
                 handler: (event: Event) => {
-                    if (
-                        event.type === EventType.UpdateCommand &&
-                        event.commandName !== 'clk'
-                    ) {
+                    if (event.type === EventType.UpdateCommand && event.commandName !== 'clk') {
                         return;
                     }
                     if (
@@ -147,12 +144,11 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
         comment = move.commentAfter ?? '';
     }
 
-    const handleExclusiveNag =
-        (nagSet: Nag[]) => (_event: unknown, newNag: string | null) => {
-            const newNags = setNagInSet(newNag, nagSet, move?.nags);
-            chess.setNags(newNags);
-            reconcile();
-        };
+    const handleExclusiveNag = (nagSet: Nag[]) => (_event: unknown, newNag: string | null) => {
+        const newNags = setNagInSet(newNag, nagSet, move?.nags);
+        chess.setNags(newNags);
+        reconcile();
+    };
 
     const handleMultiNags = (nagSet: Nag[]) => (_event: unknown, newNags: string[]) => {
         chess.setNags(setNagsInSet(newNags, nagSet, move?.nags));
@@ -194,12 +190,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
 
     return (
         <CardContent sx={{ height: { md: 1 } }}>
-            <Stack
-                spacing={3}
-                mt={move ? 2 : undefined}
-                pb={2}
-                sx={{ height: { md: 1 } }}
-            >
+            <Stack spacing={3} mt={move ? 2 : undefined} pb={2} sx={{ height: { md: 1 } }}>
                 {move && isMainline ? (
                     <ClockTextField label='Clock (hh:mm:ss)' move={move} />
                 ) : (
@@ -219,9 +210,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                                 </Tooltip>
                             </Stack>
                             <TimeControlDescription
-                                timeControls={
-                                    chess.header().tags.TimeControl?.items || []
-                                }
+                                timeControls={chess.header().tags.TimeControl?.items || []}
                             />
                         </Stack>
                     )
@@ -248,9 +237,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         multiline
                         minRows={isMainline ? 3 : 7}
                         value={comment}
-                        onChange={(event) =>
-                            chess.setComment(event.target.value, commentType)
-                        }
+                        onChange={(event) => chess.setComment(event.target.value, commentType)}
                         fullWidth
                         sx={{
                             flexGrow: { md: 1 },
@@ -269,9 +256,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         <RadioGroup
                             row
                             value={commentType}
-                            onChange={(e) =>
-                                setCommentType(e.target.value as CommentType)
-                            }
+                            onChange={(e) => setCommentType(e.target.value as CommentType)}
                         >
                             <FormControlLabel
                                 value={CommentType.Before}
@@ -401,9 +386,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                     <Tooltip title='Move variation up'>
                         <span>
                             <Button
-                                disabled={
-                                    !chess.canPromoteVariation(move) || takebacksDisabled
-                                }
+                                disabled={!chess.canPromoteVariation(move) || takebacksDisabled}
                                 onClick={() => chess.promoteVariation(move)}
                                 color='primary'
                                 variant='outlined'
@@ -417,11 +400,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         <span>
                             <Button
                                 onClick={() => onDelete(move, 'after')}
-                                disabled={
-                                    !config?.allowMoveDeletion ||
-                                    takebacksDisabled ||
-                                    !move
-                                }
+                                disabled={!config?.allowMoveDeletion || takebacksDisabled || !move}
                                 color='error'
                                 variant='outlined'
                             >
@@ -475,8 +454,7 @@ function getNullMoveStatus(chess: Chess): { disabled: boolean; tooltip: string }
     if (chess.isGameOver()) {
         return {
             disabled: true,
-            tooltip:
-                'Add a null move. Null moves cannot be added while the game is over.',
+            tooltip: 'Add a null move. Null moves cannot be added while the game is over.',
         };
     }
     if (chess.currentMove()?.san === 'Z0') {

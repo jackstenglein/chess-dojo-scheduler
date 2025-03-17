@@ -18,9 +18,7 @@ const Bio: React.FC<BioProps> = ({ bio }) => {
             allowedElements={allowedElements}
             components={{
                 p: (props) => (
-                    <Typography sx={{ whiteSpace: 'pre-line' }}>
-                        {props.children}
-                    </Typography>
+                    <Typography sx={{ whiteSpace: 'pre-line' }}>{props.children}</Typography>
                 ),
                 a: (props) => (
                     <Link href={props.href} target='_blank' rel='noreferrer'>

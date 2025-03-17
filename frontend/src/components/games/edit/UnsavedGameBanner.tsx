@@ -1,15 +1,7 @@
 import { RequestSnackbar } from '@/api/Request';
 import { useUnsavedGame } from '@/hooks/useUnsavedGame';
 import { CloudOff } from '@mui/icons-material';
-import {
-    Alert,
-    Box,
-    Button,
-    IconButton,
-    Stack,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { Alert, Box, Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import SaveGameDialog, { SaveGameDialogType } from './SaveGameDialog';
 
 interface UnsavedGameBannerProps {
@@ -33,9 +25,7 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
                     action={
                         <Box>
                             {dismissable && (
-                                <Button onClick={() => setShowBanner(false)}>
-                                    Dismiss
-                                </Button>
+                                <Button onClick={() => setShowBanner(false)}>Dismiss</Button>
                             )}
                             <Button onClick={() => setShowDialog(true)}>Save</Button>
                         </Box>

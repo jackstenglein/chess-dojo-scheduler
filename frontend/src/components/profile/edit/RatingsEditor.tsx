@@ -202,8 +202,7 @@ export function RatingsEditor({
                             onChange={(event) => rs.setStartRating(event.target.value)}
                             error={!!rs.startRatingError}
                             helperText={
-                                rs.startRatingError ||
-                                'Your rating when you first joined the Dojo'
+                                rs.startRatingError || 'Your rating when you first joined the Dojo'
                             }
                             sx={{ width: 1 }}
                         />
@@ -214,9 +213,7 @@ export function RatingsEditor({
                             control={
                                 <Checkbox
                                     checked={rs.hidden}
-                                    onChange={(event) =>
-                                        rs.setHidden(event.target.checked)
-                                    }
+                                    onChange={(event) => rs.setHidden(event.target.checked)}
                                 />
                             }
                             label={rs.hideLabel}
@@ -234,9 +231,7 @@ export function RatingsEditor({
                             onChange={(event) => setRatingName(rs, event.target.value)}
                             sx={{ width: 1 }}
                             error={!!errors[`${rs}Name`]}
-                            helperText={
-                                errors[`${rs}Name`] || 'Manually track your rating'
-                            }
+                            helperText={errors[`${rs}Name`] || 'Manually track your rating'}
                         />
                     </Grid2>
 
@@ -248,8 +243,7 @@ export function RatingsEditor({
                             onChange={(event) => setCurrentRating(rs, event.target.value)}
                             error={!!errors[`${rs}CurrentRating`]}
                             helperText={
-                                errors[`${rs}CurrentRating`] ||
-                                'Your most up to date rating'
+                                errors[`${rs}CurrentRating`] || 'Your most up to date rating'
                             }
                             sx={{ width: 1 }}
                         />
@@ -285,11 +279,7 @@ export function RatingsEditor({
     );
 }
 
-const CUSTOM_RATING_SYSTEMS = [
-    RatingSystem.Custom,
-    RatingSystem.Custom2,
-    RatingSystem.Custom3,
-];
+const CUSTOM_RATING_SYSTEMS = [RatingSystem.Custom, RatingSystem.Custom2, RatingSystem.Custom3];
 
 const RATING_SYSTEM_FORMS = [
     {

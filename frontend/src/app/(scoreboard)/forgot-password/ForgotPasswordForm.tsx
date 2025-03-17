@@ -318,12 +318,7 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
                 Reset Password
             </LoadingButton>
 
-            <Button
-                variant='text'
-                sx={{ textTransform: 'none' }}
-                component={Link}
-                href='/signin'
-            >
+            <Button variant='text' sx={{ textTransform: 'none' }} component={Link} href='/signin'>
                 Cancel
             </Button>
         </>

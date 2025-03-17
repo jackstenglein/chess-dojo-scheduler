@@ -55,9 +55,7 @@ export interface AccessData {
     putWithAccess: (directory: Directory, access?: DirectoryAccessRole) => void;
 }
 
-export type DirectoryCacheContextType = IdentifiableCache<Directory> &
-    BreadcrumbData &
-    AccessData;
+export type DirectoryCacheContextType = IdentifiableCache<Directory> & BreadcrumbData & AccessData;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const DirectoryCacheContext = createContext<DirectoryCacheContextType>(null!);
@@ -67,13 +65,11 @@ export function useDirectoryCache() {
 }
 
 export function DirectoryCacheProvider({ children }: { children: ReactNode }) {
-    const directories = useIdentifiableCache<Directory>(
-        (item) => `${item.owner}/${item.id}`,
-    );
+    const directories = useIdentifiableCache<Directory>((item) => `${item.owner}/${item.id}`);
     const [breadcrumbs, setBreadcrumbs] = useState<Record<string, BreadcrumbItem>>({});
-    const [accessData, setAccessData] = useState<
-        Record<string, DirectoryAccessRole | undefined>
-    >({});
+    const [accessData, setAccessData] = useState<Record<string, DirectoryAccessRole | undefined>>(
+        {},
+    );
 
     const putBreadcrumb = useCallback(
         (directory: Partial<Directory>) => {

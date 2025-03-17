@@ -34,10 +34,7 @@ export const AddToDirectoryDialog = ({
 }) => {
     const { user } = useRequiredAuth();
     const [directoryId, setDirectoryId] = useState(HOME_DIRECTORY_ID);
-    const { directory, request: directoryRequest } = useDirectory(
-        user.username,
-        directoryId,
-    );
+    const { directory, request: directoryRequest } = useDirectory(user.username, directoryId);
     const cache = useDirectoryCache();
     const request = useRequest<string>();
     const api = useApi();
@@ -46,9 +43,7 @@ export const AddToDirectoryDialog = ({
         setDirectoryId(id);
     };
 
-    const alreadyExists = games?.every((g) =>
-        Boolean(directory?.items[`${g.cohort}/${g.id}`]),
-    );
+    const alreadyExists = games?.every((g) => Boolean(directory?.items[`${g.cohort}/${g.id}`]));
 
     const onAdd = () => {
         if (!games?.length) {
@@ -65,9 +60,7 @@ export const AddToDirectoryDialog = ({
                 owner: game.owner,
                 ownerDisplayName: game.ownerDisplayName,
                 createdAt:
-                    game.createdAt ||
-                    game.date.replaceAll('.', '-') ||
-                    new Date().toISOString(),
+                    game.createdAt || game.date.replaceAll('.', '-') || new Date().toISOString(),
                 id: game.id,
                 cohort: game.cohort,
                 white: game.headers.White,
@@ -159,9 +152,7 @@ export const AddToDirectoryDialog = ({
                     </Button>
                     <Tooltip
                         title={
-                            alreadyExists
-                                ? 'These games are already added to this directory'
-                                : ''
+                            alreadyExists ? 'These games are already added to this directory' : ''
                         }
                     >
                         <div>

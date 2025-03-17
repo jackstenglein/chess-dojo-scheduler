@@ -31,19 +31,13 @@ const InfoTab = () => {
         <Stack spacing={2}>
             <Typography variant='h5' textAlign='center' color='text.secondary'>
                 Welcome to the DojoLiga!
-                <WavingHandIcon
-                    sx={{ verticalAlign: 'middle', ml: 1 }}
-                    color='dojoOrange'
-                />
+                <WavingHandIcon sx={{ verticalAlign: 'middle', ml: 1 }} color='dojoOrange' />
             </Typography>
 
             <Divider />
 
             <Typography variant='h6' color='text.secondary'>
-                <MilitaryTechIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <MilitaryTechIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 DojoLiga Info
             </Typography>
             <List>
@@ -83,10 +77,7 @@ const InfoTab = () => {
             </List>
 
             <Typography variant='h6' color='text.secondary'>
-                <HelpCenterIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <HelpCenterIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Registration Info
             </Typography>
 
@@ -162,18 +153,15 @@ const InfoTab = () => {
             <Divider />
 
             <Typography variant='h6' color='text.secondary'>
-                <LeaderboardIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <LeaderboardIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Leaderboard Info
             </Typography>
 
             <Typography>
-                The points scored from each arena and swiss tournament are tracked to
-                formulate the leaderboard for various categories. The Grand Prix
-                leaderboard tracks the total number of Top 10 finishes in all events of a
-                particular time control, with points awarded as follows:
+                The points scored from each arena and swiss tournament are tracked to formulate the
+                leaderboard for various categories. The Grand Prix leaderboard tracks the total
+                number of Top 10 finishes in all events of a particular time control, with points
+                awarded as follows:
             </Typography>
 
             <List>
@@ -210,16 +198,12 @@ const InfoTab = () => {
             </List>
 
             <Typography variant='h6' color='text.secondary'>
-                <NotInterestedIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <NotInterestedIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Anti-cheat Info
             </Typography>
 
             <Typography>
-                DojoLiga takes cheating very seriously and has the following anti-cheat
-                policies:
+                DojoLiga takes cheating very seriously and has the following anti-cheat policies:
             </Typography>
 
             <List>
@@ -246,15 +230,13 @@ const InfoTab = () => {
             <Divider />
 
             <Typography variant='h6' color='text.secondary'>
-                <SiDiscord
-                    style={{ verticalAlign: 'middle', marginRight: 9, color: '#5865f2' }}
-                />
+                <SiDiscord style={{ verticalAlign: 'middle', marginRight: 9, color: '#5865f2' }} />
                 Discord Info
             </Typography>
 
             <Typography>
-                Join the the ChessDojo Discord and connect your accounts, run additional
-                commands in #player-commands channel to stay up to date with the liga!
+                Join the the ChessDojo Discord and connect your accounts, run additional commands in
+                #player-commands channel to stay up to date with the liga!
             </Typography>
 
             <TableContainer component={Paper}>
@@ -269,8 +251,7 @@ const InfoTab = () => {
                         <TableRow>
                             <TableCell>/verifychesscom</TableCell>
                             <TableCell>
-                                Join the league & connect your Discord to Chess.com
-                                account
+                                Join the league & connect your Discord to Chess.com account
                             </TableCell>
                         </TableRow>
                         <TableRow>
@@ -283,21 +264,16 @@ const InfoTab = () => {
                         </TableRow>
                         <TableRow>
                             <TableCell>/score</TableCell>
-                            <TableCell>
-                                View your individual scores in the league
-                            </TableCell>
+                            <TableCell>View your individual scores in the league</TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>/rank</TableCell>
-                            <TableCell>
-                                View your individual rankings in the league
-                            </TableCell>
+                            <TableCell>View your individual rankings in the league</TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>/top10</TableCell>
                             <TableCell>
-                                View top 10 players for blitz, classical, rapid ratings in
-                                league
+                                View top 10 players for blitz, classical, rapid ratings in league
                             </TableCell>
                         </TableRow>
                         <TableRow>

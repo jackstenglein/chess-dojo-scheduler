@@ -28,8 +28,9 @@ export const PawnIcon = forwardRef<SVGSVGElement, SvgIconProps>(function PawnIco
     return <FontAwesomeSvgIcon ref={ref} icon={faChessPawn} {...props} />;
 });
 
-export const StockfishIcon = forwardRef<SVGSVGElement, SvgIconProps>(
-    function StockfishIcon(props: SvgIconProps, ref) {
-        return <FontAwesomeSvgIcon ref={ref} icon={faFish} {...props} />;
-    },
-);
+export const StockfishIcon = forwardRef<SVGSVGElement, SvgIconProps>(function StockfishIcon(
+    props: SvgIconProps,
+    ref,
+) {
+    return <FontAwesomeSvgIcon ref={ref} icon={faFish} {...props} />;
+});

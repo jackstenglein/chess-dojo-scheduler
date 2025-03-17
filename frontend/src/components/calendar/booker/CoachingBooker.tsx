@@ -3,21 +3,13 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { displayPrice } from '@/app/(scoreboard)/courses/(list)/CourseListItem';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { Event } from '@/database/event';
 import { TimeFormat, dojoCohorts } from '@/database/user';
 import Icon from '@/style/Icon';
 import { LoadingButton } from '@mui/lab';
-import {
-    AppBar,
-    Button,
-    Dialog,
-    DialogContent,
-    Stack,
-    Toolbar,
-    Typography,
-} from '@mui/material';
+import { AppBar, Button, Dialog, DialogContent, Stack, Toolbar, Typography } from '@mui/material';
 import Field from '../eventViewer/Field';
 import OwnerField from '../eventViewer/OwnerField';
 import ParticipantsList from '../eventViewer/ParticipantsList';
@@ -124,12 +116,9 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                                     <Typography
                                         variant='body1'
                                         sx={{
-                                            color:
-                                                percentOff > 0 ? 'error.main' : undefined,
+                                            color: percentOff > 0 ? 'error.main' : undefined,
                                             textDecoration:
-                                                percentOff > 0
-                                                    ? 'line-through'
-                                                    : undefined,
+                                                percentOff > 0 ? 'line-through' : undefined,
                                         }}
                                     >
                                         ${displayPrice(fullPrice / 100)}
@@ -137,17 +126,11 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
 
                                     {percentOff > 0 && (
                                         <>
-                                            <Typography
-                                                variant='body1'
-                                                color='success.main'
-                                            >
+                                            <Typography variant='body1' color='success.main'>
                                                 ${displayPrice(currentPrice / 100)}
                                             </Typography>
 
-                                            <Typography
-                                                variant='body2'
-                                                color='text.secondary'
-                                            >
+                                            <Typography variant='body2' color='text.secondary'>
                                                 (-{percentOff}%)
                                             </Typography>
                                         </>
@@ -155,21 +138,16 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                                 </Stack>
 
                                 <Typography variant='caption' color='text.secondary'>
-                                    Upon booking, you will have 30 minutes to complete
-                                    payment before losing your spot. Cancelations must be
-                                    made more than 24 hours in advance to receive a
-                                    refund.
+                                    Upon booking, you will have 30 minutes to complete payment
+                                    before losing your spot. Cancelations must be made more than 24
+                                    hours in advance to receive a refund.
                                 </Typography>
                             </>
                         )}
                     </Stack>
 
                     <OwnerField title='Coach' event={event} />
-                    <Field
-                        title='Description'
-                        body={event.description}
-                        iconName='notes'
-                    />
+                    <Field title='Description' body={event.description} iconName='notes' />
                     <Field
                         iconName='cohort'
                         title='Cohorts'

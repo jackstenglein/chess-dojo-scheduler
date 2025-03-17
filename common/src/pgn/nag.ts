@@ -227,6 +227,10 @@ export const nags: Record<Nag, NagDetails> = {
         label: '',
         description: 'Out of book',
     },
+    $1304: {
+        label: '',
+        description: 'Include diagram of position in PDF',
+    },
 };
 
 /**

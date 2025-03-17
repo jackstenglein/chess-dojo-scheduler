@@ -1,15 +1,7 @@
 import { Course } from '@/database/course';
 import { useRouter } from '@/hooks/useRouter';
 import UpsellAlert from '@/upsell/UpsellAlert';
-import {
-    Alert,
-    Button,
-    Container,
-    Divider,
-    Grid2,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Alert, Button, Container, Divider, Grid2, Stack, Typography } from '@mui/material';
 import PurchaseOption from './PurchaseOption';
 
 interface PurchaseCoursePageProps {
@@ -18,11 +10,7 @@ interface PurchaseCoursePageProps {
     isFreeTier: boolean;
 }
 
-const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({
-    course,
-    preview,
-    isFreeTier,
-}) => {
+const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course, preview, isFreeTier }) => {
     if (!course) {
         return null;
     }
@@ -112,34 +100,27 @@ const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier })
     let content = null;
     if (isFreeTier) {
         if (!course.availableForFreeUsers) {
-            content = (
-                <UpsellAlert>This course is only available to subscribers</UpsellAlert>
-            );
+            content = <UpsellAlert>This course is only available to subscribers</UpsellAlert>;
         } else if (course.includedWithSubscription) {
             content = (
                 <Alert
                     severity='info'
                     action={
-                        <Button
-                            color='inherit'
-                            href='/prices'
-                            size='small'
-                            onClick={onViewPrices}
-                        >
+                        <Button color='inherit' href='/prices' size='small' onClick={onViewPrices}>
                             View Prices
                         </Button>
                     }
                 >
-                    You can also unlock this and all other opening courses by subscribing
-                    to the Training Program
+                    You can also unlock this and all other opening courses by subscribing to the
+                    Training Program
                 </Alert>
             );
         }
     } else {
         content = (
             <Alert severity='info'>
-                This course is sold separately from the Training Plan. Unlock it by
-                purchasing it below.
+                This course is sold separately from the Training Plan. Unlock it by purchasing it
+                below.
             </Alert>
         );
     }

@@ -130,6 +130,12 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /user/progress/v2
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -750,6 +756,8 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+    environment:
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -765,6 +773,10 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: ${param:NotificationsTableArn}
+      - Effect: Allow
+        Action:
+          - sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
 
   listFollowers:
     handler: followers/list/main.go

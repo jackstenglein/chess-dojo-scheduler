@@ -63,8 +63,7 @@ const ReactionTypesToImage = {
         'https://cdn.discordapp.com/emojis/986602661535170610.webp?size=240&quality=lossless',
     ':YodaKraai:':
         'https://cdn.discordapp.com/emojis/1105292629329055845.webp?size=96&quality=lossless',
-    ':Mate:':
-        'https://cdn.discordapp.com/emojis/1014865134054809651.webp?size=96&quality=lossless',
+    ':Mate:': 'https://cdn.discordapp.com/emojis/1014865134054809651.webp?size=96&quality=lossless',
 };
 
 function isReactor(
@@ -196,15 +195,19 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
     };
 
     return (
-        <Stack direction='row' spacing={1} mt={1}>
+        <>
             <RequestSnackbar request={request} />
+
+            <Tooltip title='Add Reaction'>
+                <IconButton color='primary' onClick={handleClick}>
+                    <AddReactionIcon />
+                </IconButton>
+            </Tooltip>
 
             {Object.entries(reactionMap).map(([type, reactors]) => (
                 <Tooltip key={type} title={`Reacted by ${reactors.join(', ')}`}>
                     <Button
-                        variant={
-                            isReactor(user, reactions, type) ? 'contained' : 'outlined'
-                        }
+                        variant={isReactor(user, reactions, type) ? 'contained' : 'outlined'}
                         onClick={() => onReact(type)}
                     >
                         <Paper
@@ -227,12 +230,6 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                 </Tooltip>
             ))}
 
-            <Tooltip title='Add Reaction'>
-                <IconButton color='primary' onClick={handleClick}>
-                    <AddReactionIcon />
-                </IconButton>
-            </Tooltip>
-
             <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                 <Stack
                     px={1}
@@ -252,7 +249,7 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                     ))}
                 </Stack>
             </Menu>
-        </Stack>
+        </>
     );
 };
 

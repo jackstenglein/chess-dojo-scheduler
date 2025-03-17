@@ -24,11 +24,7 @@ interface BadgeCabinetDialogProps {
     allBadges: Badge[];
 }
 
-export function BadgCabinetDialog({
-    isOpen,
-    onClose,
-    allBadges,
-}: BadgeCabinetDialogProps) {
+export function BadgCabinetDialog({ isOpen, onClose, allBadges }: BadgeCabinetDialogProps) {
     const [badgeCategory, setBadgeCategory] = useState(BadgeCategory.All);
 
     let displayedBadges = allBadges;
@@ -61,9 +57,7 @@ export function BadgCabinetDialog({
                 <FormControl sx={{ mb: 2 }}>
                     <Select
                         value={badgeCategory}
-                        onChange={(e) =>
-                            setBadgeCategory(e.target.value as BadgeCategory)
-                        }
+                        onChange={(e) => setBadgeCategory(e.target.value as BadgeCategory)}
                     >
                         {Object.entries(BadgeCategory).map(([key, value]) => (
                             <MenuItem key={key} value={value}>
@@ -107,9 +101,7 @@ export function BadgCabinetDialog({
                                     borderRadius: '50%',
                                     border: '3px solid',
                                     boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                                    filter: badge.isEarned
-                                        ? 'none'
-                                        : 'grayscale(60%) opacity(0.6)',
+                                    filter: badge.isEarned ? 'none' : 'grayscale(60%) opacity(0.6)',
                                     marginRight: 2,
                                 }}
                             >
@@ -124,9 +116,7 @@ export function BadgCabinetDialog({
                                     {badge.title}
                                 </Typography>
                                 {badge.isEarned ? (
-                                    <Typography variant='body2'>
-                                        {badge.message}
-                                    </Typography>
+                                    <Typography variant='body2'>{badge.message}</Typography>
                                 ) : (
                                     badge.currentCount !== undefined &&
                                     badge.level && (
@@ -139,10 +129,7 @@ export function BadgCabinetDialog({
                                             <LinearProgress
                                                 variant='determinate'
                                                 color='success'
-                                                value={
-                                                    (100 * badge.currentCount) /
-                                                    badge.level
-                                                }
+                                                value={(100 * badge.currentCount) / badge.level}
                                                 sx={{
                                                     height: 10,
                                                     borderRadius: 5,
@@ -150,10 +137,7 @@ export function BadgCabinetDialog({
                                                     filter: 'grayscale(20%) opacity(0.6)',
                                                 }}
                                             />
-                                            <Typography
-                                                variant='body2'
-                                                color='text.secondary'
-                                            >
+                                            <Typography variant='body2' color='text.secondary'>
                                                 {badge.currentCount} / {badge.level}
                                             </Typography>
                                         </Stack>

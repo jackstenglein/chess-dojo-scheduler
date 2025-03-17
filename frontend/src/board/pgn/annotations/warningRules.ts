@@ -32,8 +32,7 @@ const rules: WarningRule[] = [
                 !move.commentMove &&
                 !move.commentAfter &&
                 move.variations.length === 0 &&
-                (chess.isInMainline(move) ||
-                    (!move.next && !getNagInSet(evalNags, move.nags)))
+                (chess.isInMainline(move) || (!move.next && !getNagInSet(evalNags, move.nags)))
             );
         },
     },
@@ -48,8 +47,7 @@ const rules: WarningRule[] = [
                 !move.commentMove &&
                 !move.commentAfter &&
                 move.variations.length === 0 &&
-                (chess.isInMainline(move) ||
-                    (!move.next && !getNagInSet(evalNags, move.nags)))
+                (chess.isInMainline(move) || (!move.next && !getNagInSet(evalNags, move.nags)))
             );
         },
     },

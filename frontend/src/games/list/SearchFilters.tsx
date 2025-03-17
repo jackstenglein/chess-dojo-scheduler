@@ -168,9 +168,8 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
     return (
         <Stack data-cy='search-by-owner' spacing={2}>
             <Typography data-cy='owner-search-description' gutterBottom>
-                Find games that you have uploaded to the Dojo Database. Note that games
-                uploaded previously through Dojo 1.0's Google Form submission will not be
-                matched.
+                Find games that you have uploaded to the Dojo Database. Note that games uploaded
+                previously through Dojo 1.0's Google Form submission will not be matched.
             </Typography>
             <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
                 <Grid2 size={{ xs: 12, lg: 'grow' }}>
@@ -252,8 +251,8 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
     return (
         <Stack data-cy='search-by-player' spacing={2}>
             <Typography gutterBottom>
-                Find games based on player name. Note this is the name as it was recorded
-                in the PGN file.
+                Find games based on player name. Note this is the name as it was recorded in the PGN
+                file.
             </Typography>
             <TextField
                 data-cy='player-name'
@@ -360,9 +359,7 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
     return (
         <Stack data-cy='search-by-opening' spacing={2}>
             <FormControl>
-                <Typography gutterBottom>
-                    Find games based on opening ECO Codes
-                </Typography>
+                <Typography gutterBottom>Find games based on opening ECO Codes</Typography>
                 <TextField
                     data-cy='opening-eco'
                     value={eco}
@@ -530,9 +527,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
         type: SearchType.Cohort,
     });
 
-    const [expanded, setExpanded] = useState<string | false>(
-        searchParams.get('type') || '',
-    );
+    const [expanded, setExpanded] = useState<string | false>(searchParams.get('type') || '');
     const onChangePanel =
         (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
             setExpanded(newExpanded ? panel : false);
@@ -583,21 +578,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
 
     // Functions that actually perform the search
     const searchByCohort = useCallback(
-        (startKey: string) =>
-            api.listGamesByCohort(cohort, startKey, startDateStr, endDateStr),
+        (startKey: string) => api.listGamesByCohort(cohort, startKey, startDateStr, endDateStr),
         [cohort, api, startDateStr, endDateStr],
     );
 
     const searchByPlayer = useCallback(
         (startKey: string) =>
-            api.listGamesByOwner(
-                undefined,
-                startKey,
-                startDateStr,
-                endDateStr,
-                player,
-                color,
-            ),
+            api.listGamesByOwner(undefined, startKey, startDateStr, endDateStr, player, color),
         [api, startDateStr, endDateStr, player, color],
     );
 
@@ -608,8 +595,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ isLoading, onSearch }) =>
     );
 
     const searchByOpening = useCallback(
-        (startKey: string) =>
-            api.listGamesByOpening(eco, startKey, startDateStr, endDateStr),
+        (startKey: string) => api.listGamesByOpening(eco, startKey, startDateStr, endDateStr),
         [api, eco, startDateStr, endDateStr],
     );
 

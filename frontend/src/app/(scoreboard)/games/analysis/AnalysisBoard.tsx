@@ -3,9 +3,7 @@
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
-import SaveGameDialog, {
-    SaveGameDialogType,
-} from '@/components/games/edit/SaveGameDialog';
+import SaveGameDialog, { SaveGameDialogType } from '@/components/games/edit/SaveGameDialog';
 import { EngineMoveButtonExtras } from '@/components/games/view/EngineMoveButtonExtras';
 import { GameContext } from '@/context/useGame';
 import { User } from '@/database/user';
