@@ -174,6 +174,12 @@ type Event struct {
 	// if the event is an admin event.
 	Participants map[string]*Participant `dynamodbav:"participants" json:"participants"`
 
+	// A list of users invited to the event.
+	Invited []Participant `dynamodbav:"invited,omitempty" json:"invited,omitempty"`
+
+	// Whether the event can only be booked by people invited.
+	InviteOnly bool `dynamodbav:"inviteOnly,omitempty" json:"inviteOnly,omitempty"`
+
 	// The ID of the Discord notification message for this event. This field
 	// is unused if the event is an admin event.
 	DiscordMessageId string `dynamodbav:"discordMessageId" json:"discordMessageId"`

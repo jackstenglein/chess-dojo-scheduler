@@ -34,6 +34,10 @@ export interface Event {
     description: string;
     maxParticipants: number;
     participants: Record<string, Participant>;
+    /** A list of users invited to the event. */
+    invited?: Participant[];
+    /** Whether the event can only be booked by people invited. */
+    inviteOnly?: boolean;
     discordMessageId: string;
     privateDiscordEventId: string;
 

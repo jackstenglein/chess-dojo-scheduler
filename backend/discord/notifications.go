@@ -139,6 +139,10 @@ func SendAvailabilityNotification(event *database.Event) (string, error) {
 		return "", errors.New(400, "Invalid request: event.type must be `AVAILABILITY`", "")
 	}
 
+	if event.InviteOnly {
+		return "", nil
+	}
+
 	discord, err := discordgo.New("Bot " + authToken)
 	if err != nil {
 		return "", errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)

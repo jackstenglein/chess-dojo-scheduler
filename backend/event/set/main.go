@@ -88,7 +88,11 @@ func handleAvailability(info *api.UserInfo, event *database.Event) api.Response 
 		return api.Failure(err)
 	}
 
-	if err := checkCohorts(event.Cohorts); err != nil {
+	if event.InviteOnly && len(event.Invited) == 0 {
+		return api.Failure(errors.New(400, "Invalid request: invited is required if inviteOnly is set", ""))
+	}
+
+	if err := checkCohorts(event.Cohorts); !event.InviteOnly && err != nil {
 		return api.Failure(err)
 	}
 

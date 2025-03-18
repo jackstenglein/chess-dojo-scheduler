@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { AvailabilityType, Event, EventType } from '@/database/event';
+import { AvailabilityType, Event, EventType, Participant } from '@/database/event';
 import { dojoCohorts } from '@/database/user';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
@@ -183,6 +183,18 @@ export interface UseEventEditorResponse {
      */
     setRRuleOptions: (value: RRuleOptions) => void;
 
+    /** A list of users invited to the event. */
+    invited: Participant[];
+
+    /** Sets the list of users invited to the event. */
+    setInvited: (v: Participant[]) => void;
+
+    /** Whether the event can only be booked by people invited. */
+    inviteOnly: boolean;
+
+    /** Sets whether the event can only be booked by people invited. */
+    setInviteOnly: (value: boolean) => void;
+
     /** A map of errors in the form. */
     errors: Record<string, string>;
 
@@ -320,6 +332,9 @@ export default function useEventEditor(
         count: options.count || undefined,
     });
 
+    const [invited, setInvited] = useState<Participant[]>(initialEvent?.invited ?? []);
+    const [inviteOnly, setInviteOnly] = useState(initialEvent?.inviteOnly || false);
+
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const onChangeEventType = useCallback(
@@ -439,6 +454,11 @@ export default function useEventEditor(
 
         rruleOptions,
         setRRuleOptions,
+
+        invited,
+        setInvited,
+        inviteOnly,
+        setInviteOnly,
 
         errors,
         setErrors,

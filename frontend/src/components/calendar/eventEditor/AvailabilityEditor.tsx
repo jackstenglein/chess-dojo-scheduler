@@ -1,3 +1,4 @@
+import { useAuth } from '@/auth/Auth';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
     AvailabilityType,
@@ -13,6 +14,7 @@ import { Stack, Typography } from '@mui/material';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
+import { InviteFormSection } from './form/InviteFormSection';
 import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
 import TimesFormSection from './form/TimesFormSection';
@@ -74,7 +76,7 @@ export function validateAvailabilityEditor(
     const selectedCohorts = editor.allCohorts
         ? dojoCohorts
         : dojoCohorts.filter((c) => editor.cohorts[c]);
-    if (selectedCohorts.length === 0) {
+    if (!editor.inviteOnly && selectedCohorts.length === 0) {
         errors.cohorts = 'At least one cohort is required';
     }
 
@@ -89,6 +91,10 @@ export function validateAvailabilityEditor(
         } else {
             maxParticipants = Math.round(maxParticipants);
         }
+    }
+
+    if (editor.inviteOnly && editor.invited.length === 0) {
+        errors.invited = 'At least one user is required when the event is invite-only';
     }
 
     if (Object.entries(errors).length > 0) {
@@ -126,6 +132,8 @@ export function validateAvailabilityEditor(
             location: editor.location,
             description: editor.description,
             maxParticipants,
+            invited: editor.invited,
+            inviteOnly: editor.inviteOnly,
         },
         errors,
     ];
@@ -136,6 +144,8 @@ interface AvailabilityEditorProps {
 }
 
 const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
+    const { user } = useAuth();
+
     const {
         start,
         setStart,
@@ -159,6 +169,10 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
         setCohort,
         rruleOptions,
         setRRuleOptions,
+        invited,
+        setInvited,
+        inviteOnly,
+        setInviteOnly,
         errors,
     } = editor;
 
@@ -268,14 +282,25 @@ const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({ editor }) => {
                 helperText={`Defaults to ${defaultMaxParticipants} if left blank.`}
             />
 
-            <CohortsFormSection
-                description='Choose the cohorts that can book your availability.'
-                allCohorts={allCohorts}
-                setAllCohorts={setAllCohorts}
-                cohorts={cohorts}
-                setCohort={setCohort}
-                error={errors.cohorts}
+            <InviteFormSection
+                owner={user?.username || ''}
+                invited={invited}
+                setInvited={setInvited}
+                inviteOnly={inviteOnly}
+                setInviteOnly={setInviteOnly}
+                errors={errors}
             />
+
+            {!inviteOnly && (
+                <CohortsFormSection
+                    description='Choose the cohorts that can book your availability.'
+                    allCohorts={allCohorts}
+                    setAllCohorts={setAllCohorts}
+                    cohorts={cohorts}
+                    setCohort={setCohort}
+                    error={errors.cohorts}
+                />
+            )}
         </>
     );
 };

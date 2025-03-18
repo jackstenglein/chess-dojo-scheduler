@@ -4,17 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/stripe/stripe-go/v81"
-
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
+	"github.com/stripe/stripe-go/v81"
 )
 
 var repository database.EventBooker = database.DynamoDB
@@ -56,20 +56,16 @@ func checkType(event *database.Event, t database.AvailabilityType) error {
 	if t == "" {
 		return nil
 	}
-	for _, t2 := range event.Types {
-		if t == t2 {
-			return nil
-		}
+	if slices.Contains(event.Types, t) {
+		return nil
 	}
 	return errors.New(400, fmt.Sprintf("Invalid request: type `%s` is not offered by this availability", t), "")
 }
 
 // checkCohort verifies that the provided cohort is bookable by the provided Event.
 func checkCohort(event *database.Event, cohort database.DojoCohort) error {
-	for _, c := range event.Cohorts {
-		if c == cohort {
-			return nil
-		}
+	if slices.Contains(event.Cohorts, cohort) {
+		return nil
 	}
 	return errors.New(400, fmt.Sprintf("Invalid request: cohort `%s` is not allowed to book this availability", cohort), "")
 }
@@ -112,8 +108,18 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	if err := checkCohort(originalEvent, user.DojoCohort); err != nil {
+	if originalEvent.InviteOnly && !slices.ContainsFunc(
+		originalEvent.Invited,
+		func(invitee database.Participant) bool {
+			return invitee.Username == info.Username
+		},
+	) {
+		err := errors.New(400, "Invalid request: you must be invited to book this availability", "")
 		return api.Failure(err), nil
+	} else if !originalEvent.InviteOnly {
+		if err := checkCohort(originalEvent, user.DojoCohort); err != nil {
+			return api.Failure(err), nil
+		}
 	}
 
 	if originalEvent.Type == database.EventType_Availability && originalEvent.MaxParticipants == 1 {
