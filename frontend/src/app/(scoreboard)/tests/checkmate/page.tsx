@@ -13,10 +13,7 @@ export default function ListCheckmateExamsPage() {
         <Container sx={{ py: 5 }}>
             <Stack spacing={4}>
                 <Typography variant='h4'>
-                    <KingIcon
-                        fontSize='inherit'
-                        sx={{ mr: 2, verticalAlign: 'center' }}
-                    />
+                    <KingIcon fontSize='inherit' sx={{ mr: 2, verticalAlign: 'center' }} />
                     Checkmate Tests
                 </Typography>
                 <ExamList cohortRanges={POLGAR_RANGES} examType={ExamType.Polgar} />

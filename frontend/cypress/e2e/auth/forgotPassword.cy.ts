@@ -36,10 +36,7 @@ describe('Forgot Password Page', () => {
         cy.get('#email').type('test@email.com');
         cy.getBySel('submit-button').click();
 
-        cy.get('#email-helper-text').should(
-            'have.text',
-            'Account with this email does not exist',
-        );
+        cy.get('#email-helper-text').should('have.text', 'Account with this email does not exist');
     });
 
     it('requires code to submit second form', () => {
@@ -76,10 +73,7 @@ describe('Forgot Password Page', () => {
         cy.get('#password-confirm').type('12345679');
         cy.getBySel('submit-button').click();
 
-        cy.get('#password-confirm-helper-text').should(
-            'have.text',
-            'Passwords do not match',
-        );
+        cy.get('#password-confirm-helper-text').should('have.text', 'Passwords do not match');
     });
 
     it('fails for incorrect recovery code', () => {

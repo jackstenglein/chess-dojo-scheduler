@@ -96,9 +96,7 @@ const ProfileCreatorPage = () => {
                     <Step key={s.label}>
                         <StepLabel
                             optional={
-                                s.optional && (
-                                    <Typography variant='caption'>Optional</Typography>
-                                )
+                                s.optional && <Typography variant='caption'>Optional</Typography>
                             }
                         >
                             {s.label}

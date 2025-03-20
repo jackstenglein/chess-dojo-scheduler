@@ -2,11 +2,11 @@ import { useApi } from '@/api/Api';
 import { Request, RequestSnackbar, useRequest } from '@/api/Request';
 import { getProcessedEvents } from '@/app/(scoreboard)/calendar/CalendarPage';
 import { useAuth } from '@/auth/Auth';
-import EventEditor from '@/calendar/eventEditor/EventEditor';
-import { getHours, useFilters } from '@/calendar/filters/CalendarFilters';
-import TimezoneFilter from '@/calendar/filters/TimezoneFilter';
-import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import EventEditor from '@/components/calendar/eventEditor/EventEditor';
 import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
+import { getHours, useFilters } from '@/components/calendar/filters/CalendarFilters';
+import TimezoneFilter from '@/components/calendar/filters/TimezoneFilter';
+import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import { Event } from '@/database/event';
 import { TimeFormat } from '@/database/user';
 import { Scheduler } from '@aldabil/react-scheduler';
@@ -216,11 +216,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                         <ProcessedEventViewer processedEvent={event} />
                     )}
                     events={processedEvents}
-                    timeZone={
-                        filters.timezone === DefaultTimezone
-                            ? undefined
-                            : filters.timezone
-                    }
+                    timeZone={filters.timezone === DefaultTimezone ? undefined : filters.timezone}
                     hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                 />
             </Grid2>

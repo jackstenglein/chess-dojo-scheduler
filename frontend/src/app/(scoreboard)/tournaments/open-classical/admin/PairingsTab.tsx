@@ -1,10 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import {
-    getRatingRanges,
-    OpenClassical,
-    OpenClassicalPairing,
-} from '@/database/tournament';
+import { getRatingRanges, OpenClassical, OpenClassicalPairing } from '@/database/tournament';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { Edit } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -42,11 +38,9 @@ const PairingsTab: React.FC<PairingsTabProps> = ({ openClassical, onUpdate }) =>
     const ratingRange = searchParams.get('ratingRange') || 'Open';
     const view = searchParams.get('view') || '1';
 
-    const round =
-        openClassical.sections[`${region}_${ratingRange}`]?.rounds[parseInt(view) - 1];
+    const round = openClassical.sections[`${region}_${ratingRange}`]?.rounds[parseInt(view) - 1];
 
-    const maxRound =
-        openClassical.sections[`${region}_${ratingRange}`]?.rounds.length ?? 1;
+    const maxRound = openClassical.sections[`${region}_${ratingRange}`]?.rounds.length ?? 1;
 
     return (
         <Stack spacing={3}>
@@ -175,8 +169,7 @@ const AdminPairingsTable: React.FC<AdminPairingsTableProps> = ({
     }, [setUpdatePairing]);
 
     const pairings =
-        openClassical.sections[`${region}_${ratingRange}`]?.rounds[round - 1]?.pairings ??
-        [];
+        openClassical.sections[`${region}_${ratingRange}`]?.rounds[round - 1]?.pairings ?? [];
 
     const onConfirmUpdate = () => {
         if (updateResult === '') {
@@ -227,11 +220,7 @@ const AdminPairingsTable: React.FC<AdminPairingsTableProps> = ({
 
             <Dialog
                 open={Boolean(updatePairing)}
-                onClose={
-                    updateRequest.isLoading()
-                        ? undefined
-                        : () => setUpdatePairing(undefined)
-                }
+                onClose={updateRequest.isLoading() ? undefined : () => setUpdatePairing(undefined)}
                 maxWidth='sm'
                 fullWidth
             >
@@ -270,10 +259,7 @@ const AdminPairingsTable: React.FC<AdminPairingsTableProps> = ({
                     >
                         Cancel
                     </Button>
-                    <LoadingButton
-                        loading={updateRequest.isLoading()}
-                        onClick={onConfirmUpdate}
-                    >
+                    <LoadingButton loading={updateRequest.isLoading()} onClick={onConfirmUpdate}>
                         Update
                     </LoadingButton>
                 </DialogActions>

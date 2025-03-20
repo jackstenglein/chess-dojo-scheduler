@@ -63,10 +63,9 @@ export interface ExamApiContextType {
  * @returns The requested exam and answer, if it exists.
  */
 export function getExam(idToken: string, type: ExamType, id: string) {
-    return axios.get<{ exam: Exam; answer?: ExamAnswer }>(
-        `${BASE_URL}/exams/${type}/${id}`,
-        { headers: { Authorization: `Bearer ${idToken}` } },
-    );
+    return axios.get<{ exam: Exam; answer?: ExamAnswer }>(`${BASE_URL}/exams/${type}/${id}`, {
+        headers: { Authorization: `Bearer ${idToken}` },
+    });
 }
 
 interface ListExamsResponse {

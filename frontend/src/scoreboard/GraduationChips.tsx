@@ -20,14 +20,7 @@ const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
     }
 
     return (
-        <Stack
-            direction='row'
-            alignItems='center'
-            columnGap={1}
-            rowGap={1}
-            mb={2}
-            flexWrap='wrap'
-        >
+        <Stack direction='row' alignItems='center' columnGap={1} rowGap={1} mb={2} flexWrap='wrap'>
             {Object.values(ratingSystems).map((rs) => {
                 let minRating = getMinRatingBoundary(cohort, rs);
                 const maxRating = getRatingBoundary(cohort, rs);
@@ -39,10 +32,7 @@ const GraduationChips: React.FC<GraduationChipsProps> = ({ cohort }) => {
                 }
 
                 return (
-                    <Chip
-                        key={rs}
-                        label={`${minRating}-${maxRating} ${formatRatingSystem(rs)}`}
-                    />
+                    <Chip key={rs} label={`${minRating}-${maxRating} ${formatRatingSystem(rs)}`} />
                 );
             })}
         </Stack>

@@ -39,8 +39,7 @@ const ListCoursesPage = () => {
                 ? user.purchasedCourses[course.id]
                 : getCheckoutSessionId(course.id) !== '';
 
-            const isAccessible =
-                isPurchased || (course.includedWithSubscription && !isFreeTier);
+            const isAccessible = isPurchased || (course.includedWithSubscription && !isFreeTier);
 
             if (!courseFilters.categories[course.type]) {
                 return false;
@@ -50,10 +49,7 @@ const ListCoursesPage = () => {
                 return false;
             }
 
-            const cohortRange = getCohortRange(
-                courseFilters.minCohort,
-                courseFilters.maxCohort,
-            );
+            const cohortRange = getCohortRange(courseFilters.minCohort, courseFilters.maxCohort);
             if (cohortRange.every((c) => !course.cohorts.includes(c))) {
                 return false;
             }

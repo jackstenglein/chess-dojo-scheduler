@@ -198,12 +198,7 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                 <ChangeStat label='Progress' value={ratingChange} />
                 <Stat label='Graduation' value={finalRating} />
             </Stack>
-            <Stack
-                direction='row'
-                gridArea='system-name'
-                spacing={1.5}
-                alignItems='center'
-            >
+            <Stack direction='row' gridArea='system-name' spacing={1.5} alignItems='center'>
                 <RatingSystemIcon system={preferredSystem} />
                 <Typography variant='h6' sx={{ mb: -1 }}>
                     {formatRatingSystem(preferredSystem)}
@@ -221,12 +216,7 @@ export default function GraduationCard({ graduation }: GraduationCardProps) {
                     }}
                 />
             </Box>
-            <Stack
-                alignContent='center'
-                justifyContent='center'
-                gridArea='dojo'
-                spacing={2}
-            >
+            <Stack alignContent='center' justifyContent='center' gridArea='dojo' spacing={2}>
                 <Stat label='Dojo Points' value={Math.round(100 * score) / 100} />
                 <Stat label='Dojo Hours' value={Math.round(10 * hours) / 10} />
                 <Stack

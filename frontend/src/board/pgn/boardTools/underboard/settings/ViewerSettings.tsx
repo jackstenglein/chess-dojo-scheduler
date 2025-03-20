@@ -1,12 +1,5 @@
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
-import {
-    Checkbox,
-    FormControlLabel,
-    MenuItem,
-    Stack,
-    TextField,
-    Typography,
-} from '@mui/material';
+import { Checkbox, FormControlLabel, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 import KeyboardShortcuts from './KeyboardShortcuts';
 
@@ -74,14 +67,8 @@ export enum CapturedMaterialBehavior {
 }
 
 const ViewerSettings = () => {
-    const [boardStyle, setBoardStyle] = useLocalStorage<string>(
-        BoardStyleKey,
-        BoardStyle.Standard,
-    );
-    const [pieceStyle, setPieceStyle] = useLocalStorage<string>(
-        PieceStyleKey,
-        PieceStyle.Standard,
-    );
+    const [boardStyle, setBoardStyle] = useLocalStorage<string>(BoardStyleKey, BoardStyle.Standard);
+    const [pieceStyle, setPieceStyle] = useLocalStorage<string>(PieceStyleKey, PieceStyle.Standard);
     const [coordinateStyle, setCoordinateStyle] = useLocalStorage<CoordinateStyle>(
         CoordinateStyleKey,
         CoordinateStyle.RankFileOnly,
@@ -98,11 +85,10 @@ const ViewerSettings = () => {
         ShowMoveTimesInPgn.Key,
         ShowMoveTimesInPgn.Default,
     );
-    const [capturedMaterialBehavior, setCapturedMaterialBehavior] =
-        useLocalStorage<string>(
-            CapturedMaterialBehaviorKey,
-            CapturedMaterialBehavior.Difference,
-        );
+    const [capturedMaterialBehavior, setCapturedMaterialBehavior] = useLocalStorage<string>(
+        CapturedMaterialBehaviorKey,
+        CapturedMaterialBehavior.Difference,
+    );
     const [showLegalMoves, setShowLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
     const [showGlyphs, setShowGlyphs] = useLocalStorage(ShowGlyphsKey, false);
 
@@ -157,9 +143,7 @@ const ViewerSettings = () => {
                 onChange={(e) => setCoordinateStyle(e.target.value as CoordinateStyle)}
             >
                 <MenuItem value={CoordinateStyle.None}>None</MenuItem>
-                <MenuItem value={CoordinateStyle.RankFileOnly}>
-                    Rank and File Only
-                </MenuItem>
+                <MenuItem value={CoordinateStyle.RankFileOnly}>Rank and File Only</MenuItem>
                 <MenuItem value={CoordinateStyle.AllSquares}>Every Square</MenuItem>
             </TextField>
 
@@ -169,12 +153,8 @@ const ViewerSettings = () => {
                 value={goToEndBehavior}
                 onChange={(e) => setGoToEndBehavior(e.target.value)}
             >
-                <MenuItem value={GoToEndButtonBehavior.SingleClick}>
-                    Single Click
-                </MenuItem>
-                <MenuItem value={GoToEndButtonBehavior.DoubleClick}>
-                    Double Click
-                </MenuItem>
+                <MenuItem value={GoToEndButtonBehavior.SingleClick}>Single Click</MenuItem>
+                <MenuItem value={GoToEndButtonBehavior.DoubleClick}>Double Click</MenuItem>
                 <MenuItem value={GoToEndButtonBehavior.Hidden}>Hidden</MenuItem>
             </TextField>
 
@@ -198,9 +178,7 @@ const ViewerSettings = () => {
                 <MenuItem value={CapturedMaterialBehavior.Difference}>
                     Show Difference Only
                 </MenuItem>
-                <MenuItem value={CapturedMaterialBehavior.All}>
-                    Show All Captured Material
-                </MenuItem>
+                <MenuItem value={CapturedMaterialBehavior.All}>Show All Captured Material</MenuItem>
             </TextField>
 
             <Stack>

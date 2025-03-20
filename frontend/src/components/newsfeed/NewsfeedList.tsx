@@ -5,9 +5,7 @@ import { useRequest } from '@/api/Request';
 import { ListNewsfeedResponse } from '@/api/newsfeedApi';
 import LoadMoreButton from '@/components/newsfeed/LoadMoreButton';
 import NewsfeedItem from '@/components/newsfeed/NewsfeedItem';
-import MultipleSelectChip, {
-    MultipleSelectChipOption,
-} from '@/components/ui/MultipleSelectChip';
+import MultipleSelectChip, { MultipleSelectChipOption } from '@/components/ui/MultipleSelectChip';
 import { RequirementCategory } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
 import LoadingPage from '@/loading/LoadingPage';
@@ -126,9 +124,7 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
             const newEntries = (data?.entries || [])
                 .concat(
                     resp.entries.sort((lhs, rhs) =>
-                        (rhs.date || rhs.createdAt).localeCompare(
-                            lhs.date || lhs.createdAt,
-                        ),
+                        (rhs.date || rhs.createdAt).localeCompare(lhs.date || lhs.createdAt),
                     ),
                 )
                 .filter((e) => {
@@ -203,17 +199,13 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
     };
 
     const setFiltersWrapper = (proposedFilters: string[]) => {
-        const addedFilters = proposedFilters.filter(
-            (filter) => !filters.includes(filter),
-        );
+        const addedFilters = proposedFilters.filter((filter) => !filters.includes(filter));
 
         let finalFilters = [];
         if (addedFilters.includes(AllCategoriesFilterName)) {
             finalFilters = [AllCategoriesFilterName];
         } else {
-            finalFilters = proposedFilters.filter(
-                (filter) => filter !== AllCategoriesFilterName,
-            );
+            finalFilters = proposedFilters.filter((filter) => filter !== AllCategoriesFilterName);
         }
 
         setFilters(finalFilters);

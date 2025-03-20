@@ -28,9 +28,7 @@ export function useDataGridContextMenu(
             setRowIds([event.currentTarget.getAttribute('data-id') || '']);
         }
 
-        setPosition(
-            position ? undefined : { left: event.clientX - 2, top: event.clientY - 4 },
-        );
+        setPosition(position ? undefined : { left: event.clientX - 2, top: event.clientY - 4 });
     };
 
     const close = () => {

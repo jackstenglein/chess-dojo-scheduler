@@ -30,10 +30,7 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll }) => {
                     EventType.PromoteVariation,
                 ],
                 handler: (event: Event) => {
-                    if (
-                        event.type === EventType.DeleteBeforeMove &&
-                        event.move === move
-                    ) {
+                    if (event.type === EventType.DeleteBeforeMove && event.move === move) {
                         setNeedReminder(true);
                     }
                     if (
@@ -43,14 +40,9 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll }) => {
                         setForceRender((v) => v + 1);
                     }
                     if (event.type === EventType.UpdateComment && move === event.move) {
-                        setHasComment(
-                            move.commentAfter && move.commentAfter.trim().length > 0,
-                        );
+                        setHasComment(move.commentAfter && move.commentAfter.trim().length > 0);
                     }
-                    if (
-                        event.type === EventType.DeleteMove &&
-                        move === event.mainlineMove
-                    ) {
+                    if (event.type === EventType.DeleteMove && move === event.mainlineMove) {
                         setForceRender((v) => v + 1);
                     }
                     if (
@@ -60,10 +52,7 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll }) => {
                         setForceRender((v) => v + 1);
                     }
 
-                    if (
-                        event.type === EventType.UpdateComment &&
-                        move === event.move?.next
-                    ) {
+                    if (event.type === EventType.UpdateComment && move === event.move?.next) {
                         setNeedReminder(hasInterrupt(event.move));
                     }
                     if (
@@ -73,10 +62,7 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll }) => {
                     ) {
                         setNeedReminder(true);
                     }
-                    if (
-                        event.type === EventType.DeleteMove &&
-                        move === event.mainlineMove?.next
-                    ) {
+                    if (event.type === EventType.DeleteMove && move === event.mainlineMove?.next) {
                         setNeedReminder(hasInterrupt(event.mainlineMove));
                     }
                 },
@@ -114,11 +100,7 @@ const MoveDisplay: React.FC<MoveProps> = ({ move, handleScroll }) => {
                 firstMove={move.previous === null}
             />
 
-            <Interrupt
-                key={`interrupt-${move.ply}`}
-                move={move}
-                handleScroll={handleScroll}
-            />
+            <Interrupt key={`interrupt-${move.ply}`} move={move} handleScroll={handleScroll} />
         </>
     );
 };

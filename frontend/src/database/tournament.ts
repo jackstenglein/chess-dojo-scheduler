@@ -145,9 +145,7 @@ export interface OpenClassicalSection {
  * @param openClassical The open classical to get the rating ranges for.
  */
 export function getRatingRanges(openClassical: OpenClassical): string[] {
-    let ratingRangeOptions = Object.keys(openClassical.sections).map(
-        (s) => s.split('_')[1],
-    );
+    let ratingRangeOptions = Object.keys(openClassical.sections).map((s) => s.split('_')[1]);
     ratingRangeOptions = ratingRangeOptions
         .filter((val, idx) => ratingRangeOptions.indexOf(val) === idx)
         .sort((lhs, rhs) => lhs.localeCompare(rhs));

@@ -2,15 +2,7 @@ import { useFreeTier } from '@/auth/Auth';
 import { GameInfo, GameKey } from '@/database/game';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { Close, CreateNewFolder, Visibility, VisibilityOff } from '@mui/icons-material';
-import {
-    Alert,
-    IconButton,
-    Paper,
-    Snackbar,
-    Stack,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { Alert, IconButton, Paper, Snackbar, Stack, Tooltip, Typography } from '@mui/material';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { AddToDirectoryDialog } from '../../../games/list/AddToDirectoryDialog';
 import DeleteGameButton from '../../../games/view/DeleteGameButton';
@@ -77,10 +69,7 @@ export function BulkGameEditor({
 
                 {unpublished.length > 0 && !isFreeTier && (
                     <Tooltip title={`Publish Game${unpublished.length !== 1 ? 's' : ''}`}>
-                        <IconButton
-                            size='small'
-                            onClick={() => setVisibilityDialog('published')}
-                        >
+                        <IconButton size='small' onClick={() => setVisibilityDialog('published')}>
                             <Visibility />
                         </IconButton>
                     </Tooltip>
@@ -88,10 +77,7 @@ export function BulkGameEditor({
 
                 {published.length > 0 && (
                     <Tooltip title={`Unlist Game${published.length !== 1 ? 's' : ''}`}>
-                        <IconButton
-                            size='small'
-                            onClick={() => setVisibilityDialog('unlisted')}
-                        >
+                        <IconButton size='small' onClick={() => setVisibilityDialog('unlisted')}>
                             <VisibilityOff />
                         </IconButton>
                     </Tooltip>
@@ -129,15 +115,10 @@ export function BulkGameEditor({
                 open={visibilitySkipped.length > 0}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert
-                    severity='error'
-                    variant='filled'
-                    onClose={() => setVisibilitySkipped([])}
-                >
+                <Alert severity='error' variant='filled' onClose={() => setVisibilitySkipped([])}>
                     {visibilitySkipped.length} game
-                    {visibilitySkipped.length !== 1 ? 's were' : ' was'} not able to be
-                    published because{' '}
-                    {visibilitySkipped.length !== 1 ? 'they are' : 'it is'} missing data.
+                    {visibilitySkipped.length !== 1 ? 's were' : ' was'} not able to be published
+                    because {visibilitySkipped.length !== 1 ? 'they are' : 'it is'} missing data.
                 </Alert>
             </Snackbar>
         </Paper>

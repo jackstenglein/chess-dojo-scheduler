@@ -30,18 +30,14 @@ const AvailabilityViewer: React.FC<AvailabilityViewerProps> = ({ processedEvent 
                 <Field
                     iconName='participant'
                     title='Number of Participants'
-                    body={`${Object.values(event.participants).length} / ${
-                        event.maxParticipants
-                    }`}
+                    body={`${Object.values(event.participants).length} / ${event.maxParticipants}`}
                 />
             )}
 
             <Field
                 iconName='meet'
                 title='Available Types'
-                body={event.types
-                    ?.map((t: AvailabilityType) => getDisplayString(t))
-                    .join(', ')}
+                body={event.types?.map((t: AvailabilityType) => getDisplayString(t)).join(', ')}
             />
 
             {event.description.length > 0 && (

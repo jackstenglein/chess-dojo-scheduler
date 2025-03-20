@@ -157,6 +157,9 @@ type Requirement struct {
 	// The short name of the requirement
 	ShortName string `dynamodbav:"shortName,omitempty" json:"shortName,omitempty"`
 
+	// The daily name of the requirement
+	DailyName string `dynamodbav:"dailyName,omitempty" json:"dailyName,omitempty"`
+
 	// The description of the requirement
 	Description string `dynamodbav:"description" json:"description"`
 
@@ -212,6 +215,10 @@ type Requirement struct {
 	// A list of requirement IDs which must be completed before this requirement can
 	// be updated.
 	Blockers []string `dynamodbav:"blockers" json:"blockers"`
+
+	// Indicates whether the task must be fully complete before the suggested task
+	// algorithm skips over it.
+	Atomic bool `dynamodbav:"atomic" json:"atomic"`
 }
 
 func (r *Requirement) clampCount(cohort DojoCohort, count int) int {

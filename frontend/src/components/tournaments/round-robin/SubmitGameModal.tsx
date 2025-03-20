@@ -20,10 +20,7 @@ interface SubmitGameModalProps {
     open: boolean;
     onClose: () => void;
     user: User | undefined;
-    onUpdateTournaments: (props: {
-        waitlist?: RoundRobin;
-        tournament?: RoundRobin;
-    }) => void;
+    onUpdateTournaments: (props: { waitlist?: RoundRobin; tournament?: RoundRobin }) => void;
 }
 
 export function SubmitGameModal({
@@ -75,16 +72,10 @@ export function SubmitGameModal({
 
     return (
         <>
-            <Dialog
-                open={open}
-                onClose={request.isLoading() ? undefined : handleClose}
-                fullWidth
-            >
+            <Dialog open={open} onClose={request.isLoading() ? undefined : handleClose} fullWidth>
                 <DialogTitle>Submit Game</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        Input your Lichess or Chess.com game URL.
-                    </DialogContentText>
+                    <DialogContentText>Input your Lichess or Chess.com game URL.</DialogContentText>
                     <TextField
                         fullWidth
                         label='Game URL'

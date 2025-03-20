@@ -73,11 +73,7 @@ const MonthDateButton = ({ selectedDate, onChange }: MonthDateButtonProps) => {
                 aria-label='previous month'
                 disabled={currentMonth <= MIN_MONTH && currentYear === MIN_YEAR}
             />
-            <Button
-                style={{ padding: 4 }}
-                onClick={handleOpen}
-                aria-label='selected month'
-            >
+            <Button style={{ padding: 4 }} onClick={handleOpen} aria-label='selected month'>
                 {selectedDate.toFormat('MMMM yyyy')}
             </Button>
             <Popover

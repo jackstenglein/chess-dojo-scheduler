@@ -20,9 +20,7 @@ export const VisibilityIcon = ({
             }
         >
             <IconButton
-                onClick={() =>
-                    underboardRef.current?.switchTab(DefaultUnderboardTab.Settings)
-                }
+                onClick={() => underboardRef.current?.switchTab(DefaultUnderboardTab.Settings)}
             >
                 {game.unlisted ? (
                     <VisibilityOff data-cy='unlisted-icon' color='error' />

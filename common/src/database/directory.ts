@@ -33,7 +33,7 @@ const gameMetadataSchema = z.object({
     result: z.string().optional(),
 
     /** Whether the game is unlisted or not. */
-    unlisted: z.boolean(),
+    unlisted: z.boolean().optional(),
 });
 
 /** Metadata about a game in a directory. */

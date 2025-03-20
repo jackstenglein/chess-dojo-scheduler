@@ -13,20 +13,16 @@ export const metadata: Metadata = {
 export default function DojoTalksTop2025() {
     return (
         <Container maxWidth='sm' sx={{ py: 5 }}>
-            <Header
-                title='LifeCanBeSoNice'
-                subtitle='Dojo Player Spotlight • September 2, 2024'
-            />
+            <Header title='LifeCanBeSoNice' subtitle='Dojo Player Spotlight • September 2, 2024' />
 
             <Typography mb={3}>
                 Jan, aka{' '}
                 <Link href='https://www.chessdojo.club/profile/90957cf2-7e8c-43a7-a4f3-f063f24e3781?utm_source=playerspotlight&utm_medium=blog&utm_campaign=lifecanbesonice'>
                     LifeCanBeSoNice
                 </Link>
-                , is going for it. Since joining the Dojo last year, he has gained 279
-                points and has started his own chess improvement channel with his coach IM
-                Jurica Srbis. His goal is 2000 Lichess. It's a magical number! Will he be
-                able to make it?
+                , is going for it. Since joining the Dojo last year, he has gained 279 points and
+                has started his own chess improvement channel with his coach IM Jurica Srbis. His
+                goal is 2000 Lichess. It's a magical number! Will he be able to make it?
             </Typography>
             <Typography>
                 <strong>The good news:</strong>
@@ -42,8 +38,8 @@ export default function DojoTalksTop2025() {
             </Typography>
             <br />
             <Typography>
-                2) He's taking his time! That's one of the biggest problems the Dojo sees
-                in players at his level (1300-1400 cohort).
+                2) He's taking his time! That's one of the biggest problems the Dojo sees in players
+                at his level (1300-1400 cohort).
             </Typography>
             <br />
             <Typography>
@@ -57,17 +53,16 @@ export default function DojoTalksTop2025() {
             </Typography>
             <br />
             <Typography>
-                1) He needs to tighten up his grip on the board, ie he sometimes still
-                hangs pieces. This can be helped by: doing the mates (I know I know, it's
-                not that fun!) and doing any kind of calculation work where you have to
-                see a couple moves ahead, where you are forced to see what controls what.
-                This is sweatwork.
+                1) He needs to tighten up his grip on the board, ie he sometimes still hangs pieces.
+                This can be helped by: doing the mates (I know I know, it's not that fun!) and doing
+                any kind of calculation work where you have to see a couple moves ahead, where you
+                are forced to see what controls what. This is sweatwork.
             </Typography>
             <br />
             <Typography>
-                2) He needs to trust in development! In too many games, Jan is giving away
-                time for free. He needs to get some tempo religion. Das Tempo ist die
-                Seele des Schaches (Time is the Soul of Chess) – Siegbert Tarrasch.
+                2) He needs to trust in development! In too many games, Jan is giving away time for
+                free. He needs to get some tempo religion. Das Tempo ist die Seele des Schaches
+                (Time is the Soul of Chess) – Siegbert Tarrasch.
             </Typography>
             <br />
             <Typography>

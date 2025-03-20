@@ -64,24 +64,12 @@ const Markdown: React.FC<MarkdownProps> = ({ text, inline }) => {
                                 {props.children}
                             </Link>
                         ),
-                        h1: (props) => (
-                            <Text {...props} inline={inline} fontSize='1.25rem' />
-                        ),
-                        h2: (props) => (
-                            <Text {...props} inline={inline} fontSize='1.1875rem' />
-                        ),
-                        h3: (props) => (
-                            <Text {...props} inline={inline} fontSize='1.125rem' />
-                        ),
-                        h4: (props) => (
-                            <Text {...props} inline={inline} fontSize='1.0625rem' />
-                        ),
-                        h5: (props) => (
-                            <Text {...props} inline={inline} fontSize='1rem' />
-                        ),
-                        h6: (props) => (
-                            <Text {...props} inline={inline} fontSize='0.9375rem' />
-                        ),
+                        h1: (props) => <Text {...props} inline={inline} fontSize='1.25rem' />,
+                        h2: (props) => <Text {...props} inline={inline} fontSize='1.1875rem' />,
+                        h3: (props) => <Text {...props} inline={inline} fontSize='1.125rem' />,
+                        h4: (props) => <Text {...props} inline={inline} fontSize='1.0625rem' />,
+                        h5: (props) => <Text {...props} inline={inline} fontSize='1rem' />,
+                        h6: (props) => <Text {...props} inline={inline} fontSize='0.9375rem' />,
                         ul: (props) => (
                             <ul
                                 style={{

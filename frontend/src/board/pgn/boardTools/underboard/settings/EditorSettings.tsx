@@ -50,9 +50,7 @@ const EditorSettings = () => {
             </TextField>
 
             <FormGroup sx={{ px: 1 }}>
-                <FormLabel>
-                    Warn Before Deleting {warnBeforeDelete} or More Moves
-                </FormLabel>
+                <FormLabel>Warn Before Deleting {warnBeforeDelete} or More Moves</FormLabel>
                 <Slider
                     value={warnBeforeDelete}
                     onChange={(_, value) => setWarnBeforeDelete(value as number)}

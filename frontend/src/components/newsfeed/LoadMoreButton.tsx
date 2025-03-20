@@ -1,6 +1,6 @@
 import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString } from '@/calendar/displayDate';
+import { toDojoDateString } from '@/components/calendar/displayDate';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { LoadingButton } from '@mui/lab';
 import { Button, Stack, Typography } from '@mui/material';

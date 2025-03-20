@@ -80,10 +80,7 @@ export interface TournamentApiContextType {
      * @param section The section to get.
      * @returns A csv file containing the current open classical registrations.
      */
-    adminGetRegistrations: (
-        region: string,
-        section: string,
-    ) => Promise<AxiosResponse<Blob>>;
+    adminGetRegistrations: (region: string, section: string) => Promise<AxiosResponse<Blob>>;
 
     /**
      * Bans the given player from the open classical.
@@ -143,9 +140,7 @@ export interface TournamentApiContextType {
      * @param nextStartDate The start date of the new open classical.
      * @returns An AxiosResponse containing the new open classical.
      */
-    adminCompleteTournament: (
-        nextStartDate: string,
-    ) => Promise<AxiosResponse<OpenClassical>>;
+    adminCompleteTournament: (nextStartDate: string) => Promise<AxiosResponse<OpenClassical>>;
 }
 
 /** A request to register for the Open Classical. */
@@ -251,10 +246,7 @@ export function getOpenClassical(startsAt?: string) {
  * @param req The Open Classical registration request.
  * @returns An empty AxiosResponse.
  */
-export function registerForOpenClassical(
-    idToken: string,
-    req: OpenClassicalRegistrationRequest,
-) {
+export function registerForOpenClassical(idToken: string, req: OpenClassicalRegistrationRequest) {
     return axios.post<null>(
         `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/register`,
         req,
@@ -290,15 +282,10 @@ export function submitResultsForOpenClassical(
  * @param req The request to use when updating pairings.
  * @returns An AxiosResponse containing the updated open classical.
  */
-export function putOpenClassicalPairings(
-    idToken: string,
-    req: OpenClassicalPutPairingsRequest,
-) {
-    return axios.post<OpenClassical>(
-        `${BASE_URL}/tournaments/open-classical/admin/pairings`,
-        req,
-        { headers: { Authorization: 'Bearer ' + idToken } },
-    );
+export function putOpenClassicalPairings(idToken: string, req: OpenClassicalPutPairingsRequest) {
+    return axios.post<OpenClassical>(`${BASE_URL}/tournaments/open-classical/admin/pairings`, req, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
 }
 
 interface ListPreviousOpenClassicalsResponse {
@@ -430,10 +417,7 @@ export function adminEmailPairings(idToken: string, round: number) {
  * @param request The request to update the open classical pairing.
  * @returns An AxiosResponse containing the updated open classical.
  */
-export function adminVerifyResult(
-    idToken: string,
-    request: OpenClassicalVerifyResultRequest,
-) {
+export function adminVerifyResult(idToken: string, request: OpenClassicalVerifyResultRequest) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/verify-result`,
         request,

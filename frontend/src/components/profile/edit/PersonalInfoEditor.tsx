@@ -1,5 +1,5 @@
 import { Request } from '@/api/Request';
-import { TimezoneSelector } from '@/calendar/filters/TimezoneSelector';
+import { TimezoneSelector } from '@/components/calendar/filters/TimezoneSelector';
 import { User } from '@/database/user';
 import Avatar from '@/profile/Avatar';
 import { Delete, Info, Upload } from '@mui/icons-material';
@@ -111,11 +111,7 @@ export function PersonalInfoEditor({
                 <Stack direction='row' alignItems='center' spacing={3}>
                     <Avatar user={user} size={150} url={profilePictureUrl} />
                     <Stack spacing={2} alignItems='start'>
-                        <Button
-                            component='label'
-                            variant='outlined'
-                            startIcon={<Upload />}
-                        >
+                        <Button component='label' variant='outlined' startIcon={<Upload />}>
                             Upload Photo
                             <input
                                 type='file'
@@ -141,9 +137,7 @@ export function PersonalInfoEditor({
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
                 error={!!errors.displayName}
-                helperText={
-                    errors.displayName || 'This is how other users will identify you'
-                }
+                helperText={errors.displayName || 'This is how other users will identify you'}
             />
 
             <TextField

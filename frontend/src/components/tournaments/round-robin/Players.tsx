@@ -3,8 +3,12 @@ import {
     RoundRobin,
     RoundRobinPlayerStatuses,
     RoundRobinWaitlist,
+    calculatePlayerStats,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import { EmojiEvents } from '@mui/icons-material';
 import {
+    Chip,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -12,26 +16,28 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-import { calculatePlayerStats } from './Stats';
 
 export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWaitlist }) {
     if (Object.values(tournament.players).length === 0) {
         return null;
     }
 
-    const isActive = isRoundRobin(tournament);
+    const isTournament = isRoundRobin(tournament);
 
-    const players = isActive
+    const players = isTournament
         ? tournament.playerOrder.map((username) => tournament.players[username])
         : Object.values(tournament.players);
 
-    const stats = isActive ? calculatePlayerStats(tournament) : undefined;
+    const stats = isTournament ? calculatePlayerStats(tournament) : undefined;
 
     players.sort((lhs, rhs) => {
         if (!stats) {
             return 0;
         }
-        return (stats[rhs.username]?.score ?? 0) - (stats[lhs.username]?.score ?? 0);
+        return (
+            (stats[rhs.username]?.score ?? 0) - (stats[lhs.username]?.score ?? 0) ||
+            (stats[rhs.username]?.tiebreakScore ?? 0) - (stats[lhs.username]?.tiebreakScore ?? 0)
+        );
     });
 
     return (
@@ -50,7 +56,7 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
                     <TableCell align='center'>
                         <Typography fontWeight='bold'>Discord Username</Typography>
                     </TableCell>
-                    {isActive && (
+                    {isTournament && (
                         <TableCell align='center'>
                             <Typography fontWeight='bold'>Score</Typography>
                         </TableCell>
@@ -61,13 +67,24 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
                 {players.map((player) => (
                     <TableRow key={player.username}>
                         <TableCell>
-                            <Typography>
-                                <Link href={`/profile/${player.username}`}>
-                                    {player.displayName}
-                                </Link>
-                                {player.status === RoundRobinPlayerStatuses.WITHDRAWN &&
-                                    ' (Withdrawn)'}
-                            </Typography>
+                            <Stack direction='row' alignItems='center' gap={1}>
+                                {isTournament && tournament.winners?.includes(player.username) && (
+                                    <Chip
+                                        color='success'
+                                        size='small'
+                                        icon={<EmojiEvents />}
+                                        sx={{ '& .MuiChip-label': { pr: 0 } }}
+                                    />
+                                )}
+
+                                <Typography>
+                                    <Link href={`/profile/${player.username}`}>
+                                        {player.displayName}
+                                    </Link>
+                                    {player.status === RoundRobinPlayerStatuses.WITHDRAWN &&
+                                        ' (Withdrawn)'}
+                                </Typography>
+                            </Stack>
                         </TableCell>
                         <TableCell align='center'>
                             <Typography>{player.lichessUsername}</Typography>
@@ -80,9 +97,7 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
                         </TableCell>
                         {stats && (
                             <TableCell align='center'>
-                                <Typography>
-                                    {stats[player.username]?.score ?? 0}
-                                </Typography>
+                                <Typography>{stats[player.username]?.score ?? 0}</Typography>
                             </TableCell>
                         )}
                     </TableRow>

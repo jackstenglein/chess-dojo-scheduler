@@ -10,8 +10,7 @@ const testUrls = {
     chesscomAnalysisA: 'https://www.chess.com/a/2eUTHynZc2Jtfx?tab=analysis',
     chesscomAnalysisB: 'https://www.chess.com/analysis/game/pgn/3PQmunBaE2?tab=analysis',
 
-    chesscomAnalysisGame:
-        'https://www.chess.com/analysis/game/live/108036079387?tab=review',
+    chesscomAnalysisGame: 'https://www.chess.com/analysis/game/live/108036079387?tab=review',
     chesscomGame: 'https://www.chess.com/game/live/107855985867',
 };
 

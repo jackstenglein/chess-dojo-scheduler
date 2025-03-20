@@ -72,9 +72,7 @@ export const FollowersList = ({
                     entry={f}
                     isFollowing={isFollowing}
                     onUnfollow={
-                        isFollowing && username === currentUser?.username
-                            ? onUnfollow
-                            : undefined
+                        isFollowing && username === currentUser?.username ? onUnfollow : undefined
                     }
                 />
             ))}
@@ -88,11 +86,7 @@ interface FollowerListItemProps {
     onUnfollow?: (poster: string) => void;
 }
 
-const FollowerListItem: React.FC<FollowerListItemProps> = ({
-    entry,
-    isFollowing,
-    onUnfollow,
-}) => {
+const FollowerListItem: React.FC<FollowerListItemProps> = ({ entry, isFollowing, onUnfollow }) => {
     const unfollowRequest = useRequest<FollowerEntry>();
     const api = useApi();
 
@@ -119,9 +113,7 @@ const FollowerListItem: React.FC<FollowerListItemProps> = ({
             <Stack direction='row' spacing={2} alignItems='center'>
                 <Avatar
                     username={isFollowing ? entry.poster : entry.follower}
-                    displayName={
-                        isFollowing ? entry.posterDisplayName : entry.followerDisplayName
-                    }
+                    displayName={isFollowing ? entry.posterDisplayName : entry.followerDisplayName}
                     size={{ xs: '40px', sm: '52px' }}
                     fontSize={{ xs: '0.76rem', sm: '0.98rem' }}
                 />

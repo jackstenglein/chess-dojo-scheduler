@@ -20,11 +20,7 @@ export const UrlChip: React.FC<UrlChipProps> = ({ url }) => {
     const domain = matches[1];
     return (
         <a href={url} target='_blank' rel='noreferrer'>
-            <Chip
-                color='secondary'
-                icon={<OpenInNew sx={{ pl: '4px' }} />}
-                label={domain}
-            />
+            <Chip color='secondary' icon={<OpenInNew sx={{ pl: '4px' }} />} label={domain} />
         </a>
     );
 };

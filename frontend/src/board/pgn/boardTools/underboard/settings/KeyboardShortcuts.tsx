@@ -212,11 +212,7 @@ function handleNextMove({ chess, reconcile, opts }: ShortcutHandlerProps) {
         return;
     }
 
-    if (
-        opts?.setVariationDialogMove &&
-        nextMove.variations &&
-        nextMove.variations.length > 0
-    ) {
+    if (opts?.setVariationDialogMove && nextMove.variations && nextMove.variations.length > 0) {
         opts.setVariationDialogMove(nextMove);
     } else {
         chess?.seek(nextMove);
@@ -477,9 +473,8 @@ const KeyboardShortcuts = () => {
                 ...keyBindings,
                 [editAction]: {
                     key: editKey || '',
-                    modifier: (
-                        keyBindings[editAction] || ShortcutBindings.default[editAction]
-                    ).modifier,
+                    modifier: (keyBindings[editAction] || ShortcutBindings.default[editAction])
+                        .modifier,
                 },
             });
         }
@@ -492,9 +487,8 @@ const KeyboardShortcuts = () => {
                 ...keyBindings,
                 [editAction]: {
                     key: '',
-                    modifier: (
-                        keyBindings[editAction] || ShortcutBindings.default[editAction]
-                    ).modifier,
+                    modifier: (keyBindings[editAction] || ShortcutBindings.default[editAction])
+                        .modifier,
                 },
             });
         }
@@ -509,8 +503,8 @@ const KeyboardShortcuts = () => {
         <Stack>
             <Typography variant='h6'>Keyboard Shortcuts</Typography>
             <Typography variant='subtitle2' color='text.secondary'>
-                Keyboard shortcuts are disabled while editing text fields (comments, clock
-                times, tags, etc).
+                Keyboard shortcuts are disabled while editing text fields (comments, clock times,
+                tags, etc).
             </Typography>
             <Grid2 container rowGap={2} columnSpacing={2} alignItems='center' mt={1.5}>
                 <Grid2 sx={{ borderBottom: 1, borderColor: 'divider' }} size={5}>
@@ -553,9 +547,7 @@ const KeyboardShortcuts = () => {
                                     </MenuItem>
                                     <MenuItem value='Shift'>Shift</MenuItem>
                                     <MenuItem value='Control'>Control</MenuItem>
-                                    <MenuItem value='Alt'>
-                                        Alt (Windows) / Option (Mac)
-                                    </MenuItem>
+                                    <MenuItem value='Alt'>Alt (Windows) / Option (Mac)</MenuItem>
                                 </TextField>
                             </Grid2>
                             <Grid2 size={3.5}>
@@ -575,11 +567,7 @@ const KeyboardShortcuts = () => {
                     );
                 })}
                 <Grid2 size={12}>
-                    <Button
-                        color='error'
-                        onClick={onReset}
-                        sx={{ textTransform: 'none' }}
-                    >
+                    <Button color='error' onClick={onReset} sx={{ textTransform: 'none' }}>
                         Reset All to Defaults
                     </Button>
                 </Grid2>

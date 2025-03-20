@@ -26,8 +26,7 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
 
-    const maxRound =
-        (Object.values(openClassical?.sections || {})[0]?.rounds?.length || 0) + 1;
+    const maxRound = (Object.values(openClassical?.sections || {})[0]?.rounds?.length || 0) + 1;
 
     const [region, setRegion] = useState('');
     const [section, setSection] = useState('');
@@ -107,9 +106,8 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
                     <DialogTitle>Edit Tournament</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Close registrations for the tournament? Pairings will be
-                            available to upload after registrations are closed. Note: this
-                            cannot be undone.
+                            Close registrations for the tournament? Pairings will be available to
+                            upload after registrations are closed. Note: this cannot be undone.
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
@@ -145,9 +143,7 @@ const Editor: React.FC<EditorProps> = ({ openClassical, onSuccess }) => {
                             helperText={errors.region}
                         >
                             <MenuItem value='A'>Region A (Americas)</MenuItem>
-                            <MenuItem value='B'>
-                                Region B (Eurasia/Africa/Oceania)
-                            </MenuItem>
+                            <MenuItem value='B'>Region B (Eurasia/Africa/Oceania)</MenuItem>
                         </TextField>
 
                         <TextField

@@ -171,11 +171,7 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                     <Stack direction='row' alignItems='center' spacing={3}>
                         <ClubAvatar id={id} name={name} size={150} url={logoUrl} />
                         <Stack spacing={2} alignItems='start'>
-                            <Button
-                                component='label'
-                                variant='outlined'
-                                startIcon={<Upload />}
-                            >
+                            <Button component='label' variant='outlined' startIcon={<Upload />}>
                                 Upload Photo
                                 <input
                                     type='file'
@@ -212,10 +208,7 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                         minRows={3}
                         value={shortDescription}
                         onChange={(e) => setShortDescription(e.target.value)}
-                        error={
-                            Boolean(errors.shortDescription) ||
-                            shortDescription.length > 300
-                        }
+                        error={Boolean(errors.shortDescription) || shortDescription.length > 300}
                         helperText={
                             errors.shortDescription ||
                             `${shortDescription.length}/300 characters. Displayed on the club list page.`

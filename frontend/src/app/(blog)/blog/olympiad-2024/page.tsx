@@ -36,9 +36,7 @@ export default function DojoTalksTop2025() {
             <br />
             <br />
 
-            <Typography>
-                And Sensei David did a vid about German #1 Vincent Keymer.
-            </Typography>
+            <Typography>And Sensei David did a vid about German #1 Vincent Keymer.</Typography>
             <br />
             <iframe
                 width='100%'
@@ -54,11 +52,10 @@ export default function DojoTalksTop2025() {
             <br />
             <Typography>
                 The Dojo will cover several rounds of the Olympiad on{' '}
-                <Link href='https://www.twitch.tv/chessdojo'>Twitch</Link> after sensei
-                Kostya finishes his luxurious Italian norm event, which we are also
-                covering. After Kostya has had all the pasta he can eat, he's heading over
-                to Budapest with a fancy press pass. We will have our own reporter on the
-                ground!
+                <Link href='https://www.twitch.tv/chessdojo'>Twitch</Link> after sensei Kostya
+                finishes his luxurious Italian norm event, which we are also covering. After Kostya
+                has had all the pasta he can eat, he's heading over to Budapest with a fancy press
+                pass. We will have our own reporter on the ground!
             </Typography>
             <Divider sx={{ my: 6 }} />
 

@@ -25,18 +25,12 @@ const GameComment = () => {
         }
     }, [chess, setForceRender]);
 
-    if (
-        !chess?.pgn.gameComment.comment ||
-        chess.pgn.gameComment.comment.trim() === '[#]'
-    ) {
+    if (!chess?.pgn.gameComment.comment || chess.pgn.gameComment.comment.trim() === '[#]') {
         return null;
     }
 
     return (
-        <Paper
-            elevation={3}
-            sx={{ boxShadow: 'none', color: 'text.secondary', borderRadius: 0 }}
-        >
+        <Paper elevation={3} sx={{ boxShadow: 'none', color: 'text.secondary', borderRadius: 0 }}>
             <Stack>
                 <Markdown text={chess.pgn.gameComment.comment.trim()} />
                 <Divider sx={{ width: 1 }} />

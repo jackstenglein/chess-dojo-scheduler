@@ -65,48 +65,43 @@ export default function Page() {
                 <Question>What has been your journey with chess so far?</Question>
 
                 <Typography>
-                    I'm 33 and I got serious about chess at 26, when an adolescent kid
-                    beat me up. I got mad and started watching Ben Finegold on YouTube.
-                    The fact that I didn't learn anything about it in my childhood hurts
-                    me, but I do everything I can to compensate for that. First I played
-                    on Lichess, then joined the next-door club, and started going to
-                    tournaments regularly. I'm your definition of an adult improver, as
-                    everything I learned in chess I learned as an adult. I have 2 kids
+                    I'm 33 and I got serious about chess at 26, when an adolescent kid beat me up. I
+                    got mad and started watching Ben Finegold on YouTube. The fact that I didn't
+                    learn anything about it in my childhood hurts me, but I do everything I can to
+                    compensate for that. First I played on Lichess, then joined the next-door club,
+                    and started going to tournaments regularly. I'm your definition of an adult
+                    improver, as everything I learned in chess I learned as an adult. I have 2 kids
                     now, so I wake up every day at 4am to analyse and do ChessDojo stuff.
                 </Typography>
 
                 <Question>Why did you join the Dojo?</Question>
 
                 <Typography>
-                    I was stuck below 1300, and wanted to get better. My long-term goal is
-                    to work as a chess coach, either part-time or full-time.
+                    I was stuck below 1300, and wanted to get better. My long-term goal is to work
+                    as a chess coach, either part-time or full-time.
                 </Typography>
 
                 <Question>What are your main chess goals?</Question>
                 <Typography>
-                    Keeping my mind fresh is the most important thing. Mentally I
-                    experience a lot of growth because of this hobby. I see a lot of
-                    players over 70 at tournaments whose minds are still clean. I want to
-                    keep playing while I live on this Earth. As of September 2024 my club
-                    plays in national second division, and I'm proud to be part of the
-                    small squad. I want to play in div. 2 as much as possible, and I want
-                    to get to 1800 by trusting the program. I am so thankful for this
+                    Keeping my mind fresh is the most important thing. Mentally I experience a lot
+                    of growth because of this hobby. I see a lot of players over 70 at tournaments
+                    whose minds are still clean. I want to keep playing while I live on this Earth.
+                    As of September 2024 my club plays in national second division, and I'm proud to
+                    be part of the small squad. I want to play in div. 2 as much as possible, and I
+                    want to get to 1800 by trusting the program. I am so thankful for this
                     community.
                 </Typography>
 
                 <Question>What is a non-chess fun fact about you?</Question>
                 <Typography>
-                    I refuse to work full-time! Life is too short to work 50-60 hours per
-                    week. I work from Monday till Thursday.
+                    I refuse to work full-time! Life is too short to work 50-60 hours per week. I
+                    work from Monday till Thursday.
                 </Typography>
 
                 <Question>Check out one of Dandeer's games:</Question>
             </Container>
 
-            <GameViewer
-                cohort='1300-1400'
-                id='2024.08.26_74044686-c0b3-4cd6-83c1-c62833a9c994'
-            />
+            <GameViewer cohort='1300-1400' id='2024.08.26_74044686-c0b3-4cd6-83c1-c62833a9c994' />
 
             <Container maxWidth='sm' sx={{ mt: 8 }}>
                 <Typography textAlign='center'>

@@ -20,16 +20,8 @@ const NotificationButton = () => {
     return (
         <>
             <Tooltip title='Notifications'>
-                <IconButton
-                    data-cy='Notifications'
-                    onClick={handleOpen}
-                    sx={{ color: 'white' }}
-                >
-                    <Badge
-                        badgeContent={notifications.length}
-                        color='secondary'
-                        overlap='circular'
-                    >
+                <IconButton data-cy='Notifications' onClick={handleOpen} sx={{ color: 'white' }}>
+                    <Badge badgeContent={notifications.length} color='secondary' overlap='circular'>
                         <NotificationsIcon />
                     </Badge>
                 </IconButton>

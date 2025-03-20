@@ -22,10 +22,7 @@ interface RegisterModalProps {
     open: boolean;
     onClose: () => void;
     user: User | undefined;
-    onUpdateTournaments: (props: {
-        waitlist?: RoundRobin;
-        tournament?: RoundRobin;
-    }) => void;
+    onUpdateTournaments: (props: { waitlist?: RoundRobin; tournament?: RoundRobin }) => void;
 }
 
 export function RegisterModal({
@@ -36,9 +33,7 @@ export function RegisterModal({
     onUpdateTournaments,
 }: RegisterModalProps) {
     const isFreeTier = useFreeTier();
-    const [lichessUsername, setLichessUsername] = useState(
-        user?.ratings.LICHESS?.username || '',
-    );
+    const [lichessUsername, setLichessUsername] = useState(user?.ratings.LICHESS?.username || '');
     const [chesscomUsername, setChesscomUsername] = useState(
         user?.ratings.CHESSCOM?.username || '',
     );
@@ -99,15 +94,14 @@ export function RegisterModal({
                 <DialogContent>
                     {isFreeTier && (
                         <DialogContentText sx={{ mb: 2 }}>
-                            You will only be charged $2 once the tournament starts. After
-                            the tournament starts, no refunds will be provided for
-                            withdrawals.
+                            You will only be charged $2 once the tournament starts. After the
+                            tournament starts, no refunds will be provided for withdrawals.
                         </DialogContentText>
                     )}
 
                     <DialogContentText sx={{ mb: 2 }}>
-                        To prevent cheating, all games in the tournament must be played
-                        using either the Lichess or Chess.com accounts entered here.
+                        To prevent cheating, all games in the tournament must be played using either
+                        the Lichess or Chess.com accounts entered here.
                     </DialogContentText>
 
                     <TextField
@@ -141,10 +135,7 @@ export function RegisterModal({
                             input: {
                                 startAdornment: (
                                     <InputAdornment position='start'>
-                                        <SiChessdotcom
-                                            fontSize={25}
-                                            style={{ color: '#81b64c' }}
-                                        />
+                                        <SiChessdotcom fontSize={25} style={{ color: '#81b64c' }} />
                                     </InputAdornment>
                                 ),
                             },
@@ -163,10 +154,7 @@ export function RegisterModal({
                             input: {
                                 startAdornment: (
                                     <InputAdornment position='start'>
-                                        <SiDiscord
-                                            fontSize={25}
-                                            style={{ color: '#5865f2' }}
-                                        />
+                                        <SiDiscord fontSize={25} style={{ color: '#5865f2' }} />
                                     </InputAdornment>
                                 ),
                             },

@@ -8,9 +8,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         field: 'whiteLichess',
         headerName: 'White (Lichess)',
         valueGetter: (_value, row) =>
-            `${row.white.lichessUsername}${
-                row.white.rating ? ` (${row.white.rating})` : ''
-            }`,
+            `${row.white.lichessUsername}${row.white.rating ? ` (${row.white.rating})` : ''}`,
         flex: 1,
     },
     {
@@ -23,9 +21,7 @@ export const pairingTableColumns: GridColDef<OpenClassicalPairing>[] = [
         field: 'blackLichess',
         headerName: 'Black (Lichess)',
         valueGetter: (_value, row) =>
-            `${row.black.lichessUsername}${
-                row.black.rating ? ` (${row.black.rating})` : ''
-            }`,
+            `${row.black.lichessUsername}${row.black.rating ? ` (${row.black.rating})` : ''}`,
         flex: 1,
     },
     {
@@ -96,8 +92,7 @@ const PairingsTable: React.FC<PairingsTableProps> = ({
     round,
 }) => {
     const pairings =
-        openClassical.sections[`${region}_${ratingRange}`]?.rounds[round - 1]?.pairings ??
-        [];
+        openClassical.sections[`${region}_${ratingRange}`]?.rounds[round - 1]?.pairings ?? [];
 
     return (
         <DataGridPro

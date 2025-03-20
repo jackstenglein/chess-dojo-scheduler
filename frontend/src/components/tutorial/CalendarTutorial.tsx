@@ -7,8 +7,7 @@ const steps: Step[] = [
         target: 'body',
         placement: 'center',
         title: 'Calendar',
-        content:
-            "Welcome to the calendar! Let's take a quick tour to learn how to use it.",
+        content: "Welcome to the calendar! Let's take a quick tour to learn how to use it.",
         disableBeacon: true,
     },
     {

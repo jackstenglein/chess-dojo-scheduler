@@ -1,8 +1,5 @@
 import { grey } from '@mui/material/colors';
-import {
-    BoardStyle,
-    PieceStyle,
-} from './pgn/boardTools/underboard/settings/ViewerSettings';
+import { BoardStyle, PieceStyle } from './pgn/boardTools/underboard/settings/ViewerSettings';
 
 interface BoardSx {
     '--board-background': string;

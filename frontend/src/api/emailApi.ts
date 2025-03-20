@@ -42,8 +42,5 @@ export function createSupportTicket(idToken: string, request: SupportTicketReque
             headers: { Authorization: `Bearer ${idToken}` },
         });
     }
-    return axios.post<SupportTicketResponse>(
-        `${BASE_URL}/public/support-ticket`,
-        request,
-    );
+    return axios.post<SupportTicketResponse>(`${BASE_URL}/public/support-ticket`, request);
 }

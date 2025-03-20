@@ -5,10 +5,7 @@ import { Stack, Typography } from '@mui/material';
 import { SectionProps } from '../section';
 import RatingCard from './RatingCard';
 
-function getDescription(
-    system: RatingSystem,
-    data: YearReviewRatingData,
-): React.ReactNode {
+function getDescription(system: RatingSystem, data: YearReviewRatingData): React.ReactNode {
     const current = data.currentRating.value;
 
     const preamble = `This year, your ${formatRatingSystem(system)} rating `;
@@ -88,11 +85,7 @@ const RatingsSection = ({ review }: SectionProps) => {
 
             {preferred ? (
                 <>
-                    <Typography
-                        my={5}
-                        fontSize='clamp(16px,18px,30px)'
-                        textAlign='center'
-                    >
+                    <Typography my={5} fontSize='clamp(16px,18px,30px)' textAlign='center'>
                         {getDescription(preferred[0] as RatingSystem, preferred[1])}
                     </Typography>
 
@@ -104,11 +97,7 @@ const RatingsSection = ({ review }: SectionProps) => {
                         period={review.period}
                     />
 
-                    <Typography
-                        my={5}
-                        fontSize='clamp(16px,18px,30px)'
-                        textAlign='center'
-                    >
+                    <Typography my={5} fontSize='clamp(16px,18px,30px)' textAlign='center'>
                         Now let's see how your other ratings did...
                     </Typography>
 
@@ -132,8 +121,8 @@ const RatingsSection = ({ review }: SectionProps) => {
                 </>
             ) : (
                 <Typography my={5} fontSize='clamp(16px,18px,30px)' textAlign='center'>
-                    Whoops, looks like you don't have any ratings yet. Add a rating system
-                    to your profile and play some more games next year!
+                    Whoops, looks like you don't have any ratings yet. Add a rating system to your
+                    profile and play some more games next year!
                 </Typography>
             )}
         </Stack>

@@ -1,5 +1,6 @@
 import { toPgnDate } from '@/api/gameApi';
 import { RequestSnackbar } from '@/api/Request';
+import { useFreeTier } from '@/auth/Auth';
 import { UnderboardApi } from '@/board/pgn/boardTools/underboard/Underboard';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import { useChess } from '@/board/pgn/PgnBoard';
@@ -10,20 +11,13 @@ import {
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { InfoOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
-import {
-    Alert,
-    Box,
-    Button,
-    IconButton,
-    Stack,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import { Alert, Box, Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import SaveGameDialog, { SaveGameDialogType, SaveGameForm } from './SaveGameDialog';
 
 /** A hook that encapsulates functionality for the UnpublishedGameBanner and VisibilityIcon. */
 function useUnpublishedGame() {
+    const isFreeTier = useFreeTier();
     const [showDialog, setShowDialog] = useState(false);
     const [showBanner, setShowBanner] = useState(true);
     const { game, onUpdateGame } = useGame();
@@ -59,7 +53,14 @@ function useUnpublishedGame() {
         });
     };
 
-    return { showBanner, setShowBanner, showDialog, setShowDialog, request, onSubmit };
+    return {
+        showBanner: showBanner && !isFreeTier,
+        setShowBanner,
+        showDialog,
+        setShowDialog,
+        request,
+        onSubmit,
+    };
 }
 
 interface UnpublishedGameBannerProps {
@@ -88,18 +89,14 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
                     action={
                         <Box>
                             {dismissable && (
-                                <Button onClick={() => setShowBanner(false)}>
-                                    Dismiss
-                                </Button>
+                                <Button onClick={() => setShowBanner(false)}>Dismiss</Button>
                             )}
                             <Button onClick={() => setShowDialog(true)}>Publish</Button>
                         </Box>
                     }
                 >
                     <Stack direction='row' alignItems='center'>
-                        <Typography variant='body1'>
-                            This game is not published
-                        </Typography>
+                        <Typography variant='body1'>This game is not published</Typography>
                     </Stack>
                 </Alert>
             )}
@@ -148,19 +145,13 @@ export function VisibilityIcon({
                     onClick={
                         game.unlisted
                             ? () => setShowDialog(true)
-                            : () =>
-                                  underboardRef?.current?.switchTab(
-                                      DefaultUnderboardTab.Settings,
-                                  )
+                            : () => underboardRef?.current?.switchTab(DefaultUnderboardTab.Settings)
                     }
                 >
                     {game.unlisted ? (
                         <VisibilityOff data-cy='unlisted-icon' color='error' />
                     ) : (
-                        <Visibility
-                            data-cy='public-icon'
-                            sx={{ color: 'text.secondary' }}
-                        />
+                        <Visibility data-cy='public-icon' sx={{ color: 'text.secondary' }} />
                     )}
                 </IconButton>
             </Tooltip>

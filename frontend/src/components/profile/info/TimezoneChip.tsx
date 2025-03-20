@@ -1,4 +1,4 @@
-import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import { Chip, Tooltip } from '@mui/material';
 

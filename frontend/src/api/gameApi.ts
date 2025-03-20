@@ -9,13 +9,7 @@ import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge'
 import axios, { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { getConfig } from '../config';
-import {
-    Game,
-    GameInfo,
-    GameReviewType,
-    PositionComment,
-    isGameResult,
-} from '../database/game';
+import { Game, GameInfo, GameReviewType, PositionComment, isGameResult } from '../database/game';
 
 const BASE_URL = getConfig().api.baseUrl;
 
@@ -25,9 +19,7 @@ export interface GameApiContextType {
      * @param req The CreateGameRequest.
      * @returns The newly created Game.
      */
-    createGame: (
-        req: CreateGameRequest,
-    ) => Promise<AxiosResponse<Game | EditGameResponse>>;
+    createGame: (req: CreateGameRequest) => Promise<AxiosResponse<Game | EditGameResponse>>;
 
     /**
      * getGame returns the requested game.
@@ -44,11 +36,7 @@ export interface GameApiContextType {
      * @param featured Whether the game is featured or not.
      * @returns An AxiosResponse containing the updated game.
      */
-    featureGame: (
-        cohort: string,
-        id: string,
-        featured: string,
-    ) => Promise<AxiosResponse<Game>>;
+    featureGame: (cohort: string, id: string, featured: string) => Promise<AxiosResponse<Game>>;
 
     /**
      * updateGame overwrites the PGN data of the provided game.
@@ -70,9 +58,7 @@ export interface GameApiContextType {
      * @param request The request to delete the games.
      * @returns The keys of the successfully deleted games.
      */
-    deleteGames: (
-        request: DeleteGamesRequest,
-    ) => Promise<AxiosResponse<DeleteGamesResponse>>;
+    deleteGames: (request: DeleteGamesRequest) => Promise<AxiosResponse<DeleteGamesResponse>>;
 
     /**
      * listGamesByCohort returns a list of GameInfo objects corresponding to the provided cohort,
@@ -209,9 +195,7 @@ export interface GameApiContextType {
      * @param request The request to merge the PGN.
      * @returns The cohort and id of the updated game.
      */
-    mergePgn: (
-        request: PgnMergeRequest,
-    ) => Promise<AxiosResponse<Pick<Game, 'cohort' | 'id'>>>;
+    mergePgn: (request: PgnMergeRequest) => Promise<AxiosResponse<Pick<Game, 'cohort' | 'id'>>>;
 }
 
 export interface EditGameResponse {
@@ -258,12 +242,7 @@ export function getGame(cohort: string, id: string) {
  * @param featured Whether the game is featured or not.
  * @returns An AxiosResponse containing the updated game.
  */
-export function featureGame(
-    idToken: string,
-    cohort: string,
-    id: string,
-    featured: string,
-) {
+export function featureGame(idToken: string, cohort: string, id: string, featured: string) {
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 

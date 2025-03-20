@@ -105,11 +105,7 @@ export const MoveDialog = ({
     };
 
     return (
-        <Dialog
-            open={true}
-            onClose={moveRequest.isLoading() ? undefined : onCancel}
-            fullWidth
-        >
+        <Dialog open={true} onClose={moveRequest.isLoading() ? undefined : onCancel} fullWidth>
             <DialogTitle>{getDialogTitle(items)}</DialogTitle>
             <DialogContent data-cy='move-directory-form'>
                 {newDirectory ? (
@@ -145,14 +141,11 @@ export const MoveDialog = ({
                                         owner={
                                             (newDirectory.id === SHARED_DIRECTORY_ID
                                                 ? newItem.addedBy
-                                                : newDirectory.owner) ??
-                                            newDirectory.owner
+                                                : newDirectory.owner) ?? newDirectory.owner
                                         }
                                         item={newItem}
                                         onNavigate={onNavigate}
-                                        disabled={items.some(
-                                            (item) => item.id === newItem.id,
-                                        )}
+                                        disabled={items.some((item) => item.id === newItem.id)}
                                     />
                                 ))}
                         </List>
@@ -197,10 +190,7 @@ export function MoveListItem({
 }) {
     if (item.type === DirectoryItemTypes.DIRECTORY) {
         return (
-            <ListItemButton
-                disabled={disabled}
-                onClick={() => onNavigate(owner, item.id)}
-            >
+            <ListItemButton disabled={disabled} onClick={() => onNavigate(owner, item.id)}>
                 <ListItemIcon>
                     <Folder />
                 </ListItemIcon>

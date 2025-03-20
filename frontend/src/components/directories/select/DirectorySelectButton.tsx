@@ -75,15 +75,10 @@ export function DirectorySelectButton<T>({
                     dialogActions: {
                         children: (
                             <>
-                                <Button
-                                    onClick={request?.isLoading() ? undefined : onClose}
-                                >
+                                <Button onClick={request?.isLoading() ? undefined : onClose}>
                                     Cancel
                                 </Button>
-                                <LoadingButton
-                                    loading={request?.isLoading()}
-                                    onClick={onConfirm}
-                                >
+                                <LoadingButton loading={request?.isLoading()} onClick={onConfirm}>
                                     Add
                                 </LoadingButton>
                             </>

@@ -18,8 +18,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => {
     const guardMapRef = useContext(NavigationGuardProviderContext);
 
     let useNextLink = true;
-    let guardNavigation: React.MouseEventHandler<HTMLAnchorElement> | undefined =
-        undefined;
+    let guardNavigation: React.MouseEventHandler<HTMLAnchorElement> | undefined = undefined;
 
     if (!props.href || props.href.startsWith('http')) {
         useNextLink = false;

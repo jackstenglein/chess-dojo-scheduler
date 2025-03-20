@@ -1,5 +1,5 @@
 import { useRequiredAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Event, EventStatus, getDisplayString } from '@/database/event';
 import Avatar from '@/profile/Avatar';
 import {
@@ -50,11 +50,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
                     subheader={`${toDojoDateString(
                         start,
                         user.timezoneOverride,
-                    )} • ${toDojoTimeString(
-                        start,
-                        user.timezoneOverride,
-                        user.timeFormat,
-                    )}`}
+                    )} • ${toDojoTimeString(start, user.timezoneOverride, user.timeFormat)}`}
                     sx={{ pb: 0 }}
                 />
                 <CardContent sx={{ pt: 0, mt: 1 }}>

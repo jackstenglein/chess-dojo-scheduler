@@ -14,19 +14,13 @@ import {
 } from '../engine/engine';
 import { useEngine } from './useEngine';
 
-export function useEval(
-    enabled: boolean,
-    engineName?: EngineName,
-): PositionEval | undefined {
+export function useEval(enabled: boolean, engineName?: EngineName): PositionEval | undefined {
     const [currentPosition, setCurrentPosition] = useState<PositionEval>();
     const { chess } = useChess();
     const engine = useEngine(enabled, engineName);
     const [depth] = useLocalStorage(ENGINE_DEPTH.Key, ENGINE_DEPTH.Default);
     const [multiPv] = useLocalStorage(ENGINE_LINE_COUNT.Key, ENGINE_LINE_COUNT.Default);
-    const [threads, setThreads] = useLocalStorage(
-        ENGINE_THREADS.Key,
-        ENGINE_THREADS.Default,
-    );
+    const [threads, setThreads] = useLocalStorage(ENGINE_THREADS.Key, ENGINE_THREADS.Default);
     const [hash] = useLocalStorage(ENGINE_HASH.Key, ENGINE_HASH.Default);
     const savedEvals = useRef<SavedEvals>({});
 
@@ -99,17 +93,7 @@ export function useEval(
             void engine?.stopSearch();
             chess.removeObserver(observer);
         };
-    }, [
-        enabled,
-        chess,
-        depth,
-        engine,
-        engineName,
-        multiPv,
-        threads,
-        hash,
-        setCurrentPosition,
-    ]);
+    }, [enabled, chess, depth, engine, engineName, multiPv, threads, hash, setCurrentPosition]);
 
     return currentPosition;
 }

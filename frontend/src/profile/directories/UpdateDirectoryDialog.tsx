@@ -30,8 +30,7 @@ import {
 import { useState } from 'react';
 import { DirectoryCacheContextType } from './DirectoryCache';
 
-const defaultDisableSave = (name: string) =>
-    name.trim().length === 0 || name.trim().length > 100;
+const defaultDisableSave = (name: string) => name.trim().length === 0 || name.trim().length > 100;
 
 export const UpdateDirectoryDialog = ({
     initialName = '',
@@ -56,18 +55,13 @@ export const UpdateDirectoryDialog = ({
     onCancel: () => void;
 }) => {
     const [name, setName] = useState(initialName);
-    const [visibility, setVisibility] =
-        useState<DirectoryVisibilityType>(initialVisibility);
+    const [visibility, setVisibility] = useState<DirectoryVisibilityType>(initialVisibility);
     const request = useRequest();
     const isFreeTier = useFreeTier();
     const disabled = disableSave(name, visibility);
 
     return (
-        <Dialog
-            open={true}
-            onClose={request.isLoading() ? undefined : onCancel}
-            fullWidth
-        >
+        <Dialog open={true} onClose={request.isLoading() ? undefined : onCancel} fullWidth>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent data-cy='update-directory-form'>
                 <TextField
@@ -96,9 +90,7 @@ export const UpdateDirectoryDialog = ({
                     </FormLabel>
                     <RadioGroup
                         value={visibility}
-                        onChange={(e) =>
-                            setVisibility(e.target.value as DirectoryVisibilityType)
-                        }
+                        onChange={(e) => setVisibility(e.target.value as DirectoryVisibilityType)}
                         row
                     >
                         <FormControlLabel
@@ -148,12 +140,7 @@ export const onUpdateDirectory =
         selectedItem: DirectoryItem,
         handleClose: () => void,
     ) =>
-    (
-        name: string,
-        visibility: DirectoryVisibilityType,
-        disabled: boolean,
-        request: Request,
-    ) => {
+    (name: string, visibility: DirectoryVisibilityType, disabled: boolean, request: Request) => {
         if (disabled || request.isLoading()) {
             return;
         }

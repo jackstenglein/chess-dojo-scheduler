@@ -46,9 +46,7 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
                 startRating={startRating}
                 isPreferred={true}
                 ratingHistory={
-                    user.ratingHistories
-                        ? user.ratingHistories[preferredSystem]
-                        : undefined
+                    user.ratingHistories ? user.ratingHistories[preferredSystem] : undefined
                 }
                 name={user.ratings[preferredSystem]?.name}
             />
@@ -75,9 +73,7 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
                         currentRating={currentRating}
                         startRating={startRating}
                         isPreferred={user.ratingSystem === rs}
-                        ratingHistory={
-                            user.ratingHistories ? user.ratingHistories[rs] : undefined
-                        }
+                        ratingHistory={user.ratingHistories ? user.ratingHistories[rs] : undefined}
                         name={user.ratings[rs]?.name}
                     />
                 );

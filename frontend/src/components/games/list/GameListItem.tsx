@@ -1,7 +1,4 @@
-import {
-    getIncrement,
-    getInitialClock,
-} from '@/board/pgn/boardTools/underboard/clock/ClockUsage';
+import { getIncrement, getInitialClock } from '@/board/pgn/boardTools/underboard/clock/ClockUsage';
 import { Link } from '@/components/navigation/Link';
 import { GameInfo, GameResult } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
@@ -37,13 +34,7 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
     );
 }
 
-export function GameResultIcon({
-    result,
-    asWhite,
-}: {
-    result?: string;
-    asWhite: boolean;
-}) {
+export function GameResultIcon({ result, asWhite }: { result?: string; asWhite: boolean }) {
     if (result === GameResult.White) {
         return asWhite ? <WinIcon /> : <LoseIcon />;
     }
@@ -269,18 +260,9 @@ export function RenderOwner({
     }
 
     return (
-        <Stack
-            direction='row'
-            spacing={1}
-            alignItems='center'
-            onClick={(e) => e.stopPropagation()}
-        >
+        <Stack direction='row' spacing={1} alignItems='center' onClick={(e) => e.stopPropagation()}>
             {avatarSize > 0 && (
-                <Avatar
-                    username={owner}
-                    displayName={ownerDisplayName}
-                    size={avatarSize}
-                />
+                <Avatar username={owner} displayName={ownerDisplayName} size={avatarSize} />
             )}
             <Link href={`/profile/${owner}`}>{ownerDisplayName}</Link>
         </Stack>
@@ -338,15 +320,11 @@ function getPlayerRating(rating?: string | number, provisional?: boolean) {
 
 export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
     const apiRef = useGridApiContext();
-    const columnVisibilityModel = useGridSelector(
-        apiRef,
-        gridColumnVisibilityModelSelector,
-    );
+    const columnVisibilityModel = useGridSelector(apiRef, gridColumnVisibilityModelSelector);
 
     const showVisibility = columnVisibilityModel.unlisted;
 
-    let description =
-        getTimeControl({ timeControl: params.row.headers.TimeControl }) || '';
+    let description = getTimeControl({ timeControl: params.row.headers.TimeControl }) || '';
 
     const moves = formatMoves(params.row.headers.PlyCount);
     if (moves !== '?') {
@@ -403,29 +381,18 @@ export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
                             tooltip={params.row.cohort}
                             size={16}
                         />
-                        <Typography
-                            variant='body2'
-                            color='text.secondary'
-                            sx={{ ml: 0.5 }}
-                        >
-                            {params.row.cohort === MastersCohort
-                                ? 'Masters DB'
-                                : params.row.cohort}
+                        <Typography variant='body2' color='text.secondary' sx={{ ml: 0.5 }}>
+                            {params.row.cohort === MastersCohort ? 'Masters DB' : params.row.cohort}
                         </Typography>
 
-                        {params.row.cohort !== MastersCohort &&
-                            params.row.ownerDisplayName && (
-                                <>
-                                    <Typography
-                                        variant='body2'
-                                        sx={{ mx: 0.5 }}
-                                        color='text.secondary'
-                                    >
-                                        •
-                                    </Typography>
-                                    {RenderOwner({ ...params.row, avatarSize: 0 })}
-                                </>
-                            )}
+                        {params.row.cohort !== MastersCohort && params.row.ownerDisplayName && (
+                            <>
+                                <Typography variant='body2' sx={{ mx: 0.5 }} color='text.secondary'>
+                                    •
+                                </Typography>
+                                {RenderOwner({ ...params.row, avatarSize: 0 })}
+                            </>
+                        )}
                     </Stack>
                 </Grid2>
             </Grid2>

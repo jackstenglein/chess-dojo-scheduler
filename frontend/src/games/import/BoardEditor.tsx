@@ -46,13 +46,7 @@ const pieceMap: Record<string, Piece> = {
     p: { color: 'black', role: 'pawn' },
 };
 
-export function BoardEditor({
-    fen,
-    onUpdate,
-}: {
-    fen: string;
-    onUpdate: (fen: string) => void;
-}) {
+export function BoardEditor({ fen, onUpdate }: { fen: string; onUpdate: (fen: string) => void }) {
     const [currentButton, setCurrentButton] = useState<string>('move');
     const [board, setBoard] = useState<BoardApi>();
     const [orientation, setOrientation] = useState<'white' | 'black'>('white');
@@ -117,10 +111,7 @@ export function BoardEditor({
                 event.key.toLowerCase() === DELETE_KEYBOARD_SHORTCUT
             ) {
                 setCurrentButton('delete');
-            } else if (
-                blackPieces.includes(event.key) ||
-                whitePieces.includes(event.key)
-            ) {
+            } else if (blackPieces.includes(event.key) || whitePieces.includes(event.key)) {
                 setCurrentButton(event.key);
             }
         };
@@ -291,11 +282,7 @@ export function BoardEditor({
                     </FormControl>
                 </Stack>
 
-                <Button
-                    onClick={onStartingPosition}
-                    startIcon={<Replay />}
-                    sx={{ mt: 1.5 }}
-                >
+                <Button onClick={onStartingPosition} startIcon={<Replay />} sx={{ mt: 1.5 }}>
                     Starting Position
                 </Button>
                 <Button onClick={onClearBoard} startIcon={<Delete />}>
@@ -332,10 +319,7 @@ function PieceToggleButtonGroup({
             onChange={(_, value: string) => value && onChange(value)}
             sx={{ justifyContent: 'center' }}
         >
-            <Tooltip
-                title={`Keyboard Shortcut: ${MOVE_KEYBOARD_SHORTCUT}`}
-                disableInteractive
-            >
+            <Tooltip title={`Keyboard Shortcut: ${MOVE_KEYBOARD_SHORTCUT}`} disableInteractive>
                 <ToggleButton
                     value='move'
                     sx={{ width: `${100 / TOGGLE_BUTTON_GROUP_LENGTH}%`, aspectRatio: 1 }}
@@ -359,10 +343,7 @@ function PieceToggleButtonGroup({
                 </Tooltip>
             ))}
 
-            <Tooltip
-                title={`Keyboard Shortcut: ${DELETE_KEYBOARD_SHORTCUT}`}
-                disableInteractive
-            >
+            <Tooltip title={`Keyboard Shortcut: ${DELETE_KEYBOARD_SHORTCUT}`} disableInteractive>
                 <ToggleButton
                     value='delete'
                     sx={{ width: `${100 / TOGGLE_BUTTON_GROUP_LENGTH}%`, aspectRatio: 1 }}
