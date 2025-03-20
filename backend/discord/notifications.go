@@ -75,38 +75,6 @@ var RoleIds = map[database.DojoCohort]string{
 	"2400+":     "951996035792764998",
 }
 
-// SendBookingNotification sends a notification of a newly booked meeting
-// to the provided user through Discord DM.
-func SendBookingNotification(username string, meetingId string) error {
-	user, err := repository.GetUser(username)
-	if err != nil {
-		return err
-	}
-
-	if user.NotificationSettings.DiscordNotificationSettings.GetDisableMeetingBooking() {
-		return nil
-	}
-
-	msg := fmt.Sprintf("%s Hello, someone has just booked a meeting with you! View it %s [**Here**](<%s/meeting/%s>).", MessageEmojiWave, MessageEmojiArrow, frontendHost, meetingId)
-	return SendNotification(user, msg)
-}
-
-// SendGroupJoinNotification sends a notification of a new join to a
-// group meeting to the providied user through Discord DM.
-func SendGroupJoinNotification(username string, availabilityId string) error {
-	user, err := repository.GetUser(username)
-	if err != nil {
-		return err
-	}
-
-	if user.NotificationSettings.DiscordNotificationSettings.GetDisableMeetingBooking() {
-		return nil
-	}
-
-	msg := fmt.Sprintf("%s Hello, someone just joined your group meeting! View it %s [**Here**](<%s/meeting/%s>)", MessageEmojiWave, MessageEmojiArrow, frontendHost, availabilityId)
-	return SendNotification(user, msg)
-}
-
 // SendCancellationNotification sends a notification of a cancelled meeting
 // to the provided user through Discord DM.
 func SendCancellationNotification(username string, msg string) error {

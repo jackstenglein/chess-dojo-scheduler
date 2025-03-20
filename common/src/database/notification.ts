@@ -4,24 +4,20 @@ import { z } from 'zod';
 const NotificationEventTypeSchema = z.enum([
     /** A comment is left on a game */
     'GAME_COMMENT',
-
     /** A sensei game review is completed */
     'GAME_REVIEW_COMPLETE',
-
     /** A user gets a new follower */
     'NEW_FOLLOWER',
-
     /** A comment is left on a timeline entry */
     'TIMELINE_COMMENT',
-
     /** An emoji reaction is left on a timeline entry */
     'TIMELINE_REACTION',
-
     /** Someone requests to join a club */
     'NEW_CLUB_JOIN_REQUEST',
-
     /** A request to join a club is approved */
     'CLUB_JOIN_REQUEST_APPROVED',
+    /** An event is booked */
+    'EVENT_BOOKED',
 ]);
 
 /** The types of a notification event. */
@@ -144,6 +140,21 @@ export const ClubJoinRequestApprovedEventSchema = z.object({
 /** The type of a notification event when a request to join a club is approved. */
 export type ClubJoinRequestApprovedEvent = z.infer<typeof ClubJoinRequestApprovedEventSchema>;
 
+/** The type of a notification event when an event is booked. */
+const EventBookedEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.EVENT_BOOKED),
+    /** The id of the event that was booked. */
+    id: z.string(),
+    /** The username of the owner of the event. */
+    owner: z.string(),
+    /** Whether the meeting is a group meeting or not. */
+    isGroup: z.boolean(),
+});
+
+/** The type of a notification event when an event is booked. */
+export type EventBookedEvent = z.infer<typeof EventBookedEventSchema>;
+
 /** The schema of an event that generates notifications. */
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
@@ -153,6 +164,7 @@ export const NotificationEventSchema = z.discriminatedUnion('type', [
     TimelineReactionEventSchema,
     ClubJoinRequesetEventSchema,
     ClubJoinRequestApprovedEventSchema,
+    EventBookedEventSchema,
 ]);
 
 /** An event that generates notifications. */

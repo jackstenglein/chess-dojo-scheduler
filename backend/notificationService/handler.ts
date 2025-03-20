@@ -13,6 +13,7 @@ import { SQSEvent, SQSHandler } from 'aws-lambda';
 import { ApiError } from 'chess-dojo-directory-service/api';
 import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
 import { handleClubJoinRequest, handleClubJoinRequestApproved } from './club';
+import { handleEventBooked } from './events';
 import { handleGameComment, handleGameReview } from './game';
 import { handleTimelineComment, handleTimelineReaction } from './timeline';
 
@@ -53,6 +54,8 @@ async function handleEvent(event: NotificationEvent) {
             return handleClubJoinRequest(event);
         case NotificationEventTypes.CLUB_JOIN_REQUEST_APPROVED:
             return handleClubJoinRequestApproved(event);
+        case NotificationEventTypes.EVENT_BOOKED:
+            return handleEventBooked(event);
         default:
             throw new ApiError({
                 statusCode: 400,

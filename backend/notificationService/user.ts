@@ -12,18 +12,21 @@ const userTable = `${process.env.stage}-users`;
  */
 export async function getNotificationSettings(
     username: string,
-): Promise<Pick<User, 'username' | 'notificationSettings'> | undefined> {
+): Promise<Pick<User, 'username' | 'discordUsername' | 'notificationSettings'> | undefined> {
     const getUserOutput = await dynamo.send(
         new GetItemCommand({
             Key: {
                 username: { S: username },
             },
-            ProjectionExpression: `username, notificationSettings`,
+            ProjectionExpression: `username, discordUsername, notificationSettings`,
             TableName: userTable,
         }),
     );
     if (!getUserOutput.Item) {
         return undefined;
     }
-    return unmarshall(getUserOutput.Item) as Pick<User, 'username' | 'notificationSettings'>;
+    return unmarshall(getUserOutput.Item) as Pick<
+        User,
+        'username' | 'discordUsername' | 'notificationSettings'
+    >;
 }

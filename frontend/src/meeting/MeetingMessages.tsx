@@ -85,7 +85,7 @@ const MeetingMessages = ({ meetingId }: { meetingId: string }) => {
                         createFunctionProps={meetingId || ''}
                         createFunction={api.createMessage}
                         onSuccess={onSuccess}
-                        label='Send a message@.'
+                        label='Send a message'
                         tooltip='Send Message'
                     />
                 </Box>

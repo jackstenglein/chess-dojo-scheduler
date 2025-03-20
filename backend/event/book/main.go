@@ -148,12 +148,8 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		log.Error("Failed RecordEventBooking: ", err)
 	}
 
-	if newEvent.MaxParticipants == 1 {
-		if err := discord.SendBookingNotification(newEvent.Owner, newEvent.Id); err != nil {
-			log.Error("Failed SendBookingNotification: ", err)
-		}
-	} else if err := discord.SendGroupJoinNotification(newEvent.Owner, newEvent.Id); err != nil {
-		log.Error("Failed SendGroupJoinNotification: ", err)
+	if err := database.SendEventBookedNotification(newEvent); err != nil {
+		log.Error("Failed SendBookingNotification: ", err)
 	}
 
 	if newEvent.Status == database.SchedulingStatus_Booked {

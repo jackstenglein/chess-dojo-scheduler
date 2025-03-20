@@ -28,6 +28,10 @@ functions:
           batchSize: 200
           maximumBatchingWindow: 60
           maximumConcurrency: 5
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
     iamRoleStatements:
       - Effect: Allow
         Action:
