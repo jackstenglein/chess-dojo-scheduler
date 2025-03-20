@@ -4,6 +4,7 @@ import { User } from '@/database/user';
 import Avatar from '@/profile/Avatar';
 import { Delete, Info, Upload } from '@mui/icons-material';
 import { Button, Divider, FormLabel, Stack, TextField, Typography } from '@mui/material';
+import DiscordOAuthButton from './DiscordOAuthButton';
 
 /** The maximum size of the profile picture. */
 export const MAX_PROFILE_PICTURE_SIZE_MB = 9;
@@ -15,10 +16,6 @@ interface PersonalInfoEditorProps {
     displayName: string;
     /** A callback function to set the display name typed in the editor. */
     setDisplayName: (displayName: string) => void;
-    /** The discord username as typed in the editor. */
-    discordUsername: string;
-    /** A callback function to set the discord username typed in the editor. */
-    setDiscordUsername: (discordUsername: string) => void;
     /** The bio as typed in the editor. */
     bio: string;
     /** A callback function to set the bio typed in the editor. */
@@ -47,8 +44,6 @@ export function PersonalInfoEditor({
     user,
     displayName,
     setDisplayName,
-    discordUsername,
-    setDiscordUsername,
     bio,
     setBio,
     coachBio,
@@ -140,16 +135,7 @@ export function PersonalInfoEditor({
                 helperText={errors.displayName || 'This is how other users will identify you'}
             />
 
-            <TextField
-                label='Discord Username'
-                value={discordUsername}
-                onChange={(event) => setDiscordUsername(event.target.value)}
-                error={!!errors.discordUsername}
-                helperText={
-                    errors.discordUsername ||
-                    'Format as username#id for older-style Discord usernames'
-                }
-            />
+            <DiscordOAuthButton user={user} />
 
             <TextField
                 label='Bio'

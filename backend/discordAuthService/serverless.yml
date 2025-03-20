@@ -1,0 +1,44 @@
+# Deploys the discord auth service.
+
+service: chess-dojo-discord-auth
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+functions:
+  discordAuth:
+    handler: app.handler
+    events:
+      - httpApi:
+          path: /discord-auth
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+    environment:
+      discordClientId: ${file(../discord.yml):clientId}
+      discordClientSecret: ${file(../discord.yml):clientSecret}
+      discordBotToken: ${file(../discord.yml):discordAuth}
+      discordGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}

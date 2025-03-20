@@ -6,7 +6,6 @@ import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import { Link } from '@/components/navigation/Link';
-import DiscordOAuthButton from '@/components/profile/edit/DiscordOAuthButton';
 import NotificationSettingsEditor from '@/components/profile/edit/NotificationSettingsEditor';
 import { PersonalInfoEditor } from '@/components/profile/edit/PersonalInfoEditor';
 import { RatingEditor, RatingsEditor } from '@/components/profile/edit/RatingsEditor';
@@ -141,7 +140,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
     const router = useRouter();
 
     const [displayName, setDisplayName] = useState(user.displayName);
-    const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [dojoCohort, setDojoCohort] = useState(
         user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : '',
     );
@@ -165,7 +163,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
         user,
         {
             displayName: displayName.trim(),
-            discordUsername: discordUsername.trim(),
             dojoCohort,
             bio,
             coachBio,
@@ -173,7 +170,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
             ratingSystem,
             ratings: getRatingsFromEditors(ratingEditors),
             enableZenMode,
-
             notificationSettings,
         },
         profilePictureData,
@@ -397,8 +393,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             user={user}
                             displayName={displayName}
                             setDisplayName={setDisplayName}
-                            discordUsername={discordUsername}
-                            setDiscordUsername={setDiscordUsername}
                             bio={bio}
                             setBio={setBio}
                             coachBio={coachBio}
@@ -428,8 +422,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             notificationSettings={notificationSettings}
                             setNotificationSettings={setNotificationSettings}
                         />
-
-                        <DiscordOAuthButton user={user} />
 
                         <SubscriptionManager user={user} />
                     </Stack>

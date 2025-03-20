@@ -1,165 +1,81 @@
-import { SubscriptionStatus, User } from '@/database/user';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { getConfig } from '@/config';
+import { User } from '@/database/user';
 import { DiscordIcon } from '@/style/SocialMediaIcons';
-import { Box, Button, Modal, Stack, Typography, useTheme } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Button, Stack, Typography } from '@mui/material';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
-const ClientID = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID;
-const RedirectUrl = process.env.NEXT_PUBLIC_AUTH_OAUTH_DISCORD_REDIRECT_URL;
-const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${ClientID}&redirect_uri=${RedirectUrl}&response_type=code&scope=identify%20guilds.join`;
+const config = getConfig();
+const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${config.discord.clientId}&redirect_uri=${config.discord.oauthRedirectUrl}&response_type=code&scope=identify%20guilds.join`;
 
-type DiscordOAuthButtonProps = {
-    user: User;
-};
-
-function DiscordOAuthButton({ user }: DiscordOAuthButtonProps) {
-    const theme = useTheme();
-    const [modalOpen, setModalOpen] = useState(false);
-    const [modalMessage, setModalMessage] = useState('');
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [mode, setMode] = useState<'connect' | 'disconnect'>(
-        user.discordUsername ? 'disconnect' : 'connect',
-    );
+function DiscordOAuthButton({ user }: { user: User }) {
+    const { updateUser } = useAuth();
+    const api = useApi();
+    const request = useRequest<string>();
+    const params = useSearchParams();
+    const mode = user.discordId ? 'disconnect' : 'connect';
+    const code = params.get('code');
 
     useEffect(() => {
-        if (mode === 'connect') {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-
-            if (code) {
-                const payload = {
-                    code,
-                    ispaid: user.subscriptionStatus === SubscriptionStatus.Subscribed,
-                    cohort: user.dojoCohort,
-                    dojousernamekey: user.username,
-                };
-
-                fetch(
-                    `${process.env.NEXT_PUBLIC_BETA_API_BASE_URL}/verify?mode=connect`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
-                    },
-                )
-                    .then(async (res) => {
-                        let data;
-                        try {
-                            data = await res.json();
-                        } catch (error) {
-                            console.error('Failed to parse JSON:', error);
-                            throw new Error('Invalid response from server');
-                        }
-
-                        if (res.ok) {
-                            setModalMessage(
-                                data?.verification || 'Successfully connected!',
-                            );
-                            setIsSuccess(true);
-                        } else {
-                            setModalMessage(
-                                data?.error || 'Failed to connect with Discord',
-                            );
-                            setIsSuccess(false);
-                        }
-                    })
-                    .catch((err) => {
-                        console.error('Error:', err.message);
-                        setModalMessage('An unexpected error occurred.');
-                        setIsSuccess(false);
-                    })
-                    .finally(() => {
-                        setModalOpen(true);
-                    });
-            }
+        if (mode === 'connect' && code && !request.isSent()) {
+            request.onStart();
+            api.discordAuth({ mode: 'connect', code })
+                .then((resp) => {
+                    request.onSuccess(`Discord account successfully connected!`);
+                    updateUser(resp.data);
+                })
+                .catch((err) => {
+                    console.error('discordAuth: ', err);
+                    request.onFailure(err);
+                });
         }
-    }, [user, mode]);
-
-    const handleConnect = () => {
-        window.location.href = DISCORD_AUTH_URL;
-    };
+    }, [mode, code, request, api, updateUser]);
 
     const handleDisconnect = () => {
-        const payload = { dojousernamekey: user.username };
-
-        fetch(`${process.env.NEXT_PUBLIC_BETA_API_BASE_URL}/verify?mode=disconnect`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        })
-            .then(async (res) => {
-                const data = await res.json();
-                if (res.status === 200) {
-                    setModalMessage(data.verification || 'Successfully disconnected!');
-                    setIsSuccess(true);
-                } else {
-                    setModalOpen(false);
-                    setModalMessage(data.error || 'Failed to disconnect from Discord');
-                    setIsSuccess(false);
-                }
-                setModalOpen(true);
+        request.onStart();
+        api.discordAuth({ mode: 'disconnect' })
+            .then(() => {
+                request.onSuccess('Discord account disconnected.');
+                updateUser({ discordUsername: '', discordId: '' });
             })
             .catch((err) => {
-                console.error('Error:', err);
-                setModalMessage('An unexpected error occurred.');
-                setIsSuccess(false);
-                setModalOpen(true);
+                console.error('discordAuth: ', err);
+                request.onFailure(err);
             });
-    };
-
-    const handleClose = () => {
-        setModalOpen(false);
     };
 
     return (
         <>
-            <Stack spacing={2} alignItems='start'>
-                {mode === 'connect' ? (
+            {mode === 'connect' ? (
+                <Stack direction='row' alignItems='center'>
                     <Button
                         variant='contained'
-                        sx={{ backgroundColor: '#5865f2' }}
+                        loading={request.isLoading()}
                         startIcon={<DiscordIcon />}
-                        onClick={handleConnect}
+                        href={DISCORD_AUTH_URL}
                     >
-                        Connect Discord account
+                        Connect Discord
                     </Button>
-                ) : (
+                </Stack>
+            ) : (
+                <Stack direction='row' alignItems='center'>
+                    <DiscordIcon />
+                    <Typography sx={{ ml: 1, mr: 2 }}>{user.discordUsername}</Typography>
                     <Button
                         variant='contained'
-                        sx={{ backgroundColor: '#AB080A' }}
-                        startIcon={<DiscordIcon />}
+                        color='error'
+                        loading={request.isLoading()}
                         onClick={handleDisconnect}
                     >
-                        Disconnect Discord account
+                        Disconnect Discord
                     </Button>
-                )}
-            </Stack>
+                </Stack>
+            )}
 
-            <Modal open={modalOpen} onClose={handleClose}>
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: 400,
-                        bgcolor: theme.palette.background.paper,
-                        boxShadow: theme.shadows[5],
-                        p: theme.spacing(4),
-                        borderRadius: theme.shape.borderRadius,
-                    }}
-                >
-                    <Typography
-                        variant='h6'
-                        color={isSuccess ? 'success.main' : 'error.main'}
-                    >
-                        {isSuccess ? 'Success!' : 'Error'}
-                    </Typography>
-                    <Typography sx={{ mt: 2 }}>{modalMessage}</Typography>
-                    <Button variant='contained' onClick={handleClose} sx={{ mt: 2 }}>
-                        Close
-                    </Button>
-                </Box>
-            </Modal>
+            <RequestSnackbar request={request} showSuccess />
         </>
     );
 }
