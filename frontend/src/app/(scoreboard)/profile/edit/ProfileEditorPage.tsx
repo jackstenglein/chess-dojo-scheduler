@@ -140,7 +140,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
     const router = useRouter();
 
     const [displayName, setDisplayName] = useState(user.displayName);
-    const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [dojoCohort, setDojoCohort] = useState(
         user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : '',
     );
@@ -164,7 +163,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
         user,
         {
             displayName: displayName.trim(),
-            discordUsername: discordUsername.trim(),
             dojoCohort,
             bio,
             coachBio,
@@ -172,7 +170,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
             ratingSystem,
             ratings: getRatingsFromEditors(ratingEditors),
             enableZenMode,
-
             notificationSettings,
         },
         profilePictureData,
@@ -396,8 +393,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             user={user}
                             displayName={displayName}
                             setDisplayName={setDisplayName}
-                            discordUsername={discordUsername}
-                            setDiscordUsername={setDiscordUsername}
                             bio={bio}
                             setBio={setBio}
                             coachBio={coachBio}

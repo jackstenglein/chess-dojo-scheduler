@@ -1,10 +1,6 @@
 'use strict';
 
-import {
-    AttributeValue,
-    DynamoDBClient,
-    UpdateItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import { AttributeValue, DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { ApiError } from './api';
 
@@ -256,11 +252,9 @@ export class UpdateItemBuilder {
             Key: this.keys,
             UpdateExpression: updateExpression,
             ExpressionAttributeNames: this.exprAttrNames,
-            ExpressionAttributeValues: this.exprAttrValues,
-            ConditionExpression: this._condition?.build(
-                this.exprAttrNames,
-                this.exprAttrValues,
-            ),
+            ExpressionAttributeValues:
+                Object.entries(this.exprAttrValues).length > 0 ? this.exprAttrValues : undefined,
+            ConditionExpression: this._condition?.build(this.exprAttrNames, this.exprAttrValues),
             ReturnValues: this.returnValues,
             TableName: this._table,
         });
@@ -346,11 +340,7 @@ class AndCondition extends Condition {
     ) {
         const result = this.conditions
             .map((condition, index) =>
-                condition.build(
-                    exprAttrNames,
-                    exprAttrValues,
-                    `${parentAttrIndex}${index}`,
-                ),
+                condition.build(exprAttrNames, exprAttrValues, `${parentAttrIndex}${index}`),
             )
             .join(' AND ');
         return `(${result})`;
@@ -404,11 +394,7 @@ class EqualityCondition extends Condition {
     protected value: any;
     protected comparator: '=' | '<>' | '<' | '<=' | '>' | '>=';
 
-    constructor(
-        path: AttributePath,
-        value: any,
-        comparator: '=' | '<>' | '<' | '<=' | '>' | '>=',
-    ) {
+    constructor(path: AttributePath, value: any, comparator: '=' | '<>' | '<' | '<=' | '>' | '>=') {
         super();
 
         if (typeof path === 'string') {
@@ -435,11 +421,7 @@ class EqualityCondition extends Condition {
 }
 
 class SizeCondition extends EqualityCondition {
-    constructor(
-        path: AttributePath,
-        value: any,
-        comparator: '=' | '<>' | '<' | '<=' | '>' | '>=',
-    ) {
+    constructor(path: AttributePath, value: any, comparator: '=' | '<>' | '<' | '<=' | '>' | '>=') {
         super(path, value, comparator);
     }
 

@@ -1,3 +1,4 @@
+import { DiscordAuthRequest } from '@jackstenglein/chess-dojo-common/src/auth/discord';
 import axios, { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { getConfig } from '../config';
@@ -161,6 +162,15 @@ export interface UserApiContextType {
         username: string,
         startKey?: string,
     ) => Promise<AxiosResponse<ListFollowersResponse>>;
+
+    /**
+     * Connects or disconnects a user's Discord account.
+     * @param request The connection or disconnection request.
+     * @returns An empty AxiosResponse.
+     */
+    discordAuth: (
+        request: DiscordAuthRequest,
+    ) => Promise<AxiosResponse<Partial<Pick<User, 'discordUsername' | 'discordId'>>>>;
 }
 
 /**
@@ -488,4 +498,20 @@ export function listFollowing(username: string, startKey?: string) {
     return axios.get<ListFollowersResponse>(`${BASE_URL}/public/user/${username}/following`, {
         params: { startKey },
     });
+}
+
+/**
+ * Connects or disconnects a user's Discord account.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The connection or disconnection request.
+ * @returns An empty AxiosResponse.
+ */
+export function discordAuth(idToken: string, request: DiscordAuthRequest) {
+    return axios.post<Partial<Pick<User, 'discordUsername' | 'discordId'>>>(
+        `${BASE_URL}/discord-auth`,
+        request,
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
+    );
 }
