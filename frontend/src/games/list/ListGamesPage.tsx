@@ -114,6 +114,7 @@ const ListGamesPage = () => {
                         contextMenu={contextMenu}
                         defaultVisibility={{
                             publishedAt: false,
+                            updatedAt: false,
                         }}
                     />
                     <ListItemContextMenu
