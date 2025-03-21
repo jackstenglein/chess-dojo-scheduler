@@ -330,7 +330,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onInitializeBoard, 
                     onChange: config?.drawable?.onChange || defaultOnDrawableChange(chess),
                     eraseOnClick: false,
                 },
-                addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
+                addPieceZIndex:
+                    pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue,
             });
 
             onInitialize?.(board, chess);
@@ -380,7 +381,8 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onInitializeBoard, 
                             ),
                     },
                 },
-                addPieceZIndex: pieceStyle === PieceStyle.ThreeD,
+                addPieceZIndex:
+                    pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue,
             });
         }
     }, [chess, board, onMove, onStartPromotion, pieceStyle, showGlyphs]);
