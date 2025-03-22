@@ -69,7 +69,7 @@ export interface User {
 
     referralSource: string;
 
-    notificationSettings: UserNotificationSettings;
+    notificationSettings?: UserNotificationSettings;
 
     totalDojoScore: number;
 
@@ -104,6 +104,7 @@ export interface UserNotificationSettings {
 export interface DiscordNotificationSettings {
     disableMeetingBooking: boolean;
     disableMeetingCancellation: boolean;
+    disableCalendarInvite: boolean;
 }
 
 export interface EmailNotificationSettings {
@@ -117,6 +118,7 @@ export interface SiteNotificationSettings {
     disableNewFollower: boolean;
     disableNewsfeedComment: boolean;
     disableNewsfeedReaction: boolean;
+    disableCalendarInvite: boolean;
 }
 
 export type MinutesSpentKey =

@@ -46,7 +46,7 @@ export async function handleTimelineComment(event: TimelineCommentEvent) {
     if (
         !user ||
         comment.owner === user.username ||
-        user.notificationSettings.siteNotificationSettings?.disableNewsfeedComment
+        user.notificationSettings?.siteNotificationSettings?.disableNewsfeedComment
     ) {
         return;
     }
@@ -76,7 +76,7 @@ export async function handleTimelineComment(event: TimelineCommentEvent) {
  */
 export async function handleTimelineReaction(event: TimelineReactionEvent) {
     const user = await getNotificationSettings(event.owner);
-    if (!user || user.notificationSettings.siteNotificationSettings?.disableNewsfeedReaction) {
+    if (!user || user.notificationSettings?.siteNotificationSettings?.disableNewsfeedReaction) {
         return;
     }
 

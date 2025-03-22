@@ -75,6 +75,10 @@ const sections: NotificationSettingsSection[] = [
                 label: 'Notify me when a reaction is added to my newsfeed activity',
                 path: 'siteNotificationSettings.disableNewsfeedReaction',
             },
+            {
+                label: 'Notify me when I am invited to an event on the calendar',
+                path: 'siteNotificationSettings.disableCalendarInvite',
+            },
         ],
     },
     {
@@ -102,6 +106,10 @@ const sections: NotificationSettingsSection[] = [
             {
                 label: 'Notify me via a Discord DM when my meeting is cancelled',
                 path: 'discordNotificationSettings.disableMeetingCancellation',
+            },
+            {
+                label: 'Notify me via a Discord DM when I am invited to an event on the calendar',
+                path: 'discordNotificationSettings.disableCalendarInvite',
             },
         ],
     },

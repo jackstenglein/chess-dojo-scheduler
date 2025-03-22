@@ -13,6 +13,7 @@ import { SQSEvent, SQSHandler } from 'aws-lambda';
 import { ApiError } from 'chess-dojo-directory-service/api';
 import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
 import { handleClubJoinRequest, handleClubJoinRequestApproved } from './club';
+import { handleCalendarInvite, handleEventBooked } from './events';
 import { handleGameComment, handleGameReview } from './game';
 import { handleTimelineComment, handleTimelineReaction } from './timeline';
 
@@ -26,7 +27,7 @@ const notificationTable = process.env.stage + '-notifications';
  * @param event The SQS event that triggered the handler.
  */
 export const handler: SQSHandler = async (event: SQSEvent): Promise<void> => {
-    console.log('Event: ', event);
+    console.log('Event: %j', event);
     for (const message of event.Records) {
         try {
             const notificationEvent = NotificationEventSchema.parse(JSON.parse(message.body));
@@ -53,6 +54,10 @@ async function handleEvent(event: NotificationEvent) {
             return handleClubJoinRequest(event);
         case NotificationEventTypes.CLUB_JOIN_REQUEST_APPROVED:
             return handleClubJoinRequestApproved(event);
+        case NotificationEventTypes.EVENT_BOOKED:
+            return handleEventBooked(event);
+        case NotificationEventTypes.CALENDAR_INVITE:
+            return handleCalendarInvite(event);
         default:
             throw new ApiError({
                 statusCode: 400,

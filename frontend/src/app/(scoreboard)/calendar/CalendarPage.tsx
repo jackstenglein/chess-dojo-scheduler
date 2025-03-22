@@ -115,7 +115,16 @@ function processAvailability(
         return null;
     }
 
-    if (user && !user.isAdmin && event.cohorts.every((c) => c !== user.dojoCohort)) {
+    if (event.inviteOnly && !event.invited?.some((p) => p.username === user?.username)) {
+        return null;
+    }
+
+    if (
+        user &&
+        !user.isAdmin &&
+        !event.inviteOnly &&
+        event.cohorts.every((c) => c !== user.dojoCohort)
+    ) {
         return null;
     }
 
