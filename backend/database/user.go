@@ -441,13 +441,9 @@ type DiscordNotificationSettings struct {
 
 	// Whether to disable notifications when a user's meeting is cancelled
 	DisableMeetingCancellation bool `dynamodbav:"disableMeetingCancellation" json:"disableMeetingCancellation"`
-}
 
-func (dns *DiscordNotificationSettings) GetDisableMeetingBooking() bool {
-	if dns == nil {
-		return false
-	}
-	return dns.DisableMeetingBooking
+	// Whether to disable notifications when a user is invited to a calendar event
+	DisableCalendarInvite bool `dynamodbav:"disableCalendarInvite" json:"disableCalendarInvite"`
 }
 
 func (dns *DiscordNotificationSettings) GetDisableMeetingCancellation() bool {
@@ -486,50 +482,11 @@ type SiteNotificationSettings struct {
 	// Whether to disable notifications on newsfeed reactions
 	DisableNewsfeedReaction bool `dynamodbav:"disableNewsfeedReaction" json:"disableNewsfeedReaction"`
 
+	// Whether to disable notifications when a user is invited to a calendar event
+	DisableCalendarInvite bool `dynamodbav:"disableCalendarInvite" json:"disableCalendarInvite"`
+
 	// Whether to hide prompt of changing cohort. If value set, the prompt will not be shown until saved date.
 	HideCohortPromptUntil string `dynamodbav:"hideCohortPromptUntil" json:"hideCohortPromptUntil"`
-}
-
-func (sns *SiteNotificationSettings) GetDisableGameComment() bool {
-	if sns == nil {
-		return false
-	}
-	return sns.DisableGameComment
-}
-
-func (sns *SiteNotificationSettings) GetDisableGameCommentReplies() bool {
-	if sns == nil {
-		return false
-	}
-	return sns.DisableGameCommentReplies
-}
-
-func (sns *SiteNotificationSettings) GetDisableGameReview() bool {
-	if sns == nil {
-		return false
-	}
-	return sns.DisableGameReview
-}
-
-func (sns *SiteNotificationSettings) GetDisableNewFollower() bool {
-	if sns == nil {
-		return false
-	}
-	return sns.DisableNewFollower
-}
-
-func (sns *SiteNotificationSettings) GetDisableNewsfeedComment() bool {
-	if sns == nil {
-		return false
-	}
-	return sns.DisableNewsfeedComment
-}
-
-func (sns *SiteNotificationSettings) GetDisableNewsfeedReaction() bool {
-	if sns == nil {
-		return false
-	}
-	return sns.DisableNewsfeedReaction
 }
 
 // UserOpeningModule represents a user's progress on a specific opening module
