@@ -40,6 +40,7 @@ functions:
           - ${param:UsersTableArn}
           - ${param:GamesTableArn}
           - ${param:TimelineTableArn}
+          - ${param:EventsTableArn}
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem

@@ -4,10 +4,10 @@ import { useNotifications } from '@/api/cache/Cache';
 import GameTable from '@/components/games/list/GameTable';
 import { ListItemContextMenu } from '@/components/games/list/ListItemContextMenu';
 import { GameInfo } from '@/database/game';
-import { NotificationType } from '@/database/notification';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
+import { NotificationTypes } from '@jackstenglein/chess-dojo-common/src/database/notification';
 import { Container } from '@mui/material';
 
 export function NotificationPage({ id }: { id: string }) {
@@ -20,7 +20,7 @@ export function NotificationPage({ id }: { id: string }) {
     }
 
     const notification = notifications.find((n) => n.id === id);
-    if (!notification || notification.type !== NotificationType.ExplorerGame) {
+    if (!notification || notification.type !== NotificationTypes.EXPLORER_GAME) {
         router.push('/notifications');
         return null;
     }

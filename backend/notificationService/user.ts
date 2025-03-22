@@ -5,28 +5,28 @@ import { dynamo } from 'chess-dojo-directory-service/database';
 
 const userTable = `${process.env.stage}-users`;
 
+export type PartialUser = Pick<
+    User,
+    'username' | 'discordId' | 'discordUsername' | 'notificationSettings'
+>;
+
 /**
  * Gets the notification settings of the user with the provided username from the database.
  * @param username The username to fetch.
  * @returns The user or undefined if not found.
  */
-export async function getNotificationSettings(
-    username: string,
-): Promise<Pick<User, 'username' | 'discordUsername' | 'notificationSettings'> | undefined> {
+export async function getNotificationSettings(username: string): Promise<PartialUser | undefined> {
     const getUserOutput = await dynamo.send(
         new GetItemCommand({
             Key: {
                 username: { S: username },
             },
-            ProjectionExpression: `username, discordUsername, notificationSettings`,
+            ProjectionExpression: `username, discordId, discordUsername, notificationSettings`,
             TableName: userTable,
         }),
     );
     if (!getUserOutput.Item) {
         return undefined;
     }
-    return unmarshall(getUserOutput.Item) as Pick<
-        User,
-        'username' | 'discordUsername' | 'notificationSettings'
-    >;
+    return unmarshall(getUserOutput.Item) as PartialUser;
 }

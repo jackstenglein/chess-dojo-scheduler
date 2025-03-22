@@ -224,6 +224,11 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+    environment:
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
 
   expire:
     handler: expire/main.go

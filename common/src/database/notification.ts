@@ -18,6 +18,8 @@ const NotificationEventTypeSchema = z.enum([
     'CLUB_JOIN_REQUEST_APPROVED',
     /** An event is booked */
     'EVENT_BOOKED',
+    /** Users are invited to an event on the calendar */
+    'CALENDAR_INVITE',
 ]);
 
 /** The types of a notification event. */
@@ -155,6 +157,17 @@ const EventBookedEventSchema = z.object({
 /** The type of a notification event when an event is booked. */
 export type EventBookedEvent = z.infer<typeof EventBookedEventSchema>;
 
+/** The type of a notification event when users are invited to a calendar event. */
+const CalendarInviteEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.CALENDAR_INVITE),
+    /** The id of the event. */
+    id: z.string(),
+});
+
+/** The type of a notification event when users are invited to a calendar event. */
+export type CalendarInviteEvent = z.infer<typeof CalendarInviteEventSchema>;
+
 /** The schema of an event that generates notifications. */
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
@@ -165,6 +178,7 @@ export const NotificationEventSchema = z.discriminatedUnion('type', [
     ClubJoinRequesetEventSchema,
     ClubJoinRequestApprovedEventSchema,
     EventBookedEventSchema,
+    CalendarInviteEventSchema,
 ]);
 
 /** An event that generates notifications. */
@@ -175,8 +189,11 @@ const NotificationTypeSchema = z.enum([
     /** A comment is left on a game */
     'GAME_COMMENT',
 
-    /** A reply is left on a game comment. */
+    /** A reply is left on a game comment */
     'GAME_COMMENT_REPLY',
+
+    /** A game was added with a position the user follows */
+    'EXPLORER_GAME',
 
     /** A user gets a new follower */
     'NEW_FOLLOWER',
@@ -195,7 +212,127 @@ const NotificationTypeSchema = z.enum([
 
     /** A sensei game review is completed */
     'GAME_REVIEW_COMPLETE',
+
+    /** Invited to an event on the calendar */
+    'CALENDAR_INVITE',
 ]);
 
 /** The types of notifications. */
 export const NotificationTypes = NotificationTypeSchema.enum;
+
+/** The type of a notification. */
+export type NotificationType = z.infer<typeof NotificationTypeSchema>;
+
+/**
+ *  Data for a notification.
+ */
+export interface Notification {
+    /** The id of the Notification. */
+    id: string;
+
+    /** The type of the Notification. */
+    type: NotificationType;
+
+    /** The time the Notification was last updated. */
+    updatedAt: string;
+
+    /** The number of unread instances of this notification. */
+    count: number;
+
+    /** Metadata for a game comment Notification. */
+    gameCommentMetadata?: {
+        /** The cohort of the Game. */
+        cohort: string;
+
+        /** The id of the Game. */
+        id: string;
+
+        /** The headers of the Game. */
+        headers: Record<string, string>;
+    };
+
+    /** Metadata for a game review Notification. */
+    gameReviewMetadata?: {
+        /** The cohort of the Game. */
+        cohort: string;
+
+        /** The id of the Game. */
+        id: string;
+
+        /** The headers of the Game. */
+        headers: Record<string, string>;
+
+        /** The reviewer of the Game. */
+        reviewer: {
+            /** The username of the reviewer. */
+            username: string;
+
+            /** The display name of the reviewer. */
+            displayName: string;
+
+            /** The cohort of the reviewer. */
+            cohort: string;
+        };
+    };
+
+    /** Metadata for a new follower notification. */
+    newFollowerMetadata?: {
+        /** The username of the new follower. */
+        username: string;
+
+        /** The display name of the new follower. */
+        displayName: string;
+
+        /** The cohort of the new follower. */
+        cohort: string;
+    };
+
+    /** Metadata for a timeline comment notification */
+    timelineCommentMetadata?: {
+        /** The owner of the associated timeline entry */
+        owner: string;
+
+        /** The id of the associated timeline entry */
+        id: string;
+
+        /** The requirement name of the associated timeline entry */
+        name: string;
+    };
+
+    /** Metadata about the ExplorerGame. */
+    explorerGameMetadata?: {
+        /** The normalized FEN of the position. */
+        normalizedFen: string;
+
+        /** The cohort the game was in. */
+        cohort: string;
+
+        /** The id of the game. */
+        id: string;
+
+        /** The result of the ExplorerGame, as related to the position. */
+        result: string;
+
+        /** The headers of the game. */
+        headers: Record<string, string>;
+    }[];
+
+    /** Metadata for a club join request notification. */
+    clubMetadata?: {
+        /** The id of the club. */
+        id: string;
+
+        /** The name of the club. */
+        name: string;
+    };
+
+    /** Metadata for an invite to a calendar event. */
+    calendarInviteMetadata?: {
+        /** The id of the event. */
+        id: string;
+        /** The display name of the owner of the event. */
+        ownerDisplayName: string;
+        /** The start time of the event. */
+        startTime: string;
+    };
+}

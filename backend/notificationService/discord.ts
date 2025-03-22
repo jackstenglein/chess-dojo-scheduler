@@ -29,12 +29,12 @@ export async function sendChannelMessage(channelId: string, message: string) {
 
 /**
  * Sends the given direct message to the given user.
- * @param userId The id of the user to DM.
+ * @param discordId The id of the user to DM.
  * @param message The message to send.
  */
-export async function sendDirectMessage(userId: string, message: string) {
+export async function sendDirectMessage(discordId: string, message: string) {
     const client = await getClient();
-    await client.users.send(userId, message);
+    await client.users.send(discordId, message);
 }
 
 /**
@@ -54,13 +54,15 @@ export async function getGuildMember(discordUsername: string): Promise<GuildMemb
 
     discordUsername = discordUsername.split('#')[0];
     const members = await guild.members.search({ query: discordUsername, limit: 1000 });
-    const member = members.first();
-    if (!member) {
-        throw new ApiError({
-            statusCode: 404,
-            publicMessage: `Discord username ${discordUsername} not found in the ChessDojo server`,
-        });
+    discordUsername = discordUsername.trim().toLowerCase();
+    for (const member of members.values()) {
+        if (member.user.username.toLowerCase() === discordUsername) {
+            return member;
+        }
     }
 
-    return member;
+    throw new ApiError({
+        statusCode: 404,
+        publicMessage: `Discord username ${discordUsername} not found in the ChessDojo server`,
+    });
 }

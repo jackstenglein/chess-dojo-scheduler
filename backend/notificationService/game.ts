@@ -92,7 +92,7 @@ async function putCommentReplyNotification(game: GameProjection, username: strin
         console.error(`Unable to add comment reply notification for user ${username}: not found`);
         return;
     }
-    if (user.notificationSettings.siteNotificationSettings?.disableGameCommentReplies) {
+    if (user.notificationSettings?.siteNotificationSettings?.disableGameCommentReplies) {
         console.log(`Skipping user ${username} as gameCommentReplies are disabled`);
         return;
     }
@@ -124,7 +124,7 @@ async function putNewCommentNotification(game: GameProjection) {
         console.error(`Unable to add new comment notification for user ${game.owner}: not found`);
         return;
     }
-    if (user.notificationSettings.siteNotificationSettings?.disableGameComment) {
+    if (user.notificationSettings?.siteNotificationSettings?.disableGameComment) {
         console.log(`Skipping user ${game.owner} as gameComment is disabled`);
         return;
     }

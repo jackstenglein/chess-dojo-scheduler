@@ -111,6 +111,12 @@ func handleAvailability(info *api.UserInfo, event *database.Event) api.Response 
 		return api.Failure(err)
 	}
 
+	if len(event.Invited) > 0 {
+		if err := database.SendCalendarInviteEvent(event); err != nil {
+			log.Error("Failed to send calendar invite notification: ", err)
+		}
+	}
+
 	if msgId, err := discord.SendAvailabilityNotification(event); err != nil {
 		log.Error("Failed SendAvailabilityNotification: ", err)
 	} else if event.DiscordMessageId != msgId {

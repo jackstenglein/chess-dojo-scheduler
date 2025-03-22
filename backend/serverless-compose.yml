@@ -197,6 +197,7 @@ services:
       NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
       TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
 
   roundRobinService:
     path: roundRobinService
