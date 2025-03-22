@@ -41,6 +41,7 @@ export enum PieceStyle {
     Chessnut = 'CHERRY',
     Cburnett = 'WALNUT',
     ThreeD = 'THREE_D',
+    ThreeDRedBlue = 'THREE_D_RED_BLUE',
 }
 
 export enum CoordinateStyle {
@@ -134,6 +135,7 @@ const ViewerSettings = () => {
                 <MenuItem value={PieceStyle.Pixel}>Pixel</MenuItem>
                 <MenuItem value={PieceStyle.Spatial}>Spatial</MenuItem>
                 <MenuItem value={PieceStyle.ThreeD}>3D</MenuItem>
+                <MenuItem value={PieceStyle.ThreeDRedBlue}>3D (Red/Blue)</MenuItem>
             </TextField>
 
             <TextField

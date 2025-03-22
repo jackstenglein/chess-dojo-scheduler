@@ -176,6 +176,9 @@ type User struct {
 	// The user's Discord username
 	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
+	// The user's Discord id
+	DiscordId string `dynamodbav:"discordId" json:"discordId"`
+
 	// A search field of the form display:DisplayName_discord:DiscordUsername_[ratingSystem:RatingSystem.Username]
 	// Stored in all lowercase. Each rating's username is only included if its HideUsername field is false.
 	// Ex: display:jackst_discord:jackstenglein_chesscom:jackstenglein_uscf:12345

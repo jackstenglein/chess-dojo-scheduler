@@ -98,6 +98,8 @@ export function getPieceSx(style: PieceStyle): PieceSx {
         case PieceStyle.Cburnett:
             return getStandardPieceBackgrounds('/static/board/pieces/cburnett/', '.svg');
         case PieceStyle.ThreeD:
+            return getStandardPieceBackgrounds('/static/board/pieces/three-d-basic/', '.png');
+        case PieceStyle.ThreeDRedBlue:
             return getStandardPieceBackgrounds('/static/board/pieces/three-d/', '.png');
     }
 }

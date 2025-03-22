@@ -1,5 +1,6 @@
 import { useFreeTier } from '@/auth/Auth';
 import { CustomPagination } from '@/components/ui/CustomPagination';
+import { ViewerDateString } from '@/components/ui/ViewerDateString';
 import { GameInfo } from '@/database/game';
 import { DataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { PaginationResult } from '@/hooks/usePagination';
@@ -111,6 +112,15 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerAlign: 'right',
     },
     {
+        field: 'updatedAt',
+        headerName: 'Updated',
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) => (
+            <ViewerDateString date={params.value} />
+        ),
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
         field: 'owner',
         headerName: 'Uploaded By',
         renderCell: (params: GridRenderCellParams<GameInfo, string>) => RenderOwner(params.row),
@@ -183,6 +193,7 @@ export default function GameTable({
             whiteRating: false,
             blackRating: false,
             unlisted: false,
+            updatedAt: false,
             ...(defaultVisibility ?? {}),
         },
     );

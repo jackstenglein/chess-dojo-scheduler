@@ -1,5 +1,6 @@
 'use client';
 
+import { DiscordAuthRequest } from '@jackstenglein/chess-dojo-common/src/auth/discord';
 import {
     AddDirectoryItemsRequestV2,
     CreateDirectoryRequestV2Client,
@@ -171,6 +172,7 @@ import {
 import {
     UserApiContextType,
     checkUserAccess,
+    discordAuth,
     editFollower,
     getFollower,
     getUser,
@@ -287,6 +289,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 listFollowers(username, startKey),
             listFollowing: (username: string, startKey?: string) =>
                 listFollowing(username, startKey),
+            discordAuth: (request: DiscordAuthRequest) => discordAuth(idToken, request),
 
             bookEvent: (id: string, startTime?: Date, type?: string) =>
                 bookEvent(idToken, id, startTime, type),

@@ -156,7 +156,10 @@ export function ShareTab() {
             lastMove: board?.state.lastMove?.join('') || '',
             comment: window.location.href,
             theme: boardStyle.toLowerCase(),
-            piece: pieceStyle === PieceStyle.ThreeD ? 'standard' : pieceStyle.toLowerCase(),
+            piece:
+                pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue
+                    ? 'standard'
+                    : pieceStyle.toLowerCase(),
         };
         if (!newParams.lastMove) {
             delete newParams.lastMove;
@@ -182,7 +185,10 @@ export function ShareTab() {
                 orientation: board?.state.orientation || 'white',
                 comment: window.location.href,
                 theme: boardStyle.toLowerCase(),
-                piece: pieceStyle === PieceStyle.ThreeD ? 'standard' : pieceStyle.toLowerCase(),
+                piece:
+                    pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue
+                        ? 'standard'
+                        : pieceStyle.toLowerCase(),
                 delay: 100,
                 frames: [{ fen: chess.setUpFen() }].concat(
                     chess.history().map((move) => ({

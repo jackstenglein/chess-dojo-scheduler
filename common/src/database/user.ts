@@ -20,6 +20,7 @@ export interface User {
     username: string;
     displayName: string;
     discordUsername: string;
+    discordId?: string;
     dojoCohort: string;
     bio: string;
     coachBio?: string;
