@@ -5,11 +5,10 @@ import {
     GetItemCommand,
     PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import {
-    SubscriptionStatus,
-    User,
-} from '@jackstenglein/chess-dojo-common/src/database/user';
+import { NotificationEventTypes } from '@jackstenglein/chess-dojo-common/src/database/notification';
+import { SubscriptionStatus, User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     MAX_ROUND_ROBIN_PLAYERS,
     RoundRobin,
@@ -39,6 +38,7 @@ import {
 import Stripe from 'stripe';
 import { getSecret } from './secret';
 
+const sqs = new SQSClient({ region: 'us-east-1' });
 export const tournamentsTable = process.env.stage + '-tournaments';
 const usersTable = process.env.stage + '-users';
 const MAX_ATTEMPTS = 3;
@@ -101,9 +101,7 @@ async function fetchUser(username: string): Promise<User> {
  * @returns The new Stripe object.
  */
 async function initStripe(): Promise<Stripe> {
-    return new Stripe(
-        (await getSecret(`chess-dojo-${process.env.stage}-stripeKey`)) || ''
-    );
+    return new Stripe((await getSecret(`chess-dojo-${process.env.stage}-stripeKey`)) || '');
 }
 
 /**
@@ -128,14 +126,7 @@ async function getCheckoutUrl({
         customer: user.paymentInfo?.customerId,
         customer_creation: user.paymentInfo?.customerId ? undefined : 'always',
         mode: 'setup',
-        payment_method_types: [
-            'card',
-            'cashapp',
-            'link',
-            'bancontact',
-            'ideal',
-            'sepa_debit',
-        ],
+        payment_method_types: ['card', 'cashapp', 'link', 'bancontact', 'ideal', 'sepa_debit'],
         custom_text: {
             after_submit: {
                 message:
@@ -189,7 +180,7 @@ export async function register({
         chesscomUsername: request.chesscomUsername,
         discordUsername: request.discordUsername,
         status: RoundRobinPlayerStatuses.ACTIVE,
-        checkoutSession,
+        checkoutSession: checkoutSession as { setup_intent: string; customer: string },
     };
 
     let attempts = 0;
@@ -283,6 +274,7 @@ async function startTournament(
     );
 
     await chargeFreeUsers(tournament);
+    await sendRoundRobinStartEvent(tournament);
     return { tournament, waitlist };
 }
 
@@ -301,12 +293,12 @@ async function chargeFreeUsers(tournament: RoundRobin) {
                 stripe = await initStripe();
             }
             const setupIntent = await stripe.setupIntents.retrieve(
-                player.checkoutSession.setup_intent as string
+                player.checkoutSession.setup_intent
             );
             await stripe.paymentIntents.create({
                 amount: 200,
                 currency: 'usd',
-                customer: player.checkoutSession.customer as string,
+                customer: player.checkoutSession.customer ?? undefined,
                 payment_method: setupIntent.payment_method as string,
                 off_session: true,
                 confirm: true,
@@ -316,6 +308,23 @@ async function chargeFreeUsers(tournament: RoundRobin) {
             console.error(`Failed to charge player %j: %j`, player, err);
         }
     }
+}
+
+/**
+ * Sends a round robin start event to SQS to process notifications
+ * for the tournament starting.
+ * @param tournament The tournament that has started.
+ */
+async function sendRoundRobinStartEvent(tournament: RoundRobin) {
+    await sqs.send(
+        new SendMessageCommand({
+            QueueUrl: process.env.notificationEventSqsUrl,
+            MessageBody: JSON.stringify({
+                type: NotificationEventTypes.ROUND_ROBIN_START,
+                tournament,
+            }),
+        })
+    );
 }
 
 /**

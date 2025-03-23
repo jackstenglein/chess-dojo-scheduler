@@ -105,6 +105,7 @@ export interface DiscordNotificationSettings {
     disableMeetingBooking: boolean;
     disableMeetingCancellation: boolean;
     disableCalendarInvite: boolean;
+    disableRoundRobinStart: boolean;
 }
 
 export interface EmailNotificationSettings {

@@ -44,6 +44,7 @@ functions:
             id: ${param:apiAuthorizer}
     environment:
       frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -59,6 +60,9 @@ functions:
           - secretsmanager:GetSecretValue
         Resource:
           - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
 
   withdraw:
     handler: withdraw.handler

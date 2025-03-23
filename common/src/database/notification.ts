@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { RoundRobinSchema } from '../roundRobin/api';
 
 /** The types of events that generate notifications. */
 const NotificationEventTypeSchema = z.enum([
@@ -20,6 +21,8 @@ const NotificationEventTypeSchema = z.enum([
     'EVENT_BOOKED',
     /** Users are invited to an event on the calendar */
     'CALENDAR_INVITE',
+    /** A round robin tournament has started */
+    'ROUND_ROBIN_START',
 ]);
 
 /** The types of a notification event. */
@@ -168,6 +171,17 @@ const CalendarInviteEventSchema = z.object({
 /** The type of a notification event when users are invited to a calendar event. */
 export type CalendarInviteEvent = z.infer<typeof CalendarInviteEventSchema>;
 
+/** The type of a notification event when a round robin tournament starts. */
+const RoundRobinStartEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.ROUND_ROBIN_START),
+    /** The tournament that started */
+    tournament: RoundRobinSchema,
+});
+
+/** The type of a notification event when a round robin tournament starts. */
+export type RoundRobinStartEvent = z.infer<typeof RoundRobinStartEventSchema>;
+
 /** The schema of an event that generates notifications. */
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
@@ -179,6 +193,7 @@ export const NotificationEventSchema = z.discriminatedUnion('type', [
     ClubJoinRequestApprovedEventSchema,
     EventBookedEventSchema,
     CalendarInviteEventSchema,
+    RoundRobinStartEventSchema,
 ]);
 
 /** An event that generates notifications. */
@@ -215,6 +230,9 @@ const NotificationTypeSchema = z.enum([
 
     /** Invited to an event on the calendar */
     'CALENDAR_INVITE',
+
+    /** A round robin tournament has started */
+    'ROUND_ROBIN_START',
 ]);
 
 /** The types of notifications. */
@@ -334,5 +352,15 @@ export interface Notification {
         ownerDisplayName: string;
         /** The start time of the event. */
         startTime: string;
+    };
+
+    /** Metadata for a round robin starting. */
+    roundRobinStartMetadata?: {
+        /** The cohort of the tournament. */
+        cohort: string;
+        /** The startsAt of the tournament. */
+        startsAt: string;
+        /** The name of the tournament. */
+        name: string;
     };
 }

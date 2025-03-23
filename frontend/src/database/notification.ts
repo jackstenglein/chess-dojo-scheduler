@@ -34,6 +34,8 @@ export function getTitle(notification: Notification): string {
             return `${notification.clubMetadata?.name}`;
         case NotificationTypes.CALENDAR_INVITE:
             return `You've been invited to an event on the calendar`;
+        case NotificationTypes.ROUND_ROBIN_START:
+            return `Round robin ${notification.roundRobinStartMetadata?.cohort} ${notification.roundRobinStartMetadata?.name} has started`;
     }
 }
 
@@ -74,5 +76,7 @@ export function getDescription(notification: Notification): string {
             const start = new Date(notification.calendarInviteMetadata?.startTime || '');
             return `${notification.calendarInviteMetadata?.ownerDisplayName} invited you to an event at ${toDojoDateString(start, undefined, undefined)} ${toDojoTimeString(start, undefined, undefined)}`;
         }
+        case NotificationTypes.ROUND_ROBIN_START:
+            return ``;
     }
 }

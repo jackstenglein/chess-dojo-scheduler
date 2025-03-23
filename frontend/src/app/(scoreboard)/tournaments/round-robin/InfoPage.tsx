@@ -21,23 +21,23 @@ import {
 const faqs = [
     {
         question: 'Is there a registration period for Dojo Round robins?',
-        answer: "No, you can join the waitlist at any time. Once 10 players have joined the waitlist for your cohort's round robin, the tournament will automatically start.",
+        answer: "No, you can join the waitlist at any time. Once 10 players have joined the waitlist for your cohort's round robin, the tournament will automatically start. To prevent indefinite waiting, if nobody has joined the waitlist in 10 days and there are at least 4 players on the waitlist, the tournament will start.",
     },
     {
         question: 'How do I register for the Dojo Round Robin?',
         answer: 'Go to the tournaments tab and click the Register button on the waitlist. You can register for your cohort, as well as one cohort above and below.',
     },
     {
+        question: 'When do the tournaments start?',
+        answer: 'As soon as 10 players have joined the waitlist, or if there are at least 4 players on the waitlist and the waitlist has not updated in 10 days.',
+    },
+    {
+        question: 'How do I know when the tournament has started?',
+        answer: 'By default, you will be notified on this site, as well as on Discord and via email. You can disable the Discord and email notifications in your settings.',
+    },
+    {
         question: 'What are the time controls for different cohorts?',
         answer: 'Time controls are based on your cohort: Under 800: 30+0, 800-1200: 30+30, 1200+: 45+30, 1600+: 60+30, 2000+: 90+30.',
-    },
-    {
-        question: 'When do the tournaments start?',
-        answer: 'As soon as 10 players have joined the waitlist.',
-    },
-    {
-        question: 'What if I want to withdraw from the tournament?',
-        answer: 'Click the withdraw button on the tournament. All your matches will be forfeited, including games you have already played.',
     },
     {
         question: 'How do I schedule the games?',
@@ -46,6 +46,14 @@ const faqs = [
     {
         question: 'How do I submit my games?',
         answer: 'Click the submit game button on the tournament and enter the Chess.com or Lichess URL.',
+    },
+    {
+        question: 'Should games be rated or unrated?',
+        answer: 'Games should be rated, but if both you and your opponent agree, you can play an unrated game.',
+    },
+    {
+        question: 'What if I want to withdraw from the tournament?',
+        answer: 'Click the withdraw button on the tournament. All your matches will be forfeited, including games you have already played.',
     },
     {
         question: 'What happens if I suspect someone of cheating?',
@@ -109,7 +117,7 @@ export const InfoPage = () => {
                     <ListItemIcon>
                         <Icon name='Classical' sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Play classical time control games for your cohort, as recommended by the training program:' />
+                    <ListItemText primary='Play rated, classical time control games for your cohort, as recommended by the training program:' />
                 </ListItem>
             </List>
             <TimeControlTable />

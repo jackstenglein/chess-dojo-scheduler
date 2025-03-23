@@ -15,6 +15,7 @@ import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database
 import { handleClubJoinRequest, handleClubJoinRequestApproved } from './club';
 import { handleCalendarInvite, handleEventBooked } from './events';
 import { handleGameComment, handleGameReview } from './game';
+import { handleRoundRobinStart } from './roundRobin';
 import { handleTimelineComment, handleTimelineReaction } from './timeline';
 
 const userTable = process.env.stage + '-users';
@@ -38,7 +39,7 @@ export const handler: SQSHandler = async (event: SQSEvent): Promise<void> => {
     }
 };
 
-async function handleEvent(event: NotificationEvent) {
+function handleEvent(event: NotificationEvent) {
     switch (event.type) {
         case NotificationEventTypes.GAME_COMMENT:
             return handleGameComment(event);
@@ -58,6 +59,8 @@ async function handleEvent(event: NotificationEvent) {
             return handleEventBooked(event);
         case NotificationEventTypes.CALENDAR_INVITE:
             return handleCalendarInvite(event);
+        case NotificationEventTypes.ROUND_ROBIN_START:
+            return handleRoundRobinStart(event);
         default:
             throw new ApiError({
                 statusCode: 400,

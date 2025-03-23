@@ -84,6 +84,9 @@ type Notification struct {
 
 	// Metadata for calendar invite notifications
 	CalendarInviteMetadata *CalendarInviteMetadata `dynamodbav:"calendarInviteMetadata,omitempty" json:"calendarInviteMetadata,omitempty"`
+
+	// Metadata for round robin start notifications
+	RoundRobinStartMetadata *RoundRobinStartMetadata `dynamodbav:"roundRobinStartMetadata,omitempty" json:"roundRobinStartMetadata,omitempty"`
 }
 
 // Metadata for a game comment notification.
@@ -172,6 +175,16 @@ type CalendarInviteMetadata struct {
 	OwnerDisplayName string `dynamodbav:"ownerDisplayName" json:"ownerDisplayName"`
 	// The start time of the event, in ISO 8601.
 	StartTime string `dynamodbav:"startTime" json:"startTime"`
+}
+
+// Metadata for round robin start notifications
+type RoundRobinStartMetadata struct {
+	// The cohort of the tournament
+	Cohort string `dynamodbav:"cohort" json:"cohort"`
+	// The startsAt of the tournament
+	StartsAt string `dynamodbav:"startsAt" json:"startsAt"`
+	// The name of the tournament
+	Name string `dynamodbav:"name" json:"name"`
 }
 
 func SendEventBookedNotification(event *Event) error {

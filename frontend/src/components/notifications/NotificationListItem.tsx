@@ -172,5 +172,8 @@ function getLink(notification: Notification): string {
 
         case NotificationTypes.CALENDAR_INVITE:
             return `/calendar/availability/${notification.calendarInviteMetadata?.id}`;
+
+        case NotificationTypes.ROUND_ROBIN_START:
+            return `/tournaments/round-robin?cohort=${notification.roundRobinStartMetadata?.cohort}`;
     }
 }
