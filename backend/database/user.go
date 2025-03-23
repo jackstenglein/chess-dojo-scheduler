@@ -444,6 +444,9 @@ type DiscordNotificationSettings struct {
 
 	// Whether to disable notifications when a user is invited to a calendar event
 	DisableCalendarInvite bool `dynamodbav:"disableCalendarInvite" json:"disableCalendarInvite"`
+
+	// Whether to disable notifications when a round robin starts
+	DisableRoundRobinStart bool `dynamodbav:"disableRoundRobinStart" json:"disableRoundRobinStart"`
 }
 
 func (dns *DiscordNotificationSettings) GetDisableMeetingCancellation() bool {
@@ -460,6 +463,9 @@ type EmailNotificationSettings struct {
 
 	// Whether to disable inactivity warnings
 	DisableInactiveWarning bool `dynamodbav:"disableInactiveWarning" json:"disableInactiveWarning"`
+
+	// Whether to disable notifications when a round robin starts
+	DisableRoundRobinStart bool `dynamodbav:"disableRoundRobinStart" json:"disableRoundRobinStart"`
 }
 
 // The user's settings for in-site notifications.

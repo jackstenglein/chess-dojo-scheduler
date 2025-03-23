@@ -93,6 +93,10 @@ const sections: NotificationSettingsSection[] = [
                 label: 'Subscribe to the monthly Dojo Digest',
                 path: 'emailNotificationSettings.disableNewsletter',
             },
+            {
+                label: 'Notify me when my round robin tournament starts',
+                path: 'emailNotificationSettings.disableRoundRobinStart',
+            },
         ],
     },
     {
@@ -110,6 +114,10 @@ const sections: NotificationSettingsSection[] = [
             {
                 label: 'Notify me via a Discord DM when I am invited to an event on the calendar',
                 path: 'discordNotificationSettings.disableCalendarInvite',
+            },
+            {
+                label: 'Notify me when my round robin tournament starts',
+                path: 'discordNotificationSettings.disableRoundRobinStart',
             },
         ],
     },

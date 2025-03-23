@@ -8,7 +8,7 @@ const userTable = `${process.env.stage}-users`;
 export type PartialUser = Pick<
     User,
     'username' | 'discordId' | 'discordUsername' | 'notificationSettings'
->;
+> & { email: string };
 
 /**
  * Gets the notification settings of the user with the provided username from the database.
@@ -21,7 +21,7 @@ export async function getNotificationSettings(username: string): Promise<Partial
             Key: {
                 username: { S: username },
             },
-            ProjectionExpression: `username, discordId, discordUsername, notificationSettings`,
+            ProjectionExpression: `username, email, discordId, discordUsername, notificationSettings`,
             TableName: userTable,
         }),
     );

@@ -111,6 +111,7 @@ export interface DiscordNotificationSettings {
 export interface EmailNotificationSettings {
     disableNewsletter: boolean;
     disableInactiveWarning: boolean;
+    disableRoundRobinStart: boolean;
 }
 
 export interface SiteNotificationSettings {
