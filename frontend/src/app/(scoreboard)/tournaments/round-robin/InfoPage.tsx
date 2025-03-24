@@ -153,7 +153,12 @@ export const InfoPage = () => {
 
             <Typography variant='h6' color='text.secondary'>
                 <LeaderboardIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
-                Leaderboard
+                Leaderboard & Prizes
+            </Typography>
+
+            <Typography sx={{ mt: 2, mb: 1 }}>
+                The winner of this tournament will be given a free Dojo yearly membership and will
+                qualify for a year-end tournament.
             </Typography>
 
             <Typography sx={{ mt: 2, mb: 1 }}>

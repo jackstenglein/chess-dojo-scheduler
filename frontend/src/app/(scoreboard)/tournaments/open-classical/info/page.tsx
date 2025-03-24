@@ -139,11 +139,13 @@ export default function InfoPage() {
                         case of a dispute, please contact the TD on Discord.
                     </InfoEntryAccordion>
 
-                    <InfoEntryAccordion icon='liga' title='Standings and Winners'>
+                    <InfoEntryAccordion icon='liga' title='Winners & Prizes'>
                         <Typography>
                             To view the standings for any round, you can navigate to the{' '}
                             <Link href='/tournaments/open-classical'>Tournament Page</Link>. At the
-                            end of the 7 rounds, winners will be announced.
+                            end of the 7 rounds, winners will be announced.{'\n '}
+                            The winner of this tournament will be awarded a free Dojo yearly membership and 
+                            will qualify for a year-end tournament.
                         </Typography>
                     </InfoEntryAccordion>
                 </Stack>
