@@ -1,7 +1,7 @@
 // import task from '@cypress/code-coverage/task';
 import { defineConfig } from 'cypress';
+import { EnvSchema } from 'cypress/env';
 import dotenv from 'dotenv';
-import { EnvSchema } from './cypress/env';
 
 dotenv.config({
     path: ['.env.test.local', '.env.local', '.env.test', '.env'],
@@ -24,13 +24,10 @@ export default defineConfig({
         cognito_username: env.AWS_COGNITO_USERNAME,
         cognito_password: env.AWS_COGNITO_PASSWORD,
         cognito_region: env.NEXT_PUBLIC_AUTH_REGION,
-        cognito_user_pool_id:
-            env.AWS_COGNITO_USER_POOL_ID ?? env.NEXT_PUBLIC_AUTH_USER_POOL_ID,
+        cognito_user_pool_id: env.AWS_COGNITO_USER_POOL_ID ?? env.NEXT_PUBLIC_AUTH_USER_POOL_ID,
         cognito_user_pool_web_client_id:
-            env.AWS_COGNITO_USER_POOL_WEB_CLIENT_ID ??
-            env.NEXT_PUBLIC_AUTH_USER_POOL_WEB_CLIENT_ID,
-        cognito_domain:
-            env.AWS_COGNITO_DOMAIN ?? process.env.NEXT_PUBLIC_AUTH_OAUTH_DOMAIN,
+            env.AWS_COGNITO_USER_POOL_WEB_CLIENT_ID ?? env.NEXT_PUBLIC_AUTH_USER_POOL_WEB_CLIENT_ID,
+        cognito_domain: env.AWS_COGNITO_DOMAIN ?? process.env.NEXT_PUBLIC_AUTH_OAUTH_DOMAIN,
 
         codeCoverage: {
             exclude: 'cypress/**/*.*',
