@@ -1,7 +1,7 @@
 import TimeControlTable from '@/components/tournaments/round-robin/TimeControlTable';
 import { PawnIcon } from '@/style/ChessIcons';
 import Icon from '@/style/Icon';
-import { CalendarMonth, HelpOutline, MonetizationOn } from '@mui/icons-material';
+import { CalendarMonth, EmojiEvents, HelpOutline, MonetizationOn } from '@mui/icons-material';
 import GroupIcon from '@mui/icons-material/Group';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
@@ -121,6 +121,21 @@ export const InfoPage = () => {
                 </ListItem>
             </List>
             <TimeControlTable />
+            <Divider sx={{ my: 4 }} />
+
+            <Typography variant='h6' color='text.secondary'>
+                <EmojiEvents sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
+                ChessDojo Champions Circuit
+            </Typography>
+
+            <Typography sx={{ mt: 2 }}>
+                The first 20 Round Robin winners (starting March 20, 2025) will receive a free year
+                membership to the Dojo training plan as well as an invitation to the Champions'
+                tournament in January 2026. Players who win multiple round robins will receive only
+                one prize. After the first 20 winners, additional winners will receive an invitation
+                to the Champions' tournament.
+            </Typography>
+
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
