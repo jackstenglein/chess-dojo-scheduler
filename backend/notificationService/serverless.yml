@@ -8,6 +8,10 @@ plugins:
 
 package:
   individually: true
+  patterns:
+    - emailTemplates/**/*.minified.html
+    - emailTemplates/**/*.subject
+    - emailTemplates/**/*.txt
 
 provider:
   name: aws
@@ -51,6 +55,11 @@ functions:
           - sqs:DeleteMessage
           - sqs:GetQueueAttributes
         Resource: !GetAtt NotificationEventQueue.Arn
+      - Effect: Allow
+        Action:
+          - ses:SendTemplatedEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
 
 resources:
   Resources:

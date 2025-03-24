@@ -144,6 +144,8 @@ export function countCompletedGames(tournament: RoundRobin): number {
         for (const pairing of round) {
             if (
                 pairing.result &&
+                pairing.white &&
+                pairing.black &&
                 tournament.players[pairing.white].status !== RoundRobinPlayerStatuses.WITHDRAWN &&
                 tournament.players[pairing.black].status !== RoundRobinPlayerStatuses.WITHDRAWN
             ) {
@@ -166,6 +168,8 @@ export function countTotalGames(tournament: RoundRobin): number {
     for (const round of tournament.pairings) {
         for (const pairing of round) {
             if (
+                pairing.white &&
+                pairing.black &&
                 tournament.players[pairing.white].status !== RoundRobinPlayerStatuses.WITHDRAWN &&
                 tournament.players[pairing.black].status !== RoundRobinPlayerStatuses.WITHDRAWN
             ) {

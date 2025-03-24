@@ -105,11 +105,13 @@ export interface DiscordNotificationSettings {
     disableMeetingBooking: boolean;
     disableMeetingCancellation: boolean;
     disableCalendarInvite: boolean;
+    disableRoundRobinStart: boolean;
 }
 
 export interface EmailNotificationSettings {
     disableNewsletter: boolean;
     disableInactiveWarning: boolean;
+    disableRoundRobinStart: boolean;
 }
 
 export interface SiteNotificationSettings {
