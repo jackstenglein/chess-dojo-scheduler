@@ -1,6 +1,5 @@
 // import task from '@cypress/code-coverage/task';
 import { defineConfig } from 'cypress';
-import { EnvSchema } from 'cypress/env';
 import dotenv from 'dotenv';
 
 dotenv.config({
@@ -17,7 +16,7 @@ export default defineConfig({
         experimentalRunAllSpecs: true,
     },
 
-    env: EnvSchema.strict().parse({
+    env: {
         apiBaseUrl: 'https://c2qamdaw08.execute-api.us-east-1.amazonaws.com',
         numCohorts: 23,
 
@@ -33,7 +32,7 @@ export default defineConfig({
             exclude: 'cypress/**/*.*',
             url: 'http://localhost:3000/api/__coverage__',
         },
-    }),
+    },
 
     retries: {
         runMode: 2,
