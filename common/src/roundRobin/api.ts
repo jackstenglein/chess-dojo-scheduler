@@ -3,6 +3,9 @@ import { z } from 'zod';
 /** The maximum number of players in a round robin. */
 export const MAX_ROUND_ROBIN_PLAYERS = 10;
 
+/** The minimum number of players in a round robin. */
+export const MIN_ROUND_ROBIN_PLAYERS = 4;
+
 /** Verifies a request to register for the round robin. */
 export const RoundRobinRegisterSchema = z.object({
     /** The cohort of the tournament. */
@@ -74,13 +77,16 @@ export const RoundRobinListSchema = z.object({
 /** A request to list round robin tournaments. */
 export type RoundRobinListRequest = z.infer<typeof RoundRobinListSchema>;
 
-export type RoundRobinWaitlist = Pick<RoundRobin, 'type' | 'startsAt' | 'cohort' | 'players'>;
+export type RoundRobinWaitlist = Pick<
+    RoundRobin,
+    'type' | 'startsAt' | 'updatedAt' | 'cohort' | 'players' | 'name'
+>;
 
 const RoundRobinPairingSchema = z.object({
     /** The username of the player with white. */
-    white: z.string(),
+    white: z.string().optional(),
     /** The username of the player with black. */
-    black: z.string(),
+    black: z.string().optional(),
     /** The result of the game. */
     result: z.union([z.literal('1-0'), z.literal('1/2-1/2'), z.literal('0-1')]).optional(),
     /** The URL of the game. */
@@ -164,6 +170,8 @@ export const RoundRobinSchema = z.object({
      * The usernames of the winners of the tournament. Only set for completed tournaments.
      */
     winners: z.string().array().optional(),
+    /** The time the tournament was last updated. */
+    updatedAt: z.string(),
 });
 
 export type RoundRobin = z.infer<typeof RoundRobinSchema>;
@@ -197,6 +205,8 @@ export function calculatePlayerStats(tournament: RoundRobin) {
         for (const pairing of round) {
             if (
                 !pairing.result ||
+                !pairing.white ||
+                !pairing.black ||
                 tournament.players[pairing.white].status === RoundRobinPlayerStatuses.WITHDRAWN ||
                 tournament.players[pairing.black].status === RoundRobinPlayerStatuses.WITHDRAWN
             ) {
@@ -245,6 +255,8 @@ export function calculatePlayerStats(tournament: RoundRobin) {
         for (const pairing of round) {
             if (
                 !pairing.result ||
+                !pairing.white ||
+                !pairing.black ||
                 tournament.players[pairing.white].status === RoundRobinPlayerStatuses.WITHDRAWN ||
                 tournament.players[pairing.black].status === RoundRobinPlayerStatuses.WITHDRAWN
             ) {

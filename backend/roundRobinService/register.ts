@@ -11,6 +11,7 @@ import { NotificationEventTypes } from '@jackstenglein/chess-dojo-common/src/dat
 import { SubscriptionStatus, User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     MAX_ROUND_ROBIN_PLAYERS,
+    MIN_ROUND_ROBIN_PLAYERS,
     RoundRobin,
     RoundRobinPairing,
     RoundRobinPlayer,
@@ -190,6 +191,7 @@ export async function register({
                 .key('type', `ROUND_ROBIN_${request.cohort}`)
                 .key('startsAt', 'WAITING')
                 .set(['players', username], player)
+                .set('updatedAt', new Date().toISOString())
                 .condition(
                     and(
                         attributeExists('players'),
@@ -204,7 +206,7 @@ export async function register({
             console.log('Input: %j', input);
 
             const result = await dynamo.send(input);
-            const waitlist = unmarshall(result.Attributes!) as RoundRobin;
+            const waitlist = unmarshall(result.Attributes!) as RoundRobinWaitlist;
 
             if (Object.keys(waitlist.players).length >= MAX_ROUND_ROBIN_PLAYERS) {
                 return startTournament(waitlist);
@@ -233,14 +235,14 @@ export async function register({
  * @param waitlist The waitlist to convert.
  * @returns The new tournament as well as the waitlist.
  */
-async function startTournament(
-    waitlist: RoundRobin
+export async function startTournament(
+    waitlist: RoundRobinWaitlist
 ): Promise<{ waitlist: RoundRobinWaitlist; tournament: RoundRobin }> {
-    if (Object.keys(waitlist.players).length !== MAX_ROUND_ROBIN_PLAYERS) {
+    if (Object.keys(waitlist.players).length < MIN_ROUND_ROBIN_PLAYERS) {
         throw new ApiError({
             statusCode: 500,
             publicMessage: 'Temporary server error',
-            privateMessage: `Waitlist does not have ${MAX_ROUND_ROBIN_PLAYERS} players: ${waitlist}`,
+            privateMessage: `Waitlist does not have at least ${MIN_ROUND_ROBIN_PLAYERS} players: ${waitlist}`,
         });
     }
 
@@ -248,13 +250,14 @@ async function startTournament(
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 3);
 
-    const tournament: RoundRobin = {
+    const tournament = {
         ...waitlist,
         startsAt: `ACTIVE_${startDate.toISOString()}`,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         name: generateName(startDate, waitlist.name),
-    };
+        updatedAt: new Date().toISOString(),
+    } as RoundRobin;
     setPairings(tournament);
 
     await dynamo.send(
@@ -266,6 +269,7 @@ async function startTournament(
 
     waitlist.players = {};
     waitlist.name = `${parseInt(waitlist.name) + 1}`;
+    waitlist.updatedAt = new Date().toISOString();
     await dynamo.send(
         new PutItemCommand({
             Item: marshall(waitlist, { removeUndefinedValues: true }),
@@ -353,14 +357,25 @@ function generateName(startDate: Date, number: string) {
 }
 
 /**
- * Generates the pairings using the Berger table for 10 players
- * and sets it on the given tournament.
+ * Generates the pairings using Berger tables and sets it on the
+ * given tournament.
  * See https://handbook.fide.com/chapter/C05Annex1.
  * @param tournament The tournament to generate and set pairings for.
  */
 function setPairings(tournament: RoundRobin) {
     const players = Object.keys(tournament.players);
     const pairings: RoundRobinPairing[][] = [];
+
+    let bergerTable: number[][][];
+    if (players.length <= 4) {
+        bergerTable = bergerTable4;
+    } else if (players.length <= 6) {
+        bergerTable = bergerTable5or6;
+    } else if (players.length <= 8) {
+        bergerTable = bergerTable7or8;
+    } else {
+        bergerTable = bergerTable9or10;
+    }
 
     for (const round of bergerTable) {
         const roundPairings: RoundRobinPairing[] = [];
@@ -378,7 +393,92 @@ function setPairings(tournament: RoundRobin) {
 }
 
 // See https://handbook.fide.com/chapter/C05Annex1
-const bergerTable = [
+const bergerTable4 = [
+    [
+        [0, 3],
+        [1, 2],
+    ],
+    [
+        [3, 2],
+        [0, 1],
+    ],
+    [
+        [1, 3],
+        [2, 0],
+    ],
+];
+const bergerTable5or6 = [
+    [
+        [0, 5],
+        [1, 4],
+        [2, 3],
+    ],
+    [
+        [5, 3],
+        [4, 2],
+        [0, 1],
+    ],
+    [
+        [1, 5],
+        [2, 0],
+        [3, 4],
+    ],
+    [
+        [5, 4],
+        [0, 3],
+        [1, 2],
+    ],
+    [
+        [2, 5],
+        [3, 1],
+        [4, 0],
+    ],
+];
+const bergerTable7or8 = [
+    [
+        [0, 7],
+        [1, 6],
+        [2, 5],
+        [3, 4],
+    ],
+    [
+        [7, 4],
+        [5, 3],
+        [6, 2],
+        [0, 1],
+    ],
+    [
+        [1, 7],
+        [2, 0],
+        [3, 6],
+        [4, 5],
+    ],
+    [
+        [7, 5],
+        [6, 4],
+        [0, 3],
+        [1, 2],
+    ],
+    [
+        [2, 7],
+        [3, 1],
+        [4, 0],
+        [5, 6],
+    ],
+    [
+        [7, 6],
+        [0, 5],
+        [1, 4],
+        [2, 3],
+    ],
+    [
+        [3, 7],
+        [4, 2],
+        [5, 1],
+        [6, 0],
+    ],
+];
+const bergerTable9or10 = [
     [
         [0, 9],
         [1, 8],

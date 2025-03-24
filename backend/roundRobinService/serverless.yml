@@ -64,6 +64,30 @@ functions:
         Action: sqs:SendMessage
         Resource: ${param:NotificationEventQueueArn}
 
+  startEarly:
+    handler: startEarly.handler
+    events:
+      - schedule:
+          rate: cron(0 0 * * ? *)
+    timeout: 180
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+
   withdraw:
     handler: withdraw.handler
     events:
