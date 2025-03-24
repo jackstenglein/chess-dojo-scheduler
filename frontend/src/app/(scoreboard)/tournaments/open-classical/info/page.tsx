@@ -143,9 +143,9 @@ export default function InfoPage() {
                         <Typography>
                             To view the standings for any round, you can navigate to the{' '}
                             <Link href='/tournaments/open-classical'>Tournament Page</Link>. At the
-                            end of the 7 rounds, winners will be announced.{'\n '}
-                            The winner of this tournament will be awarded a free Dojo yearly
-                            membership and will qualify for a year-end tournament.
+                            end of the 7 rounds, winners will be announced. The winners of each
+                            tournament will be awarded a free Dojo yearly membership and will
+                            qualify for a year-end tournament in January 2026.
                         </Typography>
                     </InfoEntryAccordion>
                 </Stack>
