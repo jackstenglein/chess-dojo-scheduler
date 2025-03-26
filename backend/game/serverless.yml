@@ -219,7 +219,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:Scan
+          - dynamodb:Query
         Resource: ${param:GamesTableArn}
       - Effect: Allow
         Action:
