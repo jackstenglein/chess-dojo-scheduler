@@ -248,13 +248,14 @@ export class UpdateItemBuilder {
             updateExpression += ` ADD ${this.addExpression}`;
         }
 
+        const conditionExpr = this._condition?.build(this.exprAttrNames, this.exprAttrValues);
         return new UpdateItemCommand({
             Key: this.keys,
             UpdateExpression: updateExpression,
             ExpressionAttributeNames: this.exprAttrNames,
             ExpressionAttributeValues:
                 Object.entries(this.exprAttrValues).length > 0 ? this.exprAttrValues : undefined,
-            ConditionExpression: this._condition?.build(this.exprAttrNames, this.exprAttrValues),
+            ConditionExpression: conditionExpr,
             ReturnValues: this.returnValues,
             TableName: this._table,
         });
