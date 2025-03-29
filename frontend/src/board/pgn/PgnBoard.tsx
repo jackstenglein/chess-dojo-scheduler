@@ -14,7 +14,7 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { BoardApi } from '../Board';
+import { BoardApi, onMoveFunc } from '../Board';
 import ResizableContainer from './ResizableContainer';
 import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
@@ -39,6 +39,7 @@ interface ChessContextType {
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
+    slotProps?: PgnBoardSlotProps;
     orientation?: 'white' | 'black';
 }
 
@@ -58,6 +59,15 @@ export interface PgnBoardSlots {
     moveButtonExtras?: React.JSXElementConstructor<MoveButtonProps>;
 }
 
+export interface PgnBoardSlotProps {
+    pgnText?: {
+        hideResult?: boolean;
+    };
+    board?: {
+        onMove?: onMoveFunc;
+    };
+}
+
 interface PgnBoardProps extends ChessConfig {
     underboardTabs: UnderboardTab[];
     initialUnderboardTab?: string;
@@ -67,6 +77,7 @@ interface PgnBoardProps extends ChessConfig {
     startOrientation?: Color;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
     slots?: PgnBoardSlots;
+    slotProps?: PgnBoardSlotProps;
 }
 
 const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
@@ -87,6 +98,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             disableEngine,
             showElapsedMoveTimes,
             slots,
+            slotProps,
         },
         ref,
     ) => {
@@ -120,6 +132,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 toggleOrientation,
                 keydownMap,
                 slots,
+                slotProps,
                 orientation,
             }),
             [
@@ -131,6 +144,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 toggleOrientation,
                 keydownMap,
                 slots,
+                slotProps,
                 disableTakebacks,
                 disableEngine,
                 initKey,

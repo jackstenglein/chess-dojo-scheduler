@@ -4,34 +4,54 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import PgnSelector from '@/app/(scoreboard)/courses/[type]/[id]/[chapter]/[module]/PgnSelector';
 import { useFreeTier } from '@/auth/Auth';
+import {
+    BoardApi,
+    Chess,
+    defaultOnMove as defaultOnMoveGenerator,
+    PrimitiveMove,
+    reconcile,
+} from '@/board/Board';
+import { ShowGlyphsKey } from '@/board/pgn/boardTools/underboard/settings/ViewerSettings';
+import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
-import PuzzleBoard from '@/board/puzzle/PuzzleBoard';
-import { coaches, coachUrls } from '@/database/course';
+import {
+    correctMoveGlyphHtml,
+    incorrectMoveGlyphHtml,
+} from '@/components/material/memorizegames/moveGlyphs';
 import { Game, GameInfo } from '@/database/game';
 import { compareCohorts, User } from '@/database/user';
-import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
 import LoadingPage from '@/loading/LoadingPage';
+import { Square } from '@jackstenglein/chess';
+import { Info } from '@mui/icons-material';
 import {
-    Box,
+    CardContent,
     Container,
     FormControl,
     FormControlLabel,
-    FormLabel,
-    Link,
     Radio,
     RadioGroup,
-    Stack,
     Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
+
+interface WrongMove {
+    from: Square;
+    to: Square;
+    promotion?: string | undefined;
+}
 
 export function MemorizeGamesPage({ user }: { user: User }) {
     const api = useApi();
     const listRequest = useRequest<GameInfo[]>();
     const getRequest = useRequest<Game>();
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [mode, setMode] = useState('study');
+    const [mode, setMode] = useState<'study' | 'test'>('study');
     const isFreeTier = useFreeTier();
+    const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
+    const defaultOnMove = defaultOnMoveGenerator(showGlyphs);
+    const solutionChess = useRef<Chess>();
+    const incorrectMoves = useRef<WrongMove[]>([]);
 
     useEffect(() => {
         if (!listRequest.isSent()) {
@@ -62,6 +82,9 @@ export function MemorizeGamesPage({ user }: { user: User }) {
             api.getGame(gameInfo.cohort, gameInfo.id)
                 .then((res) => {
                     getRequest.onSuccess(res.data);
+                    solutionChess.current = new Chess({ pgn: res.data.pgn });
+                    solutionChess.current.seek(null);
+                    incorrectMoves.current = [];
                 })
                 .catch((err) => {
                     console.error('getGame: ', err);
@@ -69,6 +92,56 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                 });
         }
     }, [listRequest, getRequest, selectedIndex, api]);
+
+    const onMove = useCallback(
+        (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
+            if (
+                mode === 'study' ||
+                (chess.history().length && chess.currentMove() !== chess.history().at(-1)) ||
+                solutionChess.current?.currentMove() === solutionChess.current?.history().at(-1)
+            ) {
+                defaultOnMove(board, chess, primMove);
+                return;
+            }
+
+            const move = { from: primMove.orig, to: primMove.dest, promotion: primMove.promotion };
+            if (solutionChess.current?.isMainline(move)) {
+                solutionChess.current.move(move);
+                const currentMove = chess.currentMove();
+                const newMove = chess.move(move);
+                for (const m of incorrectMoves.current) {
+                    chess.move(m, { previousMove: currentMove });
+                }
+                incorrectMoves.current = [];
+
+                chess.seek(newMove);
+                reconcile(chess, board, showGlyphs);
+                board.set({
+                    drawable: {
+                        autoShapes: [{ orig: move.to, customSvg: { html: correctMoveGlyphHtml } }],
+                    },
+                });
+            } else {
+                incorrectMoves.current.push(move);
+                board.set({
+                    movable: {},
+                    premovable: {
+                        enabled: false,
+                    },
+                    drawable: {
+                        autoShapes: [
+                            { orig: move.to, customSvg: { html: incorrectMoveGlyphHtml } },
+                        ],
+                        eraseOnClick: false,
+                    },
+                });
+                setTimeout(() => {
+                    reconcile(chess, board, showGlyphs);
+                }, 500);
+            }
+        },
+        [mode, defaultOnMove, showGlyphs],
+    );
 
     if (listRequest.isLoading() || !listRequest.isSent()) {
         return <LoadingPage />;
@@ -85,138 +158,81 @@ export function MemorizeGamesPage({ user }: { user: User }) {
         }
     };
 
+    const onSwitchMode = (newMode: 'study' | 'test') => {
+        if (mode !== newMode) {
+            setMode(newMode);
+            solutionChess.current?.seek(null);
+            incorrectMoves.current = [];
+        }
+    };
+
     const games = isFreeTier ? listRequest.data.slice(0, 3) : listRequest.data;
 
     return (
-        <Container maxWidth={false} sx={{ pt: 4, pb: 10 }}>
-            {!isFreeTier && (
-                <Typography sx={{ mb: 4 }}>
-                    Games to memorize are also available in this{' '}
-                    <Link
-                        href='https://lichess.org/study/u9qJoSlL'
-                        target='_blank'
-                        rel='noreferrer'
-                    >
-                        Lichess study
-                    </Link>
-                    .
-                </Typography>
-            )}
+        <Container maxWidth={false} sx={{ pt: 4, pb: 4 }}>
+            <RequestSnackbar request={listRequest} />
+            <RequestSnackbar request={getRequest} />
 
-            <FormControl>
-                <FormLabel>Mode</FormLabel>
-                <RadioGroup row value={mode} onChange={(e) => setMode(e.target.value)}>
-                    <FormControlLabel value='study' control={<Radio />} label='Study' />
-                    <FormControlLabel value='test' control={<Radio />} label='Test' />
-                </RadioGroup>
-            </FormControl>
+            <PgnBoard
+                pgn={
+                    mode === 'study' ? getRequest.data?.pgn : getRequest.data?.pgn.split('\n\n')[0]
+                }
+                underboardTabs={[
+                    {
+                        name: 'gameList',
+                        tooltip: 'Games',
+                        icon: <Info />,
+                        element: (
+                            <CardContent>
+                                <FormControl sx={{ mb: 1 }}>
+                                    <RadioGroup
+                                        row
+                                        value={mode}
+                                        onChange={(e) =>
+                                            onSwitchMode(e.target.value as 'study' | 'test')
+                                        }
+                                    >
+                                        <FormControlLabel
+                                            value='study'
+                                            control={<Radio />}
+                                            label='Study'
+                                        />
+                                        <FormControlLabel
+                                            value='test'
+                                            control={<Radio />}
+                                            label='Test'
+                                        />
+                                    </RadioGroup>
+                                </FormControl>
 
-            <Container
-                maxWidth={false}
-                sx={{
-                    pt: 1,
-                    pb: 4,
-                    px: '0 !important',
-                    '--gap': '16px',
-                    '--site-header-margin': '150px',
-                    '--player-header-height': '28px',
-                    '--underboard-width': '400px',
-                    '--coach-width': '400px',
-                    '--tools-height': '40px',
-                    '--board-width': 'calc(100vw - var(--coach-width) - var(--coach-width) - 60px)',
-                    '--board-height':
-                        'calc(100vh - var(--navbar-height) - var(--site-header-margin) - var(--tools-height) - 2 * var(--player-header-height))',
-                    '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
+                                <PgnSelector
+                                    headers={games.map((g) => g.headers)}
+                                    selectedIndex={selectedIndex}
+                                    setSelectedIndex={onSwitchGame}
+                                    hiddenCount={
+                                        isFreeTier ? listRequest.data.length - games.length : 0
+                                    }
+                                    noCard
+                                />
+                            </CardContent>
+                        ),
+                    },
+                    DefaultUnderboardTab.Explorer,
+                    DefaultUnderboardTab.Share,
+                    DefaultUnderboardTab.Settings,
+                ]}
+                initialUnderboardTab='gameList'
+                disableEngine={mode === 'test'}
+                disableNullMoves={mode === 'test'}
+                slotProps={{
+                    pgnText: {
+                        hideResult: mode === 'test',
+                    },
+                    board: {
+                        onMove,
+                    },
                 }}
-            >
-                <Box
-                    sx={{
-                        display: 'grid',
-                        rowGap: '16px',
-                        gridTemplateRows: {
-                            xs: 'minmax(0, 18em) auto',
-                            xl: 'calc(var(--board-size) + 2 * var(--player-header-height) + var(--tools-height))',
-                        },
-                        gridTemplateColumns: {
-                            xs: '1fr',
-                            xl: 'var(--coach-width) var(--gap) 1fr',
-                        },
-                        gridTemplateAreas: {
-                            xs: '"extras" "pgn"',
-                            xl: '"extras . pgn"',
-                        },
-                    }}
-                >
-                    <Stack gridArea='extras' height={1} alignItems='center'>
-                        <PgnSelector
-                            headers={games.map((g) => g.headers)}
-                            selectedIndex={selectedIndex}
-                            setSelectedIndex={onSwitchGame}
-                            fullHeight
-                            hiddenCount={isFreeTier ? listRequest.data.length - games.length : 0}
-                        />
-                    </Stack>
-
-                    {getRequest.isLoading() && (
-                        <Box sx={{ gridArea: 'pgn' }}>
-                            <LoadingPage />
-                        </Box>
-                    )}
-
-                    {getRequest.data && (
-                        <PgnErrorBoundary pgn={getRequest.data.pgn}>
-                            {mode === 'study' && (
-                                <PgnBoard
-                                    key={getRequest.data.pgn}
-                                    pgn={getRequest.data.pgn}
-                                    startOrientation={getRequest.data.orientation}
-                                    underboardTabs={[]}
-                                />
-                            )}
-
-                            {mode === 'test' && (
-                                <PuzzleBoard
-                                    key={getRequest.data.pgn}
-                                    pgn={getRequest.data.pgn}
-                                    hideHeader
-                                    playBothSides
-                                    sx={{
-                                        gridArea: 'pgn',
-                                        display: 'grid',
-                                        width: 1,
-                                        gridTemplateRows: {
-                                            xs: 'auto auto auto auto var(--gap) minmax(auto, 400px)',
-                                            md: 'var(--player-header-height) var(--board-size) var(--player-header-height) auto',
-                                        },
-                                        gridTemplateColumns: {
-                                            xs: '1fr',
-                                            md: 'var(--board-size) var(--gap) var(--coach-width)',
-                                        },
-                                        gridTemplateAreas: {
-                                            xs: `"playerheader"
-                                             "board"
-                                             "playerfooter"
-                                             "boardButtons"
-                                             "."
-                                             "coach"`,
-
-                                            md: `"playerheader . coach"
-                                             "board . coach"
-                                             "playerfooter . coach"
-                                             "boardButtons . ."`,
-                                        },
-                                    }}
-                                    onComplete={() => null}
-                                    coachUrl={coachUrls[coaches[selectedIndex % coaches.length]]}
-                                />
-                            )}
-                        </PgnErrorBoundary>
-                    )}
-                </Box>
-
-                <RequestSnackbar request={listRequest} />
-                <RequestSnackbar request={getRequest} />
-            </Container>
+            />
         </Container>
     );
 }

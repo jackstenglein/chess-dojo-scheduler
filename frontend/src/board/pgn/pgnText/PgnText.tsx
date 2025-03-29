@@ -18,7 +18,7 @@ import EngineSection from './engine/EngineSection';
 const PgnText = () => {
     const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
-    const { config } = useChess();
+    const { config, slotProps } = useChess();
     const { unsaved, game } = useGame();
     const [hideEngine] = useLocalStorage(HideEngine.Key, HideEngine.Default);
 
@@ -53,7 +53,7 @@ const PgnText = () => {
                 >
                     <GameComment />
                     <Variation handleScroll={handleScroll} />
-                    <Result />
+                    {!slotProps?.pgnText?.hideResult && <Result />}
                 </Stack>
             </Card>
         </Stack>
