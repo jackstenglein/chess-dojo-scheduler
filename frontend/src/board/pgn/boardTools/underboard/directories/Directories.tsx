@@ -1,10 +1,13 @@
-import { useRequiredAuth } from '@/auth/Auth';
+import { useAuth } from '@/auth/Auth';
 import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { CardContent } from '@mui/material';
 
 export const Directories = () => {
-    const { user } = useRequiredAuth();
+    const { user } = useAuth();
+    if (!user) {
+        return null;
+    }
 
     return (
         <CardContent sx={{ height: 1 }}>

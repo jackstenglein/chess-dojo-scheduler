@@ -1,6 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { useRequiredAuth } from '@/auth/Auth';
+import { useAuth } from '@/auth/Auth';
 import { useChess } from '@/board/pgn/PgnBoard';
 import GameTable from '@/components/games/list/GameTable';
 import useGame from '@/context/useGame';
@@ -47,7 +47,7 @@ export function MergeLineDialog({
     const { chess } = useChess();
     const { game } = useGame();
     const api = useApi();
-    const { user } = useRequiredAuth();
+    const { user } = useAuth();
     const request = useRequest<{ cohort: string; id: string }>();
 
     const { skipVariations, setSkipVariations, skipNullMoves, setSkipNullMoves } =
@@ -59,8 +59,8 @@ export function MergeLineDialog({
     const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
 
     const searchByOwner = useCallback(
-        (startKey: string) => api.listGamesByOwner(user.username, startKey),
-        [api, user.username],
+        (startKey: string) => api.listGamesByOwner(user?.username, startKey),
+        [api, user?.username],
     );
 
     const pagination = usePagination(searchByOwner, 0, 10);
