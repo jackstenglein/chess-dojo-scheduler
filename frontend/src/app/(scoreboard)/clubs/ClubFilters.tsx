@@ -90,9 +90,7 @@ export const ClubFilterEditor: React.FC<ClubFilterEditorProps> = ({ filters }) =
                     select
                     label='Sort By'
                     value={filters.sortMethod}
-                    onChange={(e) =>
-                        filters.setSortMethod(e.target.value as ClubSortMethod)
-                    }
+                    onChange={(e) => filters.setSortMethod(e.target.value as ClubSortMethod)}
                 >
                     {Object.values(ClubSortMethod).map((method) => (
                         <MenuItem key={method} value={method}>
@@ -105,21 +103,11 @@ export const ClubFilterEditor: React.FC<ClubFilterEditorProps> = ({ filters }) =
                     <FormLabel>Sort Direction</FormLabel>
                     <RadioGroup
                         value={filters.sortDirection}
-                        onChange={(e) =>
-                            filters.setSortDirection(e.target.value as 'asc' | 'desc')
-                        }
+                        onChange={(e) => filters.setSortDirection(e.target.value as 'asc' | 'desc')}
                         row
                     >
-                        <FormControlLabel
-                            control={<Radio />}
-                            label='Ascending'
-                            value='asc'
-                        />
-                        <FormControlLabel
-                            control={<Radio />}
-                            label='Descending'
-                            value='desc'
-                        />
+                        <FormControlLabel control={<Radio />} label='Ascending' value='asc' />
+                        <FormControlLabel control={<Radio />} label='Descending' value='desc' />
                     </RadioGroup>
                 </FormControl>
             </Stack>

@@ -9,12 +9,7 @@ import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Divider, FormControl, MenuItem, Select, Stack, Typography } from '@mui/material';
-import {
-    DataGridPro,
-    GridColDef,
-    GridRenderCellParams,
-    GridRowParams,
-} from '@mui/x-data-grid-pro';
+import { DataGridPro, GridColDef, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid-pro';
 import { LicenseInfo } from '@mui/x-license';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -43,8 +38,7 @@ function getTimeframeOptions() {
     let currGraduation = new Date();
     currGraduation.setUTCHours(17, 30, 0, 0);
     currGraduation.setUTCDate(
-        currGraduation.getUTCDate() +
-            ((graduationDayOfWeek + 7 - currGraduation.getUTCDay()) % 7),
+        currGraduation.getUTCDate() + ((graduationDayOfWeek + 7 - currGraduation.getUTCDay()) % 7),
     );
 
     const options: TimeframeOption[] = [];
@@ -78,11 +72,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         renderCell: (params: GridRenderCellParams<Graduation, string>) => {
             return (
                 <Stack direction='row' spacing={1} alignItems='center'>
-                    <Avatar
-                        username={params.row.username}
-                        displayName={params.value}
-                        size={32}
-                    />
+                    <Avatar username={params.row.username} displayName={params.value} size={32} />
                     <Link href={`/profile/${params.row.username}`}>{params.value}</Link>
                 </Stack>
             );
@@ -105,9 +95,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
             let graduationCohorts = params.row.graduationCohorts;
             if (graduationCohorts && graduationCohorts.length > 0) {
                 if (graduationCohorts.length > 3) {
-                    graduationCohorts = graduationCohorts.slice(
-                        graduationCohorts.length - 3,
-                    );
+                    graduationCohorts = graduationCohorts.slice(graduationCohorts.length - 3);
                 }
                 return (
                     <Stack direction='row' justifyContent='center'>
@@ -220,10 +208,7 @@ const RecentGraduates = () => {
         const gs = request.data ?? [];
 
         return getUniqueGraduations(
-            gs.filter(
-                (g) =>
-                    g.createdAt >= timeframe.minDate && g.createdAt < timeframe.maxDate,
-            ),
+            gs.filter((g) => g.createdAt >= timeframe.minDate && g.createdAt < timeframe.maxDate),
         );
     }, [request.data, timeframe]);
 

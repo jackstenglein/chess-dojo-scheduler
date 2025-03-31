@@ -1,10 +1,5 @@
 import { useChess } from '@/board/pgn/PgnBoard';
-import {
-    ENGINE_LINE_COUNT,
-    ENGINE_NAME,
-    engines,
-    LineEval,
-} from '@/stockfish/engine/engine';
+import { ENGINE_LINE_COUNT, ENGINE_NAME, engines, LineEval } from '@/stockfish/engine/engine';
 import { useEval } from '@/stockfish/hooks/useEval';
 import Icon from '@/style/Icon';
 import { Box, Paper, Stack, Switch, Tooltip, Typography } from '@mui/material';
@@ -21,10 +16,7 @@ export default function EngineSection() {
         engineInfo = engines[0];
     }
 
-    const [linesNumber] = useLocalStorage(
-        ENGINE_LINE_COUNT.Key,
-        ENGINE_LINE_COUNT.Default,
-    );
+    const [linesNumber] = useLocalStorage(ENGINE_LINE_COUNT.Key, ENGINE_LINE_COUNT.Default);
 
     const [enabled, setEnabled] = useState(false);
     const evaluation = useEval(enabled, engineInfo.name);
@@ -65,17 +57,12 @@ export default function EngineSection() {
 
                     {enabled && !isGameOver && (
                         <Stack sx={{ mr: 2 }} alignItems='center'>
-                            <Typography variant='h5'>
-                                {formatLineEval(engineLines[0])}
-                            </Typography>
+                            <Typography variant='h5'>{formatLineEval(engineLines[0])}</Typography>
                             <Tooltip
                                 title="The engine's expected Win / Draw / Loss percentages"
                                 disableInteractive
                             >
-                                <Typography
-                                    variant='caption'
-                                    sx={{ whiteSpace: 'nowrap' }}
-                                >
+                                <Typography variant='caption' sx={{ whiteSpace: 'nowrap' }}>
                                     {resultPercentages?.win ?? '?'} /{' '}
                                     {resultPercentages?.draw ?? '?'} /{' '}
                                     {resultPercentages?.loss ?? '?'}
@@ -84,14 +71,9 @@ export default function EngineSection() {
                         </Stack>
                     )}
 
-                    <Stack
-                        sx={{ flexGrow: 1, lineHeight: '1.2', color: 'text.secondary' }}
-                    >
+                    <Stack sx={{ flexGrow: 1, lineHeight: '1.2', color: 'text.secondary' }}>
                         <Stack direction='row'>
-                            <Typography
-                                variant='caption'
-                                sx={{ display: { '@288': 'none' } }}
-                            >
+                            <Typography variant='caption' sx={{ display: { '@288': 'none' } }}>
                                 {engineInfo.extraShortName}
                             </Typography>
                             <Typography
@@ -101,10 +83,7 @@ export default function EngineSection() {
                                 {engineInfo.shortName}
                             </Typography>
 
-                            <Tooltip
-                                title={engineInfo.techDescription}
-                                disableInteractive
-                            >
+                            <Tooltip title={engineInfo.techDescription} disableInteractive>
                                 <Typography
                                     color='dojoOrange'
                                     variant='caption'
@@ -163,9 +142,7 @@ export default function EngineSection() {
                                 )}
                             </Box>
                         ) : (
-                            <Typography variant='caption'>
-                                {engineInfo.location}
-                            </Typography>
+                            <Typography variant='caption'>{engineInfo.location}</Typography>
                         )}
                     </Stack>
 

@@ -2,11 +2,7 @@ import { TimeControl } from '@jackstenglein/chess';
 import { Stack, Typography } from '@mui/material';
 import { formatTime } from './ClockUsage';
 
-export function TimeControlDescription({
-    timeControls,
-}: {
-    timeControls: TimeControl[];
-}) {
+export function TimeControlDescription({ timeControls }: { timeControls: TimeControl[] }) {
     if (timeControls.length === 0) {
         return 'Unknown';
     }
@@ -32,11 +28,7 @@ export function TimeControlDescription({
             {timeControls.map((tc, i) => {
                 return (
                     <Typography key={i}>
-                        <Typography
-                            variant='subtitle2'
-                            component='span'
-                            color='text.secondary'
-                        >
+                        <Typography variant='subtitle2' component='span' color='text.secondary'>
                             {tc.moves
                                 ? `Moves ${currentMove}–${(currentMove += tc.moves || 0) - 1}`
                                 : `Moves ${currentMove}+`}

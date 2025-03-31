@@ -175,10 +175,7 @@ export abstract class UciEngine {
             multiPv = 1;
         }
 
-        await this.sendCommands(
-            [`setoption name MultiPV value ${multiPv}`, 'isready'],
-            'readyok',
-        );
+        await this.sendCommands([`setoption name MultiPV value ${multiPv}`, 'isready'], 'readyok');
 
         this.multiPv = multiPv;
     }
@@ -202,10 +199,7 @@ export abstract class UciEngine {
                 `Invalid threads value (${threads}) is not in range [${ENGINE_THREADS.Min}, ${ENGINE_THREADS.Max}]`,
             );
         }
-        await this.sendCommands(
-            [`setoption name Threads value ${threads}`, 'isready'],
-            'readyok',
-        );
+        await this.sendCommands([`setoption name Threads value ${threads}`, 'isready'], 'readyok');
         this.threads = threads;
     }
 
@@ -228,10 +222,7 @@ export abstract class UciEngine {
                 `Invalid threads value (${hash}) is not in range [${Math.pow(2, ENGINE_HASH.Min)}, ${Math.pow(2, ENGINE_HASH.Max)}]`,
             );
         }
-        await this.sendCommands(
-            [`setoption name Hash value ${hash}`, 'isready'],
-            'readyok',
-        );
+        await this.sendCommands([`setoption name Hash value ${hash}`, 'isready'], 'readyok');
         this.hash = hash;
     }
 

@@ -40,8 +40,8 @@ const UnsubscribePage = () => {
                     <Typography variant='h6'>Unsubscribe from Dojo Digest</Typography>
 
                     <Typography>
-                        {email} has been unsubscribed. Please allow 24 hours for this
-                        change to take effect.
+                        {email} has been unsubscribed. Please allow 24 hours for this change to take
+                        effect.
                     </Typography>
                 </Stack>
             </Container>
@@ -55,11 +55,7 @@ const UnsubscribePage = () => {
             <Stack spacing={4}>
                 <Typography variant='h6'>Unsubscribe from Dojo Digest</Typography>
 
-                <TextField
-                    label='Email'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
+                <TextField label='Email' value={email} onChange={(e) => setEmail(e.target.value)} />
 
                 <LoadingButton
                     variant='contained'

@@ -1,8 +1,8 @@
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
-import { Comment } from '@/database/game';
 import Avatar from '@/profile/Avatar';
+import { Comment } from '@jackstenglein/chess-dojo-common/src/database/timeline';
 import { Paper, Stack, Typography } from '@mui/material';
 
 interface CommentListProps {
@@ -11,11 +11,7 @@ interface CommentListProps {
     viewCommentsLink?: string;
 }
 
-const CommentList: React.FC<CommentListProps> = ({
-    comments,
-    maxComments,
-    viewCommentsLink,
-}) => {
+const CommentList: React.FC<CommentListProps> = ({ comments, maxComments, viewCommentsLink }) => {
     if (!comments) {
         return null;
     }
@@ -55,11 +51,7 @@ const CommentListItem: React.FC<CommentListItemProps> = ({ comment }) => {
 
     return (
         <Stack direction='row' spacing={1.5}>
-            <Avatar
-                username={comment.owner}
-                displayName={comment.ownerDisplayName}
-                size={40}
-            />
+            <Avatar username={comment.owner} displayName={comment.ownerDisplayName} size={40} />
 
             <Stack>
                 <Paper elevation={2} sx={{ px: '12px', py: '8px', borderRadius: '6px' }}>
@@ -70,9 +62,7 @@ const CommentListItem: React.FC<CommentListItemProps> = ({ comment }) => {
                             </Typography>
                         </Link>
 
-                        <Typography sx={{ whiteSpace: 'pre-line' }}>
-                            {comment.content}
-                        </Typography>
+                        <Typography sx={{ whiteSpace: 'pre-line' }}>{comment.content}</Typography>
                     </Stack>
                 </Paper>
                 <Typography variant='caption' color='text.secondary'>

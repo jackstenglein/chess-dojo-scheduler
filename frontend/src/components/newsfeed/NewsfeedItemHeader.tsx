@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { RequirementCategory } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
 import Avatar from '@/profile/Avatar';
@@ -43,17 +43,11 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
             rowGap={1}
         >
             <Stack direction='row' spacing={2} alignItems='center'>
-                <Avatar
-                    username={entry.owner}
-                    displayName={entry.ownerDisplayName}
-                    size={60}
-                />
+                <Avatar username={entry.owner} displayName={entry.ownerDisplayName} size={60} />
 
                 <Stack>
                     <Typography>
-                        <Link href={`/profile/${entry.owner}`}>
-                            {entry.ownerDisplayName}
-                        </Link>
+                        <Link href={`/profile/${entry.owner}`}>{entry.ownerDisplayName}</Link>
                         <CohortIcon
                             cohort={entry.graduationInfo?.newCohort || entry.cohort}
                             size={25}
@@ -75,9 +69,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
             ) : (
                 <Stack direction='row' spacing={1} alignItems='center'>
                     <Stack alignItems='end'>
-                        <Typography sx={{ color: CategoryColors[category] }}>
-                            {category}
-                        </Typography>
+                        <Typography sx={{ color: CategoryColors[category] }}>{category}</Typography>
                         {entry.isCustomRequirement && (
                             <Typography variant='body2' color='text.secondary'>
                                 Custom Task

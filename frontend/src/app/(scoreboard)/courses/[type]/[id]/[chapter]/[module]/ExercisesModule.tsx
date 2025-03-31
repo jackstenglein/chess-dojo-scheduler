@@ -84,8 +84,7 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                 '--underboard-width': '400px',
                 '--coach-width': '400px',
                 '--tools-height': '0px',
-                '--board-width':
-                    'calc(100vw - var(--coach-width) - 60px - var(--toc-width))',
+                '--board-width': 'calc(100vw - var(--coach-width) - 60px - var(--toc-width))',
                 '--board-height':
                     'calc(100vh - var(--navbar-height) - var(--site-header-margin) - var(--tools-height) - 2 * var(--player-header-height))',
                 '--board-size': 'calc(min(var(--board-width), var(--board-height)))',
@@ -116,11 +115,7 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                 />
 
                 <Stack mt={3} gridArea='subtitle'>
-                    <Typography
-                        variant='subtitle2'
-                        fontWeight='bold'
-                        color='text.secondary'
-                    >
+                    <Typography variant='subtitle2' fontWeight='bold' color='text.secondary'>
                         Exercise #{selectedIndex + 1}
                     </Typography>
                 </Stack>
@@ -132,9 +127,7 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                         coachUrl={coachUrls[module.coach as Coach]}
                         onComplete={onComplete}
                         onNextPuzzle={
-                            selectedIndex < module.pgns.length - 1
-                                ? onNextPuzzle
-                                : undefined
+                            selectedIndex < module.pgns.length - 1 ? onNextPuzzle : undefined
                         }
                     />
                 </PgnErrorBoundary>

@@ -3,8 +3,8 @@ import {
     AccordionDetails,
     AccordionSummary,
     Filters,
-} from '@/calendar/filters/CalendarFilters';
-import TimezoneFilter from '@/calendar/filters/TimezoneFilter';
+} from '@/components/calendar/filters/CalendarFilters';
+import TimezoneFilter from '@/components/calendar/filters/TimezoneFilter';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import {
     PositionType,
@@ -94,10 +94,7 @@ export const TournamentCalendarFilters: React.FC<TournamentCalendarFiltersProps>
             data-cy='calendar-filters'
             sx={{ pt: 0.5, pb: 2, position: { md: 'sticky' }, top: { md: '88px' } }}
         >
-            <Accordion
-                expanded={forceExpansion || expanded}
-                onChange={(_, e) => setExpanded(e)}
-            >
+            <Accordion expanded={forceExpansion || expanded} onChange={(_, e) => setExpanded(e)}>
                 {!forceExpansion && (
                     <AccordionSummary forceExpansion={forceExpansion}>
                         <Typography variant='h6' color='text.secondary'>

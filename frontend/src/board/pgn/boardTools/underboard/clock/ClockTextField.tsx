@@ -20,11 +20,7 @@ interface ClockTextFieldProps {
     forceSingleField?: boolean;
 }
 
-const ClockTextField: React.FC<ClockTextFieldProps> = ({
-    move,
-    label,
-    forceSingleField,
-}) => {
+const ClockTextField: React.FC<ClockTextFieldProps> = ({ move, label, forceSingleField }) => {
     const { chess } = useChess();
     const [clockFieldFormat] = useLocalStorage<string>(
         ClockFieldFormatKey,
@@ -62,13 +58,7 @@ const ClockTextField: React.FC<ClockTextFieldProps> = ({
                     value={timeSlots.hours}
                     disabled={!move}
                     onChange={(event) =>
-                        onChangeTimeSlot(
-                            'hours',
-                            event.target.value,
-                            timeSlots,
-                            chess,
-                            move,
-                        )
+                        onChangeTimeSlot('hours', event.target.value, timeSlots, chess, move)
                     }
                     fullWidth
                 />
@@ -78,13 +68,7 @@ const ClockTextField: React.FC<ClockTextFieldProps> = ({
                     value={timeSlots.minutes}
                     disabled={!move}
                     onChange={(event) =>
-                        onChangeTimeSlot(
-                            'minutes',
-                            event.target.value,
-                            timeSlots,
-                            chess,
-                            move,
-                        )
+                        onChangeTimeSlot('minutes', event.target.value, timeSlots, chess, move)
                     }
                     fullWidth
                 />
@@ -94,13 +78,7 @@ const ClockTextField: React.FC<ClockTextFieldProps> = ({
                     value={timeSlots.seconds}
                     disabled={!move}
                     onChange={(event) =>
-                        onChangeTimeSlot(
-                            'seconds',
-                            event.target.value,
-                            timeSlots,
-                            chess,
-                            move,
-                        )
+                        onChangeTimeSlot('seconds', event.target.value, timeSlots, chess, move)
                     }
                     fullWidth
                 />

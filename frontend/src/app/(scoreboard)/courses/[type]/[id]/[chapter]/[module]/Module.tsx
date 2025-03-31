@@ -42,7 +42,7 @@ const Module: React.FC<ModuleProps> = ({ module }) => {
     return (
         <Stack>
             <Typography variant='h6'>{module.name}</Typography>
-            <Typography>{module.description}</Typography>
+            <Typography whiteSpace='break-spaces'>{module.description}</Typography>
 
             {M}
 

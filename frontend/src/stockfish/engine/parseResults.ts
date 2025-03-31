@@ -95,10 +95,7 @@ export const sortLines = (a: LineEval, b: LineEval): number => {
  * @param property The property to get.
  * @returns The requested property value.
  */
-export const getResultProperty = (
-    result: string,
-    property: string,
-): string | undefined => {
+export const getResultProperty = (result: string, property: string): string | undefined => {
     const splitResult = result.split(' ');
     const propertyIndex = splitResult.indexOf(property);
 

@@ -52,9 +52,7 @@ describe('Search Page', () => {
         cy.contains('FIDE ID').click();
         cy.contains('ECF ID').click();
 
-        cy.getBySel('search-results')
-            .find('.MuiDataGrid-columnHeader')
-            .should('have.length', 4);
+        cy.getBySel('search-results').find('.MuiDataGrid-columnHeader').should('have.length', 4);
         cy.getBySel('search-results').contains('Cohort');
         cy.getBySel('search-results').contains('Display Name');
         cy.getBySel('search-results').contains('FIDE ID');

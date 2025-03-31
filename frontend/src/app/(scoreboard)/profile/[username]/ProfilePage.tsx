@@ -6,18 +6,21 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import { SwitchCohortPrompt } from '@/components/profile/SwitchCohortPrompt';
+import ActivityTab from '@/components/profile/activity/ActivityTab';
+import { TimelineProvider } from '@/components/profile/activity/useTimeline';
 import { BadgeCard } from '@/components/profile/info/BadgeCard';
 import Bio from '@/components/profile/info/Bio';
 import CoachChip from '@/components/profile/info/CoachChip';
 import CountChip from '@/components/profile/info/CountChip';
 import CreatedAtChip from '@/components/profile/info/CreatedAtChip';
 import DiscordChip from '@/components/profile/info/DiscordChip';
+import DojoScoreCard from '@/components/profile/info/DojoScoreCard';
 import { HeatmapCard } from '@/components/profile/info/HeatmapCard';
 import InactiveChip from '@/components/profile/info/InactiveChip';
-import { RatingsCard } from '@/components/profile/info/RatingsCard';
 import TimezoneChip from '@/components/profile/info/TimezoneChip';
 import UserInfo from '@/components/profile/info/UserInfo';
 import StatsTab from '@/components/profile/stats/StatsTab';
+import { TrainingPlanTab } from '@/components/profile/trainingPlan/TrainingPlanTab';
 import ProfilePageTutorial from '@/components/tutorial/ProfilePageTutorial';
 import { FollowerEntry } from '@/database/follower';
 import { hasCreatedProfile, User } from '@/database/user';
@@ -25,28 +28,34 @@ import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import GamesTab from '@/profile/GamesTab';
 import GraduationDialog from '@/profile/GraduationDialog';
-import ActivityTab from '@/profile/activity/ActivityTab';
-import { TimelineProvider } from '@/profile/activity/useTimeline';
 import ClubsTab from '@/profile/clubs/ClubsTab';
 import CoachTab from '@/profile/coach/CoachTab';
 import ProfileCreatorPage from '@/profile/creator/ProfileCreatorPage';
 import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
-import ProgressTab from '@/profile/progress/ProgressTab';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
-    Edit,
     Folder,
     Groups,
     PieChart,
     RocketLaunch,
+    Settings,
     Star,
     ThumbDown,
     ThumbUp,
     Timeline,
 } from '@mui/icons-material';
 import { LoadingButton, TabContext, TabPanel } from '@mui/lab';
-import { Box, Button, Container, Stack, Tab, Tabs } from '@mui/material';
+import {
+    Box,
+    Container,
+    IconButton,
+    Stack,
+    Tab,
+    Tabs,
+    Tooltip,
+    useMediaQuery,
+} from '@mui/material';
 import { useEffect } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
@@ -61,17 +70,12 @@ export function ProfilePage({ username }: { username?: string }) {
     return <AuthProfilePage currentUser={user} username={username} />;
 }
 
-function AuthProfilePage({
-    currentUser,
-    username,
-}: {
-    currentUser: User;
-    username?: string;
-}) {
+function AuthProfilePage({ currentUser, username }: { currentUser: User; username?: string }) {
     const api = useApi();
     const auth = useAuth();
     const request = useRequest<User>();
     const followRequest = useRequest<FollowerEntry>();
+    const isLarge = useMediaQuery((theme) => theme.breakpoints.up('lg'));
 
     const currentUserProfile = !username || username === currentUser?.username;
 
@@ -161,10 +165,7 @@ function AuthProfilePage({
             }}
         >
             <TimelineProvider owner={user.username}>
-                <Container
-                    maxWidth='md'
-                    sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}
-                >
+                <Container maxWidth='md' sx={{ gridArea: 'profile', marginRight: { lg: 0 } }}>
                     <RequestSnackbar request={followRequest} />
 
                     <Stack>
@@ -178,17 +179,17 @@ function AuthProfilePage({
                             <UserInfo user={user} />
 
                             {currentUserProfile ? (
-                                <Stack direction='row' spacing={2}>
+                                <Stack direction='row' spacing={1} alignItems='center'>
                                     <GraduationDialog />
-                                    <Button
-                                        component={Link}
-                                        id='edit-profile-button'
-                                        variant='contained'
-                                        startIcon={<Edit />}
-                                        href='/profile/edit'
-                                    >
-                                        Edit Profile
-                                    </Button>
+                                    <Tooltip title='Edit Profile and Settings'>
+                                        <IconButton
+                                            id='edit-profile-button'
+                                            component={Link}
+                                            href='/profile/edit'
+                                        >
+                                            <Settings sx={{ color: 'text.secondary' }} />
+                                        </IconButton>
+                                    </Tooltip>
                                 </Stack>
                             ) : (
                                 <LoadingButton
@@ -196,9 +197,7 @@ function AuthProfilePage({
                                     variant='contained'
                                     onClick={onFollow}
                                     loading={followRequest.isLoading()}
-                                    startIcon={
-                                        followRequest.data ? <ThumbDown /> : <ThumbUp />
-                                    }
+                                    startIcon={followRequest.data ? <ThumbDown /> : <ThumbUp />}
                                 >
                                     {followRequest.data ? 'Unfollow' : 'Follow'}
                                 </LoadingButton>
@@ -238,9 +237,7 @@ function AuthProfilePage({
                                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                     <Tabs
                                         value={searchParams.get('view') || 'stats'}
-                                        onChange={(_, t: string) =>
-                                            updateSearchParams({ view: t })
-                                        }
+                                        onChange={(_, t: string) => updateSearchParams({ view: t })}
                                         aria-label='profile tabs'
                                         variant='scrollable'
                                     >
@@ -292,7 +289,7 @@ function AuthProfilePage({
                                     <CoachTab user={user} />
                                 </TabPanel>
                                 <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
-                                    <ProgressTab
+                                    <TrainingPlanTab
                                         user={user}
                                         isCurrentUser={currentUserProfile}
                                     />
@@ -307,9 +304,7 @@ function AuthProfilePage({
                                     <DirectoryCacheProvider>
                                         <DirectoriesSection
                                             namespace={
-                                                currentUserProfile
-                                                    ? 'own-profile'
-                                                    : 'other-profile'
+                                                currentUserProfile ? 'own-profile' : 'other-profile'
                                             }
                                             defaultDirectoryOwner={user.username}
                                             enableNavigationMenu={currentUserProfile}
@@ -339,19 +334,23 @@ function AuthProfilePage({
                     )}
                 </Container>
 
-                <Container
-                    sx={{
-                        marginLeft: 0,
-                        gridArea: 'stats',
-                        display: { xs: 'none', lg: 'initial' },
-                    }}
-                >
-                    <Stack spacing={2}>
-                        <RatingsCard user={user} />
-                        <HeatmapCard />
-                        <BadgeCard user={user} />
-                    </Stack>
-                </Container>
+                {isLarge && (
+                    <Container
+                        sx={{
+                            marginLeft: 0,
+                            gridArea: 'stats',
+                        }}
+                    >
+                        <Stack spacing={2}>
+                            <HeatmapCard
+                                workGoalHistory={user.workGoalHistory ?? []}
+                                defaultWorkGoal={user.workGoal}
+                            />
+                            <DojoScoreCard user={user} cohort={user.dojoCohort} />
+                            <BadgeCard user={user} />
+                        </Stack>
+                    </Container>
+                )}
             </TimelineProvider>
         </Box>
     );

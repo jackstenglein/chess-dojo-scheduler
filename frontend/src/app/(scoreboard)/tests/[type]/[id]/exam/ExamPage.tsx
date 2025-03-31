@@ -5,11 +5,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth, useRequiredAuth } from '@/auth/Auth';
 import { BoardApi, Chess } from '@/board/Board';
-import PgnBoard, {
-    BlockBoardKeyboardShortcuts,
-    PgnBoardApi,
-    useChess,
-} from '@/board/pgn/PgnBoard';
+import PgnBoard, { BlockBoardKeyboardShortcuts, PgnBoardApi, useChess } from '@/board/pgn/PgnBoard';
 import { useDebounce } from '@/board/pgn/boardTools/boardButtons/StatusIcon';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from '@/board/pgn/pgnText/MoveButton';
@@ -35,10 +31,7 @@ import {
     ExamAttempt,
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
-import {
-    getSolutionScore,
-    scoreVariation,
-} from '@jackstenglein/chess-dojo-common/src/exam/scores';
+import { getSolutionScore, scoreVariation } from '@jackstenglein/chess-dojo-common/src/exam/scores';
 import {
     Assessment,
     Info,
@@ -79,13 +72,7 @@ function getColorsTime(limitSeconds?: number): { 0: number } & { 1: number } & n
         return [3600, 2700, 1800, 900, 0];
     }
 
-    return [
-        limitSeconds,
-        limitSeconds * 0.75,
-        limitSeconds * 0.5,
-        limitSeconds * 0.25,
-        0,
-    ];
+    return [limitSeconds, limitSeconds * 0.75, limitSeconds * 0.5, limitSeconds * 0.25, 0];
 }
 
 export function ExamPage({ type, id }: { type: ExamType; id: string }) {
@@ -169,9 +156,8 @@ function AuthExamPage({ type, id }: { type: ExamType; id: string }) {
                 <DialogTitle>Retake this test?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        You can retake this test for practice, but your original score
-                        will still be used for your stats on this test and your Dojo
-                        Tactics rating.
+                        You can retake this test for practice, but your original score will still be
+                        used for your stats on this test and your Dojo Tactics rating.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -248,9 +234,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
             inProgress,
         };
 
-        const attemptIndex = currentAttempt
-            ? (answer?.attempts.length ?? 1) - 1
-            : undefined;
+        const attemptIndex = currentAttempt ? (answer?.attempts.length ?? 1) - 1 : undefined;
         return api.putExamAttempt(exam.type, exam.id, attempt, attemptIndex, totalScore);
     };
 
@@ -424,9 +408,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                 initialUnderboardTab='examInfo'
                 allowMoveDeletion={!exam.takebacksDisabled}
                 disableTakebacks={
-                    exam.takebacksDisabled
-                        ? getOrientation(exam.pgns[selectedProblem])
-                        : undefined
+                    exam.takebacksDisabled ? getOrientation(exam.pgns[selectedProblem]) : undefined
                 }
                 slots={{
                     moveButtonExtras: ExamMoveButtonExtras,
@@ -443,8 +425,7 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                 <DialogTitle>Test Complete</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Your time has run out, and the test is over. Let's see how you
-                        did!
+                        Your time has run out, and the test is over. Let's see how you did!
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -550,13 +531,7 @@ export const CompletedExam: React.FC<CompletedExamProps> = ({
             getSolutionScore(orientation || 'white', chess.history(), chess, false);
             const answerChess = new Chess({ pgn: userPgn });
             answerChess.seek(null);
-            scoreVariation(
-                orientation || 'white',
-                chess.history(),
-                null,
-                answerChess,
-                false,
-            );
+            scoreVariation(orientation || 'white', chess.history(), null, answerChess, false);
             addExtraVariation(answerChess.history(), null, chess);
         },
         [userPgn, orientation],
@@ -592,9 +567,7 @@ export const CompletedExam: React.FC<CompletedExamProps> = ({
                                 selected={selectedProblem}
                                 onSelect={setSelectedProblem}
                                 scores={scores}
-                                elapsedTime={
-                                    answer.attempts[selectedAttempt]?.timeUsedSeconds || 0
-                                }
+                                elapsedTime={answer.attempts[selectedAttempt]?.timeUsedSeconds || 0}
                                 onReset={onReset}
                                 resetLabel={resetLabel}
                                 attempt={selectedAttempt}
@@ -642,21 +615,13 @@ const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) 
         if (found) {
             return (
                 <Tooltip title='This move is an alternate solution. You got full credit for the mainline variation for finding this.'>
-                    <SwapHorizontalCircle
-                        fontSize='small'
-                        sx={{ ml: 0.5 }}
-                        color='success'
-                    />
+                    <SwapHorizontalCircle fontSize='small' sx={{ ml: 0.5 }} color='success' />
                 </Tooltip>
             );
         }
         return (
             <Tooltip title='This move is an alternate solution. You would have received full credit for the mainline variation for finding this.'>
-                <SwapHorizontalCircle
-                    fontSize='small'
-                    sx={{ ml: 0.5 }}
-                    color='disabled'
-                />
+                <SwapHorizontalCircle fontSize='small' sx={{ ml: 0.5 }} color='disabled' />
             </Tooltip>
         );
     }
@@ -666,8 +631,7 @@ const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) 
             <Tooltip title={getMoveDescription({ found, score, altFound })}>
                 <Box
                     sx={{
-                        backgroundColor:
-                            found || altFound ? 'success.main' : 'error.main',
+                        backgroundColor: found || altFound ? 'success.main' : 'error.main',
                         width: '20px',
                         height: '20px',
                         borderRadius: '10px',
@@ -687,10 +651,7 @@ const CompletedMoveButtonExtras: React.FC<MoveButtonProps> = ({ move, inline }) 
                         fontWeight='600'
                         sx={{
                             pt: '2px',
-                            color:
-                                found || altFound
-                                    ? 'success.contrastText'
-                                    : 'background.paper',
+                            color: found || altFound ? 'success.contrastText' : 'background.paper',
                         }}
                     >
                         {found || altFound ? '+' : '-'}

@@ -4,7 +4,7 @@ import { EventType, setUserCohort, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
-import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
+import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import { Link } from '@/components/navigation/Link';
 import NotificationSettingsEditor from '@/components/profile/edit/NotificationSettingsEditor';
 import { PersonalInfoEditor } from '@/components/profile/edit/PersonalInfoEditor';
@@ -43,9 +43,9 @@ export const MAX_PROFILE_PICTURE_SIZE_MB = 9;
 type UserUpdate = Partial<User & { profilePictureData: string }>;
 
 function getRatingEditors(ratings: Partial<Record<RatingSystem, Rating>>) {
-    const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(
-        RatingSystem,
-    ).reduce<Record<string, RatingEditor>>((m, rs) => {
+    const ratingEditors: Record<RatingSystem, RatingEditor> = Object.values(RatingSystem).reduce<
+        Record<string, RatingEditor>
+    >((m, rs) => {
         m[rs] = {
             username: ratings[rs]?.username || '',
             hideUsername: ratings[rs]?.hideUsername || false,
@@ -140,7 +140,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
     const router = useRouter();
 
     const [displayName, setDisplayName] = useState(user.displayName);
-    const [discordUsername, setDiscordUsername] = useState(user.discordUsername);
     const [dojoCohort, setDojoCohort] = useState(
         user.dojoCohort !== 'NO_COHORT' ? user.dojoCohort : '',
     );
@@ -152,9 +151,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
     const [ratingEditors, setRatingEditors] = useState(getRatingEditors(user.ratings));
     const [enableZenMode, setEnableZenMode] = useState(user.enableZenMode);
 
-    const [notificationSettings, setNotificationSettings] = useState(
-        user.notificationSettings,
-    );
+    const [notificationSettings, setNotificationSettings] = useState(user.notificationSettings);
 
     const [profilePictureUrl, setProfilePictureUrl] = useState<string>();
     const [profilePictureData, setProfilePictureData] = useState<string>();
@@ -166,7 +163,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
         user,
         {
             displayName: displayName.trim(),
-            discordUsername: discordUsername.trim(),
             dojoCohort,
             bio,
             coachBio,
@@ -174,7 +170,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
             ratingSystem,
             ratings: getRatingsFromEditors(ratingEditors),
             enableZenMode,
-
             notificationSettings,
         },
         profilePictureData,
@@ -204,28 +199,17 @@ export function ProfileEditorPage({ user }: { user: User }) {
         }
 
         for (const rs of Object.keys(ratingEditors)) {
-            const startRating = parseRating(
-                ratingEditors[rs as RatingSystem].startRating,
-            );
+            const startRating = parseRating(ratingEditors[rs as RatingSystem].startRating);
             if (startRating < 0) {
                 newErrors[`${rs}StartRating`] = 'Rating must be an integer >= 0';
             }
             if (isCustom(rs)) {
                 const name = ratingEditors[rs as RatingSystem].name;
-                const currentRating = parseRating(
-                    ratingEditors[rs as RatingSystem].currentRating,
-                );
-                if (
-                    (rs === ratingSystem || currentRating > 0 || startRating > 0) &&
-                    !name.trim()
-                ) {
-                    newErrors[`${rs}Name`] =
-                        'This field is required when using a custom rating';
+                const currentRating = parseRating(ratingEditors[rs as RatingSystem].currentRating);
+                if ((rs === ratingSystem || currentRating > 0 || startRating > 0) && !name.trim()) {
+                    newErrors[`${rs}Name`] = 'This field is required when using a custom rating';
                 }
-                if (
-                    (rs === ratingSystem || name.trim() || startRating > 0) &&
-                    currentRating <= 0
-                ) {
+                if ((rs === ratingSystem || name.trim() || startRating > 0) && currentRating <= 0) {
                     newErrors[`${rs}CurrentRating`] =
                         'This field is required when using a custom rating system';
                 }
@@ -320,10 +304,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
                                     />
                                     Ratings
                                 </Link>
-                                <Link
-                                    href='#notifications'
-                                    onClick={scrollToId('notifications')}
-                                >
+                                <Link href='#notifications' onClick={scrollToId('notifications')}>
                                     <NotificationsIcon
                                         fontSize='small'
                                         sx={{
@@ -333,10 +314,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
                                     />
                                     Notifications
                                 </Link>
-                                <Link
-                                    href='#subscription'
-                                    onClick={scrollToId('subscription')}
-                                >
+                                <Link href='#subscription' onClick={scrollToId('subscription')}>
                                     <MonetizationOnIcon
                                         fontSize='small'
                                         sx={{
@@ -363,9 +341,9 @@ export function ProfileEditorPage({ user }: { user: User }) {
                         user.dojoCohort !== '' &&
                         !dojoCohorts.includes(user.dojoCohort) && (
                             <Alert severity='error' sx={{ mb: 3 }}>
-                                Invalid cohort: The dojo is phasing out the 0-400 and
-                                400-600 cohorts in favor of more specific cohorts. Please
-                                choose a new cohort below.
+                                Invalid cohort: The dojo is phasing out the 0-400 and 400-600
+                                cohorts in favor of more specific cohorts. Please choose a new
+                                cohort below.
                             </Alert>
                         )}
 
@@ -415,8 +393,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             user={user}
                             displayName={displayName}
                             setDisplayName={setDisplayName}
-                            discordUsername={discordUsername}
-                            setDiscordUsername={setDiscordUsername}
                             bio={bio}
                             setBio={setBio}
                             coachBio={coachBio}

@@ -36,6 +36,8 @@ export const EnvSchema = z.object({
     discord: z.object({
         publicUrl: z.string(),
         privateUrl: z.string(),
+        clientId: z.string(),
+        oauthRedirectUrl: z.string(),
     }),
 });
 
@@ -72,6 +74,8 @@ export function getConfig(): Config {
         discord: {
             publicUrl: process.env.NEXT_PUBLIC_DISCORD_PUBLIC_URL,
             privateUrl: process.env.NEXT_PUBLIC_DISCORD_PRIVATE_URL,
+            clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
+            oauthRedirectUrl: process.env.NEXT_PUBLIC_DISCORD_OAUTH_REDIRECT_URL,
         },
     });
 }

@@ -1,3 +1,4 @@
+import { WeekDays } from '@/components/calendar/filters/CalendarFilters';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { AuthTokens } from 'aws-amplify/auth';
 import { ExamType } from './exam';
@@ -98,6 +99,7 @@ export interface User {
     username: string;
     displayName: string;
     discordUsername: string;
+    discordId?: string;
     dojoCohort: string;
     bio: string;
     coachBio?: string;
@@ -166,6 +168,68 @@ export interface User {
 
     /** The IDs of the user's pinned tasks. */
     pinnedTasks?: string[];
+
+    /** The day the user's week starts on. Sunday is 0; Saturday is 6. */
+    weekStart: WeekDays;
+
+    /** The user's work goal settings. */
+    workGoal?: WorkGoalSettings;
+
+    /** The user's history of the work goal. New entries are added only when the work goal is changed. */
+    workGoalHistory?: WorkGoalHistory[];
+
+    /** The user's weekly training plan. */
+    weeklyPlan?: WeeklyPlan;
+
+    /** The user's schedule of upcoming classical games. */
+    gameSchedule?: GameScheduleEntry[];
+}
+
+export interface WorkGoalSettings {
+    /**
+     * A list of the minutes the user wants to work per day of the week.
+     * In conjunction with minutesPerTask, this affects how many tasks the
+     * user is suggested. Sunday is index 0; Saturday is index 6.
+     */
+    minutesPerDay: number[];
+}
+
+export interface WorkGoalHistory {
+    /** The date the user set the work goal, in ISO 8601. */
+    date: string;
+    /** The user's work goal on the given date. */
+    workGoal: WorkGoalSettings;
+}
+
+export interface WeeklyPlan {
+    /** The exclusive date the weekly plan ends, in ISO 8601. */
+    endDate: string;
+    /**
+     * The tasks in the plan, in a list ordered by the index of the day of the week.
+     * Sunday is index 0; Saturday is index 6.
+     */
+    tasks: {
+        /** The id of the task. */
+        id: string;
+        /** The work goal of the task in minutes. */
+        minutes: number;
+    }[][];
+    /**
+     * The date (in ISO 8601) the user's progress was most recently updated when the weekly plan
+     * was last generated.
+     */
+    progressUpdatedAt: string;
+    /** The ids of the user's pinned tasks (in order) when the weekly plan was last generated. */
+    pinnedTasks?: string[];
+    /** The date (in ISO 8601) of the user's next scheduled game when the weekly plan was last generated. */
+    nextGame: string;
+}
+
+export interface GameScheduleEntry {
+    /** The date the game(s) will be played, in ISO 8601 format. */
+    date: string;
+    /** The number of games that will be played. */
+    count: number;
 }
 
 export type UserSummary = Pick<User, 'username' | 'displayName' | 'dojoCohort'>;
@@ -233,10 +297,7 @@ export type MinutesSpentKey =
     | 'ALL_COHORTS_LAST_365_DAYS'
     | 'ALL_COHORTS_NON_DOJO';
 
-export function parseUser(
-    apiResponse: Omit<User, 'cognitoUser'>,
-    cognitoUser?: CognitoUser,
-): User {
+export function parseUser(apiResponse: Omit<User, 'cognitoUser'>, cognitoUser?: CognitoUser): User {
     return {
         ...apiResponse,
         cognitoUser,
@@ -279,10 +340,7 @@ export function getSystemCurrentRating(
     return rating?.currentRating || 0;
 }
 
-export function getRatingUsername(
-    user: User | undefined,
-    ratingSystem: RatingSystem,
-): string {
+export function getRatingUsername(user: User | undefined, ratingSystem: RatingSystem): string {
     if (!user) {
         return '';
     }
@@ -290,10 +348,7 @@ export function getRatingUsername(
     return rating?.username || '';
 }
 
-export function hideRatingUsername(
-    user: User | undefined,
-    ratingSystem: RatingSystem,
-): boolean {
+export function hideRatingUsername(user: User | undefined, ratingSystem: RatingSystem): boolean {
     if (!user) {
         return true;
     }
@@ -393,8 +448,7 @@ export function isCohortInRange(cohort: string | undefined, range: string): bool
     }
 
     const minCohort = parseInt(range);
-    const maxCohort =
-        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : undefined;
+    const maxCohort = range.split('-').length > 1 ? parseInt(range.split('-')[1]) : undefined;
     const userCohort = parseInt(cohort);
 
     if (!maxCohort) {
@@ -932,8 +986,7 @@ export function isCohortPromptHidden(user?: User): boolean {
  * @returns A partial User object
  */
 export function getPartialUserHideCohortPrompt(user?: User): Partial<User> {
-    const siteNotificationSettings = user?.notificationSettings
-        ?.siteNotificationSettings ?? {
+    const siteNotificationSettings = user?.notificationSettings?.siteNotificationSettings ?? {
         disableGameComment: false,
         disableGameCommentReplies: false,
         disableNewFollower: false,

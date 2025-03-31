@@ -138,9 +138,9 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
     const ratingRange = searchParams.get('ratingRange') || 'Open';
     const players = useMemo(
         () =>
-            Object.values(
-                openClassical.sections[`${region}_${ratingRange}`]?.players || {},
-            ).filter((player) => player.lichessUsername !== 'No Opponent'),
+            Object.values(openClassical.sections[`${region}_${ratingRange}`]?.players || {}).filter(
+                (player) => player.lichessUsername !== 'No Opponent',
+            ),
         [openClassical, region, ratingRange],
     );
 
@@ -252,9 +252,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
 
             <Dialog
                 open={Boolean(updatePlayer)}
-                onClose={
-                    updateRequest.isLoading() ? undefined : () => setUpdatePlayer('')
-                }
+                onClose={updateRequest.isLoading() ? undefined : () => setUpdatePlayer('')}
                 maxWidth='sm'
                 fullWidth
             >
@@ -275,10 +273,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                     >
                         Cancel
                     </Button>
-                    <LoadingButton
-                        loading={updateRequest.isLoading()}
-                        onClick={onConfirmUpdate}
-                    >
+                    <LoadingButton loading={updateRequest.isLoading()} onClick={onConfirmUpdate}>
                         {updateType === 'ban' ? 'Ban' : 'Withdraw'} Player
                     </LoadingButton>
                 </DialogActions>

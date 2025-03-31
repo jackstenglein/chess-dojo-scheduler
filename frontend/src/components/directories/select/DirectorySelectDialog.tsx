@@ -32,19 +32,12 @@ interface DirectorySelectDialogProps {
     };
 }
 
-export function DirectorySelectDialog({
-    value,
-    onChange,
-    slotProps,
-}: DirectorySelectDialogProps) {
+export function DirectorySelectDialog({ value, onChange, slotProps }: DirectorySelectDialogProps) {
     const { directory, request } = useDirectory(value.owner, value.id);
 
     return (
         <Dialog {...slotProps.dialog}>
-            <DialogTitle
-                {...slotProps.dialogTitle}
-                sx={{ ...slotProps.dialogTitle.sx, pb: 0 }}
-            />
+            <DialogTitle {...slotProps.dialogTitle} sx={{ ...slotProps.dialogTitle.sx, pb: 0 }} />
             <DialogContent>
                 <Box sx={{ mt: 1, mb: 2 }}>
                     <NavigationMenu
@@ -64,9 +57,7 @@ export function DirectorySelectDialog({
                             owner={value.owner}
                             id={value.id}
                             variant='body1'
-                            onClick={(item) =>
-                                onChange({ owner: item.owner, id: item.id })
-                            }
+                            onClick={(item) => onChange({ owner: item.owner, id: item.id })}
                         />
 
                         <List>

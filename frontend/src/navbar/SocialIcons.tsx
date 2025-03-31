@@ -12,11 +12,7 @@ const icons = [
     </Tooltip>,
 
     <Tooltip key='youtube' title='YouTube'>
-        <IconButton
-            href='https://www.youtube.com/chessdojo'
-            target='_blank'
-            rel='noopener'
-        >
+        <IconButton href='https://www.youtube.com/chessdojo' target='_blank' rel='noopener'>
             <YouTube sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
@@ -44,21 +40,13 @@ const icons = [
     </Tooltip>,
 
     <Tooltip key='patreon' title='Patreon'>
-        <IconButton
-            href='https://www.patreon.com/ChessDojo'
-            target='_blank'
-            rel='noopener'
-        >
+        <IconButton href='https://www.patreon.com/ChessDojo' target='_blank' rel='noopener'>
             <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,
 
     <Tooltip key='instagram' title='Instagram'>
-        <IconButton
-            href='https://www.instagram.com/chessdojo/'
-            target='_blank'
-            rel='noopener'
-        >
+        <IconButton href='https://www.instagram.com/chessdojo/' target='_blank' rel='noopener'>
             <Instagram sx={{ color: 'white' }} />
         </IconButton>
     </Tooltip>,

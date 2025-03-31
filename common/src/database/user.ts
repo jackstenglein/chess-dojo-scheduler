@@ -20,6 +20,7 @@ export interface User {
     username: string;
     displayName: string;
     discordUsername: string;
+    discordId?: string;
     dojoCohort: string;
     bio: string;
     coachBio?: string;
@@ -68,7 +69,7 @@ export interface User {
 
     referralSource: string;
 
-    notificationSettings: UserNotificationSettings;
+    notificationSettings?: UserNotificationSettings;
 
     totalDojoScore: number;
 
@@ -103,18 +104,23 @@ export interface UserNotificationSettings {
 export interface DiscordNotificationSettings {
     disableMeetingBooking: boolean;
     disableMeetingCancellation: boolean;
+    disableCalendarInvite: boolean;
+    disableRoundRobinStart: boolean;
 }
 
 export interface EmailNotificationSettings {
     disableNewsletter: boolean;
     disableInactiveWarning: boolean;
+    disableRoundRobinStart: boolean;
 }
 
 export interface SiteNotificationSettings {
     disableGameComment: boolean;
+    disableGameCommentReplies: boolean;
     disableNewFollower: boolean;
     disableNewsfeedComment: boolean;
     disableNewsfeedReaction: boolean;
+    disableCalendarInvite: boolean;
 }
 
 export type MinutesSpentKey =

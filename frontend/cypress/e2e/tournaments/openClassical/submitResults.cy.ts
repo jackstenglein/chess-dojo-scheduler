@@ -18,9 +18,7 @@ describe('Submit Results Page', () => {
         cy.getBySel('game-url').type('https://lichess.org/Mw461kKB9Rsq');
         cy.getBySel('game-url').find('input').blur();
 
-        cy.getBySel('white')
-            .find('input')
-            .should('have.attr', 'value', 'shatterednirvana');
+        cy.getBySel('white').find('input').should('have.attr', 'value', 'shatterednirvana');
         cy.getBySel('black').find('input').should('have.attr', 'value', 'jackstenglein');
         cy.contains('Black Wins (0-1)');
     });
@@ -165,9 +163,7 @@ describe('Submit Results Page', () => {
             cy.contains(result).click();
 
             cy.getBySel('submit-button').click();
-            cy.getBySel('game-url')
-                .contains('This field is required')
-                .should('not.exist');
+            cy.getBySel('game-url').contains('This field is required').should('not.exist');
         });
 
         cy.getBySel('result').click();

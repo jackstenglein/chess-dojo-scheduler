@@ -164,14 +164,12 @@ type TimelineLister interface {
 
 type TimelineCommenter interface {
 	UserGetter
-	NotificationPutter
 
 	CreateTimelineComment(owner, id string, comment *Comment) (*TimelineEntry, error)
 }
 
 type TimelineReactor interface {
 	UserGetter
-	NotificationPutter
 
 	// SetTimelineReaction sets the given reaction on the provided TimelineEntry.
 	SetTimelineReaction(owner, id string, reaction *Reaction) (*TimelineEntry, error)

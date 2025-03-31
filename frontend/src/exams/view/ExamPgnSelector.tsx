@@ -91,19 +91,10 @@ const ExamPgnSelector: React.FC<ExamPgnSelectorProps> = ({
                     {cohortRange}: {name}
                 </Typography>
             </Stack>
-            <Stack
-                spacing={3}
-                direction='row'
-                alignItems='center'
-                justifyContent='center'
-            >
+            <Stack spacing={3} direction='row' alignItems='center' justifyContent='center'>
                 <CountdownTimer {...countdown} />
                 {onPause && (
-                    <LoadingButton
-                        variant='contained'
-                        onClick={onPause}
-                        loading={pauseLoading}
-                    >
+                    <LoadingButton variant='contained' onClick={onPause} loading={pauseLoading}>
                         {pauseLoading ? 'Saving...' : 'Pause'}
                     </LoadingButton>
                 )}
@@ -134,9 +125,7 @@ const ExamPgnSelector: React.FC<ExamPgnSelectorProps> = ({
                                 width={1}
                                 spacing={1}
                             >
-                                <Typography>
-                                    {pgnNames?.[i] || `Problem ${i + 1}`}
-                                </Typography>
+                                <Typography>{pgnNames?.[i] || `Problem ${i + 1}`}</Typography>
 
                                 <Stack direction='row' spacing={2}>
                                     {problemStatus?.[i] === ProblemStatus.Complete && (
@@ -181,9 +170,8 @@ const ExamPgnSelector: React.FC<ExamPgnSelectorProps> = ({
                 <DialogTitle>Finish Early?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure you want to finish the test early? This will end the
-                        entire test, and you will not be able to change your answers if
-                        you continue.
+                        Are you sure you want to finish the test early? This will end the entire
+                        test, and you will not be able to change your answers if you continue.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -207,17 +195,13 @@ const ExamPgnSelector: React.FC<ExamPgnSelectorProps> = ({
             >
                 <MenuItem
                     onClick={() => markStatus(ProblemStatus.Complete)}
-                    disabled={
-                        problemStatus?.[openStatusProblem] === ProblemStatus.Complete
-                    }
+                    disabled={problemStatus?.[openStatusProblem] === ProblemStatus.Complete}
                 >
                     Mark as Completed
                 </MenuItem>
                 <MenuItem
                     onClick={() => markStatus(ProblemStatus.NeedsReview)}
-                    disabled={
-                        problemStatus?.[openStatusProblem] === ProblemStatus.NeedsReview
-                    }
+                    disabled={problemStatus?.[openStatusProblem] === ProblemStatus.NeedsReview}
                 >
                     Mark as Needs Review
                 </MenuItem>
@@ -254,15 +238,7 @@ interface CountdownProps {
 }
 
 const CountdownTimer = (props: CountdownProps) => {
-    const {
-        path,
-        pathLength,
-        stroke,
-        strokeDashoffset,
-        remainingTime,
-        size,
-        strokeWidth,
-    } = props;
+    const { path, pathLength, stroke, strokeDashoffset, remainingTime, size, strokeWidth } = props;
     return (
         <div style={{ position: 'relative', width: size, height: size }}>
             <svg
@@ -271,12 +247,7 @@ const CountdownTimer = (props: CountdownProps) => {
                 height={size}
                 xmlns='http://www.w3.org/2000/svg'
             >
-                <path
-                    d={path}
-                    fill='none'
-                    stroke='rgba(0, 0, 0, 0)'
-                    strokeWidth={strokeWidth}
-                />
+                <path d={path} fill='none' stroke='rgba(0, 0, 0, 0)' strokeWidth={strokeWidth} />
                 <path
                     d={path}
                     fill='none'

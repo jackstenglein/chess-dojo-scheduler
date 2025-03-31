@@ -46,12 +46,7 @@ const CompletedExamPgnSelector: React.FC<CompletedExamPgnSelectorProps> = ({
                     {cohortRange}: {name}
                 </Typography>
             </Stack>
-            <Stack
-                spacing={3}
-                direction='row'
-                alignItems='center'
-                justifyContent='center'
-            >
+            <Stack spacing={3} direction='row' alignItems='center' justifyContent='center'>
                 <Stack alignItems='center'>
                     <TextField
                         select
@@ -79,10 +74,7 @@ const CompletedExamPgnSelector: React.FC<CompletedExamPgnSelectorProps> = ({
             <List sx={{ mt: 2 }}>
                 {Array.from(Array(count)).map((_, i) => (
                     <ListItem key={i} disablePadding>
-                        <ListItemButton
-                            selected={i === selected}
-                            onClick={() => onSelect(i)}
-                        >
+                        <ListItemButton selected={i === selected} onClick={() => onSelect(i)}>
                             <ListItemIcon sx={{ minWidth: '40px' }}>
                                 <Stack alignItems='center' width={1}>
                                     <Typography
@@ -100,14 +92,11 @@ const CompletedExamPgnSelector: React.FC<CompletedExamPgnSelectorProps> = ({
                                 width={1}
                                 spacing={1}
                             >
-                                <Typography>
-                                    {pgnNames?.[i] || `Problem ${i + 1}`}
-                                </Typography>
+                                <Typography>{pgnNames?.[i] || `Problem ${i + 1}`}</Typography>
 
                                 {scores && (
                                     <Typography>
-                                        {scores.problems[i].user} /{' '}
-                                        {scores.problems[i].solution}
+                                        {scores.problems[i].user} / {scores.problems[i].solution}
                                     </Typography>
                                 )}
                             </Stack>

@@ -3,7 +3,10 @@
 import { useApi } from '@/api/Api';
 import { Request, RequestSnackbar, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
-import { Notification, NotificationType } from '@/database/notification';
+import {
+    Notification,
+    NotificationTypes,
+} from '@jackstenglein/chess-dojo-common/src/database/notification';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
     Button,
@@ -107,9 +110,11 @@ const NotificationItem: React.FC<NotificationListItemProps & DeletableNotificati
     );
 };
 
-const NotificationMenuItem: React.FC<
-    NotificationListItemProps & DeletableNotification
-> = ({ notification, onDelete, deleteRequest }) => {
+const NotificationMenuItem: React.FC<NotificationListItemProps & DeletableNotification> = ({
+    notification,
+    onDelete,
+    deleteRequest,
+}) => {
     const href = getLink(notification);
     return (
         <Stack>
@@ -141,28 +146,34 @@ const NotificationMenuItem: React.FC<
 
 function getLink(notification: Notification): string {
     switch (notification.type) {
-        case NotificationType.GameComment:
-        case NotificationType.GameCommentReply:
+        case NotificationTypes.GAME_COMMENT:
+        case NotificationTypes.GAME_COMMENT_REPLY:
             return `/games/${notification.gameCommentMetadata?.cohort}/${notification.gameCommentMetadata?.id}`;
-        case NotificationType.GameReviewComplete:
+        case NotificationTypes.GAME_REVIEW_COMPLETE:
             return `/games/${notification.gameReviewMetadata?.cohort}/${notification.gameReviewMetadata?.id}`;
 
-        case NotificationType.NewFollower:
+        case NotificationTypes.NEW_FOLLOWER:
             return `/profile/${notification.newFollowerMetadata?.username}`;
 
-        case NotificationType.TimelineComment:
-        case NotificationType.TimelineReaction:
+        case NotificationTypes.TIMELINE_COMMENT:
+        case NotificationTypes.TIMELINE_REACTION:
             return `/newsfeed/${notification.timelineCommentMetadata?.owner}/${notification.timelineCommentMetadata?.id}`;
 
-        case NotificationType.ExplorerGame:
+        case NotificationTypes.EXPLORER_GAME:
             if (notification.count === 1)
                 return `/games/${notification.explorerGameMetadata?.[0].cohort}/${notification.explorerGameMetadata?.[0].id}`;
             return `/notifications/${encodeURIComponent(notification.id)}`;
 
-        case NotificationType.NewClubJoinRequest:
+        case NotificationTypes.NEW_CLUB_JOIN_REQUEST:
             return `/clubs/${notification.clubMetadata?.id}?view=joinRequests`;
 
-        case NotificationType.ClubJoinRequestApproved:
+        case NotificationTypes.CLUB_JOIN_REQUEST_APPROVED:
             return `/clubs/${notification.clubMetadata?.id}`;
+
+        case NotificationTypes.CALENDAR_INVITE:
+            return `/calendar/availability/${notification.calendarInviteMetadata?.id}`;
+
+        case NotificationTypes.ROUND_ROBIN_START:
+            return `/tournaments/round-robin?cohort=${notification.roundRobinStartMetadata?.cohort}`;
     }
 }

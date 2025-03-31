@@ -66,8 +66,8 @@ const EmailPairingsButton: React.FC<EmailPairingsButtonProps> = ({
                 <DialogTitle>Send Pairing Emails?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        This will email the pairings for the latest round for all
-                        sections. All sections must be on the same round.
+                        This will email the pairings for the latest round for all sections. All
+                        sections must be on the same round.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

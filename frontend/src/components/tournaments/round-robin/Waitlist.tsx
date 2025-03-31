@@ -6,15 +6,7 @@ import {
     RoundRobinWaitlist,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { PeopleAlt } from '@mui/icons-material';
-import {
-    Button,
-    Card,
-    CardContent,
-    CardHeader,
-    Chip,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Button, Card, CardContent, CardHeader, Chip, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Players } from './Players';
 import { RegisterModal } from './RegisterModal';
@@ -26,10 +18,7 @@ export function Waitlist({
     onUpdateTournaments,
 }: {
     tournament: RoundRobinWaitlist;
-    onUpdateTournaments: (props: {
-        waitlist?: RoundRobin;
-        tournament?: RoundRobin;
-    }) => void;
+    onUpdateTournaments: (props: { waitlist?: RoundRobin; tournament?: RoundRobin }) => void;
 }) {
     const { user } = useAuth();
     const isFreeTier = useFreeTier();
@@ -39,9 +28,8 @@ export function Waitlist({
     const canRegister =
         user &&
         !tournament.players[user.username] &&
-        Math.abs(
-            dojoCohorts.indexOf(user.dojoCohort) - dojoCohorts.indexOf(tournament.cohort),
-        ) <= 1;
+        Math.abs(dojoCohorts.indexOf(user.dojoCohort) - dojoCohorts.indexOf(tournament.cohort)) <=
+            1;
 
     return (
         <Card>
@@ -84,8 +72,8 @@ export function Waitlist({
                 )}
 
                 <Typography>
-                    The tournament will start automatically once {MAX_ROUND_ROBIN_PLAYERS}{' '}
-                    players have joined.
+                    The tournament will start automatically once {MAX_ROUND_ROBIN_PLAYERS} players
+                    have joined.
                 </Typography>
 
                 <Players tournament={tournament} />

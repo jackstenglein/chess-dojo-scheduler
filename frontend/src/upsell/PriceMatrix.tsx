@@ -7,10 +7,7 @@ import { Request } from '../api/Request';
 import SellingPoint, { SellingPointStatus } from './SellingPoint';
 import { getCurrency } from './locales';
 
-const priceDataByCurrency: Record<
-    string,
-    { symbol: string; monthly: number; yearly: number }
-> = {
+const priceDataByCurrency: Record<string, { symbol: string; monthly: number; yearly: number }> = {
     USD: {
         symbol: '$',
         monthly: 15,
@@ -81,9 +78,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                         Free Tier
                                     </Typography>
 
-                                    <Typography variant='h6'>
-                                        {priceData.symbol}0
-                                    </Typography>
+                                    <Typography variant='h6'>{priceData.symbol}0</Typography>
                                 </Stack>
 
                                 <Stack spacing={1} flexGrow={1}>
@@ -173,9 +168,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                 fullWidth
                                 loading={request?.isLoading() && interval === 'month'}
                                 disabled={request?.isLoading() && interval !== 'month'}
-                                onClick={
-                                    onSubscribe ? () => onSubscribe('month') : undefined
-                                }
+                                onClick={onSubscribe ? () => onSubscribe('month') : undefined}
                                 href={subscribeLink}
                                 color='subscribe'
                             >
@@ -226,9 +219,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                 fullWidth
                                 loading={request?.isLoading() && interval === 'year'}
                                 disabled={request?.isLoading() && interval !== 'year'}
-                                onClick={
-                                    onSubscribe ? () => onSubscribe('year') : undefined
-                                }
+                                onClick={onSubscribe ? () => onSubscribe('year') : undefined}
                                 href={subscribeLink}
                                 color='subscribe'
                             >

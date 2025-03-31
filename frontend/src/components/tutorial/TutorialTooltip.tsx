@@ -1,14 +1,6 @@
 import CloseButton from '@/components/ui/CloseButton';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
-import {
-    Box,
-    Button,
-    Card,
-    CardActions,
-    CardContent,
-    CardHeader,
-    Typography,
-} from '@mui/material';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, Typography } from '@mui/material';
 import { TooltipRenderProps } from 'react-joyride';
 
 const TutorialTooltip: React.FC<TooltipRenderProps> = ({
@@ -27,20 +19,13 @@ const TutorialTooltip: React.FC<TooltipRenderProps> = ({
             sx={{ maxWidth: 'md', width: { xs: '95vw', sm: undefined } }}
             {...tooltipProps}
         >
-            <CardHeader
-                title={step.title}
-                action={<CloseButton onClose={closeProps.onClick} />}
-            />
+            <CardHeader title={step.title} action={<CloseButton onClose={closeProps.onClick} />} />
             <CardContent>
                 <Typography>{step.content}</Typography>
             </CardContent>
             <CardActions>
                 {index > 0 && <Button {...backProps}>Back</Button>}
-                <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={primaryProps.onClick}
-                >
+                <Button variant='contained' color='primary' onClick={primaryProps.onClick}>
                     {isLastStep ? 'Close' : 'Next'}
                 </Button>
                 <Box sx={{ ml: 2, flexGrow: 1 }}>

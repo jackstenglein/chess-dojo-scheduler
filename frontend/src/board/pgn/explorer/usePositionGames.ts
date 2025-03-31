@@ -46,16 +46,10 @@ export function usePositionGames({
 
     const games = (current?.games ?? []).filter((g) => {
         if (type === ExplorerDatabaseType.Dojo) {
-            if (
-                minCohort &&
-                dojoCohorts.indexOf(minCohort) > dojoCohorts.indexOf(g.cohort)
-            ) {
+            if (minCohort && dojoCohorts.indexOf(minCohort) > dojoCohorts.indexOf(g.cohort)) {
                 return false;
             }
-            if (
-                maxCohort &&
-                dojoCohorts.indexOf(maxCohort) < dojoCohorts.indexOf(g.cohort)
-            ) {
+            if (maxCohort && dojoCohorts.indexOf(maxCohort) < dojoCohorts.indexOf(g.cohort)) {
                 return false;
             }
         } else if (

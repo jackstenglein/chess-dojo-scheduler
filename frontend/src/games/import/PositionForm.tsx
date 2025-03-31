@@ -59,10 +59,7 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
         return option.label;
     };
 
-    const changeFen = (
-        _: React.SyntheticEvent,
-        value: string | PositionFormOption | null,
-    ) => {
+    const changeFen = (_: React.SyntheticEvent, value: string | PositionFormOption | null) => {
         setError('');
 
         if (!value) {

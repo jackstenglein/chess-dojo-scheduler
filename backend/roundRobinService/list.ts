@@ -64,9 +64,11 @@ async function fetchTournaments(request: RoundRobinListRequest) {
 
     const output = await dynamo.send(new QueryCommand(input));
     const tournaments = output.Items?.map((item) => unmarshall(item)) || [];
-    tournaments.forEach((t) =>
-        Object.keys(t.players).forEach((p) => (t.players[p].checkoutSession = undefined))
-    );
+    for (const t of tournaments) {
+        for (const p of Object.keys(t.players)) {
+            t.players[p].checkoutSession = undefined;
+        }
+    }
     return {
         tournaments,
         lastEvaluatedKey: output.LastEvaluatedKey,

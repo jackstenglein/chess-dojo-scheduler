@@ -354,9 +354,7 @@ function requestLichessNDJson<T, R>({
                     message = err.message;
                 }
 
-                const helpfulError = new Error(
-                    `Failed to contact Lichess API: ${message}`,
-                );
+                const helpfulError = new Error(`Failed to contact Lichess API: ${message}`);
 
                 reject(helpfulError);
             });

@@ -27,14 +27,7 @@ describe('Graduations', () => {
         cy.visit('/recent');
         cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
-        const columns = [
-            'Name',
-            'Graduated',
-            'Old Cohort',
-            'New Cohort',
-            'Dojo Score',
-            'Date',
-        ];
+        const columns = ['Name', 'Graduated', 'Old Cohort', 'New Cohort', 'Dojo Score', 'Date'];
 
         cy.getBySel('recent-graduates-table')
             .get('.MuiDataGrid-columnHeaders')

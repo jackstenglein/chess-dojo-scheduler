@@ -12,11 +12,7 @@ const UpsellPage: React.FC<UpsellPageProps> = ({ redirectTo, ...props }) => {
 
     return (
         <Container maxWidth='lg' sx={{ pt: 5 }}>
-            <UpsellDialog
-                open={true}
-                onClose={() => router.push(redirectTo)}
-                {...props}
-            />
+            <UpsellDialog open={true} onClose={() => router.push(redirectTo)} {...props} />
         </Container>
     );
 };

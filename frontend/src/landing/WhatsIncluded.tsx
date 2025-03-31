@@ -37,9 +37,7 @@ const tabData: Record<string, TabData> = {
             'Opening guides and repertoires with puzzles, model games and key positions',
             'Middlegame and endgame sparring positions to hone your skills',
         ],
-        images: [
-            'https://chess-dojo-images.s3.amazonaws.com/landing-page/training-plan.webp',
-        ],
+        images: ['https://chess-dojo-images.s3.amazonaws.com/landing-page/training-plan.webp'],
     },
     games: {
         title: (
@@ -56,9 +54,7 @@ const tabData: Record<string, TabData> = {
             'Analyze your own games and receive comments from higher-rated players',
             `Get insights into how you're using your time in games`,
         ],
-        images: [
-            'https://chess-dojo-images.s3.amazonaws.com/landing-page/game-clock.webp',
-        ],
+        images: ['https://chess-dojo-images.s3.amazonaws.com/landing-page/game-clock.webp'],
     },
     scoreboard: {
         title: (
@@ -75,9 +71,7 @@ const tabData: Record<string, TabData> = {
             'Keep yourself accountable by working alongside your peers in your cohort',
             'Gamify your chess improvement and reach the top of the leaderboards',
         ],
-        images: [
-            'https://chess-dojo-images.s3.amazonaws.com/landing-page/scoreboard.webp',
-        ],
+        images: ['https://chess-dojo-images.s3.amazonaws.com/landing-page/scoreboard.webp'],
     },
     community: {
         title: (
@@ -186,9 +180,7 @@ const WhatsIncluded = () => {
                                                             borderRadius: '4px',
                                                         }}
                                                         alt=''
-                                                        loading={
-                                                            i === 0 ? 'eager' : 'lazy'
-                                                        }
+                                                        loading={i === 0 ? 'eager' : 'lazy'}
                                                         crossOrigin='anonymous'
                                                     />
                                                 ))}
@@ -219,10 +211,7 @@ function BulletPoints({ points }: { points: string[] }) {
                     alignItems='start'
                     position='relative'
                 >
-                    <CheckCircleOutline
-                        color='success'
-                        sx={{ position: 'relative', top: '2px' }}
-                    />
+                    <CheckCircleOutline color='success' sx={{ position: 'relative', top: '2px' }} />
                     <Typography variant='h6'>{p}</Typography>
                 </Stack>
             ))}

@@ -20,6 +20,7 @@ export const CategoryColors: Record<RequirementCategory, string> = {
     [RequirementCategory.Opening]: '#f05b5b',
     [RequirementCategory.Graduation]: '#fc6156',
     [RequirementCategory.NonDojo]: '#dbdbdb',
+    [RequirementCategory.Pinned]: '#c27ba0',
 };
 
 declare module '@mui/material/styles' {
@@ -197,9 +198,7 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
         <MuiThemeProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <DefaultDarkModeSetter>
-                <Box sx={{ '--navbar-height': { xs: '60px', md: '75px' } }}>
-                    {children}
-                </Box>
+                <Box sx={{ '--navbar-height': { xs: '60px', md: '75px' } }}>{children}</Box>
             </DefaultDarkModeSetter>
         </MuiThemeProvider>
     );

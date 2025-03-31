@@ -62,7 +62,7 @@ func handleJoinRequest(event api.Request) api.Response {
 		return api.Failure(err)
 	}
 
-	if err := repository.PutNotification(database.NewClubJoinRequestNotification(club)); err != nil {
+	if err := database.SendClubJoinRequestEvent(club); err != nil {
 		log.Errorf("Failed to leave notification for club owner: %v", err)
 	}
 

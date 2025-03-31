@@ -90,9 +90,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
                                 {completed !== undefined ? (
                                     completed[idx] && <CheckCircleIcon color='success' />
                                 ) : (
-                                    <Typography variant='caption'>
-                                        {header.Result}
-                                    </Typography>
+                                    <Typography variant='caption'>{header.Result}</Typography>
                                 )}
                             </Stack>
                         </ListItemButton>
@@ -101,13 +99,7 @@ const PgnSelector: React.FC<PgnSelectorProps> = ({
             </List>
 
             {hiddenCount !== undefined && hiddenCount > 0 && (
-                <Stack
-                    data-cy='upsell-message'
-                    px={1}
-                    mt={2}
-                    spacing={2}
-                    alignItems='center'
-                >
+                <Stack data-cy='upsell-message' px={1} mt={2} spacing={2} alignItems='center'>
                     <Typography textAlign='center'>
                         Unlock {hiddenCount} more game
                         {hiddenCount > 1 ? 's' : ''} by upgrading to a full account

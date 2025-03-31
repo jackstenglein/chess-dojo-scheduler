@@ -1,16 +1,9 @@
 'use client';
 
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Graduation } from '@/database/graduation';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import {
-    Card,
-    CardActionArea,
-    CardContent,
-    Grid2,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Card, CardActionArea, CardContent, Grid2, Stack, Typography } from '@mui/material';
 import Link from 'next/link';
 
 interface GraduationLinkCardProps {
@@ -43,11 +36,7 @@ export const GraduationLinkCard = ({ graduation, to }: GraduationLinkCardProps) 
                         >
                             <CohortIcon cohort={newCohort} size={100} color='primary' />
                             <Typography variant='h5'>{displayName}</Typography>
-                            <Typography
-                                variant='subtitle1'
-                                color='text.secondary'
-                                lineHeight='1.3'
-                            >
+                            <Typography variant='subtitle1' color='text.secondary' lineHeight='1.3'>
                                 <div>Graduated to {newCohort}</div>
                                 <div>
                                     {dateStr} • {timeStr}

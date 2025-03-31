@@ -88,7 +88,11 @@ func handleAvailability(info *api.UserInfo, event *database.Event) api.Response 
 		return api.Failure(err)
 	}
 
-	if err := checkCohorts(event.Cohorts); err != nil {
+	if event.InviteOnly && len(event.Invited) == 0 {
+		return api.Failure(errors.New(400, "Invalid request: invited is required if inviteOnly is set", ""))
+	}
+
+	if err := checkCohorts(event.Cohorts); !event.InviteOnly && err != nil {
 		return api.Failure(err)
 	}
 
@@ -105,6 +109,12 @@ func handleAvailability(info *api.UserInfo, event *database.Event) api.Response 
 
 	if err := repository.SetEvent(event); err != nil {
 		return api.Failure(err)
+	}
+
+	if len(event.Invited) > 0 {
+		if err := database.SendCalendarInviteEvent(event); err != nil {
+			log.Error("Failed to send calendar invite notification: ", err)
+		}
 	}
 
 	if msgId, err := discord.SendAvailabilityNotification(event); err != nil {

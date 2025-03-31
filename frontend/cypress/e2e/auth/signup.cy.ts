@@ -54,9 +54,6 @@ describe('Signup Page', () => {
 
         cy.getBySel('submit-button').click();
 
-        cy.getBySel('description').should(
-            'contain',
-            'please enter the verification code',
-        );
+        cy.getBySel('description').should('contain', 'please enter the verification code');
     });
 });

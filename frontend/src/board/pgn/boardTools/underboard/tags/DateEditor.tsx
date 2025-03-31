@@ -36,9 +36,6 @@ export function EditDateCell(props: GridRenderEditCellParams<TagRow, PgnDate | s
 
 function isPgnDate(obj: unknown): obj is PgnDate {
     return (
-        typeof obj === 'object' &&
-        obj !== null &&
-        'value' in obj &&
-        typeof obj.value === 'string'
+        typeof obj === 'object' && obj !== null && 'value' in obj && typeof obj.value === 'string'
     );
 }

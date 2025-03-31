@@ -34,9 +34,9 @@ const DashboardCard = ({ account }: { account?: StripeAccount }) => {
             <CardContent>
                 <Stack spacing={2} alignItems='start'>
                     <Typography>
-                        ChessDojo uses Stripe to process payments. Click the button below
-                        to go to your Stripe dashboard, where you can see your current
-                        balance, view upcoming payouts and track your earnings.
+                        ChessDojo uses Stripe to process payments. Click the button below to go to
+                        your Stripe dashboard, where you can see your current balance, view upcoming
+                        payouts and track your earnings.
                     </Typography>
 
                     <LoadingButton

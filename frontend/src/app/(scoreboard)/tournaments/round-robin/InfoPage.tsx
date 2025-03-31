@@ -1,7 +1,7 @@
 import TimeControlTable from '@/components/tournaments/round-robin/TimeControlTable';
 import { PawnIcon } from '@/style/ChessIcons';
 import Icon from '@/style/Icon';
-import { CalendarMonth, HelpOutline, MonetizationOn } from '@mui/icons-material';
+import { CalendarMonth, EmojiEvents, HelpOutline, MonetizationOn } from '@mui/icons-material';
 import GroupIcon from '@mui/icons-material/Group';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
@@ -21,23 +21,23 @@ import {
 const faqs = [
     {
         question: 'Is there a registration period for Dojo Round robins?',
-        answer: "No, you can join the waitlist at any time. Once 10 players have joined the waitlist for your cohort's round robin, the tournament will automatically start.",
+        answer: "No, you can join the waitlist at any time. Once 10 players have joined the waitlist for your cohort's round robin, the tournament will automatically start. To prevent indefinite waiting, if nobody has joined the waitlist in 10 days and there are at least 4 players on the waitlist, the tournament will start.",
     },
     {
         question: 'How do I register for the Dojo Round Robin?',
         answer: 'Go to the tournaments tab and click the Register button on the waitlist. You can register for your cohort, as well as one cohort above and below.',
     },
     {
+        question: 'When do the tournaments start?',
+        answer: 'As soon as 10 players have joined the waitlist, or if there are at least 4 players on the waitlist and the waitlist has not updated in 10 days.',
+    },
+    {
+        question: 'How do I know when the tournament has started?',
+        answer: 'By default, you will be notified on this site, as well as on Discord and via email. You can disable the Discord and email notifications in your settings.',
+    },
+    {
         question: 'What are the time controls for different cohorts?',
         answer: 'Time controls are based on your cohort: Under 800: 30+0, 800-1200: 30+30, 1200+: 45+30, 1600+: 60+30, 2000+: 90+30.',
-    },
-    {
-        question: 'When do the tournaments start?',
-        answer: 'As soon as 10 players have joined the waitlist.',
-    },
-    {
-        question: 'What if I want to withdraw from the tournament?',
-        answer: 'Click the withdraw button on the tournament. All your matches will be forfeited, including games you have already played.',
     },
     {
         question: 'How do I schedule the games?',
@@ -46,6 +46,14 @@ const faqs = [
     {
         question: 'How do I submit my games?',
         answer: 'Click the submit game button on the tournament and enter the Chess.com or Lichess URL.',
+    },
+    {
+        question: 'Should games be rated or unrated?',
+        answer: 'Games should be rated, but if both you and your opponent agree, you can play an unrated game.',
+    },
+    {
+        question: 'What if I want to withdraw from the tournament?',
+        answer: 'Click the withdraw button on the tournament. All your matches will be forfeited, including games you have already played.',
     },
     {
         question: 'What happens if I suspect someone of cheating?',
@@ -75,26 +83,15 @@ const FAQSection = () => (
 export const InfoPage = () => {
     return (
         <Stack>
-            <Typography
-                variant='h5'
-                textAlign='center'
-                color='text.secondary'
-                sx={{ mt: 2 }}
-            >
+            <Typography variant='h5' textAlign='center' color='text.secondary' sx={{ mt: 2 }}>
                 Welcome to the Dojo Round Robin!
-                <WavingHandIcon
-                    sx={{ verticalAlign: 'middle', ml: 1 }}
-                    color='dojoOrange'
-                />
+                <WavingHandIcon sx={{ verticalAlign: 'middle', ml: 1 }} color='dojoOrange' />
             </Typography>
 
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
-                <MilitaryTechIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <MilitaryTechIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Overview
             </Typography>
             <List>
@@ -120,17 +117,29 @@ export const InfoPage = () => {
                     <ListItemIcon>
                         <Icon name='Classical' sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Play classical time control games for your cohort, as recommended by the training program:' />
+                    <ListItemText primary='Play rated, classical time control games for your cohort, as recommended by the training program:' />
                 </ListItem>
             </List>
             <TimeControlTable />
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
-                <MonetizationOn
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <EmojiEvents sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
+                ChessDojo Champions Circuit
+            </Typography>
+
+            <Typography sx={{ mt: 2 }}>
+                The first 20 Round Robin winners (starting March 20, 2025) will receive a free year
+                membership to the Dojo training plan as well as an invitation to the Champions'
+                tournament in January 2026. Players who win multiple round robins will receive only
+                one prize. After the first 20 winners, additional winners will receive an invitation
+                to the Champions' tournament.
+            </Typography>
+
+            <Divider sx={{ my: 4 }} />
+
+            <Typography variant='h6' color='text.secondary'>
+                <MonetizationOn sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Entrance Fee
             </Typography>
 
@@ -158,10 +167,7 @@ export const InfoPage = () => {
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
-                <LeaderboardIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <LeaderboardIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Leaderboard
             </Typography>
 
@@ -193,16 +199,12 @@ export const InfoPage = () => {
             <Divider sx={{ my: 4 }} />
 
             <Typography variant='h6' color='text.secondary'>
-                <NotInterestedIcon
-                    sx={{ verticalAlign: 'middle', mr: 1 }}
-                    color='dojoOrange'
-                />
+                <NotInterestedIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
                 Anti-cheat Info
             </Typography>
 
             <Typography sx={{ mt: 2, mb: 1 }}>
-                The Dojo takes cheating very seriously and has the following anti-cheat
-                policies:
+                The Dojo takes cheating very seriously and has the following anti-cheat policies:
             </Typography>
 
             <List>

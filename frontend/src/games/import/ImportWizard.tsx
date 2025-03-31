@@ -94,25 +94,13 @@ export const ImportWizard = ({ onSubmit, loading }: ImportWizardProps) => {
 
             <Dialog open={!!dialog} onClose={onCloseDialog} fullWidth scroll='body'>
                 {dialog === 'online' && (
-                    <OnlineGameForm
-                        loading={loading}
-                        onSubmit={onSelect}
-                        onClose={onCloseDialog}
-                    />
+                    <OnlineGameForm loading={loading} onSubmit={onSelect} onClose={onCloseDialog} />
                 )}
                 {dialog === 'pgn' && (
-                    <PGNForm
-                        loading={loading}
-                        onSubmit={onSelect}
-                        onClose={onCloseDialog}
-                    />
+                    <PGNForm loading={loading} onSubmit={onSelect} onClose={onCloseDialog} />
                 )}
                 {dialog === 'position' && (
-                    <PositionForm
-                        loading={loading}
-                        onSubmit={onSelect}
-                        onClose={onCloseDialog}
-                    />
+                    <PositionForm loading={loading} onSubmit={onSelect} onClose={onCloseDialog} />
                 )}
             </Dialog>
         </Grid2>
@@ -179,11 +167,7 @@ const ImportSourceCard = ({
                             <Typography variant='h5' mb={0.5}>
                                 {name}
                             </Typography>
-                            <Typography
-                                variant='subtitle1'
-                                color='text.secondary'
-                                lineHeight='1.3'
-                            >
+                            <Typography variant='subtitle1' color='text.secondary' lineHeight='1.3'>
                                 {description}
                             </Typography>
                         </Stack>

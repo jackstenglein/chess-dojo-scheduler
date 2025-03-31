@@ -29,10 +29,7 @@ interface ScoreboardViewSelectorProps {
  * @param onChange An optional function to call when the view is changed. If not provided, the default is to navigate to the new view.
  * @returns A component that allows switching between different scoreboard views.
  */
-const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({
-    value,
-    onChange,
-}) => {
+const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({ value, onChange }) => {
     const { user } = useAuth();
     const { clubs } = useClubs(user?.clubs || NO_CLUBS);
     const router = useRouter();
@@ -49,33 +46,26 @@ const ScoreboardViewSelector: React.FC<ScoreboardViewSelectorProps> = ({
             label='View'
             value={value}
             onChange={(event) =>
-                onChange
-                    ? onChange(event.target.value)
-                    : defaultOnChange(event.target.value)
+                onChange ? onChange(event.target.value) : defaultOnChange(event.target.value)
             }
             sx={{ mb: 3 }}
             fullWidth
         >
             <MenuItem value='search'>
-                <SearchIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
-                Search Users
+                <SearchIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} /> Search Users
             </MenuItem>
             <MenuItem value='stats'>
-                <AutoGraphIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
-                Statistics
+                <AutoGraphIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} /> Statistics
             </MenuItem>
             <MenuItem value='dojo'>
-                <LanguageIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
-                Full Dojo
+                <LanguageIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} /> Full Dojo
             </MenuItem>
             <MenuItem value='following'>
-                <ThumbUpIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
-                Followers
+                <ThumbUpIcon sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} /> Followers
             </MenuItem>
             {clubs.map((club) => (
                 <MenuItem key={club.id} value={`clubs/${club.id}`}>
-                    <Groups sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} />{' '}
-                    {club.name}
+                    <Groups sx={{ marginRight: '0.6em', verticalAlign: 'middle' }} /> {club.name}
                 </MenuItem>
             ))}
             {dojoCohorts.map((option) => (

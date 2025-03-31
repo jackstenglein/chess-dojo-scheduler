@@ -73,16 +73,15 @@ export const DirectoriesSection = ({
     });
     const router = useRouter();
 
-    const [columnVisibility, setColumnVisibility] =
-        useLocalStorage<GridColumnVisibilityModel>(
-            `/DirectoryTable/${namespace}/visibility`,
-            {
-                type: true,
-                name: true,
-                result: true,
-                ...(defaultColumnVisibility ?? {}),
-            },
-        );
+    const [columnVisibility, setColumnVisibility] = useLocalStorage<GridColumnVisibilityModel>(
+        `/DirectoryTable/${namespace}/visibility`,
+        {
+            type: true,
+            name: true,
+            result: true,
+            ...(defaultColumnVisibility ?? {}),
+        },
+    );
     const [density, setDensity] = useLocalStorage<GridDensity>(
         `/DirectoryTable/density`,
         'standard',
@@ -135,10 +134,7 @@ export const DirectoriesSection = ({
         return <NotFoundPage />;
     }
 
-    const onClickRow = (
-        params: GridRowParams<DirectoryItem>,
-        event: React.MouseEvent,
-    ) => {
+    const onClickRow = (params: GridRowParams<DirectoryItem>, event: React.MouseEvent) => {
         if (params.row.type === DirectoryItemTypes.DIRECTORY) {
             updateSearchParams({
                 directory: params.row.id,
@@ -180,8 +176,7 @@ export const DirectoriesSection = ({
     };
 
     const isEditor =
-        compareRoles(DirectoryAccessRole.Editor, accessRole) &&
-        directoryId !== SHARED_DIRECTORY_ID;
+        compareRoles(DirectoryAccessRole.Editor, accessRole) && directoryId !== SHARED_DIRECTORY_ID;
     const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     return (
@@ -202,13 +197,7 @@ export const DirectoriesSection = ({
                 />
 
                 {isEditor && (
-                    <Stack
-                        direction='row'
-                        alignItems='center'
-                        gap={2}
-                        width={1}
-                        flexWrap='wrap'
-                    >
+                    <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
                         <AddButton directory={directory} accessRole={accessRole} />
                         <ShareButton directory={directory} accessRole={accessRole} />
 

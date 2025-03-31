@@ -241,10 +241,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             const bonus = Math.max(0, timeControl.increment || timeControl.delay || 0);
             let additionalTime = 0;
 
-            if (
-                timeControl.moves &&
-                pliesSinceTimeControl / 2 === timeControl.moves - 1
-            ) {
+            if (timeControl.moves && pliesSinceTimeControl / 2 === timeControl.moves - 1) {
                 if (timeControlIdx + 1 < (timeControls?.length ?? 0)) {
                     timeControlIdx++;
                 }
@@ -440,9 +437,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     </Box>
                 </Stack>
 
-                {showEditor && (
-                    <ClockEditor setShowTimeControlEditor={setShowTimeControlEditor} />
-                )}
+                {showEditor && <ClockEditor setShowTimeControlEditor={setShowTimeControlEditor} />}
 
                 {showTimeControlEditor && (
                     <TimeControlEditor
