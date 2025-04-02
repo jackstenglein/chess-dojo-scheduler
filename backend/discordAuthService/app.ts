@@ -105,7 +105,7 @@ async function handleConnectRequest(
         });
     }
 
-    const response = await axios.put(
+    const addResponse = await axios.put(
         `https://discord.com/api/guilds/${DISCORD_GUILD_ID}/members/${userResponse.data.id}`,
         { access_token: tokenResponse.data.access_token, roles },
         {
@@ -115,7 +115,26 @@ async function handleConnectRequest(
             },
         },
     );
-    console.log(`User ${user.username} successfully added to guild: `, response.data);
+    if (addResponse.status === 204) {
+        // Discord API won't add the roles if the user was already in the guild, so we must
+        // send a PATCH request now
+        const patchResponse = await axios.patch(
+            `https://discord.com/api/guilds/${DISCORD_GUILD_ID}/members/${userResponse.data.id}`,
+            { roles },
+            {
+                headers: {
+                    Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+                    'Content-Type': 'application/json',
+                },
+            },
+        );
+        console.log(
+            `User ${user.username} already in guild. Successfully set roles: `,
+            patchResponse,
+        );
+    } else {
+        console.log(`User ${user.username} successfully added to guild: `, addResponse);
+    }
 
     const input = new UpdateItemBuilder()
         .key('username', user.username)
