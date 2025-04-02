@@ -121,6 +121,10 @@ const pagesWithVideos = [
     '/courses/OPENING/d30581c8-f2c4-4d1c-8a5e-f303a83cc193/1/0',
     '/courses/OPENING/d30581c8-f2c4-4d1c-8a5e-f303a83cc193/2/0',
     '/courses/OPENING/d30581c8-f2c4-4d1c-8a5e-f303a83cc193/3/0',
+
+    // Play against the caro kann
+    '/courses/OPENING/179bf457-05fa-4405-9b61-4c12b6687932/0/1',
+    '/courses/OPENING/179bf457-05fa-4405-9b61-4c12b6687932/0/2',
 ];
 
 export default nextConfig;

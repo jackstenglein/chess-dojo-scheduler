@@ -19,7 +19,7 @@ const PgnText = () => {
     const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
     const { config, slotProps } = useChess();
-    const { unsaved, game } = useGame();
+    const { unsaved, game, isOwner } = useGame();
     const [hideEngine] = useLocalStorage(HideEngine.Key, HideEngine.Default);
 
     const handleScroll = (child: HTMLElement | null) => {
@@ -38,7 +38,7 @@ const PgnText = () => {
 
     return (
         <Stack spacing={1} maxHeight={1}>
-            {game && game.unlisted === true && <UnpublishedGameBanner dismissable />}
+            {game && game.unlisted === true && isOwner && <UnpublishedGameBanner dismissable />}
             {unsaved && <UnsavedGameBanner dismissable />}
 
             <Card

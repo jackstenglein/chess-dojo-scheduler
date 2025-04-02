@@ -1,6 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { useRequiredAuth } from '@/auth/Auth';
+import { useAuth } from '@/auth/Auth';
 import { BlockBoardKeyboardShortcuts, useChess } from '@/board/pgn/PgnBoard';
 import useGame from '@/context/useGame';
 import { PositionComment } from '@/database/game';
@@ -14,7 +14,7 @@ export interface CommentEditorProps {
 }
 
 const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEditor }) => {
-    const { user } = useRequiredAuth();
+    const { user } = useAuth();
     const api = useApi();
     const [comment, setComment] = useState('');
     const request = useRequest();
@@ -31,7 +31,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEdit
         }
     }, [focusEditor, setFocusEditor]);
 
-    if (!game || !onUpdateGame) {
+    if (!game || !onUpdateGame || !user) {
         return null;
     }
 
