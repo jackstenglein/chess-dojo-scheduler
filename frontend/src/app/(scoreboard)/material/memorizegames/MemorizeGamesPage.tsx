@@ -14,6 +14,7 @@ import {
 import { ShowGlyphsKey } from '@/board/pgn/boardTools/underboard/settings/ViewerSettings';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
+import { AfterPgnText } from '@/components/material/memorizegames/AfterPgnText';
 import {
     correctMoveGlyphHtml,
     incorrectMoveGlyphHtml,
@@ -52,6 +53,7 @@ export function MemorizeGamesPage({ user }: { user: User }) {
     const defaultOnMove = defaultOnMoveGenerator(showGlyphs);
     const solutionChess = useRef<Chess>();
     const incorrectMoves = useRef<WrongMove[]>([]);
+    const [isComplete, setIsComplete] = useState(false);
 
     useEffect(() => {
         if (!listRequest.isSent()) {
@@ -121,6 +123,9 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                         autoShapes: [{ orig: move.to, customSvg: { html: correctMoveGlyphHtml } }],
                     },
                 });
+                setIsComplete(
+                    solutionChess.current.currentMove() === solutionChess.current.history().at(-1),
+                );
             } else {
                 incorrectMoves.current.push(move);
                 board.set({
@@ -163,7 +168,14 @@ export function MemorizeGamesPage({ user }: { user: User }) {
             setMode(newMode);
             solutionChess.current?.seek(null);
             incorrectMoves.current = [];
+            setIsComplete(false);
         }
+    };
+
+    const onReset = () => {
+        solutionChess.current?.seek(null);
+        incorrectMoves.current = [];
+        setIsComplete(false);
     };
 
     const games = isFreeTier ? listRequest.data.slice(0, 3) : listRequest.data;
@@ -188,9 +200,10 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                                     <RadioGroup
                                         row
                                         value={mode}
-                                        onChange={(e) =>
-                                            onSwitchMode(e.target.value as 'study' | 'test')
-                                        }
+                                        onChange={(e) => {
+                                            onSwitchMode(e.target.value as 'study' | 'test');
+                                            e.target.blur();
+                                        }}
                                     >
                                         <FormControlLabel
                                             value='study'
@@ -231,6 +244,16 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                     board: {
                         onMove,
                     },
+                }}
+                slots={{
+                    afterPgnText:
+                        mode === 'test' ? (
+                            <AfterPgnText
+                                solution={solutionChess}
+                                isComplete={isComplete}
+                                onReset={onReset}
+                            />
+                        ) : undefined,
                 }}
             />
         </Container>
