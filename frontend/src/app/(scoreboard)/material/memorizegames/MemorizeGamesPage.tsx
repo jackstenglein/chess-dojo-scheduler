@@ -4,25 +4,11 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import PgnSelector from '@/app/(scoreboard)/courses/[type]/[id]/[chapter]/[module]/PgnSelector';
 import { useFreeTier } from '@/auth/Auth';
-import {
-    BoardApi,
-    Chess,
-    defaultOnMove as defaultOnMoveGenerator,
-    PrimitiveMove,
-    reconcile,
-} from '@/board/Board';
-import { ShowGlyphsKey } from '@/board/pgn/boardTools/underboard/settings/ViewerSettings';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
-import PgnBoard from '@/board/pgn/PgnBoard';
-import { AfterPgnText } from '@/components/material/memorizegames/AfterPgnText';
-import {
-    correctMoveGlyphHtml,
-    incorrectMoveGlyphHtml,
-} from '@/components/material/memorizegames/moveGlyphs';
+import PgnBoard, { PgnBoardMode } from '@/board/pgn/PgnBoard';
 import { Game, GameInfo } from '@/database/game';
 import { compareCohorts, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import { Square } from '@jackstenglein/chess';
 import { Info } from '@mui/icons-material';
 import {
     CardContent,
@@ -33,14 +19,7 @@ import {
     RadioGroup,
     Typography,
 } from '@mui/material';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
-
-interface WrongMove {
-    from: Square;
-    to: Square;
-    promotion?: string | undefined;
-}
+import { useEffect, useState } from 'react';
 
 export function MemorizeGamesPage({ user }: { user: User }) {
     const api = useApi();
@@ -49,11 +28,6 @@ export function MemorizeGamesPage({ user }: { user: User }) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [mode, setMode] = useState<'study' | 'test'>('study');
     const isFreeTier = useFreeTier();
-    const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
-    const defaultOnMove = defaultOnMoveGenerator(showGlyphs);
-    const solutionChess = useRef<Chess>();
-    const incorrectMoves = useRef<WrongMove[]>([]);
-    const [isComplete, setIsComplete] = useState(false);
 
     useEffect(() => {
         if (!listRequest.isSent()) {
@@ -84,9 +58,6 @@ export function MemorizeGamesPage({ user }: { user: User }) {
             api.getGame(gameInfo.cohort, gameInfo.id)
                 .then((res) => {
                     getRequest.onSuccess(res.data);
-                    solutionChess.current = new Chess({ pgn: res.data.pgn });
-                    solutionChess.current.seek(null);
-                    incorrectMoves.current = [];
                 })
                 .catch((err) => {
                     console.error('getGame: ', err);
@@ -94,59 +65,6 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                 });
         }
     }, [listRequest, getRequest, selectedIndex, api]);
-
-    const onMove = useCallback(
-        (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
-            if (
-                mode === 'study' ||
-                (chess.history().length && chess.currentMove() !== chess.history().at(-1)) ||
-                solutionChess.current?.currentMove() === solutionChess.current?.history().at(-1)
-            ) {
-                defaultOnMove(board, chess, primMove);
-                return;
-            }
-
-            const move = { from: primMove.orig, to: primMove.dest, promotion: primMove.promotion };
-            if (solutionChess.current?.isMainline(move)) {
-                solutionChess.current.move(move);
-                const currentMove = chess.currentMove();
-                const newMove = chess.move(move);
-                for (const m of incorrectMoves.current) {
-                    chess.move(m, { previousMove: currentMove });
-                }
-                incorrectMoves.current = [];
-
-                chess.seek(newMove);
-                reconcile(chess, board, showGlyphs);
-                board.set({
-                    drawable: {
-                        autoShapes: [{ orig: move.to, customSvg: { html: correctMoveGlyphHtml } }],
-                    },
-                });
-                setIsComplete(
-                    solutionChess.current.currentMove() === solutionChess.current.history().at(-1),
-                );
-            } else {
-                incorrectMoves.current.push(move);
-                board.set({
-                    movable: {},
-                    premovable: {
-                        enabled: false,
-                    },
-                    drawable: {
-                        autoShapes: [
-                            { orig: move.to, customSvg: { html: incorrectMoveGlyphHtml } },
-                        ],
-                        eraseOnClick: false,
-                    },
-                });
-                setTimeout(() => {
-                    reconcile(chess, board, showGlyphs);
-                }, 500);
-            }
-        },
-        [mode, defaultOnMove, showGlyphs],
-    );
 
     if (listRequest.isLoading() || !listRequest.isSent()) {
         return <LoadingPage />;
@@ -166,16 +84,7 @@ export function MemorizeGamesPage({ user }: { user: User }) {
     const onSwitchMode = (newMode: 'study' | 'test') => {
         if (mode !== newMode) {
             setMode(newMode);
-            solutionChess.current?.seek(null);
-            incorrectMoves.current = [];
-            setIsComplete(false);
         }
-    };
-
-    const onReset = () => {
-        solutionChess.current?.seek(null);
-        incorrectMoves.current = [];
-        setIsComplete(false);
     };
 
     const games = isFreeTier ? listRequest.data.slice(0, 3) : listRequest.data;
@@ -186,9 +95,8 @@ export function MemorizeGamesPage({ user }: { user: User }) {
             <RequestSnackbar request={getRequest} />
 
             <PgnBoard
-                pgn={
-                    mode === 'study' ? getRequest.data?.pgn : getRequest.data?.pgn.split('\n\n')[0]
-                }
+                mode={mode === 'study' ? undefined : PgnBoardMode.Solitaire}
+                pgn={getRequest.data?.pgn}
                 underboardTabs={[
                     {
                         name: 'gameList',
@@ -241,19 +149,6 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                     pgnText: {
                         hideResult: mode === 'test',
                     },
-                    board: {
-                        onMove,
-                    },
-                }}
-                slots={{
-                    afterPgnText:
-                        mode === 'test' ? (
-                            <AfterPgnText
-                                solution={solutionChess}
-                                isComplete={isComplete}
-                                onReset={onReset}
-                            />
-                        ) : undefined,
                 }}
             />
         </Container>

@@ -1,26 +1,19 @@
 import { reconcile } from '@/board/Board';
 import { useChess } from '@/board/pgn/PgnBoard';
-import { Chess, EventType } from '@jackstenglein/chess';
+import { EventType } from '@jackstenglein/chess';
 import { Button, Divider, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 
-interface AfterPgnTextProps {
-    solution: React.RefObject<Chess | undefined>;
-    /** Whether the user has completed the puzzle or game memorization. */
-    isComplete: boolean;
-    /** Callback invoked to reset after completing the puzzle. */
-    onReset: () => void;
-}
-
-export function AfterPgnText(props: AfterPgnTextProps) {
-    if (props.isComplete) {
-        return <CompletedAfterPgnText {...props} />;
+export function AfterPgnText() {
+    const { solitaire } = useChess();
+    if (solitaire?.isComplete) {
+        return <CompletedAfterPgnText />;
     }
-    return <InProgressAfterPgnText {...props} />;
+    return <InProgressAfterPgnText />;
 }
 
-function InProgressAfterPgnText(props: AfterPgnTextProps) {
-    const { chess, board } = useChess();
+function InProgressAfterPgnText() {
+    const { chess, board, solitaire } = useChess();
     const [, setForceRender] = useState(0);
 
     useEffect(() => {
@@ -33,7 +26,7 @@ function InProgressAfterPgnText(props: AfterPgnTextProps) {
     }, [chess, setForceRender]);
 
     const onHint = (type: 'hint' | 'answer') => {
-        const move = props.solution.current?.nextMove();
+        const move = solitaire?.solution.current?.nextMove();
         if (!move) {
             return;
         }
@@ -76,14 +69,14 @@ function InProgressAfterPgnText(props: AfterPgnTextProps) {
     );
 }
 
-function CompletedAfterPgnText({ onReset }: AfterPgnTextProps) {
-    const { chess, board } = useChess();
+function CompletedAfterPgnText() {
+    const { chess, board, solitaire } = useChess();
 
     const handleReset = () => {
         chess?.seek(null);
         chess?.delete(chess.firstMove());
         reconcile(chess, board, false);
-        onReset();
+        solitaire?.reset();
     };
 
     return (
