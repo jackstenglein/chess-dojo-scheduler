@@ -152,7 +152,7 @@ export function useReconcile() {
     }, [chess, board, showGlyphs]);
 }
 
-function defaultOnMove(showGlyphs: boolean): onMoveFunc {
+export function defaultOnMove(showGlyphs: boolean): onMoveFunc {
     return (board: BoardApi, chess: Chess, move: PrimitiveMove) => {
         chess.move({
             from: move.orig,

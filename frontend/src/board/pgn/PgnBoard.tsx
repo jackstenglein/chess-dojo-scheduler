@@ -1,6 +1,10 @@
+import {
+    correctMoveGlyphHtml,
+    incorrectMoveGlyphHtml,
+} from '@/components/material/memorizegames/moveGlyphs';
 import useGame from '@/context/useGame';
 import LoadingPage from '@/loading/LoadingPage';
-import { Chess, Observer } from '@jackstenglein/chess';
+import { Chess, Observer, Square } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { Color } from 'chessground/types';
 import React, {
@@ -14,13 +18,20 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { BoardApi } from '../Board';
+import { useLocalStorage } from 'usehooks-ts';
+import { BoardApi, defaultOnMove, onMoveFunc, PrimitiveMove, reconcile } from '../Board';
 import ResizableContainer from './ResizableContainer';
+import { ShowGlyphsKey } from './boardTools/underboard/settings/ViewerSettings';
 import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
 
 export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
+
+export enum PgnBoardMode {
+    Normal = 'NORMAL',
+    Solitaire = 'SOLITAIRE',
+}
 
 interface ChessConfig {
     initKey?: string;
@@ -33,13 +44,20 @@ interface ChessConfig {
 }
 
 interface ChessContextType {
+    mode?: PgnBoardMode;
     chess?: Chess;
     board?: BoardApi;
     config?: ChessConfig;
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
+    slotProps?: PgnBoardSlotProps;
     orientation?: 'white' | 'black';
+    solitaire?: {
+        solution: React.RefObject<Chess>;
+        isComplete: boolean;
+        reset: () => void;
+    };
 }
 
 export const ChessContext = createContext<ChessContextType>({});
@@ -56,17 +74,35 @@ export interface PgnBoardApi {
 
 export interface PgnBoardSlots {
     moveButtonExtras?: React.JSXElementConstructor<MoveButtonProps>;
+    afterPgnText?: JSX.Element;
+}
+
+export interface PgnBoardSlotProps {
+    pgnText?: {
+        hideResult?: boolean;
+    };
+    board?: {
+        onMove?: onMoveFunc;
+    };
+}
+
+interface WrongMove {
+    from: Square;
+    to: Square;
+    promotion?: string | undefined;
 }
 
 interface PgnBoardProps extends ChessConfig {
     underboardTabs: UnderboardTab[];
     initialUnderboardTab?: string;
+    mode?: PgnBoardMode;
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
     slots?: PgnBoardSlots;
+    slotProps?: PgnBoardSlotProps;
 }
 
 const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
@@ -74,6 +110,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         {
             underboardTabs,
             initialUnderboardTab,
+            mode,
             pgn,
             fen,
             showPlayerHeaders = true,
@@ -87,6 +124,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             disableEngine,
             showElapsedMoveTimes,
             slots,
+            slotProps,
         },
         ref,
     ) => {
@@ -97,6 +135,71 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
         const [orientation, setOrientation] = useState(game?.orientation || startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
+        const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
+
+        // Solitaire chess
+        const solitaireSolution = useRef<Chess>(new Chess({ pgn }));
+        const solitaireIncorrectMoves = useRef<WrongMove[]>([]);
+        const [solitaireComplete, setSolitaireComplete] = useState(false);
+        const onSolitaireMove = useCallback(
+            (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
+                if (
+                    (chess.history().length && chess.currentMove() !== chess.history().at(-1)) ||
+                    solitaireSolution.current?.currentMove() ===
+                        solitaireSolution.current?.history().at(-1)
+                ) {
+                    defaultOnMove(showGlyphs)(board, chess, primMove);
+                    return;
+                }
+
+                const move = {
+                    from: primMove.orig,
+                    to: primMove.dest,
+                    promotion: primMove.promotion,
+                };
+                if (solitaireSolution.current?.isMainline(move)) {
+                    solitaireSolution.current.move(move);
+                    const currentMove = chess.currentMove();
+                    const newMove = chess.move(move);
+                    for (const m of solitaireIncorrectMoves.current) {
+                        chess.move(m, { previousMove: currentMove });
+                    }
+                    solitaireIncorrectMoves.current = [];
+
+                    chess.seek(newMove);
+                    reconcile(chess, board, showGlyphs);
+                    board.set({
+                        drawable: {
+                            autoShapes: [
+                                { orig: move.to, customSvg: { html: correctMoveGlyphHtml } },
+                            ],
+                        },
+                    });
+                    setSolitaireComplete(
+                        solitaireSolution.current.currentMove() ===
+                            solitaireSolution.current.history().at(-1),
+                    );
+                } else {
+                    solitaireIncorrectMoves.current.push(move);
+                    board.set({
+                        movable: {},
+                        premovable: {
+                            enabled: false,
+                        },
+                        drawable: {
+                            autoShapes: [
+                                { orig: move.to, customSvg: { html: incorrectMoveGlyphHtml } },
+                            ],
+                            eraseOnClick: false,
+                        },
+                    });
+                    setTimeout(() => {
+                        reconcile(chess, board, showGlyphs);
+                    }, 500);
+                }
+            },
+            [showGlyphs],
+        );
 
         const toggleOrientation = useCallback(() => {
             if (board) {
@@ -120,7 +223,27 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 toggleOrientation,
                 keydownMap,
                 slots,
+                slotProps: {
+                    ...slotProps,
+                    board: {
+                        onMove: slotProps?.board?.onMove
+                            ? slotProps.board.onMove
+                            : mode === PgnBoardMode.Solitaire
+                              ? onSolitaireMove
+                              : undefined,
+                    },
+                },
                 orientation,
+                mode,
+                solitaire: {
+                    solution: solitaireSolution,
+                    isComplete: solitaireComplete,
+                    reset: () => {
+                        solitaireSolution.current?.seek(null);
+                        solitaireIncorrectMoves.current = [];
+                        setSolitaireComplete(false);
+                    },
+                },
             }),
             [
                 chess,
@@ -131,10 +254,15 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 toggleOrientation,
                 keydownMap,
                 slots,
+                slotProps,
                 disableTakebacks,
                 disableEngine,
                 initKey,
                 showElapsedMoveTimes,
+                mode,
+                solitaireSolution,
+                solitaireComplete,
+                onSolitaireMove,
             ],
         );
 
@@ -158,6 +286,14 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             chess.disableNullMoves = disableNullMoves;
         }, [chess, disableNullMoves]);
 
+        useEffect(() => {
+            if (mode === PgnBoardMode.Solitaire) {
+                solitaireSolution.current = new Chess({ pgn });
+                solitaireSolution.current.seek(null);
+                solitaireIncorrectMoves.current = [];
+            }
+        }, [mode, pgn]);
+
         useImperativeHandle(ref, () => {
             return {
                 getPgn() {
@@ -172,6 +308,11 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             };
         }, [chess]);
 
+        let finalPgn = pgn;
+        if (mode === PgnBoardMode.Solitaire) {
+            finalPgn = pgn?.split('\n\n')[0];
+        }
+
         return (
             <Box
                 id={CONTAINER_ID}
@@ -183,18 +324,18 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                     overflowY: chess ? undefined : 'hidden',
                 }}
             >
-                {(!chess || (!pgn && !fen)) && (
+                {(!chess || (!finalPgn && !fen)) && (
                     <LoadingPage disableShrink sx={{ position: 'absolute', width: 1 }} />
                 )}
 
-                {(pgn || fen) && (
+                {(finalPgn || fen) && (
                     <ChessContext.Provider value={chessContext}>
                         <ResizableContainer
                             {...{
                                 underboardTabs,
                                 initialUnderboardTab,
                                 showPlayerHeaders,
-                                pgn,
+                                pgn: finalPgn,
                                 fen,
                                 startOrientation,
                                 onInitialize,
