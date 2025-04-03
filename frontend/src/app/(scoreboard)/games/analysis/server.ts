@@ -150,10 +150,7 @@ export async function getLichessStudy(url?: string): Promise<PgnImportResult<str
  * termination symbol, followed by 1 or more newlines, followed by the [ character.
  * @returns The list of split PGNs.
  */
-function splitPgns(
-    pgns: string,
-    separator = /(1-0|0-1|1\/2-1\/2|\*)(\r?\n)+\[/,
-): string[] {
+function splitPgns(pgns: string, separator = /(1-0|0-1|1\/2-1\/2|\*)(\r?\n)+\[/): string[] {
     const splits = pgns.split(separator);
     const games: string[] = [];
 
@@ -228,9 +225,7 @@ function msToClk(ms: number) {
  * @param url The URL of the analysis.
  * @returns The PGN of the analysis.
  */
-export async function getChesscomAnalysis(
-    url?: string,
-): Promise<PgnImportResult<string>> {
+export async function getChesscomAnalysis(url?: string): Promise<PgnImportResult<string>> {
     if (!url) {
         return {
             error: {
@@ -306,9 +301,7 @@ export async function getChesscomAnalysis(
  * @param gameURL The URL of the game.
  * @returns The PGN of the game.
  */
-export async function getChesscomGame(
-    gameURL?: string,
-): Promise<PgnImportResult<string>> {
+export async function getChesscomGame(gameURL?: string): Promise<PgnImportResult<string>> {
     const [, gameType, gameId] = (gameURL ?? '').match(chesscomGameRegex) ?? [];
     if (!gameType || !gameId) {
         return {

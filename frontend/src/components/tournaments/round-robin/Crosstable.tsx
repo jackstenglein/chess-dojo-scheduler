@@ -19,9 +19,7 @@ import {
  */
 export function Crosstable({ tournament }: { tournament: RoundRobin }) {
     if (!tournament.players) {
-        return (
-            <Typography textAlign={'center'}>No crosstable data available.</Typography>
-        );
+        return <Typography textAlign={'center'}>No crosstable data available.</Typography>;
     }
 
     return (
@@ -48,11 +46,7 @@ export function Crosstable({ tournament }: { tournament: RoundRobin }) {
                 </TableHead>
                 <TableBody>
                     {tournament.playerOrder.map((player) => (
-                        <CrosstableRow
-                            key={player}
-                            player={player}
-                            tournament={tournament}
-                        />
+                        <CrosstableRow key={player} player={player} tournament={tournament} />
                     ))}
                 </TableBody>
             </Table>
@@ -60,15 +54,8 @@ export function Crosstable({ tournament }: { tournament: RoundRobin }) {
     );
 }
 
-function CrosstableRow({
-    player,
-    tournament,
-}: {
-    player: string;
-    tournament: RoundRobin;
-}) {
-    const withdrawn =
-        tournament.players[player].status === RoundRobinPlayerStatuses.WITHDRAWN;
+function CrosstableRow({ player, tournament }: { player: string; tournament: RoundRobin }) {
+    const withdrawn = tournament.players[player].status === RoundRobinPlayerStatuses.WITHDRAWN;
 
     return (
         <TableRow>
@@ -80,9 +67,7 @@ function CrosstableRow({
                     borderColor: 'divider',
                 }}
             >
-                <Link href={`/profile/${player}`}>
-                    {tournament.players[player].displayName}
-                </Link>
+                <Link href={`/profile/${player}`}>{tournament.players[player].displayName}</Link>
                 {withdrawn && (
                     <>
                         <br />
@@ -131,8 +116,7 @@ function CrosstableRow({
                 if (withdrawn) {
                     result = '0';
                 } else if (
-                    tournament.players[opponent].status ===
-                    RoundRobinPlayerStatuses.WITHDRAWN
+                    tournament.players[opponent].status === RoundRobinPlayerStatuses.WITHDRAWN
                 ) {
                     result = '1';
                 }
@@ -144,11 +128,7 @@ function CrosstableRow({
                         sx={{ borderRight: '1px solid', borderColor: 'divider' }}
                     >
                         <Typography variant='h6'>
-                            {pairing?.url ? (
-                                <Link href={pairing?.url}>{result}</Link>
-                            ) : (
-                                result
-                            )}
+                            {pairing?.url ? <Link href={pairing?.url}>{result}</Link> : result}
                         </Typography>
                     </TableCell>
                 );

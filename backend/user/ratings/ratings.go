@@ -18,7 +18,7 @@ import (
 
 var client = http.Client{Timeout: 5 * time.Second}
 
-var fideRegexp, _ = regexp.Compile("std</span>\n\\s+(\\d+)")
+var fideRegexp, _ = regexp.Compile(`<p>(\d+)</p>\s*<p.*>STANDARD`)
 var uscfCurrRegexp, _ = regexp.Compile(`Regular Rating\s*</td>\s*<td>\s*<b><nobr>\s*(\d+)`)
 var uscfFutureRegexp, _ = regexp.Compile(`(?s)Regular Rating\s*<\/td>\s*<td>\s*<b><nobr>.*<\/nobr>\s*<\/b>\s*<\/td>\s*<td>\s*(\d+)`)
 var uscfGameCountRegexp, _ = regexp.Compile(`<tr><td></td><td><b>(\d+)`)

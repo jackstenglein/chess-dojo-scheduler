@@ -22,10 +22,7 @@ export interface ClubApiContextType {
      * @param update The fields of the club to update.
      * @returns An AxiosResponse containing the updated club.
      */
-    updateClub: (
-        id: string,
-        update: Partial<Club>,
-    ) => Promise<AxiosResponse<ClubDetails>>;
+    updateClub: (id: string, update: Partial<Club>) => Promise<AxiosResponse<ClubDetails>>;
 
     /**
      * Fetches the full list of clubs in the database.
@@ -40,10 +37,7 @@ export interface ClubApiContextType {
      * @param scoreboard If true, the club's scoreboard is included.
      * @returns An AxiosResponse containing the requested club.
      */
-    getClub: (
-        id: string,
-        scoreboard?: boolean,
-    ) => Promise<AxiosResponse<GetClubResponse>>;
+    getClub: (id: string, scoreboard?: boolean) => Promise<AxiosResponse<GetClubResponse>>;
 
     /**
      * Fetches the clubs with the given ids.
@@ -191,12 +185,7 @@ export function joinClub(idToken: string, id: string) {
  * @param user The user requesting to join.
  * @returns An AxiosResponse containing the updated club details.
  */
-export function requestToJoinClub(
-    idToken: string,
-    id: string,
-    notes: string,
-    user?: User,
-) {
+export function requestToJoinClub(idToken: string, id: string, notes: string, user?: User) {
     return axios.put<ClubDetails>(
         `${BASE_URL}/clubs/${id}/requests`,
         {

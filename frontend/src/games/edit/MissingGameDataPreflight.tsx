@@ -253,11 +253,7 @@ export const MissingGameDataPreflight = ({
                 <Button data-cy='cancel-preflight' onClick={onClose} disabled={loading}>
                     {skippable ? 'Skip for now' : 'Cancel'}
                 </Button>
-                <LoadingButton
-                    data-cy='submit-preflight'
-                    onClick={submit}
-                    loading={loading}
-                >
+                <LoadingButton data-cy='submit-preflight' onClick={submit} loading={loading}>
                     Submit
                 </LoadingButton>
             </DialogActions>

@@ -20,10 +20,7 @@ interface CompleteTournamentProps {
     onSuccess: (v: OpenClassical) => void;
 }
 
-const CompleteTournament: React.FC<CompleteTournamentProps> = ({
-    openClassical,
-    onSuccess,
-}) => {
+const CompleteTournament: React.FC<CompleteTournamentProps> = ({ openClassical, onSuccess }) => {
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState<DateTime | null>(null);
     const request = useRequest();
@@ -67,8 +64,8 @@ const CompleteTournament: React.FC<CompleteTournamentProps> = ({
                     <Stack spacing={3}>
                         <DialogContentText>
                             This will move the current tournament results to the Previous
-                            Tournaments Page and create a new tournament with open
-                            registrations. This action cannot be undone.
+                            Tournaments Page and create a new tournament with open registrations.
+                            This action cannot be undone.
                         </DialogContentText>
 
                         <DatePicker

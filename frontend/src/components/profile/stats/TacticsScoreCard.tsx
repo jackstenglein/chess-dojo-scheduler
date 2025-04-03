@@ -17,9 +17,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     const tacticsRating = calculateTacticsRating(user, requirements);
     const minCohort = parseInt(user.dojoCohort);
     const maxCohort =
-        user.dojoCohort.split('-').length > 1
-            ? parseInt(user.dojoCohort.split('-')[1])
-            : minCohort;
+        user.dojoCohort.split('-').length > 1 ? parseInt(user.dojoCohort.split('-')[1]) : minCohort;
 
     const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
 
@@ -97,33 +95,26 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                         {c.rating > 0 ? Math.round(c.rating) : '?'}
                                     </Typography>
                                     {c.examCount !== undefined && c.rating > 0 && (
-                                        <Typography
-                                            variant='body2'
-                                            color='text.secondary'
-                                        >
+                                        <Typography variant='body2' color='text.secondary'>
                                             <Stack direction='row'>
-                                                {[...Array(c.examCount).keys()].map(
-                                                    (idx) => (
-                                                        <FiberManualRecord
-                                                            key={`taken-${idx}`}
-                                                            sx={{
-                                                                width: '0.85rem',
-                                                                height: '0.85rem',
-                                                            }}
-                                                        />
-                                                    ),
-                                                )}
-                                                {[...Array(3 - c.examCount).keys()].map(
-                                                    (idx) => (
-                                                        <FiberManualRecordOutlined
-                                                            key={`untaken-${idx}`}
-                                                            sx={{
-                                                                width: '0.85rem',
-                                                                height: '0.85rem',
-                                                            }}
-                                                        />
-                                                    ),
-                                                )}
+                                                {[...Array(c.examCount).keys()].map((idx) => (
+                                                    <FiberManualRecord
+                                                        key={`taken-${idx}`}
+                                                        sx={{
+                                                            width: '0.85rem',
+                                                            height: '0.85rem',
+                                                        }}
+                                                    />
+                                                ))}
+                                                {[...Array(3 - c.examCount).keys()].map((idx) => (
+                                                    <FiberManualRecordOutlined
+                                                        key={`untaken-${idx}`}
+                                                        sx={{
+                                                            width: '0.85rem',
+                                                            height: '0.85rem',
+                                                        }}
+                                                    />
+                                                ))}
                                             </Stack>
                                         </Typography>
                                     )}

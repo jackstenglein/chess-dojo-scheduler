@@ -26,13 +26,13 @@ export function DiscordHelpItem() {
             >
                 private Discord server
             </Link>{' '}
-            to find training partners and communicate with other members. Free-tier users
-            can enjoy the Dojo's{' '}
+            to find training partners and communicate with other members. Free-tier users can enjoy
+            the Dojo's{' '}
             <Link href={config.discord.publicUrl} target='_blank' rel='noopener'>
                 public Discord server
             </Link>
-            , which also has exciting events like the open classical tournaments and
-            weekly team battles!
+            , which also has exciting events like the open classical tournaments and weekly team
+            battles!
             {showDialog && (
                 <UpsellDialog
                     open

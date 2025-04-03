@@ -1,8 +1,9 @@
+import { TimelineProvider } from '@/components/profile/activity/useTimeline';
+import { TaskDialog, TaskDialogView } from '@/components/profile/trainingPlan/TaskDialog';
 import { Box, LinearProgress, LinearProgressProps, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Requirement, formatTime } from '../database/requirement';
-import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ProgressTextProps {
     value?: number;
@@ -92,11 +93,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 onClick={onClick}
             >
                 <Box sx={{ flexGrow: 1, mr: 1 }}>
-                    <LinearProgress
-                        variant='determinate'
-                        {...rest}
-                        value={displayValue}
-                    />
+                    <LinearProgress variant='determinate' {...rest} value={displayValue} />
                 </Box>
                 {!hideProgressText && (
                     <ProgressText
@@ -110,14 +107,17 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 )}
             </Box>
 
-            {canUpdate && showUpdateDialog && (
-                <ProgressDialog
-                    open={showUpdateDialog}
-                    onClose={() => setShowUpdateDialog(false)}
-                    requirement={requirement}
-                    cohort={cohort}
-                    progress={user?.progress[requirement.id]}
-                />
+            {canUpdate && showUpdateDialog && user && (
+                <TimelineProvider owner={user.username}>
+                    <TaskDialog
+                        open
+                        onClose={() => setShowUpdateDialog(false)}
+                        task={requirement}
+                        initialView={TaskDialogView.Progress}
+                        cohort={cohort}
+                        progress={user.progress[requirement.id]}
+                    />
+                </TimelineProvider>
             )}
         </>
     );

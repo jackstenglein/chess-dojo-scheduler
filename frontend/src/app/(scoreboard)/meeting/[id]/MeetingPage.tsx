@@ -5,7 +5,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import Field from '@/components/calendar/eventViewer/Field';
 import ParticipantsList from '@/components/calendar/eventViewer/ParticipantsList';
 import { Link } from '@/components/navigation/Link';
@@ -50,8 +50,7 @@ function getCancelDialog(user: User, meeting: Event): [string, string, string] {
     } else if (isCoaching) {
         const now = new Date().getTime();
         const cancelationTime =
-            new Date(meeting.bookedStartTime || meeting.startTime).getTime() -
-            CANCELATION_DEADLINE;
+            new Date(meeting.bookedStartTime || meeting.startTime).getTime() - CANCELATION_DEADLINE;
         if (now >= cancelationTime) {
             return [
                 'Leave Meeting',
@@ -136,12 +135,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
         return (
             <Container maxWidth='md' sx={{ py: 4 }}>
                 <Typography>This meeting has not been booked yet.</Typography>
-                <Button
-                    component={Link}
-                    href='/calendar'
-                    variant='contained'
-                    sx={{ mt: 2 }}
-                >
+                <Button component={Link} href='/calendar' variant='contained' sx={{ mt: 2 }}>
                     Return to Calendar
                 </Button>
             </Container>
@@ -154,10 +148,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
     const isCanceled = meeting.status === EventStatus.Canceled;
     const participant = meeting.participants[user.username];
 
-    const [cancelButton, cancelDialogTitle, cancelDialogContent] = getCancelDialog(
-        user,
-        meeting,
-    );
+    const [cancelButton, cancelDialogTitle, cancelDialogContent] = getCancelDialog(user, meeting);
 
     const onCompletePayment = () => {
         if (!meetingId) {
@@ -197,15 +188,15 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                             </LoadingButton>
                         }
                     >
-                        You have not completed payment for this coaching session and will
-                        lose your booking soon.
+                        You have not completed payment for this coaching session and will lose your
+                        booking soon.
                     </Alert>
                 )}
 
                 {isCoaching && isCanceled && (
                     <Alert severity='warning' variant='filled'>
-                        This meeting has been canceled by the coach. If you have already
-                        completed payment, you will receive a full refund.
+                        This meeting has been canceled by the coach. If you have already completed
+                        payment, you will receive a full refund.
                     </Alert>
                 )}
 
@@ -227,41 +218,27 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                     />
                     <CardContent>
                         <Stack spacing={3}>
-                            <Field
-                                title='Time'
-                                body={`${startDate} ${startTime} - ${endTime}`}
-                            />
+                            <Field title='Time' body={`${startDate} ${startTime} - ${endTime}`} />
 
                             {meeting.description && (
                                 <Stack>
-                                    <Typography
-                                        variant='subtitle2'
-                                        color='text.secondary'
-                                    >
+                                    <Typography variant='subtitle2' color='text.secondary'>
                                         Description
                                     </Typography>
-                                    <Typography
-                                        variant='body1'
-                                        style={{ whiteSpace: 'pre-line' }}
-                                    >
+                                    <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
                                         {meeting.description}
                                     </Typography>
                                 </Stack>
                             )}
 
-                            <Field
-                                title='Location'
-                                body={meeting.location || 'Discord'}
-                            />
+                            <Field title='Location' body={meeting.location || 'Discord'} />
 
                             <Field
                                 title='Meeting Type(s)'
                                 body={
                                     meeting.bookedType
                                         ? getDisplayString(meeting.bookedType)
-                                        : meeting.types
-                                              ?.map((t) => getDisplayString(t))
-                                              .join(', ')
+                                        : meeting.types?.map((t) => getDisplayString(t)).join(', ')
                                 }
                             />
 
@@ -286,9 +263,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                                 <Typography variant='h5'>Participants</Typography>
                                 {isCoaching &&
                                     isOwner &&
-                                    Object.values(meeting.participants).some(
-                                        (p) => !p.hasPaid,
-                                    ) && (
+                                    Object.values(meeting.participants).some((p) => !p.hasPaid) && (
                                         <Tooltip title='Some users have not paid and will lose their booking in ~30 min'>
                                             <Warning color='warning' />
                                         </Tooltip>
@@ -297,10 +272,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                         }
                     />
                     <CardContent>
-                        <ParticipantsList
-                            event={meeting}
-                            showPaymentWarning={isCoaching}
-                        />
+                        <ParticipantsList event={meeting} showPaymentWarning={isCoaching} />
                     </CardContent>
                 </Card>
 

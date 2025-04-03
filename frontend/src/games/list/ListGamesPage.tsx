@@ -17,15 +17,7 @@ import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import UpsellPage from '@/upsell/UpsellPage';
-import {
-    Badge,
-    Button,
-    Container,
-    Divider,
-    Grid2,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Badge, Button, Container, Divider, Grid2, Stack, Typography } from '@mui/material';
 import { GridPaginationModel } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
 import { ListItemContextMenu } from '../../components/games/list/ListItemContextMenu';
@@ -84,20 +76,10 @@ const ListGamesPage = () => {
     }
 
     if (isFreeTier && type === 'player') {
-        return (
-            <UpsellPage
-                redirectTo='/games'
-                currentAction={RestrictedAction.SearchDatabase}
-            />
-        );
+        return <UpsellPage redirectTo='/games' currentAction={RestrictedAction.SearchDatabase} />;
     }
     if (isFreeTier && type === 'position') {
-        return (
-            <UpsellPage
-                redirectTo='/games'
-                currentAction={RestrictedAction.DatabaseExplorer}
-            />
-        );
+        return <UpsellPage redirectTo='/games' currentAction={RestrictedAction.DatabaseExplorer} />;
     }
 
     return (
@@ -108,9 +90,9 @@ const ListGamesPage = () => {
                 <>
                     <Stack alignItems='center' mb={5}>
                         <UpsellAlert>
-                            To avoid unfair preparation against Dojo members, free-tier
-                            users have limited access to the Dojo Database. Upgrade your
-                            account to view the full Database.
+                            To avoid unfair preparation against Dojo members, free-tier users have
+                            limited access to the Dojo Database. Upgrade your account to view the
+                            full Database.
                         </UpsellAlert>
                     </Stack>
                     <UpsellDialog
@@ -132,6 +114,7 @@ const ListGamesPage = () => {
                         contextMenu={contextMenu}
                         defaultVisibility={{
                             publishedAt: false,
+                            updatedAt: false,
                         }}
                     />
                     <ListItemContextMenu
@@ -165,10 +148,7 @@ const ListGamesPage = () => {
 
                         <Divider />
 
-                        <SearchFilters
-                            isLoading={request.isLoading()}
-                            onSearch={onSearch}
-                        />
+                        <SearchFilters isLoading={request.isLoading()} onSearch={onSearch} />
 
                         <Stack spacing={0.5}>
                             <Stack direction='row' spacing={1}>

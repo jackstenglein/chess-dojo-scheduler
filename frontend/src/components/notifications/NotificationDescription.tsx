@@ -1,10 +1,9 @@
+import { getDescription, getTitle } from '@/database/notification';
+import Avatar from '@/profile/Avatar';
 import {
     Notification,
-    NotificationType,
-    getDescription,
-    getTitle,
-} from '@/database/notification';
-import Avatar from '@/profile/Avatar';
+    NotificationTypes,
+} from '@jackstenglein/chess-dojo-common/src/database/notification';
 import { Stack, Typography } from '@mui/material';
 
 interface NotificationDescriptionProps {
@@ -14,7 +13,7 @@ interface NotificationDescriptionProps {
 
 const NotificationDescription: React.FC<NotificationDescriptionProps> = (props) => {
     switch (props.notification.type) {
-        case NotificationType.NewFollower:
+        case NotificationTypes.NEW_FOLLOWER:
             return <NewFollowerNotificationDescription {...props} />;
 
         default:

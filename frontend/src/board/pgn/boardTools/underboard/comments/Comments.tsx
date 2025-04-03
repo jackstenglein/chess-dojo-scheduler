@@ -51,11 +51,7 @@ type CommentsProps = CommentEditorProps & {
     isReadonly?: boolean;
 };
 
-const Comments: React.FC<CommentsProps> = ({
-    focusEditor,
-    setFocusEditor,
-    isReadonly,
-}) => {
+const Comments: React.FC<CommentsProps> = ({ focusEditor, setFocusEditor, isReadonly }) => {
     const [view, setView] = useLocalStorage(CommentViewKey, View.FullGame);
     const [sortBy, setSortBy] = useLocalStorage(CommentSortByKey, SortBy.Newest);
     const { chess } = useChess();
@@ -101,9 +97,7 @@ const Comments: React.FC<CommentsProps> = ({
                             size='small'
                         >
                             <MenuItem value={View.FullGame}>Entire Game</MenuItem>
-                            <MenuItem value={View.CurrentMove}>
-                                Current Position Only
-                            </MenuItem>
+                            <MenuItem value={View.CurrentMove}>Current Position Only</MenuItem>
                         </TextField>
 
                         <TextField
@@ -133,10 +127,7 @@ const Comments: React.FC<CommentsProps> = ({
                 </Stack>
 
                 {!isReadonly && (
-                    <CommentEditor
-                        focusEditor={focusEditor}
-                        setFocusEditor={setFocusEditor}
-                    />
+                    <CommentEditor focusEditor={focusEditor} setFocusEditor={setFocusEditor} />
                 )}
             </Stack>
         </CardContent>
@@ -153,12 +144,7 @@ function getFenSections(game: Game, chess: Chess, view: View, sort: SortBy) {
     const fenSections: PositionCommentSection[] = [];
 
     if (view === View.CurrentMove) {
-        const comments = getCommentsForFen(
-            game,
-            chess.normalizedFen(),
-            chess.currentMove(),
-            sort,
-        );
+        const comments = getCommentsForFen(game, chess.normalizedFen(), chess.currentMove(), sort);
         fenSections.push({ move: chess.currentMove(), comments });
         return fenSections;
     }

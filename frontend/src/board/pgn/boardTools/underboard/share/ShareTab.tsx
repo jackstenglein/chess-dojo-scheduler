@@ -27,9 +27,12 @@ import {
     CardContent,
     Checkbox,
     Divider,
+    FormControl,
     FormControlLabel,
     FormGroup,
     FormLabel,
+    Radio,
+    RadioGroup,
     Slider,
     Stack,
 } from '@mui/material';
@@ -37,12 +40,7 @@ import axios from 'axios';
 import copy from 'copy-to-clipboard';
 import { ReactNode, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import {
-    BoardStyle,
-    BoardStyleKey,
-    PieceStyle,
-    PieceStyleKey,
-} from '../settings/ViewerSettings';
+import { BoardStyle, BoardStyleKey, PieceStyle, PieceStyleKey } from '../settings/ViewerSettings';
 import { MergeLineDialog } from './MergeLineDialog';
 
 const config = getConfig();
@@ -74,6 +72,8 @@ export function ShareTab() {
         setSkipHeader,
         skipClocks,
         setSkipClocks,
+        pdfDiagramMode,
+        setPdfDiagramMode,
         plyBetweenDiagrams,
         setPlyBetweenDiagrams,
     } = usePgnExportOptions();
@@ -157,7 +157,9 @@ export function ShareTab() {
             comment: window.location.href,
             theme: boardStyle.toLowerCase(),
             piece:
-                pieceStyle === PieceStyle.ThreeD ? 'standard' : pieceStyle.toLowerCase(),
+                pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue
+                    ? 'standard'
+                    : pieceStyle.toLowerCase(),
         };
         if (!newParams.lastMove) {
             delete newParams.lastMove;
@@ -184,7 +186,7 @@ export function ShareTab() {
                 comment: window.location.href,
                 theme: boardStyle.toLowerCase(),
                 piece:
-                    pieceStyle === PieceStyle.ThreeD
+                    pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue
                         ? 'standard'
                         : pieceStyle.toLowerCase(),
                 delay: 100,
@@ -199,9 +201,7 @@ export function ShareTab() {
             const a = document.createElement('a');
             a.download = `${white} - ${black}.gif`;
             a.href = window.URL.createObjectURL(response.data);
-            a.dataset.downloadurl = ['application/octet-stream', a.download, a.href].join(
-                ':',
-            );
+            a.dataset.downloadurl = ['application/octet-stream', a.download, a.href].join(':');
             a.click();
         } catch (err) {
             console.error('getPgnGif: ', err);
@@ -251,10 +251,7 @@ export function ShareTab() {
 
         const a = document.createElement('a');
         a.download = `${white} - ${black}.pgn`;
-        a.setAttribute(
-            'href',
-            'data:text/plain;charset=utf-8,' + encodeURIComponent(pgn),
-        );
+        a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(pgn));
         a.click();
     };
 
@@ -277,7 +274,7 @@ export function ShareTab() {
                 skipNags,
                 skipVariations,
                 skipNullMoves,
-                plyBetweenDiagrams,
+                plyBetweenDiagrams: pdfDiagramMode === 'markedPositions' ? -1 : plyBetweenDiagrams,
             });
 
             const white = getPlayer(chess, 'White', 'WhiteElo');
@@ -286,9 +283,7 @@ export function ShareTab() {
             const a = document.createElement('a');
             a.download = `${white} - ${black}.pdf`;
             a.href = window.URL.createObjectURL(response.data);
-            a.dataset.downloadurl = ['application/octet-stream', a.download, a.href].join(
-                ':',
-            );
+            a.dataset.downloadurl = ['application/octet-stream', a.download, a.href].join(':');
             a.click();
 
             pdfRequest.onSuccess();
@@ -317,10 +312,7 @@ export function ShareTab() {
                 if (isGame(resp.data)) {
                     const urlSafeCohort = resp.data.cohort.replaceAll('+', '%2B');
                     window
-                        .open(
-                            `${config.baseUrl}/games/${urlSafeCohort}/${resp.data.id}`,
-                            '_blank',
-                        )
+                        .open(`${config.baseUrl}/games/${urlSafeCohort}/${resp.data.id}`, '_blank')
                         ?.focus();
                     trackEvent(EventType.SubmitGame, {
                         count: 1,
@@ -342,13 +334,7 @@ export function ShareTab() {
                 <RequestSnackbar request={cloneRequest} />
                 <RequestSnackbar request={addToFolderRequest} showSuccess />
 
-                <Stack
-                    direction='row'
-                    gap={1}
-                    flexWrap='wrap'
-                    mb={2}
-                    justifyContent='center'
-                >
+                <Stack direction='row' gap={1} flexWrap='wrap' mb={2} justifyContent='center'>
                     {game && (
                         <DirectoryCacheProvider>
                             <DirectorySelectButton
@@ -358,12 +344,7 @@ export function ShareTab() {
                         </DirectoryCacheProvider>
                     )}
 
-                    <CopyButton
-                        name='url'
-                        startIcon={<Link />}
-                        onClick={onCopyUrl}
-                        copied={copied}
-                    >
+                    <CopyButton name='url' startIcon={<Link />} onClick={onCopyUrl} copied={copied}>
                         Copy URL
                     </CopyButton>
 
@@ -384,11 +365,7 @@ export function ShareTab() {
                         Image
                     </Button>
 
-                    <Button
-                        variant='contained'
-                        startIcon={<Download />}
-                        onClick={onDownloadGif}
-                    >
+                    <Button variant='contained' startIcon={<Download />} onClick={onDownloadGif}>
                         Gif
                     </Button>
                 </Stack>
@@ -470,30 +447,46 @@ export function ShareTab() {
                     </FormGroup>
                 </Stack>
 
-                <FormGroup sx={{ mt: 1.5, mb: 1 }}>
-                    <FormLabel>
-                        {plyBetweenDiagrams / 2} Moves Between Diagrams (PDF Only)
-                    </FormLabel>
-                    <Slider
-                        value={plyBetweenDiagrams}
-                        onChange={(_, value) => setPlyBetweenDiagrams(value as number)}
-                        step={2}
-                        min={pgnExportOptions.plyBetweenDiagrams.min}
-                        max={pgnExportOptions.plyBetweenDiagrams.max}
-                        valueLabelFormat={(value) => {
-                            return value / 2;
-                        }}
-                        valueLabelDisplay='auto'
-                    />
-                </FormGroup>
+                <FormControl sx={{ mt: 1.5, mb: 1 }}>
+                    <FormLabel>PDF Diagrams</FormLabel>
+                    <RadioGroup
+                        row
+                        value={pdfDiagramMode}
+                        onChange={(e) =>
+                            setPdfDiagramMode(e.target.value as 'markedPositions' | 'numMoves')
+                        }
+                    >
+                        <FormControlLabel
+                            value='markedPositions'
+                            control={<Radio />}
+                            label='Marked Positions Only'
+                        />
+                        <FormControlLabel
+                            value='numMoves'
+                            control={<Radio />}
+                            label={`Marked Positions + Every ${plyBetweenDiagrams / 2} Moves`}
+                        />
+                    </RadioGroup>
+                </FormControl>
 
-                <Stack
-                    direction='row'
-                    gap={1}
-                    flexWrap='wrap'
-                    mt={2}
-                    justifyContent='center'
-                >
+                {pdfDiagramMode === 'numMoves' && (
+                    <FormGroup>
+                        <FormLabel>{plyBetweenDiagrams / 2} Moves Between Diagrams</FormLabel>
+                        <Slider
+                            value={plyBetweenDiagrams}
+                            onChange={(_, value) => setPlyBetweenDiagrams(value as number)}
+                            step={2}
+                            min={pgnExportOptions.plyBetweenDiagrams.min}
+                            max={pgnExportOptions.plyBetweenDiagrams.max}
+                            valueLabelFormat={(value) => {
+                                return value / 2;
+                            }}
+                            valueLabelDisplay='auto'
+                        />
+                    </FormGroup>
+                )}
+
+                <Stack direction='row' gap={1} flexWrap='wrap' mt={2} justifyContent='center'>
                     <CopyButton
                         name='pgn'
                         startIcon={<ContentPaste />}
@@ -503,11 +496,7 @@ export function ShareTab() {
                         Copy PGN
                     </CopyButton>
 
-                    <Button
-                        variant='contained'
-                        startIcon={<Download />}
-                        onClick={onDownloadPgn}
-                    >
+                    <Button variant='contained' startIcon={<Download />} onClick={onDownloadPgn}>
                         Download PGN
                     </Button>
 
@@ -582,11 +571,7 @@ function CopyButton({
     );
 }
 
-function getPlayer(
-    chess: Chess,
-    key: 'White' | 'Black',
-    eloKey: 'WhiteElo' | 'BlackElo',
-): string {
+function getPlayer(chess: Chess, key: 'White' | 'Black', eloKey: 'WhiteElo' | 'BlackElo'): string {
     const player = chess.header().getRawValue(key);
     const elo = chess.header().getRawValue(eloKey);
     if (player) {

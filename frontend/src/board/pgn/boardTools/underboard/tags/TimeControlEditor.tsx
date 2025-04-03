@@ -63,11 +63,7 @@ export function TimeControlEditor({
     };
 
     const setTimeControl = (i: number, value: TimeControl) => {
-        setTimeControls([
-            ...timeControls.slice(0, i),
-            value,
-            ...timeControls.slice(i + 1),
-        ]);
+        setTimeControls([...timeControls.slice(0, i), value, ...timeControls.slice(i + 1)]);
     };
 
     const onChangeNumMoves = (i: number, value: string) => {
@@ -145,16 +141,11 @@ export function TimeControlEditor({
                             <Stack flexGrow={1}>
                                 <Typography variant='h6'>Time Control {i + 1}</Typography>
 
-                                <FormControl
-                                    sx={{ width: 1, mt: 3 }}
-                                    error={!!errors[i]?.moves}
-                                >
+                                <FormControl sx={{ width: 1, mt: 3 }} error={!!errors[i]?.moves}>
                                     <InputLabel shrink>Number of Moves</InputLabel>
                                     <OutlinedInput
                                         value={`${item.moves || ''}`}
-                                        onChange={(e) =>
-                                            onChangeNumMoves(i, e.target.value)
-                                        }
+                                        onChange={(e) => onChangeNumMoves(i, e.target.value)}
                                         inputProps={{
                                             step: 1,
                                             min: 1,
@@ -172,8 +163,7 @@ export function TimeControlEditor({
                                     label={`${i ? 'Additional Time' : 'Initial Time'} (hh:mm:ss)`}
                                     format='HH:mm:ss'
                                     value={
-                                        convertSecondsToDateTime(item.seconds) ||
-                                        defaultDateTime
+                                        convertSecondsToDateTime(item.seconds) || defaultDateTime
                                     }
                                     onChange={(value) => onChangeInitialTime(i, value)}
                                     fullWidth
@@ -201,9 +191,7 @@ export function TimeControlEditor({
                                     <RadioGroup
                                         row
                                         value={getBonusType(item)}
-                                        onChange={(_, value) =>
-                                            onChangeBonusType(i, value)
-                                        }
+                                        onChange={(_, value) => onChangeBonusType(i, value)}
                                     >
                                         <FormControlLabel
                                             value='increment'
@@ -251,9 +239,7 @@ export function TimeControlEditor({
     );
 }
 
-export function TimeControlGridEditor(
-    props: GridRenderEditCellParams<TagRow, TimeControlHeader>,
-) {
+export function TimeControlGridEditor(props: GridRenderEditCellParams<TagRow, TimeControlHeader>) {
     const { id, field, value } = props;
     const apiRef = useGridApiContext();
 
@@ -350,23 +336,15 @@ function validateTimeControls(timeControls: TimeControl[]): TimeControlErrors {
         if (i === 0 && !timeControl.seconds) {
             errors[i] = {
                 ...errors[i],
-                initialTime:
-                    'First time control must specify a non-zero amount of initial time',
+                initialTime: 'First time control must specify a non-zero amount of initial time',
             };
         }
 
-        if (
-            i > 0 &&
-            !timeControl.seconds &&
-            !timeControl.increment &&
-            !timeControl.delay
-        ) {
+        if (i > 0 && !timeControl.seconds && !timeControl.increment && !timeControl.delay) {
             errors[i] = {
                 ...errors[i],
-                initialTime:
-                    'Time control must specify either additional time or bonus time',
-                bonusTime:
-                    'Time control must specify either additional time or bonus time',
+                initialTime: 'Time control must specify either additional time or bonus time',
+                bonusTime: 'Time control must specify either additional time or bonus time',
             };
         }
 

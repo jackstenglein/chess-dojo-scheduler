@@ -83,8 +83,7 @@ const Explorer = () => {
     const onSetTimeControls = (v: string[]) => {
         setTimeControls(
             v.sort(
-                (lhs, rhs) =>
-                    defaultTimeControls.indexOf(lhs) - defaultTimeControls.indexOf(rhs),
+                (lhs, rhs) => defaultTimeControls.indexOf(lhs) - defaultTimeControls.indexOf(rhs),
             ),
         );
     };

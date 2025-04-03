@@ -1,3 +1,29 @@
+/** The cohorts users can be members of in the Dojo. */
+export const dojoCohorts = [
+    '0-300',
+    '300-400',
+    '400-500',
+    '500-600',
+    '600-700',
+    '700-800',
+    '800-900',
+    '900-1000',
+    '1000-1100',
+    '1100-1200',
+    '1200-1300',
+    '1300-1400',
+    '1400-1500',
+    '1500-1600',
+    '1600-1700',
+    '1700-1800',
+    '1800-1900',
+    '1900-2000',
+    '2000-2100',
+    '2100-2200',
+    '2200-2300',
+    '2400+',
+];
+
 /**
  * Returns the given cohort range as an array of 2 numbers. Ex: 0-1500
  * would return [0, 1500]. For ranges like 2000+, the max cohort is set to Infinity

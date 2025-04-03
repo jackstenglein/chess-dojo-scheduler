@@ -4,16 +4,16 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useEvents } from '@/api/cache/Cache';
 import { useAuth, useFreeTier } from '@/auth/Auth';
-import { getTimeZonedDate } from '@/calendar/displayDate';
-import EventEditor from '@/calendar/eventEditor/EventEditor';
+import { getTimeZonedDate } from '@/components/calendar/displayDate';
+import EventEditor from '@/components/calendar/eventEditor/EventEditor';
+import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
 import {
     CalendarFilters,
     Filters,
     getHours,
     useFilters,
-} from '@/calendar/filters/CalendarFilters';
-import { DefaultTimezone } from '@/calendar/filters/TimezoneSelector';
-import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
+} from '@/components/calendar/filters/CalendarFilters';
+import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import CalendarTutorial from '@/components/tutorial/CalendarTutorial';
 import {
     AvailabilityType,
@@ -59,11 +59,12 @@ function processAvailability(
         }
 
         const title =
-            event.maxParticipants === 1
+            event.title ||
+            (event.maxParticipants === 1
                 ? 'Meeting'
                 : `Group Meeting (${Object.values(event.participants).length}/${
                       event.maxParticipants
-                  })`;
+                  })`);
 
         const isOwner = event.owner === user.username;
         const editable =
@@ -93,7 +94,8 @@ function processAvailability(
         }
 
         const title =
-            event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group';
+            event.title ||
+            (event.maxParticipants === 1 ? 'Available - 1 on 1' : 'Available - Group');
         return {
             event_id: event.id,
             title: title,
@@ -113,7 +115,16 @@ function processAvailability(
         return null;
     }
 
-    if (user && !user.isAdmin && event.cohorts.every((c) => c !== user.dojoCohort)) {
+    if (event.inviteOnly && !event.invited?.some((p) => p.username === user?.username)) {
+        return null;
+    }
+
+    if (
+        user &&
+        !user.isAdmin &&
+        !event.inviteOnly &&
+        event.cohorts.every((c) => c !== user.dojoCohort)
+    ) {
         return null;
     }
 
@@ -136,11 +147,12 @@ function processAvailability(
     return {
         event_id: event.id,
         title:
-            event.maxParticipants > 1
+            event.title ||
+            (event.maxParticipants > 1
                 ? `Bookable - Group (${Object.values(event.participants).length}/${
                       event.maxParticipants
                   })`
-                : `Bookable - ${event.ownerDisplayName}`,
+                : `Bookable - ${event.ownerDisplayName}`),
         start: new Date(event.startTime),
         end: new Date(event.endTime),
         color: 'book.main',
@@ -288,10 +300,7 @@ export function getProcessedEvents(
     for (const event of events) {
         let processedEvent: ProcessedEvent | null = null;
 
-        const startHour = getTimeZonedDate(
-            new Date(event.startTime),
-            filters?.timezone,
-        ).getHours();
+        const startHour = getTimeZonedDate(new Date(event.startTime), filters?.timezone).getHours();
         if (
             startHour < (filters?.minHour?.hour || 0) ||
             startHour > (filters?.maxHour?.hour || 24)
@@ -438,8 +447,7 @@ export default function CalendarPage() {
     }, [processedEvents, calendarRef]);
 
     useEffect(() => {
-        const timezone =
-            filters.timezone === DefaultTimezone ? undefined : filters.timezone;
+        const timezone = filters.timezone === DefaultTimezone ? undefined : filters.timezone;
         calendarRef.current?.scheduler.handleState(timezone, 'timeZone');
     }, [calendarRef, filters.timezone]);
 
@@ -529,9 +537,8 @@ export default function CalendarPage() {
                     <Stack spacing={3}>
                         {isFreeTier && (
                             <UpsellAlert>
-                                Free-tier users can book events but cannot post their own
-                                events. Upgrade your account to add new events to the
-                                calendar.
+                                Free-tier users can book events but cannot post their own events.
+                                Upgrade your account to add new events to the calendar.
                             </UpsellAlert>
                         )}
 
@@ -577,9 +584,7 @@ export default function CalendarPage() {
                             )}
                             events={processedEvents}
                             timeZone={
-                                filters.timezone === DefaultTimezone
-                                    ? undefined
-                                    : filters.timezone
+                                filters.timezone === DefaultTimezone ? undefined : filters.timezone
                             }
                             hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                             eventRenderer={(props) =>
@@ -636,11 +641,7 @@ function getLocationIcon(dojoEvent: Event | undefined): keyof typeof icons | und
     return dojoEvent.type;
 }
 
-export function CustomEventRenderer({
-    event,
-    timeFormat,
-    ...props
-}: CustomEventRendererProps) {
+export function CustomEventRenderer({ event, timeFormat, ...props }: CustomEventRendererProps) {
     const textColor = event.color?.endsWith('.main')
         ? event.color.replace('.main', '.contrastText')
         : 'common.black';

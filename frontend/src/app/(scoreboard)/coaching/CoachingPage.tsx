@@ -7,7 +7,7 @@ import CoachesTab from './CoachesTab';
 import UpcomingSessions from './UpcomingSessions';
 
 const CoachingPage = () => {
-    const { searchParams, setSearchParams } = useNextSearchParams({ view: 'sessions' });
+    const { searchParams, setSearchParams } = useNextSearchParams({ view: 'coaches' });
 
     return (
         <Container>

@@ -30,10 +30,9 @@ const ConnectStripeAccount = () => {
                 <CardContent>
                     <Stack spacing={2} alignItems='start'>
                         <Typography>
-                            ChessDojo uses Stripe to process payments. Before you can
-                            withdraw funds, schedule lessons or create courses, you must
-                            setup your Stripe account. Click the button below to be
-                            redirected to Stripe.
+                            ChessDojo uses Stripe to process payments. Before you can withdraw
+                            funds, schedule lessons or create courses, you must setup your Stripe
+                            account. Click the button below to be redirected to Stripe.
                         </Typography>
 
                         <LoadingButton

@@ -39,9 +39,7 @@ export function usePagination(
 
     const [games, setGames] = useState<GameInfo[]>([]);
     const [startKey, setStartKey] = useState<string | undefined>('');
-    const [searchFunc, setSearchFunc] = useState<SearchFunc | null>(
-        () => initialSearchFunc,
-    );
+    const [searchFunc, setSearchFunc] = useState<SearchFunc | null>(() => initialSearchFunc);
 
     const page = parseInt(searchParams.get('page') || `${initialPage}`);
     const pageSize = parseInt(searchParams.get('pageSize') || `${initialPageSize}`);
@@ -76,9 +74,7 @@ export function usePagination(
         (keys: GameKey[]) => {
             setGames((gs) =>
                 gs.filter((g) => {
-                    const key = keys.find(
-                        (key) => key.cohort === g.cohort && key.id === g.id,
-                    );
+                    const key = keys.find((key) => key.cohort === g.cohort && key.id === g.id);
                     return !key;
                 }),
             );

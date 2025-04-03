@@ -1,52 +1,90 @@
+import { useApi } from '@/api/Api';
 import { useAuth } from '@/auth/Auth';
 import {
     getCurrentRating,
+    getPartialUserHideCohortPrompt,
+    isCohortPromptHidden,
     shouldPromptDemotion,
     shouldPromptGraduation,
 } from '@/database/user';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { Alert, Button, Snackbar } from '@mui/material';
+import { Alert, Button, Snackbar, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 export function SwitchCohortPrompt() {
     const { user } = useAuth();
+    const api = useApi();
 
     const [showGraduation, setShowGraduation] = useState(false);
-    const [showDemotion, setShowDemotion] = useState(false);
-
-    const [hideGraduation, setHideGraduation] = useState(false);
-    const [hideDemotion, setHideDemotion] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [forceClose, setForceClose] = useState(false);
 
     useEffect(() => {
-        setShowGraduation(shouldPromptGraduation(user));
-        setShowDemotion(shouldPromptDemotion(user));
-    }, [user, setShowGraduation, setShowDemotion]);
+        if (forceClose) {
+            return;
+        }
+
+        const userHasHiddenCohortPrompt = isCohortPromptHidden(user);
+        if (userHasHiddenCohortPrompt) {
+            setOpen(false);
+            return;
+        }
+
+        const promptGraudation = shouldPromptGraduation(user);
+        if (promptGraudation) {
+            setShowGraduation(true);
+            setOpen(true);
+            return;
+        }
+
+        const promptDemotion = shouldPromptDemotion(user);
+        if (promptDemotion) {
+            setShowGraduation(false);
+            setOpen(true);
+            return;
+        }
+
+        setOpen(false);
+    }, [user, forceClose]);
+
+    const handleHideCohortPrompt = () => {
+        const partialUser = getPartialUserHideCohortPrompt(user);
+        void api.updateUser(partialUser);
+        handleClose();
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setForceClose(true);
+    };
 
     return (
         <Snackbar
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            open={(showGraduation && !hideGraduation) || (showDemotion && !hideDemotion)}
-            onClose={
-                showGraduation
-                    ? () => setHideGraduation(true)
-                    : () => setHideDemotion(true)
-            }
+            open={open}
+            onClose={handleClose}
             autoHideDuration={showGraduation ? 6000 : 7000}
         >
             <Alert
                 variant='filled'
                 severity={showGraduation ? 'success' : 'error'}
                 action={
-                    showDemotion && (
-                        <Button
-                            color='inherit'
-                            size='small'
-                            href='/profile/edit'
-                            endIcon={<NavigateNextIcon />}
-                        >
-                            Settings
+                    <Stack direction='row'>
+                        <Button color='inherit' size='small' onClick={handleHideCohortPrompt}>
+                            Hide for 1 month
                         </Button>
-                    )
+                        {!showGraduation && (
+                            <Button
+                                color='inherit'
+                                size='small'
+                                href='/profile/edit'
+                                sx={{ ml: 2, px: 3 }}
+                                endIcon={<NavigateNextIcon />}
+                            >
+                                Settings
+                            </Button>
+                        )}
+                    </Stack>
                 }
                 sx={{ width: 1 }}
             >

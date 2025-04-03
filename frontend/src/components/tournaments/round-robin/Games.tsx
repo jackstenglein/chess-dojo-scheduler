@@ -14,16 +14,23 @@ import {
     Typography,
 } from '@mui/material';
 
+interface RoundRobinCompletedGame extends RoundRobinPairing {
+    white: string;
+    black: string;
+    url: string;
+    round: number;
+}
+
 /**
  * Renders the games for the given Round Robin tournament.
  * @param tournament The tournament to render the games for.
  */
 export function Games({ tournament }: { tournament: RoundRobin }) {
-    const games: (RoundRobinPairing & { round: number })[] = [];
+    const games: RoundRobinCompletedGame[] = [];
     for (let round = 0; round < tournament.pairings.length; round++) {
         for (const p of tournament.pairings[round]) {
-            if (p.url) {
-                games.push({ ...p, round: round + 1 });
+            if (p.url && p.white && p.black) {
+                games.push({ ...p, white: p.white, black: p.black, url: p.url, round: round + 1 });
             }
         }
     }
@@ -63,8 +70,7 @@ export function Games({ tournament }: { tournament: RoundRobin }) {
                                         {tournament.players[game.white].displayName}
                                     </Link>
                                     {tournament.players[game.white].status ===
-                                        RoundRobinPlayerStatuses.WITHDRAWN &&
-                                        ' (Withdrawn)'}
+                                        RoundRobinPlayerStatuses.WITHDRAWN && ' (Withdrawn)'}
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>
@@ -73,8 +79,7 @@ export function Games({ tournament }: { tournament: RoundRobin }) {
                                         {tournament.players[game.black].displayName}
                                     </Link>
                                     {tournament.players[game.black].status ===
-                                        RoundRobinPlayerStatuses.WITHDRAWN &&
-                                        ' (Withdrawn)'}
+                                        RoundRobinPlayerStatuses.WITHDRAWN && ' (Withdrawn)'}
                                 </Typography>
                             </TableCell>
                             <TableCell align='center'>

@@ -1,4 +1,4 @@
-import { Comment } from './game';
+import { Comment } from '@jackstenglein/chess-dojo-common/src/database/timeline';
 
 export enum EventType {
     Availability = 'AVAILABILITY',
@@ -34,6 +34,10 @@ export interface Event {
     description: string;
     maxParticipants: number;
     participants: Record<string, Participant>;
+    /** A list of users invited to the event. */
+    invited?: Participant[];
+    /** Whether the event can only be booked by people invited. */
+    inviteOnly?: boolean;
     discordMessageId: string;
     privateDiscordEventId: string;
 
@@ -153,11 +157,10 @@ export enum AvailabilityType {
     ClassicAnalysis = 'CLASSIC_ANALYSIS',
     AnalyzeOwnGame = 'ANALYZE_OWN_GAME',
     BookStudy = 'BOOK_STUDY',
+    Lesson = 'LESSON',
 }
 
-export function getDisplaySessionString(
-    type: CalendarSessionType | null | undefined,
-): string {
+export function getDisplaySessionString(type: CalendarSessionType | null | undefined): string {
     if (!type) {
         return '';
     }
@@ -200,28 +203,25 @@ export function getDisplayString(type: AvailabilityType | null | undefined): str
             return 'Analyze Own Game';
         case AvailabilityType.BookStudy:
             return 'Book Study';
+        case AvailabilityType.Lesson:
+            return 'Lesson/Lecture';
     }
 }
 
 export function getDefaultNumberOfParticipants(type: AvailabilityType): number {
     switch (type) {
-        case AvailabilityType.AllTypes:
-            return 100;
         case AvailabilityType.ClassicalGame:
-            return 1;
         case AvailabilityType.OpeningSparring:
-            return 1;
         case AvailabilityType.MiddlegameSparring:
-            return 1;
         case AvailabilityType.EndgameSparring:
-            return 1;
         case AvailabilityType.RookEndgameProgression:
             return 1;
+
+        case AvailabilityType.AllTypes:
         case AvailabilityType.ClassicAnalysis:
-            return 100;
         case AvailabilityType.AnalyzeOwnGame:
-            return 100;
         case AvailabilityType.BookStudy:
+        case AvailabilityType.Lesson:
             return 100;
     }
 }

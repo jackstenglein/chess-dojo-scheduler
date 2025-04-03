@@ -20,10 +20,7 @@ export interface GraduationApiContextType {
      * @param startKey The optional startKey to use when searching.
      * @returns A list of graduations.
      */
-    listGraduationsByOwner: (
-        username: string,
-        startKey?: string,
-    ) => Promise<Graduation[]>;
+    listGraduationsByOwner: (username: string, startKey?: string) => Promise<Graduation[]>;
 
     /**
      * listGraduationsByDate returns a list of all graduations in the past month.

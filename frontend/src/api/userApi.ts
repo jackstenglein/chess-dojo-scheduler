@@ -1,3 +1,4 @@
+import { DiscordAuthRequest } from '@jackstenglein/chess-dojo-common/src/auth/discord';
 import axios, { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
 import { getConfig } from '../config';
@@ -45,10 +46,7 @@ export interface UserApiContextType {
      * @param startKey The optional start key to use when searching.
      * @returns A ListUserTimelineResponse
      */
-    listUserTimeline: (
-        owner: string,
-        startKey?: string,
-    ) => Promise<ListUserTimelineResponse>;
+    listUserTimeline: (owner: string, startKey?: string) => Promise<ListUserTimelineResponse>;
 
     /**
      * listUsersByCohort returns a list of users in the provided cohort.
@@ -73,10 +71,7 @@ export interface UserApiContextType {
      * @param autopickCohort Whether to automatically pick a cohort for the user based on the rating system and username.
      * @returns An AxiosResponse containing the updated user in the data field.
      */
-    updateUser: (
-        update: Partial<User>,
-        autopickCohort?: boolean,
-    ) => Promise<AxiosResponse<User>>;
+    updateUser: (update: Partial<User>, autopickCohort?: boolean) => Promise<AxiosResponse<User>>;
 
     /**
      * updateUserProgress updates the current user's progress on the provided requirement.
@@ -86,7 +81,7 @@ export interface UserApiContextType {
      * @param incrementalMinutesSpent The amount by which the user is increasing their time spent.
      * @param date The optional date for which the update should apply.
      * @param notes The user's optional comments for the progress update.
-     * @returns An AxiosResponse containing the updated user in the data field.
+     * @returns An AxiosResponse containing the updated user and timeline entry in the data field.
      */
     updateUserProgress: (
         cohort: string,
@@ -95,7 +90,7 @@ export interface UserApiContextType {
         incrementalMinutesSpent: number,
         date: DateTime | null,
         notes: string,
-    ) => Promise<AxiosResponse<User>>;
+    ) => Promise<AxiosResponse<{ user: User; timelineEntry: TimelineEntry }>>;
 
     /**
      * updateUserTimeline sets the current user's timeline for the provided requirement.
@@ -167,6 +162,15 @@ export interface UserApiContextType {
         username: string,
         startKey?: string,
     ) => Promise<AxiosResponse<ListFollowersResponse>>;
+
+    /**
+     * Connects or disconnects a user's Discord account.
+     * @param request The connection or disconnection request.
+     * @returns An empty AxiosResponse.
+     */
+    discordAuth: (
+        request: DiscordAuthRequest,
+    ) => Promise<AxiosResponse<Partial<Pick<User, 'discordUsername' | 'discordId'>>>>;
 }
 
 /**
@@ -248,11 +252,7 @@ interface ListUsersResponse {
  * @param startKey The optional startKey to use when searching.
  * @returns A list of users in the provided cohort.
  */
-export async function listUsersByCohort(
-    idToken: string,
-    cohort: string,
-    startKey?: string,
-) {
+export async function listUsersByCohort(idToken: string, cohort: string, startKey?: string) {
     const params = { startKey };
     const result: User[] = [];
     do {
@@ -280,12 +280,9 @@ export async function searchUsers(query: string, fields: string[], startKey?: st
     const result: User[] = [];
 
     do {
-        const resp = await axios.get<ListUsersResponse>(
-            BASE_URL + '/public/user/search',
-            {
-                params,
-            },
-        );
+        const resp = await axios.get<ListUsersResponse>(BASE_URL + '/public/user/search', {
+            params,
+        });
         result.push(...resp.data.users);
         params.startKey = resp.data.lastEvaluatedKey;
     } while (params.startKey);
@@ -341,8 +338,8 @@ export async function updateUserProgress(
     notes: string,
     callback: (update: Partial<User>) => void,
 ) {
-    const result = await axios.post<User>(
-        BASE_URL + '/user/progress',
+    const result = await axios.post<{ user: User; timelineEntry: TimelineEntry }>(
+        BASE_URL + '/user/progress/v2',
         {
             cohort,
             requirementId,
@@ -357,7 +354,7 @@ export async function updateUserProgress(
             },
         },
     );
-    callback(result.data);
+    callback(result.data.user);
     return result;
 }
 
@@ -462,11 +459,7 @@ export function getFollower(idToken: string, poster: string) {
  * @param action Whether to follow or unfollow the user.
  * @returns An empty AxiosResponse if successful.
  */
-export function editFollower(
-    idToken: string,
-    poster: string,
-    action: 'follow' | 'unfollow',
-) {
+export function editFollower(idToken: string, poster: string, action: 'follow' | 'unfollow') {
     return axios.post<FollowerEntry | null>(
         `${BASE_URL}/user/followers`,
         { poster, action },
@@ -490,10 +483,9 @@ export interface ListFollowersResponse {
  * @returns The list of followers and the next start key.
  */
 export function listFollowers(username: string, startKey?: string) {
-    return axios.get<ListFollowersResponse>(
-        `${BASE_URL}/public/user/${username}/followers`,
-        { params: { startKey } },
-    );
+    return axios.get<ListFollowersResponse>(`${BASE_URL}/public/user/${username}/followers`, {
+        params: { startKey },
+    });
 }
 
 /**
@@ -503,8 +495,23 @@ export function listFollowers(username: string, startKey?: string) {
  * @returns The list of who they are following and the next start key.
  */
 export function listFollowing(username: string, startKey?: string) {
-    return axios.get<ListFollowersResponse>(
-        `${BASE_URL}/public/user/${username}/following`,
-        { params: { startKey } },
+    return axios.get<ListFollowersResponse>(`${BASE_URL}/public/user/${username}/following`, {
+        params: { startKey },
+    });
+}
+
+/**
+ * Connects or disconnects a user's Discord account.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The connection or disconnection request.
+ * @returns An empty AxiosResponse.
+ */
+export function discordAuth(idToken: string, request: DiscordAuthRequest) {
+    return axios.post<Partial<Pick<User, 'discordUsername' | 'discordId'>>>(
+        `${BASE_URL}/discord-auth`,
+        request,
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+        },
     );
 }

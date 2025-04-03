@@ -56,9 +56,7 @@ const GraduationNewsfeedItem: React.FC<GraduationNewsfeedItemProps> = ({ entry }
             </Stack>
 
             {entry.graduationInfo.comments && (
-                <Typography whiteSpace='pre-line'>
-                    {entry.graduationInfo.comments}
-                </Typography>
+                <Typography whiteSpace='pre-line'>{entry.graduationInfo.comments}</Typography>
             )}
         </Stack>
     );

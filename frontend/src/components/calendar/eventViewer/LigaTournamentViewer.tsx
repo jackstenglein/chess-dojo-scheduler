@@ -23,9 +23,7 @@ interface LigaTournamentViewerProps {
     processedEvent: ProcessedEvent;
 }
 
-const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
-    processedEvent,
-}) => {
+const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({ processedEvent }) => {
     const [displayPosition, setDisplayPosition] = useState(false);
 
     useEffect(() => {
@@ -57,12 +55,7 @@ const LigaTournamentViewer: React.FC<LigaTournamentViewerProps> = ({
                         />
                         Location
                     </Typography>
-                    <Link
-                        variant='body1'
-                        href={event.location}
-                        target='_blank'
-                        rel='noreferrer'
-                    >
+                    <Link variant='body1' href={event.location} target='_blank' rel='noreferrer'>
                         {event.location}
                     </Link>
                 </Stack>

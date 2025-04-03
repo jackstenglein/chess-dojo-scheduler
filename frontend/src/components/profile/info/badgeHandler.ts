@@ -1,5 +1,7 @@
-import { cohortColors, dojoCohorts, User } from '@/database/user';
+import { cohortColors, compareCohorts, dojoCohorts, User } from '@/database/user';
+import { TacticsRating } from '@/exams/view/exam';
 import { cohortIcons } from '@/scoreboard/CohortIcon';
+import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 
 export interface Badge {
     image: string;
@@ -7,6 +9,9 @@ export interface Badge {
     message: string;
     isEarned: boolean;
     category: BadgeCategory;
+    isPreviousLevel?: boolean;
+    currentCount?: number;
+    level?: number;
     glowHexcode?: string;
 }
 
@@ -23,10 +28,10 @@ enum BadgeTask {
 export enum BadgeCategory {
     All = 'All Badges',
     Achieved = 'Achieved Badges',
-    Graduation = 'Graduations',
     Polgar = 'Polgar Mates',
     Games = 'Games',
     Annotation = 'Annotations',
+    Graduation = 'Graduations',
 }
 
 /** Badge limits mapped by task. */
@@ -123,28 +128,29 @@ function getBadgeImage(level: number, task: BadgeTask): string | undefined {
  * @param user The user to get the level for.
  * @param requirementId The requirement to get the level for.
  * @param levels The badge requirement levels.
- * @returns The max level the user has achieved in the badge.
+ * @returns The max level and the total count the user has achieved in the badge.
  */
-function getBadgeLevel(user: User, requirementId: string, levels: number[]): number {
+function getBadgeLevel(
+    user: User,
+    requirementId: string,
+    levels: number[],
+): { maxLevel: number; currentCount: number } {
     const progress = user.progress[requirementId];
     if (!progress) {
-        return -1;
+        return { maxLevel: -1, currentCount: 0 };
     }
 
-    const totalCount = Object.values(progress.counts || {}).reduce(
-        (sum, v) => sum + v,
-        0,
-    );
+    const currentCount = Object.values(progress.counts || {}).reduce((sum, v) => sum + v, 0);
 
     let maxLevel = -1;
     for (const level of levels) {
-        if (totalCount >= level) {
+        if (currentCount >= level) {
             maxLevel = level;
         } else {
-            return maxLevel;
+            return { maxLevel, currentCount };
         }
     }
-    return maxLevel;
+    return { maxLevel, currentCount };
 }
 
 /**
@@ -239,8 +245,7 @@ function getDojoerBadge(isEarned: boolean): Badge {
     return {
         image: '/static/badges/misc/DojoHeart.png',
         title: 'Dojo member since 1.0',
-        message:
-            'You have been a valuable Dojo member from the start! Thanks for your support!',
+        message: 'You have been a valuable Dojo member from the start! Thanks for your support!',
         isEarned,
         glowHexcode: '#BD01F2',
         category: BadgeCategory.All,
@@ -263,19 +268,51 @@ function getBetaTesterBadge(isEarned: boolean): Badge {
 }
 
 /**
+ * @param isEarned Whether the user has earned the badge.
+ * @returns A badge for being a tactics champion.
+ */
+export function getTacticsChampionBadge(isEarned: boolean) {
+    return {
+        image: `/static/badges/misc/tacticschampion.png`,
+        title: 'Tactics Champion',
+        message: `Your tactics rating is at the level of the next cohort!`,
+        isEarned,
+        glowHexcode: '#D4AA02',
+        category: BadgeCategory.All,
+    };
+}
+
+/**
  * Returns the badge for the given level and task.
  * @param level The level of the badge.
  * @param task The task of the badge.
  * @param isEarned Whether the badge is earned.
+ * @param isPreviousLevel Whether the badge is for a previous level and superseded by another earned badge.
+ * @param currentCount The current value the user has for the badge.
  * @returns The badge for the given information.
  */
-function getTaskBadge(level: number, task: BadgeTask, isEarned: boolean): Badge {
+function getTaskBadge({
+    level,
+    task,
+    isEarned,
+    isPreviousLevel,
+    currentCount,
+}: {
+    level: number;
+    task: BadgeTask;
+    isEarned: boolean;
+    isPreviousLevel: boolean;
+    currentCount: number;
+}): Badge {
     return {
         image: getBadgeImage(level, task) || '',
         title: getBadgeTitle(level, task),
         message: getBadgeMessage(level, task) || '',
         category: getBadgeCategory(task),
         isEarned,
+        isPreviousLevel,
+        currentCount,
+        level,
         glowHexcode: getBadgeGlow(level, task),
     };
 }
@@ -283,25 +320,48 @@ function getTaskBadge(level: number, task: BadgeTask, isEarned: boolean): Badge 
 /**
  * Returns a list of all possible badges.
  * @param user The user to get badges for.
+ * @param tacticsRating The current tactics rating of the user.
  * @returns A list of all possible badges, both earned and not earned.
  */
-export function getBadges(user: User): Badge[] {
-    const allBadges = [
-        getDojoerBadge(!user.createdAt),
-        getBetaTesterBadge(user.isBetaTester),
-    ];
+export function getBadges(user: User, tacticsRating: TacticsRating): Badge[] {
+    const allBadges = [getDojoerBadge(!user.createdAt), getBetaTesterBadge(user.isBetaTester)];
 
-    for (const cohort of dojoCohorts) {
-        allBadges.push(
-            getGraduationBadge(cohort, user.graduationCohorts?.includes(cohort) ?? false),
-        );
-    }
+    const [, minTacticsRating] = getCohortRangeInt(user.dojoCohort);
+    const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
+    allBadges.push(
+        getTacticsChampionBadge(!isProvisional && tacticsRating.overall >= minTacticsRating),
+    );
 
     for (const task of Object.values(BadgeTask)) {
-        const eligibleLevel = getBadgeLevel(user, task, BADGE_LIMITS[task]);
+        const { maxLevel: eligibleLevel, currentCount } = getBadgeLevel(
+            user,
+            task,
+            BADGE_LIMITS[task],
+        );
         const levels = BADGE_LIMITS[task];
         for (const level of levels) {
-            allBadges.push(getTaskBadge(level, task, level <= eligibleLevel));
+            allBadges.push(
+                getTaskBadge({
+                    level,
+                    task,
+                    isEarned: level <= eligibleLevel,
+                    isPreviousLevel: level < eligibleLevel,
+                    currentCount,
+                }),
+            );
+        }
+    }
+
+    const graduationCohorts = user.graduationCohorts?.sort(compareCohorts) ?? [];
+
+    for (let i = 0; i < dojoCohorts.length - 1; i++) {
+        if (
+            (graduationCohorts.length === 0 && i >= dojoCohorts.indexOf(user.dojoCohort)) ||
+            i >= dojoCohorts.indexOf(graduationCohorts[0])
+        ) {
+            allBadges.push(
+                getGraduationBadge(dojoCohorts[i], graduationCohorts.includes(dojoCohorts[i])),
+            );
         }
     }
 

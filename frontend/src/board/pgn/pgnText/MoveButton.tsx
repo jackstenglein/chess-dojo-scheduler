@@ -33,11 +33,7 @@ import { nagIcons } from '../NagIcon';
 import { useChess } from '../PgnBoard';
 import { markSuggestedVariationSaved } from './suggestVariation';
 
-export function getTextColor(
-    move: Move,
-    inline?: boolean,
-    highlightEngineLines?: boolean,
-): string {
+export function getTextColor(move: Move, inline?: boolean, highlightEngineLines?: boolean): string {
     if (highlightEngineLines && move.commentDiag?.dojoEngine) {
         return 'error.main';
     }
@@ -59,9 +55,7 @@ export interface ButtonProps {
     move: Move;
     onClickMove: (m: Move) => void;
     onRightClick: (
-        event:
-            | React.MouseEvent<HTMLButtonElement>
-            | LongPressReactEvents<HTMLButtonElement>,
+        event: React.MouseEvent<HTMLButtonElement> | LongPressReactEvents<HTMLButtonElement>,
     ) => void;
     text: string;
     time?: string;
@@ -118,9 +112,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             sx={{
                 textTransform: 'none',
                 fontWeight: isCurrentMove ? 'bold' : 'inherit',
-                color: isCurrentMove
-                    ? undefined
-                    : getTextColor(move, inline, highlightEngineLines),
+                color: isCurrentMove ? undefined : getTextColor(move, inline, highlightEngineLines),
                 backgroundColor: isCurrentMove ? 'primary' : undefined,
                 paddingRight: inline ? undefined : 2,
 
@@ -143,12 +135,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             onContextMenu={onRightClick}
             {...longPress()}
         >
-            <Stack
-                direction='row'
-                alignItems='center'
-                justifyContent='space-between'
-                width={1}
-            >
+            <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
                 <Stack direction='row' alignItems='center'>
                     {prefixNags}
                     {text}
@@ -271,10 +258,7 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                 <MenuList>
                     {config?.allowMoveDeletion && (
                         <>
-                            <MenuItem
-                                disabled={chess.isInMainline(move)}
-                                onClick={onMakeMainline}
-                            >
+                            <MenuItem disabled={chess.isInMainline(move)} onClick={onMakeMainline}>
                                 <ListItemIcon>
                                     <CheckIcon />
                                 </ListItemIcon>
@@ -325,14 +309,8 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                 </MenuList>
             </Menu>
 
-            {deleteAction && (
-                <DeletePrompt deleteAction={deleteAction} onClose={onCloseDelete} />
-            )}
-            <MergeLineDialog
-                open={showMerge}
-                onClose={() => setShowMerge(false)}
-                move={move}
-            />
+            {deleteAction && <DeletePrompt deleteAction={deleteAction} onClose={onCloseDelete} />}
+            <MergeLineDialog open={showMerge} onClose={() => setShowMerge(false)} move={move} />
         </>
     );
 };
@@ -416,32 +394,17 @@ const MoveButton: React.FC<MoveButtonProps> = ({
             chess.addObserver(observer);
             return () => chess.removeObserver(observer);
         }
-    }, [
-        chess,
-        move,
-        firstMove,
-        handleScroll,
-        setIsCurrentMove,
-        setForceRender,
-        showMoveTimes,
-    ]);
+    }, [chess, move, firstMove, handleScroll, setIsCurrentMove, setForceRender, showMoveTimes]);
 
     useEffect(() => {
         setIsCurrentMove(chess?.currentMove() === move);
-        if (
-            chess?.currentMove() === move ||
-            (firstMove && chess?.currentMove() === null)
-        ) {
+        if (chess?.currentMove() === move || (firstMove && chess?.currentMove() === null)) {
             handleScroll(ref.current);
         }
     }, [move, chess, setIsCurrentMove, firstMove, handleScroll]);
 
     const onRightClick = useCallback(
-        (
-            event:
-                | React.MouseEvent<HTMLButtonElement>
-                | LongPressReactEvents<HTMLButtonElement>,
-        ) => {
+        (event: React.MouseEvent<HTMLButtonElement> | LongPressReactEvents<HTMLButtonElement>) => {
             event.preventDefault();
             event.stopPropagation();
             setMenuAnchorEl(event.currentTarget || event.target);
@@ -478,11 +441,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     text={text}
                 />
                 {menuAnchorEl && (
-                    <MoveMenu
-                        anchor={menuAnchorEl}
-                        move={move}
-                        onClose={handleMenuClose}
-                    />
+                    <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
                 )}
             </>
         );

@@ -8,23 +8,13 @@ interface GraduationLinkCardGridProps {
     graduations: Graduation[];
 }
 
-export default function GraduationLinkCardGrid({
-    graduations,
-}: GraduationLinkCardGridProps) {
-    graduations.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+export default function GraduationLinkCardGrid({ graduations }: GraduationLinkCardGridProps) {
+    graduations.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return (
         <Grid container p='16px' spacing={2} alignItems='center' justifyContent='center'>
             {graduations.map((grad) => (
-                <Grid
-                    key={`${grad.username} ${grad.createdAt}`}
-                    item
-                    xs={8}
-                    md={4}
-                    xl={2}
-                >
+                <Grid key={`${grad.username} ${grad.createdAt}`} item xs={8} md={4} xl={2}>
                     <GraduationLinkCard
                         graduation={grad}
                         to={`/graduations/reports/${grad.previousCohort}/${grad.username}`}

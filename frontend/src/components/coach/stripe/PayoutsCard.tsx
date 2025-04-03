@@ -34,9 +34,7 @@ const PayoutsCard = ({ account }: { account?: StripeAccount }) => {
                                 <TableRow>
                                     <TableCell>
                                         <Stack direction='row' spacing={1}>
-                                            <Typography variant='body2'>
-                                                Interval
-                                            </Typography>
+                                            <Typography variant='body2'>Interval</Typography>
                                             <Tooltip title='How frequently funds are paid out'>
                                                 <Help
                                                     sx={{ color: 'text.secondary' }}
@@ -53,9 +51,7 @@ const PayoutsCard = ({ account }: { account?: StripeAccount }) => {
                                 <TableRow>
                                     <TableCell>
                                         <Stack direction='row' spacing={1}>
-                                            <Typography variant='body2'>
-                                                Holding Period
-                                            </Typography>
+                                            <Typography variant='body2'>Holding Period</Typography>
                                             <Tooltip title='How long funds are held before being paid out'>
                                                 <Help
                                                     sx={{ color: 'text.secondary' }}
@@ -66,8 +62,7 @@ const PayoutsCard = ({ account }: { account?: StripeAccount }) => {
                                     </TableCell>
                                     <TableCell align='center'>
                                         <Typography>
-                                            {account.settings.payouts.schedule.delay_days}{' '}
-                                            Days
+                                            {account.settings.payouts.schedule.delay_days} Days
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
@@ -83,9 +78,7 @@ const PayoutsCard = ({ account }: { account?: StripeAccount }) => {
                                 {account.external_accounts.data[0].object ===
                                 StripePayoutMethod.BankAccount ? (
                                     <>
-                                        <AccountBalance
-                                            sx={{ color: 'text.secondary' }}
-                                        />
+                                        <AccountBalance sx={{ color: 'text.secondary' }} />
                                         <Typography>Bank Account</Typography>
                                     </>
                                 ) : (

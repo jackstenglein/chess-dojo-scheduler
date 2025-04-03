@@ -91,8 +91,8 @@ export default function GraduationShareDialog({
             <DialogContent>
                 <Stack spacing={2}>
                     <DialogContentText>
-                        Show off your hard work and welcome the world to the Dojo!
-                        Download this image and share on social media.
+                        Show off your hard work and welcome the world to the Dojo! Download this
+                        image and share on social media.
                     </DialogContentText>
                     <Stack
                         display='grid'

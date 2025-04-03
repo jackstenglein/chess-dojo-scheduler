@@ -21,8 +21,7 @@ const PgnViewerModule: React.FC<ModuleProps> = ({ module }) => {
                 '--underboard-width': '400px',
                 '--coach-width': '400px',
                 '--tools-height': '40px',
-                '--board-width':
-                    'calc(100vw - var(--coach-width) - 60px - var(--toc-width))',
+                '--board-width': 'calc(100vw - var(--coach-width) - 60px - var(--toc-width))',
                 '--board-height':
                     'calc(100vh - var(--navbar-height) - var(--site-header-margin) - var(--tools-height) - 8px - 2 * var(--player-header-height))',
                 '--board-size': 'calc(min(var(--board-width), var(--board-height)))',

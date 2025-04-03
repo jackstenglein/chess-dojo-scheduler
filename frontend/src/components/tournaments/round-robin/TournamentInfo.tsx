@@ -1,8 +1,9 @@
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString } from '@/calendar/displayDate';
+import { toDojoDateString } from '@/components/calendar/displayDate';
+import { Link } from '@/components/navigation/Link';
 import { PawnIcon } from '@/style/ChessIcons';
 import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { CalendarMonth } from '@mui/icons-material';
+import { CalendarMonth, EmojiEvents } from '@mui/icons-material';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Chip, Stack, Typography } from '@mui/material';
 import { countActivePlayers, countCompletedGames } from './Stats';
@@ -24,11 +25,20 @@ export function TournamentInfo({ tournament }: { tournament: RoundRobin }) {
                 {tournament.name}
             </Typography>
 
-            <Chip
-                label={`${numPlayers} players`}
-                icon={<PeopleAltIcon />}
-                color='secondary'
-            />
+            {tournament.winners?.map((winner) => (
+                <Chip
+                    key={winner}
+                    color='success'
+                    icon={<EmojiEvents />}
+                    label={
+                        <Link href={`/profile/${winner}`} sx={{ color: 'inherit' }}>
+                            {tournament.players[winner].displayName}
+                        </Link>
+                    }
+                />
+            ))}
+
+            <Chip label={`${numPlayers} players`} icon={<PeopleAltIcon />} color='secondary' />
 
             <TimeControlChip cohort={tournament.cohort} />
 

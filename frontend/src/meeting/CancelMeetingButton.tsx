@@ -23,9 +23,13 @@ interface CancelMeetingButtonProps {
     onSuccess: (event: Event) => void;
 }
 
-const CancelMeetingButton: React.FC<
-    React.PropsWithChildren<CancelMeetingButtonProps>
-> = ({ meetingId, dialogTitle, dialogContent, onSuccess, children }) => {
+const CancelMeetingButton: React.FC<React.PropsWithChildren<CancelMeetingButtonProps>> = ({
+    meetingId,
+    dialogTitle,
+    dialogContent,
+    onSuccess,
+    children,
+}) => {
     const [showCancelDialog, setShowCancelDialog] = useState(false);
     const cancelRequest = useRequest();
     const api = useApi();
@@ -50,20 +54,12 @@ const CancelMeetingButton: React.FC<
 
     return (
         <>
-            <Button
-                variant='contained'
-                color='error'
-                onClick={() => setShowCancelDialog(true)}
-            >
+            <Button variant='contained' color='error' onClick={() => setShowCancelDialog(true)}>
                 {children}
             </Button>
             <Dialog
                 open={showCancelDialog}
-                onClose={
-                    cancelRequest.isLoading()
-                        ? undefined
-                        : () => setShowCancelDialog(false)
-                }
+                onClose={cancelRequest.isLoading() ? undefined : () => setShowCancelDialog(false)}
             >
                 <RequestSnackbar request={cancelRequest} />
                 <DialogTitle>

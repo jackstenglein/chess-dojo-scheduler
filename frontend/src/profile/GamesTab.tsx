@@ -13,11 +13,7 @@ import { useRouter } from '@/hooks/useRouter';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import { Button, Stack } from '@mui/material';
-import {
-    GridPaginationModel,
-    GridRowParams,
-    GridRowSelectionModel,
-} from '@mui/x-data-grid-pro';
+import { GridPaginationModel, GridRowParams, GridRowSelectionModel } from '@mui/x-data-grid-pro';
 import { useCallback, useState } from 'react';
 
 interface GamesTabProps {
@@ -67,13 +63,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
             {currentUser?.username === user.username && (
-                <Stack
-                    direction='row'
-                    alignItems='center'
-                    gap={2}
-                    width={1}
-                    flexWrap='wrap'
-                >
+                <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
                     <Button
                         variant='contained'
                         onClick={onSubmit}
@@ -96,9 +86,9 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
             {isFreeTier && currentUser?.username !== user.username && (
                 <Stack alignItems='center' mb={5}>
                     <UpsellAlert>
-                        To avoid unfair preparation against Dojo members, free-tier users
-                        cannot view games by a specific player. Upgrade your account to
-                        view the full Dojo Database.
+                        To avoid unfair preparation against Dojo members, free-tier users cannot
+                        view games by a specific player. Upgrade your account to view the full Dojo
+                        Database.
                     </UpsellAlert>
                 </Stack>
             )}

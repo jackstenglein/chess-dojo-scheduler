@@ -1,8 +1,10 @@
-import Stripe from 'stripe';
 import { z } from 'zod';
 
 /** The maximum number of players in a round robin. */
 export const MAX_ROUND_ROBIN_PLAYERS = 10;
+
+/** The minimum number of players in a round robin. */
+export const MIN_ROUND_ROBIN_PLAYERS = 4;
 
 /** Verifies a request to register for the round robin. */
 export const RoundRobinRegisterSchema = z.object({
@@ -54,6 +56,10 @@ export type RoundRobinSubmitGameRequest = z.infer<typeof RoundRobinSubmitGameSch
 
 const roundRobinStatus = z.enum(['ACTIVE', 'WAITING', 'COMPLETE']);
 
+/** The status of a round robin tournament. */
+export type RoundRobinStatus = z.infer<typeof roundRobinStatus>;
+
+/** The status of a round robin tournament. */
 export const RoundRobinStatuses = roundRobinStatus.enum;
 
 /** Verifies a request to list round robin tournaments. */
@@ -73,67 +79,21 @@ export type RoundRobinListRequest = z.infer<typeof RoundRobinListSchema>;
 
 export type RoundRobinWaitlist = Pick<
     RoundRobin,
-    'type' | 'startsAt' | 'cohort' | 'players'
+    'type' | 'startsAt' | 'updatedAt' | 'cohort' | 'players' | 'name'
 >;
 
-export interface RoundRobin {
-    /** The hash key of the tournaments table. For round robins, this is the value ROUND_ROBIN_<cohort>. */
-    type: string;
-
-    /**
-     * The range key of the tournaments table. For round robins, this value has the following form:
-     *   - If the tournament is running, it is ACTIVE_<ISO start date>
-     *   - If the tournament is waiting, it is WAITING
-     *   - If the tournament is over, it is COMPLETE_<ISO start date>
-     */
-    startsAt: string;
-
-    /** The cohort of the round robin. */
-    cohort: string;
-
-    /**
-     * The name of the tournament. For a waitlist, this is the number the tournament will have
-     * once created.
-     */
-    name: string;
-
-    /** The start date of the tournament in ISO format. */
-    startDate: string;
-
-    /** The end date of the tournament in ISO format. */
-    endDate: string;
-
-    /**
-     * The players in the tournament, mapped by their usernames.
-     * A running round robin can only have MAX_ROUND_ROBIN_PLAYERS players.
-     */
-    players: Record<string, RoundRobinPlayer>;
-
-    /** The order of the players' usernames in the tournament when pairing. */
-    playerOrder: string[];
-
-    /**
-     * The pairings for the tournament. The first level of the array corresponds
-     * to the round number. Once this field is set, the order of the pairings
-     * never changes.
-     */
-    pairings: RoundRobinPairing[][];
-}
-
-/** A single pairing in a round robin. */
-export interface RoundRobinPairing {
+const RoundRobinPairingSchema = z.object({
     /** The username of the player with white. */
-    white: string;
-
+    white: z.string().optional(),
     /** The username of the player with black. */
-    black: string;
-
+    black: z.string().optional(),
     /** The result of the game. */
-    result?: '1-0' | '1/2-1/2' | '0-1';
-
+    result: z.union([z.literal('1-0'), z.literal('1/2-1/2'), z.literal('0-1')]).optional(),
     /** The URL of the game. */
-    url?: string;
-}
+    url: z.string().optional(),
+});
+
+export type RoundRobinPairing = z.infer<typeof RoundRobinPairingSchema>;
 
 const roundRobinPlayerStatus = z.enum([
     /** The player is active in the tournament. */
@@ -146,25 +106,173 @@ export type RoundRobinPlayerStatus = z.infer<typeof roundRobinPlayerStatus>;
 
 export const RoundRobinPlayerStatuses = roundRobinPlayerStatus.enum;
 
-export interface RoundRobinPlayer {
+const RoundRobinPlayerSchema = z.object({
     /** The username of the player. */
-    username: string;
-
+    username: z.string(),
     /** The Dojo display name of the player. */
-    displayName: string;
-
+    displayName: z.string(),
     /** The Lichess username of the player. */
-    lichessUsername: string;
-
+    lichessUsername: z.string(),
     /** The Chess.com username of the player. */
-    chesscomUsername: string;
-
+    chesscomUsername: z.string(),
     /** The Discord username of the player registering. */
-    discordUsername?: string;
-
+    discordUsername: z.string().optional(),
     /** The status of the player. */
-    status: RoundRobinPlayerStatus;
-
+    status: roundRobinPlayerStatus,
     /** The Stripe checkout session for players who paid to enter. */
-    checkoutSession?: Stripe.Checkout.Session;
+    checkoutSession: z
+        .object({
+            /** The ID of the setup intent for the checkout session. */
+            setup_intent: z.string().nullish(),
+            /** The ID of the customer for the checkout session. */
+            customer: z.string().nullish(),
+        })
+        .optional(),
+});
+
+export type RoundRobinPlayer = z.infer<typeof RoundRobinPlayerSchema>;
+
+export const RoundRobinSchema = z.object({
+    /** The hash key of the tournaments table. For round robins, this is the value ROUND_ROBIN_<cohort>. */
+    type: z.string(),
+    /**
+     * The range key of the tournaments table. For round robins, this value has the following form:
+     *   - If the tournament is running, it is ACTIVE_<ISO start date>
+     *   - If the tournament is waiting, it is WAITING
+     *   - If the tournament is over, it is COMPLETE_<ISO start date>
+     */
+    startsAt: z.string(),
+    /** The cohort of the round robin. */
+    cohort: z.string(),
+    /**
+     * The name of the tournament. For a waitlist, this is the number the tournament will have
+     * once created.
+     */
+    name: z.string(),
+    /** The start date of the tournament in ISO format. */
+    startDate: z.string(),
+    /** The end date of the tournament in ISO format. */
+    endDate: z.string(),
+    /**
+     * The players in the tournament, mapped by their usernames.
+     * A running round robin can only have MAX_ROUND_ROBIN_PLAYERS players.
+     */
+    players: z.record(z.string(), RoundRobinPlayerSchema),
+    /** The order of the players' usernames in the tournament when pairing. */
+    playerOrder: z.string().array(),
+    /**
+     * The pairings for the tournament. The first level of the array corresponds
+     * to the round number. Once this field is set, the order of the pairings
+     * never changes.
+     */
+    pairings: RoundRobinPairingSchema.array().array(),
+    /**
+     * The usernames of the winners of the tournament. Only set for completed tournaments.
+     */
+    winners: z.string().array().optional(),
+    /** The time the tournament was last updated. */
+    updatedAt: z.string(),
+});
+
+export type RoundRobin = z.infer<typeof RoundRobinSchema>;
+
+/** Stats for a player in a round robin tournament. */
+export interface PlayerStats {
+    /** The player's total score in the tournament so far. */
+    score: number;
+    /** The player's win count in the tournament so far. */
+    wins: number;
+    /** The player's draw count in the tournament so far. */
+    draws: number;
+    /** The player's loss count in the tournament so far. */
+    losses: number;
+    /** The number of games the player has played in the tournament so far. */
+    played: number;
+    /** The Sonneborn-Berger score of the player. https://en.wikipedia.org/wiki/Sonneborn%E2%80%93Berger_score */
+    tiebreakScore: number;
+}
+
+/**
+ * Calculates the PlayerStats for active players in the given tournament.
+ * Only active players are included.
+ * @param tournament The tournament to calculate the counts for.
+ * @returns A map from username to stats for each active player in the tournament.
+ */
+export function calculatePlayerStats(tournament: RoundRobin) {
+    const results: Record<string, PlayerStats> = {};
+
+    for (const round of tournament.pairings) {
+        for (const pairing of round) {
+            if (
+                !pairing.result ||
+                !pairing.white ||
+                !pairing.black ||
+                tournament.players[pairing.white].status === RoundRobinPlayerStatuses.WITHDRAWN ||
+                tournament.players[pairing.black].status === RoundRobinPlayerStatuses.WITHDRAWN
+            ) {
+                continue;
+            }
+
+            const white = results[pairing.white] || {
+                score: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                played: 0,
+                tiebreakScore: 0,
+            };
+            const black = results[pairing.black] || {
+                score: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                played: 0,
+                tiebreakScore: 0,
+            };
+            results[pairing.white] = white;
+            results[pairing.black] = black;
+
+            white.played++;
+            black.played++;
+
+            if (pairing.result === '1-0') {
+                white.wins++;
+                black.losses++;
+            } else if (pairing.result === '1/2-1/2') {
+                white.draws++;
+                black.draws++;
+            } else {
+                white.losses++;
+                black.wins++;
+            }
+
+            white.score = white.wins + white.draws / 2;
+            black.score = black.wins + black.draws / 2;
+        }
+    }
+
+    for (const round of tournament.pairings) {
+        for (const pairing of round) {
+            if (
+                !pairing.result ||
+                !pairing.white ||
+                !pairing.black ||
+                tournament.players[pairing.white].status === RoundRobinPlayerStatuses.WITHDRAWN ||
+                tournament.players[pairing.black].status === RoundRobinPlayerStatuses.WITHDRAWN
+            ) {
+                continue;
+            }
+
+            if (pairing.result === '1-0') {
+                results[pairing.white].tiebreakScore += results[pairing.black].score;
+            } else if (pairing.result === '1/2-1/2') {
+                results[pairing.white].tiebreakScore += 0.5 * results[pairing.black].score;
+                results[pairing.black].tiebreakScore += 0.5 * results[pairing.white].score;
+            } else {
+                results[pairing.black].tiebreakScore += results[pairing.white].score;
+            }
+        }
+    }
+
+    return results;
 }

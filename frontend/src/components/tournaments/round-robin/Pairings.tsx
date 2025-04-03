@@ -1,7 +1,6 @@
 import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import {
-    MAX_ROUND_ROBIN_PLAYERS,
     RoundRobin,
     RoundRobinPairing,
     RoundRobinPlayerStatuses,
@@ -46,7 +45,7 @@ export function Pairings({ tournament }: { tournament: RoundRobin }) {
                         My Pairings
                     </MenuItem>
                 )}
-                {[...Array(MAX_ROUND_ROBIN_PLAYERS - 1).keys()].map((round) => (
+                {[...Array(tournament.pairings.length).keys()].map((round) => (
                     <MenuItem key={round + 1} value={round + 1}>
                         Round {round + 1}
                     </MenuItem>
@@ -121,20 +120,26 @@ function Pairing({
     round?: number;
 }) {
     const whiteWithdrawn =
+        pairing.white &&
         tournament.players[pairing.white].status === RoundRobinPlayerStatuses.WITHDRAWN;
     const blackWithdrawn =
+        pairing.black &&
         tournament.players[pairing.black].status === RoundRobinPlayerStatuses.WITHDRAWN;
 
-    const White = (
+    const White = pairing.white ? (
         <Link href={`/profile/${pairing.white}`}>
             {tournament.players[pairing.white].displayName}
         </Link>
+    ) : (
+        'Bye'
     );
 
-    const Black = (
+    const Black = pairing.black ? (
         <Link href={`/profile/${pairing.black}`}>
             {tournament.players[pairing.black].displayName}
         </Link>
+    ) : (
+        'Bye'
     );
 
     const result =

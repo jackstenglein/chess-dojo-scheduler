@@ -87,11 +87,7 @@ const AnnotationWarnings = () => {
                 variant='filled'
                 severity='warning'
                 action={
-                    <Button
-                        size='small'
-                        color='inherit'
-                        onClick={() => setShowDetails(true)}
-                    >
+                    <Button size='small' color='inherit' onClick={() => setShowDetails(true)}>
                         Details
                     </Button>
                 }

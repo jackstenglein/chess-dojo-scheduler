@@ -81,9 +81,8 @@ func approveJoinRequest(id, username, caller string) (*database.Club, []database
 		log.Errorf("Failed to get new scoreboard summary: %v", err)
 	}
 
-	err = repository.PutNotification(database.ClubJoinRequestApprovedNotification(username, club))
-	if err != nil {
-		log.Errorf("Failed to save approval notification: %v", err)
+	if err := database.SendClubJoinRequestApprovedEvent(club, username); err != nil {
+		log.Errorf("Failed to send approval notification: %v", err)
 	}
 
 	return club, scoreboard, nil

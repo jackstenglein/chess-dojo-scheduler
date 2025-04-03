@@ -62,11 +62,9 @@ describe('Navbar', () => {
             );
             cy.visit('/profile');
 
-            navbarStartItems
-                .slice(0, navbarStartItems.length - hidden)
-                .forEach((item) => {
-                    cy.getBySel('navbar').contains(item);
-                });
+            navbarStartItems.slice(0, navbarStartItems.length - hidden).forEach((item) => {
+                cy.getBySel('navbar').contains(item);
+            });
 
             navbarEndItems.slice(endHidden).forEach((item) => {
                 cy.getBySel(item);
@@ -75,11 +73,9 @@ describe('Navbar', () => {
             if (hidden > 0) {
                 cy.getBySel('navbar-more-button').click();
 
-                navbarStartItems
-                    .slice(navbarStartItems.length - hidden)
-                    .forEach((item) => {
-                        cy.get('#menu-appbar').contains(item);
-                    });
+                navbarStartItems.slice(navbarStartItems.length - hidden).forEach((item) => {
+                    cy.get('#menu-appbar').contains(item);
+                });
 
                 navbarEndItems.slice(0, endHidden).forEach((item) => {
                     if (item !== 'navbar-profile-button') {

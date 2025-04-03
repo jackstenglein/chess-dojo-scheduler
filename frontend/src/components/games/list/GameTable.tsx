@@ -1,5 +1,6 @@
 import { useFreeTier } from '@/auth/Auth';
 import { CustomPagination } from '@/components/ui/CustomPagination';
+import { ViewerDateString } from '@/components/ui/ViewerDateString';
 import { GameInfo } from '@/database/game';
 import { DataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { PaginationResult } from '@/hooks/usePagination';
@@ -39,8 +40,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'cohort',
         headerName: 'Cohort',
-        renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
-            RenderCohort(params.row),
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) => RenderCohort(params.row),
         align: 'center',
         headerAlign: 'center',
         width: 70,
@@ -51,9 +51,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         valueGetter: (_value, row) => row.headers?.Result,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
-            <RenderGameResultStack result={params.row.headers.Result} />
-        ),
+        renderCell: (params) => <RenderGameResultStack result={params.row.headers.Result} />,
         width: 50,
     },
     {
@@ -114,10 +112,18 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
         headerAlign: 'right',
     },
     {
+        field: 'updatedAt',
+        headerName: 'Updated',
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) => (
+            <ViewerDateString date={params.value} />
+        ),
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
         field: 'owner',
         headerName: 'Uploaded By',
-        renderCell: (params: GridRenderCellParams<GameInfo, string>) =>
-            RenderOwner(params.row),
+        renderCell: (params: GridRenderCellParams<GameInfo, string>) => RenderOwner(params.row),
         flex: 1,
     },
     {
@@ -181,13 +187,16 @@ export default function GameTable({
     const apiRef = useGridApiRef();
     const freeTierLimited = useFreeTier() && limitFreeTier;
     const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
-    const [columnVisibility, setColumnVisibility] =
-        useLocalStorage<GridColumnVisibilityModel>(`/GameTable/${namespace}/visibility`, {
+    const [columnVisibility, setColumnVisibility] = useLocalStorage<GridColumnVisibilityModel>(
+        `/GameTable/${namespace}/visibility`,
+        {
             whiteRating: false,
             blackRating: false,
             unlisted: false,
+            updatedAt: false,
             ...(defaultVisibility ?? {}),
-        });
+        },
+    );
 
     const transformedColumns = useMemo(() => {
         let transformedColumns = columns ?? gameTableColumns;

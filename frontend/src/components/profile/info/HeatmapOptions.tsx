@@ -1,4 +1,4 @@
-import { WeekDays } from '@aldabil/react-scheduler/views/Month';
+import { useAuth } from '@/auth/Auth';
 import { ZoomOutMap } from '@mui/icons-material';
 import { IconButton, MenuItem, Stack, TextField, Tooltip } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
@@ -37,6 +37,7 @@ const heatmapColorMode = {
  * @returns Current options and setters for the Heatmap.
  */
 export function useHeatmapOptions() {
+    const { user } = useAuth();
     const [field, setField] = useLocalStorage<TimelineEntryField>(
         heatmapField.key,
         heatmapField.default,
@@ -53,7 +54,10 @@ export function useHeatmapOptions() {
         heatmapColorMode.key,
         heatmapColorMode.default,
     );
-    const [weekStartOn] = useLocalStorage<WeekDays>('calendarFilters.weekStartOn', 0);
+    const [originalWeekStartOn] = useLocalStorage('calendarFilters.weekStartOn', 0);
+
+    const weekStartOn = user?.weekStart ?? originalWeekStartOn;
+    const weekEndOn = (weekStartOn + 6) % 7;
 
     return {
         field,
@@ -65,6 +69,7 @@ export function useHeatmapOptions() {
         colorMode,
         setColorMode,
         weekStartOn,
+        weekEndOn,
     };
 }
 
@@ -83,13 +88,7 @@ export function HeatmapOptions({ onPopOut }: { onPopOut?: () => void }) {
             flexWrap='wrap'
             justifyContent='space-between'
         >
-            <Stack
-                direction='row'
-                gap={2}
-                alignItems='center'
-                flexWrap='wrap'
-                flexGrow={1}
-            >
+            <Stack direction='row' gap={2} alignItems='center' flexWrap='wrap' flexGrow={1}>
                 <TextField
                     label='Type'
                     size='small'

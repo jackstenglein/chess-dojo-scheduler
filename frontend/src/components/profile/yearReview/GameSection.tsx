@@ -98,8 +98,8 @@ const GameSection = ({ review }: SectionProps) => {
                 fontSize='clamp(16px,3vw,32px)'
                 textAlign='center'
             >
-                Finally, we all know analyzing games is a cornerstone of the Dojo, so
-                let's check your game stats!
+                Finally, we all know analyzing games is a cornerstone of the Dojo, so let's check
+                your game stats!
             </Typography>
             <Card variant='outlined' sx={{ width: 1, mt: 4 }}>
                 <CardContent>

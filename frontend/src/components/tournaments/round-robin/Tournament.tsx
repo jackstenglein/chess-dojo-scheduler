@@ -33,10 +33,7 @@ export function Tournament({
     onUpdateTournaments,
 }: {
     tournament: RoundRobin;
-    onUpdateTournaments: (props: {
-        waitlist?: RoundRobin;
-        tournament?: RoundRobin;
-    }) => void;
+    onUpdateTournaments: (props: { waitlist?: RoundRobin; tournament?: RoundRobin }) => void;
 }) {
     const [tab, setTab] = useState('crosstable');
     const [showSubmitGame, setShowSubmitGame] = useState(false);
@@ -78,11 +75,7 @@ export function Tournament({
                         sx={{ borderBottom: 1, borderColor: 'divider' }}
                     >
                         <Tab label='Players' value='players' icon={<PeopleAlt />} />
-                        <Tab
-                            label='Crosstable'
-                            value='crosstable'
-                            icon={<TableChart />}
-                        />
+                        <Tab label='Crosstable' value='crosstable' icon={<TableChart />} />
                         <Tab
                             label='Pairings'
                             value='pairings'

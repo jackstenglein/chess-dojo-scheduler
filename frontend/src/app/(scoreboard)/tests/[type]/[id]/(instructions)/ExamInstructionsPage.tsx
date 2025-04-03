@@ -2,10 +2,7 @@
 
 import NotFoundPage from '@/NotFoundPage';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import {
-    CompletedExam,
-    InProgressExam,
-} from '@/app/(scoreboard)/tests/[type]/[id]/exam/ExamPage';
+import { CompletedExam, InProgressExam } from '@/app/(scoreboard)/tests/[type]/[id]/exam/ExamPage';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import { displayExamType } from '@/database/exam';
@@ -14,11 +11,7 @@ import Instructions from '@/exams/instructions/Instructions';
 import { useExam } from '@/exams/view/exam';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
-import {
-    Exam,
-    ExamAnswer,
-    ExamType,
-} from '@jackstenglein/chess-dojo-common/src/database/exam';
+import { Exam, ExamAnswer, ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
 import { Button, Container, Stack, Typography } from '@mui/material';
 
 export function ExamInstructionsPage({ type, id }: { type: ExamType; id: string }) {
@@ -32,15 +25,7 @@ export function ExamInstructionsPage({ type, id }: { type: ExamType; id: string 
     return <AuthExamInstructionPage user={user} type={type} id={id} />;
 }
 
-function AuthExamInstructionPage({
-    user,
-    type,
-    id,
-}: {
-    user: User;
-    type: ExamType;
-    id: string;
-}) {
+function AuthExamInstructionPage({ user, type, id }: { user: User; type: ExamType; id: string }) {
     const { request, exam } = useExam({ type, id });
     const answerRequest = useRequest<ExamAnswer>();
     const router = useRouter();
@@ -83,12 +68,11 @@ function AuthExamInstructionPage({
                         Example
                     </Typography>
                     <Typography sx={{ mb: 3 }}>
-                        The following is a sample test similar to the one you will take.
-                        You can use this as an optional, untimed warm-up to see how the
-                        test will work. You are not graded on these problems. When you
-                        have finished making your moves, click the "Finish Early" button
-                        to see the score you would have gotten if this had been a real
-                        test.
+                        The following is a sample test similar to the one you will take. You can use
+                        this as an optional, untimed warm-up to see how the test will work. You are
+                        not graded on these problems. When you have finished making your moves,
+                        click the "Finish Early" button to see the score you would have gotten if
+                        this had been a real test.
                     </Typography>
                 </Stack>
             </Container>
@@ -116,8 +100,8 @@ function AuthExamInstructionPage({
                         Start Test
                     </Typography>
                     <Typography>
-                        Click the button below to start. Your time begins as soon as you
-                        click the button.
+                        Click the button below to start. Your time begins as soon as you click the
+                        button.
                     </Typography>
 
                     <Stack direction='row' spacing={2} mt={3}>

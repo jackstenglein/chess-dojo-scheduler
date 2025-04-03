@@ -7,10 +7,7 @@ import { UserNotificationSettings } from '@/database/user';
 import { Email, Notifications, Web } from '@mui/icons-material';
 import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 
-function getSettingValue(
-    notificationSettings: UserNotificationSettings,
-    path: string,
-): boolean {
+function getSettingValue(notificationSettings: UserNotificationSettings, path: string): boolean {
     const components = path.split('.');
 
     let currentSetting: any = notificationSettings;
@@ -63,6 +60,10 @@ const sections: NotificationSettingsSection[] = [
                 path: 'siteNotificationSettings.disableGameComment',
             },
             {
+                label: 'Notify me when a reply is added to a game comment thread I participated in',
+                path: 'siteNotificationSettings.disableGameCommentReplies',
+            },
+            {
                 label: 'Notify me when I have a new follower',
                 path: 'siteNotificationSettings.disableNewFollower',
             },
@@ -73,6 +74,28 @@ const sections: NotificationSettingsSection[] = [
             {
                 label: 'Notify me when a reaction is added to my newsfeed activity',
                 path: 'siteNotificationSettings.disableNewsfeedReaction',
+            },
+            {
+                label: 'Notify me when I am invited to an event on the calendar',
+                path: 'siteNotificationSettings.disableCalendarInvite',
+            },
+        ],
+    },
+    {
+        label: 'Email',
+        icon: <Email />,
+        settings: [
+            {
+                label: 'Notify me via email when I am about to be marked inactive',
+                path: 'emailNotificationSettings.disableInactiveWarning',
+            },
+            {
+                label: 'Subscribe to the monthly Dojo Digest',
+                path: 'emailNotificationSettings.disableNewsletter',
+            },
+            {
+                label: 'Notify me when my round robin tournament starts',
+                path: 'emailNotificationSettings.disableRoundRobinStart',
             },
         ],
     },
@@ -88,19 +111,13 @@ const sections: NotificationSettingsSection[] = [
                 label: 'Notify me via a Discord DM when my meeting is cancelled',
                 path: 'discordNotificationSettings.disableMeetingCancellation',
             },
-        ],
-    },
-    {
-        label: 'Email',
-        icon: <Email />,
-        settings: [
             {
-                label: 'Notify me via email when I am about to be marked inactive',
-                path: 'emailNotificationSettings.disableInactiveWarning',
+                label: 'Notify me via a Discord DM when I am invited to an event on the calendar',
+                path: 'discordNotificationSettings.disableCalendarInvite',
             },
             {
-                label: 'Subscribe to the monthly Dojo Digest',
-                path: 'emailNotificationSettings.disableNewsletter',
+                label: 'Notify me when my round robin tournament starts',
+                path: 'discordNotificationSettings.disableRoundRobinStart',
             },
         ],
     },
@@ -124,9 +141,7 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                 }}
             >
                 <Typography variant='h5'>
-                    <Notifications
-                        style={{ verticalAlign: 'middle', marginRight: '0.1em' }}
-                    />{' '}
+                    <Notifications style={{ verticalAlign: 'middle', marginRight: '0.1em' }} />{' '}
                     Notifications
                 </Typography>
                 <Divider />
@@ -152,12 +167,7 @@ const NotificationSettingsEditor: React.FC<NotificationSettingsEditorProps> = ({
                             key={setting.path}
                             control={
                                 <Checkbox
-                                    checked={
-                                        !getSettingValue(
-                                            notificationSettings,
-                                            setting.path,
-                                        )
-                                    }
+                                    checked={!getSettingValue(notificationSettings, setting.path)}
                                     onChange={(e) =>
                                         setNotificationSettings(
                                             setSettingValue(

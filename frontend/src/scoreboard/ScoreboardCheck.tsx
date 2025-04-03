@@ -1,10 +1,11 @@
+import { TimelineProvider } from '@/components/profile/activity/useTimeline';
+import { TaskDialog, TaskDialogView } from '@/components/profile/trainingPlan/TaskDialog';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Requirement } from '../database/requirement';
-import ProgressDialog from '../profile/progress/ProgressDialog';
 
 interface ScoreboardCheckProps {
     value: number;
@@ -41,20 +42,19 @@ const ScoreboardCheck: React.FC<ScoreboardCheckProps> = ({
                 }}
                 onClick={onClick}
             >
-                {value < total ? (
-                    <CheckBoxOutlineBlankIcon />
-                ) : (
-                    <CheckBoxIcon color='primary' />
-                )}
+                {value < total ? <CheckBoxOutlineBlankIcon /> : <CheckBoxIcon color='primary' />}
             </Box>
-            {canUpdate && showUpdateDialog && (
-                <ProgressDialog
-                    open={showUpdateDialog}
-                    onClose={() => setShowUpdateDialog(false)}
-                    requirement={requirement}
-                    cohort={cohort}
-                    progress={user?.progress[requirement.id]}
-                />
+            {canUpdate && showUpdateDialog && user && (
+                <TimelineProvider owner={user.username}>
+                    <TaskDialog
+                        open
+                        onClose={() => setShowUpdateDialog(false)}
+                        task={requirement}
+                        initialView={TaskDialogView.Progress}
+                        cohort={cohort}
+                        progress={user.progress[requirement.id]}
+                    />
+                </TimelineProvider>
             )}
         </>
     );

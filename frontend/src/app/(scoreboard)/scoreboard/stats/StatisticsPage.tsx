@@ -155,8 +155,7 @@ export function StatisticsPage() {
         return getSeries(
             'Rating Change',
             request.data,
-            (d, c) =>
-                d.cohorts[c].activeRatingChanges + d.cohorts[c].inactiveRatingChanges,
+            (d, c) => d.cohorts[c].activeRatingChanges + d.cohorts[c].inactiveRatingChanges,
         );
     }, [request.data]);
 
@@ -200,11 +199,7 @@ export function StatisticsPage() {
     }, [request.data]);
 
     const numGraduationsData: Series[] = useMemo(() => {
-        return getSeries(
-            'Graduations',
-            request.data,
-            (d, c) => d.cohorts[c].numGraduations,
-        );
+        return getSeries('Graduations', request.data, (d, c) => d.cohorts[c].numGraduations);
     }, [request.data]);
 
     const graduationTimeData: Series[] = useMemo(() => {
@@ -322,14 +317,8 @@ export function StatisticsPage() {
         return <Container></Container>;
     }
 
-    const totalRatingChange = totalRatingChangeData[0]?.data.reduce(
-        (sum, d) => sum + d.value,
-        0,
-    );
-    const totalDojoPoints = totalDojoScoreData[0]?.data.reduce(
-        (sum, d) => sum + d.value,
-        0,
-    );
+    const totalRatingChange = totalRatingChangeData[0]?.data.reduce((sum, d) => sum + d.value, 0);
+    const totalDojoPoints = totalDojoScoreData[0]?.data.reduce((sum, d) => sum + d.value, 0);
 
     return (
         <Container maxWidth='xl' sx={{ pt: 4, pb: 4 }}>

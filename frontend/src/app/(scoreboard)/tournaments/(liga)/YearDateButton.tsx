@@ -39,11 +39,7 @@ const YearDateButton = ({ selectedDate, onChange }: YearDateButtonProps) => {
                 aria-label='previous year'
                 disabled={currentYear <= MIN_YEAR}
             />
-            <Button
-                style={{ padding: 4 }}
-                onClick={handleOpen}
-                aria-label='selected year'
-            >
+            <Button style={{ padding: 4 }} onClick={handleOpen} aria-label='selected year'>
                 {selectedDate.toFormat('yyyy')}
             </Button>
             <Popover

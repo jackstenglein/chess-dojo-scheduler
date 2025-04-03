@@ -1,16 +1,19 @@
 import { useAuth } from '@/auth/Auth';
-import { getTimeZonedDate } from '@/calendar/displayDate';
+import { getTimeZonedDate } from '@/components/calendar/displayDate';
 import { formatTime, RequirementCategory } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
-import { User } from '@/database/user';
+import { User, WorkGoalHistory, WorkGoalSettings } from '@/database/user';
 import CohortIcon, { cohortIcons } from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
+import { CheckCircle, Close } from '@mui/icons-material';
 import {
     Box,
     Checkbox,
     Divider,
     FormControlLabel,
+    Paper,
+    PaperProps,
     Stack,
     Tooltip,
     Typography,
@@ -20,8 +23,11 @@ import {
     ActivityCalendar,
     Activity as BaseActivity,
     BlockElement,
+    DayIndex,
 } from 'react-activity-calendar';
 import { GiCrossedSwords } from 'react-icons/gi';
+import { DEFAULT_WORK_GOAL } from '../trainingPlan/workGoal';
+import { MIN_BLOCK_SIZE } from './HeatmapCard';
 import { HeatmapOptions, TimelineEntryField, useHeatmapOptions } from './HeatmapOptions';
 
 interface CategoryCount {
@@ -32,15 +38,52 @@ interface CategoryCount {
     trainingPlan: number;
 }
 
-interface Activity extends BaseActivity {
-    /**
-     * Required by the react-activity-calendar library, but always set to 0
-     * as we dynamically calculate the level when rendering the block.
-     */
-    level: number;
+interface ExtendedBaseActivity extends BaseActivity {
+    /** The total number of Dojo points earned on the given day. */
+    dojoPoints?: number;
+
+    /** The total number of minutes spent on the given day. */
+    minutesSpent?: number;
+
+    /** The count of the activity by category and field. */
+    categoryCounts?: Partial<
+        Record<RequirementCategory, { dojoPoints: CategoryCount; minutesSpent: CategoryCount }>
+    >;
+
+    /** Whether a classical game was played on this date. */
+    gamePlayed?: boolean;
+
+    /** The highest cohort the user graduated from on this date. */
+    graduation?: string;
+}
+
+interface Activity extends ExtendedBaseActivity {
+    /** The total number of Dojo points earned on the given day. */
+    dojoPoints: number;
+
+    /** The total number of minutes spent on the given day. */
+    minutesSpent: number;
+
+    /** The count of the activity by category and field. */
+    categoryCounts: Partial<
+        Record<RequirementCategory, { dojoPoints: CategoryCount; minutesSpent: CategoryCount }>
+    >;
+}
+
+interface WeekSummary {
+    /** The date that the week summary ends on. */
+    date: string;
+
+    /** The total number of Dojo points earned in the given week. */
+    dojoPoints: number;
+
+    /** The total number of minutes spent in the given week. */
+    minutesSpent: number;
 
     /** The count of the activity by category. */
-    categoryCounts?: Partial<Record<RequirementCategory, CategoryCount>>;
+    categoryCounts: Partial<
+        Record<RequirementCategory, { dojoPoints: CategoryCount; minutesSpent: CategoryCount }>
+    >;
 
     /** Whether a classical game was played on this date. */
     gamePlayed?: boolean;
@@ -94,16 +137,28 @@ const DARK_THEME = Array(MAX_LEVEL + 1)
     .fill(0)
     .map((_, level) => mixColors('#393939', MONOCHROME_COLOR, level / MAX_LEVEL));
 
+/** The margin above the first weekday label. */
+const WEEKDAY_LEGEND_TOP_MARGIN = 29;
+
+/** The space between adjacent blocks in the heatmap. */
+const BLOCK_SPACING = 4;
+
+/** Labels of the weekdays by their index. */
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+
 /**
  * Renders the Heatmap, including the options and legend, for the given timeline entries.
  */
 export function Heatmap({
     entries,
     description,
-    blockSize,
+    blockSize = MIN_BLOCK_SIZE,
     onPopOut,
     minDate,
     maxDate,
+    workGoalHistory,
+    defaultWorkGoal,
+    slotProps,
 }: {
     entries: TimelineEntry[];
     description: string;
@@ -111,28 +166,37 @@ export function Heatmap({
     onPopOut?: () => void;
     minDate?: string;
     maxDate?: string;
+    workGoalHistory: WorkGoalHistory[];
+    defaultWorkGoal?: WorkGoalSettings;
+    slotProps?: {
+        weekdayLabelPaper?: PaperProps;
+    };
 }) {
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
     const [, setCalendarRef] = useState<HTMLElement | null>(null);
-    const { field, colorMode, maxPoints, maxMinutes, weekStartOn } = useHeatmapOptions();
+    const { field, colorMode, maxPoints, maxMinutes, weekStartOn, weekEndOn } = useHeatmapOptions();
     const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
+    const theme = isLight ? LIGHT_THEME : DARK_THEME;
 
     if (!maxDate) {
         maxDate = new Date().toISOString().split('T')[0];
     }
     if (!minDate) {
         minDate = `${parseInt(maxDate.split('-')[0]) - 1}${maxDate.slice(4)}`;
+        const d = new Date(minDate);
+        if (d.getUTCDay() !== weekStartOn) {
+            d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() - weekStartOn + 7) % 7));
+            minDate = d.toISOString().split('T')[0];
+        }
     }
 
-    const { activities, totalCount } = useMemo(() => {
-        return getActivity(entries, field, minDate, maxDate, viewer);
-    }, [field, entries, minDate, maxDate, viewer]);
+    const { activities, weekSummaries, totalDojoPoints, totalMinutesSpent } = useMemo(() => {
+        return getActivity(entries, minDate, maxDate, viewer);
+    }, [entries, minDate, maxDate, viewer]);
 
     useEffect(() => {
-        const scroller = document.getElementsByClassName(
-            'react-activity-calendar__scroll-container',
-        )[0];
+        const scroller = document.getElementById('heatmap-scroll-container');
         if (scroller) {
             scroller.scrollLeft = scroller.scrollWidth;
         }
@@ -145,6 +209,7 @@ export function Heatmap({
                 '& .react-activity-calendar__scroll-container': {
                     paddingTop: '1px',
                     paddingBottom: '10px',
+                    overflow: 'visible !important',
                 },
                 '& .react-activity-calendar__footer': {
                     marginLeft: '0 !important',
@@ -153,54 +218,122 @@ export function Heatmap({
         >
             <HeatmapOptions onPopOut={onPopOut} />
 
-            <ActivityCalendar
-                ref={setCalendarRef}
-                colorScheme={isLight ? 'light' : 'dark'}
-                theme={{
-                    light: LIGHT_THEME,
-                    dark: DARK_THEME,
-                }}
-                data={activities}
-                renderBlock={(block, activity) =>
-                    colorMode === 'monochrome' ? (
-                        <MonochromeBlock
-                            block={block}
-                            activity={activity as Activity}
-                            field={field}
-                            baseColor={isLight ? LIGHT_THEME[0] : DARK_THEME[0]}
-                            clamp={clamp}
-                        />
-                    ) : (
-                        <Block
-                            block={block}
-                            activity={activity as Activity}
-                            field={field}
-                            baseColor={isLight ? LIGHT_THEME[0] : DARK_THEME[0]}
-                            clamp={clamp}
-                        />
-                    )
-                }
-                labels={{
-                    totalCount:
-                        field === 'dojoPoints'
-                            ? `{{count}} Dojo points ${description}`
-                            : `${formatTime(totalCount)} ${description}`,
-                }}
-                totalCount={Math.round(10 * totalCount) / 10}
-                maxLevel={MAX_LEVEL}
-                showWeekdayLabels
-                weekStart={weekStartOn}
-                renderColorLegend={(block, level) => (
-                    <LegendTooltip
-                        key={level}
-                        block={block}
-                        level={level}
-                        clamp={clamp}
-                        field={field}
+            <Stack id='heatmap-scroll-container' direction='row' sx={{ overflowX: 'auto' }}>
+                <Paper
+                    elevation={1}
+                    sx={{ position: 'sticky', left: 0, pr: 0.75, borderRadius: 0, pb: 4 }}
+                    {...slotProps?.weekdayLabelPaper}
+                >
+                    <Stack>
+                        {Array(3)
+                            .fill(0)
+                            .map((_, i) => (
+                                <Stack
+                                    key={i}
+                                    sx={{
+                                        mt: `${blockSize + (i === 0 ? WEEKDAY_LEGEND_TOP_MARGIN : 2 * BLOCK_SPACING)}px`,
+                                        height: `${blockSize}px`,
+                                    }}
+                                    alignItems='center'
+                                    justifyContent='center'
+                                >
+                                    <Typography variant='caption'>
+                                        {WEEKDAY_LABELS[(i * 2 + 1 + weekStartOn) % 7]}
+                                    </Typography>
+                                </Stack>
+                            ))}
+                        <Stack
+                            sx={{
+                                mt: `${blockSize + 2 * BLOCK_SPACING + 7}px`,
+                                height: `${blockSize}px`,
+                            }}
+                            alignItems='center'
+                            justifyContent='center'
+                        >
+                            <Typography variant='caption'>Week</Typography>
+                        </Stack>
+                    </Stack>
+                </Paper>
+
+                <Stack>
+                    <ActivityCalendar
+                        ref={setCalendarRef}
+                        colorScheme={isLight ? 'light' : 'dark'}
+                        theme={{
+                            light: LIGHT_THEME,
+                            dark: DARK_THEME,
+                        }}
+                        data={activities}
+                        renderBlock={(block, activity) => (
+                            <Block
+                                key={activity.date}
+                                block={block}
+                                activity={activity as Activity}
+                                field={field}
+                                baseColor={theme[0]}
+                                clamp={clamp}
+                                weekEndOn={weekEndOn}
+                                weekSummaries={weekSummaries}
+                                workGoalHistory={workGoalHistory}
+                                defaultWorkGoal={defaultWorkGoal}
+                                monochrome={colorMode === 'monochrome'}
+                            />
+                        )}
+                        maxLevel={MAX_LEVEL}
+                        weekStart={weekStartOn as DayIndex}
+                        hideColorLegend
+                        hideTotalCount
+                        blockSize={blockSize}
                     />
-                )}
-                blockSize={blockSize}
-            />
+                    <Divider sx={{ mt: '-6px' }} />
+                    <Divider sx={{ mt: '2px' }} />
+                </Stack>
+            </Stack>
+            <Stack
+                direction='row'
+                justifyContent='space-between'
+                alignItems='center'
+                flexWrap='wrap'
+                gap='4px 16px'
+                mt={0.5}
+            >
+                <Typography sx={{ fontSize: '14px' }}>
+                    {field === 'dojoPoints'
+                        ? `${Math.round(10 * totalDojoPoints) / 10} Dojo points ${description}`
+                        : `${formatTime(totalMinutesSpent)} ${description}`}
+                </Typography>
+
+                <Stack direction='row' alignItems='center' gap='3px'>
+                    <Typography sx={{ fontSize: '14px', mr: '0.4em' }}>Less</Typography>
+
+                    {Array(MAX_LEVEL + 1)
+                        .fill(0)
+                        .map((_, i) => (
+                            <LegendTooltip
+                                key={i}
+                                block={
+                                    <svg width={blockSize} height={blockSize}>
+                                        <rect
+                                            width={blockSize}
+                                            height={blockSize}
+                                            fill={theme[i]}
+                                            rx='2'
+                                            ry='2'
+                                            style={{
+                                                stroke: 'rgba(255, 255, 255, 0.04)',
+                                            }}
+                                        ></rect>
+                                    </svg>
+                                }
+                                level={i}
+                                clamp={clamp}
+                                field={field}
+                            />
+                        ))}
+
+                    <Typography sx={{ fontSize: '14px', ml: '0.4em' }}>More</Typography>
+                </Stack>
+            </Stack>
             <CategoryLegend />
         </Stack>
     );
@@ -218,9 +351,7 @@ export function CategoryLegend() {
                 control={
                     <Checkbox
                         checked={colorMode === 'monochrome'}
-                        onChange={(e) =>
-                            setColorMode(e.target.checked ? 'monochrome' : 'standard')
-                        }
+                        onChange={(e) => setColorMode(e.target.checked ? 'monochrome' : 'standard')}
                         sx={{ '& .MuiSvgIcon-root': { fontSize: '1rem' } }}
                     />
                 }
@@ -229,22 +360,11 @@ export function CategoryLegend() {
             />
 
             {colorMode !== 'monochrome' && (
-                <Stack
-                    direction='row'
-                    flexWrap='wrap'
-                    columnGap={1}
-                    rowGap={0.5}
-                    mt={0.5}
-                >
+                <Stack direction='row' flexWrap='wrap' columnGap={1} rowGap={0.5} mt={0.5}>
                     {VALID_TOOLTIP_CATEGORIES.map((category) => {
                         const color = CategoryColors[category];
                         return (
-                            <Stack
-                                key={category}
-                                direction='row'
-                                alignItems='center'
-                                gap={0.5}
-                            >
+                            <Stack key={category} direction='row' alignItems='center' gap={0.5}>
                                 <Box
                                     sx={{
                                         height: '12px',
@@ -275,7 +395,6 @@ export function CategoryLegend() {
 /**
  * Gets a list of activities and the total count for the given parameters.
  * @param entries The timeline entries to extract data from.
- * @param field The field to extract from each timeline entry.
  * @param minDate The minimum allowed date for the heatmap.
  * @param maxDate The maximum allowed date for the heatmap.
  * @param viewer The user viewing the site. Used for calculating timezones.
@@ -283,19 +402,26 @@ export function CategoryLegend() {
  */
 function getActivity(
     entries: TimelineEntry[],
-    field: TimelineEntryField,
     minDate: string,
     maxDate: string,
     viewer?: User,
-): { activities: Activity[]; totalCount: number } {
+): {
+    activities: Activity[];
+    weekSummaries: Record<string, WeekSummary>;
+    totalDojoPoints: number;
+    totalMinutesSpent: number;
+} {
     const activities: Record<string, Activity> = {};
-    let totalCount = 0;
+    let totalDojoPoints = 0;
+    let totalMinutesSpent = 0;
 
     for (const entry of entries) {
-        if (entry[field] < 0 || !VALID_CATEGORIES.includes(entry.requirementCategory)) {
+        if (!VALID_CATEGORIES.includes(entry.requirementCategory)) {
             continue;
         }
-
+        if (entry.dojoPoints < 0 || entry.minutesSpent < 0) {
+            continue;
+        }
         if ((entry.date || entry.createdAt).slice(0, 10) > maxDate) {
             continue;
         }
@@ -312,6 +438,8 @@ function getActivity(
             date: dateStr,
             count: 0,
             level: 0,
+            dojoPoints: 0,
+            minutesSpent: 0,
             categoryCounts: {},
         };
 
@@ -320,27 +448,29 @@ function getActivity(
         }
         if (
             entry.requirementId === TimelineSpecialRequirementId.Graduation &&
-            (!activity.graduation ||
-                parseInt(activity.graduation) < parseInt(entry.cohort))
+            (!activity.graduation || parseInt(activity.graduation) < parseInt(entry.cohort))
         ) {
             activity.graduation = entry.cohort;
         }
 
-        activity.count += entry[field];
-        if (activity.categoryCounts) {
-            const category = activity.categoryCounts[entry.requirementCategory] || {
-                custom: 0,
-                trainingPlan: 0,
-            };
-            if (entry.isCustomRequirement) {
-                category.custom += entry[field];
-            } else {
-                category.trainingPlan += entry[field];
-            }
-            activity.categoryCounts[entry.requirementCategory] = category;
-        }
+        activity.dojoPoints += entry.dojoPoints;
+        activity.minutesSpent += entry.minutesSpent;
 
-        totalCount += entry[field];
+        const category = activity.categoryCounts[entry.requirementCategory] || {
+            dojoPoints: { custom: 0, trainingPlan: 0 },
+            minutesSpent: { custom: 0, trainingPlan: 0 },
+        };
+        if (entry.isCustomRequirement) {
+            category.dojoPoints.custom += entry.dojoPoints;
+            category.minutesSpent.custom += entry.minutesSpent;
+        } else {
+            category.dojoPoints.trainingPlan += entry.dojoPoints;
+            category.minutesSpent.trainingPlan += entry.minutesSpent;
+        }
+        activity.categoryCounts[entry.requirementCategory] = category;
+
+        totalDojoPoints += entry.dojoPoints;
+        totalMinutesSpent += entry.minutesSpent;
         activities[dateStr] = activity;
     }
 
@@ -349,6 +479,8 @@ function getActivity(
             date: minDate,
             count: 0,
             level: 0,
+            dojoPoints: 0,
+            minutesSpent: 0,
             categoryCounts: {},
         };
     }
@@ -358,16 +490,81 @@ function getActivity(
             date: maxDate,
             count: 0,
             level: 0,
+            dojoPoints: 0,
+            minutesSpent: 0,
             categoryCounts: {},
         };
     }
 
-    return {
-        activities: Object.values(activities).sort((lhs, rhs) =>
-            lhs.date.localeCompare(rhs.date),
-        ),
-        totalCount,
+    const finalActivities = Object.values(activities).sort((lhs, rhs) =>
+        lhs.date.localeCompare(rhs.date),
+    );
+
+    const date = new Date(minDate);
+    date.setUTCDate(date.getUTCDate() + 6);
+    const weekSummaries: Record<string, WeekSummary> = {
+        [date.toISOString().split('T')[0]]: defaultWeekSummary(date.toISOString().split('T')[0]),
     };
+
+    for (const activity of finalActivities) {
+        if (activity.date > date.toISOString()) {
+            while (activity.date > date.toISOString()) {
+                date.setUTCDate(date.getUTCDate() + 7);
+            }
+            weekSummaries[date.toISOString().split('T')[0]] = defaultWeekSummary(
+                date.toISOString().split('T')[0],
+            );
+        }
+
+        mergeActivity(weekSummaries[date.toISOString().split('T')[0]], activity);
+    }
+
+    return {
+        activities: finalActivities,
+        totalDojoPoints,
+        totalMinutesSpent,
+        weekSummaries,
+    };
+}
+
+/**
+ * Returns a default week summary.
+ * @param date The date the week summary ends on.
+ */
+function defaultWeekSummary(date: string): WeekSummary {
+    return { date, dojoPoints: 0, minutesSpent: 0, categoryCounts: {} };
+}
+
+/**
+ * Merges the given activity into the given week summary.
+ * @param target The week summary to merge into.
+ * @param source The activity to merge from.
+ */
+function mergeActivity(target: WeekSummary, source: Activity) {
+    if (source.gamePlayed) {
+        target.gamePlayed = true;
+    }
+    if (
+        source.graduation &&
+        (!target.graduation || parseInt(target.graduation) < parseInt(source.graduation))
+    ) {
+        target.graduation = source.graduation;
+    }
+
+    target.dojoPoints += source.dojoPoints;
+    target.minutesSpent += source.minutesSpent;
+
+    for (const [category, count] of Object.entries(source.categoryCounts || {})) {
+        const categoryCount = target.categoryCounts[category as RequirementCategory] || {
+            dojoPoints: { custom: 0, trainingPlan: 0 },
+            minutesSpent: { custom: 0, trainingPlan: 0 },
+        };
+        categoryCount.dojoPoints.custom += count.dojoPoints.custom;
+        categoryCount.dojoPoints.trainingPlan += count.dojoPoints.trainingPlan;
+        categoryCount.minutesSpent.custom += count.minutesSpent.custom;
+        categoryCount.minutesSpent.trainingPlan += count.minutesSpent.trainingPlan;
+        target.categoryCounts[category as RequirementCategory] = categoryCount;
+    }
 }
 
 /**
@@ -377,6 +574,11 @@ function getActivity(
  * @param field The field (dojo points/minutes) being displayed.
  * @param baseColor The level 0 color.
  * @param clamp The maximum count used for determining color level.
+ * @param weekEndOn The index of the day the viewer's week ends on.
+ * @param weekSummaries A map from date to the week summary for the week ending on that date.
+ * @param workGoalHistory A list of the user's work goal history.
+ * @param defaultWorkGoal The default work goal to use if not found in the history.
+ * @param monochrome Whether to render the block in single-color mode or not.
  * @returns A block representing the given activity.
  */
 function Block({
@@ -385,12 +587,22 @@ function Block({
     field,
     baseColor,
     clamp,
+    weekEndOn,
+    weekSummaries,
+    workGoalHistory,
+    defaultWorkGoal,
+    monochrome,
 }: {
     block: BlockElement;
-    activity: Activity;
+    activity: Activity | ExtendedBaseActivity;
     field: TimelineEntryField;
     baseColor: string;
     clamp: number;
+    weekEndOn: number;
+    weekSummaries: Record<string, WeekSummary>;
+    workGoalHistory: WorkGoalHistory[];
+    defaultWorkGoal?: WorkGoalSettings;
+    monochrome?: boolean;
 }) {
     let maxCategory: RequirementCategory | undefined = undefined;
     let totalCount = 0;
@@ -398,29 +610,37 @@ function Block({
     let color: string | undefined = undefined;
     let isCustom = false;
 
-    for (const category of Object.values(RequirementCategory)) {
-        const count = activity.categoryCounts?.[category as RequirementCategory];
-        if (!count) {
-            continue;
+    if (monochrome) {
+        const level = calculateLevel(activity[field], clamp);
+        color = calculateColor([baseColor, MONOCHROME_COLOR], level);
+    } else {
+        for (const category of Object.values(RequirementCategory)) {
+            const count = activity.categoryCounts?.[category as RequirementCategory];
+            if (!count) {
+                continue;
+            }
+
+            const currentCount = count[field].custom + count[field].trainingPlan;
+            totalCount += currentCount;
+            if (maxCount === undefined || currentCount > maxCount) {
+                maxCategory = category as RequirementCategory;
+                maxCount = currentCount;
+            }
         }
 
-        totalCount += count.custom + count.trainingPlan;
-        if (maxCount === undefined || count.custom + count.trainingPlan > maxCount) {
-            maxCategory = category as RequirementCategory;
-            maxCount = count.custom + count.trainingPlan;
+        if (maxCount && maxCategory) {
+            const level = calculateLevel(totalCount, clamp);
+            color = calculateColor([baseColor, CategoryColors[maxCategory]], level);
+            isCustom =
+                (activity.categoryCounts?.[maxCategory]?.[field].custom ?? 0) >
+                (activity.categoryCounts?.[maxCategory]?.[field].trainingPlan ?? 0);
         }
-    }
-
-    if (maxCount && maxCategory) {
-        const level = calculateLevel(totalCount, clamp);
-        color = calculateColor([baseColor, CategoryColors[maxCategory]], level);
-        isCustom =
-            (activity.categoryCounts?.[maxCategory]?.custom ?? 0) >
-            (activity.categoryCounts?.[maxCategory]?.trainingPlan ?? 0);
     }
 
     const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
     const icon = Boolean(activity.graduation || activity.gamePlayed);
+
+    const isEndOfWeek = new Date(activity.date).getUTCDay() === weekEndOn;
 
     return (
         <>
@@ -450,9 +670,7 @@ function Block({
                     {cloneElement(block, {
                         style: {
                             ...newStyle,
-                            ...(icon
-                                ? { fill: 'transparent', stroke: 'transparent' }
-                                : {}),
+                            ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
                         },
                     })}
                     <StripePattern />
@@ -476,48 +694,87 @@ function Block({
                     cloneElement(block, {
                         style: {
                             ...newStyle,
-                            ...(icon
-                                ? { fill: 'transparent', stroke: 'transparent' }
-                                : {}),
+                            ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
                         },
                     })
                 )}
             </Tooltip>
+
+            {isEndOfWeek && (
+                <WeekSummaryBlock
+                    workGoalHistory={workGoalHistory}
+                    defaultWorkGoal={defaultWorkGoal}
+                    weekSummary={weekSummaries[activity.date] ?? defaultWeekSummary(activity.date)}
+                    x={block.props.x as number}
+                    y={(block.props.y as number) + (block.props.height as number) + 12}
+                    size={block.props.width as number}
+                    field={field}
+                />
+            )}
         </>
     );
 }
 
 /**
- * Renders a block in the heatmap for the monochrome view.
- * @param block The block to render, as passed from React Activity Calendar.
- * @param activity The activity associated with the block.
- * @param field The field (dojo points/minutes) being displayed.
- * @returns A block representing the given activity.
+ * Renders a block indicating whether the user met their weekly goal or not.
+ * @param workGoalHistory The user's work goal history.
+ * @param defaultWorkGoal The default work goal to use if not found in the history.
+ * @param weekSummary The week summary to render the block for.
+ * @param field The timeline field being displayed.
+ * @param x The x position of the block.
+ * @param y The y position of the block.
+ * @param size The size of the block.
+ * @returns
  */
-function MonochromeBlock({
-    block,
-    activity,
+function WeekSummaryBlock({
+    workGoalHistory,
+    defaultWorkGoal,
+    weekSummary,
     field,
-    baseColor,
-    clamp,
+    x,
+    y,
+    size,
 }: {
-    block: BlockElement;
-    activity: Activity;
+    workGoalHistory: WorkGoalHistory[];
+    defaultWorkGoal?: WorkGoalSettings;
+    weekSummary: WeekSummary;
     field: TimelineEntryField;
-    baseColor: string;
-    clamp: number;
+    x: number;
+    y: number;
+    size: number;
 }) {
-    const level = calculateLevel(activity.count, clamp);
-    const color = calculateColor([baseColor, MONOCHROME_COLOR], level);
-    const style = color ? { ...block.props.style, fill: color } : block.props.style;
+    const workGoal =
+        workGoalHistory.findLast((history) => history.date.split('T')[0] <= weekSummary.date)
+            ?.workGoal ??
+        defaultWorkGoal ??
+        DEFAULT_WORK_GOAL;
+    const goalMinutes = workGoal.minutesPerDay.reduce((sum, value) => sum + value, 0);
+
+    let Icon = Close;
+    let color: 'error' | 'success' = 'error';
+    if (weekSummary.minutesSpent >= goalMinutes) {
+        Icon = CheckCircle;
+        color = 'success';
+    }
 
     return (
-        <Tooltip
-            disableInteractive
-            title={<BlockTooltip activity={activity} field={field} />}
-        >
-            {cloneElement(block, { style })}
-        </Tooltip>
+        <>
+            <Icon
+                x={x}
+                y={y}
+                width={size}
+                height={size}
+                sx={{ fontSize: `${size}px` }}
+                color={color}
+            />
+            <Tooltip
+                title={
+                    <WeekSummaryTooltip weekSummary={weekSummary} field={field} goal={workGoal} />
+                }
+            >
+                <rect x={x} y={y} width={size} height={size} fill='transparent' />
+            </Tooltip>
+        </>
     );
 }
 
@@ -527,8 +784,8 @@ function MonochromeBlock({
  * @param count The count to get the level for.
  * @param maxCount The max count. Counts >= this value will return MAX_LEVEL.
  */
-function calculateLevel(count: number, maxCount: number): number {
-    if (count === 0) {
+function calculateLevel(count: number | undefined, maxCount: number): number {
+    if (!count) {
         return 0;
     }
     for (let i = 1; i < MAX_LEVEL; i++) {
@@ -549,26 +806,24 @@ function BlockTooltip({
     activity,
     field,
 }: {
-    activity: Activity;
+    activity: Activity | ExtendedBaseActivity;
     field: TimelineEntryField;
 }) {
     const categories = Object.entries(activity.categoryCounts ?? {})
-        .filter((entry) =>
-            VALID_TOOLTIP_CATEGORIES.includes(entry[0] as RequirementCategory),
-        )
+        .filter((entry) => VALID_TOOLTIP_CATEGORIES.includes(entry[0] as RequirementCategory))
         .sort(
             (lhs, rhs) =>
-                rhs[1].custom +
-                rhs[1].trainingPlan -
-                (lhs[1].custom + lhs[1].trainingPlan),
+                rhs[1][field].custom +
+                rhs[1][field].trainingPlan -
+                (lhs[1][field].custom + lhs[1][field].trainingPlan),
         );
 
     return (
         <Stack alignItems='center'>
             <Typography variant='caption'>
                 {field === 'dojoPoints'
-                    ? `${Math.round(10 * activity.count) / 10} Dojo point${activity.count !== 1 ? 's' : ''} on ${activity.date}`
-                    : `${formatTime(activity.count)} on ${activity.date}`}
+                    ? `${Math.round(10 * (activity.dojoPoints || 0)) / 10} Dojo point${activity.dojoPoints !== 1 ? 's' : ''} on ${activity.date}`
+                    : `${formatTime(activity.minutesSpent || 0)} on ${activity.date}`}
             </Typography>
             <Divider sx={{ width: 1 }} />
             {activity.graduation && (
@@ -606,10 +861,138 @@ function BlockTooltip({
             )}
             {categories.map(([category, count]) => {
                 const rows = [
-                    { category, count: count.trainingPlan },
+                    { category, count: count[field].trainingPlan },
                     {
                         category: `${category} (Custom)`,
-                        count: count.custom,
+                        count: count[field].custom,
+                        striped: true,
+                    },
+                ]
+                    .filter((x) => x.count)
+                    .sort((x, y) => y.count - x.count);
+
+                return rows.map((row) => (
+                    <TooltipRow
+                        key={row.category}
+                        category={row.category}
+                        field={field}
+                        count={row.count}
+                        backgroundColor={CategoryColors[category as RequirementCategory]}
+                        striped={row.striped}
+                    />
+                ));
+            })}
+        </Stack>
+    );
+}
+
+/**
+ * Renders a tooltip for the week summary icon.
+ * @param weekSummary The week summary to render the tooltip for.
+ * @param field The field (dojo points/minutes) being displayed.
+ * @param goal The work goal for the week.
+ * @returns A tooltip displaying the week summary in detail.
+ */
+function WeekSummaryTooltip({
+    weekSummary,
+    field,
+    goal,
+}: {
+    weekSummary: WeekSummary;
+    field: TimelineEntryField;
+    goal: WorkGoalSettings;
+}) {
+    const startDate = new Date(weekSummary.date);
+    startDate.setDate(startDate.getDate() - 6);
+    const startDateStr = `${startDate.getUTCFullYear()}-${`${startDate.getUTCMonth() + 1}`.padStart(2, '0')}-${`${startDate.getUTCDate()}`.padStart(2, '0')}`;
+
+    const categories = Object.entries(weekSummary.categoryCounts ?? {})
+        .filter((entry) => VALID_TOOLTIP_CATEGORIES.includes(entry[0] as RequirementCategory))
+        .sort(
+            (lhs, rhs) =>
+                rhs[1][field].custom +
+                rhs[1][field].trainingPlan -
+                (lhs[1][field].custom + lhs[1][field].trainingPlan),
+        );
+
+    const goalMinutes = goal.minutesPerDay.reduce((sum, value) => sum + value, 0);
+    const metGoal = weekSummary.minutesSpent >= goalMinutes;
+    let Icon = Close;
+    if (metGoal) {
+        Icon = CheckCircle;
+    }
+
+    return (
+        <Stack alignItems='center'>
+            <Typography variant='caption'>
+                {startDateStr} — {weekSummary.date}
+            </Typography>
+            <Divider sx={{ width: 1 }} />
+
+            <Stack
+                direction='row'
+                justifyContent='space-between'
+                alignItems='center'
+                width={1}
+                columnGap={1}
+            >
+                <Stack direction='row' alignItems='center' columnGap={0.5}>
+                    <Icon
+                        width={12}
+                        height={12}
+                        sx={{ fontSize: '14px' }}
+                        color={metGoal ? 'success' : 'error'}
+                    />
+                    <Typography variant='caption' pt='2px'>
+                        {metGoal ? 'Met' : 'Missed'} Weekly Goal
+                    </Typography>
+                </Stack>
+
+                <Typography variant='caption' pt='2px'>
+                    {formatTime(weekSummary.minutesSpent)} / {formatTime(goalMinutes)}
+                </Typography>
+            </Stack>
+
+            {weekSummary.graduation && (
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    columnGap='1rem'
+                    width={1}
+                >
+                    <Stack direction='row' alignItems='center' columnGap={0.5}>
+                        <CohortIcon tooltip='' cohort={weekSummary.graduation} size={12} />
+                        <Typography variant='caption' pt='2px'>
+                            Graduated from {weekSummary.graduation}
+                        </Typography>
+                    </Stack>
+                </Stack>
+            )}
+
+            {weekSummary.gamePlayed && (
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    columnGap='1rem'
+                    width={1}
+                >
+                    <Stack direction='row' alignItems='center' columnGap={0.5}>
+                        <GiCrossedSwords />
+                        <Typography variant='caption' pt='2px'>
+                            Classical Game Played
+                        </Typography>
+                    </Stack>
+                </Stack>
+            )}
+
+            {categories.map(([category, count]) => {
+                const rows = [
+                    { category, count: count[field].trainingPlan },
+                    {
+                        category: `${category} (Custom)`,
+                        count: count[field].custom,
                         striped: true,
                     },
                 ]

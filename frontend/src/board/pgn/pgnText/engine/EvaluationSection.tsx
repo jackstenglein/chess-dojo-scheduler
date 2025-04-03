@@ -65,17 +65,14 @@ export const EvaluationSection = ({
                         sx={{
                             width:
                                 Math.floor(
-                                    (anchorRef.current?.getBoundingClientRect().width ??
-                                        0) / 4,
+                                    (anchorRef.current?.getBoundingClientRect().width ?? 0) / 4,
                                 ) * 4,
                             maxWidth: '368px',
                             aspectRatio: '1 / 1',
                             overflow: 'hidden',
                         }}
                     >
-                        <ChessContext.Provider
-                            value={{ config: { initKey: hoverMove.fen } }}
-                        >
+                        <ChessContext.Provider value={{ config: { initKey: hoverMove.fen } }}>
                             <Board
                                 config={{
                                     fen: hoverMove.fen,

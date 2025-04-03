@@ -15,11 +15,7 @@ import {
     DialogContentText,
     DialogTitle,
 } from '@mui/material';
-import {
-    GridPaginationModel,
-    GridRowSelectionModel,
-    useGridApiRef,
-} from '@mui/x-data-grid-pro';
+import { GridPaginationModel, GridRowSelectionModel, useGridApiRef } from '@mui/x-data-grid-pro';
 import { useCallback, useState } from 'react';
 import { useDirectoryCache } from './DirectoryCache';
 
@@ -77,9 +73,7 @@ export const AddExistingGamesDialog = ({
                 owner: game.owner,
                 ownerDisplayName: game.ownerDisplayName,
                 createdAt:
-                    game.createdAt ||
-                    game.date.replaceAll('.', '-') ||
-                    new Date().toISOString(),
+                    game.createdAt || game.date.replaceAll('.', '-') || new Date().toISOString(),
                 id: game.id,
                 cohort: game.cohort,
                 white: game.headers.White,
@@ -118,8 +112,8 @@ export const AddExistingGamesDialog = ({
             <DialogTitle>Add Games to {directory.name}?</DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ mb: 1 }}>
-                    Click games to select. Use Shift+Click or Cmd/Ctrl+Click to select
-                    multiple games.
+                    Click games to select. Use Shift+Click or Cmd/Ctrl+Click to select multiple
+                    games.
                 </DialogContentText>
 
                 <GameTable

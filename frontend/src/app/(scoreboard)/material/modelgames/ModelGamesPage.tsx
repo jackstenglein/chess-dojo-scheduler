@@ -33,9 +33,7 @@ function AuthModelGamesPage({ user }: { user: User }) {
             api.listGamesByOwner('model_games')
                 .then((res) => {
                     listRequest.onSuccess(
-                        res.data.games.sort((lhs, rhs) =>
-                            compareCohorts(lhs.cohort, rhs.cohort),
-                        ),
+                        res.data.games.sort((lhs, rhs) => compareCohorts(lhs.cohort, rhs.cohort)),
                     );
                 })
                 .catch((err) => {
@@ -109,9 +107,7 @@ function AuthModelGamesPage({ user }: { user: User }) {
                                             select
                                             label='Cohort'
                                             value={cohort}
-                                            onChange={(event) =>
-                                                onChangeCohort(event.target.value)
-                                            }
+                                            onChange={(event) => onChangeCohort(event.target.value)}
                                             sx={{ mb: 3 }}
                                             fullWidth
                                         >

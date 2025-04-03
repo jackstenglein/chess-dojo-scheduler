@@ -1,6 +1,7 @@
 package database
 
 import (
+	"slices"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -21,16 +22,12 @@ var availabilityTypes = []AvailabilityType{
 	"CLASSIC_ANALYSIS",
 	"ANALYZE_OWN_GAME",
 	"BOOK_STUDY",
+	"LESSON",
 }
 
 // IsValid returns true if the provided availability type is valid.
 func (t AvailabilityType) IsValid() bool {
-	for _, t2 := range availabilityTypes {
-		if t == t2 {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(availabilityTypes, t)
 }
 
 // GetDisplayName returns the display name for the provided availability type.
@@ -52,6 +49,8 @@ func (t AvailabilityType) GetDisplayName() string {
 		return "Analyze Own Game"
 	case "BOOK_STUDY":
 		return "Book Study"
+	case "LESSON":
+		return "Lesson/Lecture"
 	default:
 		return "Unknown"
 	}
@@ -127,7 +126,7 @@ type Event struct {
 	// if the event is an admin event.
 	OwnerPreviousCohort DojoCohort `dynamodbav:"ownerPreviousCohort" json:"ownerPreviousCohort"`
 
-	// The title of the event. This field is only used if the event is an admin event.
+	// The title of the event.
 	Title string `dynamodbav:"title" json:"title"`
 
 	// The time the event starts, in full ISO-8601 format. For availabilities,
@@ -174,6 +173,12 @@ type Event struct {
 	// A map from a participant username to the participant data. This field is unused
 	// if the event is an admin event.
 	Participants map[string]*Participant `dynamodbav:"participants" json:"participants"`
+
+	// A list of users invited to the event.
+	Invited []Participant `dynamodbav:"invited,omitempty" json:"invited,omitempty"`
+
+	// Whether the event can only be booked by people invited.
+	InviteOnly bool `dynamodbav:"inviteOnly,omitempty" json:"inviteOnly,omitempty"`
 
 	// The ID of the Discord notification message for this event. This field
 	// is unused if the event is an admin event.

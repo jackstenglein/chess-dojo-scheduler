@@ -1,6 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { useRequiredAuth } from '@/auth/Auth';
+import { useAuth } from '@/auth/Auth';
 import { useChess } from '@/board/pgn/PgnBoard';
 import GameTable from '@/components/games/list/GameTable';
 import useGame from '@/context/useGame';
@@ -8,10 +8,7 @@ import { GameInfo } from '@/database/game';
 import { usePagination } from '@/hooks/usePagination';
 import { usePgnExportOptions } from '@/hooks/usePgnExportOptions';
 import { Move } from '@jackstenglein/chess';
-import {
-    PgnMergeType,
-    PgnMergeTypes,
-} from '@jackstenglein/chess-dojo-common/src/pgn/merge';
+import { PgnMergeType, PgnMergeTypes } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -50,24 +47,20 @@ export function MergeLineDialog({
     const { chess } = useChess();
     const { game } = useGame();
     const api = useApi();
-    const { user } = useRequiredAuth();
+    const { user } = useAuth();
     const request = useRequest<{ cohort: string; id: string }>();
 
     const { skipVariations, setSkipVariations, skipNullMoves, setSkipNullMoves } =
         usePgnExportOptions();
-    const [commentMergeType, setCommentMergeType] = useState<PgnMergeType>(
-        PgnMergeTypes.MERGE,
-    );
+    const [commentMergeType, setCommentMergeType] = useState<PgnMergeType>(PgnMergeTypes.MERGE);
     const [nagMergeType, setNagMergeType] = useState<PgnMergeType>(PgnMergeTypes.MERGE);
-    const [drawableMergeType, setDrawableMergeType] = useState<PgnMergeType>(
-        PgnMergeTypes.MERGE,
-    );
+    const [drawableMergeType, setDrawableMergeType] = useState<PgnMergeType>(PgnMergeTypes.MERGE);
     const [citeSource, setCiteSource] = useState(true);
     const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
 
     const searchByOwner = useCallback(
-        (startKey: string) => api.listGamesByOwner(user.username, startKey),
-        [api, user.username],
+        (startKey: string) => api.listGamesByOwner(user?.username, startKey),
+        [api, user?.username],
     );
 
     const pagination = usePagination(searchByOwner, 0, 10);
@@ -181,12 +174,7 @@ export function MergeLineDialog({
 
                     <FormGroup sx={{ mt: 2 }}>
                         <FormLabel>Import Options</FormLabel>
-                        <Stack
-                            direction='row'
-                            flexWrap='wrap'
-                            columnGap={1}
-                            alignItems='center'
-                        >
+                        <Stack direction='row' flexWrap='wrap' columnGap={1} alignItems='center'>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -237,9 +225,7 @@ export function MergeLineDialog({
                                 label='Glyphs'
                                 select
                                 value={nagMergeType}
-                                onChange={(e) =>
-                                    setNagMergeType(e.target.value as PgnMergeType)
-                                }
+                                onChange={(e) => setNagMergeType(e.target.value as PgnMergeType)}
                                 slotProps={{
                                     select: {
                                         renderValue: (value) =>

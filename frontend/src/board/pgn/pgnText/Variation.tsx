@@ -38,13 +38,7 @@ const Variation: React.FC<VariationProps> = ({ handleScroll }) => {
         <Paper sx={{ boxShadow: 'none' }}>
             <Grid2 container>
                 {chess?.history().map((move) => {
-                    return (
-                        <MoveDisplay
-                            move={move}
-                            handleScroll={handleScroll}
-                            key={move.ply}
-                        />
-                    );
+                    return <MoveDisplay move={move} handleScroll={handleScroll} key={move.ply} />;
                 })}
             </Grid2>
         </Paper>

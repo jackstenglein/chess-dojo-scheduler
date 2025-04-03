@@ -17,12 +17,7 @@ const DiscordChip: React.FC<DiscordChipProps> = ({ username }) => {
 
     return (
         <Tooltip title="The user's Discord username">
-            <Chip
-                icon={<DiscordIcon />}
-                label={username}
-                variant='outlined'
-                color='primary'
-            />
+            <Chip icon={<DiscordIcon />} label={username} variant='outlined' color='primary' />
         </Tooltip>
     );
 };

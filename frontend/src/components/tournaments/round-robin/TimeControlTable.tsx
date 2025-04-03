@@ -43,21 +43,15 @@ const TimeControlTable = () => {
             <Table size='small' sx={{ fontSize: '0.8rem' }}>
                 <TableHead>
                     <TableRow>
-                        <TableCell sx={{ py: 0.5, px: 1, fontWeight: 700 }}>
-                            Dojo Cohort
-                        </TableCell>
-                        <TableCell sx={{ py: 0.5, px: 1, fontWeight: 700 }}>
-                            Time Control
-                        </TableCell>
+                        <TableCell sx={{ py: 0.5, px: 1, fontWeight: 700 }}>Dojo Cohort</TableCell>
+                        <TableCell sx={{ py: 0.5, px: 1, fontWeight: 700 }}>Time Control</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {timeControls.map((row, index) => (
                         <TableRow key={index}>
                             <TableCell sx={{ py: 0.3, px: 1 }}>{row.cohort}</TableCell>
-                            <TableCell sx={{ py: 0.3, px: 1 }}>
-                                {row.timeControl}
-                            </TableCell>
+                            <TableCell sx={{ py: 0.3, px: 1 }}>{row.timeControl}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

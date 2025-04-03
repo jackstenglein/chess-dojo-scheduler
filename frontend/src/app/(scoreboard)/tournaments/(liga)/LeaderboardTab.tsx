@@ -169,9 +169,7 @@ const LeaderboardTab = () => {
                         select
                         label='Tournament Type'
                         value={tournamentType}
-                        onChange={(e) =>
-                            setTournamentType(e.target.value as TournamentType)
-                        }
+                        onChange={(e) => setTournamentType(e.target.value as TournamentType)}
                     >
                         <MenuItem value={TournamentType.Arena}>
                             {' '}
@@ -219,16 +217,10 @@ const LeaderboardTab = () => {
 
                 <Stack direction='row' alignItems='center'>
                     {timePeriod === 'monthly' && (
-                        <MonthDateButton
-                            selectedDate={selectedDate}
-                            onChange={setSelectedDate}
-                        />
+                        <MonthDateButton selectedDate={selectedDate} onChange={setSelectedDate} />
                     )}
                     {timePeriod === 'yearly' && (
-                        <YearDateButton
-                            selectedDate={selectedDate}
-                            onChange={setSelectedDate}
-                        />
+                        <YearDateButton selectedDate={selectedDate} onChange={setSelectedDate} />
                     )}
 
                     <Button
