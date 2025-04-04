@@ -83,10 +83,11 @@ export async function saveSuggestedVariation(
 
     let root = move;
     while (
-        isUnsavedVariation(root.previous) ||
-        root.previous?.commentDiag?.dojoComment?.startsWith(user.username)
+        root.previous &&
+        (isUnsavedVariation(root.previous) ||
+            root.previous.commentDiag?.dojoComment?.startsWith(user.username))
     ) {
-        root = root.previous!;
+        root = root.previous;
     }
 
     const suggestion = chess.renderFrom(root, {
