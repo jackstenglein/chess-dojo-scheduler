@@ -132,7 +132,11 @@ const BaseComment: React.FC<BaseCommentProps> = ({
                                     Suggested a variation:
                                 </Typography>
                                 {suggestedVariation && (
-                                    <Lines lines={[suggestedVariation]} handleScroll={() => null} />
+                                    <Lines
+                                        lines={[suggestedVariation]}
+                                        handleScroll={() => null}
+                                        forceShowSuggestedVariations
+                                    />
                                 )}
                             </>
                         ) : (

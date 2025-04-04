@@ -1,6 +1,9 @@
+import { useAuth } from '@/auth/Auth';
 import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { Box, Collapse, Divider, Stack, Tooltip, Typography } from '@mui/material';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
+import { ShowSuggestedVariations } from '../boardTools/underboard/settings/ViewerSettings';
 import { useChess } from '../PgnBoard';
 import Comment from './Comment';
 import MoveButton from './MoveButton';
@@ -13,11 +16,23 @@ interface LineProps {
     depth: number;
     handleScroll: (child: HTMLElement | null) => void;
     onExpand: () => void;
+    forceShowSuggestedVariations?: boolean;
 }
 
-const Line: React.FC<LineProps> = ({ line, depth, handleScroll, onExpand }) => {
-    const chess = useChess().chess;
+export const Line: React.FC<LineProps> = ({
+    line,
+    depth,
+    handleScroll,
+    onExpand,
+    forceShowSuggestedVariations,
+}) => {
+    const { user } = useAuth();
+    const { chess } = useChess();
     const [, setForceRender] = useState(0);
+    const [showSuggestedVariations] = useLocalStorage<boolean>(
+        ShowSuggestedVariations.key,
+        ShowSuggestedVariations.default,
+    );
 
     useEffect(() => {
         if (chess) {
@@ -39,6 +54,17 @@ const Line: React.FC<LineProps> = ({ line, depth, handleScroll, onExpand }) => {
 
     for (let i = 0; i < line.length; i++) {
         const move = line[i];
+        if (
+            !forceShowSuggestedVariations &&
+            !showSuggestedVariations &&
+            move.commentDiag?.dojoComment &&
+            !move.commentDiag.dojoComment.endsWith(',unsaved') &&
+            (!user || !move.commentDiag.dojoComment.startsWith(user.username))
+        ) {
+            console.log('Breaking on move: ', move);
+            break;
+        }
+
         if (i > 0 && move.variations.length > 0) {
             result.push(
                 <Lines
@@ -47,6 +73,7 @@ const Line: React.FC<LineProps> = ({ line, depth, handleScroll, onExpand }) => {
                     depth={depth + 1}
                     handleScroll={handleScroll}
                     expandParent={onExpand}
+                    forceShowSuggestedVariations={forceShowSuggestedVariations}
                 />,
             );
             break;
@@ -86,9 +113,16 @@ interface LinesProps {
     depth?: number;
     handleScroll: (child: HTMLElement | null) => void;
     expandParent?: () => void;
+    forceShowSuggestedVariations?: boolean;
 }
 
-const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll, expandParent }) => {
+const Lines: React.FC<LinesProps> = ({
+    lines,
+    depth,
+    handleScroll,
+    expandParent,
+    forceShowSuggestedVariations,
+}) => {
     const { chess } = useChess();
 
     const forceExpansion = useMemo(() => {
@@ -220,6 +254,7 @@ const Lines: React.FC<LinesProps> = ({ lines, depth, handleScroll, expandParent 
                             setExpanded(true);
                             expandParent?.();
                         }}
+                        forceShowSuggestedVariations={forceShowSuggestedVariations}
                     />
                 ))}
             </Collapse>
