@@ -1,3 +1,8 @@
+import {
+    isSuggestedVariation,
+    isUnsavedVariation,
+    isVariationSuggestor,
+} from '@/board/pgn/boardTools/underboard/comments/suggestVariation';
 import { MoveButtonSlotProps } from '@/board/pgn/pgnText/MoveButton';
 import Avatar from '@/profile/Avatar';
 import { StockfishIcon } from '@/style/ChessIcons';
@@ -12,16 +17,16 @@ export const GameMoveButtonExtras = ({
     move: Move;
     slotProps?: MoveButtonSlotProps;
 }) => {
-    if (move.commentDiag?.dojoComment) {
-        const comment = move.commentDiag.dojoComment;
+    if (isSuggestedVariation(move)) {
+        const comment = move?.commentDiag?.dojoComment || '';
         const firstComma = comment.indexOf(',');
         const lastComma = comment.lastIndexOf(',');
         const username = comment.slice(0, firstComma);
-        const unsaved = comment.endsWith(',unsaved');
+        const unsaved = isUnsavedVariation(move);
 
         if (
-            move.previous?.commentDiag?.dojoComment?.startsWith(username) &&
-            move.previous.commentDiag.dojoComment.endsWith(',unsaved') === unsaved
+            isVariationSuggestor(username, move.previous) &&
+            isUnsavedVariation(move.previous) === unsaved
         ) {
             return null;
         }

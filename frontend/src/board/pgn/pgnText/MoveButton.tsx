@@ -26,7 +26,10 @@ import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'rea
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
 import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
-import { saveSuggestedVariation } from '../boardTools/underboard/comments/suggestVariation';
+import {
+    isUnsavedVariation,
+    saveSuggestedVariation,
+} from '../boardTools/underboard/comments/suggestVariation';
 import { DeletePrompt, useDeletePrompt } from '../boardTools/underboard/DeletePrompt';
 import { ShowMoveTimesInPgn } from '../boardTools/underboard/settings/ViewerSettings';
 import { MergeLineDialog } from '../boardTools/underboard/share/MergeLineDialog';
@@ -278,7 +281,7 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                         <ListItemText>Merge Line into Game</ListItemText>
                     </MenuItem>
 
-                    {game && move.commentDiag?.dojoComment?.endsWith(',unsaved') && (
+                    {game && isUnsavedVariation(move) && (
                         <MenuItem
                             onClick={onSaveVariationAsComment}
                             disabled={saveVariationRequest.isLoading()}

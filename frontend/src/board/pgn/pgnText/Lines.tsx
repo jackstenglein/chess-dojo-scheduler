@@ -3,6 +3,10 @@ import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { Box, Collapse, Divider, Stack, Tooltip, Typography } from '@mui/material';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import {
+    isSuggestedVariation,
+    isVariationSuggestor,
+} from '../boardTools/underboard/comments/suggestVariation';
 import { ShowSuggestedVariations } from '../boardTools/underboard/settings/ViewerSettings';
 import { useChess } from '../PgnBoard';
 import Comment from './Comment';
@@ -61,9 +65,8 @@ export const Line: React.FC<LineProps> = ({
         if (
             !forceShowSuggestedVariations &&
             !showSuggestedVariations &&
-            move.commentDiag?.dojoComment &&
-            !move.commentDiag.dojoComment.endsWith(',unsaved') &&
-            (!user || !move.commentDiag.dojoComment.startsWith(user.username))
+            isSuggestedVariation(move) &&
+            !isVariationSuggestor(user?.username, move)
         ) {
             break;
         }

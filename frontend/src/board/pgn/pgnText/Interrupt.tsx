@@ -2,6 +2,10 @@ import { useAuth } from '@/auth/Auth';
 import { Move } from '@jackstenglein/chess';
 import { Divider, Grid2, Paper } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
+import {
+    isSuggestedVariation,
+    isVariationSuggestor,
+} from '../boardTools/underboard/comments/suggestVariation';
 import { ShowSuggestedVariations } from '../boardTools/underboard/settings/ViewerSettings';
 import Comment from './Comment';
 import { Ellipsis } from './Ellipsis';
@@ -18,9 +22,8 @@ export function hasInterrupt(
             (v) =>
                 v.length > 0 &&
                 (showSuggestedVariations ||
-                    !v[0].commentDiag?.dojoComment ||
-                    v[0].commentDiag.dojoComment.endsWith(',unsaved') ||
-                    (username && v[0].commentDiag.dojoComment.startsWith(username))),
+                    !isSuggestedVariation(v[0]) ||
+                    isVariationSuggestor(username, v[0])),
         )
     );
 }

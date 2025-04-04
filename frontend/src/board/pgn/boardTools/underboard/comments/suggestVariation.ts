@@ -4,12 +4,33 @@ import { User } from '@/database/user';
 import { Chess, Move } from '@jackstenglein/chess';
 
 /**
+ * Returns true if the given move is part of a suggested variation.
+ * @param move The move to check.
+ * @returns True if the given move is part of a suggested variation.
+ */
+export function isSuggestedVariation(move: Move | null | undefined): boolean {
+    return Boolean(move?.commentDiag?.dojoComment);
+}
+
+/**
  * Returns true if the given move is part of an unsaved suggested variation.
  * @param move The move to check.
  * @returns True if move is part of an unsaved suggested variation.
  */
 export function isUnsavedVariation(move: Move | null | undefined): boolean {
     return Boolean(move?.commentDiag?.dojoComment?.endsWith(',unsaved'));
+}
+
+/**
+ * Returns true if the given move is part of a variation suggested by the given username.
+ * @param username The username to check.
+ * @param move The move to check.
+ */
+export function isVariationSuggestor(
+    username: string | undefined,
+    move: Move | null | undefined,
+): boolean {
+    return Boolean(username && move?.commentDiag?.dojoComment?.startsWith(username));
 }
 
 /**
@@ -62,10 +83,10 @@ export async function saveSuggestedVariation(
 
     let root = move;
     while (
-        root.previous?.commentDiag?.dojoComment?.endsWith(',unsaved') ||
+        isUnsavedVariation(root.previous) ||
         root.previous?.commentDiag?.dojoComment?.startsWith(user.username)
     ) {
-        root = root.previous;
+        root = root.previous!;
     }
 
     const suggestion = chess.renderFrom(root, {
@@ -73,7 +94,7 @@ export async function saveSuggestedVariation(
         skipComments: true,
     });
 
-    if (root.commentDiag?.dojoComment.endsWith(',unsaved')) {
+    if (isUnsavedVariation(root)) {
         const positionComment: PositionComment = {
             id: '',
             fen: chess.normalizedFen(root.previous),
