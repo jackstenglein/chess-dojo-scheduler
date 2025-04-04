@@ -2,13 +2,15 @@ import { useApi } from '@/api/Api';
 import { UpdateCommentRequest } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
+import { BlockBoardKeyboardShortcuts, useChess } from '@/board/pgn/PgnBoard';
+import Lines from '@/board/pgn/pgnText/Lines';
 import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import useGame from '@/context/useGame';
 import { PositionComment } from '@/database/game';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { Move } from '@jackstenglein/chess';
 import { Edit, ExpandMore } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -33,22 +35,33 @@ import ReplyEditor from './ReplyEditor';
 interface CommentProps {
     comment: PositionComment;
     isReadonly?: boolean;
+    /** The move the comment applies to. */
+    move?: Move | null;
 }
 
-const Comment: React.FC<CommentProps> = ({ isReadonly, comment }) => {
+const Comment: React.FC<CommentProps> = ({ isReadonly, comment, move }) => {
     const viewer = useAuth().user;
 
     if (viewer?.username === comment.owner.username) {
-        return <EditableComment comment={comment} />;
+        return <EditableComment comment={comment} move={move} />;
     }
 
-    return <BaseComment isReadonly={isReadonly} hideControls={isReadonly} comment={comment} />;
+    return (
+        <BaseComment
+            isReadonly={isReadonly}
+            hideControls={isReadonly}
+            comment={comment}
+            move={move}
+        />
+    );
 };
 
 export default Comment;
 
 interface BaseCommentProps {
     comment: PositionComment;
+    /** The move the comment applies to. */
+    move?: Move | null;
     renderContent?: JSX.Element;
     renderControls?: JSX.Element;
     hideControls?: boolean;
@@ -57,13 +70,34 @@ interface BaseCommentProps {
 
 const BaseComment: React.FC<BaseCommentProps> = ({
     comment,
+    move,
     renderContent,
     renderControls,
     hideControls,
     isReadonly,
 }) => {
+    const { chess } = useChess();
     const [expanded, setExpanded] = useState(true);
     const [isReplying, setIsReplying] = useState(false);
+
+    let suggestedVariation: Move[] | undefined = undefined;
+    if (comment.suggestedVariation) {
+        const nextMove = chess?.nextMove(move);
+        if (
+            nextMove?.commentDiag?.dojoComment.startsWith(comment.owner.username) &&
+            nextMove.commentDiag.dojoComment.endsWith(comment.id)
+        ) {
+            suggestedVariation = nextMove.variation.slice(nextMove.variation.indexOf(nextMove));
+        } else {
+            suggestedVariation = chess
+                ?.nextMove(move)
+                ?.variations.find(
+                    (v) =>
+                        v[0].commentDiag?.dojoComment?.startsWith(comment.owner.username) &&
+                        v[0].commentDiag.dojoComment.endsWith(comment.id),
+                );
+        }
+    }
 
     return (
         <Stack spacing={0.5}>
@@ -100,6 +134,22 @@ const BaseComment: React.FC<BaseCommentProps> = ({
                     <Stack flexGrow={1} spacing={0.5}>
                         {renderContent ? (
                             renderContent
+                        ) : comment.suggestedVariation ? (
+                            <>
+                                <Typography variant='body2' color='text.secondary'>
+                                    Suggested a variation:
+                                </Typography>
+                                {suggestedVariation && (
+                                    <Lines
+                                        lines={[suggestedVariation]}
+                                        handleScroll={() => null}
+                                        forceShowSuggestedVariations
+                                        slotProps={{
+                                            moveButton: { hideSuggestedVariationOwner: true },
+                                        }}
+                                    />
+                                )}
+                            </>
                         ) : (
                             <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
                                 {comment.content}
@@ -132,7 +182,7 @@ const BaseComment: React.FC<BaseCommentProps> = ({
     );
 };
 
-const EditableComment: React.FC<CommentProps> = ({ comment }) => {
+const EditableComment: React.FC<CommentProps> = ({ comment, move }) => {
     const [editValue, setEditValue] = useState<string>();
     const [showDelete, setShowDelete] = useState(false);
     const api = useApi();
@@ -152,6 +202,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
             id: comment.id,
             fen: comment.fen,
             content: editValue?.trim() || '',
+            suggestedVariation: '',
             parentIds: comment.parentIds || '',
         };
         request.onStart();
@@ -201,6 +252,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
         <>
             <BaseComment
                 comment={comment}
+                move={move}
                 renderContent={
                     editValue === undefined ? undefined : (
                         <Stack width={1}>
@@ -239,13 +291,15 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
                 renderControls={
                     editValue === undefined ? (
                         <>
-                            <Button
-                                size='small'
-                                sx={{ textTransform: 'none', minWidth: 0 }}
-                                onClick={() => setEditValue(comment.content)}
-                            >
-                                edit
-                            </Button>
+                            {comment.content && (
+                                <Button
+                                    size='small'
+                                    sx={{ textTransform: 'none', minWidth: 0 }}
+                                    onClick={() => setEditValue(comment.content)}
+                                >
+                                    edit
+                                </Button>
+                            )}
                             <Button
                                 size='small'
                                 sx={{ textTransform: 'none', minWidth: 0 }}
@@ -292,7 +346,7 @@ const EditableComment: React.FC<CommentProps> = ({ comment }) => {
     );
 };
 
-const CommentInfo: React.FC<CommentProps> = ({ comment }) => {
+const CommentInfo: React.FC<Omit<CommentProps, 'move'>> = ({ comment }) => {
     const viewer = useAuth().user;
 
     const createdAt = new Date(comment.createdAt);

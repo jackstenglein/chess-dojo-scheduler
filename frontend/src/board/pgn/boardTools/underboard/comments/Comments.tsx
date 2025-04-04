@@ -145,6 +145,20 @@ function getFenSections(game: Game, chess: Chess, view: View, sort: SortBy) {
 
     if (view === View.CurrentMove) {
         const comments = getCommentsForFen(game, chess.normalizedFen(), chess.currentMove(), sort);
+        if (chess.currentMove()?.commentDiag?.dojoComment) {
+            let root = chess.currentMove();
+            while (root?.previous?.commentDiag?.dojoComment) {
+                root = root.previous;
+            }
+            const commentId = root?.commentDiag?.dojoComment.substring(
+                root.commentDiag?.dojoComment?.lastIndexOf(',') + 1,
+            );
+            const comment =
+                game.positionComments[chess.normalizedFen(root?.previous)]?.[commentId || ''];
+            if (comment) {
+                fenSections.push({ move: root?.previous || null, comments: [comment] });
+            }
+        }
         fenSections.push({ move: chess.currentMove(), comments });
         return fenSections;
     }
@@ -225,7 +239,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ isReadonly, section }) 
                 <Divider sx={{ width: 1 }} />
             </Stack>
             {section.comments.map((c) => (
-                <Comment isReadonly={isReadonly} key={c.id} comment={c} />
+                <Comment isReadonly={isReadonly} key={c.id} comment={c} move={move} />
             ))}
             {section.comments.length === 0 && <Typography>No comments</Typography>}
         </Stack>

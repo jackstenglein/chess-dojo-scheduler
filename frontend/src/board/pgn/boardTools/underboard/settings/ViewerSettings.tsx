@@ -22,6 +22,12 @@ export const HideEngine = {
     Default: false,
 } as const;
 
+/** Whether to show suggested variations in the PGN text. */
+export const ShowSuggestedVariations = {
+    key: 'showSuggestedVariations',
+    default: true,
+} as const;
+
 export enum BoardStyle {
     Standard = 'STANDARD',
     Moon = 'MOON',
@@ -100,6 +106,10 @@ const ViewerSettings = () => {
     const [highlightEngineLines, setHighlightEngineLines] = useLocalStorage<boolean>(
         HIGHLIGHT_ENGINE_LINES.Key,
         HIGHLIGHT_ENGINE_LINES.Default,
+    );
+    const [showSuggestedVariations, setShowSuggestedVariations] = useLocalStorage<boolean>(
+        ShowSuggestedVariations.key,
+        ShowSuggestedVariations.default,
     );
 
     return (
@@ -217,11 +227,11 @@ const ViewerSettings = () => {
                 <FormControlLabel
                     control={
                         <Checkbox
-                            checked={hideEngine}
-                            onChange={(e) => setHideEngine(e.target.checked)}
+                            checked={!hideEngine}
+                            onChange={(e) => setHideEngine(!e.target.checked)}
                         />
                     }
-                    label='Hide engine'
+                    label='Show engine'
                 />
 
                 <FormControlLabel
@@ -232,6 +242,16 @@ const ViewerSettings = () => {
                         />
                     }
                     label='Highlight engine lines in PGN text'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={showSuggestedVariations}
+                            onChange={(e) => setShowSuggestedVariations(e.target.checked)}
+                        />
+                    }
+                    label="Display other users' suggested variations in PGN text"
                 />
             </Stack>
 

@@ -12,7 +12,7 @@
         "@emotion/styled": "^11.14.0",
         "@fortawesome/free-brands-svg-icons": "^6.7.2",
         "@fortawesome/free-solid-svg-icons": "^6.7.2",
-        "@jackstenglein/chess": "^2.2.9",
+        "@jackstenglein/chess": "^2.2.10",
         "@jackstenglein/chess-dojo-common": "file:../common",
         "@mui/icons-material": "^6.4.7",
         "@mui/lab": "^6.0.0-beta.30",

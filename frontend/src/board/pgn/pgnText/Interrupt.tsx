@@ -1,11 +1,31 @@
+import { useAuth } from '@/auth/Auth';
 import { Move } from '@jackstenglein/chess';
 import { Divider, Grid2, Paper } from '@mui/material';
+import { useLocalStorage } from 'usehooks-ts';
+import {
+    isSuggestedVariation,
+    isVariationSuggestor,
+} from '../boardTools/underboard/comments/suggestVariation';
+import { ShowSuggestedVariations } from '../boardTools/underboard/settings/ViewerSettings';
 import Comment from './Comment';
 import { Ellipsis } from './Ellipsis';
 import Lines from './Lines';
 
-export function hasInterrupt(move: Move): boolean {
-    return (move.commentAfter?.trim().length || 0) > 0 || move.variations.some((v) => v.length > 0);
+export function hasInterrupt(
+    move: Move,
+    showSuggestedVariations: boolean,
+    username: string | undefined,
+): boolean {
+    return (
+        (move.commentAfter?.trim().length || 0) > 0 ||
+        move.variations.some(
+            (v) =>
+                v.length > 0 &&
+                (showSuggestedVariations ||
+                    !isSuggestedVariation(v[0]) ||
+                    isVariationSuggestor(username, v[0])),
+        )
+    );
 }
 
 interface InterruptProps {
@@ -14,7 +34,13 @@ interface InterruptProps {
 }
 
 const Interrupt: React.FC<InterruptProps> = ({ move, handleScroll }) => {
-    if (!hasInterrupt(move)) {
+    const { user } = useAuth();
+    const [showSuggestedVariations] = useLocalStorage<boolean>(
+        ShowSuggestedVariations.key,
+        ShowSuggestedVariations.default,
+    );
+
+    if (!hasInterrupt(move, showSuggestedVariations, user?.username)) {
         return null;
     }
 

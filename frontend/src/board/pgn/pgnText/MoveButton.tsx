@@ -1,11 +1,16 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
 import { useReconcile } from '@/board/Board';
+import useGame from '@/context/useGame';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
-import { Backspace, Help, Merge } from '@mui/icons-material';
+import { Backspace, Chat, Help, Merge } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import {
+    CircularProgress,
     Grid2,
     ListItemIcon,
     ListItemText,
@@ -21,6 +26,10 @@ import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'rea
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
 import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
+import {
+    isUnsavedVariation,
+    saveSuggestedVariation,
+} from '../boardTools/underboard/comments/suggestVariation';
 import { DeletePrompt, useDeletePrompt } from '../boardTools/underboard/DeletePrompt';
 import { ShowMoveTimesInPgn } from '../boardTools/underboard/settings/ViewerSettings';
 import { MergeLineDialog } from '../boardTools/underboard/share/MergeLineDialog';
@@ -44,6 +53,10 @@ export function getTextColor(move: Move, inline?: boolean, highlightEngineLines?
     return 'text.primary';
 }
 
+export interface MoveButtonSlotProps {
+    hideSuggestedVariationOwner?: boolean;
+}
+
 export interface ButtonProps {
     isCurrentMove: boolean;
     inline?: boolean;
@@ -54,6 +67,7 @@ export interface ButtonProps {
     ) => void;
     text: string;
     time?: string;
+    slotProps?: MoveButtonSlotProps;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
@@ -179,8 +193,12 @@ interface MoveMenuProps {
 
 const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
     const { chess, config } = useChess();
+    const { game, onUpdateGame } = useGame();
     const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
     const [showMerge, setShowMerge] = useState(false);
+    const { user } = useAuth();
+    const api = useApi();
+    const saveVariationRequest = useRequest();
 
     if (!chess) {
         return null;
@@ -200,9 +218,26 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
         onClose();
     };
 
+    const onSaveVariationAsComment = async () => {
+        try {
+            saveVariationRequest.onStart();
+            const response = await saveSuggestedVariation(user, game, api, chess, move);
+            saveVariationRequest.onSuccess();
+            if (response?.game) {
+                onUpdateGame?.(response.game);
+            }
+            onClose();
+        } catch (err) {
+            console.error('onSaveVariationAsComment: ', err);
+            saveVariationRequest.onFailure(err);
+        }
+    };
+
     return (
         <>
             <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
+                <RequestSnackbar request={saveVariationRequest} />
+
                 <MenuList>
                     {config?.allowMoveDeletion && (
                         <>
@@ -245,6 +280,22 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                         </ListItemIcon>
                         <ListItemText>Merge Line into Game</ListItemText>
                     </MenuItem>
+
+                    {game && isUnsavedVariation(move) && (
+                        <MenuItem
+                            onClick={onSaveVariationAsComment}
+                            disabled={saveVariationRequest.isLoading()}
+                        >
+                            <ListItemIcon>
+                                {saveVariationRequest.isLoading() ? (
+                                    <CircularProgress size={24} />
+                                ) : (
+                                    <Chat />
+                                )}
+                            </ListItemIcon>
+                            <ListItemText>Save Variation as Comment</ListItemText>
+                        </MenuItem>
+                    )}
                 </MenuList>
             </Menu>
 
@@ -260,6 +311,7 @@ interface MoveButtonProps {
     inline?: boolean;
     forceShowPly?: boolean;
     handleScroll: (child: HTMLButtonElement | null) => void;
+    slotProps?: MoveButtonSlotProps;
 }
 
 const MoveButton: React.FC<MoveButtonProps> = ({
@@ -268,6 +320,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     inline,
     forceShowPly,
     handleScroll,
+    slotProps,
 }) => {
     const { chess, config } = useChess();
     const reconcile = useReconcile();
@@ -378,6 +431,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     onClickMove={onClickMove}
                     onRightClick={onRightClick}
                     text={text}
+                    slotProps={slotProps}
                 />
                 {menuAnchorEl && (
                     <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
@@ -399,6 +453,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 onRightClick={onRightClick}
                 text={moveText}
                 time={moveTime}
+                slotProps={slotProps}
             />
             {menuAnchorEl && (
                 <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />

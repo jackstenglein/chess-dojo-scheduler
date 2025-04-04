@@ -57,8 +57,8 @@ func getUpdate(event api.Request) (database.PositionCommentUpdate, error) {
 	if update.Fen == "" {
 		return update, errors.New(400, "Invalid request: fen is required", "")
 	}
-	if update.Content == "" {
-		return update, errors.New(400, "Invalid request: content must not be empty", "")
+	if update.Content == "" && update.SuggestedVariation == "" {
+		return update, errors.New(400, "Invalid request: one of content and suggestedVariation must not be empty", "")
 	}
 
 	return update, nil
