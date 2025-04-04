@@ -2,7 +2,6 @@ import { useApi } from '@/api/Api';
 import { useAuth } from '@/auth/Auth';
 import { useReconcile } from '@/board/Board';
 import useGame from '@/context/useGame';
-import { PositionComment } from '@/database/game';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
@@ -25,13 +24,13 @@ import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'rea
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useLocalStorage } from 'usehooks-ts';
 import { formatTime } from '../boardTools/underboard/clock/ClockUsage';
+import { saveSuggestedVariation } from '../boardTools/underboard/comments/suggestVariation';
 import { DeletePrompt, useDeletePrompt } from '../boardTools/underboard/DeletePrompt';
 import { ShowMoveTimesInPgn } from '../boardTools/underboard/settings/ViewerSettings';
 import { MergeLineDialog } from '../boardTools/underboard/share/MergeLineDialog';
 import { compareNags, getStandardNag, nags } from '../Nag';
 import { nagIcons } from '../NagIcon';
 import { useChess } from '../PgnBoard';
-import { markSuggestedVariationSaved } from './suggestVariation';
 
 export function getTextColor(move: Move, inline?: boolean, highlightEngineLines?: boolean): string {
     if (highlightEngineLines && move.commentDiag?.dojoEngine) {
@@ -213,78 +212,15 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
         onClose();
     };
 
-    const onSaveVariationAsComment = () => {
-        if (!user || !game) {
-            return;
-        }
-
-        let root = move;
-        while (
-            root.previous?.commentDiag?.dojoComment?.endsWith(',unsaved') ||
-            root.previous?.commentDiag?.dojoComment?.startsWith(user.username)
-        ) {
-            root = root.previous;
-        }
-
-        const suggestion = chess.renderFrom(root, {
-            skipHeader: true,
-            skipComments: true,
-        });
-
-        if (root.commentDiag?.dojoComment.endsWith(',unsaved')) {
-            const positionComment: PositionComment = {
-                id: '',
-                fen: chess.normalizedFen(root.previous),
-                ply: root.previous?.ply || 0,
-                san: root.previous?.san,
-                owner: {
-                    username: user.username,
-                    displayName: user.displayName,
-                    cohort: user.dojoCohort,
-                    previousCohort: user.previousCohort,
-                },
-                createdAt: '',
-                updatedAt: '',
-                content: '',
-                parentIds: '',
-                replies: {},
-                suggestedVariation: suggestion,
-            };
-            const existingComments = Boolean(game.positionComments[positionComment.fen]);
-            api.createComment(game.cohort, game.id, positionComment, existingComments)
-                .then((resp) => {
-                    onUpdateGame?.(resp.data.game);
-                    markSuggestedVariationSaved(chess, root, resp.data.comment.id);
-                    onClose();
-                })
-                .catch((err) => {
-                    console.error('onSaveVariationAsComment: ', err);
-                });
-        } else {
-            const commentId = root.commentDiag?.dojoComment.substring(
-                root.commentDiag.dojoComment.lastIndexOf(',') + 1,
-            );
-            const comment =
-                game.positionComments[chess.normalizedFen(root.previous)][commentId || ''];
-            if (!comment) {
-                return;
+    const onSaveVariationAsComment = async () => {
+        try {
+            const response = await saveSuggestedVariation(user, game, api, chess, move);
+            if (response?.game) {
+                onUpdateGame?.(response.game);
             }
-
-            api.updateComment({
-                cohort: game.cohort,
-                gameId: game.id,
-                id: comment.id,
-                fen: comment.fen,
-                content: comment.content,
-                parentIds: comment.parentIds || '',
-                suggestedVariation: suggestion,
-            })
-                .then((resp) => {
-                    onUpdateGame?.(resp.data);
-                    markSuggestedVariationSaved(chess, root, comment.id);
-                    onClose();
-                })
-                .catch((err) => console.error('onSaveVariationAsComment: ', err));
+            onClose();
+        } catch (err) {
+            console.error('onSaveVariationAsComment: ', err);
         }
     };
 
