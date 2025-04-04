@@ -1,4 +1,5 @@
 import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { useReconcile } from '@/board/Board';
 import useGame from '@/context/useGame';
@@ -9,6 +10,7 @@ import { Backspace, Chat, Help, Merge } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import {
+    CircularProgress,
     Grid2,
     ListItemIcon,
     ListItemText,
@@ -193,6 +195,7 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
     const [showMerge, setShowMerge] = useState(false);
     const { user } = useAuth();
     const api = useApi();
+    const saveVariationRequest = useRequest();
 
     if (!chess) {
         return null;
@@ -214,19 +217,24 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
 
     const onSaveVariationAsComment = async () => {
         try {
+            saveVariationRequest.onStart();
             const response = await saveSuggestedVariation(user, game, api, chess, move);
+            saveVariationRequest.onSuccess();
             if (response?.game) {
                 onUpdateGame?.(response.game);
             }
             onClose();
         } catch (err) {
             console.error('onSaveVariationAsComment: ', err);
+            saveVariationRequest.onFailure(err);
         }
     };
 
     return (
         <>
             <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={onClose}>
+                <RequestSnackbar request={saveVariationRequest} />
+
                 <MenuList>
                     {config?.allowMoveDeletion && (
                         <>
@@ -271,9 +279,16 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                     </MenuItem>
 
                     {game && move.commentDiag?.dojoComment?.endsWith(',unsaved') && (
-                        <MenuItem onClick={onSaveVariationAsComment}>
+                        <MenuItem
+                            onClick={onSaveVariationAsComment}
+                            disabled={saveVariationRequest.isLoading()}
+                        >
                             <ListItemIcon>
-                                <Chat />
+                                {saveVariationRequest.isLoading() ? (
+                                    <CircularProgress size={24} />
+                                ) : (
+                                    <Chat />
+                                )}
                             </ListItemIcon>
                             <ListItemText>Save Variation as Comment</ListItemText>
                         </MenuItem>
