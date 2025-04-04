@@ -61,7 +61,6 @@ export const Line: React.FC<LineProps> = ({
             !move.commentDiag.dojoComment.endsWith(',unsaved') &&
             (!user || !move.commentDiag.dojoComment.startsWith(user.username))
         ) {
-            console.log('Breaking on move: ', move);
             break;
         }
 

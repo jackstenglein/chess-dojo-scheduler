@@ -82,13 +82,21 @@ const BaseComment: React.FC<BaseCommentProps> = ({
 
     let suggestedVariation: Move[] | undefined = undefined;
     if (comment.suggestedVariation) {
-        suggestedVariation = chess
-            ?.nextMove(move)
-            ?.variations.find(
-                (v) =>
-                    v[0].commentDiag?.dojoComment?.startsWith(comment.owner.username) &&
-                    v[0].commentDiag.dojoComment.endsWith(comment.id),
-            );
+        const nextMove = chess?.nextMove(move);
+        if (
+            nextMove?.commentDiag?.dojoComment.startsWith(comment.owner.username) &&
+            nextMove.commentDiag.dojoComment.endsWith(comment.id)
+        ) {
+            suggestedVariation = nextMove.variation.slice(nextMove.variation.indexOf(nextMove));
+        } else {
+            suggestedVariation = chess
+                ?.nextMove(move)
+                ?.variations.find(
+                    (v) =>
+                        v[0].commentDiag?.dojoComment?.startsWith(comment.owner.username) &&
+                        v[0].commentDiag.dojoComment.endsWith(comment.id),
+                );
+        }
     }
 
     return (
