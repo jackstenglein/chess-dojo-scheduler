@@ -197,8 +197,6 @@ function getCommentsForFen(
     const fenComments = game.positionComments[fen] || {};
     const selectedComments: PositionComment[] = [];
 
-    if (Object.values(fenComments).length) console.log('Fen:  ', fen, ' comments: ', fenComments);
-
     for (const comment of Object.values(fenComments)) {
         if (comment.ply === (move?.ply || 0) && comment.san === move?.san) {
             selectedComments.push(comment);

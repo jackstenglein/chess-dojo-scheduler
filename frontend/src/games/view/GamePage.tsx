@@ -197,8 +197,6 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
 export default GamePage;
 
 function mergeSuggestedVariations(game: Game) {
-    console.log('PGN before merge: ', game.pgn);
-
     const suggestions: Record<string, PositionComment[]> = {};
     for (const [fen, positionComments] of Object.entries(game.positionComments || {})) {
         for (const comment of Object.values(positionComments)) {
@@ -208,7 +206,6 @@ function mergeSuggestedVariations(game: Game) {
         }
     }
 
-    console.log('Suggestions: ', suggestions);
     if (Object.keys(suggestions).length === 0) {
         return;
     }
@@ -235,11 +232,9 @@ function mergeSuggestedVariations(game: Game) {
     } while (move);
 
     game.pgn = chess.renderPgn();
-    console.log('PGN after merge: ', game.pgn);
 }
 
 function mergeFromMove(chess: Chess, move: Move | null, comments: PositionComment[]) {
-    console.log('Merging from move %j: %j', move, comments);
     comments.sort((lhs, rhs) => lhs.createdAt.localeCompare(rhs.createdAt));
 
     for (const comment of comments) {
