@@ -49,6 +49,10 @@ export function getTextColor(move: Move, inline?: boolean, highlightEngineLines?
     return 'text.primary';
 }
 
+export interface MoveButtonSlotProps {
+    hideSuggestedVariationOwner?: boolean;
+}
+
 export interface ButtonProps {
     isCurrentMove: boolean;
     inline?: boolean;
@@ -59,6 +63,7 @@ export interface ButtonProps {
     ) => void;
     text: string;
     time?: string;
+    slotProps?: MoveButtonSlotProps;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
@@ -352,6 +357,7 @@ interface MoveButtonProps {
     inline?: boolean;
     forceShowPly?: boolean;
     handleScroll: (child: HTMLButtonElement | null) => void;
+    slotProps?: MoveButtonSlotProps;
 }
 
 const MoveButton: React.FC<MoveButtonProps> = ({
@@ -360,6 +366,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     inline,
     forceShowPly,
     handleScroll,
+    slotProps,
 }) => {
     const { chess, config } = useChess();
     const reconcile = useReconcile();
@@ -470,6 +477,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                     onClickMove={onClickMove}
                     onRightClick={onRightClick}
                     text={text}
+                    slotProps={slotProps}
                 />
                 {menuAnchorEl && (
                     <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
@@ -491,6 +499,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
                 onRightClick={onRightClick}
                 text={moveText}
                 time={moveTime}
+                slotProps={slotProps}
             />
             {menuAnchorEl && (
                 <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />

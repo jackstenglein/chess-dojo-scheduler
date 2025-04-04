@@ -6,7 +6,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { ShowSuggestedVariations } from '../boardTools/underboard/settings/ViewerSettings';
 import { useChess } from '../PgnBoard';
 import Comment from './Comment';
-import MoveButton from './MoveButton';
+import MoveButton, { MoveButtonSlotProps } from './MoveButton';
 
 const borderWidth = 1.5; // px
 const lineInset = 8; // px
@@ -17,6 +17,9 @@ interface LineProps {
     handleScroll: (child: HTMLElement | null) => void;
     onExpand: () => void;
     forceShowSuggestedVariations?: boolean;
+    slotProps?: {
+        moveButton?: MoveButtonSlotProps;
+    };
 }
 
 export const Line: React.FC<LineProps> = ({
@@ -25,6 +28,7 @@ export const Line: React.FC<LineProps> = ({
     handleScroll,
     onExpand,
     forceShowSuggestedVariations,
+    slotProps,
 }) => {
     const { user } = useAuth();
     const { chess } = useChess();
@@ -73,6 +77,7 @@ export const Line: React.FC<LineProps> = ({
                     handleScroll={handleScroll}
                     expandParent={onExpand}
                     forceShowSuggestedVariations={forceShowSuggestedVariations}
+                    slotProps={slotProps}
                 />,
             );
             break;
@@ -81,7 +86,13 @@ export const Line: React.FC<LineProps> = ({
         result.push(
             <Fragment key={`fragment-${i}`}>
                 <Comment move={move} type={CommentType.Before} inline />
-                <MoveButton inline forceShowPly={i === 0} move={move} handleScroll={handleScroll} />
+                <MoveButton
+                    inline
+                    forceShowPly={i === 0}
+                    move={move}
+                    handleScroll={handleScroll}
+                    slotProps={slotProps?.moveButton}
+                />
                 <Comment move={move} inline />
             </Fragment>,
         );
@@ -113,6 +124,9 @@ interface LinesProps {
     handleScroll: (child: HTMLElement | null) => void;
     expandParent?: () => void;
     forceShowSuggestedVariations?: boolean;
+    slotProps?: {
+        moveButton?: MoveButtonSlotProps;
+    };
 }
 
 const Lines: React.FC<LinesProps> = ({
@@ -121,6 +135,7 @@ const Lines: React.FC<LinesProps> = ({
     handleScroll,
     expandParent,
     forceShowSuggestedVariations,
+    slotProps,
 }) => {
     const { chess } = useChess();
 
@@ -254,6 +269,7 @@ const Lines: React.FC<LinesProps> = ({
                             expandParent?.();
                         }}
                         forceShowSuggestedVariations={forceShowSuggestedVariations}
+                        slotProps={slotProps}
                     />
                 ))}
             </Collapse>

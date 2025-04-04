@@ -1,10 +1,17 @@
+import { MoveButtonSlotProps } from '@/board/pgn/pgnText/MoveButton';
 import Avatar from '@/profile/Avatar';
 import { StockfishIcon } from '@/style/ChessIcons';
 import { Move } from '@jackstenglein/chess';
 import { Warning } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
 
-export const GameMoveButtonExtras = ({ move }: { move: Move }) => {
+export const GameMoveButtonExtras = ({
+    move,
+    slotProps,
+}: {
+    move: Move;
+    slotProps?: MoveButtonSlotProps;
+}) => {
     if (move.commentDiag?.dojoComment) {
         const comment = move.commentDiag.dojoComment;
         const firstComma = comment.indexOf(',');
@@ -27,19 +34,21 @@ export const GameMoveButtonExtras = ({ move }: { move: Move }) => {
             );
         }
 
-        const displayName = comment.slice(firstComma + 1, lastComma);
-        return (
-            <Tooltip title={`Variation suggested by ${displayName}`}>
-                <span>
-                    <Avatar
-                        username={username}
-                        displayName={displayName}
-                        size={24}
-                        sx={{ ml: 0.5 }}
-                    />
-                </span>
-            </Tooltip>
-        );
+        if (!slotProps?.hideSuggestedVariationOwner) {
+            const displayName = comment.slice(firstComma + 1, lastComma);
+            return (
+                <Tooltip title={`Variation suggested by ${displayName}`}>
+                    <span>
+                        <Avatar
+                            username={username}
+                            displayName={displayName}
+                            size={24}
+                            sx={{ ml: 0.5 }}
+                        />
+                    </span>
+                </Tooltip>
+            );
+        }
     }
 
     if (move.commentDiag?.dojoEngine && !move.previous?.commentDiag?.dojoEngine) {
