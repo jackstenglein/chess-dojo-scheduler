@@ -218,7 +218,7 @@ function mergeSuggestedVariations(game: Game) {
     let move = null;
 
     do {
-        const comments = suggestions[chess.fen(move)];
+        const comments = suggestions[chess.normalizedFen(move)];
         if (comments) {
             mergeFromMove(chess, move, comments);
         }
@@ -272,7 +272,7 @@ function recursiveMergeLine(
 
         target.setCommand(
             'dojoComment',
-            `${comment.owner.username},${comment.owner.displayName}`,
+            `${comment.owner.username},${comment.owner.displayName},${comment.id}`,
             newTargetMove,
         );
         for (const variation of move.variations) {

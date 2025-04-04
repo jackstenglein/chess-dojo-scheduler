@@ -4,8 +4,9 @@ import { Chess, Move } from '@jackstenglein/chess';
  * Marks the dojoComment on all moves descended from the root as saved.
  * @param chess The chess instance containing the moves.
  * @param root The root move of the variation.
+ * @param commentId The id of the comment the variation is part of.
  */
-export function markSuggestedVariationSaved(chess: Chess, root: Move) {
+export function markSuggestedVariationSaved(chess: Chess, root: Move, commentId: string) {
     const stack: Move[] = [];
     stack.push(root);
 
@@ -13,7 +14,7 @@ export function markSuggestedVariationSaved(chess: Chess, root: Move) {
         const move = stack.pop();
         const comment = move?.commentDiag?.dojoComment;
         if (comment) {
-            chess.setCommand('dojoComment', comment.replace(/,unsaved$/, ''), move);
+            chess.setCommand('dojoComment', comment.replace(/,unsaved$/, `,${commentId}`), move);
         }
 
         if (move?.next) {

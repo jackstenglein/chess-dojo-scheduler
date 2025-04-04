@@ -153,7 +153,7 @@ export interface GameApiContextType {
         id: string,
         comment: PositionComment,
         existingComments: boolean,
-    ) => Promise<AxiosResponse<Game>>;
+    ) => Promise<AxiosResponse<{ game: Game; comment: PositionComment }>>;
 
     /**
      * Updates a comment on a game. The full updated game is returned.
@@ -461,12 +461,16 @@ export function createComment(
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.post<Game>(BASE_URL + `/game/${cohort}/${id}`, comment, {
-        params: { existingComments },
-        headers: {
-            Authorization: 'Bearer ' + idToken,
+    return axios.post<{ game: Game; comment: PositionComment }>(
+        BASE_URL + `/game/v2/${cohort}/${id}`,
+        comment,
+        {
+            params: { existingComments },
+            headers: {
+                Authorization: 'Bearer ' + idToken,
+            },
         },
-    });
+    );
 }
 
 export interface UpdateCommentRequest {
@@ -485,6 +489,9 @@ export interface UpdateCommentRequest {
     /** The new text content of the comment, which may contain mention markup. */
     content: string;
 
+    /** The new suggested variation of the comment. */
+    suggestedVariation: string;
+
     /** A comma-separated list of the parent comment ids. Empty for a top-level comment. */
     parentIds: string;
 }
@@ -501,7 +508,7 @@ export function updateComment(idToken: string, update: UpdateCommentRequest) {
     });
 }
 
-export type DeleteCommentRequest = Omit<UpdateCommentRequest, 'content'>;
+export type DeleteCommentRequest = Omit<UpdateCommentRequest, 'content' | 'suggestedVariation'>;
 
 /**
  * Deletes a comment on a game. The full updated game is returned.

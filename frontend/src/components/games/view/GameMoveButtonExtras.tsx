@@ -8,6 +8,7 @@ export const GameMoveButtonExtras = ({ move }: { move: Move }) => {
     if (move.commentDiag?.dojoComment) {
         const comment = move.commentDiag.dojoComment;
         const firstComma = comment.indexOf(',');
+        const lastComma = comment.lastIndexOf(',');
         const username = comment.slice(0, firstComma);
         const unsaved = comment.endsWith(',unsaved');
 
@@ -26,7 +27,7 @@ export const GameMoveButtonExtras = ({ move }: { move: Move }) => {
             );
         }
 
-        const displayName = comment.slice(firstComma + 1).replace(',unsaved', '');
+        const displayName = comment.slice(firstComma + 1, lastComma);
         return (
             <Tooltip title={`Variation suggested by ${displayName}`}>
                 <span>

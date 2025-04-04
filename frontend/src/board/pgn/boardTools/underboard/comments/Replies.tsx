@@ -1,5 +1,5 @@
+import { PositionComment } from '@/database/game';
 import { Stack } from '@mui/material';
-import { PositionComment } from '../../../../../database/game';
 import Comment from './Comment';
 import { SortBy, usePositionCommentSort } from './Comments';
 

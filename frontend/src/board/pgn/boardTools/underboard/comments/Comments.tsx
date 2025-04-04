@@ -183,12 +183,9 @@ function getCommentsForFen(
     const fenComments = game.positionComments[fen] || {};
     const selectedComments: PositionComment[] = [];
 
+    if (Object.values(fenComments).length) console.log('Fen:  ', fen, ' comments: ', fenComments);
     for (const comment of Object.values(fenComments)) {
-        if (
-            comment.content &&
-            comment.ply === (move?.ply || 0) &&
-            comment.san === move?.san
-        ) {
+        if (comment.ply === (move?.ply || 0) && comment.san === move?.san) {
             selectedComments.push(comment);
         }
     }
@@ -229,7 +226,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ isReadonly, section }) 
                 <Divider sx={{ width: 1 }} />
             </Stack>
             {section.comments.map((c) => (
-                <Comment isReadonly={isReadonly} key={c.id} comment={c} />
+                <Comment isReadonly={isReadonly} key={c.id} comment={c} move={move} />
             ))}
             {section.comments.length === 0 && <Typography>No comments</Typography>}
         </Stack>

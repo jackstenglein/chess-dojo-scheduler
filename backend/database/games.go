@@ -154,6 +154,9 @@ type PositionCommentUpdate struct {
 
 	// A comma-separated list of the parent comment ids. Empty for a top-level comment.
 	ParentIds string `json:"parentIds"`
+
+	// A PGN starting from the comment's position, which suggests a variation.
+	SuggestedVariation string `json:"suggestedVariation"`
 }
 
 type Game struct {
@@ -800,16 +803,17 @@ func (repo *dynamoRepository) PutComment(cohort, id string, comment *PositionCom
 // UpdateComment applies the given position comment update to the database. The game after update is returned.
 func (repo *dynamoRepository) UpdateComment(owner string, update *PositionCommentUpdate) (*Game, error) {
 	exprAttrNames := map[string]*string{
-		"#p":        aws.String("positionComments"),
-		"#fen":      aws.String(update.Fen),
-		"#id":       aws.String(update.Id),
-		"#owner":    aws.String("owner"),
-		"#username": aws.String("username"),
-		"#content":  aws.String("content"),
-		"#updated":  aws.String("updatedAt"),
+		"#p":         aws.String("positionComments"),
+		"#fen":       aws.String(update.Fen),
+		"#id":        aws.String(update.Id),
+		"#owner":     aws.String("owner"),
+		"#username":  aws.String("username"),
+		"#content":   aws.String("content"),
+		"#updated":   aws.String("updatedAt"),
+		"#variation": aws.String("suggestedVariation"),
 	}
 	parentPath := getCommentPath(update.ParentIds, exprAttrNames)
-	updateExpr := fmt.Sprintf("SET #p.#fen.%s#id.#content = :c, #p.#fen.%s#id.#updated = :u", parentPath, parentPath)
+	updateExpr := fmt.Sprintf("SET #p.#fen.%s#id.#content = :c, #p.#fen.%s#id.#variation = :v, #p.#fen.%s#id.#updated = :u", parentPath, parentPath, parentPath)
 
 	input := &dynamodb.UpdateItemInput{
 		ConditionExpression:      aws.String(fmt.Sprintf("#p.#fen.%s#id.#owner.#username = :owner", parentPath)),
@@ -818,6 +822,7 @@ func (repo *dynamoRepository) UpdateComment(owner string, update *PositionCommen
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":owner": {S: aws.String(owner)},
 			":c":     {S: aws.String(update.Content)},
+			":v":     {S: aws.String(update.SuggestedVariation)},
 			":u":     {S: aws.String(time.Now().Format(time.RFC3339))},
 		},
 		Key: map[string]*dynamodb.AttributeValue{
