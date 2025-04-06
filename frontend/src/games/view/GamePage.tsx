@@ -4,7 +4,7 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { isMissingData } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { useAuth } from '@/auth/Auth';
+import { AuthStatus, useAuth } from '@/auth/Auth';
 import { BoardApi } from '@/board/Board';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard from '@/board/pgn/PgnBoard';
@@ -12,6 +12,7 @@ import { GameMoveButtonExtras } from '@/components/games/view/GameMoveButtonExtr
 import { GameContext } from '@/context/useGame';
 import { Game, PositionComment } from '@/database/game';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
+import LoadingPage from '@/loading/LoadingPage';
 import { Chess, EventType as ChessEventType, Move } from '@jackstenglein/chess';
 import {
     GameHeader,
@@ -29,7 +30,7 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
     const request = useRequest<Game>();
     const featureRequest = useRequest();
     const updateRequest = useRequest<Game>();
-    const { user } = useAuth();
+    const { user, status } = useAuth();
     const { searchParams, updateSearchParams } = useNextSearchParams({
         firstLoad: 'false',
     });
@@ -57,6 +58,10 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
                 });
         }
     }, [request, api, cohort, id]);
+
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
 
     const onSave = (headers: GameHeader, orientation: GameOrientation) => {
         const game = request.data;
