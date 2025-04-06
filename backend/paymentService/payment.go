@@ -134,11 +134,15 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 	successUrl := request.SuccessUrl
 	if successUrl == "" {
 		successUrl = frontendHost
+	} else if !strings.HasPrefix(successUrl, frontendHost) {
+		successUrl = frontendHost + successUrl
 	}
 
 	cancelUrl := request.CancelUrl
 	if cancelUrl == "" {
 		cancelUrl = frontendHost
+	} else if !strings.HasPrefix(cancelUrl, frontendHost) {
+		cancelUrl = frontendHost + cancelUrl
 	}
 
 	params := &stripe.CheckoutSessionParams{
