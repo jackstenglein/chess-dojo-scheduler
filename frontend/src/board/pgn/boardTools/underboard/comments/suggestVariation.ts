@@ -34,6 +34,15 @@ export function isVariationSuggestor(
 }
 
 /**
+ * Returns true if the given move is part of a variation suggested in the given comment.
+ * @param commentId The comment to check.
+ * @param move The move to check.
+ */
+export function isVariationInComment(commentId: string, move: Move | null | undefined): boolean {
+    return Boolean(move?.commentDiag?.dojoComment?.endsWith(commentId));
+}
+
+/**
  * Marks the dojoComment on all moves descended from the root as saved.
  * @param chess The chess instance containing the moves.
  * @param root The root move of the variation.

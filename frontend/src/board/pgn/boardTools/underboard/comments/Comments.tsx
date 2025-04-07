@@ -16,6 +16,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import Comment from './Comment';
 import CommentEditor, { CommentEditorProps } from './CommentEditor';
+import { isSuggestedVariation } from './suggestVariation';
 
 const CommentViewKey = 'COMMENT_VIEW';
 const CommentSortByKey = 'COMMENT_SORT_BY';
@@ -145,12 +146,12 @@ function getFenSections(game: Game, chess: Chess, view: View, sort: SortBy) {
 
     if (view === View.CurrentMove) {
         const comments = getCommentsForFen(game, chess.normalizedFen(), chess.currentMove(), sort);
-        if (chess.currentMove()?.commentDiag?.dojoComment) {
+        if (isSuggestedVariation(chess.currentMove())) {
             let root = chess.currentMove();
-            while (root?.previous?.commentDiag?.dojoComment) {
-                root = root.previous;
+            while (isSuggestedVariation(root?.previous)) {
+                root = root?.previous ?? null;
             }
-            const commentId = root?.commentDiag?.dojoComment.substring(
+            const commentId = root?.commentDiag?.dojoComment?.substring(
                 root.commentDiag?.dojoComment?.lastIndexOf(',') + 1,
             );
             const comment =

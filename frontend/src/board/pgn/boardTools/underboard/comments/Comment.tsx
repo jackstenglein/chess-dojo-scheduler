@@ -31,6 +31,7 @@ import {
 import React, { useState } from 'react';
 import Replies from './Replies';
 import ReplyEditor from './ReplyEditor';
+import { isVariationInComment, isVariationSuggestor } from './suggestVariation';
 
 interface CommentProps {
     comment: PositionComment;
@@ -84,17 +85,17 @@ const BaseComment: React.FC<BaseCommentProps> = ({
     if (comment.suggestedVariation) {
         const nextMove = chess?.nextMove(move);
         if (
-            nextMove?.commentDiag?.dojoComment.startsWith(comment.owner.username) &&
-            nextMove.commentDiag.dojoComment.endsWith(comment.id)
+            isVariationSuggestor(comment.owner.username, nextMove) &&
+            isVariationInComment(comment.id, nextMove)
         ) {
-            suggestedVariation = nextMove.variation.slice(nextMove.variation.indexOf(nextMove));
+            suggestedVariation = nextMove?.variation.slice(nextMove.variation.indexOf(nextMove));
         } else {
             suggestedVariation = chess
                 ?.nextMove(move)
                 ?.variations.find(
                     (v) =>
-                        v[0].commentDiag?.dojoComment?.startsWith(comment.owner.username) &&
-                        v[0].commentDiag.dojoComment.endsWith(comment.id),
+                        isVariationSuggestor(comment.owner.username, v[0]) &&
+                        isVariationInComment(comment.id, v[0]),
                 );
         }
     }
