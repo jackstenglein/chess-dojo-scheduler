@@ -39,7 +39,7 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
             <CardContent>
                 <Stack>
                     <NewsfeedItemHeader entry={entry} />
-                    <NewsfeedItemBody entry={entry} currentUser={currentUser} />
+                    <NewsfeedItemBody entry={entry} />
 
                     <Stack direction='row' gap={1} mt={1} flexWrap='wrap'>
                         {isCurrentUser && onChangeActivity && (
