@@ -1,12 +1,13 @@
 import { useFreeTier } from '@/auth/Auth';
 import { GameInfo, GameKey } from '@/database/game';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
-import { Close, CreateNewFolder, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Close, CreateNewFolder, Download, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Alert, IconButton, Paper, Snackbar, Stack, Tooltip, Typography } from '@mui/material';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { AddToDirectoryDialog } from '../../../games/list/AddToDirectoryDialog';
 import DeleteGameButton from '../../../games/view/DeleteGameButton';
 import { ChangeVisibilityDialog } from './ChangeVisibilityDialog';
+import { DownloadGamesDialog } from './DownloadGamesDialog';
 
 export function BulkGameEditor({
     games,
@@ -24,6 +25,7 @@ export function BulkGameEditor({
     const [directoryPickerOpen, setDirectoryPickerOpen] = useState(false);
     const [visibilityDialog, setVisibilityDialog] = useState('');
     const [visibilitySkipped, setVisibilitySkipped] = useState<GameKey[]>([]);
+    const [downloadDialog, setDownloadDialog] = useState(false);
 
     if (games.length === 0) {
         return null;
@@ -83,6 +85,12 @@ export function BulkGameEditor({
                     </Tooltip>
                 )}
 
+                <Tooltip title={`Download Game${games.length !== 1 ? 's' : ''} as PGN`}>
+                    <IconButton size='small' onClick={() => setDownloadDialog(true)}>
+                        <Download />
+                    </IconButton>
+                </Tooltip>
+
                 <DeleteGameButton
                     games={games}
                     slotProps={{
@@ -101,6 +109,10 @@ export function BulkGameEditor({
                     onClose={() => setDirectoryPickerOpen(false)}
                 />
             </DirectoryCacheProvider>
+
+            {downloadDialog && (
+                <DownloadGamesDialog games={games} onClose={() => setDownloadDialog(false)} />
+            )}
 
             {visibilityDialog && (
                 <ChangeVisibilityDialog

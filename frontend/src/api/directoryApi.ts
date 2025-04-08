@@ -5,6 +5,7 @@ import {
     CreateDirectoryRequestV2Client,
     Directory,
     DirectoryAccessRole,
+    ExportDirectoryRequest,
     ListBreadcrumbsRequest,
     MoveDirectoryItemsRequestV2,
     RemoveDirectoryItemsRequestV2,
@@ -91,6 +92,13 @@ export interface DirectoryApiContextType {
     moveDirectoryItems: (
         request: MoveDirectoryItemsRequestV2,
     ) => Promise<AxiosResponse<MoveDirectoryItemsResponse>>;
+
+    /**
+     * Sends an API request to export a directory or a list of games as a PGN.
+     * @param request The export directory request.
+     * @returns The id of the generated export.
+     */
+    exportDirectory: (request: ExportDirectoryRequest) => Promise<AxiosResponse<{ id: string }>>;
 }
 
 export interface GetDirectoryResponse {
@@ -269,6 +277,18 @@ export interface MoveDirectoryItemsResponse {
  */
 export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsRequestV2) {
     return axios.put<MoveDirectoryItemsResponse>(`${BASE_URL}/directory/items/move/v2`, request, {
+        headers: { Authorization: `Bearer ${idToken}` },
+    });
+}
+
+/**
+ * Sends an API request to export a directory or a list of games as a PGN.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to send.
+ * @returns THe id of the generated export.
+ */
+export function exportDirectory(idToken: string, request: ExportDirectoryRequest) {
+    return axios.post<{ id: string }>(`${BASE_URL}/directory/export`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
     });
 }

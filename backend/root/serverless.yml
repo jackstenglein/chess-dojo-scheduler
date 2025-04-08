@@ -622,6 +622,11 @@ resources:
         BucketName: !If [IsNotSimple, 'chess-dojo-${sls:stage}-game-database', 'chess-dojo-simple-${aws:accountId}-game-database']
         PublicAccessBlockConfiguration:
           BlockPublicPolicy: false
+        LifecycleConfiguration:
+          Rules:
+            - Prefix: exports/
+              ExpirationInDays: 7
+              Status: Enabled
 
     GameDatabaseBucketPolicy:
       Type: AWS::S3::BucketPolicy
