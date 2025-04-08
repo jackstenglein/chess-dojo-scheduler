@@ -209,6 +209,7 @@ const ActivityTimelineList = ({
                     onEdit={(e) => onEdit(i, e)}
                     maxComments={3}
                     onChangeActivity={setEditEntry}
+                    currentUser={user}
                 />
             ))}
 
@@ -327,6 +328,7 @@ const ActivityTimelineCalendar = ({
                             onEdit={(e) => onEdit(entries.indexOf(event.entry as TimelineEntry), e)}
                             maxComments={3}
                             onChangeActivity={setEditEntry}
+                            currentUser={user}
                         />
                     ) : event.user ? (
                         <CreatedAtItem user={event.user as User} />

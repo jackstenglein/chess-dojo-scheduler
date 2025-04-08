@@ -1,6 +1,8 @@
 import { useApi } from '@/api/Api';
+import { useAuth } from '@/auth/Auth';
 import { ScoreboardDisplay, formatTime } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
+import { User } from '@/database/user';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { Edit } from '@mui/icons-material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
@@ -17,6 +19,7 @@ interface NewsfeedItemProps {
     onEdit: (entry: TimelineEntry) => void;
     maxComments?: number;
     onChangeActivity?: (entry: TimelineEntry) => void;
+    currentUser: User;
 }
 
 const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
@@ -24,18 +27,20 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
     onEdit,
     maxComments,
     onChangeActivity,
+    currentUser,
 }) => {
     const api = useApi();
-
+    const { user } = useAuth();
+    const isCurrentUser = currentUser.username === user?.username;
     return (
         <Card variant='outlined'>
             <CardContent>
                 <Stack>
                     <NewsfeedItemHeader entry={entry} />
-                    <NewsfeedItemBody entry={entry} />
+                    <NewsfeedItemBody entry={entry} currentUser={currentUser} />
 
                     <Stack direction='row' gap={1} mt={1} flexWrap='wrap'>
-                        {onChangeActivity && (
+                        {isCurrentUser && onChangeActivity && (
                             <Tooltip title='Edit Activity'>
                                 <IconButton color='primary' onClick={() => onChangeActivity(entry)}>
                                     <Edit />
