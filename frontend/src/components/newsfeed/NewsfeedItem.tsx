@@ -19,7 +19,7 @@ interface NewsfeedItemProps {
     onEdit: (entry: TimelineEntry) => void;
     maxComments?: number;
     onChangeActivity?: (entry: TimelineEntry) => void;
-    currentUser: User;
+    currentUser?: User;
 }
 
 const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
@@ -31,7 +31,9 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
 }) => {
     const api = useApi();
     const { user } = useAuth();
-    const isCurrentUser = currentUser.username === user?.username;
+
+    const isCurrentUser = !!currentUser && currentUser.username === user?.username;
+
     return (
         <Card variant='outlined'>
             <CardContent>
