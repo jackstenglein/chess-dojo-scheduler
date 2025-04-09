@@ -85,7 +85,7 @@ export function BulkGameEditor({
                     </Tooltip>
                 )}
 
-                <Tooltip title={`Download Game${games.length !== 1 ? 's' : ''} as PGN`}>
+                <Tooltip title='Download PGN'>
                     <IconButton size='small' onClick={() => setDownloadDialog(true)}>
                         <Download />
                     </IconButton>

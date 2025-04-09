@@ -3,12 +3,19 @@ import { Lambda } from '@aws-sdk/client-lambda';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
-import { ExportDirectorySchema } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    Directory,
+    DirectoryAccessRole,
+    DirectoryItemTypes,
+    ExportDirectoryRequest,
+    ExportDirectorySchema,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import AdmZip from 'adm-zip';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { appendFileSync, closeSync, openSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { checkAccess } from './access';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
@@ -16,7 +23,7 @@ import {
     requireUserInfo,
     success,
 } from './api';
-import { dynamo, gameTable, UpdateItemBuilder } from './database';
+import { directoryTable, dynamo, gameTable, UpdateItemBuilder } from './database';
 
 const s3Client = new S3Client({ region: 'us-east-1' });
 const s3Bucket = `chess-dojo-${process.env.stage}-game-database`;
@@ -77,20 +84,40 @@ const exportDirectoryRunSchema = z.object({
 export const runExport = async (e: object) => {
     console.log('Event: %j', e);
     const event = exportDirectoryRunSchema.parse(e);
-    const fd = openSync(`/tmp/${event.id}.pgn`, 'a');
+    const games = (event.request.games ?? []).concat(
+        ...(await fetchGameInfoFromDirectories(event.username, event.request)),
+    );
 
-    for (let i = 0; i < (event.request.games?.length ?? 0); i += 100) {
-        const batch = event.request.games?.slice(i, i + 100) ?? [];
-        const response = await dynamo.send(
-            new BatchGetItemCommand({
-                RequestItems: {
-                    [gameTable]: {
-                        Keys: batch.map((g) => ({ cohort: { S: g.cohort }, id: { S: g.id } })),
-                        ProjectionExpression: 'pgn',
-                    },
+    if (games.length === 0) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: 'Invalid request: no games to export',
+        });
+    }
+
+    await dynamo.send(
+        new UpdateItemBuilder()
+            .key('username', event.username)
+            .key('id', event.id)
+            .set('total', games.length)
+            .table(directoryExportTable)
+            .build(),
+    );
+
+    const fd = openSync(`/tmp/${event.id}.pgn`, 'a');
+    console.log('Fetching %d total games: ', games.length, JSON.stringify(games));
+    for (let i = 0; i < games.length; i += 100) {
+        const batch = games.slice(i, i + 100);
+        console.log('Fetching batch of %d games: ', batch.length, JSON.stringify(batch));
+        const batchInput = new BatchGetItemCommand({
+            RequestItems: {
+                [gameTable]: {
+                    Keys: batch.map((g) => ({ cohort: { S: g.cohort }, id: { S: g.id } })),
+                    ProjectionExpression: 'pgn',
                 },
-            }),
-        );
+            },
+        });
+        const response = await dynamo.send(batchInput);
         if (!response.Responses?.[gameTable]) {
             throw new ApiError({ statusCode: 500, publicMessage: 'No responses from game table' });
         }
@@ -107,7 +134,6 @@ export const runExport = async (e: object) => {
             .build();
         await dynamo.send(input);
     }
-
     closeSync(fd);
 
     const zip = new AdmZip();
@@ -122,11 +148,83 @@ export const runExport = async (e: object) => {
     );
     console.log('Response from S3: ', response);
 
-    const input = new UpdateItemBuilder()
-        .key('username', event.username)
-        .key('id', event.id)
-        .set('status', exportDirectoryRunStatus.enum.COMPLETED)
-        .table(directoryExportTable)
-        .build();
-    await dynamo.send(input);
+    await dynamo.send(
+        new UpdateItemBuilder()
+            .key('username', event.username)
+            .key('id', event.id)
+            .set('status', exportDirectoryRunStatus.enum.COMPLETED)
+            .table(directoryExportTable)
+            .build(),
+    );
 };
+
+async function fetchGameInfoFromDirectories(username: string, request: ExportDirectoryRequest) {
+    let queue = request.directories ?? [];
+    let topLevel = true;
+    const games: { cohort: string; id: string }[] = [];
+
+    while (queue.length) {
+        const nextQueue = [];
+
+        for (let i = 0; i < queue.length; i += 100) {
+            const batch = queue.slice(i, i + 100) ?? [];
+            const response = await dynamo.send(
+                new BatchGetItemCommand({
+                    RequestItems: {
+                        [directoryTable]: {
+                            Keys: batch.map((d) => ({ owner: { S: d.owner }, id: { S: d.id } })),
+                            ProjectionExpression: '#owner, id, parent, #items, access',
+                            ExpressionAttributeNames: { '#owner': 'owner', '#items': 'items' },
+                        },
+                    },
+                }),
+            );
+            if (!response.Responses?.[directoryTable]) {
+                throw new ApiError({
+                    statusCode: 500,
+                    publicMessage: 'No responses from directory table',
+                });
+            }
+
+            const directories = response.Responses[directoryTable].map(
+                (d) => unmarshall(d) as Directory,
+            );
+            for (const directory of directories) {
+                if (
+                    topLevel &&
+                    !checkAccess({
+                        owner: directory.owner,
+                        id: directory.id,
+                        username,
+                        role: DirectoryAccessRole.Viewer,
+                        directory,
+                    })
+                ) {
+                    throw new ApiError({
+                        statusCode: 403,
+                        publicMessage: `User ${username} does not have viewer access for directory ${directory.owner}/${directory.id}`,
+                    });
+                }
+
+                games.push(
+                    ...Object.values(directory.items)
+                        .filter((item) => item.type !== DirectoryItemTypes.DIRECTORY)
+                        .map((g) => ({ cohort: g.metadata.cohort, id: g.metadata.id })),
+                );
+
+                if (request.recursive) {
+                    nextQueue.push(
+                        ...Object.values(directory.items)
+                            .filter((item) => item.type === DirectoryItemTypes.DIRECTORY)
+                            .map((d) => ({ owner: directory.owner, id: d.id })),
+                    );
+                }
+            }
+        }
+
+        queue = nextQueue;
+        topLevel = false;
+    }
+
+    return games;
+}

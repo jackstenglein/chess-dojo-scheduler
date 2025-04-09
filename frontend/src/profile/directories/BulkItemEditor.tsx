@@ -1,4 +1,5 @@
 import { useApi } from '@/api/Api';
+import { DownloadGamesDialog } from '@/components/games/list/DownloadGamesDialog';
 import {
     Directory,
     DirectoryItem,
@@ -7,6 +8,7 @@ import {
 import {
     Close,
     Delete,
+    Download,
     DriveFileMoveOutlined,
     DriveFileRenameOutline,
     FolderOff,
@@ -27,6 +29,8 @@ interface UseDirectoryEditorResponse {
     renameOpen: boolean;
     /** Whether the move dialog is open. */
     moveOpen: boolean;
+    /** Whether the download dialog is open. */
+    downloadOpen: boolean;
     /**
      * Whether the remove dialog is open. Contrary to the delete dialog, the remove dialog
      * does not fully delete selected games. The games are only removed from the directory.
@@ -41,6 +45,8 @@ interface UseDirectoryEditorResponse {
     onRename: () => void;
     /** Opens the move dialog. */
     onMove: () => void;
+    /** Opens the download dialog. */
+    onDownload: () => void;
     /** Opens the remove dialog. */
     onRemove: () => void;
     /** Opens the delete dialog. */
@@ -60,6 +66,7 @@ export function useDirectoryEditor(
 
     const [renameOpen, setRenameOpen] = useState(false);
     const [moveOpen, setMoveOpen] = useState(false);
+    const [downloadOpen, setDownloadOpen] = useState(false);
     const [removeOpen, setRemoveOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -69,6 +76,10 @@ export function useDirectoryEditor(
 
     const onMove = () => {
         setMoveOpen(true);
+    };
+
+    const onDownload = () => {
+        setDownloadOpen(true);
     };
 
     const onRemove = () => {
@@ -83,6 +94,7 @@ export function useDirectoryEditor(
         onClose();
         setRenameOpen(false);
         setMoveOpen(false);
+        setDownloadOpen(false);
         setRemoveOpen(false);
         setDeleteOpen(false);
     };
@@ -92,10 +104,12 @@ export function useDirectoryEditor(
         items,
         renameOpen,
         moveOpen,
+        downloadOpen,
         removeOpen,
         deleteOpen,
         onRename,
         onMove,
+        onDownload,
         onRemove,
         onDelete,
         handleClose,
@@ -141,6 +155,12 @@ export const BulkItemEditor = ({
                 <Tooltip title='Move'>
                     <IconButton size='small' sx={{ mr: 1 }} onClick={editor.onMove}>
                         <DriveFileMoveOutlined />
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title='Download PGN'>
+                    <IconButton size='small' sx={{ mr: 1 }} onClick={editor.onDownload}>
+                        <Download />
                     </IconButton>
                 </Tooltip>
 
@@ -212,6 +232,20 @@ export const ItemEditorDialogs = ({ editor }: { editor: UseDirectoryEditorRespon
                 parent={editor.directory}
                 items={editor.items}
                 onCancel={editor.handleClose}
+            />
+        );
+    }
+
+    if (editor.downloadOpen) {
+        return (
+            <DownloadGamesDialog
+                directories={editor.items
+                    .filter((item) => item.type === DirectoryItemTypes.DIRECTORY)
+                    .map((d) => ({ owner: editor.directory.owner, id: d.id }))}
+                games={editor.items
+                    .filter((item) => item.type !== DirectoryItemTypes.DIRECTORY)
+                    .map((g) => ({ cohort: g.metadata.cohort, id: g.metadata.id }))}
+                onClose={editor.handleClose}
             />
         );
     }

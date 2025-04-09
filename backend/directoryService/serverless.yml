@@ -238,6 +238,11 @@ functions:
         Resource: ${param:GamesTableArn}
       - Effect: Allow
         Action:
+          - dynamodb:BatchGetItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
           - s3:PutObject
         Resource: !Join
           - ''

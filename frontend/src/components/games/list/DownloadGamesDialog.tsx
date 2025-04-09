@@ -1,6 +1,5 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { GameInfo } from '@/database/game';
 import { usePgnExportOptions } from '@/hooks/usePgnExportOptions';
 import {
     Button,
@@ -14,12 +13,15 @@ import {
     FormLabel,
     Stack,
 } from '@mui/material';
+import { useState } from 'react';
 
 export function DownloadGamesDialog({
+    directories,
     games,
     onClose,
 }: {
-    games: GameInfo[];
+    directories?: { owner: string; id: string }[];
+    games: { cohort: string; id: string }[];
     onClose: () => void;
 }) {
     const {
@@ -40,12 +42,15 @@ export function DownloadGamesDialog({
     } = usePgnExportOptions();
     const api = useApi();
     const request = useRequest();
+    const [recursive, setRecursive] = useState(true);
 
     const onDownload = async () => {
         try {
             request.onStart();
             const response = await api.exportDirectory({
+                directories,
                 games: games.map((g) => ({ cohort: g.cohort, id: g.id })),
+                recursive,
             });
             console.log('exportDirectory: ', response);
         } catch (err) {
@@ -58,7 +63,21 @@ export function DownloadGamesDialog({
         <Dialog open onClose={onClose} fullWidth>
             <DialogTitle>Download PGN?</DialogTitle>
             <DialogContent>
-                <FormLabel>Include</FormLabel>
+                {Boolean(directories?.length) && (
+                    <Stack sx={{ mb: 3 }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={recursive}
+                                    onChange={(e) => setRecursive(e.target.checked)}
+                                />
+                            }
+                            label='Include games from nested subfolders'
+                        />
+                    </Stack>
+                )}
+
+                <FormLabel>Options</FormLabel>
                 <Stack direction='row' flexWrap='wrap' columnGap={1} mt={1}>
                     <FormGroup sx={{ flexGrow: 1, width: { xs: 1, sm: 'unset' } }}>
                         <FormControlLabel
