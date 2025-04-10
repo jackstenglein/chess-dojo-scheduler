@@ -250,6 +250,29 @@ functions:
             - ${param:GameDatabaseBucket}
             - /exports/*/*.zip
 
+  checkExport:
+    handler: export.checkExport
+    events:
+      - httpApi:
+          path: /directory/export/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoryExportTable.Arn
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:GameDatabaseBucket}
+            - /exports/*/*.zip
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

@@ -6,6 +6,7 @@ import {
     Directory,
     DirectoryAccessRole,
     ExportDirectoryRequest,
+    ExportDirectoryRun,
     ListBreadcrumbsRequest,
     MoveDirectoryItemsRequestV2,
     RemoveDirectoryItemsRequestV2,
@@ -99,6 +100,13 @@ export interface DirectoryApiContextType {
      * @returns The id of the generated export.
      */
     exportDirectory: (request: ExportDirectoryRequest) => Promise<AxiosResponse<{ id: string }>>;
+
+    /**
+     * Sends an API request to check the status of an export directory run.
+     * @param id The id of the run to check.
+     * @returns The requested run.
+     */
+    checkDirectoryExport: (id: string) => Promise<AxiosResponse<ExportDirectoryRun>>;
 }
 
 export interface GetDirectoryResponse {
@@ -285,10 +293,22 @@ export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsR
  * Sends an API request to export a directory or a list of games as a PGN.
  * @param idToken The id token of the current signed-in user.
  * @param request The request to send.
- * @returns THe id of the generated export.
+ * @returns The id of the generated export.
  */
 export function exportDirectory(idToken: string, request: ExportDirectoryRequest) {
     return axios.post<{ id: string }>(`${BASE_URL}/directory/export`, request, {
+        headers: { Authorization: `Bearer ${idToken}` },
+    });
+}
+
+/**
+ * Sends an API request to check the status of an export directory run.
+ * @param idToken The id token of the current signed-in user.
+ * @param id The id of the run to check.
+ * @returns The requested run.
+ */
+export function checkDirectoryExport(idToken: string, id: string) {
+    return axios.get<ExportDirectoryRun>(`${BASE_URL}/directory/export/${id}`, {
         headers: { Authorization: `Bearer ${idToken}` },
     });
 }

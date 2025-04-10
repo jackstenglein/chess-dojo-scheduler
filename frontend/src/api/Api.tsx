@@ -58,6 +58,7 @@ import {
 import {
     DirectoryApiContextType,
     addDirectoryItems,
+    checkDirectoryExport,
     createDirectory,
     deleteDirectories,
     exportDirectory,
@@ -466,6 +467,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             moveDirectoryItems: (request: MoveDirectoryItemsRequestV2) =>
                 moveDirectoryItems(idToken, request),
             exportDirectory: (request: ExportDirectoryRequest) => exportDirectory(idToken, request),
+            checkDirectoryExport: (id: string) => checkDirectoryExport(idToken, id),
 
             registerForRoundRobin: (request: RoundRobinRegisterRequest) =>
                 registerForRoundRobin(idToken, request),

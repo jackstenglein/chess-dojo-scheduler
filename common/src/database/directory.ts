@@ -438,6 +438,45 @@ export const ExportDirectorySchema = z
 /** A request to export a directory. */
 export type ExportDirectoryRequest = z.infer<typeof ExportDirectorySchema>;
 
+/** Verifies the type of a request to check a directory export. */
+export const CheckExportDirectorySchema = z.object({
+    /** The id of the directory export run to check. */
+    id: z.string(),
+});
+
+/** A request to check the status of a directory export run. */
+export type CheckExportDirectoryRequest = z.infer<typeof CheckExportDirectorySchema>;
+
+/** The status of an export directory run. */
+export const exportDirectoryRunStatus = z.enum(['IN_PROGRESS', 'COMPLETED']);
+
+/** Verifies an export directory run. */
+export const exportDirectoryRunSchema = z.object({
+    /** The username of the user who started the run. */
+    username: z.string(),
+    /** The id of the run. */
+    id: z.string(),
+    /** The status of the run. */
+    status: exportDirectoryRunStatus,
+    /** The number of games exported so far. */
+    progress: z.number(),
+    /** The total number of games to export. */
+    total: z.number(),
+    /** The request that initiated the run. */
+    request: ExportDirectorySchema,
+    /** When the run started, in ISO 8601. */
+    startedAt: z.string(),
+    /** When the run completed, in ISO 8601. */
+    completedAt: z.string().optional(),
+    /** A presigned S3 URL to download the final zip. */
+    downloadUrl: z.string().optional(),
+    /** The DynamoDB time to live for the run. */
+    ttl: z.number(),
+});
+
+/** A run to export a directory. */
+export type ExportDirectoryRun = z.infer<typeof exportDirectoryRunSchema>;
+
 /**
  * Returns true if currRole has permissions greater than or equal to minRole.
  * @param minRole The minimum required role.
