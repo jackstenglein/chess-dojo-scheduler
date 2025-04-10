@@ -33,6 +33,12 @@ const s3Bucket = `chess-dojo-${process.env.stage}-game-database`;
 const directoryExportTable = `${process.env.stage}-directory-exports`;
 const runExportLambdaName = `chess-dojo-directories-${process.env.stage}-runExport`;
 
+/**
+ * Handles requests to start a directory export. This function invokes the runExport lambda
+ * handler, as the export can take longer than the 28 second deadline imposed by API Gateway.
+ * @param event The event that triggered the handler.
+ * @returns The id of the export run that was triggered.
+ */
 export const startExport: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
@@ -77,88 +83,119 @@ export const startExport: APIGatewayProxyHandlerV2 = async (event) => {
     }
 };
 
+/**
+ * Runs a directory export job. This function first builds a list of games to fetch by
+ * recursively (if necessary) traversing through all provided directories and appending
+ * their games to the provided list of games in the request. Then each game is fetched,
+ * and its PGN is added to a temporary file. Finally, the temporary file is saved to S3.
+ * @param event The directory export run object created by the startExport function.
+ */
 export const runExport = async (event: object) => {
     console.log('Event: %j', event);
     const run = exportDirectoryRunSchema.parse(event);
-    const games = (run.request.games ?? []).concat(
-        ...(await fetchGameInfoFromDirectories(run.username, run.request)),
-    );
 
-    if (games.length === 0) {
-        throw new ApiError({
-            statusCode: 400,
-            publicMessage: 'Invalid request: no games to export',
-        });
-    }
-
-    await dynamo.send(
-        new UpdateItemBuilder()
-            .key('username', run.username)
-            .key('id', run.id)
-            .set('total', games.length)
-            .table(directoryExportTable)
-            .build(),
-    );
-
-    const shouldRerender = Object.values(run.request.options ?? {}).some((v) => v);
-    const fd = openSync(`/tmp/${run.id}.pgn`, 'a');
-    console.log('Fetching %d total games: ', games.length, JSON.stringify(games));
-    for (let i = 0; i < games.length; i += 100) {
-        const batch = games.slice(i, i + 100);
-        console.log('Fetching batch of %d games: ', batch.length, JSON.stringify(batch));
-        const batchInput = new BatchGetItemCommand({
-            RequestItems: {
-                [gameTable]: {
-                    Keys: batch.map((g) => ({ cohort: { S: g.cohort }, id: { S: g.id } })),
-                    ProjectionExpression: 'pgn',
-                },
-            },
-        });
-        const response = await dynamo.send(batchInput);
-        if (!response.Responses?.[gameTable]) {
-            throw new ApiError({ statusCode: 500, publicMessage: 'No responses from game table' });
-        }
-        const pgns: string[] = response.Responses[gameTable].map((g) =>
-            shouldRerender
-                ? new Chess({ pgn: unmarshall(g).pgn }).renderPgn(run.request.options)
-                : unmarshall(g).pgn,
+    try {
+        const games = (run.request.games ?? []).concat(
+            ...(await fetchGameInfoFromDirectories(run.username, run.request)),
         );
-        appendFileSync(fd, pgns.join('\n\n\n') + '\n\n\n');
 
-        const input = new UpdateItemBuilder()
-            .key('username', run.username)
-            .key('id', run.id)
-            .add('progress', batch.length)
-            .table(directoryExportTable)
-            .build();
-        await dynamo.send(input);
+        if (games.length === 0) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Invalid request: no games to export',
+            });
+        }
+
+        await dynamo.send(
+            new UpdateItemBuilder()
+                .key('username', run.username)
+                .key('id', run.id)
+                .set('total', games.length)
+                .table(directoryExportTable)
+                .build(),
+        );
+
+        const shouldRerender = Object.values(run.request.options ?? {}).some((v) => v);
+        const fd = openSync(`/tmp/${run.id}.pgn`, 'a');
+        console.log('Fetching %d total games: ', games.length, JSON.stringify(games));
+        for (let i = 0; i < games.length; i += 100) {
+            const batch = games.slice(i, i + 100);
+            console.log('Fetching batch of %d games: ', batch.length, JSON.stringify(batch));
+            const batchInput = new BatchGetItemCommand({
+                RequestItems: {
+                    [gameTable]: {
+                        Keys: batch.map((g) => ({ cohort: { S: g.cohort }, id: { S: g.id } })),
+                        ProjectionExpression: 'pgn',
+                    },
+                },
+            });
+            const response = await dynamo.send(batchInput);
+            if (!response.Responses?.[gameTable]) {
+                throw new ApiError({
+                    statusCode: 500,
+                    publicMessage: 'No responses from game table',
+                });
+            }
+            const pgns: string[] = response.Responses[gameTable].map((g) =>
+                shouldRerender
+                    ? new Chess({ pgn: unmarshall(g).pgn }).renderPgn(run.request.options)
+                    : unmarshall(g).pgn,
+            );
+            appendFileSync(fd, pgns.join('\n\n\n') + '\n\n\n');
+
+            const input = new UpdateItemBuilder()
+                .key('username', run.username)
+                .key('id', run.id)
+                .add('progress', batch.length)
+                .table(directoryExportTable)
+                .build();
+            await dynamo.send(input);
+        }
+        closeSync(fd);
+
+        const zip = new AdmZip();
+        zip.addLocalFile(`/tmp/${run.id}.pgn`, '', 'dojo-export.pgn');
+
+        const s3Client = new S3Client({ region: 'us-east-1' });
+        const response = await s3Client.send(
+            new PutObjectCommand({
+                Bucket: s3Bucket,
+                Key: `exports/${run.username}/${run.id}.zip`,
+                Body: zip.toBuffer(),
+            }),
+        );
+        console.log('Response from S3: ', response);
+
+        await dynamo.send(
+            new UpdateItemBuilder()
+                .key('username', run.username)
+                .key('id', run.id)
+                .set('status', exportDirectoryRunStatus.enum.COMPLETED)
+                .set('completedAt', new Date().toISOString())
+                .table(directoryExportTable)
+                .build(),
+        );
+    } catch (err) {
+        console.error('Failed directory export: ', err);
+        await dynamo.send(
+            new UpdateItemBuilder()
+                .key('username', run.username)
+                .key('id', run.id)
+                .set('status', exportDirectoryRunStatus.enum.FAILED)
+                .set('completedAt', new Date().toISOString())
+                .table(directoryExportTable)
+                .build(),
+        );
     }
-    closeSync(fd);
-
-    const zip = new AdmZip();
-    zip.addLocalFile(`/tmp/${run.id}.pgn`, '', 'dojo-export.pgn');
-
-    const s3Client = new S3Client({ region: 'us-east-1' });
-    const response = await s3Client.send(
-        new PutObjectCommand({
-            Bucket: s3Bucket,
-            Key: `exports/${run.username}/${run.id}.zip`,
-            Body: zip.toBuffer(),
-        }),
-    );
-    console.log('Response from S3: ', response);
-
-    await dynamo.send(
-        new UpdateItemBuilder()
-            .key('username', run.username)
-            .key('id', run.id)
-            .set('status', exportDirectoryRunStatus.enum.COMPLETED)
-            .set('completedAt', new Date().toISOString())
-            .table(directoryExportTable)
-            .build(),
-    );
 };
 
+/**
+ * Returns a list of cohort and id for each game in the directories provided in the request.
+ * If specified in the request, subdirectories are recursively checked as well.
+ * @param username The username of the user that triggered the directory export run.
+ * @param request The request that triggered the directory export run.
+ * @returns A list of cohort and id for each game in the directories.
+ */
 async function fetchGameInfoFromDirectories(username: string, request: ExportDirectoryRequest) {
     let queue = request.directories ?? [];
     let topLevel = true;
@@ -230,6 +267,11 @@ async function fetchGameInfoFromDirectories(username: string, request: ExportDir
     return games;
 }
 
+/**
+ * Handles requests to check a directory export run.
+ * @param event The API Gateway event that triggered the handler.
+ * @returns The requested directory export run.
+ */
 export const checkExport: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);

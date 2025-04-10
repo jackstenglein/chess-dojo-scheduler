@@ -448,7 +448,7 @@ export const CheckExportDirectorySchema = z.object({
 export type CheckExportDirectoryRequest = z.infer<typeof CheckExportDirectorySchema>;
 
 /** The status of an export directory run. */
-export const exportDirectoryRunStatus = z.enum(['IN_PROGRESS', 'COMPLETED']);
+export const exportDirectoryRunStatus = z.enum(['IN_PROGRESS', 'COMPLETED', 'FAILED']);
 
 /** Verifies an export directory run. */
 export const exportDirectoryRunSchema = z.object({

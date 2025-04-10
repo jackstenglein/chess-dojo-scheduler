@@ -1,8 +1,12 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import { usePgnExportOptions } from '@/hooks/usePgnExportOptions';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
-import { ExportDirectoryRun } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    ExportDirectoryRun,
+    exportDirectoryRunStatus,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     Button,
     Checkbox,
@@ -19,7 +23,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 
-const MAX_RETRIES = 30;
+const MAX_RETRIES = 40;
 
 export function DownloadGamesDialog({
     directories,
@@ -64,7 +68,7 @@ export function DownloadGamesDialog({
                         onSuccess(response.data);
                         if (response.data.downloadUrl) {
                             window.open(response.data.downloadUrl, '_blank');
-                        } else {
+                        } else if (response.data.status !== exportDirectoryRunStatus.enum.FAILED) {
                             setDelay(Math.min(30000, delay * 1.3));
                             setRetries(retries + 1);
                         }
@@ -76,6 +80,8 @@ export function DownloadGamesDialog({
                         setRetries(retries + 1);
                     });
             }, delay);
+        } else if (retries >= MAX_RETRIES) {
+            onFailure('Request timed out');
         }
     }, [api, onFailure, startRequest.data, onSuccess, retries, setRetries, delay, setDelay]);
 
@@ -106,7 +112,7 @@ export function DownloadGamesDialog({
 
     if (startRequest.data) {
         return (
-            <Dialog open onClose={checkRequest.data?.downloadUrl ? onClose : undefined} fullWidth>
+            <Dialog open onClose={checkRequest.data?.completedAt ? onClose : undefined} fullWidth>
                 <DialogTitle>Download PGN?</DialogTitle>
                 {checkRequest.data?.downloadUrl ? (
                     <>
@@ -124,7 +130,7 @@ export function DownloadGamesDialog({
                             <Button onClick={onClose}>Close</Button>
                         </DialogActions>
                     </>
-                ) : (
+                ) : checkRequest.data?.status !== exportDirectoryRunStatus.enum.FAILED ? (
                     <DialogContent>
                         <DialogContentText sx={{ mb: 1 }}>
                             Exporting PGN. For a large number of games, this may take a few
@@ -143,6 +149,21 @@ export function DownloadGamesDialog({
                             </Stack>
                         )}
                     </DialogContent>
+                ) : (
+                    <>
+                        <DialogContent>
+                            <DialogContentText>
+                                Failed to export games. Please reach out to the support team for
+                                help.
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button href='/help' component={Link}>
+                                Help
+                            </Button>
+                            <Button onClick={onClose}>Close</Button>
+                        </DialogActions>
+                    </>
                 )}
                 <RequestSnackbar request={checkRequest} />
             </Dialog>
