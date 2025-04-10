@@ -51,6 +51,15 @@ export function DownloadGamesDialog({
                 directories,
                 games: games.map((g) => ({ cohort: g.cohort, id: g.id })),
                 recursive,
+                options: {
+                    skipComments,
+                    skipNags,
+                    skipDrawables,
+                    skipVariations,
+                    skipNullMoves,
+                    skipHeader,
+                    skipClocks,
+                },
             });
             console.log('exportDirectory: ', response);
         } catch (err) {

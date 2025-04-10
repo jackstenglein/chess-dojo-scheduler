@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { PdfExportSchema } from '../pgn/export';
 
 const gameMetadataSchema = z.object({
     /** The cohort of the game. */
@@ -415,6 +416,20 @@ export const ExportDirectorySchema = z
             .optional(),
         /** Whether to recursively export subdirectories of the given directories. */
         recursive: z.boolean().optional(),
+        /** Options when exporting the PGNs. */
+        options: PdfExportSchema.pick({
+            skipHeader: true,
+            skipComments: true,
+            skipNags: true,
+            skipDrawables: true,
+            skipVariations: true,
+            skipNullMoves: true,
+        })
+            .extend({
+                /** Whether to skip clock tags. */
+                skipClocks: z.boolean().optional(),
+            })
+            .optional(),
     })
     .refine((val) => val.games?.length || val.directories?.length, {
         message: 'At least one game or directory is required',

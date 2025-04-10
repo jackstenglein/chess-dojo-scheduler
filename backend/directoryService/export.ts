@@ -104,6 +104,7 @@ export const runExport = async (e: object) => {
             .build(),
     );
 
+    const shouldRerender = Object.values(event.request.options ?? {}).some((v) => v);
     const fd = openSync(`/tmp/${event.id}.pgn`, 'a');
     console.log('Fetching %d total games: ', games.length, JSON.stringify(games));
     for (let i = 0; i < games.length; i += 100) {
@@ -122,7 +123,9 @@ export const runExport = async (e: object) => {
             throw new ApiError({ statusCode: 500, publicMessage: 'No responses from game table' });
         }
         const pgns: string[] = response.Responses[gameTable].map((g) =>
-            new Chess({ pgn: unmarshall(g).pgn }).renderPgn(),
+            shouldRerender
+                ? new Chess({ pgn: unmarshall(g).pgn }).renderPgn(event.request.options)
+                : unmarshall(g).pgn,
         );
         appendFileSync(fd, pgns.join('\n\n\n') + '\n\n\n');
 
