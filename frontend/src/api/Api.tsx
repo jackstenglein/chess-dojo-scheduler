@@ -4,6 +4,7 @@ import { DiscordAuthRequest } from '@jackstenglein/chess-dojo-common/src/auth/di
 import {
     AddDirectoryItemsRequestV2,
     CreateDirectoryRequestV2Client,
+    ExportDirectoryRequest,
     ListBreadcrumbsRequest,
     MoveDirectoryItemsRequestV2,
     RemoveDirectoryItemsRequestV2,
@@ -57,8 +58,10 @@ import {
 import {
     DirectoryApiContextType,
     addDirectoryItems,
+    checkDirectoryExport,
     createDirectory,
     deleteDirectories,
+    exportDirectory,
     getDirectory,
     listBreadcrumbs,
     moveDirectoryItems,
@@ -463,6 +466,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 removeDirectoryItem(idToken, request),
             moveDirectoryItems: (request: MoveDirectoryItemsRequestV2) =>
                 moveDirectoryItems(idToken, request),
+            exportDirectory: (request: ExportDirectoryRequest) => exportDirectory(idToken, request),
+            checkDirectoryExport: (id: string) => checkDirectoryExport(idToken, id),
 
             registerForRoundRobin: (request: RoundRobinRegisterRequest) =>
                 registerForRoundRobin(idToken, request),

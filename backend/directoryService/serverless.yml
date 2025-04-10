@@ -205,6 +205,74 @@ functions:
           - dynamodb:PartiQLUpdate
         Resource: ${param:GamesTableArn}
 
+  startExport:
+    handler: export.startExport
+    events:
+      - httpApi:
+          path: /directory/export
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt DirectoryExportTable.Arn
+      - Effect: Allow
+        Action:
+          - lambda:InvokeFunction
+        Resource: !GetAtt RunExportLambdaFunction.Arn
+
+  runExport:
+    timeout: 900
+    handler: export.runExport
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoryExportTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:GameDatabaseBucket}
+            - /exports/*/*.zip
+
+  checkExport:
+    handler: export.checkExport
+    events:
+      - httpApi:
+          path: /directory/export/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoryExportTable.Arn
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:GameDatabaseBucket}
+            - /exports/*/*.zip
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -233,6 +301,25 @@ resources:
             KeyType: RANGE
         StreamSpecification:
           StreamViewType: OLD_IMAGE
+
+    DirectoryExportTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-directory-exports
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
 
   Outputs:
     DirectoriesTableArn:
