@@ -179,6 +179,7 @@ services:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      GameDatabaseBucket: ${chess-dojo-scheduler.GameDatabaseBucket}
 
   pgnExportGifService:
     path: pgnExport/gif

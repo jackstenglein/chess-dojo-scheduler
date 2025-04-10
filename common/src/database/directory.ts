@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { PdfExportSchema } from '../pgn/export';
 
 const gameMetadataSchema = z.object({
     /** The cohort of the game. */
@@ -192,11 +193,7 @@ export const DirectorySchema = z.object({
      *   - The home directory is `home`.
      *   - The shared with me directory is `shared`.
      */
-    id: z.union([
-        z.string().uuid(),
-        z.literal(HOME_DIRECTORY_ID),
-        z.literal(SHARED_DIRECTORY_ID),
-    ]),
+    id: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID), z.literal(SHARED_DIRECTORY_ID)]),
 
     /** The id of the parent directory. Top-level directories use uuid.NIL. */
     parent: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID)]),
@@ -253,19 +250,15 @@ const CreateDirectorySchemaV2Client = DirectorySchema.pick({
 /**
  * Verifies a request to create a directory.
  */
-export const CreateDirectorySchemaV2 = CreateDirectorySchemaV2Client.transform(
-    (value) => {
-        return { ...value, id: uuidv4() };
-    },
-);
+export const CreateDirectorySchemaV2 = CreateDirectorySchemaV2Client.transform((value) => {
+    return { ...value, id: uuidv4() };
+});
 
 /** A request to create a directory, as seen by the server. */
 export type CreateDirectoryRequestV2 = z.infer<typeof CreateDirectorySchemaV2>;
 
 /** A request to create a directory, as seen by the client. */
-export type CreateDirectoryRequestV2Client = z.infer<
-    typeof CreateDirectorySchemaV2Client
->;
+export type CreateDirectoryRequestV2Client = z.infer<typeof CreateDirectorySchemaV2Client>;
 
 /** Verifies a request to update a directory. */
 export const UpdateDirectorySchemaV2 = DirectorySchema.pick({
@@ -364,12 +357,9 @@ export const MoveDirectoryItemsSchemaV2 = z
         /** The ids of the items to move. */
         items: z.string().array(),
     })
-    .refine(
-        (val) => val.source.owner !== val.target.owner || val.source.id !== val.target.id,
-        {
-            message: 'source/target directories must be different',
-        },
-    );
+    .refine((val) => val.source.owner !== val.target.owner || val.source.id !== val.target.id, {
+        message: 'source/target directories must be different',
+    });
 
 /** A request to move items between directories. */
 export type MoveDirectoryItemsRequestV2 = z.infer<typeof MoveDirectoryItemsSchemaV2>;
@@ -402,6 +392,91 @@ export const ListBreadcrumbsSchema = DirectorySchema.pick({
 /** A request to list the breadcrumbs of a directory. */
 export type ListBreadcrumbsRequest = z.infer<typeof ListBreadcrumbsSchema>;
 
+/** Verifies the type of a request to export a directory. */
+export const ExportDirectorySchema = z
+    .object({
+        /** Individual games to export. */
+        games: z
+            .object({
+                /** The cohort the game is in. */
+                cohort: z.string(),
+                /** The id the game is in. */
+                id: z.string(),
+            })
+            .array()
+            .optional(),
+        /** Directories to export. */
+        directories: DirectorySchema.pick({
+            /** The owner of the directory. */
+            owner: true,
+            /** The id of the directory. */
+            id: true,
+        })
+            .array()
+            .optional(),
+        /** Whether to recursively export subdirectories of the given directories. */
+        recursive: z.boolean().optional(),
+        /** Options when exporting the PGNs. */
+        options: PdfExportSchema.pick({
+            skipHeader: true,
+            skipComments: true,
+            skipNags: true,
+            skipDrawables: true,
+            skipVariations: true,
+            skipNullMoves: true,
+        })
+            .extend({
+                /** Whether to skip clock tags. */
+                skipClocks: z.boolean().optional(),
+            })
+            .optional(),
+    })
+    .refine((val) => val.games?.length || val.directories?.length, {
+        message: 'At least one game or directory is required',
+    });
+
+/** A request to export a directory. */
+export type ExportDirectoryRequest = z.infer<typeof ExportDirectorySchema>;
+
+/** Verifies the type of a request to check a directory export. */
+export const CheckExportDirectorySchema = z.object({
+    /** The id of the directory export run to check. */
+    id: z.string(),
+});
+
+/** A request to check the status of a directory export run. */
+export type CheckExportDirectoryRequest = z.infer<typeof CheckExportDirectorySchema>;
+
+/** The status of an export directory run. */
+export const exportDirectoryRunStatus = z.enum(['IN_PROGRESS', 'COMPLETED', 'FAILED']);
+
+/** Verifies an export directory run. */
+export const exportDirectoryRunSchema = z.object({
+    /** The username of the user who started the run. */
+    username: z.string(),
+    /** The id of the run. */
+    id: z.string(),
+    /** The status of the run. */
+    status: exportDirectoryRunStatus,
+    /** The number of games exported so far. */
+    progress: z.number(),
+    /** The total number of games to export. */
+    total: z.number(),
+    /** The request that initiated the run. */
+    request: ExportDirectorySchema,
+    /** When the run started, in ISO 8601. */
+    startedAt: z.string(),
+    /** When the run completed, in ISO 8601. */
+    completedAt: z.string().optional(),
+    /** A presigned S3 URL to download the final zip. */
+    downloadUrl: z.string().optional(),
+    /** The DynamoDB time to live for the run. */
+    ttl: z.number(),
+});
+
+/** A run to export a directory. */
+export type ExportDirectoryRun = z.infer<typeof exportDirectoryRunSchema>;
+
 /**
  * Returns true if currRole has permissions greater than or equal to minRole.
  * @param minRole The minimum required role.
@@ -421,10 +496,7 @@ export function compareRoles(
                 currRole === DirectoryAccessRole.Owner
             );
         case DirectoryAccessRole.Admin:
-            return (
-                currRole === DirectoryAccessRole.Admin ||
-                currRole === DirectoryAccessRole.Owner
-            );
+            return currRole === DirectoryAccessRole.Admin || currRole === DirectoryAccessRole.Owner;
 
         case DirectoryAccessRole.Owner:
             return currRole === DirectoryAccessRole.Owner;
