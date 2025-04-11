@@ -1,4 +1,5 @@
 import { useApi } from '@/api/Api';
+import { useAuth } from '@/auth/Auth';
 import { ScoreboardDisplay, formatTime } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
@@ -26,6 +27,9 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
     onChangeActivity,
 }) => {
     const api = useApi();
+    const { user } = useAuth();
+
+    const isCurrentUser = entry.owner === user?.username;
 
     return (
         <Card variant='outlined'>
@@ -35,7 +39,7 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
                     <NewsfeedItemBody entry={entry} />
 
                     <Stack direction='row' gap={1} mt={1} flexWrap='wrap'>
-                        {onChangeActivity && (
+                        {isCurrentUser && onChangeActivity && (
                             <Tooltip title='Edit Activity'>
                                 <IconButton color='primary' onClick={() => onChangeActivity(entry)}>
                                     <Edit />

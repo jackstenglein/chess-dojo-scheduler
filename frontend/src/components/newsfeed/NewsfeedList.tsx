@@ -115,7 +115,6 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
     const [filters, setFilters] = useState<string[]>([AllCategoriesFilterName]);
     const [data, setData] = useState<ListNewsfeedResponse>();
     const [lastStartKey, setLastStartKey] = useState<Record<string, string>>({});
-
     const handleResponse = useCallback(
         (resp: ListNewsfeedResponse) => {
             setLastStartKey(data?.lastKeys || {});
