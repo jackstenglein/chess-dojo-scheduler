@@ -25,7 +25,6 @@ const NewsfeedItem: React.FC<NewsfeedItemProps> = ({
     onEdit,
     maxComments,
     onChangeActivity,
-
 }) => {
     const api = useApi();
     const { user } = useAuth();
