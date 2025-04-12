@@ -16,7 +16,7 @@ import { TimeFormat, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Scheduler } from '@aldabil/react-scheduler';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
 import { CalendarMonth, FormatListBulleted } from '@mui/icons-material';
 import {
     Box,
@@ -28,7 +28,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { EditTimelinEntryDialog } from './EditTimelineEntryDialog';
 import { UseTimelineResponse } from './useTimeline';
 
@@ -236,40 +236,27 @@ const ActivityTimelineCalendar = ({
 }) => {
     const filters = useFilters();
     const { entries, hasMore, onLoadMore, onEdit } = timeline;
+    const calendarRef = useRef<SchedulerRef>(null);
 
-    const events: ProcessedEvent[] = useMemo(() => {
-        const events: ProcessedEvent[] = entries.map((entry) => {
-            const date = new Date(entry.date || entry.createdAt);
-            const category =
-                entry.requirementId === TimelineSpecialRequirementId.GameSubmission
-                    ? RequirementCategory.Games
-                    : entry.requirementCategory;
+    const initialEvents: ProcessedEvent[] = useMemo(() => {
+        const minDate = calendarRef.current?.scheduler.selectedDate
+            ? new Date(calendarRef.current?.scheduler.selectedDate)
+            : new Date();
+        minDate.setDate(-7);
+        minDate.setHours(0, 0, 0, 0);
 
-            return {
-                event_id: entry.id,
-                title: getName(entry),
-                start: date,
-                end: date,
-                allDay: true,
-                color: CategoryColors[category],
-                entry,
-            };
-        });
+        const maxDate = calendarRef.current?.scheduler.selectedDate
+            ? new Date(calendarRef.current?.scheduler.selectedDate)
+            : undefined;
+        maxDate?.setDate(39);
+        maxDate?.setHours(0, 0, 0, 0);
 
-        if (user.createdAt) {
-            events.push({
-                event_id: 'createdAt',
-                title: 'Joined the Dojo',
-                start: new Date(user.createdAt),
-                end: new Date(user.createdAt),
-                allDay: true,
-                color: CategoryColors[RequirementCategory.Welcome],
-                user,
-            });
-        }
+        return getProcessedEvents(user, entries, minDate.toISOString(), maxDate?.toISOString());
+    }, [entries, user, calendarRef]);
 
-        return events;
-    }, [entries, user]);
+    useEffect(() => {
+        calendarRef.current?.scheduler.handleState(initialEvents, 'events');
+    }, [initialEvents, calendarRef]);
 
     const onSelectedDateChange = (date: Date) => {
         if (
@@ -277,9 +264,24 @@ const ActivityTimelineCalendar = ({
             date.toISOString() < entries[entries.length - 1].createdAt &&
             hasMore
         ) {
-            console.log('Loading more');
             onLoadMore();
         }
+
+        const minDate = new Date(date);
+        minDate.setDate(-7);
+        minDate.setHours(0, 0, 0, 0);
+
+        const maxDate = new Date(date);
+        maxDate.setDate(39);
+        maxDate.setHours(0, 0, 0, 0);
+
+        const events = getProcessedEvents(
+            user,
+            entries,
+            minDate.toISOString(),
+            maxDate.toISOString(),
+        );
+        calendarRef.current?.scheduler.handleState(events, 'events');
     };
 
     return (
@@ -296,7 +298,8 @@ const ActivityTimelineCalendar = ({
             }}
         >
             <Scheduler
-                events={events}
+                ref={calendarRef}
+                events={initialEvents}
                 view='month'
                 agenda={false}
                 month={{
@@ -304,6 +307,7 @@ const ActivityTimelineCalendar = ({
                     weekStartOn: filters.weekStartOn,
                     startHour: 0,
                     endHour: 24,
+                    navigation: true,
                 }}
                 week={{
                     weekDays: [0, 1, 2, 3, 4, 5, 6],
@@ -311,11 +315,13 @@ const ActivityTimelineCalendar = ({
                     startHour: 0,
                     endHour: 0,
                     step: 0,
+                    navigation: true,
                 }}
                 day={{
                     startHour: 0,
                     endHour: 0,
                     step: 0,
+                    navigation: true,
                 }}
                 hourFormat={filters.timeFormat || TimeFormat.TwelveHour}
                 timeZone={filters.timezone === DefaultTimezone ? undefined : filters.timezone}
@@ -354,6 +360,71 @@ function getName(entry: TimelineEntry): string {
     }
 
     return entry.requirementName;
+}
+
+function getProcessedEvents(
+    user: User,
+    entries: TimelineEntry[],
+    minDate: string,
+    maxDate?: string,
+): ProcessedEvent[] {
+    const events: ProcessedEvent[] = [];
+
+    let i = maxDate ? binarySearch(entries, maxDate) : 0;
+    for (; i < entries.length; i++) {
+        const entry = entries[i];
+        if ((entry.date || entry.createdAt) < minDate) {
+            break;
+        }
+
+        const date = new Date(entry.date || entry.createdAt);
+        const category =
+            entry.requirementId === TimelineSpecialRequirementId.GameSubmission
+                ? RequirementCategory.Games
+                : entry.requirementCategory;
+
+        events.push({
+            event_id: entry.id,
+            title: getName(entry),
+            start: date,
+            end: date,
+            allDay: true,
+            color: CategoryColors[category],
+            entry,
+        });
+    }
+
+    if (user.createdAt >= minDate) {
+        events.push({
+            event_id: 'createdAt',
+            title: 'Joined the Dojo',
+            start: new Date(user.createdAt),
+            end: new Date(user.createdAt),
+            allDay: true,
+            color: CategoryColors[RequirementCategory.Welcome],
+            user,
+        });
+    }
+
+    return events;
+}
+
+/** Uses binary search to find the index of the first timeline entry with a date less than maxDate. */
+function binarySearch(arr: TimelineEntry[], maxDate: string): number {
+    let low = 0;
+    let high = arr.length - 1;
+
+    while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+
+        if ((arr[mid].date || arr[mid].createdAt) <= maxDate) {
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+
+    return high + 1;
 }
 
 export default ActivityTimeline;
