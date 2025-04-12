@@ -7,6 +7,7 @@ import {
 } from '@/api/external/onlineGame';
 import {
     isChesscomAnalysisURL,
+    isChesscomEventsUrl,
     isChesscomGameURL,
     isLichessChapterURL,
     isLichessGameURL,
@@ -15,6 +16,7 @@ import {
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import {
     getChesscomAnalysis,
+    getChesscomEvent,
     getChesscomGame,
     getLichessChapter,
     getLichessGame,
@@ -220,6 +222,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
             [GameImportTypes.lichessGame, isLichessGameURL, getLichessGame],
             [GameImportTypes.chesscomGame, isChesscomGameURL, getChesscomGame],
             [GameImportTypes.chesscomAnalysis, isChesscomAnalysisURL, getChesscomAnalysis],
+            [GameImportTypes.chesscomGame, isChesscomEventsUrl, getChesscomEvent],
         ];
 
         // Import
