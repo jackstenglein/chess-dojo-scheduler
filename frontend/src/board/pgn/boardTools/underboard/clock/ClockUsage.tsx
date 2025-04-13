@@ -1,22 +1,61 @@
 import { useReconcile } from '@/board/Board';
+import { getStandardNag } from '@/board/pgn/Nag';
 import { useChess } from '@/board/pgn/PgnBoard';
 import { useLightMode } from '@/style/useLightMode';
 import { Chess, Event, EventType, Move } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Edit } from '@mui/icons-material';
-import { Box, CardContent, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { pink } from '@mui/material/colors';
+import {
+    Box,
+    CardContent,
+    Checkbox,
+    FormControlLabel,
+    IconButton,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import { orange, pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
-import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
+import { AxisOptions, Chart, Datum as ChartDatum, Series, UserSerie } from 'react-charts';
+import { useLocalStorage } from 'usehooks-ts';
 import { TimeControlEditor } from '../tags/TimeControlEditor';
 import ClockEditor from './ClockEditor';
 import { TimeControlDescription } from './TimeControlDescription';
 
+const showEvalInClockGraph = {
+    key: 'showEvalInClockGraph',
+    default: true,
+} as const;
+
+const nagEvals: Record<string, number> = {
+    $10: 0, // equal
+    $13: 0, // unclear
+    $14: 1, // white is slightly better
+    $15: -1, // black is slightly better
+    $16: 2, // white is better
+    $17: -2, // black is better
+    $18: 3, // white is winning
+    $19: -3, // black is winning
+};
+
+function getEvalValue(nags?: string[]): number | undefined {
+    for (const nag of nags ?? []) {
+        const n = getStandardNag(nag);
+        if (nagEvals[n]) {
+            return nagEvals[n];
+        }
+    }
+    return undefined;
+}
+
 interface Datum {
+    secondaryAxisId?: string;
     label?: string;
     moveNumber: number;
     seconds: number;
     move: Move | null;
+    eval?: number;
 }
 
 const primaryAxis: AxisOptions<Datum> = {
@@ -34,6 +73,36 @@ const secondaryAxes: AxisOptions<Datum>[] = [
         min: 0,
         formatters: {
             scale: formatTime,
+        },
+    },
+    {
+        id: 'eval',
+        getValue: (datum) => datum.eval,
+        scaleType: 'linear',
+        elementType: 'line',
+        min: -3,
+        max: 3,
+        formatters: {
+            scale: (value: number) => {
+                switch (value) {
+                    case -3:
+                        return '−+';
+                    case -2:
+                        return '∓';
+                    case -1:
+                        return '⩱';
+                    case 0:
+                        return '= / ∞';
+                    case 1:
+                        return '⩲';
+                    case 2:
+                        return '±';
+                    case 3:
+                        return '+−';
+                    default:
+                        return `${value}`;
+                }
+            },
         },
     },
 ];
@@ -146,6 +215,13 @@ function getSeriesStyle(series: Series<Datum>, light: boolean) {
         return { fill: 'white', stroke: 'white' };
     }
 
+    if (series.label === 'Eval') {
+        if (light) {
+            return { fill: orange[300], stroke: orange[300] };
+        }
+        return { fill: pink[200], stroke: pink[200] };
+    }
+
     if (light) {
         return { fill: '#212121', stroke: '#212121' };
     }
@@ -176,6 +252,10 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     const [forceRender, setForceRender] = useState(0);
     const reconcile = useReconcile();
     const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
+    const [showEval, setShowEval] = useLocalStorage<boolean>(
+        showEvalInClockGraph.key,
+        showEvalInClockGraph.default,
+    );
 
     const timeControls = chess?.header().tags.TimeControl?.items;
 
@@ -230,6 +310,15 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             },
         ];
 
+        const evalData: Datum[] = [
+            {
+                moveNumber: 0,
+                move: null,
+                eval: 0,
+                seconds: 0,
+            },
+        ];
+
         const whiteTimePerMove: Datum[] = [];
         const blackTimePerMove: Datum[] = [];
 
@@ -270,6 +359,17 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                         ? secondTime
                         : blackClockDisplay[blackClockDisplay.length - 1].seconds,
                 move: moves[i + 1] ? moves[i + 1] : moves[i],
+            });
+
+            evalData.push({
+                moveNumber: i / 2 + 1,
+                move: moves[i + 1] ?? moves[i],
+                eval:
+                    getEvalValue(moves[i + 1]?.nags) ??
+                    getEvalValue(moves[i]?.nags) ??
+                    evalData.at(-1)?.eval ??
+                    0,
+                seconds: 0,
             });
 
             whiteTimePerMove.push({
@@ -331,16 +431,26 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     ],
                 },
             ],
-            remainingPerMove: [
-                { label: 'White', data: whiteClockDisplay },
-                { label: 'Black', data: blackClockDisplay },
-            ],
+            remainingPerMove: (
+                [
+                    { label: 'White', data: whiteClockDisplay },
+                    { label: 'Black', data: blackClockDisplay },
+                ] as UserSerie<Datum>[]
+            ).concat(
+                showEval
+                    ? {
+                          label: 'Eval',
+                          data: evalData,
+                          secondaryAxisId: 'eval',
+                      }
+                    : [],
+            ),
             usedPerMove: [
                 { label: 'White', data: whiteTimePerMove.reverse() },
                 { label: 'Black', data: blackTimePerMove.reverse() },
             ],
         };
-    }, [chess, timeControls, forceRender]);
+    }, [chess, timeControls, forceRender, showEval]);
 
     if (!chess) {
         return null;
@@ -413,6 +523,23 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                             }}
                         />
                     </Box>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={showEval}
+                                onChange={(e) => setShowEval(e.target.checked)}
+                                sx={{ '& .MuiSvgIcon-root': { fontSize: 16 } }}
+                            />
+                        }
+                        label='Overlay evaluation'
+                        sx={{ alignSelf: 'start' }}
+                        slotProps={{
+                            typography: {
+                                color: 'text.secondary',
+                                fontSize: '14px',
+                            },
+                        }}
+                    />
                 </Stack>
 
                 <Stack spacing={0.5} alignItems='center'>

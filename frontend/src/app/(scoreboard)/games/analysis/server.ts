@@ -7,6 +7,7 @@ import { Browser, BrowserErrorCaptureEnum } from 'happy-dom';
 import moment from 'moment';
 
 const chesscomGameRegex = new RegExp('/game/(live|daily)/(\\d+)');
+const chesscomEventRegex = new RegExp('/events/(.*)');
 
 export interface PgnImportError {
     statusCode: number;
@@ -24,6 +25,30 @@ interface GetChesscomByIdResponse {
         moveList?: string;
         pgnHeaders?: Record<string, string | number>;
     };
+}
+
+interface ChesscomEventResponse {
+    game?: {
+        result?: '0-1' | '1-0' | '1/2-1/2';
+        white?: {
+            preferredName?: string;
+            elo?: number;
+            fideId?: number;
+        };
+        black?: {
+            preferredName?: string;
+            elo?: number;
+            fideId?: number;
+        };
+    };
+    moves?: [
+        {
+            /** The move in the format LAN_SAN. */
+            cbn?: string;
+            /** The number of milliseconds left on the clock after the move is played. */
+            clock?: number;
+        },
+    ];
 }
 
 /**
@@ -365,4 +390,77 @@ export async function getChesscomGame(gameURL?: string): Promise<PgnImportResult
     }
 
     return { data: game.pgn.render() };
+}
+
+/**
+ * Extracts the PGN from a Chess.com events URL.
+ * @param url The URL to extract the PGN from.
+ * @returns The PGN of the game.
+ */
+export async function getChesscomEvent(url?: string): Promise<PgnImportResult<string>> {
+    const [, path] = (url ?? '').match(chesscomEventRegex) ?? [];
+
+    if (!path) {
+        return {
+            error: {
+                statusCode: 400,
+                publicMessage: 'Not a valid chess.com event URL.',
+            },
+        };
+    }
+
+    const resp = await axios.post<ChesscomEventResponse>(
+        `https://www.chess.com/events/v1/api/game/${path}`,
+    );
+
+    const game = resp.data.game;
+    const moves = resp.data.moves;
+    if (!game?.white || !game.black || !moves) {
+        return {
+            error: {
+                statusCode: 500,
+                publicMessage: 'Chess.com API changed',
+            },
+        };
+    }
+
+    const chess = new Chess();
+    for (const move of moves) {
+        const san = move.cbn?.split('_')?.[1];
+        if (!san) {
+            return {
+                error: {
+                    statusCode: 500,
+                    publicMessage: 'Chess.com API changed',
+                },
+            };
+        }
+
+        chess.move(san);
+        if (move.clock) {
+            const clk = msToClk(move.clock);
+            chess.setCommand('clk', clk);
+        }
+    }
+
+    if (game.result) {
+        chess.setHeader('Result', game.result);
+    }
+
+    for (const [color, obj] of [
+        ['White', game.white],
+        ['Black', game.black],
+    ] as const) {
+        if (obj.preferredName) {
+            chess.setHeader(color, obj.preferredName);
+        }
+        if (obj.elo) {
+            chess.setHeader(`${color}Elo`, `${obj.elo}`);
+        }
+        if (obj.fideId) {
+            chess.setHeader(`${color}FideId`, `${obj.fideId}`);
+        }
+    }
+
+    return { data: chess.renderPgn() };
 }
