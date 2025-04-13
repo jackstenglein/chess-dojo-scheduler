@@ -18,7 +18,7 @@ import {
     CardMedia,
     Container,
     Divider,
-    Grid2,
+    Grid,
     Tooltip,
     Typography,
 } from '@mui/material';
@@ -102,9 +102,9 @@ export function ListFollowedPositionsPage() {
 
             {!request.data?.positions.length && <Typography>No subscriptions</Typography>}
 
-            <Grid2 container spacing={2}>
+            <Grid container spacing={2}>
                 {request.data?.positions.map((position) => (
-                    <Grid2 key={position.normalizedFen} size={{ xs: 12, sm: 4 }}>
+                    <Grid key={position.normalizedFen} size={{ xs: 12, sm: 4 }}>
                         <Card variant='outlined'>
                             <CardMedia>
                                 <Box sx={{ aspectRatio: '1 / 1' }}>
@@ -162,9 +162,9 @@ export function ListFollowedPositionsPage() {
                                 </Tooltip>
                             </CardActions>
                         </Card>
-                    </Grid2>
+                    </Grid>
                 ))}
-            </Grid2>
+            </Grid>
 
             {editPosition && (
                 <FollowDialog

@@ -1,3 +1,7 @@
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { RatingSystem, User, getRatingUsername, hideRatingUsername } from '@/database/user';
+import { LoadingButton } from '@mui/lab';
 import {
     Button,
     Checkbox,
@@ -8,11 +12,6 @@ import {
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-
-import { LoadingButton } from '@mui/lab';
-import { useApi } from '../../api/Api';
-import { RequestSnackbar, useRequest } from '../../api/Request';
-import { RatingSystem, User, getRatingUsername, hideRatingUsername } from '../../database/user';
 import { getHelperText, getUsernameLabel, getUsernameType } from './PreferredRatingSystemForm';
 import { ProfileCreatorFormProps } from './ProfileCreatorPage';
 
@@ -109,7 +108,7 @@ const ExtraRatingSystemsForm: React.FC<ProfileCreatorFormProps> = ({
                     }
                     return (
                         <React.Fragment key={rs}>
-                            <Grid item xs={12} sm={6} mb={4}>
+                            <Grid size={{ xs: 12, sm: 6 }} mb={4}>
                                 <TextField
                                     label={getUsernameLabel(rs)}
                                     value={usernames[rs]}
@@ -119,7 +118,7 @@ const ExtraRatingSystemsForm: React.FC<ProfileCreatorFormProps> = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6} mb={4}>
+                            <Grid size={{ xs: 12, sm: 6 }} mb={4}>
                                 <FormControlLabel
                                     control={
                                         <Checkbox

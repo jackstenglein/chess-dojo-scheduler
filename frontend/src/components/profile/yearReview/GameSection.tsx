@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/Auth';
-import { Box, Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { Chart } from 'react-charts';
 import { months, primaryAxis, secondaryAxes } from './DojoPointSection';
@@ -103,8 +103,8 @@ const GameSection = ({ review }: SectionProps) => {
             </Typography>
             <Card variant='outlined' sx={{ width: 1, mt: 4 }}>
                 <CardContent>
-                    <Grid2 container alignItems='center' rowSpacing={2}>
-                        <Grid2
+                    <Grid container alignItems='center' rowSpacing={2}>
+                        <Grid
                             display='flex'
                             justifyContent='center'
                             size={{
@@ -127,7 +127,7 @@ const GameSection = ({ review }: SectionProps) => {
                                     {data.total.value}
                                 </Typography>
                             </Stack>
-                        </Grid2>
+                        </Grid>
 
                         <Percentiles
                             description='total games'
@@ -136,7 +136,7 @@ const GameSection = ({ review }: SectionProps) => {
                             cohortPercentile={data.total.cohortPercentile}
                         />
 
-                        <Grid2
+                        <Grid
                             display='flex'
                             justifyContent='center'
                             size={{
@@ -159,7 +159,7 @@ const GameSection = ({ review }: SectionProps) => {
                                     {data.published.value}
                                 </Typography>
                             </Stack>
-                        </Grid2>
+                        </Grid>
 
                         <Percentiles
                             description='published games'
@@ -167,7 +167,7 @@ const GameSection = ({ review }: SectionProps) => {
                             percentile={data.published.percentile}
                             cohortPercentile={data.published.cohortPercentile}
                         />
-                    </Grid2>
+                    </Grid>
 
                     <Stack mt={4} spacing={4}>
                         <Stack alignItems='start' spacing={0.5}>

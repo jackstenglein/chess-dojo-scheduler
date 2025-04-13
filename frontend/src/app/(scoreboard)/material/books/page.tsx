@@ -9,7 +9,7 @@ import {
     CardContent,
     CardHeader,
     Container,
-    Grid2,
+    Grid,
     Link,
     Stack,
     Typography,
@@ -115,9 +115,9 @@ export default function BooksPage() {
                     error={cohorts.length === 0}
                 />
 
-                <Grid2 container rowGap={2} columnSpacing={2}>
+                <Grid container rowGap={2} columnSpacing={2}>
                     {(cohorts[0] === ALL_COHORTS ? dojoCohorts : cohorts).map((cohort) => (
-                        <Grid2
+                        <Grid
                             key={cohort}
                             size={{
                                 xs: 12,
@@ -154,9 +154,9 @@ export default function BooksPage() {
                                     </Stack>
                                 </CardContent>
                             </Card>
-                        </Grid2>
+                        </Grid>
                     ))}
-                </Grid2>
+                </Grid>
             </Stack>
         </Container>
     );

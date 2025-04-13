@@ -1,5 +1,5 @@
 import { Help } from '@mui/icons-material';
-import { Grid2, Stack, Tooltip, Typography } from '@mui/material';
+import { Grid, Stack, Tooltip, Typography } from '@mui/material';
 
 interface PercentilesProps {
     cohort: string;
@@ -16,7 +16,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
 }) => {
     return (
         <>
-            <Grid2
+            <Grid
                 display='flex'
                 justifyContent='center'
                 size={{
@@ -51,8 +51,8 @@ const Percentiles: React.FC<PercentilesProps> = ({
                         {Math.round(10 * percentile) / 10}%
                     </Typography>
                 </Stack>
-            </Grid2>
-            <Grid2
+            </Grid>
+            <Grid
                 display='flex'
                 justifyContent='center'
                 size={{
@@ -87,7 +87,7 @@ const Percentiles: React.FC<PercentilesProps> = ({
                         {Math.round(10 * cohortPercentile) / 10}%
                     </Typography>
                 </Stack>
-            </Grid2>
+            </Grid>
         </>
     );
 };

@@ -30,7 +30,7 @@ export default function Slider({ min, max, label, value, setValue, valueLabel }:
                 valueLabelDisplay='auto'
                 valueLabelFormat={valueLabel}
                 value={value}
-                onChange={(_, value) => setValue(value as number)}
+                onChange={(_, value) => setValue(value)}
                 aria-labelledby={`input-${label}`}
                 sx={{ flexGrow: 1, mr: 2.5 }}
             />

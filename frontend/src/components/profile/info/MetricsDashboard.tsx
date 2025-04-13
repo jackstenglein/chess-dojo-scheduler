@@ -8,7 +8,7 @@ import {
 } from '@/database/user';
 import { calculateTacticsRating } from '@/exams/view/exam';
 import { Help } from '@mui/icons-material';
-import { Card, CardContent, Grid2, Stack, SxProps, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, Grid, Stack, SxProps, Tooltip, Typography } from '@mui/material';
 
 interface MetricsDashboardProps {
     user: User;
@@ -25,8 +25,8 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
                     Metrics
                 </Typography>
 
-                <Grid2 container justifyContent='center' rowGap={1} columnGap={1}>
-                    <Grid2
+                <Grid container justifyContent='center' rowGap={1} columnGap={1}>
+                    <Grid
                         display='flex'
                         justifyContent='center'
                         size={{
@@ -47,7 +47,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
                                 ) / 10}
                             </Typography>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
                     {Object.values(RatingSystem).map((rs) => {
                         const currentRating = getSystemCurrentRating(user, rs);
@@ -57,7 +57,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
                         }
 
                         return (
-                            <Grid2
+                            <Grid
                                 key={rs}
                                 display='flex'
                                 justifyContent='center'
@@ -74,10 +74,10 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ user, sx }) => {
                                         {currentRating}
                                     </Typography>
                                 </Stack>
-                            </Grid2>
+                            </Grid>
                         );
                     })}
-                </Grid2>
+                </Grid>
             </CardContent>
         </Card>
     );

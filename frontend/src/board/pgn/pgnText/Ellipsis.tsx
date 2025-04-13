@@ -1,5 +1,5 @@
 import { useReconcile } from '@/board/Board';
-import { Button, Grid2, Typography } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import { useChess } from '../PgnBoard';
 
 export const Ellipsis = ({ ply, firstMove }: { ply: number; firstMove?: boolean }) => {
@@ -14,7 +14,7 @@ export const Ellipsis = ({ ply, firstMove }: { ply: number; firstMove?: boolean 
         : undefined;
 
     return (
-        <Grid2 key={`ellipsis-${ply}`} size={5}>
+        <Grid key={`ellipsis-${ply}`} size={5}>
             {firstMove ? (
                 <Button
                     sx={{
@@ -35,6 +35,6 @@ export const Ellipsis = ({ ply, firstMove }: { ply: number; firstMove?: boolean 
                     ...
                 </Typography>
             )}
-        </Grid2>
+        </Grid>
     );
 };

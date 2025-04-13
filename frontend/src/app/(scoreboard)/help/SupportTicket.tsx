@@ -3,7 +3,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { LoadingButton } from '@mui/lab';
-import { Grid2, Stack, TextField, Typography } from '@mui/material';
+import { Grid, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 
 const SupportTicket = () => {
@@ -76,8 +76,8 @@ const SupportTicket = () => {
                 Please note that we are a small team, and it may take a few business days for us to
                 get back to you. Thank you for your patience.
             </Typography>
-            <Grid2 container rowSpacing={2} columnSpacing={2}>
-                <Grid2
+            <Grid container rowSpacing={2} columnSpacing={2}>
+                <Grid
                     size={{
                         xs: 12,
                         sm: 6,
@@ -92,9 +92,9 @@ const SupportTicket = () => {
                         helperText={errors.name}
                         fullWidth
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2
+                <Grid
                     size={{
                         xs: 12,
                         sm: 6,
@@ -109,9 +109,9 @@ const SupportTicket = () => {
                         helperText={errors.email}
                         fullWidth
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={12}>
+                <Grid size={12}>
                     <TextField
                         data-cy='support-ticket-subject'
                         label='Subject'
@@ -121,9 +121,9 @@ const SupportTicket = () => {
                         helperText={errors.subject}
                         fullWidth
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={12}>
+                <Grid size={12}>
                     <TextField
                         data-cy='support-ticket-message'
                         label='Message'
@@ -136,9 +136,9 @@ const SupportTicket = () => {
                         minRows={3}
                         placeholder='Please include as much detail about your issue as possible. Help us help you!'
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2 display='flex' justifyContent='center' size={12}>
+                <Grid display='flex' justifyContent='center' size={12}>
                     <LoadingButton
                         data-cy='support-ticket-submit'
                         variant='contained'
@@ -147,8 +147,8 @@ const SupportTicket = () => {
                     >
                         Submit
                     </LoadingButton>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
             <RequestSnackbar request={request} />
         </Stack>
     );

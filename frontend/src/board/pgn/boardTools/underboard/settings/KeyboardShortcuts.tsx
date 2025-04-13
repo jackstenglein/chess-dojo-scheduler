@@ -7,7 +7,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Grid2,
+    Grid,
     MenuItem,
     Stack,
     TextField,
@@ -506,21 +506,21 @@ const KeyboardShortcuts = () => {
                 Keyboard shortcuts are disabled while editing text fields (comments, clock times,
                 tags, etc).
             </Typography>
-            <Grid2 container rowGap={2} columnSpacing={2} alignItems='center' mt={1.5}>
-                <Grid2 sx={{ borderBottom: 1, borderColor: 'divider' }} size={5}>
+            <Grid container rowGap={2} columnSpacing={2} alignItems='center' mt={1.5}>
+                <Grid sx={{ borderBottom: 1, borderColor: 'divider' }} size={5}>
                     <Typography>Action</Typography>
-                </Grid2>
-                <Grid2 sx={{ borderBottom: 1, borderColor: 'divider' }} size={3.5}>
+                </Grid>
+                <Grid sx={{ borderBottom: 1, borderColor: 'divider' }} size={3.5}>
                     <Typography textAlign='center'>Modifier</Typography>
-                </Grid2>
-                <Grid2 sx={{ borderBottom: 1, borderColor: 'divider' }} size={3.5}>
+                </Grid>
+                <Grid sx={{ borderBottom: 1, borderColor: 'divider' }} size={3.5}>
                     <Typography textAlign='center'>Key</Typography>
-                </Grid2>
+                </Grid>
                 {Object.values(ShortcutAction).map((a) => {
                     const binding = keyBindings[a] || ShortcutBindings.default[a];
                     return (
                         <Fragment key={a}>
-                            <Grid2 size={5}>
+                            <Grid size={5}>
                                 <Stack direction='row' spacing={1} alignItems='center'>
                                     <Typography variant='body2'>
                                         {displayShortcutAction(a)}
@@ -530,8 +530,8 @@ const KeyboardShortcuts = () => {
                                         <Help sx={{ color: 'text.secondary' }} />
                                     </Tooltip>
                                 </Stack>
-                            </Grid2>
-                            <Grid2 size={3.5}>
+                            </Grid>
+                            <Grid size={3.5}>
                                 <TextField
                                     size='small'
                                     fullWidth
@@ -549,8 +549,8 @@ const KeyboardShortcuts = () => {
                                     <MenuItem value='Control'>Control</MenuItem>
                                     <MenuItem value='Alt'>Alt (Windows) / Option (Mac)</MenuItem>
                                 </TextField>
-                            </Grid2>
-                            <Grid2 size={3.5}>
+                            </Grid>
+                            <Grid size={3.5}>
                                 <Button
                                     variant='contained'
                                     sx={{
@@ -562,16 +562,16 @@ const KeyboardShortcuts = () => {
                                 >
                                     {displayKey(binding.key)}
                                 </Button>
-                            </Grid2>
+                            </Grid>
                         </Fragment>
                     );
                 })}
-                <Grid2 size={12}>
+                <Grid size={12}>
                     <Button color='error' onClick={onReset} sx={{ textTransform: 'none' }}>
                         Reset All to Defaults
                     </Button>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
             <Dialog
                 open={!!editAction}
                 onClose={onCloseEditor}

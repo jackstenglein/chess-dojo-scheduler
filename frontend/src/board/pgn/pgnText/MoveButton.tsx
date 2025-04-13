@@ -11,7 +11,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import {
     CircularProgress,
-    Grid2,
+    Grid,
     ListItemIcon,
     ListItemText,
     Menu,
@@ -443,7 +443,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
     const moveTime = showMoveTimes ? getMoveTime(chess, move) : undefined;
 
     return (
-        <Grid2 key={`move-${move.ply}`} size={5}>
+        <Grid key={`move-${move.ply}`} size={5}>
             <Button
                 ref={ref}
                 isCurrentMove={isCurrentMove}
@@ -458,7 +458,7 @@ const MoveButton: React.FC<MoveButtonProps> = ({
             {menuAnchorEl && (
                 <MoveMenu anchor={menuAnchorEl} move={move} onClose={handleMenuClose} />
             )}
-        </Grid2>
+        </Grid>
     );
 };
 

@@ -1,4 +1,4 @@
-import { Grid2, Stack, Typography } from '@mui/material';
+import { Grid, Stack, Typography } from '@mui/material';
 import PriceMatrix from '../upsell/PriceMatrix';
 
 const today = new Date();
@@ -22,9 +22,9 @@ const JoinToday = () => {
                 </Typography>
             )}
 
-            <Grid2 container spacing={3} width={1}>
+            <Grid container spacing={3} width={1}>
                 <PriceMatrix subscribeLink='/signup' freeTierLink='/signup' />
-            </Grid2>
+            </Grid>
         </Stack>
     );
 };

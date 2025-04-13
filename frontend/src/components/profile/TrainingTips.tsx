@@ -9,7 +9,7 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    Grid2,
+    Grid,
     Stack,
     SvgIconProps,
     SvgIconTypeMap,
@@ -117,7 +117,7 @@ const TrainingTipsCard = ({ name, children, icon, href, onClick }: TrainingTipsC
     const Icon = icon;
 
     return (
-        <Grid2
+        <Grid
             size={{
                 xs: 12,
                 sm: 6,
@@ -143,6 +143,6 @@ const TrainingTipsCard = ({ name, children, icon, href, onClick }: TrainingTipsC
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>
+        </Grid>
     );
 };

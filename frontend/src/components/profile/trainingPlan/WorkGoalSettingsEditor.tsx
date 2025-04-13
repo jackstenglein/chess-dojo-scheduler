@@ -11,7 +11,7 @@ import {
     DialogActions,
     DialogContent,
     FormLabel,
-    Grid2,
+    Grid,
     InputAdornment,
     MenuItem,
     Stack,
@@ -174,10 +174,10 @@ export function WorkGoalSettingsEditor({
                         <MenuItem value={6}>Saturday</MenuItem>
                     </TextField>
 
-                    <Grid2 container alignItems='baseline' rowGap={2}>
-                        <Grid2 size={12} mt={1}>
+                    <Grid container alignItems='baseline' rowGap={2}>
+                        <Grid size={12} mt={1}>
                             <FormLabel>Work Goal</FormLabel>
-                        </Grid2>
+                        </Grid>
 
                         {new Array(7).fill(0).map((_, i) => {
                             const dayIndex = (weekStart + i) % 7;
@@ -185,11 +185,11 @@ export function WorkGoalSettingsEditor({
                             const time = timePerDay[dayIndex];
                             return (
                                 <Fragment key={day}>
-                                    <Grid2 size={{ xs: 4.5, sm: 3 }}>
+                                    <Grid size={{ xs: 4.5, sm: 3 }}>
                                         <Typography>{day}</Typography>
-                                    </Grid2>
+                                    </Grid>
 
-                                    <Grid2 size={{ xs: 7.5, sm: 9 }}>
+                                    <Grid size={{ xs: 7.5, sm: 9 }}>
                                         <Stack direction='row' gap={{ xs: 0.5, sm: 1 }}>
                                             <TextField
                                                 label='Hours'
@@ -206,15 +206,15 @@ export function WorkGoalSettingsEditor({
                                                 helperText={time.errors.minutes}
                                             />
                                         </Stack>
-                                    </Grid2>
+                                    </Grid>
                                 </Fragment>
                             );
                         })}
 
-                        <Grid2 size={12} mt={1}>
+                        <Grid size={12} mt={1}>
                             <Typography>Total Per Week: {formatTime(minutesPerWeek)}</Typography>
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
                 </DialogContent>
                 <DialogActions>
                     <Button disabled={request.isLoading()} onClick={() => setOpen(false)}>
