@@ -681,6 +681,24 @@ export const isChesscomGameURL = (url: string) =>
         pathParts: [/^game$/, /^(live|daily)$/, matchChesscomId],
     });
 
+export function isChesscomEventsUrl(url: string) {
+    let urlObj: URL | null = null;
+    try {
+        urlObj = new URL(url.trim());
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+
+    if (urlObj.hostname !== 'www.chess.com') {
+        console.log('Hostname: ', urlObj.hostname);
+        return false;
+    }
+
+    const parts = urlObj.pathname.split('/').filter((part) => part);
+    return parts.length >= 2 && parts[0] === 'events';
+}
+
 /**
  * Returns true if the URL is a Chess.com analysis URL.
  * Ex: https://www.chess.com/analysis/game/live/108036079387?tab=review
