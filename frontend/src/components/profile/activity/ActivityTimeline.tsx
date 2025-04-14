@@ -15,8 +15,8 @@ import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline
 import { TimeFormat, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { CategoryColors } from '@/style/ThemeProvider';
-import { Scheduler } from '@aldabil/react-scheduler';
-import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
+import { Scheduler } from '@jackstenglein/react-scheduler';
+import { ProcessedEvent, SchedulerRef } from '@jackstenglein/react-scheduler/types';
 import { CalendarMonth, FormatListBulleted } from '@mui/icons-material';
 import {
     Box,

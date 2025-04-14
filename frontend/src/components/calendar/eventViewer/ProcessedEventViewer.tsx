@@ -1,6 +1,6 @@
 import { useAuth } from '@/auth/Auth';
 import { Event, EventType } from '@/database/event';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import React from 'react';
 import AvailabilityViewer from './AvailabilityViewer';
 import CoachingViewer from './CoachingViewer';

@@ -1,7 +1,7 @@
 import { Link } from '@/components/navigation/Link';
 import { Event, getDisplayString } from '@/database/event';
 import Icon from '@/style/Icon';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { Button, Stack, Typography } from '@mui/material';
 import Field from './Field';
 import ParticipantsList from './ParticipantsList';
