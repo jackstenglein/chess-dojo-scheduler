@@ -4,7 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useEvents } from '@/api/cache/Cache';
 import { useAuth, useFreeTier } from '@/auth/Auth';
-import { getTimeZonedDate } from '@/components/calendar/displayDate';
+import { getTimeZonedDate, toRRuleDate } from '@/components/calendar/displayDate';
 import EventEditor from '@/components/calendar/eventEditor/EventEditor';
 import ProcessedEventViewer from '@/components/calendar/eventViewer/ProcessedEventViewer';
 import {
@@ -28,9 +28,9 @@ import LoadingPage from '@/loading/LoadingPage';
 import Icon, { icons } from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
-import { Scheduler } from '@aldabil/react-scheduler';
-import type { EventRendererProps, SchedulerRef } from '@aldabil/react-scheduler/types';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { Scheduler } from '@jackstenglein/react-scheduler';
+import type { EventRendererProps, SchedulerRef } from '@jackstenglein/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Button, Container, Grid2, Snackbar, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -195,6 +195,11 @@ function processDojoEvent(
         color = 'youtube.main';
     }
 
+    const rruleOptions = event.rrule ? RRule.parseString(event.rrule) : undefined;
+    if (rruleOptions) {
+        rruleOptions.dtstart = toRRuleDate(new Date(event.startTime));
+    }
+
     return {
         event_id: event.id,
         title: event.title,
@@ -206,7 +211,7 @@ function processDojoEvent(
         draggable: user?.isAdmin || user?.isCalendarAdmin,
         isOwner: false,
         event,
-        recurring: event.rrule ? RRule.fromString(event.rrule) : undefined,
+        recurring: rruleOptions ? new RRule(rruleOptions) : undefined,
     };
 }
 
@@ -276,6 +281,11 @@ export function processCoachingEvent(
         return null;
     }
 
+    const rruleOptions = event.rrule ? RRule.parseString(event.rrule) : undefined;
+    if (rruleOptions) {
+        rruleOptions.dtstart = toRRuleDate(new Date(event.startTime));
+    }
+
     return {
         event_id: event.id,
         title: event.title,
@@ -287,6 +297,7 @@ export function processCoachingEvent(
         draggable: isOwner,
         isOwner,
         event,
+        recurring: rruleOptions ? new RRule(rruleOptions) : undefined,
     };
 }
 
@@ -300,7 +311,7 @@ export function getProcessedEvents(
     for (const event of events) {
         let processedEvent: ProcessedEvent | null = null;
 
-        const startHour = getTimeZonedDate(new Date(event.startTime), filters?.timezone).getHours();
+        const startHour = getTimeZonedDate(new Date(event.startTime), filters.timezone).getHours();
         if (
             startHour < (filters?.minHour?.hour || 0) ||
             startHour > (filters?.maxHour?.hour || 24)

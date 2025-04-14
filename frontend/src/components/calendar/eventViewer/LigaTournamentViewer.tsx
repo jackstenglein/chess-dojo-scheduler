@@ -1,7 +1,7 @@
 import Board from '@/board/Board';
 import { Event, displayTournamentType } from '@/database/event';
 import Icon, { IconName } from '@/style/Icon';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 

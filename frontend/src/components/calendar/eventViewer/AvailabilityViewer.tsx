@@ -4,7 +4,7 @@ import { dojoCohorts } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
 import Avatar from '@/profile/Avatar';
 import Icon from '@/style/Icon';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { Button, Stack, Typography } from '@mui/material';
 import React from 'react';
 import Field from './Field';

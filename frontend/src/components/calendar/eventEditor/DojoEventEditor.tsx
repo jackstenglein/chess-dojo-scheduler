@@ -1,6 +1,6 @@
 import { Event, EventStatus } from '@/database/event';
 import { dojoCohorts, User } from '@/database/user';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { Checkbox, FormControlLabel } from '@mui/material';
 import { Options, RRule } from 'rrule';
 import { getTimeZonedDate } from '../displayDate';

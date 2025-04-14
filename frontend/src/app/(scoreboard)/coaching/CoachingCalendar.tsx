@@ -9,8 +9,8 @@ import TimezoneFilter from '@/components/calendar/filters/TimezoneFilter';
 import { DefaultTimezone } from '@/components/calendar/filters/TimezoneSelector';
 import { Event } from '@/database/event';
 import { TimeFormat } from '@/database/user';
-import { Scheduler } from '@aldabil/react-scheduler';
-import { ProcessedEvent, SchedulerRef } from '@aldabil/react-scheduler/types';
+import { Scheduler } from '@jackstenglein/react-scheduler';
+import { ProcessedEvent, SchedulerRef } from '@jackstenglein/react-scheduler/types';
 import { Grid2, Stack } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 

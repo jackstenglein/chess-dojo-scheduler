@@ -9,7 +9,7 @@ import {
 } from '@/database/event';
 import { User, dojoCohorts } from '@/database/user';
 import Icon from '@/style/Icon';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { Stack, Typography } from '@mui/material';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
