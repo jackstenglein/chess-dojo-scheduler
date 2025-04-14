@@ -5,7 +5,7 @@ import { useCache } from '@/api/cache/Cache';
 import { useRequiredAuth } from '@/auth/Auth';
 import { Event, EventType } from '@/database/event';
 import Icon from '@/style/Icon';
-import { SchedulerHelpers } from '@aldabil/react-scheduler/types';
+import { SchedulerHelpers } from '@jackstenglein/react-scheduler/types';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
     AppBar,

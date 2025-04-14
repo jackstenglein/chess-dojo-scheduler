@@ -7,7 +7,7 @@ import { Event, EventStatus } from '@/database/event';
 import { dojoCohorts } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
 import Icon from '@/style/Icon';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { LoadingButton } from '@mui/lab';
 import { Alert, Button, Stack, Typography } from '@mui/material';
 import Field from './Field';

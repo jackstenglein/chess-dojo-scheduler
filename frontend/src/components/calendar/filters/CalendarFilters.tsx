@@ -18,7 +18,7 @@ import {
 import { ALL_COHORTS, TimeFormat, compareCohorts, dojoCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
-import { DayHours } from '@aldabil/react-scheduler/types';
+import { DayHours } from '@jackstenglein/react-scheduler/types';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { Button, Stack, SvgIconOwnProps, Typography, useMediaQuery } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';

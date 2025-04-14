@@ -1,4 +1,5 @@
 import { TimeFormat } from '@/database/user';
+import { datetime } from 'rrule';
 
 const timezoneOffsets: Record<string, number> = {
     'Etc/GMT+12': 720,
@@ -51,6 +52,23 @@ export function getTimeZonedDate(
     return result;
 }
 
+export function offsetFromUTC(
+    date: Date,
+    timezone?: string,
+    direction: 'forward' | 'backward' = 'backward',
+) {
+    if (!timezone || !timezoneOffsets[timezone]) {
+        return date;
+    }
+
+    const diff = timezoneOffsets[timezone];
+    const result =
+        direction === 'forward'
+            ? new Date(date.getTime() - diff * 60000)
+            : new Date(date.getTime() + diff * 60000);
+    return result;
+}
+
 export function toDojoDateString(
     date: Date,
     timezone: string | undefined,
@@ -76,4 +94,19 @@ export function toDojoTimeString(
         minute: 'numeric',
         ...options,
     });
+}
+
+/**
+ * Converts the given date to an RRule date. See https://github.com/aldabil21/react-scheduler/pull/404.
+ * @param date The date to convert.
+ * @returns An RRule date which can be passed to the react-scheduler library.
+ */
+export function toRRuleDate(date: Date) {
+    return datetime(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        date.getDate(),
+        date.getHours(),
+        date.getMinutes(),
+    );
 }

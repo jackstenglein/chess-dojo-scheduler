@@ -1,5 +1,5 @@
 import { Event } from '@/database/event';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { Stack } from '@mui/material';
 import Field from './Field';
 

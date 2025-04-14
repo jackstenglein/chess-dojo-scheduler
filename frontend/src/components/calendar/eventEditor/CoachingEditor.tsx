@@ -2,7 +2,7 @@ import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import { Event, EventStatus } from '@/database/event';
 import { User, dojoCohorts } from '@/database/user';
-import { ProcessedEvent } from '@aldabil/react-scheduler/types';
+import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import {
     Alert,
     Button,
