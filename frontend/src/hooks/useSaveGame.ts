@@ -102,6 +102,6 @@ function onCreateGame(
             count: count,
             method: req.type,
         });
-        router.push('/profile?view=games');
+        setTimeout(() => router.push('/profile?view=games'), 1500);
     }
 }

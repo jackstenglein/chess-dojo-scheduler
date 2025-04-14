@@ -241,8 +241,6 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                             request.onFailure(error.publicMessage);
                             return;
                         }
-
-                        console.log(pgnText);
                         onSubmit({ pgnText: pgnText ?? '', type: 'manual' });
                     })
                     .catch(() => request.onFailure('Unexpected server error'));
