@@ -52,23 +52,6 @@ export function getTimeZonedDate(
     return result;
 }
 
-export function offsetFromUTC(
-    date: Date,
-    timezone?: string,
-    direction: 'forward' | 'backward' = 'backward',
-) {
-    if (!timezone || !timezoneOffsets[timezone]) {
-        return date;
-    }
-
-    const diff = timezoneOffsets[timezone];
-    const result =
-        direction === 'forward'
-            ? new Date(date.getTime() - diff * 60000)
-            : new Date(date.getTime() + diff * 60000);
-    return result;
-}
-
 export function toDojoDateString(
     date: Date,
     timezone: string | undefined,

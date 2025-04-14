@@ -203,8 +203,8 @@ function processDojoEvent(
     return {
         event_id: event.id,
         title: event.title,
-        start: new Date(event.startTime), // offsetFromUTC(new Date(event.startTime), filters.timezone, 'forward'),
-        end: new Date(event.endTime), // offsetFromUTC(new Date(event.endTime), filters.timezone, 'forward'),
+        start: new Date(event.startTime),
+        end: new Date(event.endTime),
         color,
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
@@ -309,17 +309,9 @@ export function getProcessedEvents(
     const result: ProcessedEvent[] = [];
 
     for (const event of events) {
-        console.log('Event: ', event);
-
         let processedEvent: ProcessedEvent | null = null;
 
         const startHour = getTimeZonedDate(new Date(event.startTime), filters.timezone).getHours();
-        console.log('Start Time: ', event.startTime);
-        console.log(
-            'getTimezonedDate(event.startTime): ',
-            getTimeZonedDate(new Date(event.startTime), filters.timezone).toISOString(),
-        );
-        console.log('Start Hour: ', startHour);
         if (
             startHour < (filters?.minHour?.hour || 0) ||
             startHour > (filters?.maxHour?.hour || 24)
@@ -336,8 +328,6 @@ export function getProcessedEvents(
         } else if (event.type === EventType.Coaching) {
             processedEvent = processCoachingEvent(user, filters, event);
         }
-
-        console.log('processedEvent.startTime: ', processedEvent?.start.toISOString());
 
         if (processedEvent !== null) {
             result.push(processedEvent);
@@ -464,7 +454,6 @@ export default function CalendarPage() {
     }, [user, filters, events]);
 
     useEffect(() => {
-        console.log('Processed Events: ', processedEvents);
         calendarRef.current?.scheduler.handleState(processedEvents, 'events');
     }, [processedEvents, calendarRef]);
 
