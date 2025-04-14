@@ -1,7 +1,7 @@
 import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import { Event, EventStatus } from '@/database/event';
-import { User, dojoCohorts } from '@/database/user';
+import { dojoCohorts, User } from '@/database/user';
 import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import {
     Alert,
@@ -13,6 +13,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { Options, RRule } from 'rrule';
 import { getTimeZonedDate } from '../displayDate';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
@@ -20,7 +21,7 @@ import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
 import TimesFormSection from './form/TimesFormSection';
 import TitleFormSection from './form/TitleFormSection';
-import { UseEventEditorResponse } from './useEventEditor';
+import { getDefaultRRuleCount, RRuleEnds, UseEventEditorResponse } from './useEventEditor';
 
 function validatePrice(priceStr: string): [number, string] {
     const price = 100 * parseFloat(priceStr.trim());
@@ -123,6 +124,39 @@ export function validateCoachingEditor(
         'forward',
     ).toISOString();
 
+    let rrule = '';
+    if (editor.rruleOptions.freq) {
+        const options: Partial<Options> = {
+            freq: editor.rruleOptions.freq,
+            dtstart: new Date(startTime),
+        };
+
+        if (editor.rruleOptions.ends === RRuleEnds.Count) {
+            options.count =
+                editor.rruleOptions.count ?? getDefaultRRuleCount(editor.rruleOptions.freq);
+        }
+
+        if (editor.rruleOptions.ends === RRuleEnds.Until) {
+            if (editor.rruleOptions.until) {
+                options.until = new Date(
+                    getTimeZonedDate(
+                        editor.rruleOptions.until.toJSDate(),
+                        user.timezoneOverride,
+                    ).toISOString(),
+                );
+            } else {
+                options.until = new Date(
+                    getTimeZonedDate(
+                        editor.start.plus({ months: 1 }).toJSDate(),
+                        user.timezoneOverride,
+                    ).toISOString(),
+                );
+            }
+        }
+
+        rrule = RRule.optionsToString(options);
+    }
+
     return [
         {
             ...((originalEvent?.event as Event) ?? {}),
@@ -147,6 +181,7 @@ export function validateCoachingEditor(
                 bookableByFreeUsers: editor.bookableByFreeUsers,
                 hideParticipants: editor.hideParticipants,
             },
+            rrule,
         },
         errors,
     ];
@@ -222,6 +257,7 @@ const CoachingEditor: React.FC<CoachingEditorProps> = ({ editor }) => {
                 minEnd={null}
                 rruleOptions={rruleOptions}
                 setRRuleOptions={setRRuleOptions}
+                enableRecurrence
             />
 
             <TitleFormSection title={title} setTitle={setTitle} error={errors.title} />

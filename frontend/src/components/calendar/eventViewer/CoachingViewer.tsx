@@ -3,17 +3,21 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
+import { getConfig } from '@/config';
 import { Event, EventStatus } from '@/database/event';
 import { dojoCohorts } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
 import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
+import { LinkOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Alert, Button, Stack, Typography } from '@mui/material';
 import Field from './Field';
 import OwnerField from './OwnerField';
 import ParticipantsList from './ParticipantsList';
 import PriceField from './PriceField';
+
+const baseUrl = getConfig().baseUrl;
 
 interface CoachingViewerProps {
     processedEvent: ProcessedEvent;
@@ -49,6 +53,14 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                 console.error('bookEvent: ', err);
                 request.onFailure(err);
             });
+    };
+
+    const onCopyLink = async () => {
+        try {
+            await navigator.clipboard.writeText(`${baseUrl}/calendar/availability/${event.id}`);
+        } catch (err) {
+            console.error('Failed to copy event link: ', err);
+        }
     };
 
     const isOwner = processedEvent.isOwner as boolean;
@@ -102,6 +114,10 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                     <ParticipantsList hideOwner event={event} />
                 )}
             </Stack>
+
+            <Button variant='outlined' startIcon={<LinkOutlined />} onClick={onCopyLink}>
+                Copy Link
+            </Button>
 
             {isOwner || isParticipant ? (
                 <Button

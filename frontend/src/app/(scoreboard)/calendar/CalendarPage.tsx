@@ -198,8 +198,8 @@ function processDojoEvent(
     const rruleOptions = event.rrule ? RRule.parseString(event.rrule) : undefined;
     if (rruleOptions) {
         rruleOptions.dtstart = toRRuleDate(new Date(event.startTime));
-        console.log('RRule: ', new RRule(rruleOptions));
     }
+
     return {
         event_id: event.id,
         title: event.title,
@@ -281,6 +281,11 @@ export function processCoachingEvent(
         return null;
     }
 
+    const rruleOptions = event.rrule ? RRule.parseString(event.rrule) : undefined;
+    if (rruleOptions) {
+        rruleOptions.dtstart = toRRuleDate(new Date(event.startTime));
+    }
+
     return {
         event_id: event.id,
         title: event.title,
@@ -292,6 +297,7 @@ export function processCoachingEvent(
         draggable: isOwner,
         isOwner,
         event,
+        recurring: rruleOptions ? new RRule(rruleOptions) : undefined,
     };
 }
 
