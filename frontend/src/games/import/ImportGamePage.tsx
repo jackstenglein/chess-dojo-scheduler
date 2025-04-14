@@ -4,6 +4,7 @@ import { RequestSnackbar } from '@/api/Request';
 import useSaveGame from '@/hooks/useSaveGame';
 import { Chess } from '@jackstenglein/chess';
 import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { cleanupPgn, splitPgns } from '@jackstenglein/chess-dojo-common/src/pgn/pgn';
 import { Container } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ImportWizard from './ImportWizard';
@@ -21,8 +22,12 @@ const ImportGamePage = () => {
             };
         }
 
-        if (req.pgnText || req.type === 'startingPosition') {
+        if (
+            req.type === 'startingPosition' ||
+            (req.pgnText && splitPgns(req.pgnText).length === 1)
+        ) {
             try {
+                req.pgnText = cleanupPgn(req.pgnText ?? '');
                 new Chess({ pgn: req.pgnText });
                 setStagedGame(req);
                 router.push('/games/analysis');
@@ -38,7 +43,7 @@ const ImportGamePage = () => {
     return (
         <Container maxWidth='lg' sx={{ py: 5 }}>
             <ImportWizard onSubmit={onCreate} loading={request.isLoading()} />
-            <RequestSnackbar request={request} />
+            <RequestSnackbar request={request} showSuccess />
         </Container>
     );
 };

@@ -47,9 +47,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     }
 };
 
-async function updateGame(
-    event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> {
+async function updateGame(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> {
     const userInfo = getUserInfo(event);
     if (!userInfo.username) {
         throw new ApiError({
@@ -61,21 +59,14 @@ async function updateGame(
     const request = parseEvent(event, UpdateGameSchema);
     const update = await getGameUpdate(request);
 
-    const result = await applyUpdate(
-        userInfo.username,
-        request.cohort,
-        request.id,
-        update,
-    );
+    const result = await applyUpdate(userInfo.username, request.cohort, request.id, update);
     if (update.timelineId) {
         await createTimelineEntry(result.new);
     } else if (update.unlisted && request.timelineId) {
         await deleteTimelineEntry(result.new, request.timelineId);
     }
 
-    if (update.headers) {
-        await updateDirectories(result.new, result.old);
-    }
+    await updateDirectories(result.new, result.old);
 
     return success(result.new);
 }
@@ -247,9 +238,7 @@ async function updateDirectories(newGame: Game, oldGame: Game) {
         newGame.headers.Result === oldGame.headers.Result &&
         newGame.unlisted === oldGame.unlisted
     ) {
-        console.log(
-            'No changes to game directory information, skipping update of directories.',
-        );
+        console.log('No changes to game directory information, skipping update of directories.');
         return;
     }
 
