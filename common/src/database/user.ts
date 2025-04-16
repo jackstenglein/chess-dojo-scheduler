@@ -173,3 +173,22 @@ export enum TimeFormat {
     TwelveHour = '12',
     TwentyFourHour = '24',
 }
+
+/**
+ * Gets the search key for the given user. The search key has its own
+ * index in the Dynamo table and allows for quickly finding users based on a
+ * given field.
+ * @param user The user to get the search key for.
+ */
+export function getSearchKey(user: User): string {
+    let searchKey = `display:${user.displayName}`;
+    if (user.discordUsername) {
+        searchKey += `_discord:${user.discordUsername}`;
+    }
+    for (const [system, rating] of Object.entries(user.ratings)) {
+        if (rating.username && !rating.hideUsername) {
+            searchKey += `_${system}:${rating.username}`;
+        }
+    }
+    return searchKey.toLowerCase();
+}

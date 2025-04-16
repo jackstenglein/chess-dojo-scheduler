@@ -4,7 +4,11 @@ import {
     DiscordAuthRequestSchema,
     DiscordConnectRequest,
 } from '@jackstenglein/chess-dojo-common/src/auth/discord';
-import { SubscriptionStatus, User } from '@jackstenglein/chess-dojo-common/src/database/user';
+import {
+    getSearchKey,
+    SubscriptionStatus,
+    User,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import axios from 'axios';
 import {
@@ -136,10 +140,12 @@ async function handleConnectRequest(
         console.log(`User ${user.username} successfully added to guild: `, addResponse);
     }
 
+    user.discordUsername = userResponse.data.username;
     const input = new UpdateItemBuilder()
         .key('username', user.username)
         .set('discordUsername', userResponse.data.username)
         .set('discordId', userResponse.data.id)
+        .set('searchKey', getSearchKey(user))
         .table(USER_TABLE)
         .build();
     await dynamo.send(input);
@@ -168,10 +174,12 @@ async function handleDisconnectRequest(user: User): Promise<APIGatewayProxyResul
         console.log(`User ${user.username} (${user.discordId}) successfully removed from guild`);
     }
 
+    user.discordUsername = '';
     const input = new UpdateItemBuilder()
         .key('username', user.username)
         .remove('discordUsername')
         .remove('discordId')
+        .set('searchKey', getSearchKey(user))
         .table(USER_TABLE)
         .build();
     await dynamo.send(input);

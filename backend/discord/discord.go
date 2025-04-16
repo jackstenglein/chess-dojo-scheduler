@@ -49,6 +49,15 @@ func getDiscordIdByDiscordUsername(discord *discordgo.Session, fullDiscordUserna
 
 // getDiscordUser returns the discord user with the given discord username.
 func getDiscordUser(discord *discordgo.Session, fullDiscordUsername string) (*discordgo.User, error) {
+	member, err := getGuildMember(discord, fullDiscordUsername)
+	if err != nil {
+		return nil, err
+	}
+	return member.User, nil
+}
+
+// getGuildMember returns the discord guild member with the given discord username.
+func getGuildMember(discord *discordgo.Session, fullDiscordUsername string) (*discordgo.Member, error) {
 	if discord == nil {
 		d, err := discordgo.New("Bot " + authToken)
 		if err != nil {
@@ -88,7 +97,7 @@ func getDiscordUser(discord *discordgo.Session, fullDiscordUsername string) (*di
 	}
 
 	if len(discordUsers) == 1 && discordDiscriminator == "" {
-		return discordUsers[0].User, nil
+		return discordUsers[0], nil
 	}
 
 	if discordDiscriminator == "" {
@@ -97,7 +106,7 @@ func getDiscordUser(discord *discordgo.Session, fullDiscordUsername string) (*di
 
 	for _, u := range discordUsers {
 		if u.User.Discriminator == discordDiscriminator {
-			return u.User, nil
+			return u, nil
 		}
 	}
 	return nil, errors.New(404, fmt.Sprintf("Cannot find #id `%s` for discord username `%s`", discordDiscriminator, discordUsername), "")
@@ -116,4 +125,41 @@ func GetDiscordAvatarURL(discordUsername string) (string, error) {
 		return "", err
 	}
 	return user.AvatarURL(""), nil
+}
+
+// SetCohortRole sets the Discord cohort role of the given user as necessary to match
+// their cohort and subscription status. Any other Discord roles the user has will be
+// left unchanged.
+func SetCohortRole(user *database.User) error {
+	discord, err := discordgo.New("Bot " + authToken)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+	}
+
+	var member *discordgo.Member
+	if user.DiscordId != "" {
+		member, err = discord.GuildMember(privateGuildId, user.DiscordId)
+	} else if user.DiscordUsername != "" {
+		member, err = getGuildMember(discord, user.DiscordUsername)
+	} else {
+		return nil
+	}
+
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to get discord guild member", err)
+	}
+	if member == nil {
+		return errors.New(404, fmt.Sprintf("Discord user not found with ID %s and username %s", user.DiscordId, user.DiscordUsername), "")
+	}
+
+	var newRoles []string
+	for _, role := range member.Roles {
+		if !isCohortRole(role) {
+			newRoles = append(newRoles, role)
+		}
+	}
+	newRoles = append(newRoles, getRole(user.DojoCohort, user.IsSubscribed()))
+
+	_, err = discord.GuildMemberEdit(privateGuildId, member.User.ID, &discordgo.GuildMemberParams{Roles: &newRoles})
+	return errors.Wrap(500, "Temporary server error", fmt.Sprintf("Failed to set guild member roles to %v", newRoles), err)
 }

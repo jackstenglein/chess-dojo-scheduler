@@ -581,6 +581,13 @@ func (u *User) getRating(rs RatingSystem) (string, bool) {
 	return rating.Username, rating.HideUsername
 }
 
+func (u *User) IsSubscribed() bool {
+	if u == nil {
+		return false
+	}
+	return u.SubscriptionOverride || u.PaymentInfo.IsSubscribed() || u.SubscriptionStatus == SubscriptionStatus_Subscribed
+}
+
 // UserUpdate contains pointers to fields included in the update of a user record. If a field
 // should not be updated in a particular request, then it is set to nil.
 // Some fields from the User type are removed as they cannot be updated. Other fields
