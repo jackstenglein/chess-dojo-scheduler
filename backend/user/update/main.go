@@ -124,6 +124,11 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if update.CustomTasks != nil {
 		handleCustomTaskUpdate(user, newUser)
 	}
+	if update.DojoCohort != nil {
+		if err := discord.SetRoles(newUser); err != nil {
+			log.Errorf("Failed to set Discord roles: %v", err)
+		}
+	}
 
 	return api.Success(newUser), nil
 }
