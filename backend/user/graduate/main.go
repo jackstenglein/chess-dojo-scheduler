@@ -12,6 +12,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 )
 
 var repository database.GraduationCreator = database.DynamoDB
@@ -149,6 +150,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	user, err = repository.UpdateUser(info.Username, &update)
 	if err != nil {
 		return api.Failure(err), nil
+	}
+
+	if err := discord.SetCohortRole(user); err != nil {
+		log.Errorf("Failed to update Discord role: %v", err)
 	}
 
 	return api.Success(&GraduationResponse{Graduation: &graduation, UserUpdate: user}), nil

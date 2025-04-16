@@ -127,9 +127,10 @@ func GetDiscordAvatarURL(discordUsername string) (string, error) {
 	return user.AvatarURL(""), nil
 }
 
-// SetRoles sets the Discord roles of the given user as necessary to match their cohort and subscription
-// status.
-func SetRoles(user *database.User) error {
+// SetCohortRole sets the Discord cohort role of the given user as necessary to match
+// their cohort and subscription status. Any other Discord roles the user has will be
+// left unchanged.
+func SetCohortRole(user *database.User) error {
 	discord, err := discordgo.New("Bot " + authToken)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)

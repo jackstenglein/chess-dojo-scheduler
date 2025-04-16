@@ -125,7 +125,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		handleCustomTaskUpdate(user, newUser)
 	}
 	if update.DojoCohort != nil {
-		if err := discord.SetRoles(newUser); err != nil {
+		if err := discord.SetCohortRole(newUser); err != nil {
 			log.Errorf("Failed to set Discord roles: %v", err)
 		}
 	}
