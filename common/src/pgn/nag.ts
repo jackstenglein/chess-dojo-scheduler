@@ -231,6 +231,14 @@ export const nags: Record<Nag, NagDetails> = {
         label: '',
         description: 'Include diagram of position in PDF',
     },
+    $1305: {
+        label: '',
+        description: 'Played too slowly',
+    },
+    $1306: {
+        label: '',
+        description: 'Played too quickly',
+    },
 };
 
 /**

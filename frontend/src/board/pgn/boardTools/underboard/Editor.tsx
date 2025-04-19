@@ -319,7 +319,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                             <span style={{ width: `${100 / 8}%` }}>
                                 <ToggleButton
                                     value='more'
-                                    sx={{ width: 1, height: 1 }}
+                                    sx={{ width: 1, height: 1, borderTopRightRadius: 0 }}
                                     onClick={onMoreNags}
                                 >
                                     <MoreHoriz />
