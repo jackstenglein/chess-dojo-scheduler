@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { orange, pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
-import { AxisOptions, Chart, Datum as ChartDatum, Series, UserSerie } from 'react-charts';
+import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
 import { useLocalStorage } from 'usehooks-ts';
 import { TimeControlEditor } from '../tags/TimeControlEditor';
 import ClockEditor from './ClockEditor';
@@ -42,7 +42,7 @@ const nagEvals: Record<string, number> = {
 function getEvalValue(nags?: string[]): number | undefined {
     for (const nag of nags ?? []) {
         const n = getStandardNag(nag);
-        if (nagEvals[n]) {
+        if (nagEvals[n] !== undefined) {
             return nagEvals[n];
         }
     }
@@ -69,12 +69,16 @@ const primaryAxis: AxisOptions<Datum> = {
 
 const secondaryAxes: AxisOptions<Datum>[] = [
     {
-        getValue: (datum) => datum.seconds,
-        min: 0,
+        getValue: (datum: Datum) => datum.seconds as unknown as Date,
+        min: 0 as unknown as Date,
         formatters: {
             scale: formatTime,
         },
-    },
+        tickCount: 6,
+        // This is necessary to make the tick marks line up with the eval, but requires the gross
+        // type assertions.
+        scaleType: 'time',
+    } as unknown as AxisOptions<Datum>,
     {
         id: 'eval',
         getValue: (datum) => datum.eval,
@@ -104,6 +108,7 @@ const secondaryAxes: AxisOptions<Datum>[] = [
                 }
             },
         },
+        tickCount: 6,
     },
 ];
 
@@ -431,26 +436,17 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     ],
                 },
             ],
-            remainingPerMove: (
-                [
-                    { label: 'White', data: whiteClockDisplay },
-                    { label: 'Black', data: blackClockDisplay },
-                ] as UserSerie<Datum>[]
-            ).concat(
-                showEval
-                    ? {
-                          label: 'Eval',
-                          data: evalData,
-                          secondaryAxisId: 'eval',
-                      }
-                    : [],
-            ),
+            remainingPerMove: [
+                { label: 'White', data: whiteClockDisplay },
+                { label: 'Black', data: blackClockDisplay },
+                { label: 'Eval', data: evalData, secondaryAxisId: 'eval' },
+            ],
             usedPerMove: [
                 { label: 'White', data: whiteTimePerMove.reverse() },
                 { label: 'Black', data: blackTimePerMove.reverse() },
             ],
         };
-    }, [chess, timeControls, forceRender, showEval]);
+    }, [chess, timeControls, forceRender]);
 
     if (!chess) {
         return null;
@@ -513,13 +509,22 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     </Typography>
                     <Box width={1} height={300}>
                         <Chart
+                            key='eval'
                             options={{
-                                data: data.remainingPerMove,
+                                data: showEval
+                                    ? data.remainingPerMove
+                                    : data.remainingPerMove.slice(0, -1),
                                 primaryAxis,
-                                secondaryAxes,
+                                secondaryAxes: showEval
+                                    ? secondaryAxes
+                                    : secondaryAxes.slice(0, -1),
                                 dark: !light,
                                 onClickDatum,
                                 getSeriesStyle: (series) => getSeriesStyle(series, light),
+                                tooltip: {
+                                    showDatumInTooltip: (datum) =>
+                                        showEval || datum.secondaryAxisId !== 'eval',
+                                },
                             }}
                         />
                     </Box>
