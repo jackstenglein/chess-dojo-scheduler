@@ -509,7 +509,6 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     </Typography>
                     <Box width={1} height={300}>
                         <Chart
-                            key='eval'
                             options={{
                                 data: showEval
                                     ? data.remainingPerMove
