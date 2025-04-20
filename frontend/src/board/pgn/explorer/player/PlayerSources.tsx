@@ -1,0 +1,105 @@
+import { AddCircle, Delete } from '@mui/icons-material';
+import {
+    Button,
+    IconButton,
+    Stack,
+    TextField,
+    ToggleButton,
+    ToggleButtonGroup,
+    Tooltip,
+} from '@mui/material';
+import { SiChessdotcom, SiLichess } from 'react-icons/si';
+import { DEFAULT_PLAYER_SOURCE, PlayerSource, SourceType } from './PlayerSource';
+
+export function PlayerSources({
+    sources,
+    setSources,
+}: {
+    sources: PlayerSource[];
+    setSources: (s: PlayerSource[]) => void;
+}) {
+    const handleTypeChange = (value: SourceType | null, index: number) => {
+        if (!value) return;
+
+        setSources([
+            ...sources.slice(0, index),
+            { ...sources[index], type: value },
+            ...sources.slice(index + 1),
+        ]);
+    };
+
+    const handleUsernameChange = (value: string, index: number) => {
+        setSources([
+            ...sources.slice(0, index),
+            { ...sources[index], username: value },
+            ...sources.slice(index + 1),
+        ]);
+    };
+
+    const onAddSource = () => {
+        setSources(sources.concat(DEFAULT_PLAYER_SOURCE));
+    };
+
+    const onDeleteSource = (index: number) => {
+        setSources([...sources.slice(0, index), ...sources.slice(index + 1)]);
+    };
+
+    return (
+        <Stack mt={1} spacing={1}>
+            {sources.map((source, i) => (
+                <Stack key={i} direction='row' spacing={1}>
+                    <ToggleButtonGroup
+                        value={source.type}
+                        exclusive
+                        onChange={(_, value: SourceType | null) => handleTypeChange(value, i)}
+                        size='small'
+                    >
+                        <Tooltip title='Chess.com'>
+                            <ToggleButton value={SourceType.Chesscom}>
+                                <SiChessdotcom color='#81b64c' size='18' />
+                            </ToggleButton>
+                        </Tooltip>
+
+                        <Tooltip title='Lichess'>
+                            <ToggleButton value={SourceType.Lichess}>
+                                <SiLichess size='18' />
+                            </ToggleButton>
+                        </Tooltip>
+                    </ToggleButtonGroup>
+
+                    <TextField
+                        placeholder={
+                            source.type === SourceType.Chesscom
+                                ? 'Chess.com Username'
+                                : 'Lichess Username'
+                        }
+                        value={source.username}
+                        onChange={(e) => handleUsernameChange(e.target.value, i)}
+                        sx={{ flexGrow: 1 }}
+                        size='small'
+                    />
+
+                    <Tooltip title='Remove source' disableInteractive>
+                        <IconButton
+                            onClick={() => onDeleteSource(i)}
+                            disabled={sources.length === 1}
+                            size='small'
+                            sx={{ alignSelf: 'center', color: 'text.secondary' }}
+                        >
+                            <Delete />
+                        </IconButton>
+                    </Tooltip>
+                </Stack>
+            ))}
+
+            <Button
+                startIcon={<AddCircle />}
+                onClick={onAddSource}
+                sx={{ alignSelf: 'start' }}
+                size='small'
+            >
+                Add Source
+            </Button>
+        </Stack>
+    );
+}
