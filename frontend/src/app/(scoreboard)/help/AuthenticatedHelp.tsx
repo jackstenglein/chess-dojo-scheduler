@@ -1,5 +1,5 @@
 'use client';
-
+import { SmartToy } from '@mui/icons-material';
 import { Link } from '@/components/navigation/Link';
 import {
     Button,
@@ -401,11 +401,22 @@ const AuthenticatedHelp = () => {
                             <Divider />
                             <Typography variant='body1' mt={3}>
                                 If you have trouble using the site, please check this section before
-                                asking for help. If your issue is not listed here or is not solved
-                                by the advice here, then please submit a support ticket below.
+                                asking for help. If your issue is not listed here or isn't solved by
+                                the advice here, you can try asking
+                                <strong> DojoAI</strong> for assistance below. If you're still
+                                stuck, please contact customer support.
                             </Typography>
+                            <Button
+                                variant='contained'
+                                color='primary'
+                                startIcon={<SmartToy />}
+                                component={Link}
+                                href='/dojoai'
+                                sx={{ mt: 2, alignSelf: 'start' }}
+                            >
+                                Ask DojoAI
+                            </Button>
                         </Stack>
-
                         <Stack>
                             <Typography variant='h5'>Tutorials</Typography>
                             <Divider />
