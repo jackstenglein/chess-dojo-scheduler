@@ -75,19 +75,23 @@ export function PlayerSources({
                         }
                         value={source.username}
                         onChange={(e) => handleUsernameChange(e.target.value, i)}
+                        error={source.hasError || !!source.error}
+                        helperText={source.error}
                         sx={{ flexGrow: 1 }}
                         size='small'
                     />
 
                     <Tooltip title='Remove source' disableInteractive>
-                        <IconButton
-                            onClick={() => onDeleteSource(i)}
-                            disabled={sources.length === 1}
-                            size='small'
-                            sx={{ alignSelf: 'center', color: 'text.secondary' }}
-                        >
-                            <Delete />
-                        </IconButton>
+                        <span>
+                            <IconButton
+                                onClick={() => onDeleteSource(i)}
+                                disabled={sources.length === 1}
+                                size='small'
+                                sx={{ alignSelf: 'center', color: 'text.secondary' }}
+                            >
+                                <Delete />
+                            </IconButton>
+                        </span>
                     </Tooltip>
                 </Stack>
             ))}

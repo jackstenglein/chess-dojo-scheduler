@@ -6,6 +6,8 @@ export enum SourceType {
 export interface PlayerSource {
     type: SourceType;
     username: string;
+    hasError?: boolean;
+    error?: string;
 }
 
 export const DEFAULT_PLAYER_SOURCE: PlayerSource = {

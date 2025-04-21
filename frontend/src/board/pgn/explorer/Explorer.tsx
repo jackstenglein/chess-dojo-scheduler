@@ -164,13 +164,13 @@ const Explorer = () => {
                 {tab === ExplorerDatabaseType.Tablebase ? (
                     <Tablebase fen={fen} position={tablebase} request={request} />
                 ) : tab === ExplorerDatabaseType.Player ? (
-                    <PlayerTab />
+                    <PlayerTab fen={fen} />
                 ) : (
                     <Database
                         type={tab}
                         fen={fen}
                         position={selectedPosition}
-                        request={request}
+                        isLoading={request.isLoading() || !request.isSent()}
                         minCohort={minCohort}
                         maxCohort={maxCohort}
                         setMinCohort={setMinCohort}

@@ -1,47 +1,84 @@
-import { Button, Stack } from '@mui/material';
-import { releaseProxy, Remote, wrap } from 'comlink';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { OpeningTreeLoader } from './OpeningTreeLoaderWorker';
-import { DEFAULT_PLAYER_SOURCE } from './PlayerSource';
+import { Button, CircularProgress, Stack, Typography } from '@mui/material';
+import { proxy, releaseProxy, Remote, wrap } from 'comlink';
+import { useEffect, useRef, useState } from 'react';
+import Database from '../Database';
+import { ExplorerDatabaseType } from '../Explorer';
+import { OpeningTree } from './OpeningTree';
+import { OpeningTreeLoaderFactory } from './OpeningTreeLoaderWorker';
+import { DEFAULT_PLAYER_SOURCE, PlayerSource } from './PlayerSource';
 import { PlayerSources } from './PlayerSources';
 
-export function PlayerTab() {
+export function PlayerTab({ fen }: { fen: string }) {
     const [sources, setSources] = useState([DEFAULT_PLAYER_SOURCE]);
-
-    const workerRef = useRef<Remote<OpeningTreeLoader>>();
+    const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
+    const [isLoading, setIsLoading] = useState(false);
+    const [indexedCount, setIndexedCount] = useState(0);
+    const [openingTree, setOpeningTree] = useState<OpeningTree>();
 
     useEffect(() => {
         const worker = new Worker(new URL('./OpeningTreeLoaderWorker.ts', import.meta.url));
-        const proxy = wrap<OpeningTreeLoader>(worker);
+        const proxy = wrap<OpeningTreeLoaderFactory>(worker);
         workerRef.current = proxy;
         return proxy[releaseProxy];
     }, []);
 
-    const handleWork = useCallback(async () => {
-        const loader = workerRef.current;
+    const onLoadGames = async () => {
+        const newSources: PlayerSource[] = [];
+        let error = false;
+        for (const source of sources) {
+            if (source.username.trim() === '') {
+                newSources.push({ ...source, hasError: true });
+                error = true;
+            } else if (source.hasError || source.error) {
+                newSources.push({ ...source, hasError: undefined, error: undefined });
+            } else {
+                newSources.push(source);
+            }
+        }
+        setSources(newSources);
+        if (error) {
+            return;
+        }
+
+        const loader = await workerRef.current?.newLoader();
         if (!loader) {
             return;
         }
 
         console.log('loader: ', loader);
-        await loader.load(sources);
-        console.log('loader finished');
-    }, [sources]);
-
-    // const onLoadGames = async () => {
-    //     console.log('creating loader');
-    //     const obj = NewOpeningTreeLoader();
-    //     console.log('obj: ', obj);
-    //     alert(`Counter: ${await obj.counter}`);
-    //     await obj.inc();
-    //     alert(`Counter: ${await obj.counter}`);
-    // };
+        setIsLoading(true);
+        const tree = OpeningTree.fromTree(
+            await loader.load(
+                sources,
+                proxy((inc = 1) => setIndexedCount((v) => v + inc)),
+            ),
+        );
+        console.log('loader finished with tree: ', tree);
+        setOpeningTree(tree);
+        setIsLoading(false);
+    };
 
     return (
         <Stack>
             <PlayerSources sources={sources} setSources={setSources} />
 
-            <Button onClick={handleWork}>Load Games</Button>
+            {isLoading ? (
+                <Stack direction='row' spacing={1}>
+                    <Typography>
+                        {indexedCount} game{indexedCount === 1 ? '' : 's'} loaded...
+                    </Typography>
+                    <CircularProgress size={20} />
+                </Stack>
+            ) : openingTree ? (
+                <Database
+                    type={ExplorerDatabaseType.Lichess}
+                    fen={fen}
+                    position={openingTree.getPosition(fen)}
+                    isLoading={false}
+                />
+            ) : (
+                <Button onClick={onLoadGames}>Load Games</Button>
+            )}
         </Stack>
     );
 }

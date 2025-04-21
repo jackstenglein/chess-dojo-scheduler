@@ -153,7 +153,7 @@ export function chesscomOnlineGame(game: ChesscomGame, skipVariant = true): Onli
  * @param game The game to get the result/reason for.
  * @returns An array containing the result and reason.
  */
-function chesscomGameResult(game: ChesscomGame): [GameResult, OnlineGameResultReason] {
+export function chesscomGameResult(game: ChesscomGame): [GameResult, OnlineGameResultReason] {
     if (game.white.result === ChesscomGameResult.Win) {
         return [GameResult.White, chesscomGameResultReason(game.black.result)];
     }

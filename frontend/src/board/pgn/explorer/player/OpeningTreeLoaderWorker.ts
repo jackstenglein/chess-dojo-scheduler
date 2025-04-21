@@ -1,17 +1,43 @@
-import { expose } from 'comlink';
+import { expose, proxy } from 'comlink';
+import { loadChesscom } from './ChesscomLoader';
+import { OpeningTree } from './OpeningTree';
 import { PlayerSource, SourceType } from './PlayerSource';
 
-export interface OpeningTreeLoader {
-    load: (sources: PlayerSource[]) => void;
+export interface OpeningTreeLoaderFactory {
+    newLoader: () => OpeningTreeLoader;
 }
 
-function load(sources: PlayerSource[]) {
-    console.error('Opening Tree Loader sources: ', sources);
-    console.log('First player source is chesscom: ', sources[0]?.type === SourceType.Chesscom);
+export class OpeningTreeLoader {
+    private openingTree: OpeningTree | undefined;
+
+    async load(sources: PlayerSource[], incrementIndexedCount: (inc?: number) => void) {
+        try {
+            throw Error('Throwing for breakpoint');
+        } catch {
+            console.error('Caught breakpoint exception');
+        }
+
+        const chesscomSources: PlayerSource[] = [];
+        const lichessSources: PlayerSource[] = [];
+
+        for (const source of sources) {
+            if (source.type === SourceType.Chesscom) {
+                chesscomSources.push(source);
+            } else {
+                lichessSources.push(source);
+            }
+        }
+
+        this.openingTree = await loadChesscom(chesscomSources, incrementIndexedCount);
+        console.log('Final opening tree: ', this.openingTree);
+        return this.openingTree;
+    }
 }
 
-const loader: OpeningTreeLoader = {
-    load,
-};
+// const loader: OpeningTreeLoader = {
+//     load,
+// };
 
-expose(loader);
+expose({
+    newLoader: () => proxy(new OpeningTreeLoader()),
+});
