@@ -22,6 +22,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { TimeControlEditor } from '../tags/TimeControlEditor';
 import ClockEditor from './ClockEditor';
 import { TimeControlDescription } from './TimeControlDescription';
+import { calculateIntegral, calculateTimeRating } from './rating/clockrating';
 
 const showEvalInClockGraph = {
     key: 'showEvalInClockGraph',
@@ -49,7 +50,7 @@ function getEvalValue(nags?: string[]): number | undefined {
     return undefined;
 }
 
-interface Datum {
+export interface Datum {
     secondaryAxisId?: string;
     label?: string;
     moveNumber: number;
@@ -420,6 +421,11 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             });
         }
 
+        console.log("WHITE INTEGRAL",calculateIntegral(whiteTimePerMove));
+        console.log("BLACK INTEGRAL",calculateIntegral(blackTimePerMove));
+        console.log("WHITE CLOCK RATING ", calculateTimeRating(whiteTimePerMove));
+        console.log("BLACK CLOCK RATING ", calculateTimeRating(blackTimePerMove));
+
         return {
             total: [
                 {
@@ -549,7 +555,11 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                         }}
                     />
                 </Stack>
-
+                {/* <Stack spacing={0.5} alignItems='center'>
+                <Typography variant='caption' color='text.secondary'>
+                        White Clk Rating {calculateTimeRating(W)}
+                    </Typography>
+                </Stack> */}
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
                         Time Used Per Move
