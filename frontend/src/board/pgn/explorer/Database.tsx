@@ -59,6 +59,11 @@ const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)((
     },
 }));
 
+function defaultOnClickGame({ cohort, id }: GameInfo) {
+    const url = `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`;
+    window.open(url, '_blank');
+}
+
 interface DatabaseProps {
     type: ExplorerDatabaseType;
     fen: string;
@@ -71,6 +76,7 @@ interface DatabaseProps {
     timeControls?: string[];
     setTimeControls?: (v: string[]) => void;
     pagination?: PaginationResult;
+    onClickGame?: (game: GameInfo) => void;
 }
 
 function Database({
@@ -85,6 +91,7 @@ function Database({
     timeControls,
     setTimeControls,
     pagination,
+    onClickGame = defaultOnClickGame,
 }: DatabaseProps) {
     const { chess } = useChess();
     const reconcile = useReconcile();
@@ -280,11 +287,6 @@ function Database({
         }
     };
 
-    const onClickGame = ({ cohort, id }: GameInfo) => {
-        const url = `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`;
-        window.open(url, '_blank');
-    };
-
     return (
         <Grid2 data-cy={`explorer-tab-${type}`} container columnSpacing={1} rowSpacing={2} mt={2}>
             {type === ExplorerDatabaseType.Dojo && (
@@ -418,16 +420,19 @@ function Database({
                         />
                     )}
 
-                    <Grid2 display='flex' justifyContent='center' size={12}>
-                        <Link
-                            href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
-                            target='_blank'
-                            rel='noopener'
-                        >
-                            View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'} games
-                            containing this position
-                        </Link>
-                    </Grid2>
+                    {(type === ExplorerDatabaseType.Dojo ||
+                        type === ExplorerDatabaseType.Masters) && (
+                        <Grid2 display='flex' justifyContent='center' size={12}>
+                            <Link
+                                href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
+                                target='_blank'
+                                rel='noopener'
+                            >
+                                View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'}{' '}
+                                games containing this position
+                            </Link>
+                        </Grid2>
+                    )}
                 </>
             )}
         </Grid2>

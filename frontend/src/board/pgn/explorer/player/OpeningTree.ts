@@ -1,4 +1,5 @@
 import { LichessExplorerPosition } from '@/database/explorer';
+import { GameResult } from '@/database/game';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
 
 export interface PositionData extends LichessExplorerPosition {
@@ -14,7 +15,7 @@ export interface GameData {
     black: string;
     whiteElo: number;
     blackElo: number;
-    result: '1-0' | '0-1' | '1/2-1/2' | '*';
+    result: GameResult;
     plyCount: number;
     rated: boolean;
     url: string;
@@ -36,6 +37,26 @@ export class OpeningTree {
 
     setGame(game: GameData) {
         this.gameData.set(game.url, game);
+    }
+
+    getGame(url: string): GameData | undefined {
+        return this.gameData.get(url);
+    }
+
+    getGames(fen: string): GameData[] {
+        const position = this.getPosition(fen);
+        if (!position) {
+            return [];
+        }
+
+        const result = [];
+        for (const url of position.games) {
+            const game = this.getGame(url);
+            if (game) {
+                result.push(game);
+            }
+        }
+        return result;
     }
 
     setPosition(fen: string, position: PositionData) {
