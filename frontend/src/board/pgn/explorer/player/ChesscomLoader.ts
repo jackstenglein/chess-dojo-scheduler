@@ -2,7 +2,7 @@ import { ChesscomGame, fetchChesscomArchiveGames } from '@/api/external/chesscom
 import { chesscomGameResult } from '@/api/external/onlineGame';
 import axios from 'axios';
 import { GameData, OpeningTree } from './OpeningTree';
-import { PlayerSource, SourceType } from './PlayerSource';
+import { Color, PlayerSource, SourceType } from './PlayerSource';
 
 export async function loadChesscom(
     sources: PlayerSource[],
@@ -55,7 +55,7 @@ async function loadChesscomSource(
         const games = await fetchChesscomArchiveGames(source.username, year, month);
         console.log(`Got games: `, games);
         for (const game of games) {
-            if (indexGame(game, result)) {
+            if (indexGame(source, game, result)) {
                 incrementIndexedCount();
                 count++;
                 if (count >= 100) {
@@ -66,8 +66,12 @@ async function loadChesscomSource(
     }
 }
 
-function indexGame(game: ChesscomGame, result: OpeningTree): boolean {
+function indexGame(source: PlayerSource, game: ChesscomGame, result: OpeningTree): boolean {
     const gameData: GameData = {
+        playerColor:
+            game.white.username.toLowerCase() === source.username.toLowerCase()
+                ? Color.White
+                : Color.Black,
         white: game.white.username,
         black: game.black.username,
         whiteElo: game.white.rating,

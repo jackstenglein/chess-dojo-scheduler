@@ -1,8 +1,19 @@
-import { LichessExplorerPosition } from '@/database/explorer';
+import { LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
 import { GameResult } from '@/database/game';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
+import { Color, GameFilters } from './PlayerSource';
+
+interface PositionDataMove extends LichessExplorerMove {
+    /**
+     * A set of URLs of the games that played this move.
+     */
+    games: Set<string>;
+}
 
 export interface PositionData extends LichessExplorerPosition {
+    /** The moves played from this position, ordered from most common to least common. */
+    moves: PositionDataMove[];
+
     /**
      * A set of URLs of the games played in this position. Empty
      * for the starting position.
@@ -11,6 +22,7 @@ export interface PositionData extends LichessExplorerPosition {
 }
 
 export interface GameData {
+    playerColor: Color.White | Color.Black;
     white: string;
     black: string;
     whiteElo: number;
@@ -43,7 +55,7 @@ export class OpeningTree {
         return this.gameData.get(url);
     }
 
-    getGames(fen: string): GameData[] {
+    getGames(fen: string, filters?: GameFilters): GameData[] {
         const position = this.getPosition(fen);
         if (!position) {
             return [];
@@ -52,7 +64,7 @@ export class OpeningTree {
         const result = [];
         for (const url of position.games) {
             const game = this.getGame(url);
-            if (game) {
+            if (game && matchesFilter(game, filters)) {
                 result.push(game);
             }
         }
@@ -64,9 +76,47 @@ export class OpeningTree {
         this.positionData.set(fen, position);
     }
 
-    getPosition(fen: string) {
+    getPosition(fen: string, filters?: GameFilters) {
         fen = normalizeFen(fen);
-        return this.positionData.get(fen);
+        const position = this.positionData.get(fen);
+        if (!position || !filters) {
+            return position;
+        }
+
+        let white = 0;
+        let black = 0;
+        let draws = 0;
+        for (const gameUrl of position.games) {
+            const game = this.getGame(gameUrl);
+            if (matchesFilter(game, filters)) {
+                if (game?.result === GameResult.White) white++;
+                else if (game?.result === GameResult.Black) black++;
+                else draws++;
+            }
+        }
+
+        const moves = position.moves
+            .map((move) => {
+                let white = 0;
+                let black = 0;
+                let draws = 0;
+                for (const gameUrl of move.games) {
+                    const game = this.getGame(gameUrl);
+                    if (matchesFilter(game, filters)) {
+                        if (game?.result === GameResult.White) white++;
+                        else if (game?.result === GameResult.Black) black++;
+                        else draws++;
+                    }
+                }
+                return { ...move, white, black, draws };
+            })
+            .filter((m) => m.white || m.black || m.draws)
+            .sort(
+                (lhs, rhs) =>
+                    rhs.white + rhs.black + rhs.draws - (lhs.white + lhs.black + lhs.draws),
+            );
+
+        return { ...position, white, black, draws, moves };
     }
 
     mergePosition(fen: string, position: PositionData, game?: GameData) {
@@ -95,12 +145,15 @@ export class OpeningTree {
                     existingMove.white += move.white;
                     existingMove.black += move.black;
                     existingMove.draws += move.draws;
+                    for (const g of move.games) {
+                        existingMove.games.add(g);
+                    }
                 }
-                existingPosition.moves.sort(
-                    (lhs, rhs) =>
-                        rhs.white + rhs.black + rhs.draws - (lhs.white + lhs.black + lhs.draws),
-                );
             }
+            existingPosition.moves.sort(
+                (lhs, rhs) =>
+                    rhs.white + rhs.black + rhs.draws - (lhs.white + lhs.black + lhs.draws),
+            );
         }
     }
 
@@ -130,6 +183,7 @@ export class OpeningTree {
                         black: 0,
                         draws: 0,
                         [resultKey]: 1,
+                        games: new Set([game.url]),
                     },
                 ],
             };
@@ -149,6 +203,7 @@ export class OpeningTree {
                                   black: 0,
                                   draws: 0,
                                   [resultKey]: 1,
+                                  games: new Set([game.url]),
                               },
                           ]
                         : [],
@@ -161,4 +216,17 @@ export class OpeningTree {
             return false;
         }
     }
+}
+
+function matchesFilter(game: GameData | undefined, filter: GameFilters | undefined): boolean {
+    if (!game) {
+        return false;
+    }
+    if (!filter) {
+        return true;
+    }
+    if (filter.color !== Color.Both && game.playerColor !== filter.color) {
+        return false;
+    }
+    return true;
 }

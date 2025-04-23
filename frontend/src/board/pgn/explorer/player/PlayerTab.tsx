@@ -4,7 +4,7 @@ import { proxy, releaseProxy, Remote, wrap } from 'comlink';
 import { useEffect, useRef, useState } from 'react';
 import Database from '../Database';
 import { ExplorerDatabaseType } from '../Explorer';
-import { Filters, useGameFilters } from './Filters';
+import { Filters, readonlyGameFilters, useGameFilters } from './Filters';
 import { OpeningTree } from './OpeningTree';
 import { OpeningTreeLoaderFactory } from './OpeningTreeLoaderWorker';
 import { DEFAULT_PLAYER_SOURCE, PlayerSource } from './PlayerSource';
@@ -18,11 +18,12 @@ function onClickGame(game: GameInfo) {
 export function PlayerTab({ fen }: { fen: string }) {
     const [sources, setSources] = useState([DEFAULT_PLAYER_SOURCE]);
     const filters = useGameFilters();
+    const readonlyFilters = readonlyGameFilters(filters);
     const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
     const [isLoading, setIsLoading] = useState(false);
     const [indexedCount, setIndexedCount] = useState(0);
-    const [openingTree, setOpeningTree] = useState<OpeningTree>();
-    const pagination = usePlayerGames(fen, openingTree);
+    const openingTree = useRef<OpeningTree>();
+    const pagination = usePlayerGames(fen, openingTree.current, readonlyFilters);
 
     useEffect(() => {
         const worker = new Worker(new URL('./OpeningTreeLoaderWorker.ts', import.meta.url));
@@ -63,7 +64,7 @@ export function PlayerTab({ fen }: { fen: string }) {
             ),
         );
         console.log('loader finished with tree: ', tree);
-        setOpeningTree(tree);
+        openingTree.current = tree;
         setIsLoading(false);
     };
 
@@ -79,11 +80,11 @@ export function PlayerTab({ fen }: { fen: string }) {
                     </Typography>
                     <CircularProgress size={20} />
                 </Stack>
-            ) : openingTree ? (
+            ) : openingTree.current ? (
                 <Database
                     type={ExplorerDatabaseType.Player}
                     fen={fen}
-                    position={openingTree.getPosition(fen)}
+                    position={openingTree.current.getPosition(fen, readonlyFilters)}
                     isLoading={false}
                     pagination={pagination}
                     onClickGame={onClickGame}

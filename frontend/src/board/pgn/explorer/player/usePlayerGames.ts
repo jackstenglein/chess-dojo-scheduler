@@ -2,10 +2,15 @@ import { useRequest } from '@/api/Request';
 import { PaginationResult } from '@/hooks/usePagination';
 import { useState } from 'react';
 import { OpeningTree } from './OpeningTree';
+import { GameFilters } from './PlayerSource';
 
 const emptyFunction = () => null;
 
-export function usePlayerGames(fen: string, openingTree?: OpeningTree): PaginationResult {
+export function usePlayerGames(
+    fen: string,
+    openingTree?: OpeningTree,
+    filters?: GameFilters,
+): PaginationResult {
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const request = useRequest();
@@ -16,7 +21,7 @@ export function usePlayerGames(fen: string, openingTree?: OpeningTree): Paginati
     };
 
     const games =
-        openingTree?.getGames(fen).map((g) => ({
+        openingTree?.getGames(fen, filters).map((g) => ({
             cohort: '',
             id: g.url,
             date: '',

@@ -12,17 +12,12 @@ import {
 import { DateRangePicker, SingleInputDateRangeField } from '@mui/x-date-pickers-pro';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
+import { Color, GameFilters } from './PlayerSource';
 
 export const MIN_DOWNLOAD_LIMIT = 100;
 export const MAX_DOWNLOAD_LIMIT = 2000;
 
-export enum Color {
-    White = 'white',
-    Black = 'black',
-    Both = 'both',
-}
-
-interface GameFilters {
+interface EditableGameFilters {
     color: Color;
     setColor: (color: Color) => void;
     rated: boolean;
@@ -47,7 +42,7 @@ interface GameFilters {
     setDateRange: (dateRange: [DateTime | null, DateTime | null]) => void;
 }
 
-export function useGameFilters(): GameFilters {
+export function useGameFilters(): EditableGameFilters {
     const [color, setColor] = useState<Color>(Color.White);
     const [rated, setRated] = useState(true);
     const [casual, setCasual] = useState(true);
@@ -86,7 +81,14 @@ export function useGameFilters(): GameFilters {
     };
 }
 
-export function Filters({ filters }: { filters: GameFilters }) {
+export function readonlyGameFilters(filters: EditableGameFilters): GameFilters {
+    return {
+        ...filters,
+        dateRange: [filters.dateRange[0]?.toISO() ?? '', filters.dateRange[1]?.toISO() ?? ''],
+    };
+}
+
+export function Filters({ filters }: { filters: EditableGameFilters }) {
     return (
         <Stack spacing={2} mt={2}>
             <FormControl>
