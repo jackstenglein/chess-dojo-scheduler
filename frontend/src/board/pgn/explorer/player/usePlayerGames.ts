@@ -18,7 +18,7 @@ export function usePlayerGames(fen: string, openingTree?: OpeningTree): Paginati
     const games =
         openingTree?.getGames(fen).map((g) => ({
             cohort: '',
-            id: '',
+            id: g.url,
             date: '',
             owner: '',
             ownerDisplayName: '',

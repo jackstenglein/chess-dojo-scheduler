@@ -55,17 +55,18 @@ async function loadChesscomSource(
         const games = await fetchChesscomArchiveGames(source.username, year, month);
         console.log(`Got games: `, games);
         for (const game of games) {
-            indexGame(game, result);
-            incrementIndexedCount();
-            count++;
-            if (count >= 1) {
-                return;
+            if (indexGame(game, result)) {
+                incrementIndexedCount();
+                count++;
+                if (count >= 100) {
+                    return;
+                }
             }
         }
     }
 }
 
-async function indexGame(game: ChesscomGame, result: OpeningTree) {
+function indexGame(game: ChesscomGame, result: OpeningTree): boolean {
     const gameData: GameData = {
         white: game.white.username,
         black: game.black.username,
@@ -77,5 +78,5 @@ async function indexGame(game: ChesscomGame, result: OpeningTree) {
         url: game.url,
         headers: {},
     };
-    result.indexGame(gameData, game.pgn);
+    return result.indexGame(gameData, game.pgn);
 }

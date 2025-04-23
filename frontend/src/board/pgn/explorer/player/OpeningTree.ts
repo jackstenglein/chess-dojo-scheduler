@@ -96,58 +96,69 @@ export class OpeningTree {
                     existingMove.black += move.black;
                     existingMove.draws += move.draws;
                 }
+                existingPosition.moves.sort(
+                    (lhs, rhs) =>
+                        rhs.white + rhs.black + rhs.draws - (lhs.white + lhs.black + lhs.draws),
+                );
             }
         }
     }
 
-    indexGame(game: GameData, pgn: string) {
-        const chess = new Chess({ pgn });
-        if (chess.plyCount() < 2) {
-            return;
-        }
+    indexGame(game: GameData, pgn: string): boolean {
+        try {
+            const chess = new Chess({ pgn });
+            if (chess.plyCount() < 2) {
+                return false;
+            }
 
-        game.plyCount = chess.plyCount();
-        game.headers = chess.header().valueMap();
-        this.setGame(game);
+            game.plyCount = chess.plyCount();
+            game.headers = chess.header().valueMap();
+            this.setGame(game);
 
-        const resultKey =
-            game.result === '1-0' ? 'white' : game.result === '0-1' ? 'black' : 'draws';
-        let position: PositionData = {
-            white: 0,
-            black: 0,
-            draws: 0,
-            [resultKey]: 1,
-            games: new Set([game.url]),
-            moves: [
-                {
-                    san: chess.firstMove()?.san || '',
-                    white: 0,
-                    black: 0,
-                    draws: 0,
-                    [resultKey]: 1,
-                },
-            ],
-        };
-        this.mergePosition(chess.setUpFen(), position);
-
-        for (const move of chess.history()) {
-            const nextMove = chess.nextMove(move);
-
-            position = {
-                ...position,
-                moves: nextMove
-                    ? [
-                          {
-                              san: nextMove.san,
-                              white: 0,
-                              black: 0,
-                              draws: 0,
-                              [resultKey]: 1,
-                          },
-                      ]
-                    : [],
+            const resultKey =
+                game.result === '1-0' ? 'white' : game.result === '0-1' ? 'black' : 'draws';
+            let position: PositionData = {
+                white: 0,
+                black: 0,
+                draws: 0,
+                [resultKey]: 1,
+                games: new Set([game.url]),
+                moves: [
+                    {
+                        san: chess.firstMove()?.san || '',
+                        white: 0,
+                        black: 0,
+                        draws: 0,
+                        [resultKey]: 1,
+                    },
+                ],
             };
-            this.mergePosition(move.fen, position);
+            this.mergePosition(chess.setUpFen(), position);
+
+            for (const move of chess.history()) {
+                const nextMove = chess.nextMove(move);
+
+                position = {
+                    ...position,
+                    games: new Set([game.url]),
+                    moves: nextMove
+                        ? [
+                              {
+                                  san: nextMove.san,
+                                  white: 0,
+                                  black: 0,
+                                  draws: 0,
+                                  [resultKey]: 1,
+                              },
+                          ]
+                        : [],
+                };
+                this.mergePosition(move.fen, position);
+            }
+            return true;
+        } catch (err) {
+            console.error(`Failed to index game`, game, err);
+            return false;
         }
     }
 }

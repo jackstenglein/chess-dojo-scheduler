@@ -4,6 +4,7 @@ import { proxy, releaseProxy, Remote, wrap } from 'comlink';
 import { useEffect, useRef, useState } from 'react';
 import Database from '../Database';
 import { ExplorerDatabaseType } from '../Explorer';
+import { Filters, useGameFilters } from './Filters';
 import { OpeningTree } from './OpeningTree';
 import { OpeningTreeLoaderFactory } from './OpeningTreeLoaderWorker';
 import { DEFAULT_PLAYER_SOURCE, PlayerSource } from './PlayerSource';
@@ -16,6 +17,7 @@ function onClickGame(game: GameInfo) {
 
 export function PlayerTab({ fen }: { fen: string }) {
     const [sources, setSources] = useState([DEFAULT_PLAYER_SOURCE]);
+    const filters = useGameFilters();
     const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
     const [isLoading, setIsLoading] = useState(false);
     const [indexedCount, setIndexedCount] = useState(0);
@@ -68,6 +70,7 @@ export function PlayerTab({ fen }: { fen: string }) {
     return (
         <Stack>
             <PlayerSources sources={sources} setSources={setSources} />
+            <Filters filters={filters} />
 
             {isLoading ? (
                 <Stack direction='row' spacing={1}>
