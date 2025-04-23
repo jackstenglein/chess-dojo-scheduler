@@ -68,7 +68,9 @@ export class OpeningTree {
                 result.push(game);
             }
         }
-        return result;
+        return result.sort((lhs, rhs) =>
+            (rhs.headers.Date ?? '').localeCompare(lhs.headers.Date ?? ''),
+        );
     }
 
     setPosition(fen: string, position: PositionData) {

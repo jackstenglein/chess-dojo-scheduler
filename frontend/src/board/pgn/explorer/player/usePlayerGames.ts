@@ -24,7 +24,8 @@ export function usePlayerGames(
         openingTree?.getGames(fen, filters).map((g) => ({
             cohort: '',
             id: g.url,
-            date: '',
+            date: g.headers.Date || '',
+            publishedAt: g.headers.Date || '',
             owner: '',
             ownerDisplayName: '',
             ownerPreviousCohort: '',
@@ -32,13 +33,15 @@ export function usePlayerGames(
                 ...g.headers,
                 White: g.white,
                 Black: g.black,
-                Date: '',
+                Date: g.headers.Date || '',
                 Site: g.url,
                 Result: g.result,
             },
             createdAt: '',
             unlisted: true,
         })) ?? [];
+
+    console.log('Games: ', games);
 
     return {
         page,
