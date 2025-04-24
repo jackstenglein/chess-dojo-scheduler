@@ -1,3 +1,4 @@
+import { OnlineGameTimeClass } from '@/api/external/onlineGame';
 import { LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
 import { GameResult } from '@/database/game';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
@@ -32,6 +33,7 @@ export interface GameData {
     rated: boolean;
     url: string;
     headers: Record<string, string>;
+    timeClass: OnlineGameTimeClass;
 }
 
 export class OpeningTree {
@@ -228,6 +230,37 @@ function matchesFilter(game: GameData | undefined, filter: GameFilters | undefin
         return true;
     }
     if (filter.color !== Color.Both && game.playerColor !== filter.color) {
+        return false;
+    }
+    if (!filter.casual && !game.rated) {
+        return false;
+    }
+    if (!filter.rated && game.rated) {
+        return false;
+    }
+    if (filter.dateRange[0] && filter.dateRange[0] > game.headers.Date) {
+        return false;
+    }
+    if (filter.dateRange[1] && filter.dateRange[1] < game.headers.Date) {
+        return false;
+    }
+    const opponentRating = game.playerColor === Color.White ? game.blackElo : game.whiteElo;
+    if (filter.opponentRating[0] > opponentRating || filter.opponentRating[1] < opponentRating) {
+        return false;
+    }
+    if (!filter.bullet && game.timeClass === OnlineGameTimeClass.Bullet) {
+        return false;
+    }
+    if (!filter.blitz && game.timeClass === OnlineGameTimeClass.Blitz) {
+        return false;
+    }
+    if (!filter.rapid && game.timeClass === OnlineGameTimeClass.Rapid) {
+        return false;
+    }
+    if (!filter.classical && game.timeClass === OnlineGameTimeClass.Classical) {
+        return false;
+    }
+    if (!filter.daily && game.timeClass === OnlineGameTimeClass.Daily) {
         return false;
     }
     return true;

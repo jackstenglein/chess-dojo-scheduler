@@ -1,5 +1,5 @@
 import { ChesscomGame, fetchChesscomArchiveGames } from '@/api/external/chesscom';
-import { chesscomGameResult } from '@/api/external/onlineGame';
+import { chesscomGameResult, getTimeClass } from '@/api/external/onlineGame';
 import axios from 'axios';
 import { GameData, OpeningTree } from './OpeningTree';
 import { Color, PlayerSource, SourceType } from './PlayerSource';
@@ -40,7 +40,7 @@ async function loadChesscomSource(
     const archives = archiveResponse.data.archives?.toReversed() ?? [];
     console.log(`Got archives: `, archives);
 
-    let count = 0;
+    // let count = 0;
     for (const archive of archives) {
         const match = CHESSCOM_ARCHIVE_REGEX.exec(archive);
         if (!match) {
@@ -57,10 +57,10 @@ async function loadChesscomSource(
         for (const game of games) {
             if (indexGame(source, game, result)) {
                 incrementIndexedCount();
-                count++;
-                if (count >= 100) {
-                    return;
-                }
+                // count++;
+                // if (count >= 100) {
+                //     return;
+                // }
             }
         }
     }
@@ -81,6 +81,7 @@ function indexGame(source: PlayerSource, game: ChesscomGame, result: OpeningTree
         rated: game.rated,
         url: game.url,
         headers: {},
+        timeClass: getTimeClass(game.time_class),
     };
     return result.indexGame(gameData, game.pgn);
 }

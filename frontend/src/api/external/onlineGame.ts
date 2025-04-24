@@ -5,7 +5,7 @@ import {
 import { useEffect, useMemo } from 'react';
 import { GameResult } from '../../database/game';
 import { ChesscomGame, ChesscomGameResult, ChesscomTimeClass, useChesscomGames } from './chesscom';
-import { LichessGame, LichessPerfType, useLichessUserGames } from './lichess';
+import { LichessGame, LichessPerfType, LichessTimeClass, useLichessUserGames } from './lichess';
 
 /** A unified interface for online games from any source. */
 export interface OnlineGame {
@@ -98,12 +98,11 @@ export interface OnlineGameTimeControl {
 }
 
 export enum OnlineGameTimeClass {
-    UltraBullet = 'ultraBullet',
     Bullet = 'bullet',
     Blitz = 'blitz',
     Rapid = 'rapid',
     Classical = 'classical',
-    Correspondence = 'correspondence',
+    Daily = 'daily',
 }
 
 /**
@@ -193,18 +192,28 @@ function chesscomGameResultReason(reason: ChesscomGameResult): OnlineGameResultR
  * Convers the given time class to an OnlineGameTimeClass, if it isn't one already.
  * @param tc The time class to convert.
  */
-function getTimeClass(tc: ChesscomTimeClass | OnlineGameTimeClass): OnlineGameTimeClass {
+export function getTimeClass(tc: ChesscomTimeClass | LichessTimeClass): OnlineGameTimeClass {
     switch (tc) {
-        case ChesscomTimeClass.Rapid:
-            return OnlineGameTimeClass.Rapid;
-        case ChesscomTimeClass.Blitz:
-            return OnlineGameTimeClass.Blitz;
+        case LichessTimeClass.UltraBullet:
+        case LichessTimeClass.Bullet:
         case ChesscomTimeClass.Bullet:
             return OnlineGameTimeClass.Bullet;
+
+        case LichessTimeClass.Blitz:
+        case ChesscomTimeClass.Blitz:
+            return OnlineGameTimeClass.Blitz;
+
+        case LichessTimeClass.Rapid:
+        case ChesscomTimeClass.Rapid:
+            return OnlineGameTimeClass.Rapid;
+
+        case LichessTimeClass.Classical:
+            return OnlineGameTimeClass.Classical;
+
         case ChesscomTimeClass.Daily:
-            return OnlineGameTimeClass.Correspondence;
+        case LichessTimeClass.Correspondence:
+            return OnlineGameTimeClass.Daily;
     }
-    return tc;
 }
 
 /**
@@ -256,7 +265,7 @@ export function lichessOnlineGame(game: LichessGame, skipVariant = true): Online
             initialSeconds: game.clock.initial,
             incrementSeconds: game.clock.increment,
         },
-        timeClass: game.speed,
+        timeClass: getTimeClass(game.speed),
     };
 }
 

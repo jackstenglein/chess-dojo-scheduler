@@ -84,7 +84,10 @@ export function useGameFilters(): EditableGameFilters {
 export function readonlyGameFilters(filters: EditableGameFilters): GameFilters {
     return {
         ...filters,
-        dateRange: [filters.dateRange[0]?.toISO() ?? '', filters.dateRange[1]?.toISO() ?? ''],
+        dateRange: [
+            filters.dateRange[0]?.toISO()?.replaceAll('-', '.') ?? '',
+            filters.dateRange[1]?.toISO()?.replaceAll('-', '.') ?? '',
+        ],
     };
 }
 

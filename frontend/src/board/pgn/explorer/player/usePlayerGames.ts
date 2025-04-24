@@ -41,8 +41,6 @@ export function usePlayerGames(
             unlisted: true,
         })) ?? [];
 
-    console.log('Games: ', games);
-
     return {
         page,
         setPage: (newPage: number) => onChangePageModel(newPage, pageSize),
