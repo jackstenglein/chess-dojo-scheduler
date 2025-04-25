@@ -93,15 +93,15 @@ async function handleEmailNotification(user: PartialUser | undefined, tournament
         .filter((p) => p.white === user.username || p.black === user.username);
     const pairingText = userPairings
         .map((p, idx) => {
-            return `Round ${idx + 1}\nWhite: ${tournament.players[p.white].displayName}\nBlack: ${tournament.players[p.black].displayName}`;
+            return `Round ${idx + 1}\nWhite: ${p.white ? tournament.players[p.white].displayName : 'Bye'}\nBlack: ${p.black ? tournament.players[p.black].displayName : 'Bye'}`;
         })
         .join('\n\n');
     const pairingHtml = userPairings
         .map((p, idx) => {
             return `<tr>
             <td style="padding-left: 4px">${idx + 1}</td>
-            <td style="padding-left: 4px">${tournament.players[p.white].displayName}</td>
-            <td style="padding-left: 4px">${tournament.players[p.black].displayName}</td>
+            <td style="padding-left: 4px">${p.white ? tournament.players[p.white].displayName : 'Bye'}</td>
+            <td style="padding-left: 4px">${p.black ? tournament.players[p.black].displayName : 'Bye'}</td>
         </tr>`;
         })
         .join('\n');
