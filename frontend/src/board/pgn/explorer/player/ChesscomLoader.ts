@@ -35,7 +35,7 @@ async function loadChesscomSource(
     }
 
     const archiveResponse = await axios.get<ChesscomListArchivesResponse>(
-        `https://api.chess.com/pub/player/${source.username}/games/archives`,
+        `https://api.chess.com/pub/player/${source.username.trim()}/games/archives`,
     );
     const archives = archiveResponse.data.archives?.toReversed() ?? [];
     console.log(`Got archives: `, archives);

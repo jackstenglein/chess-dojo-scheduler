@@ -19,7 +19,6 @@ export function PlayerTab({ fen }: { fen: string }) {
     const [sources, setSources] = useState([DEFAULT_PLAYER_SOURCE]);
     const filters = useGameFilters();
     const readonlyFilters = readonlyGameFilters(filters);
-    console.log('readonly filters: ', readonlyFilters);
     const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
     const [isLoading, setIsLoading] = useState(false);
     const [indexedCount, setIndexedCount] = useState(0);

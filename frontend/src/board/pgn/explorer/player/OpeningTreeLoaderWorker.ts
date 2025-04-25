@@ -1,5 +1,6 @@
 import { expose, proxy } from 'comlink';
 import { loadChesscom } from './ChesscomLoader';
+import { loadLichess } from './LichessLoader';
 import { OpeningTree } from './OpeningTree';
 import { PlayerSource, SourceType } from './PlayerSource';
 
@@ -11,12 +12,6 @@ export class OpeningTreeLoader {
     private openingTree: OpeningTree | undefined;
 
     async load(sources: PlayerSource[], incrementIndexedCount: (inc?: number) => void) {
-        try {
-            throw Error('Throwing for breakpoint');
-        } catch {
-            console.error('Caught breakpoint exception');
-        }
-
         const chesscomSources: PlayerSource[] = [];
         const lichessSources: PlayerSource[] = [];
 
@@ -28,8 +23,18 @@ export class OpeningTreeLoader {
             }
         }
 
-        this.openingTree = await loadChesscom(chesscomSources, incrementIndexedCount);
-        console.log('Final opening tree: ', this.openingTree);
+        const promises = [
+            loadChesscom(chesscomSources, incrementIndexedCount),
+            loadLichess(lichessSources, incrementIndexedCount),
+        ];
+        const [chesscomTree, lichessTree] = await Promise.all(promises);
+        console.log('Chesscom Tree: ', chesscomTree);
+        console.log('Lichess Tree: ', lichessTree);
+
+        this.openingTree = chesscomTree;
+        this.openingTree.mergeTree(lichessTree);
+
+        console.log('Merged tree: ', this.openingTree);
         return this.openingTree;
     }
 }

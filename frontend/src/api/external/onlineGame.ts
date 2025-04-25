@@ -274,7 +274,7 @@ export function lichessOnlineGame(game: LichessGame, skipVariant = true): Online
  * @param game The game to get the result/reason for.
  * @returns An array containing the result and reason.
  */
-function lichessGameResult(game: LichessGame): [GameResult, OnlineGameResultReason] {
+export function lichessGameResult(game: LichessGame): [GameResult, OnlineGameResultReason] {
     let result = GameResult.Draw;
     if (game.winner === 'white') {
         result = GameResult.White;

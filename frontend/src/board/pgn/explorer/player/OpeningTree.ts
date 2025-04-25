@@ -123,12 +123,7 @@ export class OpeningTree {
         return { ...position, white, black, draws, moves };
     }
 
-    mergePosition(fen: string, position: PositionData, game?: GameData) {
-        if (game) {
-            this.setGame(game);
-            position.games.add(game.url);
-        }
-
+    mergePosition(fen: string, position: PositionData) {
         fen = normalizeFen(fen);
         const existingPosition = this.positionData.get(fen);
         if (!existingPosition) {
@@ -218,6 +213,15 @@ export class OpeningTree {
         } catch (err) {
             console.error(`Failed to index game`, game, err);
             return false;
+        }
+    }
+
+    mergeTree(other: OpeningTree) {
+        for (const [url, game] of other.gameData) {
+            this.gameData.set(url, game);
+        }
+        for (const [fen, position] of other.positionData) {
+            this.mergePosition(fen, position);
         }
     }
 }
