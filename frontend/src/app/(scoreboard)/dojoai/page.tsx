@@ -40,8 +40,8 @@ export default function ChatPage() {
             }
         };
 
-        fetchHistory();
-    }, []);
+        void fetchHistory();
+    }, [threadId]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -172,7 +172,7 @@ export default function ChatPage() {
                     ) : (
                         <>
                             {messages.map((msg) => (
-                                <ChatMessage message={msg} />
+                                <ChatMessage key={msg.id} message={msg} />
                             ))}
                             {isThinking && (
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 1 }}>

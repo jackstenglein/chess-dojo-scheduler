@@ -17,7 +17,7 @@ export interface UIMessage {
     role: 'user' | 'assistant';
     content: string;
     createdAt: string;
-    toolInvocations: any[];
+    toolInvocations: unknown[];
 }
 
 /**
