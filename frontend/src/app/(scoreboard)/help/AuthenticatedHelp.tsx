@@ -1,6 +1,6 @@
 'use client';
-import { SmartToy } from '@mui/icons-material';
 import { Link } from '@/components/navigation/Link';
+import { SmartToy } from '@mui/icons-material';
 import {
     Button,
     Card,

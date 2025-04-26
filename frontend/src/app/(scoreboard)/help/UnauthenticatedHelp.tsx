@@ -1,6 +1,7 @@
 import { Link } from '@/components/navigation/Link';
 import { RatingSystem, formatRatingSystem } from '@/database/user';
 import {
+    Button,
     Card,
     CardContent,
     CardHeader,
@@ -9,8 +10,6 @@ import {
     Grid2,
     Stack,
     Typography,
-    Button
-
 } from '@mui/material';
 
 import { SmartToy } from '@mui/icons-material';

@@ -12,7 +12,6 @@ interface AgentChatResponse {
     text: string;
 }
 
-
 export interface UIMessage {
     id: string;
     role: 'user' | 'assistant';
@@ -29,13 +28,16 @@ export interface UIMessage {
  * @returns an Axios Response containing the agent's response
  */
 
-export async function sendMessage(message: string, threadId: string, resourceId: string): Promise<AxiosResponse<AgentChatResponse>> {
-    
+export async function sendMessage(
+    message: string,
+    threadId: string,
+    resourceId: string,
+): Promise<AxiosResponse<AgentChatResponse>> {
     const body = {
         message: message,
         threadId: threadId,
-        resourceId: resourceId
-    }
+        resourceId: resourceId,
+    };
     const sendMessageResponse = await axios.post(`${BASE_URL}/dojoai/chat`, body);
 
     return sendMessageResponse;
@@ -44,13 +46,14 @@ export async function sendMessage(message: string, threadId: string, resourceId:
 /**
  * gets the chat history for given thread
  * @param threadId the thread id
- * @returns the message history 
+ * @returns the message history
  */
 
-export async function getChatHistory(threadId: string): Promise<AxiosResponse<AgentHistoryResponse>> {
-
+export async function getChatHistory(
+    threadId: string,
+): Promise<AxiosResponse<AgentHistoryResponse>> {
     const historyResponse = await axios.get(`${BASE_URL}/dojoai/threadhistory`, {
-        params: {threadId: threadId}
+        params: { threadId: threadId },
     });
 
     return historyResponse;

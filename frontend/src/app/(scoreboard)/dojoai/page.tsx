@@ -20,14 +20,13 @@ export default function ChatPage() {
     let threadId = '';
 
     if (!user) {
-       const anonId = uuidv4();
-       resourceId = anonId;
-       threadId = `${anonId}-thread`;
-    }else{
+        const anonId = uuidv4();
+        resourceId = anonId;
+        threadId = `${anonId}-thread`;
+    } else {
         resourceId = user.username;
         threadId = `${user.username}-thread`;
     }
-
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -96,11 +95,13 @@ export default function ChatPage() {
         }
     };
 
-    const suggestedQuestions = user ? [
-        'What is DojoAI capable of?',
-        'What is ChessDojo?',
-        'How to setup Discord?',
-    ] : ['What is ChessDojo?', 'How to get a Chessdojo subscription?', 'How can ChessDojo Training Plan help me?']
+    const suggestedQuestions = user
+        ? ['What is DojoAI capable of?', 'What is ChessDojo?', 'How to setup Discord?']
+        : [
+              'What is ChessDojo?',
+              'How to get a Chessdojo subscription?',
+              'How can ChessDojo Training Plan help me?',
+          ];
 
     if (isLoadingHistory) {
         return <LoadingPage />;

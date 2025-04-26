@@ -32,7 +32,6 @@ import {
     Scoreboard,
     Sell,
     SignalCellularAlt,
-    SmartToy,
     Speed,
     Storefront,
     EmojiEvents as Tournaments,
@@ -280,8 +279,6 @@ function helpItem(): NavbarItem {
     };
 }
 
-
-
 function NotificationsMenuItem(): JSX.Element {
     const { notifications } = useNotifications();
     return (
@@ -436,8 +433,6 @@ function HelpButton() {
     );
 }
 
-
-
 function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
@@ -510,7 +505,6 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
 
     if (showHelp) {
         endItems.push(HelpButton());
-        
     } else {
         menuItems.push(
             <NavMenuItem
