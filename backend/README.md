@@ -14,6 +14,7 @@ Deploying the entire backend can be quite complex. There are many resources, and
 ```
 cd backend
 npm install
+cd folder-that-contains-typescript-code
 serverless plugin install -n serverless-esbuild
 ```
 
@@ -23,6 +24,14 @@ serverless plugin install -n serverless-esbuild
 client_id: ''
 client_secret: ''
 ```
+
+1. Create the `backend/ai.yml` file with the following contents: 
+
+```
+endpoint: ''
+agent: ''
+```
+
 
 1. Create the `backend/discord.yml` file with the following contents:
 
@@ -43,13 +52,13 @@ botAccessToken: ''
 wixApiKey: ''
 ```
 
-1. Run `sls deploy --stage simple`.
+1. Run `serverless deploy --stage simple`.
 
 ## Important Files/Directories
 
 ### serverless.yml
 
-This file contains all the API endpoints and the other AWS resources. These resources are deployed through CloudFormation using the `sls deploy` command.
+This file contains all the API endpoints and the other AWS resources. These resources are deployed through CloudFormation using the `serverless deploy` command.
 
 ### api
 

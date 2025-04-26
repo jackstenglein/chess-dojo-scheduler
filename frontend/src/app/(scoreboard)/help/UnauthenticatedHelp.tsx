@@ -9,7 +9,11 @@ import {
     Grid2,
     Stack,
     Typography,
+    Button
+
 } from '@mui/material';
+
+import { SmartToy } from '@mui/icons-material';
 import React from 'react';
 import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
@@ -227,10 +231,20 @@ const UnauthenticatedHelp = () => {
                             <Typography variant='h4'>Help/FAQs</Typography>
                             <Divider />
                             <Typography variant='body1' mt={3}>
-                                If you have trouble using the site, please check this section before
-                                asking for help. If your issue is not listed here or is not solved
-                                by the advice here, then create a support ticket below.
+                                If you are having trouble using the site, ask
+                                <strong> DojoAI</strong> for assistance below. If you're still
+                                stuck, please contact customer support.
                             </Typography>
+                            <Button
+                                variant='contained'
+                                color='primary'
+                                startIcon={<SmartToy />}
+                                component={Link}
+                                href='https://www.chessdojo.club/dojoai'
+                                sx={{ mt: 2, alignSelf: 'start' }}
+                            >
+                                Ask DojoAI
+                            </Button>
                         </Stack>
 
                         {helpSections.map((section) => (

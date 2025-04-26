@@ -400,9 +400,7 @@ const AuthenticatedHelp = () => {
                             <Typography variant='h4'>Help/FAQs</Typography>
                             <Divider />
                             <Typography variant='body1' mt={3}>
-                                If you have trouble using the site, please check this section before
-                                asking for help. If your issue is not listed here or isn't solved by
-                                the advice here, you can try asking
+                                If you are having trouble using the site, ask
                                 <strong> DojoAI</strong> for assistance below. If you're still
                                 stuck, please contact customer support.
                             </Typography>
