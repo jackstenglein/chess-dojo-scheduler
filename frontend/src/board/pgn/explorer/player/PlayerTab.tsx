@@ -1,5 +1,7 @@
+import { useFreeTier } from '@/auth/Auth';
 import { GameInfo } from '@/database/game';
-import { Button, CircularProgress, Stack, Typography } from '@mui/material';
+import UpsellAlert from '@/upsell/UpsellAlert';
+import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { proxy, releaseProxy, Remote, wrap } from 'comlink';
 import { useEffect, useRef, useState } from 'react';
 import Database from '../Database';
@@ -16,6 +18,7 @@ function onClickGame(game: GameInfo) {
 }
 
 export function PlayerTab({ fen }: { fen: string }) {
+    const isFreeTier = useFreeTier();
     const [sources, setSources] = useState([DEFAULT_PLAYER_SOURCE]);
     const filters = useGameFilters();
     const readonlyFilters = readonlyGameFilters(filters);
@@ -67,6 +70,14 @@ export function PlayerTab({ fen }: { fen: string }) {
         openingTree.current = tree;
         setIsLoading(false);
     };
+
+    if (isFreeTier) {
+        return (
+            <Box mt={2}>
+                <UpsellAlert>Upgrade to a full account to search by player.</UpsellAlert>
+            </Box>
+        );
+    }
 
     return (
         <Stack>
