@@ -17,7 +17,7 @@ export default function ChatMessage({ message }: DisplayMessage) {
     const isUser = message.role === 'user';
     const [copied, setCopied] = useState(false);
 
-    const handleCopy = async () => {
+    const handleCopy = () => {
         try {
             copy(message.content);
             setCopied(true);
