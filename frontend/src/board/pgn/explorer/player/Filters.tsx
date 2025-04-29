@@ -17,7 +17,7 @@ import { Color, GameFilters } from './PlayerSource';
 export const MIN_DOWNLOAD_LIMIT = 100;
 export const MAX_DOWNLOAD_LIMIT = 2000;
 
-interface EditableGameFilters {
+export interface EditableGameFilters {
     color: Color;
     setColor: (color: Color) => void;
     rated: boolean;
