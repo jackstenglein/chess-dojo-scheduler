@@ -42,7 +42,9 @@ export function RegisterModal({
     );
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [hasAgreedToRules, setHasAgreedToRules] = useState(false);
+    const [hasAgreedToTimeRule, setHasAgreedToTimeRule] = useState(false);
+    const [hasAgreedToResRule, setHasAgreedToResRule] = useState(false);
+    const [hasAgreedToCheatRule, setHasAgreedToCheatRule] = useState(false);
     const [rulesError, setRulesError] = useState('');
 
     const request = useRequest<string>();
@@ -65,8 +67,18 @@ export function RegisterModal({
             return;
         }
 
-        if (!hasAgreedToRules) {
-            setRulesError('Please read and agree to the rules before registering.');
+        if (!hasAgreedToTimeRule) {
+            setRulesError('Please read time commitment rules');
+            return;
+        }
+
+        if (!hasAgreedToResRule) {
+            setRulesError('Please read game scheduling rules');
+            return;
+        }
+
+        if (!hasAgreedToCheatRule) {
+            setRulesError('Please read anti-cheat rules');
             return;
         }
 
@@ -174,14 +186,40 @@ export function RegisterModal({
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={hasAgreedToRules}
+                                checked={hasAgreedToTimeRule}
                                 onChange={(e) => {
-                                    setHasAgreedToRules(e.target.checked);
+                                    setHasAgreedToTimeRule(e.target.checked);
                                     if (e.target.checked) setRulesError('');
                                 }}
                             />
                         }
-                        label='I have read all the round robin rules about time commitment, anti-cheat measures, and my responsibility in scheduling, and I agree to follow the Dojo provided rules when registering.'
+                        label='I have read all the rules about time commitment'
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={hasAgreedToResRule}
+                                onChange={(e) => {
+                                    setHasAgreedToResRule(e.target.checked);
+                                    if (e.target.checked) setRulesError('');
+                                }}
+                            />
+                        }
+                        label='I understand that scheduling games is my responsibility'
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={hasAgreedToCheatRule}
+                                onChange={(e) => {
+                                    setHasAgreedToCheatRule(e.target.checked);
+                                    if (e.target.checked) setRulesError('');
+                                }}
+                            />
+                        }
+                        label='I agree not to cheat'
                     />
                     {rulesError && <FormHelperText error>{rulesError}</FormHelperText>}
                 </DialogContent>
