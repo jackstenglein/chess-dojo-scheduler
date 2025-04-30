@@ -1,7 +1,18 @@
 import { useFreeTier } from '@/auth/Auth';
 import { GameInfo } from '@/database/game';
 import UpsellAlert from '@/upsell/UpsellAlert';
-import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
+import { ExpandMore } from '@mui/icons-material';
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Box,
+    Button,
+    CircularProgress,
+    Stack,
+    Typography,
+} from '@mui/material';
+import { useState } from 'react';
 import Database from '../Database';
 import { ExplorerDatabaseType } from '../Explorer';
 import { Filters } from './Filters';
@@ -26,6 +37,7 @@ export function PlayerTab({ fen }: { fen: string }) {
     } = usePlayerOpeningTree();
     const isFreeTier = useFreeTier();
     const pagination = usePlayerGames(fen, openingTree, readonlyFilters);
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     if (isFreeTier) {
         return (
@@ -37,8 +49,29 @@ export function PlayerTab({ fen }: { fen: string }) {
 
     return (
         <Stack>
-            <PlayerSources sources={sources} setSources={setSources} />
-            <Filters filters={filters} />
+            <Accordion
+                expanded={filtersOpen || (!isLoading && !openingTree)}
+                onChange={(_, expanded) => setFiltersOpen(expanded)}
+                disableGutters
+                elevation={0}
+                sx={{ mt: 1, background: 'transparent' }}
+            >
+                <AccordionSummary
+                    sx={{
+                        flexDirection: 'row-reverse',
+                        gap: 1,
+                        p: 0,
+                        display: !isLoading && !openingTree ? 'none' : undefined,
+                    }}
+                    expandIcon={<ExpandMore />}
+                >
+                    <Typography>Filters</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0 }}>
+                    <PlayerSources sources={sources} setSources={setSources} />
+                    <Filters filters={filters} />
+                </AccordionDetails>
+            </Accordion>
 
             {isLoading ? (
                 <Stack direction='row' spacing={1}>
