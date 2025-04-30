@@ -6,11 +6,14 @@ import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api'
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Checkbox,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
+    FormControlLabel,
+    FormHelperText,
     InputAdornment,
     TextField,
 } from '@mui/material';
@@ -39,6 +42,8 @@ export function RegisterModal({
     );
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [hasAgreedToRules, setHasAgreedToRules] = useState(false);
+    const [rulesError, setRulesError] = useState('');
 
     const request = useRequest<string>();
     const api = useApi();
@@ -57,6 +62,11 @@ export function RegisterModal({
         }
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) {
+            return;
+        }
+
+        if (!hasAgreedToRules) {
+            setRulesError('Please read and agree to the rules before registering.');
             return;
         }
 
@@ -160,7 +170,22 @@ export function RegisterModal({
                             },
                         }}
                     />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={hasAgreedToRules}
+                                onChange={(e) => {
+                                    setHasAgreedToRules(e.target.checked);
+                                    if (e.target.checked) setRulesError('');
+                                }}
+                            />
+                        }
+                        label='I have read all the round robin rules about time commitment, anti-cheat measures, and my responsibility in scheduling, and I agree to follow the Dojo provided rules when registering.'
+                    />
+                    {rulesError && <FormHelperText error>{rulesError}</FormHelperText>}
                 </DialogContent>
+
                 <DialogActions>
                     <Button disabled={request.isLoading()} onClick={onClose}>
                         Cancel

@@ -24,15 +24,11 @@ export function DiscordHelpItem() {
                 rel='noopener'
                 onClick={isFreeTier ? () => setShowDialog(true) : undefined}
             >
-                private Discord server
+                private section of the Discord Discord server
             </Link>{' '}
             to find training partners and communicate with other members. Free-tier users can enjoy
-            the Dojo's{' '}
-            <Link href={config.discord.publicUrl} target='_blank' rel='noopener'>
-                public Discord server
-            </Link>
-            , which also has exciting events like the open classical tournaments and weekly team
-            battles!
+            the the public section of the same Discord , which also has exciting events like the
+            open classical tournaments and weekly team battles!
             {showDialog && (
                 <UpsellDialog
                     open

@@ -41,7 +41,7 @@ const faqs = [
     },
     {
         question: 'How do I schedule the games?',
-        answer: 'Use the players tab on the tournament to find the Chess.com, Lichess and/or Discord username of your opponent. Message them on those platforms to schedule the game.',
+        answer: 'Use the players tab on the tournament to find the Chess.com, Lichess and/or Discord username of your opponent. Message them on those platforms to schedule the game. You can also search for scheduling threads in Dojo Discord in the #round-robin-chat to connect with players.',
     },
     {
         question: 'How do I submit my games?',
