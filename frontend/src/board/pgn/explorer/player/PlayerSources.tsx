@@ -1,4 +1,4 @@
-import { AddCircle, Delete } from '@mui/icons-material';
+import { AddCircle, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     Button,
     IconButton,
@@ -14,9 +14,13 @@ import { DEFAULT_PLAYER_SOURCE, PlayerSource, SourceType } from './PlayerSource'
 export function PlayerSources({
     sources,
     setSources,
+    locked,
+    onClear,
 }: {
     sources: PlayerSource[];
     setSources: (s: PlayerSource[]) => void;
+    locked: boolean;
+    onClear: () => void;
 }) {
     const handleTypeChange = (value: SourceType | null, index: number) => {
         if (!value) return;
@@ -44,6 +48,14 @@ export function PlayerSources({
         setSources([...sources.slice(0, index), ...sources.slice(index + 1)]);
     };
 
+    const onHideSource = (hidden: boolean, index: number) => {
+        setSources([
+            ...sources.slice(0, index),
+            { ...sources[index], hidden },
+            ...sources.slice(index + 1),
+        ]);
+    };
+
     return (
         <Stack mt={1} spacing={1}>
             {sources.map((source, i) => (
@@ -53,6 +65,7 @@ export function PlayerSources({
                         exclusive
                         onChange={(_, value: SourceType | null) => handleTypeChange(value, i)}
                         size='small'
+                        disabled={locked}
                     >
                         <Tooltip title='Chess.com'>
                             <ToggleButton value={SourceType.Chesscom}>
@@ -79,31 +92,59 @@ export function PlayerSources({
                         helperText={source.error}
                         sx={{ flexGrow: 1 }}
                         size='small'
+                        disabled={locked}
                     />
 
-                    <Tooltip title='Remove source' disableInteractive>
-                        <span>
-                            <IconButton
-                                onClick={() => onDeleteSource(i)}
-                                disabled={sources.length === 1}
-                                size='small'
-                                sx={{ alignSelf: 'center', color: 'text.secondary' }}
-                            >
-                                <Delete />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
+                    {locked ? (
+                        <Tooltip title={`${source.hidden ? 'Show' : 'Hide'} source in results`}>
+                            <span>
+                                <IconButton
+                                    onClick={() => onHideSource(!source.hidden, i)}
+                                    disabled={sources.length === 1}
+                                    size='small'
+                                    sx={{ alignSelf: 'center', color: 'text.secondary' }}
+                                >
+                                    {source.hidden ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title='Remove source' disableInteractive>
+                            <span>
+                                <IconButton
+                                    onClick={() => onDeleteSource(i)}
+                                    disabled={sources.length === 1}
+                                    size='small'
+                                    sx={{ alignSelf: 'center', color: 'text.secondary' }}
+                                >
+                                    <Delete />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    )}
                 </Stack>
             ))}
 
-            <Button
-                startIcon={<AddCircle />}
-                onClick={onAddSource}
-                sx={{ alignSelf: 'start' }}
-                size='small'
-            >
-                Add Source
-            </Button>
+            {locked ? (
+                <Button
+                    startIcon={<Delete />}
+                    onClick={onClear}
+                    sx={{ alignSelf: 'start' }}
+                    size='small'
+                    color='error'
+                >
+                    Clear Data
+                </Button>
+            ) : (
+                <Button
+                    startIcon={<AddCircle />}
+                    onClick={onAddSource}
+                    sx={{ alignSelf: 'start' }}
+                    size='small'
+                >
+                    Add Source
+                </Button>
+            )}
         </Stack>
     );
 }

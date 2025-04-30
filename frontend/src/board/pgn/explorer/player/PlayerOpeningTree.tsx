@@ -3,6 +3,7 @@ import {
     createContext,
     Dispatch,
     ReactNode,
+    RefObject,
     SetStateAction,
     useCallback,
     useContext,
@@ -19,9 +20,10 @@ export interface PlayerOpeningTreeContextType {
     sources: PlayerSource[];
     setSources: Dispatch<SetStateAction<PlayerSource[]>>;
     isLoading: boolean;
-    onLoad: () => void;
+    onLoad: () => Promise<void>;
+    onClear: () => void;
     indexedCount: number;
-    openingTree: OpeningTree | undefined;
+    openingTree: RefObject<OpeningTree | undefined>;
     filters: EditableGameFilters;
     readonlyFilters: GameFilters;
 }
@@ -41,7 +43,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     const [isLoading, setIsLoading] = useState(false);
     const [indexedCount, setIndexedCount] = useState(0);
     const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
-    const [openingTree, setOpeningTree] = useState<OpeningTree>();
+    const openingTree = useRef<OpeningTree>();
     const [filters, readonlyFilters] = useGameFilters();
 
     useEffect(() => {
@@ -79,13 +81,22 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
         const tree = OpeningTree.fromTree(
             await loader.load(
                 sources,
-                proxy((inc = 1) => setIndexedCount((v) => v + inc)),
+                proxy((inc = 1) => {
+                    if (!openingTree.current) {
+                        setIndexedCount((v) => v + inc);
+                    }
+                }),
             ),
         );
         console.log('loader finished with tree: ', tree);
-        setOpeningTree(tree);
+        openingTree.current = tree;
         setIsLoading(false);
-    }, [sources, setSources]);
+    }, [sources, setSources, setIndexedCount]);
+
+    const onClear = () => {
+        openingTree.current = undefined;
+        setIndexedCount(0);
+    };
 
     return (
         <PlayerOpeningTreeContext.Provider
@@ -94,6 +105,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
                 setSources,
                 isLoading,
                 onLoad,
+                onClear,
                 indexedCount,
                 openingTree,
                 filters,

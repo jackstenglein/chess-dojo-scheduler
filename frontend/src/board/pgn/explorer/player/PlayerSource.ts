@@ -8,6 +8,7 @@ export interface PlayerSource {
     username: string;
     hasError?: boolean;
     error?: string;
+    hidden?: boolean;
 }
 
 export const DEFAULT_PLAYER_SOURCE: PlayerSource = {

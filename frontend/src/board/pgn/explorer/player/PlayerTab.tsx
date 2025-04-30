@@ -29,7 +29,8 @@ export function PlayerTab({ fen }: { fen: string }) {
         sources,
         setSources,
         isLoading,
-        onLoad,
+        onLoad: parentOnLoad,
+        onClear,
         indexedCount,
         openingTree,
         filters,
@@ -47,10 +48,15 @@ export function PlayerTab({ fen }: { fen: string }) {
         );
     }
 
+    const onLoad = () => {
+        setFiltersOpen(false);
+        void parentOnLoad();
+    };
+
     return (
         <Stack>
             <Accordion
-                expanded={filtersOpen || (!isLoading && !openingTree)}
+                expanded={filtersOpen || (!isLoading && !openingTree.current)}
                 onChange={(_, expanded) => setFiltersOpen(expanded)}
                 disableGutters
                 elevation={0}
@@ -61,14 +67,19 @@ export function PlayerTab({ fen }: { fen: string }) {
                         flexDirection: 'row-reverse',
                         gap: 1,
                         p: 0,
-                        display: !isLoading && !openingTree ? 'none' : undefined,
+                        display: !isLoading && !openingTree.current ? 'none' : undefined,
                     }}
                     expandIcon={<ExpandMore />}
                 >
                     <Typography>Filters</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ p: 0 }}>
-                    <PlayerSources sources={sources} setSources={setSources} />
+                    <PlayerSources
+                        sources={sources}
+                        setSources={setSources}
+                        locked={isLoading || !!openingTree.current}
+                        onClear={onClear}
+                    />
                     <Filters filters={filters} />
                 </AccordionDetails>
             </Accordion>
@@ -80,11 +91,11 @@ export function PlayerTab({ fen }: { fen: string }) {
                     </Typography>
                     <CircularProgress size={20} />
                 </Stack>
-            ) : openingTree ? (
+            ) : openingTree.current ? (
                 <Database
                     type={ExplorerDatabaseType.Player}
                     fen={fen}
-                    position={openingTree.getPosition(fen, readonlyFilters)}
+                    position={openingTree.current?.getPosition(fen, readonlyFilters)}
                     isLoading={false}
                     pagination={pagination}
                     onClickGame={onClickGame}
