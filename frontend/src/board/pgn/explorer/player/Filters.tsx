@@ -11,11 +11,8 @@ import {
 } from '@mui/material';
 import { DateRangePicker, SingleInputDateRangeField } from '@mui/x-date-pickers-pro';
 import { DateTime } from 'luxon';
-import { useState } from 'react';
-import { Color, GameFilters } from './PlayerSource';
-
-export const MIN_DOWNLOAD_LIMIT = 100;
-export const MAX_DOWNLOAD_LIMIT = 2000;
+import { useMemo, useState } from 'react';
+import { Color, GameFilters, MAX_DOWNLOAD_LIMIT, MIN_DOWNLOAD_LIMIT } from './PlayerSource';
 
 export interface EditableGameFilters {
     color: Color;
@@ -42,7 +39,7 @@ export interface EditableGameFilters {
     setDateRange: (dateRange: [DateTime | null, DateTime | null]) => void;
 }
 
-export function useGameFilters(): EditableGameFilters {
+export function useGameFilters(): [EditableGameFilters, GameFilters] {
     const [color, setColor] = useState<Color>(Color.White);
     const [rated, setRated] = useState(true);
     const [casual, setCasual] = useState(true);
@@ -55,40 +52,64 @@ export function useGameFilters(): EditableGameFilters {
     const [downloadLimit, setDownloadLimit] = useState(MAX_DOWNLOAD_LIMIT);
     const [dateRange, setDateRange] = useState<[DateTime | null, DateTime | null]>([null, null]);
 
-    return {
+    const readonlyFilters: GameFilters = useMemo(() => {
+        return {
+            color,
+            rated,
+            casual,
+            bullet,
+            blitz,
+            rapid,
+            classical,
+            daily,
+            opponentRating,
+            downloadLimit,
+            dateRange: [
+                dateRange[0]?.toISO()?.replaceAll('-', '.') ?? '',
+                dateRange[1]?.toISO()?.replaceAll('-', '.') ?? '',
+            ],
+        };
+    }, [
         color,
-        setColor,
         rated,
-        setRated,
         casual,
-        setCasual,
         bullet,
-        setBullet,
         blitz,
-        setBlitz,
         rapid,
-        setRapid,
         classical,
-        setClassical,
         daily,
-        setDaily,
         opponentRating,
-        setOpponentRating,
         downloadLimit,
-        setDownloadLimit,
         dateRange,
-        setDateRange,
-    };
-}
+    ]);
 
-export function readonlyGameFilters(filters: EditableGameFilters): GameFilters {
-    return {
-        ...filters,
-        dateRange: [
-            filters.dateRange[0]?.toISO()?.replaceAll('-', '.') ?? '',
-            filters.dateRange[1]?.toISO()?.replaceAll('-', '.') ?? '',
-        ],
-    };
+    return [
+        {
+            color,
+            setColor,
+            rated,
+            setRated,
+            casual,
+            setCasual,
+            bullet,
+            setBullet,
+            blitz,
+            setBlitz,
+            rapid,
+            setRapid,
+            classical,
+            setClassical,
+            daily,
+            setDaily,
+            opponentRating,
+            setOpponentRating,
+            downloadLimit,
+            setDownloadLimit,
+            dateRange,
+            setDateRange,
+        },
+        readonlyFilters,
+    ];
 }
 
 export function Filters({ filters }: { filters: EditableGameFilters }) {
@@ -213,7 +234,6 @@ export function Filters({ filters }: { filters: EditableGameFilters }) {
 
             <FormControl sx={{ px: 1 }}>
                 <FormLabel>
-                    Download{' '}
                     {filters.downloadLimit === MAX_DOWNLOAD_LIMIT
                         ? 'All Games'
                         : `${filters.downloadLimit} Most Recent Games`}

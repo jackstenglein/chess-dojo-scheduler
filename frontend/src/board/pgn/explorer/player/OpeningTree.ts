@@ -2,7 +2,7 @@ import { OnlineGameTimeClass } from '@/api/external/onlineGame';
 import { LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
 import { GameResult } from '@/database/game';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
-import { Color, GameFilters } from './PlayerSource';
+import { Color, GameFilters, MAX_DOWNLOAD_LIMIT } from './PlayerSource';
 
 interface PositionDataMove extends LichessExplorerMove {
     /**
@@ -40,6 +40,13 @@ export class OpeningTree {
     private positionData: Map<string, PositionData>;
     private gameData: Map<string, GameData>;
 
+    /** The last applied filters when mostRecentGames was calculated. */
+    private filters: GameFilters | undefined;
+    /** A list of all game URLs, sorted by date. */
+    private gamesSortedByDate: string[] | undefined;
+    /** A set of the most recent game URLs matching the filters. */
+    private mostRecentGames: Set<string> | undefined;
+
     constructor(positionData?: Map<string, PositionData>, gameData?: Map<string, GameData>) {
         this.positionData = new Map<string, PositionData>(positionData);
         this.gameData = new Map<string, GameData>(gameData);
@@ -47,6 +54,56 @@ export class OpeningTree {
 
     static fromTree(other: OpeningTree): OpeningTree {
         return new OpeningTree(other.positionData, other.gameData);
+    }
+
+    /**
+     * Returns true if the provided filters exactly matches the OpeningTree's filters.
+     * @param filters The filters to check.
+     */
+    private equalFilters(filters: GameFilters) {
+        return (
+            this.filters?.color === filters.color &&
+            this.filters.rated === filters.rated &&
+            this.filters.casual === filters.casual &&
+            this.filters.bullet === filters.bullet &&
+            this.filters.blitz === filters.blitz &&
+            this.filters.rapid === filters.rapid &&
+            this.filters.classical === filters.classical &&
+            this.filters.daily === filters.daily &&
+            this.filters.dateRange[0] === filters.dateRange[0] &&
+            this.filters.dateRange[1] === filters.dateRange[1] &&
+            this.filters.opponentRating[0] === filters.opponentRating[0] &&
+            this.filters.opponentRating[1] === filters.opponentRating[1] &&
+            this.filters.downloadLimit === filters.downloadLimit
+        );
+    }
+
+    private setFiltersIfNecessary(filters: GameFilters) {
+        if (this.equalFilters(filters)) {
+            return;
+        }
+
+        this.filters = filters;
+        if (this.filters.downloadLimit === MAX_DOWNLOAD_LIMIT) {
+            this.mostRecentGames = undefined;
+            return;
+        }
+        this.calculateMostRecentGames();
+    }
+
+    private calculateMostRecentGames() {
+        if (!this.gamesSortedByDate || this.gamesSortedByDate.length !== this.gameData.size) {
+            this.gamesSortedByDate = [...this.gameData.values()]
+                .sort((lhs: GameData, rhs: GameData) =>
+                    rhs.headers.Date.localeCompare(lhs.headers.Date),
+                )
+                .map((g) => g.url);
+        }
+
+        const matchingGames = this.gamesSortedByDate.filter((url) =>
+            matchesFilter(this.getGame(url), this.filters),
+        );
+        this.mostRecentGames = new Set(matchingGames.slice(0, this.filters?.downloadLimit));
     }
 
     setGame(game: GameData) {
@@ -57,16 +114,22 @@ export class OpeningTree {
         return this.gameData.get(url);
     }
 
-    getGames(fen: string, filters?: GameFilters): GameData[] {
-        const position = this.getPosition(fen);
+    getGames(fen: string, filters: GameFilters): GameData[] {
+        fen = normalizeFen(fen);
+        const position = this.positionData.get(fen);
         if (!position) {
             return [];
         }
 
+        this.setFiltersIfNecessary(filters);
         const result = [];
         for (const url of position.games) {
             const game = this.getGame(url);
-            if (game && matchesFilter(game, filters)) {
+            if (
+                game &&
+                (this.mostRecentGames?.has(url) ||
+                    (!this.mostRecentGames && matchesFilter(game, this.filters)))
+            ) {
                 result.push(game);
             }
         }
@@ -80,21 +143,27 @@ export class OpeningTree {
         this.positionData.set(fen, position);
     }
 
-    getPosition(fen: string, filters?: GameFilters) {
+    getPosition(fen: string, filters: GameFilters) {
         fen = normalizeFen(fen);
         const position = this.positionData.get(fen);
-        if (!position || !filters) {
+        if (!position) {
             return position;
         }
+
+        this.setFiltersIfNecessary(filters);
 
         let white = 0;
         let black = 0;
         let draws = 0;
-        for (const gameUrl of position.games) {
-            const game = this.getGame(gameUrl);
-            if (matchesFilter(game, filters)) {
-                if (game?.result === GameResult.White) white++;
-                else if (game?.result === GameResult.Black) black++;
+        for (const url of position.games) {
+            const game = this.getGame(url);
+            if (
+                game &&
+                (this.mostRecentGames?.has(url) ||
+                    (!this.mostRecentGames && matchesFilter(game, this.filters)))
+            ) {
+                if (game.result === GameResult.White) white++;
+                else if (game.result === GameResult.Black) black++;
                 else draws++;
             }
         }
@@ -104,9 +173,13 @@ export class OpeningTree {
                 let white = 0;
                 let black = 0;
                 let draws = 0;
-                for (const gameUrl of move.games) {
-                    const game = this.getGame(gameUrl);
-                    if (matchesFilter(game, filters)) {
+                for (const url of move.games) {
+                    const game = this.getGame(url);
+                    if (
+                        game &&
+                        (this.mostRecentGames?.has(url) ||
+                            (!this.mostRecentGames && matchesFilter(game, this.filters)))
+                    ) {
                         if (game?.result === GameResult.White) white++;
                         else if (game?.result === GameResult.Black) black++;
                         else draws++;

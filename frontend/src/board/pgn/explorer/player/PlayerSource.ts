@@ -34,3 +34,6 @@ export interface GameFilters {
     downloadLimit: number;
     dateRange: [string, string];
 }
+
+export const MIN_DOWNLOAD_LIMIT = 100;
+export const MAX_DOWNLOAD_LIMIT = 2000;

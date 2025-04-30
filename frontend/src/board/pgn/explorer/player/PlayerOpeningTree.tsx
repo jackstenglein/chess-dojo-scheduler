@@ -13,7 +13,7 @@ import {
 import { EditableGameFilters, useGameFilters } from './Filters';
 import { OpeningTree } from './OpeningTree';
 import { OpeningTreeLoaderFactory } from './OpeningTreeLoaderWorker';
-import { DEFAULT_PLAYER_SOURCE, PlayerSource } from './PlayerSource';
+import { DEFAULT_PLAYER_SOURCE, GameFilters, PlayerSource } from './PlayerSource';
 
 export interface PlayerOpeningTreeContextType {
     sources: PlayerSource[];
@@ -21,8 +21,9 @@ export interface PlayerOpeningTreeContextType {
     isLoading: boolean;
     onLoad: () => void;
     indexedCount: number;
-    openingTree: React.RefObject<OpeningTree | undefined>;
+    openingTree: OpeningTree | undefined;
     filters: EditableGameFilters;
+    readonlyFilters: GameFilters;
 }
 
 const PlayerOpeningTreeContext = createContext<PlayerOpeningTreeContextType | undefined>(undefined);
@@ -40,8 +41,8 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     const [isLoading, setIsLoading] = useState(false);
     const [indexedCount, setIndexedCount] = useState(0);
     const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
-    const openingTree = useRef<OpeningTree>();
-    const filters = useGameFilters();
+    const [openingTree, setOpeningTree] = useState<OpeningTree>();
+    const [filters, readonlyFilters] = useGameFilters();
 
     useEffect(() => {
         const worker = new Worker(new URL('./OpeningTreeLoaderWorker.ts', import.meta.url));
@@ -82,7 +83,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
             ),
         );
         console.log('loader finished with tree: ', tree);
-        openingTree.current = tree;
+        setOpeningTree(tree);
         setIsLoading(false);
     }, [sources, setSources]);
 
@@ -96,6 +97,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
                 indexedCount,
                 openingTree,
                 filters,
+                readonlyFilters,
             }}
         >
             {children}

@@ -4,7 +4,7 @@ import UpsellAlert from '@/upsell/UpsellAlert';
 import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import Database from '../Database';
 import { ExplorerDatabaseType } from '../Explorer';
-import { Filters, readonlyGameFilters } from './Filters';
+import { Filters } from './Filters';
 import { usePlayerOpeningTree } from './PlayerOpeningTree';
 import { PlayerSources } from './PlayerSources';
 import { usePlayerGames } from './usePlayerGames';
@@ -14,11 +14,18 @@ function onClickGame(game: GameInfo) {
 }
 
 export function PlayerTab({ fen }: { fen: string }) {
-    const { sources, setSources, isLoading, onLoad, indexedCount, openingTree, filters } =
-        usePlayerOpeningTree();
+    const {
+        sources,
+        setSources,
+        isLoading,
+        onLoad,
+        indexedCount,
+        openingTree,
+        filters,
+        readonlyFilters,
+    } = usePlayerOpeningTree();
     const isFreeTier = useFreeTier();
-    const readonlyFilters = readonlyGameFilters(filters);
-    const pagination = usePlayerGames(fen, openingTree.current, readonlyFilters);
+    const pagination = usePlayerGames(fen, openingTree, readonlyFilters);
 
     if (isFreeTier) {
         return (
@@ -40,11 +47,11 @@ export function PlayerTab({ fen }: { fen: string }) {
                     </Typography>
                     <CircularProgress size={20} />
                 </Stack>
-            ) : openingTree.current ? (
+            ) : openingTree ? (
                 <Database
                     type={ExplorerDatabaseType.Player}
                     fen={fen}
-                    position={openingTree.current.getPosition(fen, readonlyFilters)}
+                    position={openingTree.getPosition(fen, readonlyFilters)}
                     isLoading={false}
                     pagination={pagination}
                     onClickGame={onClickGame}
