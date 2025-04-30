@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface CoachProps {
     src?: string;
 }
@@ -6,7 +8,7 @@ const defaultSrc = 'https://www.chess.com/chess-themes/pieces/bases/150/wn.png';
 
 const Coach: React.FC<CoachProps> = ({ src }) => {
     return (
-        <img
+        <Image
             data-cy='coach-image'
             src={src || defaultSrc}
             style={{
