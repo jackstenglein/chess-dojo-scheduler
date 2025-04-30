@@ -9,7 +9,11 @@ export async function loadLichess(
 ) {
     const result = new OpeningTree();
     for (const source of sources) {
-        await loadLichessSource(source, result, incrementIndexedCount);
+        await loadLichessSource(
+            { ...source, username: source.username.trim().toLowerCase() },
+            result,
+            incrementIndexedCount,
+        );
     }
     return result;
 }
@@ -24,7 +28,7 @@ async function loadLichessSource(
     }
 
     const response = await fetch(
-        `https://lichess.org/api/games/user/${source.username.trim()}?pgnInJson=true`,
+        `https://lichess.org/api/games/user/${source.username}?pgnInJson=true`,
         {
             headers: { Accept: 'application/x-ndjson' },
         },
@@ -65,8 +69,9 @@ async function loadLichessSource(
 
 function indexGame(source: PlayerSource, game: LichessGame, tree: OpeningTree): boolean {
     const gameData: GameData = {
+        source,
         playerColor:
-            game.players?.white?.user?.id?.toLowerCase() === source.username.toLowerCase()
+            game.players?.white?.user?.id?.toLowerCase() === source.username
                 ? Color.White
                 : Color.Black,
         white: game.players.white.user?.id ?? '',

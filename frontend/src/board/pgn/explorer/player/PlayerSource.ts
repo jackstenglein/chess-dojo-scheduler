@@ -34,6 +34,7 @@ export interface GameFilters {
     opponentRating: [number, number];
     downloadLimit: number;
     dateRange: [string, string];
+    hiddenSources: PlayerSource[];
 }
 
 export const MIN_DOWNLOAD_LIMIT = 100;

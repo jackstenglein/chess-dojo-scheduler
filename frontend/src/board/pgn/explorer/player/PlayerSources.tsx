@@ -96,13 +96,16 @@ export function PlayerSources({
                     />
 
                     {locked ? (
-                        <Tooltip title={`${source.hidden ? 'Show' : 'Hide'} source in results`}>
-                            <span>
+                        <Tooltip
+                            title={`${source.hidden ? 'Show source in' : 'Hide source from'} results`}
+                            disableInteractive
+                        >
+                            <span style={{ alignSelf: 'center' }}>
                                 <IconButton
                                     onClick={() => onHideSource(!source.hidden, i)}
                                     disabled={sources.length === 1}
                                     size='small'
-                                    sx={{ alignSelf: 'center', color: 'text.secondary' }}
+                                    sx={{ color: 'text.secondary' }}
                                 >
                                     {source.hidden ? <VisibilityOff /> : <Visibility />}
                                 </IconButton>
@@ -110,12 +113,12 @@ export function PlayerSources({
                         </Tooltip>
                     ) : (
                         <Tooltip title='Remove source' disableInteractive>
-                            <span>
+                            <span style={{ alignSelf: 'center' }}>
                                 <IconButton
                                     onClick={() => onDeleteSource(i)}
                                     disabled={sources.length === 1}
                                     size='small'
-                                    sx={{ alignSelf: 'center', color: 'text.secondary' }}
+                                    sx={{ color: 'text.secondary' }}
                                 >
                                     <Delete />
                                 </IconButton>

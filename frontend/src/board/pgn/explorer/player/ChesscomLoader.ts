@@ -10,7 +10,11 @@ export async function loadChesscom(
 ) {
     const result = new OpeningTree();
     for (const source of sources) {
-        await loadChesscomSource(source, result, incrementIndexedCount);
+        await loadChesscomSource(
+            { ...source, username: source.username.trim().toLowerCase() },
+            result,
+            incrementIndexedCount,
+        );
     }
     return result;
 }
@@ -35,12 +39,11 @@ async function loadChesscomSource(
     }
 
     const archiveResponse = await axios.get<ChesscomListArchivesResponse>(
-        `https://api.chess.com/pub/player/${source.username.trim()}/games/archives`,
+        `https://api.chess.com/pub/player/${source.username}/games/archives`,
     );
     const archives = archiveResponse.data.archives?.toReversed() ?? [];
     console.log(`Got archives: `, archives);
 
-    // let count = 0;
     for (const archive of archives) {
         const match = CHESSCOM_ARCHIVE_REGEX.exec(archive);
         if (!match) {
@@ -57,10 +60,6 @@ async function loadChesscomSource(
         for (const game of games) {
             if (indexGame(source, game, result)) {
                 incrementIndexedCount();
-                // count++;
-                // if (count >= 100) {
-                //     return;
-                // }
             }
         }
     }
@@ -68,10 +67,9 @@ async function loadChesscomSource(
 
 function indexGame(source: PlayerSource, game: ChesscomGame, result: OpeningTree): boolean {
     const gameData: GameData = {
+        source,
         playerColor:
-            game.white.username.toLowerCase() === source.username.toLowerCase()
-                ? Color.White
-                : Color.Black,
+            game.white.username.toLowerCase() === source.username ? Color.White : Color.Black,
         white: game.white.username,
         black: game.black.username,
         whiteElo: game.white.rating,

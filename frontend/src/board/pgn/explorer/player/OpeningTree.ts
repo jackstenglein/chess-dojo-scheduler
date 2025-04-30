@@ -2,7 +2,8 @@ import { OnlineGameTimeClass } from '@/api/external/onlineGame';
 import { LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
 import { GameResult } from '@/database/game';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
-import { Color, GameFilters, MAX_DOWNLOAD_LIMIT } from './PlayerSource';
+import deepEqual from 'deep-equal';
+import { Color, GameFilters, MAX_DOWNLOAD_LIMIT, PlayerSource } from './PlayerSource';
 
 interface PositionDataMove extends LichessExplorerMove {
     /**
@@ -23,6 +24,7 @@ export interface PositionData extends LichessExplorerPosition {
 }
 
 export interface GameData {
+    source: PlayerSource;
     playerColor: Color.White | Color.Black;
     white: string;
     black: string;
@@ -61,21 +63,7 @@ export class OpeningTree {
      * @param filters The filters to check.
      */
     private equalFilters(filters: GameFilters) {
-        return (
-            this.filters?.color === filters.color &&
-            this.filters.rated === filters.rated &&
-            this.filters.casual === filters.casual &&
-            this.filters.bullet === filters.bullet &&
-            this.filters.blitz === filters.blitz &&
-            this.filters.rapid === filters.rapid &&
-            this.filters.classical === filters.classical &&
-            this.filters.daily === filters.daily &&
-            this.filters.dateRange[0] === filters.dateRange[0] &&
-            this.filters.dateRange[1] === filters.dateRange[1] &&
-            this.filters.opponentRating[0] === filters.opponentRating[0] &&
-            this.filters.opponentRating[1] === filters.opponentRating[1] &&
-            this.filters.downloadLimit === filters.downloadLimit
-        );
+        return deepEqual(this.filters, filters, { strict: true });
     }
 
     private setFiltersIfNecessary(filters: GameFilters) {
@@ -305,6 +293,11 @@ function matchesFilter(game: GameData | undefined, filter: GameFilters | undefin
     }
     if (!filter) {
         return true;
+    }
+    for (const source of filter.hiddenSources) {
+        if (source.type === game.source.type && source.username === game.source.username) {
+            return false;
+        }
     }
     if (filter.color !== Color.Both && game.playerColor !== filter.color) {
         return false;

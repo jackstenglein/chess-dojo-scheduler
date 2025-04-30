@@ -44,7 +44,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     const [indexedCount, setIndexedCount] = useState(0);
     const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
     const openingTree = useRef<OpeningTree>();
-    const [filters, readonlyFilters] = useGameFilters();
+    const [filters, readonlyFilters] = useGameFilters(sources);
 
     useEffect(() => {
         const worker = new Worker(new URL('./OpeningTreeLoaderWorker.ts', import.meta.url));

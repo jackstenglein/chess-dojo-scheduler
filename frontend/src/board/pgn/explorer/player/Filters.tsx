@@ -12,7 +12,13 @@ import {
 import { DateRangePicker, SingleInputDateRangeField } from '@mui/x-date-pickers-pro';
 import { DateTime } from 'luxon';
 import { useMemo, useState } from 'react';
-import { Color, GameFilters, MAX_DOWNLOAD_LIMIT, MIN_DOWNLOAD_LIMIT } from './PlayerSource';
+import {
+    Color,
+    GameFilters,
+    MAX_DOWNLOAD_LIMIT,
+    MIN_DOWNLOAD_LIMIT,
+    PlayerSource,
+} from './PlayerSource';
 
 export interface EditableGameFilters {
     color: Color;
@@ -39,7 +45,7 @@ export interface EditableGameFilters {
     setDateRange: (dateRange: [DateTime | null, DateTime | null]) => void;
 }
 
-export function useGameFilters(): [EditableGameFilters, GameFilters] {
+export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, GameFilters] {
     const [color, setColor] = useState<Color>(Color.White);
     const [rated, setRated] = useState(true);
     const [casual, setCasual] = useState(true);
@@ -68,6 +74,9 @@ export function useGameFilters(): [EditableGameFilters, GameFilters] {
                 dateRange[0]?.toISO()?.replaceAll('-', '.') ?? '',
                 dateRange[1]?.toISO()?.replaceAll('-', '.') ?? '',
             ],
+            hiddenSources: sources
+                .filter((s) => s.hidden)
+                .map((s) => ({ ...s, username: s.username.trim().toLowerCase() })),
         };
     }, [
         color,
@@ -81,6 +90,7 @@ export function useGameFilters(): [EditableGameFilters, GameFilters] {
         opponentRating,
         downloadLimit,
         dateRange,
+        sources,
     ]);
 
     return [
