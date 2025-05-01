@@ -104,7 +104,11 @@ export function PlayerTab({ fen }: { fen: string }) {
                 />
             )}
 
-            {!isLoading && !openingTree.current && <Button onClick={onLoad}>Load Games</Button>}
+            {!isLoading && !openingTree.current && (
+                <Button variant='contained' onClick={onLoad} sx={{ mt: 3 }} color='dojoOrange'>
+                    Load Games
+                </Button>
+            )}
         </Stack>
     );
 }

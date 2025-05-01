@@ -133,7 +133,7 @@ export class OpeningTreeLoader {
             rated: game.rated,
             url: game.url,
             headers: {},
-            timeClass: getTimeClass(game.time_class),
+            timeClass: getTimeClass(game.time_class, game.time_control),
         };
         return this.indexGame(gameData, game.pgn);
     }

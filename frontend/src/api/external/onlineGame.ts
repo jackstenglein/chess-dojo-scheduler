@@ -192,7 +192,10 @@ function chesscomGameResultReason(reason: ChesscomGameResult): OnlineGameResultR
  * Convers the given time class to an OnlineGameTimeClass, if it isn't one already.
  * @param tc The time class to convert.
  */
-export function getTimeClass(tc: ChesscomTimeClass | LichessTimeClass): OnlineGameTimeClass {
+export function getTimeClass(
+    tc: ChesscomTimeClass | LichessTimeClass,
+    timeControl?: string,
+): OnlineGameTimeClass {
     switch (tc) {
         case LichessTimeClass.UltraBullet:
         case LichessTimeClass.Bullet:
@@ -205,6 +208,9 @@ export function getTimeClass(tc: ChesscomTimeClass | LichessTimeClass): OnlineGa
 
         case LichessTimeClass.Rapid:
         case ChesscomTimeClass.Rapid:
+            if (timeControl && parseInt(timeControl.split('+')[0]) > 30 * 60) {
+                return OnlineGameTimeClass.Classical;
+            }
             return OnlineGameTimeClass.Rapid;
 
         case LichessTimeClass.Classical:
