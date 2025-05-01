@@ -49,7 +49,10 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
 
     useEffect(() => {
         console.log('Creating worker...');
-        const worker = new Worker(new URL('./OpeningTreeLoader.ts', import.meta.url));
+        console.log('import.meta.url: ', import.meta.url);
+        const url = new URL('./OpeningTreeLoader.ts', import.meta.url);
+        console.log('Worker URL: ', url);
+        const worker = new Worker(url);
         console.log('Worker: ', worker);
         const proxy = wrap<OpeningTreeLoaderFactory>(worker);
         console.log('Proxy: ', proxy);
@@ -58,6 +61,8 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     }, []);
 
     const onLoad = useCallback(async () => {
+        console.log('onLoad');
+
         const newSources: PlayerSource[] = [];
         const seenSources = new Set<string>();
         for (const source of sources) {
@@ -74,6 +79,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
 
         setSources(newSources);
         if (newSources.some((s) => s.hasError)) {
+            console.log('Source has error');
             return;
         }
 
@@ -86,6 +92,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
 
         setIsLoading(true);
         setIndexedCount(0);
+        console.log('Loading games');
         const result = await loader.load(
             sources,
             proxy((inc = 1) => {
