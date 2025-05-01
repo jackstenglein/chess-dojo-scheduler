@@ -97,19 +97,23 @@ export class OpeningTreeLoader {
         const archives = archiveResponse.data.archives?.toReversed() ?? [];
 
         for (const archive of archives) {
-            const match = CHESSCOM_ARCHIVE_REGEX.exec(archive);
-            if (!match) {
-                console.error(
-                    `Skipping archive ${archive} because it does not match archive regex ${CHESSCOM_ARCHIVE_REGEX.source}`,
-                );
-                continue;
-            }
-            const year = match[1];
-            const month = match[2];
+            try {
+                const match = CHESSCOM_ARCHIVE_REGEX.exec(archive);
+                if (!match) {
+                    console.error(
+                        `Skipping archive ${archive} because it does not match archive regex ${CHESSCOM_ARCHIVE_REGEX.source}`,
+                    );
+                    continue;
+                }
+                const year = match[1];
+                const month = match[2];
 
-            const games = await fetchChesscomArchiveGames(source.username, year, month);
-            const promises = games.map((game) => this.indexChesscomGame(source, game));
-            await Promise.allSettled(promises);
+                const games = await fetchChesscomArchiveGames(source.username, year, month);
+                const promises = games.map((game) => this.indexChesscomGame(source, game));
+                await Promise.allSettled(promises);
+            } catch (err) {
+                console.error(`Failed to load Chess.com archive ${archive}: `, err);
+            }
         }
     }
 
