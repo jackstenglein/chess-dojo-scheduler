@@ -33,10 +33,6 @@ const nextConfig = {
                     value: 'public, max-age=2592000, immutable',
                 }),
             },
-            {
-                source: '/_next/static/media/:path(.*OpeningTreeLoader.*)',
-                headers: [{ key: 'Content-Type', value: 'text/javascript' }],
-            },
         ];
 
         headers.push(

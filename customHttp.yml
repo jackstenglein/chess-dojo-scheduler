@@ -9,3 +9,7 @@ applications:
         value: 'same-origin'
       - key: 'Cache-Control'
         value: 'public, max-age=2592000, immutable'
+    - pattern: '/_next/static/media/OpeningTreeLoader*'
+      headers:
+      - key: 'Content-Type'
+        value: 'text/javascript'
