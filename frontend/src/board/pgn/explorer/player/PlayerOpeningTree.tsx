@@ -48,14 +48,8 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     const [filters, readonlyFilters] = useGameFilters(sources);
 
     useEffect(() => {
-        console.log('Creating worker...');
-        console.log('import.meta.url: ', import.meta.url);
-        console.log('Worker URL: ', new URL('./OpeningTreeLoader.ts', import.meta.url));
         const worker = new Worker(new URL('./OpeningTreeLoader.ts', import.meta.url));
-        console.log('Worker: ', worker);
         const proxy = wrap<OpeningTreeLoaderFactory>(worker);
-        console.log('Proxy: ', proxy);
-        console.log('Worker after proxy: ', worker);
         workerRef.current = proxy;
         return proxy[releaseProxy];
     }, []);
@@ -92,7 +86,6 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
 
         setIsLoading(true);
         setIndexedCount(0);
-        console.log('Loading games');
         const result = await loader.load(
             sources,
             proxy((inc = 1) => {
