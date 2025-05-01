@@ -22,7 +22,7 @@ const UpsellAlert: React.FC<UpsellAlertProps> = ({ children }) => {
                     size='small'
                     sx={{ textAlign: 'center' }}
                 >
-                    View Prices
+                    View Options
                 </Button>
             }
         >

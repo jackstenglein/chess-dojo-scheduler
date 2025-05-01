@@ -41,13 +41,13 @@ describe('Calendar Page', () => {
         cy.visit('/calendar');
 
         cy.getBySel('upsell-alert')
-            .contains('View Prices')
+            .contains('View Options')
             .should('have.attr', 'href', '/prices?redirect=/calendar');
 
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
         cy.getBySel('upsell-dialog')
-            .contains('View Prices')
+            .contains('View Options')
             .should('have.attr', 'href', '/prices?redirect=/calendar');
     });
 
