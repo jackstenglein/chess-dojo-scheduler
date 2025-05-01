@@ -123,7 +123,11 @@ const barAxis: AxisOptions<Datum> = {
 
 const secondaryBarAxis: AxisOptions<Datum>[] = [
     {
-        ...secondaryAxes[0],
+        getValue: (datum: Datum) => datum.seconds,
+        min: 0,
+        formatters: {
+            scale: formatTime,
+        },
         position: 'bottom',
     },
 ];
