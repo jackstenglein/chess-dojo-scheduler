@@ -41,7 +41,7 @@ describe('Scoreboard Page', () => {
         cy.visit('/scoreboard');
 
         cy.getBySel('upsell-alert')
-            .contains('View Prices')
+            .contains('View Options')
             .should('have.attr', 'href', '/prices?redirect=/scoreboard/1500-1600');
         cy.getBySel('current-members-scoreboard').contains('No rows');
     });
