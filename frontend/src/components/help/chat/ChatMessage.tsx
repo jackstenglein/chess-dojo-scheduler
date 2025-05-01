@@ -1,6 +1,6 @@
 'use client';
 
-import { UIMessage } from '@/api/dojoaiApi';
+import { Message } from '@jackstenglein/chess-dojo-common/src/chatBot/api';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Box, IconButton, Tooltip } from '@mui/material';
@@ -9,11 +9,11 @@ import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-interface DisplayMessage {
-    message: UIMessage;
-}
-
-export default function ChatMessage({ message }: DisplayMessage) {
+/**
+ * Renders a single message in the chat history with the bot.
+ * @param message The message to render.
+ */
+export function ChatMessage({ message }: { message: Message }) {
     const isUser = message.role === 'user';
     const [copied, setCopied] = useState(false);
 

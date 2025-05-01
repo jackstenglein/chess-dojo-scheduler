@@ -1,5 +1,6 @@
 import { Link } from '@/components/navigation/Link';
 import { RatingSystem, formatRatingSystem } from '@/database/user';
+import { SmartToy } from '@mui/icons-material';
 import {
     Button,
     Card,
@@ -11,12 +12,10 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-
-import { SmartToy } from '@mui/icons-material';
 import React from 'react';
+import SupportTicket from '../../../components/help/SupportTicket';
 import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
-import SupportTicket from './SupportTicket';
 
 const { Custom, Custom2, Custom3, ...ratingSystems } = RatingSystem;
 
@@ -231,15 +230,15 @@ const UnauthenticatedHelp = () => {
                             <Divider />
                             <Typography variant='body1' mt={3}>
                                 If you are having trouble using the site, ask
-                                <strong> DojoAI</strong> for assistance below. If you're still
-                                stuck, please contact customer support.
+                                <strong>DojoAI</strong> for assistance or check the FAQs. If you're
+                                still stuck, please contact customer support below.
                             </Typography>
                             <Button
                                 variant='contained'
                                 color='primary'
                                 startIcon={<SmartToy />}
                                 component={Link}
-                                href='https://www.chessdojo.club/dojoai'
+                                href='/help/chat'
                                 sx={{ mt: 2, alignSelf: 'start' }}
                             >
                                 Ask DojoAI

@@ -1,16 +1,16 @@
 'use client';
 
-import SupportTicket from '@/app/(scoreboard)/help/SupportTicket';
+import SupportTicket from '@/components/help/SupportTicket';
 import SendIcon from '@mui/icons-material/Send';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import { Box, IconButton, Modal, Paper, TextField } from '@mui/material';
+import { Box, Dialog, DialogContent, IconButton, Paper, TextField, Tooltip } from '@mui/material';
 import { useState } from 'react';
 
-interface ChatInput {
-    onSend: (message: string) => void;
-}
-
-export default function ChatInput({ onSend }: ChatInput) {
+/**
+ * Renders the input field for sending a message to the chat bot.
+ * @param onSend Callback invoked with the message content when the user clicks send.
+ */
+export function ChatInput({ onSend }: { onSend: (message: string) => void }) {
     const [input, setInput] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -47,7 +47,7 @@ export default function ChatInput({ onSend }: ChatInput) {
                     display: 'flex',
                     alignItems: 'center',
                     width: '100%',
-                    maxWidth: 700,
+                    maxWidth: 'md',
                     borderRadius: 10,
                     px: 2,
                     py: 0.5,
@@ -67,41 +67,29 @@ export default function ChatInput({ onSend }: ChatInput) {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 />
-                <IconButton sx={{ color: '#906721' }} onClick={handleSend} title='Send Message'>
-                    <SendIcon />
-                </IconButton>
-                <IconButton
-                    sx={{ color: '#906721' }}
-                    onClick={handleOpenModal}
-                    title='Open Support Ticket'
-                >
-                    <SupportAgentIcon />
-                </IconButton>
+                <Tooltip title='Send Message'>
+                    <IconButton color='primary' onClick={handleSend}>
+                        <SendIcon />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title='Open Support Ticket'>
+                    <IconButton color='primary' onClick={handleOpenModal}>
+                        <SupportAgentIcon />
+                    </IconButton>
+                </Tooltip>
             </Paper>
 
-            <Modal
+            <Dialog
                 open={isModalOpen}
                 onClose={handleCloseModal}
                 aria-labelledby='support-ticket-modal'
                 aria-describedby='support-ticket-form'
+                fullWidth
             >
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        bgcolor: 'background.paper',
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                        width: '90%',
-                        maxWidth: 500,
-                    }}
-                >
+                <DialogContent>
                     <SupportTicket />
-                </Box>
-            </Modal>
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 }

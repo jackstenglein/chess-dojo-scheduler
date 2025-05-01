@@ -1,6 +1,6 @@
-# Deploys the DojoAI service.
+# Deploys the chat bot service.
 
-service: dojoaibot
+service: chess-dojo-chat-bot
 
 plugins:
   - serverless-plugin-custom-roles
@@ -16,6 +16,8 @@ provider:
   logRetentionInDays: 14
   environment:
     stage: ${sls:stage}
+    endpoint: ${file(../ai.yml):endpoint}
+    agent: ${file(../ai.yml):agent}
   httpApi:
     id: ${param:httpApiId}
   deploymentMethod: direct
@@ -23,21 +25,15 @@ provider:
 functions:
   chat:
     handler: chat.handler
-    timeout: 180
+    timeout: 25
     events:
       - httpApi:
-          path: /dojoai/chat
+          path: /public/dojoai/chat
           method: post
-    environment:
-      endpoint: ${file(../ai.yml):endpoint}
-      agent: ${file(../ai.yml):agent}
 
   history:
     handler: chathistory.handler
     events:
       - httpApi:
-          path: /dojoai/threadhistory
+          path: /public/dojoai/chat
           method: get
-    environment:
-      endpoint: ${file(../ai.yml):endpoint}
-      agent: ${file(../ai.yml):agent}

@@ -12,9 +12,9 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import SupportTicket from '../../../components/help/SupportTicket';
 import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
-import SupportTicket from './SupportTicket';
 import { faq } from './UnauthenticatedHelp';
 
 const helpSections = [
@@ -401,20 +401,21 @@ const AuthenticatedHelp = () => {
                             <Divider />
                             <Typography variant='body1' mt={3}>
                                 If you are having trouble using the site, ask
-                                <strong> DojoAI</strong> for assistance below. If you're still
-                                stuck, please contact customer support.
+                                <strong>DojoAI</strong> for assistance or check the FAQs. If you're
+                                still stuck, please contact customer support below.
                             </Typography>
                             <Button
                                 variant='contained'
                                 color='primary'
                                 startIcon={<SmartToy />}
                                 component={Link}
-                                href='/dojoai'
+                                href='/help/chat'
                                 sx={{ mt: 2, alignSelf: 'start' }}
                             >
                                 Ask DojoAI
                             </Button>
                         </Stack>
+
                         <Stack>
                             <Typography variant='h5'>Tutorials</Typography>
                             <Divider />
