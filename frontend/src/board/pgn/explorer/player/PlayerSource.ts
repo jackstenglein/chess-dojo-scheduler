@@ -24,6 +24,9 @@ export enum Color {
 
 export interface GameFilters {
     color: Color;
+    win: boolean;
+    draw: boolean;
+    loss: boolean;
     rated: boolean;
     casual: boolean;
     bullet: boolean;

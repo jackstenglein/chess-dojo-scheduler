@@ -11,7 +11,8 @@ import {
 } from '@mui/material';
 import { DateRangePicker, SingleInputDateRangeField } from '@mui/x-date-pickers-pro';
 import { DateTime } from 'luxon';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import {
     Color,
     GameFilters,
@@ -25,6 +26,12 @@ import {
 export interface EditableGameFilters {
     color: Color;
     setColor: (color: Color) => void;
+    win: boolean;
+    setWin: (value: boolean) => void;
+    draw: boolean;
+    setDraw: (value: boolean) => void;
+    loss: boolean;
+    setLoss: (value: boolean) => void;
     rated: boolean;
     setRated: (rated: boolean) => void;
     casual: boolean;
@@ -49,23 +56,147 @@ export interface EditableGameFilters {
     setPlyCount: (plyCount: [number, number]) => void;
 }
 
+const openingTreeFilters = {
+    color: {
+        key: 'openingTreeFilters.color',
+        default: Color.White,
+    },
+    win: {
+        key: 'openingTreeFilters.win',
+        default: true,
+    },
+    draw: {
+        key: 'openingTreeFilters.draw',
+        default: true,
+    },
+    loss: {
+        key: 'openingTreeFilters.loss',
+        default: true,
+    },
+    rated: {
+        key: 'openingTreeFilters.rated',
+        default: true,
+    },
+    casual: {
+        key: 'openingTreeFilters.casual',
+        default: true,
+    },
+    bullet: {
+        key: 'openingTreeFilters.bullet',
+        default: true,
+    },
+    blitz: {
+        key: 'openingTreeFilters.blitz',
+        default: true,
+    },
+    rapid: {
+        key: 'openingTreeFilters.rapid',
+        default: true,
+    },
+    classical: {
+        key: 'openingTreeFilters.classical',
+        default: true,
+    },
+    daily: {
+        key: 'openingTreeFilters.daily',
+        default: true,
+    },
+    opponentRating: {
+        key: 'openingTreeFilters.opponentRating',
+        default: [0, 3500] as [number, number],
+    },
+    downloadLimit: {
+        key: 'openingTreeFilters.downloadLimit',
+        default: MAX_DOWNLOAD_LIMIT,
+    },
+    dateRange: {
+        key: 'openingTreeFilters.dateRange',
+        default: [null, null] as [DateTime | null, DateTime | null],
+    },
+    plyCount: {
+        key: 'openingTreeFilters.plyCount',
+        default: [MIN_PLY_COUNT, MAX_PLY_COUNT] as [number, number],
+    },
+} as const;
+
 export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, GameFilters] {
-    const [color, setColor] = useState<Color>(Color.White);
-    const [rated, setRated] = useState(true);
-    const [casual, setCasual] = useState(true);
-    const [bullet, setBullet] = useState(true);
-    const [blitz, setBlitz] = useState(true);
-    const [rapid, setRapid] = useState(true);
-    const [classical, setClassical] = useState(true);
-    const [daily, setDaily] = useState(true);
-    const [opponentRating, setOpponentRating] = useState<[number, number]>([0, 3500]);
-    const [downloadLimit, setDownloadLimit] = useState(MAX_DOWNLOAD_LIMIT);
-    const [dateRange, setDateRange] = useState<[DateTime | null, DateTime | null]>([null, null]);
-    const [plyCount, setPlyCount] = useState<[number, number]>([MIN_PLY_COUNT, MAX_PLY_COUNT]);
+    const [color, setColor] = useLocalStorage<Color>(
+        openingTreeFilters.color.key,
+        openingTreeFilters.color.default,
+    );
+    const [win, setWin] = useLocalStorage<boolean>(
+        openingTreeFilters.win.key,
+        openingTreeFilters.win.default,
+    );
+    const [draw, setDraw] = useLocalStorage<boolean>(
+        openingTreeFilters.draw.key,
+        openingTreeFilters.draw.default,
+    );
+    const [loss, setLoss] = useLocalStorage<boolean>(
+        openingTreeFilters.loss.key,
+        openingTreeFilters.loss.default,
+    );
+    const [rated, setRated] = useLocalStorage<boolean>(
+        openingTreeFilters.rated.key,
+        openingTreeFilters.rated.default,
+    );
+    const [casual, setCasual] = useLocalStorage<boolean>(
+        openingTreeFilters.casual.key,
+        openingTreeFilters.casual.default,
+    );
+    const [bullet, setBullet] = useLocalStorage<boolean>(
+        openingTreeFilters.bullet.key,
+        openingTreeFilters.bullet.default,
+    );
+    const [blitz, setBlitz] = useLocalStorage<boolean>(
+        openingTreeFilters.blitz.key,
+        openingTreeFilters.blitz.default,
+    );
+    const [rapid, setRapid] = useLocalStorage<boolean>(
+        openingTreeFilters.rapid.key,
+        openingTreeFilters.rapid.default,
+    );
+    const [classical, setClassical] = useLocalStorage<boolean>(
+        openingTreeFilters.classical.key,
+        openingTreeFilters.classical.default,
+    );
+    const [daily, setDaily] = useLocalStorage<boolean>(
+        openingTreeFilters.daily.key,
+        openingTreeFilters.daily.default,
+    );
+    const [opponentRating, setOpponentRating] = useLocalStorage<[number, number]>(
+        openingTreeFilters.opponentRating.key,
+        openingTreeFilters.opponentRating.default,
+    );
+    const [downloadLimit, setDownloadLimit] = useLocalStorage<number>(
+        openingTreeFilters.downloadLimit.key,
+        openingTreeFilters.downloadLimit.default,
+    );
+    const [dateRange, setDateRange] = useLocalStorage<[DateTime | null, DateTime | null]>(
+        openingTreeFilters.dateRange.key,
+        openingTreeFilters.dateRange.default,
+        {
+            serializer(values) {
+                return JSON.stringify(values.map((v) => v?.toISO() ?? null));
+            },
+            deserializer(value) {
+                return (JSON.parse(value) as [string | null, string | null]).map(
+                    (v: string | null) => (v ? DateTime.fromISO(v) : null),
+                ) as [DateTime | null, DateTime | null];
+            },
+        },
+    );
+    const [plyCount, setPlyCount] = useLocalStorage<[number, number]>(
+        openingTreeFilters.plyCount.key,
+        openingTreeFilters.plyCount.default,
+    );
 
     const readonlyFilters: GameFilters = useMemo(() => {
         return {
             color,
+            win,
+            draw,
+            loss,
             rated,
             casual,
             bullet,
@@ -86,6 +217,9 @@ export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, G
         };
     }, [
         color,
+        win,
+        draw,
+        loss,
         rated,
         casual,
         bullet,
@@ -104,6 +238,12 @@ export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, G
         {
             color,
             setColor,
+            win,
+            setWin,
+            draw,
+            setDraw,
+            loss,
+            setLoss,
             rated,
             setRated,
             casual,
@@ -145,6 +285,39 @@ export function Filters({ filters }: { filters: EditableGameFilters }) {
                     <FormControlLabel control={<Radio />} label='Black' value={Color.Black} />
                     <FormControlLabel control={<Radio />} label='Both' value={Color.Both} />
                 </RadioGroup>
+            </FormControl>
+
+            <FormControl>
+                <FormLabel>Result</FormLabel>
+                <FormGroup row>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={filters.win}
+                                onChange={(e) => filters.setWin(e.target.checked)}
+                            />
+                        }
+                        label='Win'
+                    />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={filters.draw}
+                                onChange={(e) => filters.setDraw(e.target.checked)}
+                            />
+                        }
+                        label='Draw'
+                    />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={filters.loss}
+                                onChange={(e) => filters.setLoss(e.target.checked)}
+                            />
+                        }
+                        label='Loss'
+                    />
+                </FormGroup>
             </FormControl>
 
             <FormControl>
@@ -223,8 +396,11 @@ export function Filters({ filters }: { filters: EditableGameFilters }) {
             </FormControl>
 
             <DateRangePicker
-                value={filters.dateRange}
-                onChange={(v) => filters.setDateRange(v)}
+                defaultValue={filters.dateRange}
+                onChange={(v) => {
+                    console.log(v);
+                    filters.setDateRange(v);
+                }}
                 localeText={{ start: 'Start', end: 'End' }}
                 calendars={1}
                 slots={{ field: SingleInputDateRangeField }}
