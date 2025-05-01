@@ -5,8 +5,10 @@ import { useLightMode } from '@/style/useLightMode';
 import { Chess, Event, EventType, Move } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Edit } from '@mui/icons-material';
+
 import {
     Box,
+    Card,
     CardContent,
     Checkbox,
     FormControlLabel,
@@ -22,7 +24,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { TimeControlEditor } from '../tags/TimeControlEditor';
 import ClockEditor from './ClockEditor';
 import { TimeControlDescription } from './TimeControlDescription';
-import { calculateIntegral, calculateTimeRating } from './rating/clockrating';
+import { calculateTimeRating } from './rating/clockrating';
 
 const showEvalInClockGraph = {
     key: 'showEvalInClockGraph',
@@ -266,6 +268,8 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         showEvalInClockGraph.key,
         showEvalInClockGraph.default,
     );
+    let whiteClockRating = 0;
+    let blackClockRating = 0;
 
     const timeControls = chess?.header().tags.TimeControl?.items;
 
@@ -302,6 +306,8 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         }
 
         let timeControl = timeControls?.[0] ?? {};
+
+        console.log(timeControls);
         let timeControlIdx = 0;
         let pliesSinceTimeControl = 0;
 
@@ -420,13 +426,28 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 move: null,
             });
         }
+        let whiteSize = timeControls?.[0].moves ?? whiteTimePerMove.length;
+        let blackSize = timeControls?.[0].moves ?? blackTimePerMove.length;
+        console.log(timeControls?.[0].seconds);
 
-        console.log("WHITE INTEGRAL",calculateIntegral(whiteTimePerMove));
-        console.log("BLACK INTEGRAL",calculateIntegral(blackTimePerMove));
-        console.log("WHITE CLOCK RATING ", calculateTimeRating(whiteTimePerMove));
-        console.log("BLACK CLOCK RATING ", calculateTimeRating(blackTimePerMove));
+        whiteClockRating = calculateTimeRating(
+            whiteTimePerMove,
+            timeControls?.[0].seconds,
+            timeControls?.[0].increment,
+            'white',
+            whiteSize,
+        );
+        blackClockRating = calculateTimeRating(
+            blackTimePerMove,
+            timeControls?.[0].seconds,
+            timeControls?.[0].increment,
+            'black',
+            blackSize,
+        );
 
         return {
+            whiteClockRating: whiteClockRating,
+            blackClockRating: blackClockRating,
             total: [
                 {
                     label: 'Total Time',
@@ -554,12 +575,33 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                             },
                         }}
                     />
-                </Stack>
-                {/* <Stack spacing={0.5} alignItems='center'>
-                <Typography variant='caption' color='text.secondary'>
-                        White Clk Rating {calculateTimeRating(W)}
+                    <Typography variant='caption' color='text.secondary'>
+                        Clock Rating
                     </Typography>
-                </Stack> */}
+                    <Stack direction='row' spacing={2}>
+                        <Card sx={{ p: 1, minWidth: 120 }}>
+                            <Typography variant='caption' color='text.secondary' align='center'>
+                                White
+                            </Typography>
+                            <Typography variant='body2' align='center' color='text.primary'>
+                                {data.whiteClockRating != undefined && data.whiteClockRating > 0
+                                    ? data.whiteClockRating
+                                    : '?'}
+                            </Typography>
+                        </Card>
+                        <Card sx={{ p: 1, minWidth: 120 }}>
+                            <Typography variant='caption' color='text.secondary' align='center'>
+                                Black
+                            </Typography>
+                            <Typography variant='body2' align='center' color='text.primary'>
+                                {data.blackClockRating != undefined && data.blackClockRating > 0
+                                    ? data.blackClockRating
+                                    : '?'}
+                            </Typography>
+                        </Card>
+                    </Stack>
+                </Stack>
+
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
                         Time Used Per Move
