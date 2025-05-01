@@ -55,6 +55,8 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     }, []);
 
     const onLoad = useCallback(async () => {
+        console.log('onLoad');
+
         const newSources: PlayerSource[] = [];
         const seenSources = new Set<string>();
         for (const source of sources) {
@@ -71,11 +73,14 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
 
         setSources(newSources);
         if (newSources.some((s) => s.hasError)) {
+            console.log('Source has error');
             return;
         }
 
         const loader = await workerRef.current?.newLoader();
         if (!loader) {
+            console.log('loader does not exist: ', loader);
+            console.log('workerRef.current: ', workerRef.current);
             return;
         }
 
