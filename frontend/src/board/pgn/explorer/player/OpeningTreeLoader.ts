@@ -17,16 +17,29 @@ interface ChesscomListArchivesResponse {
 
 const CHESSCOM_ARCHIVE_REGEX = /^https:\/\/api.chess.com\/pub\/player\/.*\/(\d{4})\/(\d{2})$/;
 
+/** Creates an OpeningTreeLoader. */
 export interface OpeningTreeLoaderFactory {
+    /** Returns a new OpeningTreeLoader. */
     newLoader: () => OpeningTreeLoader;
 }
 
+/**
+ * OpeningTreeLoader handles the loading of Chess.com and Lichess player opening trees.
+ * It is intended to be run in a Web Worker to avoid clogging the main UI thread.
+ */
 export class OpeningTreeLoader {
     private openingTree: OpeningTree | undefined;
     private mutex = new Mutex();
     private incrementIndexedCount: ((inc?: number) => void) | undefined;
     private updateProgress: ((tree: OpeningTree) => void) | undefined;
 
+    /**
+     * Loads the opening tree for the given sources.
+     * @param sources The sources to load.
+     * @param incrementIndexedCount A callback function invoked to increment the count of indexed games.
+     * @param updateProgress A callback function invoked with the partial tree while still downloading.
+     * @returns The final opening tree with all sources merged.
+     */
     async load(
         sources: PlayerSource[],
         incrementIndexedCount: (inc?: number) => void,
@@ -49,20 +62,30 @@ export class OpeningTreeLoader {
 
         const promises = [this.loadChesscom(chesscomSources), this.loadLichess(lichessSources)];
         await Promise.allSettled(promises);
-
-        console.log('Final tree: ', this.openingTree);
         return this.openingTree;
     }
 
+    /**
+     * Loads the given Chess.com sources.
+     * @param sources The sources to load.
+     */
     private async loadChesscom(sources: PlayerSource[]) {
         for (const source of sources) {
-            await this.loadChesscomSource({
-                ...source,
-                username: source.username.trim().toLowerCase(),
-            });
+            try {
+                await this.loadChesscomSource({
+                    ...source,
+                    username: source.username.trim().toLowerCase(),
+                });
+            } catch (err) {
+                console.error('Failed to load Chess.com source: ', source, err);
+            }
         }
     }
 
+    /**
+     * Loads a single Chess.com source.
+     * @param source The source to load.
+     */
     private async loadChesscomSource(source: PlayerSource) {
         if (source.type !== SourceType.Chesscom) {
             throw new Error(`Invalid source type: ${source.type}`);
@@ -90,6 +113,12 @@ export class OpeningTreeLoader {
         }
     }
 
+    /**
+     * Indexes a single Chess.com game into the opening tree.
+     * @param source The source of the game.
+     * @param game The Chess.com game data.
+     * @returns A Promise that is resolved once the game has been indexed.
+     */
     private indexChesscomGame(source: PlayerSource, game: ChesscomGame) {
         const gameData: GameData = {
             source,
@@ -109,15 +138,27 @@ export class OpeningTreeLoader {
         return this.indexGame(gameData, game.pgn);
     }
 
+    /**
+     * Loads the given Lichess sources.
+     * @param sources The sources to load.
+     */
     private async loadLichess(sources: PlayerSource[]) {
         for (const source of sources) {
-            await this.loadLichessSource({
-                ...source,
-                username: source.username.trim().toLowerCase(),
-            });
+            try {
+                await this.loadLichessSource({
+                    ...source,
+                    username: source.username.trim().toLowerCase(),
+                });
+            } catch (err) {
+                console.error('Failed to load Lichess source: ', source, err);
+            }
         }
     }
 
+    /**
+     * Loads a single Lichess source.
+     * @param source The source to load.
+     */
     private async loadLichessSource(source: PlayerSource) {
         if (source.type !== SourceType.Lichess) {
             throw new Error(
@@ -161,6 +202,12 @@ export class OpeningTreeLoader {
         }
     }
 
+    /**
+     * Indexes a single Lichess game into the opening tree.
+     * @param source The source of the game.
+     * @param game The Lichess game data.
+     * @returns A Promise that resolves once the game has been indexed.
+     */
     private indexLichessGame(source: PlayerSource, game: LichessGame) {
         const gameData: GameData = {
             source,
@@ -182,6 +229,13 @@ export class OpeningTreeLoader {
         return this.indexGame(gameData, game.pgn);
     }
 
+    /**
+     * Indexes a single game into the opening tree. If necessary, the
+     * indexed count and progress are updated.
+     * @param game The game data.
+     * @param pgn The PGN of the game.
+     * @returns A Promise that resolves once the game has been indexed.
+     */
     private indexGame(game: GameData, pgn: string) {
         return this.mutex.runExclusive(() => {
             if (this.openingTree?.indexGame(game, pgn)) {

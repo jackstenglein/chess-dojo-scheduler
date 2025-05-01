@@ -3,7 +3,14 @@ import { LichessExplorerMove, LichessExplorerPosition } from '@/database/explore
 import { GameResult } from '@/database/game';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
 import deepEqual from 'deep-equal';
-import { Color, GameFilters, MAX_DOWNLOAD_LIMIT, PlayerSource } from './PlayerSource';
+import {
+    Color,
+    GameFilters,
+    MAX_DOWNLOAD_LIMIT,
+    MAX_PLY_COUNT,
+    MIN_PLY_COUNT,
+    PlayerSource,
+} from './PlayerSource';
 
 interface PositionDataMove extends LichessExplorerMove {
     /**
@@ -23,17 +30,29 @@ export interface PositionData extends LichessExplorerPosition {
 }
 
 export interface GameData {
+    /** The source the game comes from. */
     source: PlayerSource;
+    /** The color of the source in the game. */
     playerColor: Color.White | Color.Black;
+    /** The username of the player with white. */
     white: string;
+    /** The username of the player with black. */
     black: string;
+    /** The ELO of the player with white. */
     whiteElo: number;
+    /** The ELO of the player with black. */
     blackElo: number;
+    /** The result of the game. */
     result: GameResult;
+    /** The number of moves in the game. */
     plyCount: number;
+    /** Whether the game is rated. */
     rated: boolean;
+    /** The URL of the game. */
     url: string;
+    /** The PGN headers of the game. */
     headers: Record<string, string>;
+    /** The time class of the game. */
     timeClass: OnlineGameTimeClass;
 }
 
@@ -71,6 +90,13 @@ export class OpeningTree {
         return deepEqual(this.filters, filters, { strict: true });
     }
 
+    /**
+     * Sets the filters if they are different from the current filters. If the filters
+     * are different and have a download limit, the most recent games are recalculated.
+     * If the filters are different and do not have a download limit, the most recent
+     * games are cleared.
+     * @param filters The filters to set.
+     */
     private setFiltersIfNecessary(filters: GameFilters) {
         if (this.equalFilters(filters)) {
             return;
@@ -84,6 +110,9 @@ export class OpeningTree {
         this.calculateMostRecentGames();
     }
 
+    /**
+     * Calculates and saves the list of most recent games matching the current filters.
+     */
     private calculateMostRecentGames() {
         if (!this.gamesSortedByDate || this.gamesSortedByDate.length !== this.gameData.size) {
             this.gamesSortedByDate = [...this.gameData.values()]
@@ -99,14 +128,24 @@ export class OpeningTree {
         this.mostRecentGames = new Set(matchingGames.slice(0, this.filters?.downloadLimit));
     }
 
+    /** Adds the given game to the game data map. */
     setGame(game: GameData) {
         this.gameData.set(game.url, game);
     }
 
+    /**
+     * Returns the game with the given URL.
+     * @param url The URL of the game to get.
+     */
     getGame(url: string): GameData | undefined {
         return this.gameData.get(url);
     }
 
+    /**
+     * Returns a list of games matching the given FEN and filters.
+     * @param fen The un-normalized FEN to fetch games for.
+     * @param filters The filters to apply to the games.
+     */
     getGames(fen: string, filters: GameFilters): GameData[] {
         fen = normalizeFen(fen);
         const position = this.positionData.get(fen);
@@ -136,11 +175,24 @@ export class OpeningTree {
         return this.gameData.size;
     }
 
+    /**
+     * Sets the position data for the given FEN.
+     * @param fen The un-normalized FEN to set the data for.
+     * @param position The position to set.
+     */
     setPosition(fen: string, position: PositionData) {
         fen = normalizeFen(fen);
         this.positionData.set(fen, position);
     }
 
+    /**
+     * Gets the position data for the given FEN and filters. Games which
+     * do not match the filters are removed from the position data's W/D/L
+     * and move counts.
+     * @param fen The un-normalized FEN to get the position data for.
+     * @param filters The filters to apply to the data.
+     * @returns The position data for the given FEN and filters.
+     */
     getPosition(fen: string, filters: GameFilters) {
         fen = normalizeFen(fen);
         const position = this.positionData.get(fen);
@@ -194,6 +246,11 @@ export class OpeningTree {
         return { ...position, white, black, draws, moves };
     }
 
+    /**
+     * Merges the given position data with the existing position data for the FEN.
+     * @param fen The un-normalized FEN of the position.
+     * @param position The data to merge into the existing data.
+     */
     mergePosition(fen: string, position: PositionData) {
         fen = normalizeFen(fen);
         const existingPosition = this.positionData.get(fen);
@@ -227,10 +284,17 @@ export class OpeningTree {
         }
     }
 
+    /**
+     * Indexes a game into the opening tree. Games with only
+     * a single move are skipped.
+     * @param game The data of the game.
+     * @param pgn The pgn of the game.
+     * @returns True if the game was successfully indexed.
+     */
     indexGame(game: GameData, pgn: string): boolean {
         try {
             const chess = new Chess({ pgn });
-            if (chess.plyCount() < 2) {
+            if (chess.plyCount() < MIN_PLY_COUNT) {
                 return false;
             }
 
@@ -286,17 +350,13 @@ export class OpeningTree {
             return false;
         }
     }
-
-    mergeTree(other: OpeningTree) {
-        for (const [url, game] of other.gameData) {
-            this.gameData.set(url, game);
-        }
-        for (const [fen, position] of other.positionData) {
-            this.mergePosition(fen, position);
-        }
-    }
 }
 
+/**
+ * Returns true if the given game matches the given filters.
+ * @param game The game to check. If undefined, false is returned.
+ * @param filter The filters to check. If undefined and game is defined, true is returned.
+ */
 function matchesFilter(game: GameData | undefined, filter: GameFilters | undefined): boolean {
     if (!game) {
         return false;
@@ -341,6 +401,12 @@ function matchesFilter(game: GameData | undefined, filter: GameFilters | undefin
         return false;
     }
     if (!filter.daily && game.timeClass === OnlineGameTimeClass.Daily) {
+        return false;
+    }
+    if (
+        filter.plyCount[0] > game.plyCount ||
+        (filter.plyCount[1] !== MAX_PLY_COUNT && filter.plyCount[1] < game.plyCount)
+    ) {
         return false;
     }
     return true;

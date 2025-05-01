@@ -16,7 +16,9 @@ import {
     Color,
     GameFilters,
     MAX_DOWNLOAD_LIMIT,
+    MAX_PLY_COUNT,
     MIN_DOWNLOAD_LIMIT,
+    MIN_PLY_COUNT,
     PlayerSource,
 } from './PlayerSource';
 
@@ -43,6 +45,8 @@ export interface EditableGameFilters {
     setDownloadLimit: (downloadLimit: number) => void;
     dateRange: [DateTime | null, DateTime | null];
     setDateRange: (dateRange: [DateTime | null, DateTime | null]) => void;
+    plyCount: [number, number];
+    setPlyCount: (plyCount: [number, number]) => void;
 }
 
 export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, GameFilters] {
@@ -57,6 +61,7 @@ export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, G
     const [opponentRating, setOpponentRating] = useState<[number, number]>([0, 3500]);
     const [downloadLimit, setDownloadLimit] = useState(MAX_DOWNLOAD_LIMIT);
     const [dateRange, setDateRange] = useState<[DateTime | null, DateTime | null]>([null, null]);
+    const [plyCount, setPlyCount] = useState<[number, number]>([MIN_PLY_COUNT, MAX_PLY_COUNT]);
 
     const readonlyFilters: GameFilters = useMemo(() => {
         return {
@@ -74,6 +79,7 @@ export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, G
                 dateRange[0]?.toISO()?.replaceAll('-', '.') ?? '',
                 dateRange[1]?.toISO()?.replaceAll('-', '.') ?? '',
             ],
+            plyCount,
             hiddenSources: sources
                 .filter((s) => s.hidden)
                 .map((s) => ({ ...s, username: s.username.trim().toLowerCase() })),
@@ -90,6 +96,7 @@ export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, G
         opponentRating,
         downloadLimit,
         dateRange,
+        plyCount,
         sources,
     ]);
 
@@ -117,6 +124,8 @@ export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, G
             setDownloadLimit,
             dateRange,
             setDateRange,
+            plyCount,
+            setPlyCount,
         },
         readonlyFilters,
     ];
@@ -242,6 +251,24 @@ export function Filters({ filters }: { filters: EditableGameFilters }) {
                 />
             </FormControl>
 
+            <FormControl sx={{ pt: 1, px: 1 }}>
+                <FormLabel>
+                    Number of Moves (
+                    {`${filters.plyCount[0] / 2}${filters.plyCount[1] === MAX_PLY_COUNT ? '+' : ` - ${filters.plyCount[1] / 2}`}`}
+                    )
+                </FormLabel>
+                <Slider
+                    value={filters.plyCount}
+                    onChange={(_, v) => filters.setPlyCount(v as [number, number])}
+                    valueLabelDisplay='auto'
+                    valueLabelFormat={(value) => (value === MAX_PLY_COUNT ? 'All' : value / 2)}
+                    min={MIN_PLY_COUNT}
+                    max={MAX_PLY_COUNT}
+                    step={2}
+                    shiftStep={2}
+                />
+            </FormControl>
+
             <FormControl sx={{ px: 1 }}>
                 <FormLabel>
                     {filters.downloadLimit === MAX_DOWNLOAD_LIMIT
@@ -256,7 +283,7 @@ export function Filters({ filters }: { filters: EditableGameFilters }) {
                     step={100}
                     shiftStep={100}
                     valueLabelDisplay='auto'
-                    valueLabelFormat={(value) => (value === 2000 ? 'All' : value)}
+                    valueLabelFormat={(value) => (value === MAX_DOWNLOAD_LIMIT ? 'All' : value)}
                 />
             </FormControl>
         </Stack>

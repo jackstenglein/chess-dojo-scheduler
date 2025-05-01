@@ -34,8 +34,11 @@ export interface GameFilters {
     opponentRating: [number, number];
     downloadLimit: number;
     dateRange: [string, string];
+    plyCount: [number, number];
     hiddenSources: PlayerSource[];
 }
 
 export const MIN_DOWNLOAD_LIMIT = 100;
 export const MAX_DOWNLOAD_LIMIT = 2000;
+export const MIN_PLY_COUNT = 2;
+export const MAX_PLY_COUNT = 300;
