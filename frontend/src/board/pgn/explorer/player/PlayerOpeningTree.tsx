@@ -41,7 +41,7 @@ export function usePlayerOpeningTree(): PlayerOpeningTreeContextType {
 export function PlayerOpeningTreeProvider({ children }: { children: ReactNode }) {
     const [sources, setSources] = useState([DEFAULT_PLAYER_SOURCE]);
     const [isLoading, setIsLoading] = useState(false);
-    const [indexedCount, setIndexedCount] = useState(0);
+    const [indexedCount, setIndexedCount] = useState(-1);
     const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
     const openingTree = useRef<OpeningTree>();
     const loadComplete = useRef(false);
@@ -56,20 +56,21 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
 
     const onLoad = useCallback(async () => {
         const newSources: PlayerSource[] = [];
-        let error = false;
+        const seenSources = new Set<string>();
         for (const source of sources) {
+            const sourceKey = `${source.type}_${source.username.trim().toLowerCase()}`;
             if (source.username.trim() === '') {
                 newSources.push({ ...source, hasError: true });
-                error = true;
-            } else if (source.hasError || source.error) {
-                newSources.push({ ...source, hasError: undefined, error: undefined });
+            } else if (seenSources.has(sourceKey)) {
+                newSources.push({ ...source, hasError: true, error: 'Duplicate source' });
             } else {
-                newSources.push(source);
+                seenSources.add(sourceKey);
+                newSources.push({ ...source, hasError: undefined, error: undefined });
             }
         }
 
         setSources(newSources);
-        if (error) {
+        if (newSources.some((s) => s.hasError)) {
             return;
         }
 
@@ -79,6 +80,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
         }
 
         setIsLoading(true);
+        setIndexedCount(0);
         const result = await loader.load(
             sources,
             proxy((inc = 1) => {
@@ -98,7 +100,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     const onClear = () => {
         openingTree.current = undefined;
         loadComplete.current = false;
-        setIndexedCount(0);
+        setIndexedCount(-1);
     };
 
     return (

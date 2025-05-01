@@ -48,7 +48,7 @@ export class OpeningTreeLoader {
         }
 
         const promises = [this.loadChesscom(chesscomSources), this.loadLichess(lichessSources)];
-        await Promise.all(promises);
+        await Promise.allSettled(promises);
 
         console.log('Final tree: ', this.openingTree);
         return this.openingTree;

@@ -59,13 +59,14 @@ export function PlayerSources({
     return (
         <Stack mt={1} spacing={1}>
             {sources.map((source, i) => (
-                <Stack key={i} direction='row' spacing={1}>
+                <Stack key={i} direction='row' spacing={1} alignItems='start'>
                     <ToggleButtonGroup
                         value={source.type}
                         exclusive
                         onChange={(_, value: SourceType | null) => handleTypeChange(value, i)}
                         size='small'
                         disabled={locked}
+                        sx={{ pt: '3px' }}
                     >
                         <Tooltip title='Chess.com'>
                             <ToggleButton value={SourceType.Chesscom}>
@@ -100,7 +101,7 @@ export function PlayerSources({
                             title={`${source.hidden ? 'Show source in' : 'Hide source from'} results`}
                             disableInteractive
                         >
-                            <span style={{ alignSelf: 'center' }}>
+                            <span style={{ paddingTop: '3px' }}>
                                 <IconButton
                                     onClick={() => onHideSource(!source.hidden, i)}
                                     disabled={sources.length === 1}
@@ -113,7 +114,7 @@ export function PlayerSources({
                         </Tooltip>
                     ) : (
                         <Tooltip title='Remove source' disableInteractive>
-                            <span style={{ alignSelf: 'center' }}>
+                            <span style={{ paddingTop: '3px' }}>
                                 <IconButton
                                     onClick={() => onDeleteSource(i)}
                                     disabled={sources.length === 1}
