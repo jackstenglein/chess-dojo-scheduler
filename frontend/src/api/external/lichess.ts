@@ -1,7 +1,6 @@
 import axios, { Method } from 'axios';
 import { useCallback, useState } from 'react';
 import { Request, useRequest } from '../Request';
-import { OnlineGameTimeClass } from './onlineGame';
 
 interface LichessPlayer {
     user?: {
@@ -28,11 +27,20 @@ interface Clock {
     totalTime: number;
 }
 
+export enum LichessTimeClass {
+    UltraBullet = 'ultraBullet',
+    Bullet = 'bullet',
+    Blitz = 'blitz',
+    Rapid = 'rapid',
+    Classical = 'classical',
+    Correspondence = 'correspondence',
+}
+
 export interface LichessGame {
     id: string;
     rated: boolean;
     variant: string;
-    speed: OnlineGameTimeClass;
+    speed: LichessTimeClass;
     perf: LichessPerfType;
     createdAt: number;
     lastMoveAt: number;

@@ -19,13 +19,14 @@ import {
     ToggleButtonProps,
     Tooltip,
 } from '@mui/material';
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, Fragment, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
 import { AuthStatus, useAuth } from '../../../../auth/Auth';
 import { useChess } from '../../PgnBoard';
 import ResizeHandle from '../../ResizeHandle';
 import Explorer from '../../explorer/Explorer';
+import { PlayerOpeningTreeProvider } from '../../explorer/player/PlayerOpeningTree';
 import { ResizableData } from '../../resize';
 import Editor from './Editor';
 import ClockUsage from './clock/ClockUsage';
@@ -171,6 +172,10 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
             (t) => typeof t !== 'string' && t.name === underboard,
         ) as CustomUnderboardTab;
 
+        const ExplorerWrapper = tabs.includes(DefaultUnderboardTab.Explorer)
+            ? PlayerOpeningTreeProvider
+            : Fragment;
+
         return (
             <Resizable
                 width={resizeData.width}
@@ -242,7 +247,9 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                         {underboard === DefaultUnderboardTab.Editor && (
                             <Editor focusEditor={focusEditor} setFocusEditor={setFocusEditor} />
                         )}
-                        {underboard === DefaultUnderboardTab.Explorer && <Explorer />}
+                        <ExplorerWrapper>
+                            {underboard === DefaultUnderboardTab.Explorer && <Explorer />}
+                        </ExplorerWrapper>
                         {underboard === DefaultUnderboardTab.Settings && (
                             <Settings showEditor={isOwner} />
                         )}

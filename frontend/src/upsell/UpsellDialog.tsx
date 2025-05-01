@@ -91,7 +91,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
             <DialogActions>
                 <Button onClick={() => onClose(false)}>Cancel</Button>
                 <Button component={Link} href={`/prices?redirect=${pathname}`}>
-                    View Prices
+                    View Options
                 </Button>
             </DialogActions>
         </Dialog>

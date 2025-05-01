@@ -131,7 +131,7 @@ const RecentGameCell = ({
                                         : undefined
                                 }
                             >
-                                {game.timeClass === OnlineGameTimeClass.Correspondence
+                                {game.timeClass === OnlineGameTimeClass.Daily
                                     ? 'daily'
                                     : `${game.timeControl.initialSeconds / 60} | ${game.timeControl.incrementSeconds}`}
                             </Typography>
