@@ -15,7 +15,6 @@ interface PositionDataMove extends LichessExplorerMove {
 export interface PositionData extends LichessExplorerPosition {
     /** The moves played from this position, ordered from most common to least common. */
     moves: PositionDataMove[];
-
     /**
      * A set of URLs of the games played in this position. Empty
      * for the starting position.
@@ -39,7 +38,9 @@ export interface GameData {
 }
 
 export class OpeningTree {
+    /** A map from the normalized FEN of a position to its data. */
     private positionData: Map<string, PositionData>;
+    /** A map from the URL of a game to its data. */
     private gameData: Map<string, GameData>;
 
     /** The last applied filters when mostRecentGames was calculated. */
@@ -54,6 +55,10 @@ export class OpeningTree {
         this.gameData = new Map<string, GameData>(gameData);
     }
 
+    /**
+     * Returns a new OpeningTree which is a copy of the given tree.
+     * @param other The OpeningTree to create a copy of.
+     */
     static fromTree(other: OpeningTree): OpeningTree {
         return new OpeningTree(other.positionData, other.gameData);
     }
@@ -124,6 +129,11 @@ export class OpeningTree {
         return result.sort((lhs, rhs) =>
             (rhs.headers.Date ?? '').localeCompare(lhs.headers.Date ?? ''),
         );
+    }
+
+    /** Returns the number of games indexed by this opening tree. */
+    getGameCount(): number {
+        return this.gameData.size;
     }
 
     setPosition(fen: string, position: PositionData) {

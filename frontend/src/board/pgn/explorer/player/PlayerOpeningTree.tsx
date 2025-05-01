@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { EditableGameFilters, useGameFilters } from './Filters';
 import { OpeningTree } from './OpeningTree';
-import { OpeningTreeLoaderFactory } from './OpeningTreeLoaderWorker';
+import { OpeningTreeLoaderFactory } from './OpeningTreeLoader';
 import { DEFAULT_PLAYER_SOURCE, GameFilters, PlayerSource } from './PlayerSource';
 
 export interface PlayerOpeningTreeContextType {
@@ -44,10 +44,11 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     const [indexedCount, setIndexedCount] = useState(0);
     const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
     const openingTree = useRef<OpeningTree>();
+    const loadComplete = useRef(false);
     const [filters, readonlyFilters] = useGameFilters(sources);
 
     useEffect(() => {
-        const worker = new Worker(new URL('./OpeningTreeLoaderWorker.ts', import.meta.url));
+        const worker = new Worker(new URL('./OpeningTreeLoader.ts', import.meta.url));
         const proxy = wrap<OpeningTreeLoaderFactory>(worker);
         workerRef.current = proxy;
         return proxy[releaseProxy];
@@ -78,23 +79,25 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
         }
 
         setIsLoading(true);
-        const tree = OpeningTree.fromTree(
-            await loader.load(
-                sources,
-                proxy((inc = 1) => {
-                    if (!openingTree.current) {
-                        setIndexedCount((v) => v + inc);
-                    }
-                }),
-            ),
+        const result = await loader.load(
+            sources,
+            proxy((inc = 1) => {
+                if (!loadComplete.current) {
+                    setIndexedCount((v) => v + inc);
+                }
+            }),
+            proxy((tree) => (openingTree.current = OpeningTree.fromTree(tree))),
         );
+        const tree = OpeningTree.fromTree(result);
         console.log('loader finished with tree: ', tree);
         openingTree.current = tree;
+        loadComplete.current = true;
         setIsLoading(false);
     }, [sources, setSources, setIndexedCount]);
 
     const onClear = () => {
         openingTree.current = undefined;
+        loadComplete.current = false;
         setIndexedCount(0);
     };
 

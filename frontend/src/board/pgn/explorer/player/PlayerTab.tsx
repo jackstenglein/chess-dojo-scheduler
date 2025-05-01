@@ -84,14 +84,16 @@ export function PlayerTab({ fen }: { fen: string }) {
                 </AccordionDetails>
             </Accordion>
 
-            {isLoading ? (
-                <Stack direction='row' spacing={1}>
+            {isLoading && (
+                <Stack direction='row' spacing={1} my={1}>
                     <Typography>
                         {indexedCount} game{indexedCount === 1 ? '' : 's'} loaded...
                     </Typography>
                     <CircularProgress size={20} />
                 </Stack>
-            ) : openingTree.current ? (
+            )}
+
+            {openingTree.current && (
                 <Database
                     type={ExplorerDatabaseType.Player}
                     fen={fen}
@@ -100,9 +102,9 @@ export function PlayerTab({ fen }: { fen: string }) {
                     pagination={pagination}
                     onClickGame={onClickGame}
                 />
-            ) : (
-                <Button onClick={onLoad}>Load Games</Button>
             )}
+
+            {!isLoading && !openingTree.current && <Button onClick={onLoad}>Load Games</Button>}
         </Stack>
     );
 }
