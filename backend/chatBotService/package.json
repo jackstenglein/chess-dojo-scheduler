@@ -1,0 +1,18 @@
+{
+    "name": "chess-dojo-round-robin-service",
+    "main": "handler.js",
+    "dependencies": {
+        "@jackstenglein/chess-dojo-common": "file:../../common",
+        "axios": "^1.8.4",
+        "bad-words": "^4.0.0",
+        "chess-dojo-directory-service": "file:../directoryService"
+    },
+    "devDependencies": {
+        "@types/aws-lambda": "^8.10.125",
+        "@types/node": "^18.18.7",
+        "esbuild": "^0.25.1",
+        "prettier-plugin-organize-imports": "^3.2.4",
+        "serverless": "^3.22.0",
+        "serverless-esbuild": "^1.55.0"
+    }
+}
