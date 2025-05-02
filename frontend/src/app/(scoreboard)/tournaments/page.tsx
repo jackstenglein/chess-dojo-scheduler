@@ -3,6 +3,12 @@ import { CrossedSwordIcon } from '@/style/CrossedSwordIcon';
 import { TournamentBracketIcon } from '@/style/TournamentIcon';
 import { MilitaryTech } from '@mui/icons-material';
 import { Container, Grid2, Typography } from '@mui/material';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'ChessDojo Tournaments',
+    description: `Win a free ChessDojo membership by participating in the ChessDojo Champions' Circuit!`,
+};
 
 /**
  * Renders a basic landing page for tournaments that redirects to the more specific
@@ -34,7 +40,7 @@ export default function Page() {
                 />
 
                 <ExamCard
-                    name='Dojo Liga'
+                    name='DojoLiga'
                     description='Weekly blitz, rapid, and classical arenas. No Dojo account required.'
                     href='/tournaments/liga'
                     icon={MilitaryTech}
