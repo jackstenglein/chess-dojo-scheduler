@@ -120,25 +120,33 @@ import { Datum } from "../ClockUsage";
 
   const BEST_MAP_SLOPE: Record<number, number> = {
     5430: -5.20,
-    5400: -5.20,
+    5400: -5.10,
     3630: -4.74,
+    3600: -4.64,
     2730: -3.80,
+    2700: -3.70,
     1830: -2.00,
     1800: -1.80
   }
   
   const BEST_MAP_INTERCEPT: Record<number, number> = {
     5430: 384,
+    5400: 384,
     3630: 248,
+    3600: 248,
     2730: 138,
+    2700: 138,
     1830: 107,
     1800: 88
   }
   
   const BEST_REF_MOVE_SIZE: Record<number, number> = {
     5430: 60,
+    5400: 60,
     3630: 60,
+    3600: 60,
     2730: 55,
+    2700: 55,
     1830: 50,
     1800: 50
   }
@@ -201,13 +209,19 @@ import { Datum } from "../ClockUsage";
     endMoveIndex = Math.min(endMoveIndex, dataset.length);
     
     const inc = increment || 0;
-    const totalTimeKey = timeControl + inc;
+    let totalTimeKey = timeControl + inc;
 
     if(timeControl === 1800 && dataset.length <= 20){
       return 1500;
     }
   
    
+
+    if(inc != 30){
+      totalTimeKey = timeControl;
+    }
+
+    
     if (!BEST_MAP_SLOPE[totalTimeKey] || !BEST_MAP_INTERCEPT[totalTimeKey]) {
       console.warn(`[TimeRating] No best slope/intercept found for totalTimeKey=${totalTimeKey}`);
       return 0;
