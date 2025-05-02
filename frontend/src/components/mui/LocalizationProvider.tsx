@@ -1,8 +1,8 @@
 'use client';
 
 import { MUI_LICENSE_KEY } from '@/config';
-import { LocalizationProvider as MuiLocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { LocalizationProvider as MuiLocalizationProvider } from '@mui/x-date-pickers-pro';
+import { AdapterLuxon } from '@mui/x-date-pickers-pro/AdapterLuxon';
 import { LicenseInfo } from '@mui/x-license';
 import { ReactNode, useEffect, useState } from 'react';
 

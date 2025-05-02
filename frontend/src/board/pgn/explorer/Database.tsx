@@ -1,4 +1,3 @@
-import { Request } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';
 import GameTable from '@/components/games/list/GameTable';
 import { Link } from '@/components/navigation/Link';
@@ -60,25 +59,31 @@ const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)((
     },
 }));
 
-interface DatabaseProps<T> {
+function defaultOnClickGame({ cohort, id }: GameInfo) {
+    const url = `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`;
+    window.open(url, '_blank');
+}
+
+interface DatabaseProps {
     type: ExplorerDatabaseType;
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
-    request: Request<T>;
-    minCohort: string;
-    maxCohort: string;
-    setMinCohort: (v: string) => void;
-    setMaxCohort: (v: string) => void;
-    timeControls: string[];
-    setTimeControls: (v: string[]) => void;
-    pagination: PaginationResult;
+    isLoading: boolean;
+    minCohort?: string;
+    maxCohort?: string;
+    setMinCohort?: (v: string) => void;
+    setMaxCohort?: (v: string) => void;
+    timeControls?: string[];
+    setTimeControls?: (v: string[]) => void;
+    pagination?: PaginationResult;
+    onClickGame?: (game: GameInfo) => void;
 }
 
-function Database<T>({
+function Database({
     type,
     fen,
     position,
-    request,
+    isLoading,
     minCohort,
     maxCohort,
     setMinCohort,
@@ -86,7 +91,8 @@ function Database<T>({
     timeControls,
     setTimeControls,
     pagination,
-}: DatabaseProps<T>) {
+    onClickGame = defaultOnClickGame,
+}: DatabaseProps) {
     const { chess } = useChess();
     const reconcile = useReconcile();
     const isFreeTier = useFreeTier();
@@ -95,7 +101,10 @@ function Database<T>({
         if (type === ExplorerDatabaseType.Dojo) {
             return getCohortRange(minCohort, maxCohort);
         }
-        return timeControls.map((tc) => `masters-${tc}`);
+        if (type === ExplorerDatabaseType.Masters && timeControls) {
+            return timeControls.map((tc) => `masters-${tc}`);
+        }
+        return [];
     }, [type, minCohort, maxCohort, timeControls]);
 
     const sortedMoves: (ExplorerMove | LichessExplorerMove)[] = useMemo(() => {
@@ -253,7 +262,7 @@ function Database<T>({
         );
     }
 
-    if (!position && (!request.isSent() || request.isLoading())) {
+    if (!position && isLoading) {
         return <LoadingPage />;
     }
 
@@ -273,14 +282,9 @@ function Database<T>({
     };
 
     const onPaginationModelChange = (model: GridPaginationModel) => {
-        if (model.pageSize !== pagination.pageSize) {
-            pagination.setPageSize(model.pageSize);
+        if (model.pageSize !== pagination?.pageSize) {
+            pagination?.setPageSize(model.pageSize);
         }
-    };
-
-    const onClickGame = ({ cohort, id }: GameInfo) => {
-        const url = `/games/${cohort.replaceAll('+', '%2B')}/${id.replaceAll('?', '%3F')}`;
-        window.open(url, '_blank');
     };
 
     return (
@@ -298,7 +302,7 @@ function Database<T>({
                             fullWidth
                             label='Min Cohort'
                             value={minCohort}
-                            onChange={(e) => setMinCohort(e.target.value)}
+                            onChange={(e) => setMinCohort?.(e.target.value)}
                         >
                             {dojoCohorts.map((cohort) => (
                                 <MenuItem key={cohort} value={cohort}>
@@ -318,15 +322,13 @@ function Database<T>({
                             fullWidth
                             label='Max Cohort'
                             value={maxCohort}
-                            onChange={(e) => setMaxCohort(e.target.value)}
+                            onChange={(e) => setMaxCohort?.(e.target.value)}
                         >
                             {dojoCohorts.map((cohort, i) => (
                                 <MenuItem
                                     key={cohort}
                                     value={cohort}
-                                    disabled={
-                                        Boolean(minCohort) && dojoCohorts.indexOf(minCohort) > i
-                                    }
+                                    disabled={!!minCohort && dojoCohorts.indexOf(minCohort) > i}
                                 >
                                     {cohort}
                                 </MenuItem>
@@ -335,7 +337,7 @@ function Database<T>({
                     </Grid2>
                 </>
             )}
-            {type === ExplorerDatabaseType.Masters && (
+            {type === ExplorerDatabaseType.Masters && timeControls && setTimeControls && (
                 <>
                     <Grid2 size={12}>
                         <Stack direction='row' alignItems='center' spacing={0.5}>
@@ -418,16 +420,19 @@ function Database<T>({
                         />
                     )}
 
-                    <Grid2 display='flex' justifyContent='center' size={12}>
-                        <Link
-                            href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
-                            target='_blank'
-                            rel='noopener'
-                        >
-                            View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'} games
-                            containing this position
-                        </Link>
-                    </Grid2>
+                    {(type === ExplorerDatabaseType.Dojo ||
+                        type === ExplorerDatabaseType.Masters) && (
+                        <Grid2 display='flex' justifyContent='center' size={12}>
+                            <Link
+                                href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
+                                target='_blank'
+                                rel='noopener'
+                            >
+                                View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'}{' '}
+                                games containing this position
+                            </Link>
+                        </Grid2>
+                    )}
                 </>
             )}
         </Grid2>

@@ -373,7 +373,7 @@ func CreateEventRefund(event *database.Event, participant *database.Participant,
 	if percentage <= 0 {
 		return nil, nil
 	}
-	if !participant.HasPaid {
+	if participant == nil || !participant.HasPaid {
 		return nil, nil
 	}
 

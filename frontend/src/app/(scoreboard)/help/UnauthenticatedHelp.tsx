@@ -1,6 +1,9 @@
+import SupportTicket from '@/components/help/SupportTicket';
 import { Link } from '@/components/navigation/Link';
 import { RatingSystem, formatRatingSystem } from '@/database/user';
+import { SmartToy } from '@mui/icons-material';
 import {
+    Button,
     Card,
     CardContent,
     CardHeader,
@@ -13,7 +16,6 @@ import {
 import React from 'react';
 import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
-import SupportTicket from './SupportTicket';
 
 const { Custom, Custom2, Custom3, ...ratingSystems } = RatingSystem;
 
@@ -227,10 +229,23 @@ const UnauthenticatedHelp = () => {
                             <Typography variant='h4'>Help/FAQs</Typography>
                             <Divider />
                             <Typography variant='body1' mt={3}>
-                                If you have trouble using the site, please check this section before
-                                asking for help. If your issue is not listed here or is not solved
-                                by the advice here, then create a support ticket below.
+                                If you are having trouble using the site, ask{' '}
+                                <strong>
+                                    <Link href='/help/chat'>DojoAI</Link>
+                                </strong>{' '}
+                                for assistance or check the FAQs. If you're still stuck, please
+                                contact customer support below.
                             </Typography>
+                            <Button
+                                variant='contained'
+                                color='primary'
+                                startIcon={<SmartToy />}
+                                component={Link}
+                                href='/help/chat'
+                                sx={{ mt: 2, alignSelf: 'start' }}
+                            >
+                                Ask DojoAI
+                            </Button>
                         </Stack>
 
                         {helpSections.map((section) => (
