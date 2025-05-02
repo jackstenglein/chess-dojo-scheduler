@@ -42,10 +42,9 @@ export function RegisterModal({
     );
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [hasAgreedToTimeRule, setHasAgreedToTimeRule] = useState(false);
-    const [hasAgreedToResRule, setHasAgreedToResRule] = useState(false);
-    const [hasAgreedToCheatRule, setHasAgreedToCheatRule] = useState(false);
-    const [rulesError, setRulesError] = useState('');
+    const [hasReadRules, setHasReadRules] = useState(false);
+    const [hasAgreedToScheduling, setHasAgreedToScheduling] = useState(false);
+    const [hasAgreedNotToCheat, setHasAgreedNotToCheat] = useState(false);
 
     const request = useRequest<string>();
     const api = useApi();
@@ -62,23 +61,11 @@ export function RegisterModal({
         if (chesscomUsername.trim() === '') {
             newErrors.chesscomUsername = 'This field is required';
         }
+        if (!hasReadRules || !hasAgreedToScheduling || !hasAgreedNotToCheat) {
+            newErrors.rules = 'Please agree to all conditions';
+        }
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) {
-            return;
-        }
-
-        if (!hasAgreedToTimeRule) {
-            setRulesError('Please read time commitment rules');
-            return;
-        }
-
-        if (!hasAgreedToResRule) {
-            setRulesError('Please read game scheduling rules');
-            return;
-        }
-
-        if (!hasAgreedToCheatRule) {
-            setRulesError('Please read anti-cheat rules');
             return;
         }
 
@@ -184,44 +171,42 @@ export function RegisterModal({
                     />
 
                     <FormControlLabel
+                        sx={{ mt: 1 }}
                         control={
                             <Checkbox
-                                checked={hasAgreedToTimeRule}
+                                checked={hasReadRules}
                                 onChange={(e) => {
-                                    setHasAgreedToTimeRule(e.target.checked);
-                                    if (e.target.checked) setRulesError('');
+                                    setHasReadRules(e.target.checked);
                                 }}
                             />
                         }
-                        label='I have read all the rules about time commitment'
+                        label='I have read all the rules on the info tab'
                     />
 
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={hasAgreedToResRule}
+                                checked={hasAgreedToScheduling}
                                 onChange={(e) => {
-                                    setHasAgreedToResRule(e.target.checked);
-                                    if (e.target.checked) setRulesError('');
+                                    setHasAgreedToScheduling(e.target.checked);
                                 }}
                             />
                         }
-                        label='I understand that scheduling games is my responsibility'
+                        label='I understand that scheduling games is my responsibility and I will withdraw if I no longer have time to play'
                     />
 
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={hasAgreedToCheatRule}
+                                checked={hasAgreedNotToCheat}
                                 onChange={(e) => {
-                                    setHasAgreedToCheatRule(e.target.checked);
-                                    if (e.target.checked) setRulesError('');
+                                    setHasAgreedNotToCheat(e.target.checked);
                                 }}
                             />
                         }
                         label='I agree not to cheat'
                     />
-                    {rulesError && <FormHelperText error>{rulesError}</FormHelperText>}
+                    {errors.rules && <FormHelperText error>{errors.rules}</FormHelperText>}
                 </DialogContent>
 
                 <DialogActions>

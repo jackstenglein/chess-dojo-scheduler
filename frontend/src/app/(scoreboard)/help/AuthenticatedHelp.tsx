@@ -1,6 +1,7 @@
 'use client';
 import SupportTicket from '@/components/help/SupportTicket';
 import { Link } from '@/components/navigation/Link';
+import { getConfig } from '@/config';
 import { SmartToy } from '@mui/icons-material';
 import {
     Button,
@@ -13,9 +14,10 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
 import { faq } from './UnauthenticatedHelp';
+
+const config = getConfig();
 
 const helpSections = [
     faq,
@@ -55,7 +57,17 @@ const helpSections = [
             },
             {
                 title: 'How do I communicate with other Dojo members?',
-                content: <DiscordHelpItem />,
+                content: (
+                    <>
+                        Discord is the primary method of communication between Dojo members. You can
+                        join our server{' '}
+                        <Link href={config.discord.url} target='_blank' rel='noopener'>
+                            here
+                        </Link>
+                        . You can use Discord to schedule sparring sessions, tournament games, and
+                        just chat generally with others about chess.
+                    </>
+                ),
             },
             {
                 title: 'How do I switch cohorts without graduating?',

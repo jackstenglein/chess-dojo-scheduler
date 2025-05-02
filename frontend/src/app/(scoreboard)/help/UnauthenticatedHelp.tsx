@@ -1,5 +1,6 @@
 import SupportTicket from '@/components/help/SupportTicket';
 import { Link } from '@/components/navigation/Link';
+import { getConfig } from '@/config';
 import { RatingSystem, formatRatingSystem } from '@/database/user';
 import { SmartToy } from '@mui/icons-material';
 import {
@@ -14,10 +15,10 @@ import {
     Typography,
 } from '@mui/material';
 import React from 'react';
-import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
 
 const { Custom, Custom2, Custom3, ...ratingSystems } = RatingSystem;
+const config = getConfig();
 
 export const faq = {
     title: 'Frequently Asked Questions',
@@ -56,7 +57,17 @@ export const faq = {
         },
         {
             title: 'How do I communicate with other Dojo members?',
-            content: <DiscordHelpItem />,
+            content: (
+                <>
+                    Discord is the primary method of communication between Dojo members. You can
+                    join our server{' '}
+                    <Link href={config.discord.url} target='_blank' rel='noopener'>
+                        here
+                    </Link>
+                    . You can use Discord to schedule sparring sessions, tournament games, and just
+                    chat generally with others about chess.
+                </>
+            ),
         },
         {
             title: 'How often should I study?',

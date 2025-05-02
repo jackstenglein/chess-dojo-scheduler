@@ -138,7 +138,7 @@ const InfoTab = () => {
                                 Join{' '}
                                 <Link
                                     data-cy='discord-invite-link'
-                                    href={config.discord.privateUrl}
+                                    href={config.discord.url}
                                     target='_blank'
                                     rel='noreferrer'
                                     color='primary'

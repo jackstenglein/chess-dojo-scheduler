@@ -44,7 +44,9 @@ const TimeControlTable = () => {
                 <TableHead>
                     <TableRow>
                         <TableCell sx={{ py: 0.5, px: 1, fontWeight: 700 }}>Dojo Cohort</TableCell>
-                        <TableCell sx={{ py: 0.5, px: 1, fontWeight: 700 }}>Time Control</TableCell>
+                        <TableCell sx={{ py: 0.5, px: 1, fontWeight: 700 }}>
+                            Minimum Time Control
+                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
