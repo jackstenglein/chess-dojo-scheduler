@@ -4,8 +4,10 @@ import NotificationButton from '@/components/notifications/NotificationButton';
 import { getConfig } from '@/config';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
+import { CrossedSwordIcon } from '@/style/CrossedSwordIcon';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
+import { TournamentBracketIcon } from '@/style/TournamentIcon';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 import {
     AutoStories,
@@ -143,19 +145,19 @@ function allStartItems(toggleExpansion: (item: string) => void, isFreeTier: bool
             onClick: () => toggleExpansion('Tournaments'),
             children: [
                 {
-                    name: 'DojoLiga',
-                    icon: <MilitaryTech />,
-                    href: '/tournaments',
+                    name: 'Round Robin',
+                    icon: <CrossedSwordIcon />,
+                    href: '/tournaments/round-robin',
                 },
                 {
                     name: 'Open Classical',
-                    icon: <MilitaryTech />,
+                    icon: <TournamentBracketIcon />,
                     href: '/tournaments/open-classical',
                 },
                 {
-                    name: 'Round Robin',
+                    name: 'DojoLiga',
                     icon: <MilitaryTech />,
-                    href: '/tournaments/round-robin',
+                    href: '/tournaments/liga',
                 },
             ],
         },

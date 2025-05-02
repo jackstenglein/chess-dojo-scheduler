@@ -5,14 +5,14 @@ describe('Info Tab', () => {
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
-        cy.visit('/tournaments?type=info');
+        cy.visit('/tournaments/liga?type=info');
     });
 
     it('has tab selector', () => {
         cy.getBySel('tournaments-tab-list').contains('Calendar').click();
 
         cy.location().should((loc) => {
-            expect(loc.pathname).to.eq('/tournaments');
+            expect(loc.pathname).to.eq('/tournaments/liga');
             expect(loc.search).to.eq('?type=calendar');
         });
     });
