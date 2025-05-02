@@ -7,6 +7,7 @@ const publicPaths = [
     /^\/static\/.*$/,
     /^\/help$/,
     /^\/tournaments$/,
+    /^\/tournaments\/liga$/,
     /^\/tournaments\/open-classical$/,
     /^\/tournaments\/open-classical\/info$/,
     /^\/tournaments\/open-classical\/register$/,

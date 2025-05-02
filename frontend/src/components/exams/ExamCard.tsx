@@ -41,7 +41,12 @@ export const ExamCard = ({ name, description, href, icon, disabled }: ExamCardPr
                             <Typography variant='h5' mb={0.5}>
                                 {name}
                             </Typography>
-                            <Typography variant='subtitle1' color='text.secondary' lineHeight='1.3'>
+                            <Typography
+                                variant='subtitle1'
+                                color='text.secondary'
+                                lineHeight='1.3'
+                                textAlign='center'
+                            >
                                 {description}
                             </Typography>
                         </Stack>
