@@ -27,12 +27,12 @@ export function ChatPage() {
     const [isThinking, setIsThinking] = useState(false);
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const [anonId] = useState(uuidv4());
     const { user } = useAuth();
 
     let resourceId = '';
     let threadId = '';
     if (!user) {
-        const anonId = uuidv4();
         resourceId = anonId;
         threadId = `${anonId}-thread`;
     } else {
@@ -42,7 +42,6 @@ export function ChatPage() {
 
     useEffect(() => {
         const fetchHistory = async () => {
-            console.log('Fetching history for threadId: ', threadId);
             try {
                 const res = await getChatHistory(threadId);
                 setMessages(res.data.messages);

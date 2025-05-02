@@ -32,7 +32,7 @@ functions:
           method: post
 
   history:
-    handler: chathistory.handler
+    handler: chatHistory.handler
     events:
       - httpApi:
           path: /public/dojoai/chat

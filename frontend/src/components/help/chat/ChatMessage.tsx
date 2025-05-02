@@ -29,8 +29,8 @@ export function ChatMessage({ message }: { message: Message }) {
     return (
         <Box
             alignSelf={isUser ? 'flex-end' : 'flex-start'}
-            bgcolor={isUser ? '#6D5C3F' : '#343434'}
-            color='white'
+            bgcolor={isUser ? 'info.main' : 'divider'}
+            color={isUser ? 'info.contrastText' : 'text.primary'}
             px={2}
             py={1.5}
             borderRadius={2}
@@ -50,15 +50,11 @@ export function ChatMessage({ message }: { message: Message }) {
                         }}
                     >
                         <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'}>
-                            <IconButton
-                                onClick={handleCopy}
-                                sx={{ color: 'white', p: 0.2 }}
-                                size='small'
-                            >
+                            <IconButton onClick={handleCopy} size='small'>
                                 {copied ? (
-                                    <CheckIcon sx={{ color: 'text.secondary' }} />
+                                    <CheckIcon fontSize='inherit' />
                                 ) : (
-                                    <ContentCopyIcon sx={{ color: 'text.secondary' }} />
+                                    <ContentCopyIcon fontSize='inherit' />
                                 )}
                             </IconButton>
                         </Tooltip>

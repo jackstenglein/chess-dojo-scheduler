@@ -1,4 +1,5 @@
 'use client';
+import SupportTicket from '@/components/help/SupportTicket';
 import { Link } from '@/components/navigation/Link';
 import { SmartToy } from '@mui/icons-material';
 import {
@@ -12,7 +13,6 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import SupportTicket from '../../../components/help/SupportTicket';
 import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
 import { faq } from './UnauthenticatedHelp';
@@ -400,9 +400,12 @@ const AuthenticatedHelp = () => {
                             <Typography variant='h4'>Help/FAQs</Typography>
                             <Divider />
                             <Typography variant='body1' mt={3}>
-                                If you are having trouble using the site, ask
-                                <strong>DojoAI</strong> for assistance or check the FAQs. If you're
-                                still stuck, please contact customer support below.
+                                If you are having trouble using the site, ask{' '}
+                                <strong>
+                                    <Link href='/help/chat'>DojoAI</Link>
+                                </strong>{' '}
+                                for assistance or check the FAQs. If you're still stuck, please
+                                contact customer support below.
                             </Typography>
                             <Button
                                 variant='contained'
@@ -412,7 +415,7 @@ const AuthenticatedHelp = () => {
                                 href='/help/chat'
                                 sx={{ mt: 2, alignSelf: 'start' }}
                             >
-                                Ask DojoAI
+                                Ask Dojo AI
                             </Button>
                         </Stack>
 

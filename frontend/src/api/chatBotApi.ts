@@ -25,7 +25,7 @@ export async function sendMessage(request: ChatRequest): Promise<AxiosResponse<C
 export async function getChatHistory(
     threadId: string,
 ): Promise<AxiosResponse<GetChatHistoryResponse>> {
-    return await axios.get(`${BASE_URL}/dojoai/chat`, {
+    return await axios.get(`${BASE_URL}/public/dojoai/chat`, {
         params: { threadId },
     });
 }
