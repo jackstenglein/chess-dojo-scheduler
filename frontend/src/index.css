@@ -185,13 +185,3 @@ div.reactBoard div#editboardButton {
         grid-template-rows: 0px auto calc((min(1536px, 100vw) - 48px) * 0.3544) 0px !important;
     }
 }
-
-.blinking-cursor {
-    animation: blink 1s step-start infinite;
-}
-
-@keyframes blink {
-    50% {
-        opacity: 0;
-    }
-}
