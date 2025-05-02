@@ -55,7 +55,7 @@
         "react-tooltip": "^4.4.3",
         "remark-gfm": "^4.0.1",
         "rrule": "^2.8.1",
-        "sharp": "^0.33.5",
+        "sharp": "^0.34.1",
         "use-long-press": "^3.3.0",
         "usehooks-ts": "^3.1.1",
         "uuid": "^11.1.0",
