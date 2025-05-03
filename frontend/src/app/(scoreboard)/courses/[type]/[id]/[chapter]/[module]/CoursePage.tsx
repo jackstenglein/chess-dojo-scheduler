@@ -9,7 +9,7 @@ import { Link } from '@/components/navigation/Link';
 import { Course } from '@/database/course';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
-import { Alert, Box, Button, Container, Divider, Grid2, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../../../../localStorage';
 import Contents from './Contents';
@@ -100,8 +100,8 @@ export const CoursePage = ({
                     device and browser. Create an account to access this course anywhere.
                 </Alert>
             )}
-            <Grid2 container rowGap={2}>
-                <Grid2 size={{ xs: 12, md: 9.5 }}>
+            <Grid container rowGap={2}>
+                <Grid size={{ xs: 12, md: 9.5 }}>
                     <Stack>
                         <Typography variant='h4'>{course.name}</Typography>
                         <Typography variant='h5' color='text.secondary'>
@@ -140,12 +140,12 @@ export const CoursePage = ({
                             </Button>
                         )}
                     </Stack>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={{ xs: 12, md: 2.5 }}>
+                <Grid size={{ xs: 12, md: 2.5 }}>
                     <Contents course={course} />
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
             <RequestSnackbar request={request} />
         </Container>
     );

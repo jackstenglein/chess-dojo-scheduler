@@ -53,7 +53,7 @@ const EditorSettings = () => {
                 <FormLabel>Warn Before Deleting {warnBeforeDelete} or More Moves</FormLabel>
                 <Slider
                     value={warnBeforeDelete}
-                    onChange={(_, value) => setWarnBeforeDelete(value as number)}
+                    onChange={(_, value) => setWarnBeforeDelete(value)}
                     step={1}
                     min={1}
                     max={30}

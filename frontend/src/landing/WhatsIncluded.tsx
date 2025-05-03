@@ -2,17 +2,7 @@
 
 import { CheckCircleOutline } from '@mui/icons-material';
 import { TabContext, TabPanel } from '@mui/lab';
-import {
-    Box,
-    Card,
-    CardContent,
-    Divider,
-    Grid2,
-    Stack,
-    Tab,
-    Tabs,
-    Typography,
-} from '@mui/material';
+import { Box, Card, CardContent, Divider, Grid, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { useState } from 'react';
 
 interface TabData {
@@ -145,12 +135,12 @@ const WhatsIncluded = () => {
                         <TabPanel key={name} value={name} sx={{ width: 1 }}>
                             <Card>
                                 <CardContent>
-                                    <Grid2
+                                    <Grid
                                         container
                                         columnSpacing={{ xs: 1, md: 2, xl: 3 }}
                                         rowGap={2}
                                     >
-                                        <Grid2
+                                        <Grid
                                             size={{
                                                 xs: 12,
                                                 md: 6,
@@ -161,8 +151,8 @@ const WhatsIncluded = () => {
                                             <Divider sx={{ mt: 1, mb: 3 }} />
 
                                             <BulletPoints points={data.points} />
-                                        </Grid2>
-                                        <Grid2
+                                        </Grid>
+                                        <Grid
                                             alignSelf='center'
                                             size={{
                                                 xs: 12,
@@ -185,8 +175,8 @@ const WhatsIncluded = () => {
                                                     />
                                                 ))}
                                             </Stack>
-                                        </Grid2>
-                                    </Grid2>
+                                        </Grid>
+                                    </Grid>
                                 </CardContent>
                             </Card>
                         </TabPanel>

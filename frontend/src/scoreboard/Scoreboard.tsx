@@ -4,6 +4,7 @@ import PushPinIcon from '@mui/icons-material/PushPin';
 import { Stack, Tooltip } from '@mui/material';
 import {
     DataGridPro,
+    DataGridProProps,
     GridActionsCellItem,
     GridColDef,
     GridColumnGroupingModel,
@@ -13,7 +14,6 @@ import {
     GridRowId,
     GridRowModel,
 } from '@mui/x-data-grid-pro';
-import { GridProSlotProps } from '@mui/x-data-grid-pro/models/gridProSlotProps';
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useFreeTier } from '../auth/Auth';
@@ -457,7 +457,7 @@ interface ScoreboardProps {
     loading: boolean;
     addUser?: boolean;
     slots?: Partial<GridProSlotsComponent>;
-    slotProps?: GridProSlotProps;
+    slotProps?: DataGridProProps['slotProps'];
 }
 
 const Scoreboard: React.FC<ScoreboardProps> = ({

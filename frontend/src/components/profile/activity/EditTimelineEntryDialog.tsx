@@ -17,7 +17,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Grid2,
+    Grid,
     Stack,
     TextField,
     Typography,
@@ -186,8 +186,8 @@ export function EditTimelinEntryDialog({
         <Dialog open onClose={request.isLoading() ? undefined : onClose} fullWidth maxWidth='md'>
             <DialogTitle>Update {entry.requirementName}?</DialogTitle>
             <DialogContent>
-                <Grid2 container columnGap={2} rowGap={3} alignItems='center' mt={1}>
-                    <Grid2 size={{ xs: 12, sm: 'grow' }} sx={{ minWidth: '145px' }}>
+                <Grid container columnGap={2} rowGap={3} alignItems='center' mt={1}>
+                    <Grid size={{ xs: 12, sm: 'grow' }} sx={{ minWidth: '145px' }}>
                         <DatePicker
                             label='Date'
                             value={date}
@@ -200,10 +200,10 @@ export function EditTimelinEntryDialog({
                                 },
                             }}
                         />
-                    </Grid2>
+                    </Grid>
 
                     {!isTimeOnly && (
-                        <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                        <Grid size={{ xs: 12, sm: 'grow' }}>
                             <TextField
                                 data-cy='task-history-count'
                                 label='Count'
@@ -213,10 +213,10 @@ export function EditTimelinEntryDialog({
                                 error={!!errors.count}
                                 helperText={errors.count}
                             />
-                        </Grid2>
+                        </Grid>
                     )}
 
-                    <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                    <Grid size={{ xs: 12, sm: 'grow' }}>
                         <TextField
                             label='Hours'
                             value={hours}
@@ -231,9 +231,9 @@ export function EditTimelinEntryDialog({
                             error={!!errors.hours}
                             helperText={errors.hours}
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                    <Grid size={{ xs: 12, sm: 'grow' }}>
                         <TextField
                             label='Minutes'
                             value={minutes}
@@ -248,9 +248,9 @@ export function EditTimelinEntryDialog({
                             error={!!errors.minutes}
                             helperText={errors.minutes}
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={12}>
+                    <Grid size={12}>
                         <TextField
                             label='Comments'
                             placeholder='Optional comments about your progress or the task itself. Visible to others on the newsfeed.'
@@ -260,8 +260,8 @@ export function EditTimelinEntryDialog({
                             onChange={(e) => setNotes(e.target.value)}
                             fullWidth
                         />
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
 
                 <Stack mt={2}>
                     {!isTimeOnly && (

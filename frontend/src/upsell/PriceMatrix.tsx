@@ -1,7 +1,7 @@
 'use client';
 
 import { LoadingButton } from '@mui/lab';
-import { Button, Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
+import { Button, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Request } from '../api/Request';
 import SellingPoint, { SellingPointStatus } from './SellingPoint';
@@ -59,7 +59,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
     return (
         <>
             {(onFreeTier || freeTierLink) && (
-                <Grid2
+                <Grid
                     size={{
                         xs: 12,
                         sm: 4,
@@ -117,9 +117,9 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             </Stack>
                         </CardContent>
                     </Card>
-                </Grid2>
+                </Grid>
             )}
-            <Grid2
+            <Grid
                 size={{
                     xs: 12,
                     sm: onFreeTier || freeTierLink ? 4 : 6,
@@ -177,8 +177,8 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         </Stack>
                     </CardContent>
                 </Card>
-            </Grid2>
-            <Grid2
+            </Grid>
+            <Grid
                 size={{
                     xs: 12,
                     sm: onFreeTier || freeTierLink ? 4 : 6,
@@ -228,7 +228,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         </Stack>
                     </CardContent>
                 </Card>
-            </Grid2>
+            </Grid>
         </>
     );
 };

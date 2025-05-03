@@ -14,7 +14,7 @@ import {
     FormControl,
     FormControlLabel,
     FormLabel,
-    Grid2,
+    Grid,
     MenuItem,
     Radio,
     RadioGroup,
@@ -189,8 +189,8 @@ function SaveGameDialogBody({
                 </DialogContentText>
 
                 <Stack spacing={3} mt={3}>
-                    <Grid2 container columnSpacing={1} rowSpacing={2}>
-                        <Grid2
+                    <Grid container columnSpacing={1} rowSpacing={2}>
+                        <Grid
                             size={{
                                 xs: 12,
                                 sm: 6,
@@ -206,9 +206,9 @@ function SaveGameDialogBody({
                                 error={!!errors.white}
                                 helperText={errors.white}
                             />
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2
+                        <Grid
                             size={{
                                 xs: 12,
                                 sm: 6,
@@ -224,9 +224,9 @@ function SaveGameDialogBody({
                                 error={!!errors.black}
                                 helperText={errors.black}
                             />
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2
+                        <Grid
                             size={{
                                 xs: 12,
                                 sm: 6,
@@ -248,9 +248,9 @@ function SaveGameDialogBody({
                                 <MenuItem value={GameResult.Black}>Black Won</MenuItem>
                                 <MenuItem value={GameResult.Incomplete}>Analysis</MenuItem>
                             </TextField>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2
+                        <Grid
                             size={{
                                 xs: 12,
                                 sm: 6,
@@ -273,9 +273,9 @@ function SaveGameDialogBody({
                                     },
                                 }}
                             />
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 size={12}>
+                        <Grid size={12}>
                             <FormControl>
                                 <FormLabel>Default Orientation</FormLabel>
                                 <RadioGroup
@@ -295,8 +295,8 @@ function SaveGameDialogBody({
                                     />
                                 </RadioGroup>
                             </FormControl>
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
                 </Stack>
             </DialogContent>
         </>

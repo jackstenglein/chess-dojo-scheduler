@@ -22,7 +22,7 @@ import {
     DialogContent,
     DialogContentText,
     Divider,
-    Grid2,
+    Grid,
     IconButton,
     Stack,
     TextField,
@@ -104,8 +104,8 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                 flexWrap={{ xs: 'wrap', sm: 'nowrap' }}
                 rowGap={2}
             >
-                <Grid2 container columnGap={2} rowGap={3} alignItems='center'>
-                    <Grid2 size={{ xs: 12, sm: 'grow' }} sx={{ minWidth: '145px' }}>
+                <Grid container columnGap={2} rowGap={3} alignItems='center'>
+                    <Grid size={{ xs: 12, sm: 'grow' }} sx={{ minWidth: '145px' }}>
                         <DatePicker
                             label='Date'
                             value={date}
@@ -118,10 +118,10 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                                 },
                             }}
                         />
-                    </Grid2>
+                    </Grid>
 
                     {!isTimeOnly && (
-                        <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                        <Grid size={{ xs: 12, sm: 'grow' }}>
                             <TextField
                                 data-cy='task-history-count'
                                 label='Count'
@@ -131,10 +131,10 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                                 error={!!error.count}
                                 helperText={error.count}
                             />
-                        </Grid2>
+                        </Grid>
                     )}
 
-                    <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                    <Grid size={{ xs: 12, sm: 'grow' }}>
                         <TextField
                             label='Hours'
                             value={hours}
@@ -149,9 +149,9 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                             error={!!error.hours}
                             helperText={error.hours}
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                    <Grid size={{ xs: 12, sm: 'grow' }}>
                         <TextField
                             label='Minutes'
                             value={minutes}
@@ -166,9 +166,9 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                             error={!!error.minutes}
                             helperText={error.minutes}
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={12}>
+                    <Grid size={12}>
                         <TextField
                             label='Comments'
                             placeholder='Optional comments about your progress or the task itself. Visible to others on the newsfeed.'
@@ -178,8 +178,8 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                             onChange={(e) => onChange('notes', e.target.value)}
                             fullWidth
                         />
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
 
                 <Tooltip title='Delete entry'>
                     <IconButton

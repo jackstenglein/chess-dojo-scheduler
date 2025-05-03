@@ -9,7 +9,7 @@ import {
     CardHeader,
     Container,
     Divider,
-    Grid2,
+    Grid,
     Stack,
     Typography,
 } from '@mui/material';
@@ -336,8 +336,8 @@ const AuthenticatedHelp = () => {
 
     return (
         <Container maxWidth='xl' sx={{ py: 4 }}>
-            <Grid2 container columnSpacing={4}>
-                <Grid2
+            <Grid container columnSpacing={4}>
+                <Grid
                     sx={{ display: { xs: 'none', md: 'initial' } }}
                     size={{
                         md: 3,
@@ -387,9 +387,9 @@ const AuthenticatedHelp = () => {
                             </Stack>
                         </CardContent>
                     </Card>
-                </Grid2>
+                </Grid>
 
-                <Grid2
+                <Grid
                     id='scroll-parent'
                     size={{
                         md: 9,
@@ -485,8 +485,8 @@ const AuthenticatedHelp = () => {
 
                         <SupportTicket />
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
         </Container>
     );
 };

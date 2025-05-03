@@ -2,7 +2,7 @@ import { ExamCard } from '@/components/exams/ExamCard';
 import { CrossedSwordIcon } from '@/style/CrossedSwordIcon';
 import { TournamentBracketIcon } from '@/style/TournamentIcon';
 import { MilitaryTech } from '@mui/icons-material';
-import { Container, Grid2, Typography } from '@mui/material';
+import { Container, Grid, Typography } from '@mui/material';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export default function Page() {
                 ChessDojo Tournaments
             </Typography>
 
-            <Grid2 container rowSpacing={2} columnSpacing={2}>
+            <Grid container rowSpacing={2} columnSpacing={2}>
                 <ExamCard
                     name='Round Robin'
                     description='Nine rounds of classical chess with members of your cohort, scheduled at your own pace.'
@@ -45,7 +45,7 @@ export default function Page() {
                     href='/tournaments/liga'
                     icon={MilitaryTech}
                 />
-            </Grid2>
+            </Grid>
 
             <Typography variant='h5' textAlign='center' sx={{ mt: 10, mb: 2 }}>
                 Champions' Circuit

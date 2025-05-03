@@ -24,7 +24,10 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const api = useApi();
     const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
-    const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
+    const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({
+        type: 'include',
+        ids: new Set(),
+    });
     const contextMenu = useDataGridContextMenu(rowSelectionModel);
     const router = useRouter();
 
@@ -73,10 +76,10 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                         Analyze a Game
                     </Button>
                     <BulkGameEditor
-                        games={rowSelectionModel
+                        games={[...rowSelectionModel.ids]
                             .map((id) => data.find((g) => g.id === id))
                             .filter((g) => !!g)}
-                        onClear={() => setRowSelectionModel([])}
+                        onClear={() => setRowSelectionModel({ type: 'include', ids: new Set() })}
                         onDelete={onDelete}
                         setGames={setGames}
                     />

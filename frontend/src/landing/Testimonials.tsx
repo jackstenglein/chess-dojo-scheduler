@@ -1,14 +1,6 @@
 'use client';
 
-import {
-    Card,
-    CardContent,
-    Grid2,
-    Stack,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from '@mui/material';
+import { Card, CardContent, Grid, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import Carousel from 'react-material-ui-carousel';
 
 const testimonials = [
@@ -83,9 +75,9 @@ const Testimonials = () => {
     const items = [];
     for (let i = 0; i < testimonials.length; i += quotesPerSlide) {
         items.push(
-            <Grid2 key={i} container columnSpacing={3} justifyContent='center'>
+            <Grid key={i} container columnSpacing={3} justifyContent='center'>
                 {testimonials.slice(i, i + quotesPerSlide).map((t) => (
-                    <Grid2
+                    <Grid
                         key={t.name}
                         size={{
                             xs: 10,
@@ -102,9 +94,9 @@ const Testimonials = () => {
                                 <Typography color='text.secondary'>{t.quote}</Typography>
                             </CardContent>
                         </Card>
-                    </Grid2>
+                    </Grid>
                 ))}
-            </Grid2>,
+            </Grid>,
         );
     }
 

@@ -3,17 +3,13 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { Link } from '@/components/navigation/Link';
-import { MUI_LICENSE_KEY } from '@/config';
 import { Graduation } from '@/database/graduation';
 import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { Divider, FormControl, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { DataGridPro, GridColDef, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid-pro';
-import { LicenseInfo } from '@mui/x-license';
 import { useEffect, useMemo, useState } from 'react';
-
-LicenseInfo.setLicenseKey(MUI_LICENSE_KEY);
 
 function getUniqueGraduations(graduations: Graduation[]): Graduation[] {
     return [...new Map(graduations.map((g) => [g.username, g])).values()];
@@ -287,7 +283,7 @@ const RecentGraduates = () => {
                             sortModel: [{ field: 'newCohort', sort: 'asc' }],
                         },
                         detailPanel: {
-                            expandedRowIds: graduations.map((g) => g.username),
+                            expandedRowIds: new Set(graduations.map((g) => g.username)),
                         },
                     }}
                     getDetailPanelContent={DetailPanelContent}

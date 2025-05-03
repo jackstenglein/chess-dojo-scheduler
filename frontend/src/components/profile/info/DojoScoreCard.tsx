@@ -19,7 +19,7 @@ import CohortIcon from '@/scoreboard/CohortIcon';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import { CategoryColors } from '@/style/ThemeProvider';
-import { Card, CardContent, Grid2, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import React from 'react';
 
 const categories = [
@@ -48,7 +48,7 @@ const DojoScoreCardProgressBar: React.FC<DojoScoreCardProgressBarProps> = ({
     color,
 }) => {
     return (
-        <Grid2
+        <Grid
             size={{ xs: 12 }}
             display='flex'
             justifyContent={{
@@ -67,7 +67,7 @@ const DojoScoreCardProgressBar: React.FC<DojoScoreCardProgressBarProps> = ({
                     color='inherit'
                 />
             </Stack>
-        </Grid2>
+        </Grid>
     );
 };
 
@@ -97,9 +97,9 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     return (
         <Card id='cohort-score-card'>
             <CardContent>
-                <Grid2 container rowGap={2} columnSpacing={3} alignItems='center'>
+                <Grid container rowGap={2} columnSpacing={3} alignItems='center'>
                     {showRatingProgress && (
-                        <Grid2 size={12}>
+                        <Grid size={12}>
                             <Stack width={1}>
                                 <Stack direction='row' alignItems='center' gap={0.5}>
                                     <RatingSystemIcon system={user.ratingSystem} size='small' />
@@ -130,7 +130,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                                     />
                                 </Stack>
                             </Stack>
-                        </Grid2>
+                        </Grid>
                     )}
 
                     <DojoScoreCardProgressBar
@@ -158,7 +158,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                             />
                         );
                     })}
-                </Grid2>
+                </Grid>
             </CardContent>
         </Card>
     );

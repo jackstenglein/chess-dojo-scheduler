@@ -14,7 +14,7 @@ import {
     SchedulerRef,
 } from '@jackstenglein/react-scheduler/types';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Button, Grid2 } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import TournamentCalendarFilters from './TournamentCalendarFilters';
 
@@ -154,8 +154,8 @@ const CalendarTab = () => {
     }, [calendarRef, minHour, maxHour]);
 
     return (
-        <Grid2 container spacing={2}>
-            <Grid2 size={{ xs: 12, md: 2.5 }}>
+        <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 2.5 }}>
                 <Button
                     onClick={toggleFilters}
                     startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
@@ -164,9 +164,9 @@ const CalendarTab = () => {
                     {showFilters ? 'Hide Filters' : 'Show Filters'}
                 </Button>
                 {showFilters && <TournamentCalendarFilters filters={filters} />}
-            </Grid2>
+            </Grid>
 
-            <Grid2 size={{ xs: 12, md: showFilters ? 9.5 : 12 }}>
+            <Grid size={{ xs: 12, md: showFilters ? 9.5 : 12 }}>
                 <Scheduler
                     ref={calendarRef}
                     agenda={false}
@@ -204,8 +204,8 @@ const CalendarTab = () => {
                         CustomEventRenderer({ ...props, timeFormat: filters.timeFormat })
                     }
                 />
-            </Grid2>
-        </Grid2>
+            </Grid>
+        </Grid>
     );
 };
 

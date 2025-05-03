@@ -2,7 +2,7 @@ import {
     Card,
     CardActionArea,
     CardContent,
-    Grid2,
+    Grid,
     Stack,
     SvgIconProps,
     SvgIconTypeMap,
@@ -23,7 +23,7 @@ interface ExamCardProps {
 export const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) => {
     const Icon = icon;
     return (
-        <Grid2
+        <Grid
             size={{
                 xs: 12,
                 sm: 6,
@@ -53,6 +53,6 @@ export const ExamCard = ({ name, description, href, icon, disabled }: ExamCardPr
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>
+        </Grid>
     );
 };

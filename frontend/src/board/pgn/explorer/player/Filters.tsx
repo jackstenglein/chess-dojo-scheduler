@@ -453,7 +453,7 @@ export function Filters({ filters }: { filters: EditableGameFilters }) {
                 </FormLabel>
                 <Slider
                     value={filters.downloadLimit}
-                    onChange={(_, v) => filters.setDownloadLimit(v as number)}
+                    onChange={(_, v) => filters.setDownloadLimit(v)}
                     min={MIN_DOWNLOAD_LIMIT}
                     max={MAX_DOWNLOAD_LIMIT}
                     step={100}

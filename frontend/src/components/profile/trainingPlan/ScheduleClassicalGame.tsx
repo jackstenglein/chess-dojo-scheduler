@@ -15,7 +15,7 @@ import {
     DialogContent,
     DialogTitle,
     Divider,
-    Grid2,
+    Grid,
     IconButton,
     Stack,
     TextField,
@@ -38,14 +38,14 @@ export const ScheduleClassicalGame = ({ hideChip }: { hideChip?: boolean }) => {
     console.log('Upcoming Games: ', upcomingGames);
     return (
         <Stack spacing={2} mt={2}>
-            <Grid2
+            <Grid
                 container
                 columnGap={0.5}
                 alignItems='center'
                 justifyContent='space-between'
                 position='relative'
             >
-                <Grid2
+                <Grid
                     size={9}
                     onClick={() => setTaskDialogView(TaskDialogView.Details)}
                     sx={{ cursor: 'pointer', position: 'relative' }}
@@ -73,8 +73,8 @@ export const ScheduleClassicalGame = ({ hideChip }: { hideChip?: boolean }) => {
                     >
                         Schedule Your Next Classical Game
                     </Typography>
-                </Grid2>
-                <Grid2 size={{ xs: 2, sm: 'auto' }}>
+                </Grid>
+                <Grid size={{ xs: 2, sm: 'auto' }}>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
                         <Tooltip title='Update'>
                             <Checkbox
@@ -83,8 +83,8 @@ export const ScheduleClassicalGame = ({ hideChip }: { hideChip?: boolean }) => {
                             />
                         </Tooltip>
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
             <Divider />
 
             {taskDialogView && (

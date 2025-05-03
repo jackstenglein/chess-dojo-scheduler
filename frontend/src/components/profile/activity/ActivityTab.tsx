@@ -1,6 +1,6 @@
 import { User } from '@/database/user';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
-import { Grid2, useMediaQuery } from '@mui/material';
+import { Grid, useMediaQuery } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Heatmap } from '../info/Heatmap';
 import { getBlockSize, MIN_BLOCK_SIZE } from '../info/HeatmapCard';
@@ -26,9 +26,9 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ user }) => {
     useWindowSizeEffect(resizeDialogBlocks);
 
     return (
-        <Grid2 container justifyContent='space-between' rowSpacing={5}>
+        <Grid container justifyContent='space-between' rowSpacing={5}>
             {isSmall && (
-                <Grid2 size={12}>
+                <Grid size={12}>
                     <Heatmap
                         entries={timeline.entries}
                         blockSize={blockSize}
@@ -41,15 +41,15 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ user }) => {
                         workGoalHistory={user.workGoalHistory ?? []}
                         defaultWorkGoal={user.workGoal}
                     />
-                </Grid2>
+                </Grid>
             )}
-            <Grid2 size={12} sx={{ mt: 4 }}>
+            <Grid size={12} sx={{ mt: 4 }}>
                 <ActivityPieChart user={user} timeline={timeline} />
-            </Grid2>
-            <Grid2 size={12} sx={{ mt: 4 }}>
+            </Grid>
+            <Grid size={12} sx={{ mt: 4 }}>
                 <ActivityTimeline user={user} timeline={timeline} />
-            </Grid2>
-        </Grid2>
+            </Grid>
+        </Grid>
     );
 };
 

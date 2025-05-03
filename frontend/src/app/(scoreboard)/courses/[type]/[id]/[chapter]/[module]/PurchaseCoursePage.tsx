@@ -1,7 +1,7 @@
 import { Course } from '@/database/course';
 import { useRouter } from '@/hooks/useRouter';
 import UpsellAlert from '@/upsell/UpsellAlert';
-import { Alert, Button, Container, Divider, Grid2, Stack, Typography } from '@mui/material';
+import { Alert, Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import PurchaseOption from './PurchaseOption';
 
 interface PurchaseCoursePageProps {
@@ -25,10 +25,10 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course, preview
                 <Divider />
 
                 <Stack spacing={2} mt={2}>
-                    <Grid2 container rowSpacing={2} columnSpacing={4} alignItems='center'>
+                    <Grid container rowSpacing={2} columnSpacing={4} alignItems='center'>
                         <PurchaseMessage course={course} isFreeTier={isFreeTier} />
 
-                        <Grid2
+                        <Grid
                             size={{
                                 xs: 12,
                                 sm: 12,
@@ -55,11 +55,11 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course, preview
                                     </Stack>
                                 )}
                             </Stack>
-                        </Grid2>
+                        </Grid>
 
                         {(!isFreeTier || course.availableForFreeUsers) &&
                             course.purchaseOptions?.map((option) => (
-                                <Grid2
+                                <Grid
                                     key={option.name}
                                     size={{
                                         xs: 12,
@@ -73,9 +73,9 @@ const PurchaseCoursePage: React.FC<PurchaseCoursePageProps> = ({ course, preview
                                         purchaseOption={option}
                                         preview={preview}
                                     />
-                                </Grid2>
+                                </Grid>
                             ))}
-                    </Grid2>
+                    </Grid>
                 </Stack>
             </Stack>
         </Container>
@@ -131,7 +131,7 @@ const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier })
 
     return (
         <>
-            <Grid2
+            <Grid
                 mb={2}
                 size={{
                     xs: 12,
@@ -142,14 +142,14 @@ const PurchaseMessage: React.FC<PurchaseMessageProps> = ({ course, isFreeTier })
                 }}
             >
                 {content}
-            </Grid2>
-            <Grid2
+            </Grid>
+            <Grid
                 size={{
                     xs: 0,
                     lg: 2,
                     xl: 5,
                 }}
-            ></Grid2>
+            ></Grid>
         </>
     );
 };

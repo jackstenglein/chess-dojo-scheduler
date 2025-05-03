@@ -25,7 +25,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Grid2,
+    Grid,
     MenuItem,
     Stack,
     TextField,
@@ -299,13 +299,13 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
                     />
 
                     {isRequirement(task) && task.positions && (
-                        <Grid2 container gap={2}>
+                        <Grid container gap={2}>
                             {task.positions.map((p) => (
-                                <Grid2 key={p.fen} size='auto'>
+                                <Grid key={p.fen} size='auto'>
                                     <Position position={p} />
-                                </Grid2>
+                                </Grid>
                             ))}
-                        </Grid2>
+                        </Grid>
                     )}
 
                     {isRequirement(task) &&

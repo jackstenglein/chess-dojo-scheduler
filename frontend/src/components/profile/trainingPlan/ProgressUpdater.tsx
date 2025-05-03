@@ -19,7 +19,7 @@ import {
     DialogContent,
     DialogContentText,
     FormControlLabel,
-    Grid2,
+    Grid,
     Stack,
     TextField,
 } from '@mui/material';
@@ -210,8 +210,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     />
 
                     <Stack spacing={2}>
-                        <Grid2 container width={1} gap={2}>
-                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                        <Grid container width={1} gap={2}>
+                            <Grid size={{ xs: 12, sm: 'grow' }}>
                                 <DatePicker
                                     label='Date'
                                     disableFuture
@@ -219,8 +219,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                                     onChange={setDate}
                                     slotProps={{ textField: { fullWidth: true } }}
                                 />
-                            </Grid2>
-                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 'grow' }}>
                                 <TextField
                                     label='Hours'
                                     value={hours}
@@ -235,8 +235,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                                     helperText={errors.hours}
                                     fullWidth
                                 />
-                            </Grid2>
-                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 'grow' }}>
                                 <TextField
                                     label='Minutes'
                                     value={minutes}
@@ -251,8 +251,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                                     helperText={errors.minutes}
                                     fullWidth
                                 />
-                            </Grid2>
-                        </Grid2>
+                            </Grid>
+                        </Grid>
                         <DialogContentText>
                             Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
                         </DialogContentText>
