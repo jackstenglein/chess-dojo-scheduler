@@ -1,4 +1,5 @@
 import { getGame } from '@/api/gameApi';
+import { defaultMetadata } from '@/app/(scoreboard)/defaultMetadata';
 import { getConfig } from '@/config';
 import { Game, GameResult } from '@/database/game';
 import GamePage from '@/games/view/GamePage';
@@ -41,9 +42,12 @@ export async function generateMetadata({
         title: `${game.headers.White || 'NN'} vs ${game.headers.Black || 'NN'} • ChessDojo.club`,
         description: getDescription(game, chess),
         openGraph: {
+            ...defaultMetadata.openGraph,
             images: [imageUrl],
         },
         twitter: {
+            ...defaultMetadata.twitter,
+            card: 'summary',
             images: imageUrl,
         },
     };
