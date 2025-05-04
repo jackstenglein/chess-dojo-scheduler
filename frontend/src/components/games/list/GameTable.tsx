@@ -252,7 +252,6 @@ export default function GameTable({
         <DataGridPro
             apiRef={apiRef}
             {...dataGridProps}
-            data-cy='games-table'
             columns={transformedColumns}
             rows={data}
             pageSizeOptions={freeTierLimited ? [10] : [5, 10, 25]}
@@ -297,11 +296,12 @@ export default function GameTable({
             slotProps={
                 contextMenu
                     ? {
+                          root: { 'data-cy': 'games-table' },
                           row: {
                               onContextMenu: contextMenu.open,
                           },
                       }
-                    : undefined
+                    : { root: { 'data-cy': 'games-table' } }
             }
             pagination
             listView={isListView}

@@ -170,7 +170,7 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
 
 function DetailPanelContent(params: GridRowParams<Graduation>) {
     if (!params.row.comments) {
-        return null;
+        return '';
     }
     return (
         <Typography mx={2} my={1}>
@@ -253,44 +253,47 @@ const RecentGraduates = () => {
                     <Typography>No graduations in the selected timeframe</Typography>
                 )
             ) : (
-                <DataGridPro
-                    data-cy='recent-graduates-table'
-                    columns={graduateTableColumns}
-                    rows={graduations}
-                    getRowId={(row: Graduation) => row.username}
-                    getRowHeight={() => 'auto'}
-                    sx={{
-                        width: 1,
-                        '&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell': {
-                            py: '8px',
-                        },
-                        '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': {
-                            py: '15px',
-                        },
-                        '&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell': {
-                            py: '22px',
-                        },
-                    }}
-                    pageSizeOptions={[10, 25, 100]}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                page: 0,
-                                pageSize: 100,
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <DataGridPro
+                        columns={graduateTableColumns}
+                        rows={graduations}
+                        getRowId={(row: Graduation) => row.username}
+                        getRowHeight={() => 'auto'}
+                        sx={{
+                            width: 1,
+                            '&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell': {
+                                py: '8px',
                             },
-                        },
-                        sorting: {
-                            sortModel: [{ field: 'newCohort', sort: 'asc' }],
-                        },
-                        detailPanel: {
-                            expandedRowIds: new Set(graduations.map((g) => g.username)),
-                        },
-                    }}
-                    getDetailPanelContent={DetailPanelContent}
-                    getDetailPanelHeight={getDetailPanelHeight}
-                    pagination
-                    autoHeight
-                />
+                            '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': {
+                                py: '15px',
+                            },
+                            '&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell': {
+                                py: '22px',
+                            },
+                        }}
+                        pageSizeOptions={[10, 25, 100]}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {
+                                    page: 0,
+                                    pageSize: 100,
+                                },
+                            },
+                            sorting: {
+                                sortModel: [{ field: 'newCohort', sort: 'asc' }],
+                            },
+                            detailPanel: {
+                                expandedRowIds: new Set(graduations.map((g) => g.username)),
+                            },
+                        }}
+                        getDetailPanelContent={DetailPanelContent}
+                        getDetailPanelHeight={getDetailPanelHeight}
+                        pagination
+                        slotProps={{
+                            root: { 'data-cy': 'recent-graduates-table' },
+                        }}
+                    />
+                </div>
             )}
         </Stack>
     );

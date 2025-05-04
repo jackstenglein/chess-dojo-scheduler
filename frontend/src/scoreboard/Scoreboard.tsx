@@ -452,7 +452,6 @@ interface ScoreboardProps {
     user?: User;
     cohort?: string;
     requirements?: Requirement[];
-    cypressId?: string;
     rows: ScoreboardRow[];
     loading: boolean;
     addUser?: boolean;
@@ -464,7 +463,6 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
     user,
     cohort,
     requirements,
-    cypressId,
     rows: initialRows,
     loading,
     addUser,
@@ -555,7 +553,6 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
 
     return (
         <DataGridPro
-            data-cy={cypressId}
             sx={{ mb: 4, height: 'calc(100vh - 120px)' }}
             columns={columns}
             columnGroupingModel={columnGroups}
@@ -578,6 +575,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             pagination
             slots={slots}
             slotProps={slotProps}
+            showToolbar
         />
     );
 };

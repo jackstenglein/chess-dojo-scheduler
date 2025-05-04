@@ -215,7 +215,6 @@ export const DirectoriesSection = ({
 
                 <DataGridPro
                     autoHeight
-                    data-cy='directories-data-grid'
                     rows={rows}
                     columns={isAdmin ? adminColumns : publicColumns}
                     columnVisibilityModel={columnVisibility}
@@ -228,6 +227,7 @@ export const DirectoriesSection = ({
                         toolbar: CustomGridToolbar,
                     }}
                     slotProps={{
+                        root: { 'data-cy': 'directories-data-grid' },
                         row: isEditor
                             ? {
                                   onContextMenu: contextMenu.open,
