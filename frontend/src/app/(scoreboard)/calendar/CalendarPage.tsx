@@ -485,6 +485,7 @@ export default function CalendarPage() {
                 startHour: minHour,
                 endHour: maxHour,
                 navigation: true,
+                step: 60,
             },
             'month',
         );
@@ -562,6 +563,7 @@ export default function CalendarPage() {
                                 startHour: minHour,
                                 endHour: maxHour,
                                 navigation: true,
+                                step: 60,
                             }}
                             week={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],

@@ -194,6 +194,7 @@ const CoachingCalendar: React.FC<CoachingCalendarProps> = ({
                         startHour: minHour,
                         endHour: maxHour,
                         navigation: true,
+                        step: 60,
                     }}
                     week={{
                         weekDays: [0, 1, 2, 3, 4, 5, 6],

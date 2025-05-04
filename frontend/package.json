@@ -13,7 +13,7 @@
         "@fortawesome/free-solid-svg-icons": "^6.7.2",
         "@jackstenglein/chess": "^2.2.10",
         "@jackstenglein/chess-dojo-common": "file:../common",
-        "@jackstenglein/react-scheduler": "^3.0.8",
+        "@jackstenglein/react-scheduler": "^4.0.2",
         "@mui/icons-material": "^7.0.2",
         "@mui/lab": "^7.0.0-beta.11",
         "@mui/material": "^7.0.2",
