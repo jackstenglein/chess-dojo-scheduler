@@ -1,7 +1,9 @@
 import { useNotifications } from '@/api/cache/Cache';
+import { AuthStatus, useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import NotificationButton from '@/components/notifications/NotificationButton';
 import { getConfig } from '@/config';
+import { hasCreatedProfile } from '@/database/user';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
 import { CrossedSwordIcon } from '@/style/CrossedSwordIcon';
@@ -58,8 +60,6 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { AuthStatus, useAuth, useFreeTier } from '../auth/Auth';
-import { hasCreatedProfile } from '../database/user';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, { ExtraSmallMenuUnauthenticated } from './UnauthenticatedMenu';
 
@@ -95,7 +95,7 @@ export interface NavbarItem {
     target?: '_blank';
 }
 
-function allStartItems(toggleExpansion: (item: string) => void, isFreeTier: boolean): NavbarItem[] {
+function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
     return [
         {
             name: 'Newsfeed',
@@ -214,7 +214,7 @@ function allStartItems(toggleExpansion: (item: string) => void, isFreeTier: bool
                 {
                     name: 'Discord',
                     icon: <DiscordIcon sx={{ color: '#5865f2' }} />,
-                    href: isFreeTier ? config.discord.publicUrl : config.discord.privateUrl,
+                    href: config.discord.url,
                     target: '_blank',
                 },
                 {
@@ -438,7 +438,6 @@ function HelpButton() {
 function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
-    const isFreeTier = useFreeTier();
 
     const showAll = useMediaQuery('(min-width:1560px)');
     const hide2 = useMediaQuery('(min-width:1416px)');
@@ -452,9 +451,8 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const showNotifications = useMediaQuery('(min-width:567px)');
     const showProfileDropdown = useMediaQuery('(min-width:542px)');
 
-    const startItems = allStartItems(
-        (item: string) => setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
-        isFreeTier,
+    const startItems = allStartItems((item: string) =>
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
     let startItemCount = 0;
@@ -621,11 +619,9 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { notifications } = useNotifications();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
-    const isFreeTier = useFreeTier();
 
-    const startItems = allStartItems(
-        (item: string) => setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
-        isFreeTier,
+    const startItems = allStartItems((item: string) =>
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
     if (auth.status === AuthStatus.Unauthenticated) {

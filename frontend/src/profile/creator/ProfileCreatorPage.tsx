@@ -4,7 +4,6 @@ import { useState } from 'react';
 import PricingPage from '../../app/(scoreboard)/prices/PricingPage';
 import { useRequiredAuth } from '../../auth/Auth';
 import { SubscriptionStatus, User, dojoCohorts } from '../../database/user';
-import DiscordForm from './DiscordForm';
 import ExtraRatingSystemsForm from './ExtraRatingSystemsForm';
 import PersonalInfoForm from './PersonalInfoForm';
 import PreferredRatingSystemForm from './PreferredRatingSystemForm';
@@ -37,11 +36,6 @@ const steps: StepProps[] = [
         label: 'Extra Rating Systems',
         optional: true,
         form: ExtraRatingSystemsForm,
-    },
-    {
-        label: 'Discord',
-        optional: true,
-        form: DiscordForm,
     },
     {
         label: 'Referral Source',

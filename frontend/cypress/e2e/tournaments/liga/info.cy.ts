@@ -43,7 +43,7 @@ describe('Info Tab', () => {
         cy.getBySel('discord-invite-link').should(
             'have.attr',
             'href',
-            'https://discord.gg/AEeHwBWqAX',
+            'https://discord.gg/ehryScGMfP',
         );
     });
 });

@@ -6,11 +6,14 @@ import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api'
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Checkbox,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
+    FormControlLabel,
+    FormHelperText,
     InputAdornment,
     TextField,
 } from '@mui/material';
@@ -39,6 +42,9 @@ export function RegisterModal({
     );
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [hasReadRules, setHasReadRules] = useState(false);
+    const [hasAgreedToScheduling, setHasAgreedToScheduling] = useState(false);
+    const [hasAgreedNotToCheat, setHasAgreedNotToCheat] = useState(false);
 
     const request = useRequest<string>();
     const api = useApi();
@@ -54,6 +60,9 @@ export function RegisterModal({
         }
         if (chesscomUsername.trim() === '') {
             newErrors.chesscomUsername = 'This field is required';
+        }
+        if (!hasReadRules || !hasAgreedToScheduling || !hasAgreedNotToCheat) {
+            newErrors.rules = 'Please agree to all conditions';
         }
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) {
@@ -160,7 +169,46 @@ export function RegisterModal({
                             },
                         }}
                     />
+
+                    <FormControlLabel
+                        sx={{ mt: 1 }}
+                        control={
+                            <Checkbox
+                                checked={hasReadRules}
+                                onChange={(e) => {
+                                    setHasReadRules(e.target.checked);
+                                }}
+                            />
+                        }
+                        label='I have read all the rules on the info tab'
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={hasAgreedToScheduling}
+                                onChange={(e) => {
+                                    setHasAgreedToScheduling(e.target.checked);
+                                }}
+                            />
+                        }
+                        label='I understand that scheduling games is my responsibility and I will withdraw if I no longer have time to play'
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={hasAgreedNotToCheat}
+                                onChange={(e) => {
+                                    setHasAgreedNotToCheat(e.target.checked);
+                                }}
+                            />
+                        }
+                        label='I agree not to cheat'
+                    />
+                    {errors.rules && <FormHelperText error>{errors.rules}</FormHelperText>}
                 </DialogContent>
+
                 <DialogActions>
                     <Button disabled={request.isLoading()} onClick={onClose}>
                         Cancel
