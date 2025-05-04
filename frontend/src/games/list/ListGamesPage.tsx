@@ -17,7 +17,7 @@ import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import UpsellPage from '@/upsell/UpsellPage';
-import { Badge, Button, Container, Divider, Grid2, Stack, Typography } from '@mui/material';
+import { Badge, Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { GridPaginationModel } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
 import { ListItemContextMenu } from '../../components/games/list/ListItemContextMenu';
@@ -103,8 +103,8 @@ const ListGamesPage = () => {
                 </>
             )}
 
-            <Grid2 container spacing={5} wrap='wrap-reverse'>
-                <Grid2 size={{ xs: 12, md: 8, lg: 8 }}>
+            <Grid container spacing={5} wrap='wrap-reverse'>
+                <Grid size={{ xs: 12, md: 8, lg: 8 }}>
                     <GameTable
                         namespace='games-list-page'
                         limitFreeTier
@@ -124,9 +124,9 @@ const ListGamesPage = () => {
                         onClose={contextMenu.close}
                         position={contextMenu.position}
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={{ xs: 12, md: 4, lg: 4 }}>
+                <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                     <Stack spacing={4}>
                         <Button
                             data-cy='import-game-button'
@@ -209,8 +209,8 @@ const ListGamesPage = () => {
                             </Typography>
                         </Stack>
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
 
             <ListGamesTutorial />
         </Container>

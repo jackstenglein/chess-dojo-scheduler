@@ -308,6 +308,7 @@ const ActivityTimelineCalendar = ({
                     startHour: 0,
                     endHour: 24,
                     navigation: true,
+                    step: 60,
                 }}
                 week={{
                     weekDays: [0, 1, 2, 3, 4, 5, 6],

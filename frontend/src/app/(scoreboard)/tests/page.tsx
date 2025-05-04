@@ -1,6 +1,6 @@
 import { ExamCard } from '@/components/exams/ExamCard';
 import { KingIcon, QueenIcon, RookIcon } from '@/style/ChessIcons';
-import { Container, Grid2 } from '@mui/material';
+import { Container, Grid } from '@mui/material';
 
 /**
  * Renders a simple landing page that directs users to the different types of exams
@@ -9,7 +9,7 @@ import { Container, Grid2 } from '@mui/material';
 export default function ExamLandingPage() {
     return (
         <Container maxWidth='lg' sx={{ py: 5 }}>
-            <Grid2 container rowSpacing={2} columnSpacing={2}>
+            <Grid container rowSpacing={2} columnSpacing={2}>
                 <ExamCard
                     name='Tactics Tests'
                     description='All Ratings'
@@ -30,7 +30,7 @@ export default function ExamLandingPage() {
                     href='/tests/endgame'
                     icon={RookIcon}
                 />
-            </Grid2>
+            </Grid>
         </Container>
     );
 }

@@ -19,7 +19,7 @@ import {
     Checkbox,
     Chip,
     Divider,
-    Grid2,
+    Grid,
     IconButton,
     Stack,
     Tooltip,
@@ -127,14 +127,14 @@ export const FullTrainingPlanItem = ({
     return (
         <Tooltip title={blocker.reason} followCursor>
             <Stack spacing={2} mt={2}>
-                <Grid2
+                <Grid
                     container
                     columnGap={0.5}
                     alignItems='center'
                     justifyContent='space-between'
                     position='relative'
                 >
-                    <Grid2
+                    <Grid
                         size={9}
                         onClick={() => setTaskDialogView(TaskDialogView.Details)}
                         sx={{ cursor: 'pointer', position: 'relative' }}
@@ -195,8 +195,8 @@ export const FullTrainingPlanItem = ({
                                 sx={{ height: '6px' }}
                             />
                         )}
-                    </Grid2>
-                    <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
+                    </Grid>
+                    <Grid size={{ xs: 2, sm: 'auto' }} id='task-status'>
                         <Stack direction='row' alignItems='center' justifyContent='end'>
                             {!blocker.isBlocked && (
                                 <Typography
@@ -234,8 +234,8 @@ export const FullTrainingPlanItem = ({
                                     </Tooltip>
                                 )}
                         </Stack>
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
                 <Divider />
 
                 {taskDialogView && (

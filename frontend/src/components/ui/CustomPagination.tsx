@@ -25,7 +25,15 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
 
     return (
         <GridPagination
-            labelDisplayedRows={({ from, to, count }) => {
+            labelDisplayedRows={({
+                from,
+                to,
+                count,
+            }: {
+                from: number;
+                to: number;
+                count: number;
+            }) => {
                 return `${from}–${to} of ${count}${hasMore ? '+' : ''}`;
             }}
             slots={{

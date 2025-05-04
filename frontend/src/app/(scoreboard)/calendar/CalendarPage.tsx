@@ -32,7 +32,7 @@ import { Scheduler } from '@jackstenglein/react-scheduler';
 import type { EventRendererProps, SchedulerRef } from '@jackstenglein/react-scheduler/types';
 import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Button, Container, Grid2, Snackbar, Stack, Typography } from '@mui/material';
+import { Button, Container, Grid, Snackbar, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RRule } from 'rrule';
 
@@ -485,6 +485,7 @@ export default function CalendarPage() {
                 startHour: minHour,
                 endHour: maxHour,
                 navigation: true,
+                step: 60,
             },
             'month',
         );
@@ -527,8 +528,8 @@ export default function CalendarPage() {
                 message='Meeting canceled'
             />
 
-            <Grid2 container spacing={2}>
-                <Grid2 size={{ xs: 12, md: 2.5, xl: 2 }}>
+            <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 2.5, xl: 2 }}>
                     <Button
                         onClick={toggleFilters}
                         startIcon={showFilters ? <VisibilityOff /> : <Visibility />}
@@ -537,8 +538,8 @@ export default function CalendarPage() {
                         {showFilters ? 'Hide Filters' : 'Show Filters'}
                     </Button>
                     {showFilters && <CalendarFilters filters={filters} />}
-                </Grid2>
-                <Grid2
+                </Grid>
+                <Grid
                     size={{
                         xs: 12,
                         md: showFilters ? 9.5 : 12,
@@ -562,6 +563,7 @@ export default function CalendarPage() {
                                 startHour: minHour,
                                 endHour: maxHour,
                                 navigation: true,
+                                step: 60,
                             }}
                             week={{
                                 weekDays: [0, 1, 2, 3, 4, 5, 6],
@@ -606,8 +608,8 @@ export default function CalendarPage() {
                             }
                         />
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
 
             <CalendarTutorial />
         </Container>

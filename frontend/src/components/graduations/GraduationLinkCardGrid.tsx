@@ -14,7 +14,7 @@ export default function GraduationLinkCardGrid({ graduations }: GraduationLinkCa
     return (
         <Grid container p='16px' spacing={2} alignItems='center' justifyContent='center'>
             {graduations.map((grad) => (
-                <Grid key={`${grad.username} ${grad.createdAt}`} item xs={8} md={4} xl={2}>
+                <Grid key={`${grad.username} ${grad.createdAt}`} size={{ xs: 8, md: 4, xl: 2 }}>
                     <GraduationLinkCard
                         graduation={grad}
                         to={`/graduations/reports/${grad.previousCohort}/${grad.username}`}

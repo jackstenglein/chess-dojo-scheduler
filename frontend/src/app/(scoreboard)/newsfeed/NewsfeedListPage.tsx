@@ -7,7 +7,7 @@ import NewsfeedList from '@/components/newsfeed/NewsfeedList';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
-import { Container, Divider, Grid2 as Grid, Stack, Typography } from '@mui/material';
+import { Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 
 export function NewsfeedListPage() {

@@ -1,6 +1,6 @@
 import { useAuth } from '@/auth/Auth';
 import { Move } from '@jackstenglein/chess';
-import { Divider, Grid2, Paper } from '@mui/material';
+import { Divider, Grid, Paper } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 import {
     isSuggestedVariation,
@@ -47,7 +47,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, handleScroll }) => {
     return (
         <>
             {move.ply % 2 === 1 && <Ellipsis ply={move.ply} />}
-            <Grid2 size={12}>
+            <Grid size={12}>
                 <Paper elevation={3} sx={{ boxShadow: 'none', color: 'text.secondary' }}>
                     <Divider
                         sx={{
@@ -84,7 +84,7 @@ const Interrupt: React.FC<InterruptProps> = ({ move, handleScroll }) => {
 
                     <Divider />
                 </Paper>
-            </Grid2>
+            </Grid>
         </>
     );
 };
