@@ -474,7 +474,7 @@ export function ShareTab() {
                         <FormLabel>{plyBetweenDiagrams / 2} Moves Between Diagrams</FormLabel>
                         <Slider
                             value={plyBetweenDiagrams}
-                            onChange={(_, value) => setPlyBetweenDiagrams(value as number)}
+                            onChange={(_, value) => setPlyBetweenDiagrams(value)}
                             step={2}
                             min={pgnExportOptions.plyBetweenDiagrams.min}
                             max={pgnExportOptions.plyBetweenDiagrams.max}

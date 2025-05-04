@@ -8,7 +8,7 @@ import {
     CardActionArea,
     CardContent,
     CardHeader,
-    Grid2,
+    Grid,
     Stack,
     SxProps,
     Theme,
@@ -31,10 +31,10 @@ export function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
     }
 
     return (
-        <Grid2 container rowSpacing={2} columnSpacing={2}>
+        <Grid container rowSpacing={2} columnSpacing={2}>
             <RequestSnackbar request={request} />
             {clubs.map((club) => (
-                <Grid2
+                <Grid
                     key={club.id}
                     size={{
                         xs: 12,
@@ -43,9 +43,9 @@ export function ClubGrid<T>({ clubs, request }: ClubGridProps<T>) {
                     }}
                 >
                     <ListClubItem club={club} sx={{ height: 1 }} />
-                </Grid2>
+                </Grid>
             ))}
-        </Grid2>
+        </Grid>
     );
 }
 

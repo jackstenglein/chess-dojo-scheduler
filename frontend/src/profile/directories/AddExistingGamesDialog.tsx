@@ -28,7 +28,10 @@ export const AddExistingGamesDialog = ({
 }) => {
     const api = useApi();
     const { user } = useRequiredAuth();
-    const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
+    const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>({
+        type: 'include',
+        ids: new Set(),
+    });
     const addRequest = useRequest();
     const gridApiRef = useGridApiRef();
     const cache = useDirectoryCache();
@@ -54,14 +57,14 @@ export const AddExistingGamesDialog = ({
     };
 
     const onAdd = () => {
-        if (selectedRows.length === 0 || addRequest.isLoading()) {
+        if (selectedRows.ids.size === 0 || addRequest.isLoading()) {
             return;
         }
 
-        const rows = gridApiRef.current.getSelectedRows();
-        if (rows.size !== selectedRows.length) {
+        const rows = gridApiRef.current?.getSelectedRows() ?? new Map();
+        if (rows.size !== selectedRows.ids.size) {
             console.error(
-                `Grid API getSelectedRows has size ${rows.size} but state selectedRows has size ${selectedRows.length}`,
+                `Grid API getSelectedRows has size ${rows.size} but state selectedRows has size ${selectedRows.ids.size}`,
             );
             return;
         }
@@ -138,12 +141,12 @@ export const AddExistingGamesDialog = ({
                 </Button>
 
                 <LoadingButton
-                    disabled={selectedRows.length === 0}
+                    disabled={selectedRows.ids.size === 0}
                     loading={addRequest.isLoading()}
                     onClick={onAdd}
                 >
-                    {selectedRows.length
-                        ? `Add ${selectedRows.length} Game${selectedRows.length > 1 ? 's' : ''}`
+                    {selectedRows.ids.size
+                        ? `Add ${selectedRows.ids.size} Game${selectedRows.ids.size > 1 ? 's' : ''}`
                         : 'Add Games'}
                 </LoadingButton>
             </DialogActions>

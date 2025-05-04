@@ -1,21 +1,24 @@
+import SupportTicket from '@/components/help/SupportTicket';
 import { Link } from '@/components/navigation/Link';
+import { getConfig } from '@/config';
 import { RatingSystem, formatRatingSystem } from '@/database/user';
+import { SmartToy } from '@mui/icons-material';
 import {
+    Button,
     Card,
     CardContent,
     CardHeader,
     Container,
     Divider,
-    Grid2,
+    Grid,
     Stack,
     Typography,
 } from '@mui/material';
 import React from 'react';
-import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
-import SupportTicket from './SupportTicket';
 
 const { Custom, Custom2, Custom3, ...ratingSystems } = RatingSystem;
+const config = getConfig();
 
 export const faq = {
     title: 'Frequently Asked Questions',
@@ -54,7 +57,17 @@ export const faq = {
         },
         {
             title: 'How do I communicate with other Dojo members?',
-            content: <DiscordHelpItem />,
+            content: (
+                <>
+                    Discord is the primary method of communication between Dojo members. You can
+                    join our server{' '}
+                    <Link href={config.discord.url} target='_blank' rel='noopener'>
+                        here
+                    </Link>
+                    . You can use Discord to schedule sparring sessions, tournament games, and just
+                    chat generally with others about chess.
+                </>
+            ),
         },
         {
             title: 'How often should I study?',
@@ -163,8 +176,8 @@ const UnauthenticatedHelp = () => {
 
     return (
         <Container maxWidth='xl' sx={{ py: 4 }}>
-            <Grid2 container columnSpacing={4}>
-                <Grid2
+            <Grid container columnSpacing={4}>
+                <Grid
                     sx={{ display: { xs: 'none', md: 'initial' } }}
                     size={{
                         md: 3,
@@ -214,9 +227,9 @@ const UnauthenticatedHelp = () => {
                             </Stack>
                         </CardContent>
                     </Card>
-                </Grid2>
+                </Grid>
 
-                <Grid2
+                <Grid
                     id='scroll-parent'
                     size={{
                         md: 9,
@@ -227,10 +240,23 @@ const UnauthenticatedHelp = () => {
                             <Typography variant='h4'>Help/FAQs</Typography>
                             <Divider />
                             <Typography variant='body1' mt={3}>
-                                If you have trouble using the site, please check this section before
-                                asking for help. If your issue is not listed here or is not solved
-                                by the advice here, then create a support ticket below.
+                                If you are having trouble using the site, ask{' '}
+                                <strong>
+                                    <Link href='/help/chat'>DojoAI</Link>
+                                </strong>{' '}
+                                for assistance or check the FAQs. If you're still stuck, please
+                                contact customer support below.
                             </Typography>
+                            <Button
+                                variant='contained'
+                                color='primary'
+                                startIcon={<SmartToy />}
+                                component={Link}
+                                href='/help/chat'
+                                sx={{ mt: 2, alignSelf: 'start' }}
+                            >
+                                Ask DojoAI
+                            </Button>
                         </Stack>
 
                         {helpSections.map((section) => (
@@ -256,8 +282,8 @@ const UnauthenticatedHelp = () => {
 
                         <SupportTicket />
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
         </Container>
     );
 };

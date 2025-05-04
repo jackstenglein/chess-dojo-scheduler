@@ -16,11 +16,7 @@ import {
     requireUserInfo,
     success,
 } from 'chess-dojo-directory-service/api';
-import {
-    attributeExists,
-    dynamo,
-    UpdateItemBuilder,
-} from 'chess-dojo-directory-service/database';
+import { attributeExists, dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
 import { getChesscomGame } from 'chess-dojo-pgn-service/game/chesscom';
 import { getLichessGame } from 'chess-dojo-pgn-service/game/lichess';
 import { tournamentsTable } from './register';
@@ -177,8 +173,8 @@ async function findPairingPath({
             const pairing = tournament.pairings[round][i];
 
             if (pairing.white === username || pairing.black === username) {
-                const white = tournament.players[pairing.white]?.[field];
-                const black = tournament.players[pairing.black]?.[field];
+                const white = tournament.players[pairing.white ?? '']?.[field] ?? '';
+                const black = tournament.players[pairing.black ?? '']?.[field] ?? '';
 
                 if (
                     white.trim().toLowerCase() === data.white.trim().toLowerCase() &&

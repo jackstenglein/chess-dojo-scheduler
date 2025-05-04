@@ -164,8 +164,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                 <Tooltip key='ban' title='Ban Player'>
                     <GridActionsCellItem
                         disabled={params.row.status === OpenClassicalPlayerStatus.Banned}
-                        color='error'
-                        icon={<Block />}
+                        icon={<Block color='error' />}
                         label='Ban Player'
                         onClick={() => {
                             setUpdatePlayer(params.row.lichessUsername);
@@ -228,7 +227,6 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                     ))}
                 </TextField>
             </Stack>
-
             <DataGridPro
                 getRowId={(player) => player.lichessUsername}
                 rows={players}
@@ -248,8 +246,8 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                         ratingRange,
                     },
                 }}
+                showToolbar
             />
-
             <Dialog
                 open={Boolean(updatePlayer)}
                 onClose={updateRequest.isLoading() ? undefined : () => setUpdatePlayer('')}
@@ -278,7 +276,6 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                     </LoadingButton>
                 </DialogActions>
             </Dialog>
-
             <RequestSnackbar request={updateRequest} showSuccess />
         </Stack>
     );

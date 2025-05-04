@@ -13,7 +13,7 @@ import {
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { AddCircle, PushPin, PushPinOutlined } from '@mui/icons-material';
-import { Chip, Divider, Grid2, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { Chip, Divider, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { CircularTimeProgress } from '../CircularTimeProgress';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
@@ -81,7 +81,7 @@ export const TimeframeTrainingPlanItem = ({
 
     return (
         <Stack spacing={2} mt={2}>
-            <Grid2
+            <Grid
                 container
                 columnGap={1}
                 alignItems='center'
@@ -89,7 +89,7 @@ export const TimeframeTrainingPlanItem = ({
                 position='relative'
                 wrap='wrap'
             >
-                <Grid2
+                <Grid
                     size={{ xs: 'grow', sm: 9 }}
                     onClick={() => setTaskDialogView(TaskDialogView.Details)}
                     sx={{ cursor: 'pointer', position: 'relative' }}
@@ -127,9 +127,9 @@ export const TimeframeTrainingPlanItem = ({
                             suffix={task.progressBarSuffix}
                         />
                     )}
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={{ xs: 'auto' }} id='task-status'>
+                <Grid size={{ xs: 'auto' }} id='task-status'>
                     <Stack direction='row' alignItems='center' justifyContent='end'>
                         {goalMinutes > 0 ? (
                             <Tooltip title='Update Progress'>
@@ -195,8 +195,8 @@ export const TimeframeTrainingPlanItem = ({
                                 </Tooltip>
                             )}
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
             <Divider />
 
             {taskDialogView && (

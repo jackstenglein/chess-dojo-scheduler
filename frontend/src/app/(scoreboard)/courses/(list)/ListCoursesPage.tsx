@@ -6,7 +6,7 @@ import { useAuth, useFreeTier } from '@/auth/Auth';
 import { Course } from '@/database/course';
 import { getCohortRange } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import { Container, Grid2, Stack, Typography } from '@mui/material';
+import { Container, Grid, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { getCheckoutSessionId } from '../localStorage';
 import { CourseFilterEditor, useCourseFilters } from './CourseFilters';
@@ -62,17 +62,17 @@ const ListCoursesPage = () => {
     return (
         <Container maxWidth='xl' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
-            <Grid2 container spacing={3}>
-                <Grid2
+            <Grid container spacing={3}>
+                <Grid
                     size={{
                         xs: 12,
                         md: 2,
                     }}
                 >
                     <CourseFilterEditor filters={courseFilters} />
-                </Grid2>
+                </Grid>
 
-                <Grid2
+                <Grid
                     container
                     spacing={2}
                     size={{
@@ -81,7 +81,7 @@ const ListCoursesPage = () => {
                     }}
                 >
                     {courses.map((course) => (
-                        <Grid2
+                        <Grid
                             key={course.id}
                             size={{
                                 xs: 12,
@@ -100,7 +100,7 @@ const ListCoursesPage = () => {
                                 }
                                 filters={courseFilters}
                             />
-                        </Grid2>
+                        </Grid>
                     ))}
 
                     {noItems && (request.isLoading() || !request.isSent()) && (
@@ -111,8 +111,8 @@ const ListCoursesPage = () => {
                     {noItems && !request.isLoading() && request.isSent() && (
                         <Typography>No courses found</Typography>
                     )}
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
         </Container>
     );
 };

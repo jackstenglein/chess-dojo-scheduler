@@ -8,7 +8,7 @@ import Sensei from '@/landing/Sensei';
 import Testimonials from '@/landing/Testimonials';
 import WhatsIncluded from '@/landing/WhatsIncluded';
 import LoadingPage from '@/loading/LoadingPage';
-import { Box, Button, Container, Grid2, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Grid, Stack, Typography } from '@mui/material';
 import { Hub } from 'aws-amplify/utils';
 import { useEffect } from 'react';
 
@@ -48,8 +48,8 @@ const LandingPage = ({
                     mb: { xs: 4, md: 0 },
                 }}
             >
-                <Grid2 container rowSpacing={4} columnSpacing={2}>
-                    <Grid2
+                <Grid container rowSpacing={4} columnSpacing={2}>
+                    <Grid
                         justifyContent='center'
                         size={{
                             xs: 12,
@@ -106,9 +106,9 @@ const LandingPage = ({
                                 </Button>
                             </Stack>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2
+                    <Grid
                         size={{
                             xs: 12,
                             md: 6,
@@ -125,8 +125,8 @@ const LandingPage = ({
                                 allowFullScreen
                             />
                         </Stack>
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
             </Box>
             <WhatsIncluded />
             <Sensei />

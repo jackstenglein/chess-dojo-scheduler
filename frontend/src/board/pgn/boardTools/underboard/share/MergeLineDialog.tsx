@@ -56,7 +56,10 @@ export function MergeLineDialog({
     const [nagMergeType, setNagMergeType] = useState<PgnMergeType>(PgnMergeTypes.MERGE);
     const [drawableMergeType, setDrawableMergeType] = useState<PgnMergeType>(PgnMergeTypes.MERGE);
     const [citeSource, setCiteSource] = useState(true);
-    const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
+    const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>({
+        type: 'include',
+        ids: new Set(),
+    });
 
     const searchByOwner = useCallback(
         (startKey: string) => api.listGamesByOwner(user?.username, startKey),
@@ -72,7 +75,8 @@ export function MergeLineDialog({
     };
 
     const onMergeLine = async () => {
-        const [cohort, id] = (selectedRows[0] as string).split('/');
+        const rowId = [...selectedRows.ids.values()][0];
+        const [cohort, id] = (rowId as string).split('/');
         if (!chess || !cohort || !id) {
             return;
         }
@@ -121,7 +125,7 @@ export function MergeLineDialog({
         }
         onClose();
         request.reset();
-        setSelectedRows([]);
+        setSelectedRows({ type: 'include', ids: new Set() });
     };
 
     return (
@@ -317,7 +321,7 @@ export function MergeLineDialog({
                     </Button>
                     <LoadingButton
                         loading={request.isLoading()}
-                        disabled={selectedRows.length === 0}
+                        disabled={selectedRows.ids.size === 0}
                         onClick={onMergeLine}
                     >
                         Merge Line into Game

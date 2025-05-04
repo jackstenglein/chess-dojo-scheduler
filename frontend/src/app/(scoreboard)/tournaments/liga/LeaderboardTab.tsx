@@ -239,7 +239,6 @@ const LeaderboardTab = () => {
             </Stack>
 
             <DataGridPro
-                data-cy='leaderboard'
                 autoHeight
                 columns={columns}
                 rows={request.data?.players || []}
@@ -252,6 +251,11 @@ const LeaderboardTab = () => {
                     },
                     pagination: {
                         paginationModel: { page: 0, pageSize: 10 },
+                    },
+                }}
+                slotProps={{
+                    root: {
+                        'data-cy': 'leaderboard',
                     },
                 }}
                 pagination

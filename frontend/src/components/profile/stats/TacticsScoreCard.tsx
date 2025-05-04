@@ -5,7 +5,7 @@ import { ALL_COHORTS, User } from '@/database/user';
 import { calculateTacticsRating } from '@/exams/view/exam';
 import Icon from '@/style/Icon';
 import { FiberManualRecord, FiberManualRecordOutlined } from '@mui/icons-material';
-import { Card, CardContent, Grid2, Stack, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
 interface TacticsScoreCardProps {
@@ -68,9 +68,9 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                     </Tooltip>
                 </Stack>
 
-                <Grid2 container rowGap={4} columnSpacing={2} justifyContent='center'>
+                <Grid container rowGap={4} columnSpacing={2} justifyContent='center'>
                     {tacticsRating.components.map((c) => (
-                        <Grid2
+                        <Grid
                             key={c.name}
                             display='flex'
                             justifyContent='center'
@@ -120,9 +120,9 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                     )}
                                 </Stack>
                             </Tooltip>
-                        </Grid2>
+                        </Grid>
                     ))}
-                </Grid2>
+                </Grid>
             </CardContent>
         </Card>
     );

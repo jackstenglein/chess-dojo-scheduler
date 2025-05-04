@@ -11,7 +11,7 @@ import {
     DataGridProProps,
     GridColDef,
     GridColumnVisibilityModel,
-    GridListColDef,
+    GridListViewColDef,
     GridRenderCellParams,
     GridRowParams,
     GridToolbarColumnsButton,
@@ -150,7 +150,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     },
 ];
 
-const listColDef: GridListColDef<GameInfo> = {
+const listColDef: GridListViewColDef<GameInfo> = {
     field: 'listColumn',
     renderCell: ListViewCell,
 };
@@ -212,7 +212,7 @@ export default function GameTable({
 
     const theme = useTheme();
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
-    const isListView = dataGridProps.unstable_listView || isSmall;
+    const isListView = dataGridProps.listView || isSmall;
 
     const getEstimatedRowHeight = useCallback(() => {
         if (isListView) {
@@ -252,7 +252,6 @@ export default function GameTable({
         <DataGridPro
             apiRef={apiRef}
             {...dataGridProps}
-            data-cy='games-table'
             columns={transformedColumns}
             rows={data}
             pageSizeOptions={freeTierLimited ? [10] : [5, 10, 25]}
@@ -297,15 +296,17 @@ export default function GameTable({
             slotProps={
                 contextMenu
                     ? {
+                          root: { 'data-cy': 'games-table' },
                           row: {
                               onContextMenu: contextMenu.open,
                           },
                       }
-                    : undefined
+                    : { root: { 'data-cy': 'games-table' } }
             }
             pagination
-            unstable_listView={isListView}
-            unstable_listColumn={dataGridProps.unstable_listColumn || listColDef}
+            listView={isListView}
+            listViewColumn={dataGridProps.listViewColumn || listColDef}
+            showToolbar
         />
     );
 }

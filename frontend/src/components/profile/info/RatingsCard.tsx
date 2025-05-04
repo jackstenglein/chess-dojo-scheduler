@@ -7,7 +7,7 @@ import {
     User,
 } from '@/database/user';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
-import { Card, CardContent, Grid2, Typography } from '@mui/material';
+import { Card, CardContent, Grid, Typography } from '@mui/material';
 
 export const RatingsCard = ({ user }: { user: User }) => {
     const { user: viewer } = useAuth();
@@ -29,7 +29,7 @@ export const RatingsCard = ({ user }: { user: User }) => {
     return (
         <Card>
             <CardContent>
-                <Grid2 container rowGap={1} alignItems='center'>
+                <Grid container rowGap={1} alignItems='center'>
                     {systems.map((rs) => {
                         const currentRating = getSystemCurrentRating(user, rs);
                         if (currentRating <= 0) {
@@ -45,7 +45,7 @@ export const RatingsCard = ({ user }: { user: User }) => {
                             />
                         );
                     })}
-                </Grid2>
+                </Grid>
             </CardContent>
         </Card>
     );
@@ -62,17 +62,17 @@ const RatingRow = ({
 }) => {
     return (
         <>
-            <Grid2 display='flex' alignItems='center' justifyContent='center' size={2}>
+            <Grid display='flex' alignItems='center' justifyContent='center' size={2}>
                 <RatingSystemIcon system={system} size='small' />
-            </Grid2>
-            <Grid2 size={8}>
+            </Grid>
+            <Grid size={8}>
                 <Typography>
                     {formatRatingSystem(system)} {isCustom(system) && name && ` (${name})`}
                 </Typography>
-            </Grid2>
-            <Grid2 size={2}>
+            </Grid>
+            <Grid size={2}>
                 <Typography fontWeight='bold'>{currentRating}</Typography>
-            </Grid2>
+            </Grid>
         </>
     );
 };

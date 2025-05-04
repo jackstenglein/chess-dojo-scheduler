@@ -19,7 +19,7 @@ import {
     Container,
     FormControlLabel,
     FormLabel,
-    Grid2,
+    Grid,
     Stack,
     TextField,
     Typography,
@@ -237,8 +237,8 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                     onChange={(e) => setExternalUrl(e.target.value)}
                 />
 
-                <Grid2 container columnSpacing={2} rowSpacing={3}>
-                    <Grid2
+                <Grid container columnSpacing={2} rowSpacing={3}>
+                    <Grid
                         size={{
                             sm: 4,
                         }}
@@ -249,8 +249,8 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
                         />
-                    </Grid2>
-                    <Grid2
+                    </Grid>
+                    <Grid
                         size={{
                             sm: 4,
                         }}
@@ -261,8 +261,8 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                             value={state}
                             onChange={(e) => setState(e.target.value)}
                         />
-                    </Grid2>
-                    <Grid2
+                    </Grid>
+                    <Grid
                         size={{
                             sm: 4,
                         }}
@@ -273,8 +273,8 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                             value={country}
                             onChange={(e) => setCountry(e.target.value)}
                         />
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
 
                 <Stack spacing={1}>
                     <FormControlLabel

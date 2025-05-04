@@ -98,7 +98,7 @@ describe('Event Editor', () => {
         cy.getBySel('availability-viewer').contains('Cohorts');
         cy.getBySel('book-button').should('not.exist');
 
-        cy.get('[data-testid="DeleteRoundedIcon"]').click();
+        cy.get('.rs__popper_actions').get('button').last().click();
         cy.contains('DELETE').click();
 
         cy.contains('Availability deleted');

@@ -1,3 +1,4 @@
+import { getConfig } from '@/config';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupIcon from '@mui/icons-material/Group';
@@ -27,6 +28,7 @@ import {
 import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
 
 const InfoTab = () => {
+    const config = getConfig();
     return (
         <Stack spacing={2}>
             <Typography variant='h5' textAlign='center' color='text.secondary'>
@@ -136,7 +138,7 @@ const InfoTab = () => {
                                 Join{' '}
                                 <Link
                                     data-cy='discord-invite-link'
-                                    href='https://discord.gg/AEeHwBWqAX'
+                                    href={config.discord.url}
                                     target='_blank'
                                     rel='noreferrer'
                                     color='primary'

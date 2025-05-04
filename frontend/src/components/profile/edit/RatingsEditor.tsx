@@ -4,7 +4,7 @@ import {
     Checkbox,
     Divider,
     FormControlLabel,
-    Grid2,
+    Grid,
     Link,
     MenuItem,
     Stack,
@@ -171,8 +171,8 @@ export function RatingsEditor({
             </TextField>
 
             {ratingSystems.map((rs) => (
-                <Grid2 key={rs.label} container columnGap={2} alignItems='start'>
-                    <Grid2 size='grow'>
+                <Grid key={rs.label} container columnGap={2} alignItems='start'>
+                    <Grid size='grow'>
                         <TextField
                             required={rs.required}
                             label={rs.label}
@@ -193,9 +193,9 @@ export function RatingsEditor({
                             }
                             sx={{ width: 1 }}
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size='grow'>
+                    <Grid size='grow'>
                         <TextField
                             label='Start Rating'
                             value={rs.startRating}
@@ -206,9 +206,9 @@ export function RatingsEditor({
                             }
                             sx={{ width: 1 }}
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size='grow'>
+                    <Grid size='grow'>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -218,13 +218,13 @@ export function RatingsEditor({
                             }
                             label={rs.hideLabel}
                         />
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
             ))}
 
             {CUSTOM_RATING_SYSTEMS.map((rs, idx) => (
-                <Grid2 key={rs} container columnGap={2} alignItems='start'>
-                    <Grid2 size='grow'>
+                <Grid key={rs} container columnGap={2} alignItems='start'>
+                    <Grid size='grow'>
                         <TextField
                             label={`Custom ${idx + 1} Rating Name`}
                             value={ratingEditors[rs].name}
@@ -233,9 +233,9 @@ export function RatingsEditor({
                             error={!!errors[`${rs}Name`]}
                             helperText={errors[`${rs}Name`] || 'Manually track your rating'}
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size='grow'>
+                    <Grid size='grow'>
                         <TextField
                             required={ratingSystem === rs}
                             label='Current Rating'
@@ -247,9 +247,9 @@ export function RatingsEditor({
                             }
                             sx={{ width: 1 }}
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size='grow'>
+                    <Grid size='grow'>
                         <TextField
                             required={ratingSystem === rs}
                             label='Start Rating'
@@ -262,8 +262,8 @@ export function RatingsEditor({
                             }
                             sx={{ width: 1 }}
                         />
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
             ))}
 
             <FormControlLabel

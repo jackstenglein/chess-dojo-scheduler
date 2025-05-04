@@ -117,7 +117,6 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
 
             {dojoCohorts.includes(type) && <Typography variant='h6'>Current Members</Typography>}
             <Scoreboard
-                cypressId='current-members-scoreboard'
                 user={user}
                 cohort={dojoCohorts.includes(type) ? type : undefined}
                 requirements={requirements}
@@ -127,6 +126,9 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
                 slots={{
                     toolbar: ScoreboardToolbar,
                 }}
+                slotProps={{
+                    root: { 'data-cy': 'current-members-scoreboard' },
+                }}
             />
 
             {dojoCohorts.includes(type) && (
@@ -134,13 +136,15 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
                     <Typography variant='h6'>Graduations</Typography>
                     <div id='graduation-scoreboard'>
                         <Scoreboard
-                            cypressId='graduates-scoreboard'
                             cohort={dojoCohorts.includes(type) ? type : undefined}
                             requirements={requirements}
                             rows={graduationsRequest.data ?? []}
                             loading={graduationsRequest.isLoading()}
                             slots={{
                                 toolbar: ScoreboardToolbar,
+                            }}
+                            slotProps={{
+                                root: { 'data-cy': 'graduates-scoreboard' },
                             }}
                         />
                     </div>

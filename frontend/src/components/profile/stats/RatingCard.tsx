@@ -17,7 +17,7 @@ import {
     Card,
     CardContent,
     Chip,
-    Grid2,
+    Grid,
     Link,
     Stack,
     Tooltip,
@@ -219,8 +219,8 @@ const RatingCard: React.FC<RatingCardProps> = ({
                     {isPreferred && <Chip label='Preferred' variant='outlined' color='success' />}
                 </Stack>
 
-                <Grid2 container justifyContent='space-around' rowGap={2}>
-                    <Grid2
+                <Grid container justifyContent='space-around' rowGap={2}>
+                    <Grid
                         size={{ xs: 6, sm: 3, md: 'grow' }}
                         display='flex'
                         justifyContent='center'
@@ -250,9 +250,9 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 </Tooltip>
                             </Stack>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2
+                    <Grid
                         size={{ xs: 6, sm: 3, md: 'grow' }}
                         display='flex'
                         justifyContent='center'
@@ -272,9 +272,9 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 {startRating}
                             </Typography>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2
+                    <Grid
                         size={{ xs: 6, sm: 3, md: 'grow' }}
                         display='flex'
                         justifyContent='center'
@@ -317,10 +317,10 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 </Typography>
                             </Stack>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
                     {!isCustom(system) && (
-                        <Grid2
+                        <Grid
                             size={{ xs: 6, sm: 3, md: 'grow' }}
                             display='flex'
                             justifyContent='center'
@@ -350,10 +350,10 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                     </Tooltip>
                                 </Stack>
                             </Stack>
-                        </Grid2>
+                        </Grid>
                     )}
 
-                    <Grid2
+                    <Grid
                         size={{ xs: 6, sm: 3, md: 'grow' }}
                         display='flex'
                         justifyContent='center'
@@ -377,8 +377,8 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                 {graduation || 'N/A'}
                             </Typography>
                         </Stack>
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
 
                 {historyData.length > 0 && (
                     <Stack>

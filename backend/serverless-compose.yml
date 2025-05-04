@@ -130,6 +130,11 @@ services:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+  
+  chatBotService:
+    path: chatBotService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}    
 
   yearReviewService:
     path: yearReviewService

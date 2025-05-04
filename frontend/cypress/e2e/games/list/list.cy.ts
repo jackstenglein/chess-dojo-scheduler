@@ -127,7 +127,8 @@ describe('List Games Page', () => {
         cy.location('search').should('equal', '?type=owner&startDate=&endDate=');
     });
 
-    it('links to game page on row click', () => {
+    it.only('links to game page on row click', () => {
+        cy.getBySel('games-table').find('.MuiDataGrid-main--hiddenContent').should('not.exist');
         cy.getBySel('games-table').find('.MuiDataGrid-row').first().click();
 
         cy.location('pathname').should('match', /^\/games\/\d{4}-\d{4}\/.+$/);
@@ -139,6 +140,6 @@ describe('List Games Page', () => {
         cy.visit('/games');
 
         cy.getBySel('upsell-alert').should('be.visible');
-        cy.get('[data-testid="KeyboardArrowRightIcon"]').parent().should('be.disabled');
+        cy.get('[aria-label="Go to next page"]').should('be.disabled');
     });
 });

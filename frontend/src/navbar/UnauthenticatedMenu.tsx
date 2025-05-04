@@ -52,7 +52,7 @@ function unauthenticatedStartItems(toggleExpansion: (item: string) => void): Nav
             children: [
                 {
                     name: 'DojoLiga',
-                    href: '/tournaments',
+                    href: '/tournaments/liga',
                 },
                 {
                     name: 'Open Classical',

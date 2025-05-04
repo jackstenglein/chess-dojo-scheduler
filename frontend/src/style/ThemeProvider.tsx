@@ -47,6 +47,9 @@ declare module '@mui/material/styles' {
         meet?: Palette['primary'];
         explorerTotal?: Palette['primary'];
         trainingPlanTaskComplete?: Palette['primary'];
+        DataGrid: {
+            bg: string;
+        };
     }
 }
 
@@ -102,6 +105,7 @@ declare module '@mui/material' {
 const defaultTheme = createTheme({});
 
 const defaultPalette = {
+    DataGrid: { bg: 'transparent' },
     meet: defaultTheme.palette.augmentColor({
         color: {
             main: '#93a84f',

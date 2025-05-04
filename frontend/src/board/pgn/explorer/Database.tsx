@@ -24,7 +24,7 @@ import { Help, QuestionMark } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import {
     Box,
-    Grid2,
+    Grid,
     MenuItem,
     Stack,
     TextField,
@@ -288,10 +288,10 @@ function Database({
     };
 
     return (
-        <Grid2 data-cy={`explorer-tab-${type}`} container columnSpacing={1} rowSpacing={2} mt={2}>
+        <Grid data-cy={`explorer-tab-${type}`} container columnSpacing={1} rowSpacing={2} mt={2}>
             {type === ExplorerDatabaseType.Dojo && (
                 <>
-                    <Grid2
+                    <Grid
                         size={{
                             xs: 6,
                             sm: 6,
@@ -310,8 +310,8 @@ function Database({
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </Grid2>
-                    <Grid2
+                    </Grid>
+                    <Grid
                         size={{
                             xs: 6,
                             sm: 6,
@@ -334,12 +334,12 @@ function Database({
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </Grid2>
+                    </Grid>
                 </>
             )}
             {type === ExplorerDatabaseType.Masters && timeControls && setTimeControls && (
                 <>
-                    <Grid2 size={12}>
+                    <Grid size={12}>
                         <Stack direction='row' alignItems='center' spacing={0.5}>
                             <MultipleSelectChip
                                 label='Time Controls'
@@ -366,10 +366,10 @@ function Database({
                                 <Help sx={{ color: 'text.secondary' }} />
                             </Tooltip>
                         </Stack>
-                    </Grid2>
+                    </Grid>
                 </>
             )}
-            <Grid2 size={12}>
+            <Grid size={12}>
                 <StyledDataGrid
                     autoHeight
                     disableColumnMenu
@@ -399,7 +399,7 @@ function Database({
                         fontSize: '0.8rem',
                     }}
                 />
-            </Grid2>
+            </Grid>
 
             {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
                 <>
@@ -414,7 +414,7 @@ function Database({
                                 publishedAt: false,
                                 owner: false,
                             }}
-                            unstable_listView={true}
+                            listView={true}
                             disableRowSelectionOnClick
                             onRowClick={(params) => onClickGame(params.row)}
                         />
@@ -422,7 +422,7 @@ function Database({
 
                     {(type === ExplorerDatabaseType.Dojo ||
                         type === ExplorerDatabaseType.Masters) && (
-                        <Grid2 display='flex' justifyContent='center' size={12}>
+                        <Grid display='flex' justifyContent='center' size={12}>
                             <Link
                                 href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
                                 target='_blank'
@@ -431,11 +431,11 @@ function Database({
                                 View all {type === ExplorerDatabaseType.Dojo ? 'Dojo' : 'master'}{' '}
                                 games containing this position
                             </Link>
-                        </Grid2>
+                        </Grid>
                     )}
                 </>
             )}
-        </Grid2>
+        </Grid>
     );
 }
 

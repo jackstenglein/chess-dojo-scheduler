@@ -1,10 +1,10 @@
-import { Event, dateMapper } from '../util';
+import { Event, dateMapper } from '../../util';
 
 const ALL_EVENTS_COUNT = 22;
 
 describe('Calendar Tab', () => {
     beforeEach(() => {
-        cy.fixture('tournaments/events.json').then(({ events }: { events: Event[] }) => {
+        cy.fixture('tournaments/liga/events.json').then(({ events }: { events: Event[] }) => {
             for (const event of events) {
                 const startDate = event.startTime.slice(0, 10);
                 const endDate = event.endTime.slice(0, 10);
@@ -22,14 +22,14 @@ describe('Calendar Tab', () => {
             cy.dojo.env('cognito_password'),
         );
 
-        cy.visit('/tournaments?type=calendar');
+        cy.visit('/tournaments/liga?type=calendar');
     });
 
     it('has tab selector', () => {
         cy.getBySel('tournaments-tab-list').contains('Leaderboard').click();
 
         cy.location().should((loc) => {
-            expect(loc.pathname).to.eq('/tournaments');
+            expect(loc.pathname).to.eq('/tournaments/liga');
             expect(loc.search).to.eq('?type=leaderboard');
         });
     });

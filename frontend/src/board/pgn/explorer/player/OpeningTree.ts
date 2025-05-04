@@ -372,6 +372,23 @@ function matchesFilter(game: GameData | undefined, filter: GameFilters | undefin
     if (filter.color !== Color.Both && game.playerColor !== filter.color) {
         return false;
     }
+    if (
+        !filter.win &&
+        ((game.result === GameResult.White && game.playerColor === Color.White) ||
+            (game.result === GameResult.Black && game.playerColor === Color.Black))
+    ) {
+        return false;
+    }
+    if (!filter.draw && game.result === GameResult.Draw) {
+        return false;
+    }
+    if (
+        !filter.loss &&
+        ((game.result === GameResult.White && game.playerColor === Color.Black) ||
+            (game.result === GameResult.Black && game.playerColor === Color.White))
+    ) {
+        return false;
+    }
     if (!filter.casual && !game.rated) {
         return false;
     }

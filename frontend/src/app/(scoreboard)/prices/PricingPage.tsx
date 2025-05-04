@@ -10,7 +10,7 @@ import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import PriceMatrix from '@/upsell/PriceMatrix';
-import { Container, Grid2, Typography } from '@mui/material';
+import { Container, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
 const config = getConfig();
@@ -63,12 +63,12 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     return (
         <Container sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
-            <Grid2 container spacing={3} justifyContent='center'>
-                <Grid2 textAlign='center' size={12}>
+            <Grid container spacing={3} justifyContent='center'>
+                <Grid textAlign='center' size={12}>
                     <Typography variant='subtitle1' color='text.secondary'>
                         Choose your pricing plan
                     </Typography>
-                </Grid2>
+                </Grid>
 
                 <PriceMatrix
                     onSubscribe={onSubscribe}
@@ -77,12 +77,12 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
                     onFreeTier={onFreeTier}
                 />
 
-                <Grid2 textAlign='center' size={12}>
+                <Grid textAlign='center' size={12}>
                     <Typography variant='body2' color='text.secondary'>
                         Plans automatically renew until canceled
                     </Typography>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
         </Container>
     );
 };

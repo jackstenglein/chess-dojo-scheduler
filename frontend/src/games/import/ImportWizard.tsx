@@ -10,7 +10,7 @@ import {
     CardContent,
     CircularProgress,
     Dialog,
-    Grid2,
+    Grid,
     Stack,
     SvgIconProps,
     SvgIconTypeMap,
@@ -43,7 +43,7 @@ export const ImportWizard = ({ onSubmit, loading }: ImportWizardProps) => {
     };
 
     return (
-        <Grid2 container rowSpacing={2} columnSpacing={2}>
+        <Grid container rowSpacing={2} columnSpacing={2}>
             <ImportSourceCard
                 name='Starting Position'
                 description='Annotate a blank game'
@@ -103,7 +103,7 @@ export const ImportWizard = ({ onSubmit, loading }: ImportWizardProps) => {
                     <PositionForm loading={loading} onSubmit={onSelect} onClose={onCloseDialog} />
                 )}
             </Dialog>
-        </Grid2>
+        </Grid>
     );
 };
 
@@ -138,7 +138,7 @@ const ImportSourceCard = ({
 }: ImportSourceCardProps) => {
     const Icon = icon;
     return (
-        <Grid2
+        <Grid
             size={{
                 xs: 12,
                 sm: 6,
@@ -174,6 +174,6 @@ const ImportSourceCard = ({
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>
+        </Grid>
     );
 };
