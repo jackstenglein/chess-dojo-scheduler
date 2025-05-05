@@ -6,7 +6,7 @@
         "@aws-sdk/client-secrets-manager": "^3.723.0",
         "@aws-sdk/client-sqs": "^3.772.0",
         "@aws-sdk/util-dynamodb": "^3.614.0",
-        "@jackstenglein/chess": "^2.2.9",
+        "@jackstenglein/chess": "^2.2.11",
         "@jackstenglein/chess-dojo-common": "file:../../common",
         "chess-dojo-directory-service": "file:../directoryService",
         "chess-dojo-pgn-service": "file:../pgnService",

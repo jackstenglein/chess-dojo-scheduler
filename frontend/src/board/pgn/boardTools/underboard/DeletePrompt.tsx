@@ -151,7 +151,7 @@ export function DeletePrompt({ deleteAction, onClose }: DeletePromptProps) {
     );
 }
 
-export function useDeletePrompt(chess: Chess | undefined) {
+export function useDeletePrompt(chess: Chess | undefined, onCloseParent: () => void) {
     const [warnBeforeDelete] = useLocalStorage<number>(
         WarnBeforeDelete.key,
         WarnBeforeDelete.default,
@@ -172,12 +172,16 @@ export function useDeletePrompt(chess: Chess | undefined) {
                 chess.delete(move);
             }
             reconcile();
+            onCloseParent();
         } else {
             setDeleteAction({ ...deleteStats, move, type });
         }
     };
 
-    const onClose = () => setDeleteAction(undefined);
+    const onClose = () => {
+        setDeleteAction(undefined);
+        onCloseParent();
+    };
 
     return { onDelete, deleteAction, onClose };
 }
