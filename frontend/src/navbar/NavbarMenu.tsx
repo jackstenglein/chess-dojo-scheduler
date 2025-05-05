@@ -7,6 +7,7 @@ import { hasCreatedProfile } from '@/database/user';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
 import { CrossedSwordIcon } from '@/style/CrossedSwordIcon';
+import { DonateIcon } from '@/style/DonateIcon';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
 import { TournamentBracketIcon } from '@/style/TournamentIcon';
@@ -267,6 +268,11 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     icon: <Storefront />,
                     href: 'https://www.chessdojo.shop/shop',
                     target: '_blank',
+                },
+                {
+                    name: 'Donate',
+                    href: '/donate',
+                    icon: <DonateIcon />,
                 },
             ],
         },
