@@ -57,6 +57,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Open Position Database';
         case ShortcutAction.OpenClocks:
             return 'Open Clock Usage';
+        case ShortcutAction.OpenGuide:
+            return 'Open Guide';    
         case ShortcutAction.OpenSettings:
             return 'Open Settings';
         case ShortcutAction.OpenShare:
@@ -107,6 +109,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Open the Position Database tab.';
         case ShortcutAction.OpenClocks:
             return 'Open the Clock Usage tab.';
+        case ShortcutAction.OpenGuide: 
+            return 'Open Game Guide';    
         case ShortcutAction.OpenSettings:
             return 'Open the Settings tab.';
         case ShortcutAction.OpenShare:
@@ -359,6 +363,7 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.OpenComments]: handleOpenTab(DefaultUnderboardTab.Comments),
     [ShortcutAction.OpenDatabase]: handleOpenTab(DefaultUnderboardTab.Explorer),
     [ShortcutAction.OpenClocks]: handleOpenTab(DefaultUnderboardTab.Clocks),
+    [ShortcutAction.OpenGuide]: handleOpenTab(DefaultUnderboardTab.Guide),
     [ShortcutAction.OpenSettings]: handleOpenTab(DefaultUnderboardTab.Settings),
     [ShortcutAction.OpenShare]: handleOpenTab(DefaultUnderboardTab.Share),
     [ShortcutAction.FocusMainTextField]: handleFocusMainTextField,

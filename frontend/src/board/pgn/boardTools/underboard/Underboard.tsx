@@ -130,7 +130,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
         const { game, isOwner } = useGame();
         const [focusEditor, setFocusEditor] = useState(false);
         const [focusCommenter, setFocusCommenter] = useState(false);
-        const [showGameGuide, setShowGameGuide] = useLocalStorage<boolean>(
+        const [showGameGuide] = useLocalStorage<boolean>(
             ShowGameGuide.key,
             ShowGameGuide.default,
         );
