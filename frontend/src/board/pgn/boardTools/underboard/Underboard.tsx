@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import React, { forwardRef, Fragment, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
-import { useLocalStorage } from 'usehooks-ts';
+import { useLocalStorage, useResizeObserver } from 'usehooks-ts';
 import { AuthStatus, useAuth } from '../../../../auth/Auth';
 import { useChess } from '../../PgnBoard';
 import ResizeHandle from '../../ResizeHandle';
@@ -36,14 +36,17 @@ import Settings from './settings/Settings';
 import { ShortcutAction, ShortcutBindings } from './settings/ShortcutAction';
 import { ShareTab } from './share/ShareTab';
 import Tags from './tags/Tags';
+import HelpIcon from '@mui/icons-material/Help';
+import { ShowGameGuide } from './settings/ViewerSettings';
 import {
     CustomUnderboardTab,
     DefaultUnderboardTab,
     DefaultUnderboardTabInfo,
     UnderboardTab,
 } from './underboardTabs';
+import GuideLinks from './guide/Guide';
 
-const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
+let tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
     [DefaultUnderboardTab.Directories]: {
         name: DefaultUnderboardTab.Directories,
         tooltip: 'Files',
@@ -86,6 +89,12 @@ const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
         icon: <Share />,
         shortcut: ShortcutAction.OpenShare,
     },
+    [DefaultUnderboardTab.Guide]: {
+        name: DefaultUnderboardTab.Guide,
+        tooltip: 'Guide',
+        icon: <HelpIcon/>,
+        shortcut: ShortcutAction.OpenGuide,
+    },
     [DefaultUnderboardTab.Settings]: {
         name: DefaultUnderboardTab.Settings,
         tooltip: 'Settings',
@@ -93,6 +102,8 @@ const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
         shortcut: ShortcutAction.OpenSettings,
     },
 };
+
+
 
 function getTabInfo(tab: UnderboardTab): DefaultUnderboardTabInfo {
     if (typeof tab === 'string') {
@@ -121,6 +132,23 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
         const { game, isOwner } = useGame();
         const [focusEditor, setFocusEditor] = useState(false);
         const [focusCommenter, setFocusCommenter] = useState(false);
+        const [showGameGuide, setShowGameGuide] = useLocalStorage<boolean>(
+                ShowGameGuide.key,
+                ShowGameGuide.default,
+            );
+
+            let displayTabs = [...tabs];
+
+            if (showGameGuide) {
+                const settingsIndex = displayTabs.findIndex(t =>
+                    typeof t === 'string' && t === DefaultUnderboardTab.Settings
+                );
+            
+                if (settingsIndex !== -1) {
+                    displayTabs.splice(settingsIndex, 0, DefaultUnderboardTab.Guide);
+                }
+            }
+        
 
         const [underboard, setUnderboard] = useState(
             initialTab
@@ -209,7 +237,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 onChange={(_, val: string | null) => val && setUnderboard(val)}
                                 fullWidth
                             >
-                                {tabs.map((tab, index) => {
+                                {displayTabs.map((tab, index) => {
                                     const info = getTabInfo(tab);
 
                                     return (
@@ -262,6 +290,9 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 focusEditor={focusCommenter}
                                 setFocusEditor={setFocusCommenter}
                             />
+                        )}
+                        {underboard === DefaultUnderboardTab.Guide && ShowGameGuide && (
+                            <GuideLinks/>
                         )}
                         {underboard === DefaultUnderboardTab.Share && <ShareTab />}
 

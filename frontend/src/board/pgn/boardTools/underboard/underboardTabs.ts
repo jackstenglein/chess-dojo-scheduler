@@ -4,6 +4,7 @@ export enum DefaultUnderboardTab {
     Directories = 'directories',
     Tags = 'tags',
     Editor = 'editor',
+    Guide = 'guide',
     Comments = 'comments',
     Explorer = 'explorer',
     Clocks = 'clocks',

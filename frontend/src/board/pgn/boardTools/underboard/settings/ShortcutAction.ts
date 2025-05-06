@@ -44,6 +44,8 @@ export enum ShortcutAction {
     /** Open the share tab. */
     OpenShare = 'OPEN_SHARE',
 
+    OpenGuide = 'OPEN_GUIDE',
+
     /** Open the settings tab. */
     OpenSettings = 'OPEN_SETTINGS',
 
@@ -91,6 +93,7 @@ export const ShortcutBindings = {
         [ShortcutAction.OpenClocks]: { modifier: '', key: '' },
         [ShortcutAction.OpenSettings]: { modifier: '', key: '' },
         [ShortcutAction.OpenShare]: { modifier: '', key: '' },
+        [ShortcutAction.OpenGuide]: {modifier: '', key: '' },
         [ShortcutAction.FocusMainTextField]: { modifier: '', key: '' },
         [ShortcutAction.FocusCommentTextField]: { modifier: '', key: '' },
         [ShortcutAction.UnfocusTextField]: { modifier: '', key: '' },
