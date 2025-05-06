@@ -58,7 +58,7 @@ function displayShortcutAction(action: ShortcutAction): string {
         case ShortcutAction.OpenClocks:
             return 'Open Clock Usage';
         case ShortcutAction.OpenGuide:
-            return 'Open Guide';    
+            return 'Open Guide';
         case ShortcutAction.OpenSettings:
             return 'Open Settings';
         case ShortcutAction.OpenShare:
@@ -109,8 +109,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Open the Position Database tab.';
         case ShortcutAction.OpenClocks:
             return 'Open the Clock Usage tab.';
-        case ShortcutAction.OpenGuide: 
-            return 'Open Game Guide';    
+        case ShortcutAction.OpenGuide:
+            return 'Open Game Guide';
         case ShortcutAction.OpenSettings:
             return 'Open the Settings tab.';
         case ShortcutAction.OpenShare:
