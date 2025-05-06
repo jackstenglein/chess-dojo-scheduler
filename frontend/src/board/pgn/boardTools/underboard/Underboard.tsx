@@ -10,6 +10,7 @@ import {
     Share,
     Storage,
 } from '@mui/icons-material';
+import HelpIcon from '@mui/icons-material/Help';
 import {
     Card,
     Paper,
@@ -21,7 +22,7 @@ import {
 } from '@mui/material';
 import React, { forwardRef, Fragment, useImperativeHandle, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
-import { useLocalStorage, useResizeObserver } from 'usehooks-ts';
+import { useLocalStorage } from 'usehooks-ts';
 import { AuthStatus, useAuth } from '../../../../auth/Auth';
 import { useChess } from '../../PgnBoard';
 import ResizeHandle from '../../ResizeHandle';
@@ -32,19 +33,18 @@ import Editor from './Editor';
 import ClockUsage from './clock/ClockUsage';
 import Comments from './comments/Comments';
 import { Directories } from './directories/Directories';
+import GuideLinks from './guide/Guide';
 import Settings from './settings/Settings';
 import { ShortcutAction, ShortcutBindings } from './settings/ShortcutAction';
+import { ShowGameGuide } from './settings/ViewerSettings';
 import { ShareTab } from './share/ShareTab';
 import Tags from './tags/Tags';
-import HelpIcon from '@mui/icons-material/Help';
-import { ShowGameGuide } from './settings/ViewerSettings';
 import {
     CustomUnderboardTab,
     DefaultUnderboardTab,
     DefaultUnderboardTabInfo,
     UnderboardTab,
 } from './underboardTabs';
-import GuideLinks from './guide/Guide';
 
 let tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
     [DefaultUnderboardTab.Directories]: {
@@ -92,7 +92,7 @@ let tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
     [DefaultUnderboardTab.Guide]: {
         name: DefaultUnderboardTab.Guide,
         tooltip: 'Guide',
-        icon: <HelpIcon/>,
+        icon: <HelpIcon />,
         shortcut: ShortcutAction.OpenGuide,
     },
     [DefaultUnderboardTab.Settings]: {
@@ -102,8 +102,6 @@ let tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
         shortcut: ShortcutAction.OpenSettings,
     },
 };
-
-
 
 function getTabInfo(tab: UnderboardTab): DefaultUnderboardTabInfo {
     if (typeof tab === 'string') {
@@ -133,22 +131,21 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
         const [focusEditor, setFocusEditor] = useState(false);
         const [focusCommenter, setFocusCommenter] = useState(false);
         const [showGameGuide, setShowGameGuide] = useLocalStorage<boolean>(
-                ShowGameGuide.key,
-                ShowGameGuide.default,
+            ShowGameGuide.key,
+            ShowGameGuide.default,
+        );
+
+        let displayTabs = [...tabs];
+
+        if (showGameGuide) {
+            const settingsIndex = displayTabs.findIndex(
+                (t) => typeof t === 'string' && t === DefaultUnderboardTab.Settings,
             );
 
-            let displayTabs = [...tabs];
-
-            if (showGameGuide) {
-                const settingsIndex = displayTabs.findIndex(t =>
-                    typeof t === 'string' && t === DefaultUnderboardTab.Settings
-                );
-            
-                if (settingsIndex !== -1) {
-                    displayTabs.splice(settingsIndex, 0, DefaultUnderboardTab.Guide);
-                }
+            if (settingsIndex !== -1) {
+                displayTabs.splice(settingsIndex, 0, DefaultUnderboardTab.Guide);
             }
-        
+        }
 
         const [underboard, setUnderboard] = useState(
             initialTab
@@ -292,7 +289,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                             />
                         )}
                         {underboard === DefaultUnderboardTab.Guide && ShowGameGuide && (
-                            <GuideLinks/>
+                            <GuideLinks />
                         )}
                         {underboard === DefaultUnderboardTab.Share && <ShareTab />}
 

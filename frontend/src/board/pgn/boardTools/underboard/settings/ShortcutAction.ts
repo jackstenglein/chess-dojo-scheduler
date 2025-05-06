@@ -93,7 +93,7 @@ export const ShortcutBindings = {
         [ShortcutAction.OpenClocks]: { modifier: '', key: '' },
         [ShortcutAction.OpenSettings]: { modifier: '', key: '' },
         [ShortcutAction.OpenShare]: { modifier: '', key: '' },
-        [ShortcutAction.OpenGuide]: {modifier: '', key: '' },
+        [ShortcutAction.OpenGuide]: { modifier: '', key: '' },
         [ShortcutAction.FocusMainTextField]: { modifier: '', key: '' },
         [ShortcutAction.FocusCommentTextField]: { modifier: '', key: '' },
         [ShortcutAction.UnfocusTextField]: { modifier: '', key: '' },

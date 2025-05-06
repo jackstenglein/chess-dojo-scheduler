@@ -2,12 +2,12 @@ import { Box, Link, Typography } from '@mui/material';
 
 const GuideLinks = () => {
     return (
-        <Box sx={{ p: 3, maxWidth: 400 }} >
+        <Box sx={{ p: 3, maxWidth: 400 }}>
             <Typography variant='h6' gutterBottom>
                 Explore More Resources on Game analysis
             </Typography>
             <Typography variant='body2' gutterBottom>
-                Here is a  helpful links to get you started:
+                Here is a helpful links to get you started:
             </Typography>
             <Box sx={{ mt: 1 }}>
                 <Link
