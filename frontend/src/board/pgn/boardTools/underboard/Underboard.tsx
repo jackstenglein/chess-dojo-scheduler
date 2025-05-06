@@ -10,6 +10,7 @@ import {
     Share,
     Storage,
 } from '@mui/icons-material';
+import HelpIcon from '@mui/icons-material/Help';
 import {
     Card,
     Paper,
@@ -32,8 +33,10 @@ import Editor from './Editor';
 import ClockUsage from './clock/ClockUsage';
 import Comments from './comments/Comments';
 import { Directories } from './directories/Directories';
+import GuideLinks from './guide/Guide';
 import Settings from './settings/Settings';
 import { ShortcutAction, ShortcutBindings } from './settings/ShortcutAction';
+import { ShowGameGuide } from './settings/ViewerSettings';
 import { ShareTab } from './share/ShareTab';
 import Tags from './tags/Tags';
 import {
@@ -86,6 +89,12 @@ const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
         icon: <Share />,
         shortcut: ShortcutAction.OpenShare,
     },
+    [DefaultUnderboardTab.Guide]: {
+        name: DefaultUnderboardTab.Guide,
+        tooltip: 'Guide',
+        icon: <HelpIcon />,
+        shortcut: ShortcutAction.OpenGuide,
+    },
     [DefaultUnderboardTab.Settings]: {
         name: DefaultUnderboardTab.Settings,
         tooltip: 'Settings',
@@ -121,6 +130,19 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
         const { game, isOwner } = useGame();
         const [focusEditor, setFocusEditor] = useState(false);
         const [focusCommenter, setFocusCommenter] = useState(false);
+        const [showGameGuide] = useLocalStorage<boolean>(ShowGameGuide.key, ShowGameGuide.default);
+
+        const displayTabs = [...tabs];
+
+        if (showGameGuide) {
+            const settingsIndex = displayTabs.findIndex(
+                (t) => typeof t === 'string' && t === DefaultUnderboardTab.Settings,
+            );
+
+            if (settingsIndex !== -1) {
+                displayTabs.splice(settingsIndex, 0, DefaultUnderboardTab.Guide);
+            }
+        }
 
         const [underboard, setUnderboard] = useState(
             initialTab
@@ -209,7 +231,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 onChange={(_, val: string | null) => val && setUnderboard(val)}
                                 fullWidth
                             >
-                                {tabs.map((tab, index) => {
+                                {displayTabs.map((tab, index) => {
                                     const info = getTabInfo(tab);
 
                                     return (
@@ -262,6 +284,9 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 focusEditor={focusCommenter}
                                 setFocusEditor={setFocusCommenter}
                             />
+                        )}
+                        {underboard === DefaultUnderboardTab.Guide && ShowGameGuide && (
+                            <GuideLinks />
                         )}
                         {underboard === DefaultUnderboardTab.Share && <ShareTab />}
 

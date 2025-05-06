@@ -8,6 +8,7 @@ export const PieceStyleKey = 'pieceStyle';
 export const CoordinateStyleKey = 'coordinateStyle';
 export const GoToEndButtonBehaviorKey = 'goToEndBehavior';
 export const VariationBehaviorKey = 'variationBehavior2';
+
 /** Whether to show elapsed move times in the PGN text. */
 export const ShowMoveTimesInPgn = {
     Key: 'showMoveTimesInPgn',
@@ -25,6 +26,11 @@ export const HideEngine = {
 /** Whether to show suggested variations in the PGN text. */
 export const ShowSuggestedVariations = {
     key: 'showSuggestedVariations',
+    default: true,
+} as const;
+
+export const ShowGameGuide = {
+    key: 'showgameguidev1',
     default: true,
 } as const;
 
@@ -97,6 +103,10 @@ const ViewerSettings = () => {
         CapturedMaterialBehavior.Difference,
     );
     const [showLegalMoves, setShowLegalMoves] = useLocalStorage(ShowLegalMovesKey, true);
+    const [showGameGuide, setShowGameGuide] = useLocalStorage<boolean>(
+        ShowGameGuide.key,
+        ShowGameGuide.default,
+    );
     const [showGlyphs, setShowGlyphs] = useLocalStorage(ShowGlyphsKey, false);
 
     const [hideEngine, setHideEngine] = useLocalStorage<boolean>(
@@ -232,6 +242,16 @@ const ViewerSettings = () => {
                         />
                     }
                     label='Show engine'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={showGameGuide}
+                            onChange={(e) => setShowGameGuide(e.target.checked)}
+                        />
+                    }
+                    label='Show game annontation guide'
                 />
 
                 <FormControlLabel
