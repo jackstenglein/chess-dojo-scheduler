@@ -46,7 +46,7 @@ import {
     UnderboardTab,
 } from './underboardTabs';
 
-let tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
+const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
     [DefaultUnderboardTab.Directories]: {
         name: DefaultUnderboardTab.Directories,
         tooltip: 'Files',
@@ -135,7 +135,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
             ShowGameGuide.default,
         );
 
-        let displayTabs = [...tabs];
+        const displayTabs = [...tabs];
 
         if (showGameGuide) {
             const settingsIndex = displayTabs.findIndex(
