@@ -86,6 +86,7 @@ declare module '@mui/material' {
         liga: true;
         book: true;
         meet: true;
+        darkBlue: true;
     }
 
     interface SvgIconPropsColorOverrides {
@@ -99,6 +100,7 @@ declare module '@mui/material' {
         meet: true;
         youtube: true;
         twitch: true;
+        darkBlue: true;
     }
 }
 
@@ -171,6 +173,12 @@ const defaultPalette = {
             main: blue[800],
         },
         name: 'trainingPlanTaskComplete',
+    }),
+    darkBlue: defaultTheme.palette.augmentColor({
+        color: {
+            main: 'rgba(24, 117, 238, 1)',
+        },
+        name: 'darkBlue',
     }),
 };
 
