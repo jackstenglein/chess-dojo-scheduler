@@ -13,7 +13,10 @@ function msToClk(ms: number) {
     return moment.utc(ms).format('H:mm:ss');
 }
 
-const chesscomGameRegex = new RegExp('/game/(live|daily)/(\\d+)');
+const chesscomGameRegexes = [
+    new RegExp('/game/(live|daily)/(\\d+)'),
+    new RegExp('/(live|daily)/game/(\\d+)'),
+];
 
 type GetGameByIdResponse = {
     game?: {
@@ -95,7 +98,16 @@ export async function getChesscomAnalysis(url?: string) {
  * @returns The PGN of the game.
  */
 export async function getChesscomGame(gameURL?: string) {
-    const [, gameType, gameId] = (gameURL ?? '').match(chesscomGameRegex) ?? [];
+    let gameType: string | undefined = undefined;
+    let gameId: string | undefined = undefined;
+
+    for (const regex of chesscomGameRegexes) {
+        [, gameType, gameId] = (gameURL ?? '').match(regex) ?? [];
+        if (gameType && gameId) {
+            break;
+        }
+    }
+
     if (!gameType || !gameId) {
         throw new ApiError({
             statusCode: 400,

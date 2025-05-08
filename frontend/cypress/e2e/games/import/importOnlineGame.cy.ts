@@ -12,6 +12,7 @@ const testUrls = {
 
     chesscomAnalysisGame: 'https://www.chess.com/analysis/game/live/108036079387?tab=review',
     chesscomGame: 'https://www.chess.com/game/live/107855985867',
+    chesscomGameAlt: 'https://www.chess.com/live/game/107855985867',
 };
 
 function importUrl(url: string) {
@@ -88,6 +89,20 @@ describe('Import Games Page - Import Online Games', () => {
 
     it('submits from Chess.com game URL', () => {
         importUrl(testUrls.chesscomGame);
+        verifyGame({
+            white: 'bestieboots',
+            black: 'NVWV1',
+            lastMove: 'Kxh4',
+            lastMoveClock: {
+                white: '0:04:14',
+                black: '0:02:54',
+            },
+            lastMoveEmt: '00:00',
+        });
+    });
+
+    it('submits from Chess.com game alternate URL', () => {
+        importUrl(testUrls.chesscomGameAlt);
         verifyGame({
             white: 'bestieboots',
             black: 'NVWV1',
