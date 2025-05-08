@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const publicPaths = [
     /^\/_next\/.*$/,
     /^\/static\/.*$/,
+    /^\/donate$/,
     /^\/help.*/,
     /^\/tournaments$/,
     /^\/tournaments\/liga$/,

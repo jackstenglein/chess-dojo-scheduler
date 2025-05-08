@@ -1,11 +1,11 @@
 import { EngineName } from './engine';
 import { EngineWorker } from './EngineWorker';
 import { objectStorage } from './objectStorage';
-import makeModule from './sf17-79.js';
+import makeModule from './sf171-79.js';
 import { UciEngine } from './UciEngine';
 
 /**
- * Runs Stockfish 17 NNUE (79 MB desktop version).
+ * Runs Stockfish 17.1 NNUE (79 MB desktop version).
  */
 export class Stockfish17 extends UciEngine {
     constructor() {
@@ -26,7 +26,7 @@ export class Stockfish17 extends UciEngine {
                 .catch(reject);
         });
 
-        (await this.getModels(['nn-1111cefa1111.nnue', 'nn-37f18f62d772.nnue'])).forEach(
+        (await this.getModels(['nn-1c0000000000.nnue', 'nn-37f18f62d772.nnue'])).forEach(
             (nnueBuffer, i) => worker.setNnueBuffer?.(nnueBuffer, i),
         );
 

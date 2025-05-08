@@ -38,9 +38,9 @@ export interface EngineInfo {
 export const engines: EngineInfo[] = [
     {
         name: EngineName.Stockfish17,
-        fullName: 'Stockfish 17 NNUE • 79 MB',
-        shortName: 'SF 17 • 79 MB',
-        extraShortName: 'SF 17',
+        fullName: 'Stockfish 17.1 NNUE • 79 MB',
+        shortName: 'SF 17.1 • 79 MB',
+        extraShortName: 'SF 17.1',
         description: 'Best for desktop',
         tech: 'NNUE',
         techDescription: `Evaluation is performed by Stockfish's neural network.`,

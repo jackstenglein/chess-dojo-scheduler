@@ -1,5 +1,6 @@
 'use client';
 
+import { DonateIcon } from '@/style/DonateIcon';
 import {
     AutoStories,
     ChevronRight,
@@ -10,8 +11,10 @@ import {
     ImportContacts,
     MenuBook,
     Menu as MenuIcon,
+    RocketLaunch,
     Sell,
     SignalCellularAlt,
+    Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
 import LoginIcon from '@mui/icons-material/Login';
@@ -94,16 +97,24 @@ function unauthenticatedStartItems(toggleExpansion: (item: string) => void): Nav
             children: [
                 {
                     name: 'Courses',
+                    icon: <ImportContacts />,
                     href: '/courses',
                 },
                 {
                     name: 'Coaching',
+                    icon: <RocketLaunch />,
                     href: '/coaching',
                 },
                 {
                     name: 'Merch',
+                    icon: <Storefront />,
                     href: 'https://www.chessdojo.shop/shop',
                     target: '_blank',
+                },
+                {
+                    name: 'Donate',
+                    href: '/donate',
+                    icon: <DonateIcon />,
                 },
             ],
         },

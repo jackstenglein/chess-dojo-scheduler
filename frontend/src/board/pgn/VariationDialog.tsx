@@ -120,39 +120,58 @@ const VariationDialog: React.FC<VariationDialogProps> = ({ move, setMove }) => {
             </DialogTitle>
             <DialogContent>
                 <List>
-                    <ListItemButton selected={selected === 0} onClick={() => selectMove(move)}>
-                        <ListItemText sx={{ color: getTextColor(move) }}>
-                            {move.san}
-                            {move.nags
-                                ?.sort(compareNags)
-                                .map((n) => nags[getStandardNag(n)]?.label || '')
-                                .join('')}
-                        </ListItemText>
-                        <Typography variant='body2'>1</Typography>
-                    </ListItemButton>
+                    {[[move, move.next, move.next?.next]]
+                        .concat(move.variations)
+                        .map((variation, i) => {
+                            if (!variation || !variation[0]) {
+                                return null;
+                            }
 
-                    {move.variations.map((variation, i) => {
-                        if (!variation || !variation[0]) {
-                            return null;
-                        }
-
-                        return (
-                            <ListItemButton
-                                key={variation[0].san}
-                                selected={selected === i + 1}
-                                onClick={() => selectMove(variation[0])}
-                            >
-                                <ListItemText sx={{ color: getTextColor(variation[0]) }}>
-                                    {variation[0].san}
-                                    {variation[0].nags
-                                        ?.sort(compareNags)
-                                        .map((n) => nags[getStandardNag(n)]?.label || '')
-                                        .join('')}
-                                </ListItemText>
-                                {i < 9 && <Typography variant='body2'>{(i + 2) % 10}</Typography>}
-                            </ListItemButton>
-                        );
-                    })}
+                            return (
+                                <ListItemButton
+                                    key={i}
+                                    selected={selected === i}
+                                    onClick={() => variation[0] && selectMove(variation[0])}
+                                >
+                                    <ListItemText
+                                        slotProps={{
+                                            primary: {
+                                                textOverflow: 'ellipsis',
+                                                overflow: 'hidden',
+                                                whiteSpace: 'nowrap',
+                                            },
+                                        }}
+                                    >
+                                        {variation.slice(0, 3).map((m, i) => {
+                                            if (!m) {
+                                                return null;
+                                            }
+                                            return (
+                                                <span key={i} style={{ color: getTextColor(m) }}>
+                                                    {i === 0 || m.ply % 2 === 1
+                                                        ? `${Math.ceil(m.ply / 2)}${m.ply % 2 ? '. ' : '... '}`
+                                                        : ''}
+                                                    {m.san}
+                                                    {m.nags
+                                                        ?.sort(compareNags)
+                                                        .map(
+                                                            (n) =>
+                                                                nags[getStandardNag(n)]?.label ||
+                                                                '',
+                                                        )
+                                                        .join('') ?? ''}{' '}
+                                                </span>
+                                            );
+                                        })}
+                                    </ListItemText>
+                                    {i < 10 && (
+                                        <Typography variant='body2' sx={{ ml: 0.5 }}>
+                                            {(i + 1) % 10}
+                                        </Typography>
+                                    )}
+                                </ListItemButton>
+                            );
+                        })}
                 </List>
             </DialogContent>
         </Dialog>

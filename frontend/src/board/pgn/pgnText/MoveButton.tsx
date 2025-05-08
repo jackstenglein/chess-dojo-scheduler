@@ -6,7 +6,7 @@ import useGame from '@/context/useGame';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
-import { Backspace, Chat, Help, Merge } from '@mui/icons-material';
+import { Backspace, Chat, Help, KeyboardReturn, Merge } from '@mui/icons-material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckIcon from '@mui/icons-material/Check';
 import {
@@ -194,7 +194,7 @@ interface MoveMenuProps {
 const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
     const { chess, config } = useChess();
     const { game, onUpdateGame } = useGame();
-    const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
+    const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess, onClose);
     const [showMerge, setShowMerge] = useState(false);
     const { user } = useAuth();
     const api = useApi();
@@ -204,12 +204,17 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
         return null;
     }
 
+    const isInMainline = chess.isInMainline(move);
     const canPromote = chess.canPromoteVariation(move);
-    const canDeleteBefore =
-        config?.allowDeleteBefore && chess.isInMainline(move) && !!move.previous;
+    const canDeleteBefore = config?.allowDeleteBefore && isInMainline && !!move.previous;
 
     const onMakeMainline = () => {
         chess.promoteVariation(move, true);
+        onClose();
+    };
+
+    const onForceVariation = () => {
+        chess.forceVariation(move, { skipSeek: true });
         onClose();
     };
 
@@ -241,11 +246,18 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                 <MenuList>
                     {config?.allowMoveDeletion && (
                         <>
-                            <MenuItem disabled={chess.isInMainline(move)} onClick={onMakeMainline}>
+                            <MenuItem disabled={isInMainline} onClick={onMakeMainline}>
                                 <ListItemIcon>
                                     <CheckIcon />
                                 </ListItemIcon>
                                 <ListItemText>Make main line</ListItemText>
+                            </MenuItem>
+
+                            <MenuItem disabled={!isInMainline} onClick={onForceVariation}>
+                                <ListItemIcon>
+                                    <KeyboardReturn sx={{ transform: 'scale(-1, 1)' }} />
+                                </ListItemIcon>
+                                <ListItemText>Force Variation</ListItemText>
                             </MenuItem>
 
                             <MenuItem disabled={!canPromote} onClick={onPromote}>
