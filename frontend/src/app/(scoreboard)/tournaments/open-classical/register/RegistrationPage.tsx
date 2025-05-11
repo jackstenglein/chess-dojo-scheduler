@@ -54,6 +54,19 @@ const RegistrationPage = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [confirmedSteps, setConfirmedSteps] = useState([false, false, false]);
+
+    const onSetConfirmedStep = (idx: number, checked: boolean) => {
+        setConfirmedSteps([
+            ...confirmedSteps.slice(0, idx),
+            checked,
+            ...confirmedSteps.slice(idx + 1),
+        ]);
+    };
+    
+    const allConfirmed = confirmedSteps.every(Boolean);    
+
     useEffect(() => {
         setLichessUsername(user?.ratings.LICHESS?.username || '');
         setDiscordUsername(user?.discordUsername || '');
@@ -283,15 +296,14 @@ const RegistrationPage = () => {
                 <LoadingButton
                     variant='contained'
                     loading={request.isLoading()}
-                    onClick={onRegister}
+                    onClick={validateAndProceed}
                     color='success'
                 >
                     Register
                 </LoadingButton>
             </Stack>
-
-            <Dialog open={request.status === RequestStatus.Success} maxWidth='sm' fullWidth>
-                <DialogTitle>Registration Complete</DialogTitle>
+            <Dialog open={showConfirmDialog} maxWidth='sm' fullWidth>
+                <DialogTitle>Registration Confirmation</DialogTitle>
                 <DialogContent>
                     You've successfully registered for the Open Classical. Make sure to follow these
                     steps so that your opponents can contact you:
