@@ -1,4 +1,5 @@
-import { Button, Grid, Stack, Typography } from '@mui/material';
+import { Button, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
+import Carousel from 'react-material-ui-carousel';
 import { Link } from '../navigation/Link';
 import backgroundImage from './background.jpg';
 import { BackgroundImageContainer } from './BackgroundImage';
@@ -6,6 +7,8 @@ import { anton, barlow, barlowCondensed } from './fonts';
 import { TestimonialProps, testimonials } from './testimonials';
 
 export function TestimonialSection() {
+    const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'));
+
     return (
         <BackgroundImageContainer
             src={backgroundImage}
@@ -29,19 +32,49 @@ export function TestimonialSection() {
                     fontSize='1.1875rem'
                     lineHeight='2.125rem'
                     letterSpacing='11%'
+                    textAlign='center'
                 >
                     Here are some of our success stories
                 </Typography>
             </Stack>
 
             <Stack direction='row' mt='3.125rem'>
-                <Grid container spacing='2rem'>
-                    {testimonials.map((t) => (
-                        <Grid size={3} key={t.name} height={1}>
-                            <Testimonial {...t} />
-                        </Grid>
-                    ))}
-                </Grid>
+                {isSm ? (
+                    <Carousel
+                        sx={{ width: 1, mt: 1 }}
+                        animation='slide'
+                        duration={700}
+                        interval={10 * 1000}
+                        navButtonsAlwaysVisible={true}
+                        navButtonsWrapperProps={{
+                            style: {
+                                bottom: '0',
+                                top: 'unset',
+                                height: 'fit-content',
+                            },
+                        }}
+                        indicatorContainerProps={{
+                            style: {
+                                height: '40px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            },
+                        }}
+                    >
+                        {testimonials.map((t) => (
+                            <Testimonial key={t.name} {...t} />
+                        ))}
+                    </Carousel>
+                ) : (
+                    <Grid container spacing='2rem'>
+                        {testimonials.map((t) => (
+                            <Grid size={3} key={t.name} height={1}>
+                                <Testimonial {...t} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                )}
             </Stack>
 
             <Stack alignItems='center' mt='3rem'>
