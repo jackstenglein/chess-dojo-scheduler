@@ -122,8 +122,7 @@ const RegistrationPage = () => {
             section,
             byeRequests,
         })
-            .then((resp) => {
-                console.log('registerForOpenClassical: ', resp);
+            .then(() => {
                 request.onSuccess();
             })
             .catch((err) => {
@@ -276,7 +275,7 @@ const RegistrationPage = () => {
                     fullWidth
                 >
                     <MenuItem value='Open'>Open</MenuItem>
-                    <MenuItem value='U1800'>U1800 (Lichess)</MenuItem>
+                    <MenuItem value='U1900'>U1900 (Lichess)</MenuItem>
                 </TextField>
 
                 <FormControl error={Boolean(errors.byeRequests)}>
@@ -327,7 +326,7 @@ const RegistrationPage = () => {
                             label={
                                 <>
                                     I joined the{' '}
-                                    <Link target='_blank' href=''>
+                                    <Link target='_blank' href='https://discord.gg/dUt4ZnfBQk'>
                                         ChessDojo Discord Server
                                     </Link>
                                 </>
