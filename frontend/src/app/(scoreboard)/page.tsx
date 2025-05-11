@@ -7,15 +7,14 @@ import { BackgroundImageContainer } from '@/components/landing/BackgroundImage';
 import { Community } from '@/components/landing/Community';
 import { Features } from '@/components/landing/Features';
 import { anton, barlow, barlowCondensed } from '@/components/landing/fonts';
+import { Footer } from '@/components/landing/Footer';
 import { Pricing } from '@/components/landing/Pricing';
 import { Senseis } from '@/components/landing/Senseis';
 import { TestimonialSection } from '@/components/landing/Testimonial';
 import { Link } from '@/components/navigation/Link';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
-import SocialIcons from '@/navbar/SocialIcons';
-import { ChessDojoIcon } from '@/style/ChessDojoIcon';
-import { Box, Button, Container, Grid, Stack, Typography } from '@mui/material';
+import { Box, Button, Grid, Stack, Typography } from '@mui/material';
 import { Hub } from 'aws-amplify/utils';
 import { useEffect } from 'react';
 
@@ -54,7 +53,7 @@ const LandingPage = ({
                 background='linear-gradient(270deg, rgba(7, 7, 18, 0.765) 10%, rgba(7, 7, 18, 0.9) 100%)'
                 slotProps={{
                     image: { style: { opacity: 0.3 } },
-                    container: { sx: { py: 0 } },
+                    container: { sx: { pt: 0, pb: { xs: 3, md: 0 } } },
                 }}
             >
                 <Grid
@@ -65,6 +64,10 @@ const LandingPage = ({
                         alignItems: 'center',
                         height: {
                             md: 'calc(100vh - var(--navbar-height) - var(--stats-height) - 80px)',
+                        },
+                        mt: {
+                            xs: 1,
+                            md: 0,
                         },
                     }}
                 >
@@ -78,7 +81,7 @@ const LandingPage = ({
                             <Stack spacing={2}>
                                 <Typography
                                     variant='h2'
-                                    textAlign='start'
+                                    textAlign={{ xs: 'center', md: 'start' }}
                                     data-cy='title'
                                     fontFamily={anton.style.fontFamily}
                                     fontWeight={anton.style.fontWeight}
@@ -89,7 +92,7 @@ const LandingPage = ({
                                 </Typography>
                                 <Typography
                                     variant='h5'
-                                    textAlign='start'
+                                    textAlign={{ xs: 'center', md: 'start' }}
                                     data-cy='subtitle'
                                     sx={{
                                         fontFamily: barlow.style.fontFamily,
@@ -107,7 +110,15 @@ const LandingPage = ({
                                 </Typography>
                             </Stack>
 
-                            <Stack direction='row' spacing={3} alignItems='center'>
+                            <Stack
+                                direction='row'
+                                sx={{
+                                    flexWrap: 'wrap',
+                                    alignItems: 'center',
+                                    justifyContent: { xs: 'center', md: 'start' },
+                                    gap: 3,
+                                }}
+                            >
                                 <Button
                                     variant='contained'
                                     component={Link}
@@ -209,33 +220,7 @@ const LandingPage = ({
                 </Stack>
             </BackgroundImageContainer>
 
-            <Box
-                sx={{
-                    width: 1,
-                    height: 'var(--navbar-height)',
-                    borderTop: '3px solid',
-                    borderImage: 'linear-gradient(90deg, #1875EE 0%, #2A86FF 100%) 1',
-                    backgroundImage: 'var(--mui-overlays-2)',
-                }}
-            >
-                <Container maxWidth='lg' sx={{ height: 1 }}>
-                    <Stack
-                        direction='row'
-                        justifyContent='space-between'
-                        alignItems='center'
-                        height={1}
-                    >
-                        <Stack direction='row' alignItems='center'>
-                            <ChessDojoIcon />
-                            <Button sx={{ color: 'white' }}>Blog</Button>
-                            <Button sx={{ color: 'white' }}>Contact & Support</Button>
-                            <Button sx={{ color: 'white' }}>Donate to the Dojo</Button>
-                        </Stack>
-
-                        <SocialIcons />
-                    </Stack>
-                </Container>
-            </Box>
+            <Footer />
         </Box>
     );
 };
