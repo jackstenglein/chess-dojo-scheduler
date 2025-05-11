@@ -124,13 +124,13 @@ const RegistrationPage = () => {
         })
             .then(() => {
                 request.onSuccess();
+                setShowConfirmDialog(false);
             })
             .catch((err) => {
                 console.error(err);
                 request.onFailure(err);
             });
             
-        setShowConfirmDialog(false);
     }
 
     return (
