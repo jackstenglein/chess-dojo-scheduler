@@ -426,21 +426,26 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 move: null,
             });
         }
-        let whiteSize = timeControls?.[0].moves ?? whiteTimePerMove.length;
-        let blackSize = timeControls?.[0].moves ?? blackTimePerMove.length;
-        console.log(timeControls?.[0].seconds);
+        let whiteSize = timeControls?.[0].moves ?? whiteClockDisplay.length;
+        let blackSize = timeControls?.[0].moves ?? blackClockDisplay.length;
+
+        console.log(timeControls);
 
         whiteClockRating = calculateTimeRating(
-            whiteTimePerMove,
+            whiteClockDisplay,
             timeControls?.[0].seconds,
             timeControls?.[0].increment,
+            timeControls?.[1].seconds,
+            timeControls?.[1].increment,
             'white',
             whiteSize,
         );
         blackClockRating = calculateTimeRating(
-            blackTimePerMove,
+            blackClockDisplay,
             timeControls?.[0].seconds,
             timeControls?.[0].increment,
+            timeControls?.[1].seconds,
+            timeControls?.[1].increment,
             'black',
             blackSize,
         );
