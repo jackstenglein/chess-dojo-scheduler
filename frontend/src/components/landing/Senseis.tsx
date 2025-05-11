@@ -1,4 +1,4 @@
-import { Container, Divider, Grid, Stack, Typography } from '@mui/material';
+import { Box, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import davidImage from './david.webp';
 import { barlow, barlowCondensed } from './fonts';
@@ -9,12 +9,13 @@ export function Senseis() {
     return (
         <Container maxWidth='lg' sx={{ py: '5.5rem' }}>
             <Grid container spacing='2rem'>
-                <Grid size={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Stack
                         sx={{
                             gap: '1.5rem',
-                            position: 'sticky',
+                            position: { xs: 'unset', md: 'sticky' },
                             top: 'calc(var(--navbar-height) + 1rem)',
+                            mb: { xs: 2, md: 0 },
                         }}
                     >
                         <Typography
@@ -50,7 +51,7 @@ export function Senseis() {
                     </Stack>
                 </Grid>
 
-                <Grid size={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                     <Stack gap='3.75rem'>
                         {senseis.map((s) => (
                             <Sensei key={s.name} {...s} />
@@ -74,13 +75,33 @@ function Sensei({
     bio: string;
 }) {
     return (
-        <Stack direction='row' gap='1.5625rem'>
+        <Box
+            sx={{
+                display: 'grid',
+                columnGap: '1.5625rem',
+                gridTemplateColumns: {
+                    xs: 'auto 1fr',
+                },
+                gridTemplateAreas: {
+                    xs: `"image name"
+                         "bio bio"`,
+                    md: `"image name"
+                         "image bio"`,
+                },
+            }}
+        >
             <Image
                 src={image}
                 alt=''
-                style={{ width: '9.375rem', height: '9.375rem', borderRadius: '50%' }}
+                style={{
+                    width: '9.375rem',
+                    height: '9.375rem',
+                    borderRadius: '50%',
+                    gridArea: 'image',
+                }}
             />
-            <Stack>
+
+            <Stack gridArea='name' justifyContent={{ xs: 'center', md: 'unset' }}>
                 <Typography
                     color='darkBlue'
                     sx={{
@@ -105,20 +126,22 @@ function Sensei({
                 >
                     {name}
                 </Typography>
-                <Typography
-                    sx={{
-                        fontFmaily: barlow.style.fontFamily,
-                        fontWeight: '400',
-                        fontSize: '1.1875rem',
-                        lineHeight: '1.9375rem',
-                        letterSpacing: '0%',
-                        marginTop: '0.9375rem',
-                    }}
-                >
-                    {bio}
-                </Typography>
             </Stack>
-        </Stack>
+
+            <Typography
+                gridArea='bio'
+                sx={{
+                    fontFmaily: barlow.style.fontFamily,
+                    fontWeight: '400',
+                    fontSize: '1.1875rem',
+                    lineHeight: '1.9375rem',
+                    letterSpacing: '0%',
+                    marginTop: '0.9375rem',
+                }}
+            >
+                {bio}
+            </Typography>
+        </Box>
     );
 }
 
