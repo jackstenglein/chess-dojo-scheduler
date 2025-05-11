@@ -4,6 +4,10 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import LoadingPage from '@/loading/LoadingPage';
+import { LocationOn } from '@mui/icons-material';
+import EmailIcon from '@mui/icons-material/Email';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
@@ -17,6 +21,7 @@ import {
     FormControlLabel,
     FormHelperText,
     FormLabel,
+    InputAdornment,
     Link,
     MenuItem,
     Stack,
@@ -24,15 +29,14 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { SiDiscord, SiLichess } from 'react-icons/si';
 
 const RegistrationPage = () => {
     const { user, status } = useAuth();
     const api = useApi();
 
     const [email, setEmail] = useState('');
-    const [lichessUsername, setLichessUsername] = useState(
-        user?.ratings.LICHESS?.username || '',
-    );
+    const [lichessUsername, setLichessUsername] = useState(user?.ratings.LICHESS?.username || '');
     const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [title, setTitle] = useState('');
     const [region, setRegion] = useState('');
@@ -46,6 +50,10 @@ const RegistrationPage = () => {
         false,
         false,
     ]);
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const request = useRequest();
+
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [confirmedSteps, setConfirmedSteps] = useState([false, false, false]);
 
@@ -59,9 +67,6 @@ const RegistrationPage = () => {
     
     const allConfirmed = confirmedSteps.every(Boolean);    
 
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const request = useRequest();
-
     useEffect(() => {
         setLichessUsername(user?.ratings.LICHESS?.username || '');
         setDiscordUsername(user?.discordUsername || '');
@@ -72,11 +77,7 @@ const RegistrationPage = () => {
     }
 
     const onSetByeRequest = (idx: number, value: boolean) => {
-        setByeRequests([
-            ...byeRequests.slice(0, idx),
-            value,
-            ...byeRequests.slice(idx + 1),
-        ]);
+        setByeRequests([...byeRequests.slice(0, idx), value, ...byeRequests.slice(idx + 1)]);
     };
 
     const validateAndProceed = () => {
@@ -139,7 +140,7 @@ const RegistrationPage = () => {
 
             <Stack spacing={4} alignItems='center'>
                 <Typography variant='h6' alignSelf='start'>
-                    Register for the Open Classical
+                    Register for the Dojo Open Classical
                 </Typography>
 
                 {!user && (
@@ -151,6 +152,15 @@ const RegistrationPage = () => {
                         fullWidth
                         error={Boolean(errors.email)}
                         helperText={errors.email}
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <EmailIcon fontSize='medium' color='dojoOrange' />
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
                     />
                 )}
 
@@ -163,6 +173,15 @@ const RegistrationPage = () => {
                     fullWidth
                     error={Boolean(errors.lichessUsername)}
                     helperText={errors.lichessUsername}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <SiLichess fontSize={23} />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                 />
 
                 <TextField
@@ -174,6 +193,15 @@ const RegistrationPage = () => {
                     fullWidth
                     error={Boolean(errors.discordUsername)}
                     helperText={errors.discordUsername}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <SiDiscord fontSize={23} style={{ color: '#5865f2' }} />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                 />
 
                 <TextField
@@ -182,6 +210,15 @@ const RegistrationPage = () => {
                     onChange={(e) => setTitle(e.target.value)}
                     select
                     fullWidth
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <MilitaryTechIcon color='dojoOrange' fontSize='medium' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                 >
                     <MenuItem value=''>None</MenuItem>
                     <MenuItem value='GM'>GM</MenuItem>
@@ -203,6 +240,15 @@ const RegistrationPage = () => {
                     onChange={(e) => setRegion(e.target.value)}
                     error={Boolean(errors.region)}
                     helperText={errors.region}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <LocationOn color='dojoOrange' fontSize='medium' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                     fullWidth
                 >
                     <MenuItem value='A'>Region A (Americas)</MenuItem>
@@ -218,6 +264,15 @@ const RegistrationPage = () => {
                     onChange={(e) => setSection(e.target.value)}
                     error={Boolean(errors.section)}
                     helperText={errors.section}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position='start'>
+                                    <TrendingUpIcon color='dojoOrange' fontSize='medium' />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
                     fullWidth
                 >
                     <MenuItem value='Open'>Open</MenuItem>
@@ -249,16 +304,13 @@ const RegistrationPage = () => {
                     variant='contained'
                     loading={request.isLoading()}
                     onClick={validateAndProceed}
+                    color='success'
                 >
                     Register
                 </LoadingButton>
             </Stack>
 
-            <Dialog
-                open={showConfirmDialog}
-                maxWidth='sm'
-                fullWidth
-            >
+            <Dialog open={showConfirmDialog} maxWidth='sm' fullWidth>
                 <DialogTitle>Registration Confirmation</DialogTitle>
                 <DialogContent>
                     <Typography gutterBottom>
