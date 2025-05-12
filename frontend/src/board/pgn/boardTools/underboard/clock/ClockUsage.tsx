@@ -428,6 +428,8 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         }
         let whiteSize = timeControls?.[0].moves ?? whiteClockDisplay.length;
         let blackSize = timeControls?.[0].moves ?? blackClockDisplay.length;
+        let bonusTime = timeControls?.length === 2 ? timeControls[1].seconds : 0;
+        let bonusInc = timeControls?.length === 2 ? timeControls[1].increment : 0;
 
         console.log(timeControls);
 
@@ -435,8 +437,8 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             whiteClockDisplay,
             timeControls?.[0].seconds,
             timeControls?.[0].increment,
-            timeControls?.[1].seconds,
-            timeControls?.[1].increment,
+            bonusTime,
+            bonusInc,
             'white',
             whiteSize,
         );
@@ -444,8 +446,8 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             blackClockDisplay,
             timeControls?.[0].seconds,
             timeControls?.[0].increment,
-            timeControls?.[1].seconds,
-            timeControls?.[1].increment,
+            bonusTime,
+            bonusInc,
             'black',
             blackSize,
         );
