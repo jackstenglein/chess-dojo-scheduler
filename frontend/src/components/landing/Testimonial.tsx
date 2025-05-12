@@ -1,9 +1,12 @@
+import CohortIcon from '@/scoreboard/CohortIcon';
 import { Button, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
+import Image from 'next/image';
 import Carousel from 'react-material-ui-carousel';
 import { Link } from '../navigation/Link';
-import backgroundImage from './background.jpg';
 import { BackgroundImageContainer } from './BackgroundImage';
 import { anton, barlow, barlowCondensed } from './fonts';
+import quoteImage from './quote.webp';
+import backgroundImage from './testimonial-background.webp';
 import { TestimonialProps, testimonials } from './testimonials';
 
 export function TestimonialSection() {
@@ -13,6 +16,7 @@ export function TestimonialSection() {
         <BackgroundImageContainer
             src={backgroundImage}
             background='linear-gradient(270deg, #141422 0%, #06060B 100%)'
+            slotProps={{ image: { style: { opacity: 0.3 } } }}
         >
             <Stack gap='1rem' alignItems='center'>
                 <Typography
@@ -34,7 +38,7 @@ export function TestimonialSection() {
                     letterSpacing='11%'
                     textAlign='center'
                 >
-                    Here are some of our success stories
+                    Hear from our members
                 </Typography>
             </Stack>
 
@@ -98,19 +102,21 @@ export function TestimonialSection() {
     );
 }
 
-function Testimonial({ quote, name, rating }: TestimonialProps) {
+function Testimonial({ quote, name, rating, cohort }: TestimonialProps) {
     return (
         <Stack
             sx={{
-                padding: 2.5,
+                padding: '1.25rem',
                 background: 'linear-gradient(180deg, #1B1B2C 0%, #06060B 100%)',
                 minHeight: '23.125rem',
                 justifyContent: 'space-between',
-                borderRadius: 0.5,
+                borderRadius: 1,
                 gap: '1.5rem',
                 height: 1,
             }}
         >
+            <Image src={quoteImage} alt='' style={{ width: '2.3125rem', height: '2.3125rem' }} />
+
             <Typography
                 sx={{
                     fontFamily: barlow.style.fontFamily,
@@ -121,28 +127,32 @@ function Testimonial({ quote, name, rating }: TestimonialProps) {
                 {quote}
             </Typography>
 
-            <Stack gap={0.75}>
-                <Typography
-                    sx={{
-                        fontFamily: barlowCondensed.style.fontFamily,
-                        fontWeight: '600',
-                        fontSize: '1.3125rem',
-                        lineHeight: '1.3125rem',
-                    }}
-                >
-                    {name}
-                </Typography>
-                <Typography
-                    sx={{
-                        fontSize: '0.8125rem',
-                        fontWeight: '700',
-                        letterSpacing: '8%',
-                        textTransform: 'uppercase',
-                    }}
-                    color='dojoOrange'
-                >
-                    {rating}
-                </Typography>
+            <Stack direction='row' columnGap='0.625rem'>
+                <CohortIcon cohort={cohort} tooltip='' />
+
+                <Stack gap={0.75}>
+                    <Typography
+                        sx={{
+                            fontFamily: barlowCondensed.style.fontFamily,
+                            fontWeight: '600',
+                            fontSize: '1.3125rem',
+                            lineHeight: '1.3125rem',
+                        }}
+                    >
+                        {name}
+                    </Typography>
+                    <Typography
+                        sx={{
+                            fontSize: '0.8125rem',
+                            fontWeight: '700',
+                            letterSpacing: '8%',
+                            textTransform: 'uppercase',
+                        }}
+                        color='dojoOrange'
+                    >
+                        {rating}
+                    </Typography>
+                </Stack>
             </Stack>
         </Stack>
     );

@@ -14,6 +14,7 @@ export function BackgroundImageContainer({
     slotProps?: {
         image?: {
             style?: CSSProperties;
+            priority?: boolean;
         };
         container?: {
             sx?: SxProps;
@@ -39,6 +40,7 @@ export function BackgroundImageContainer({
                     position: 'absolute',
                     ...slotProps?.image?.style,
                 }}
+                priority={slotProps?.image?.priority}
             />
 
             <Container

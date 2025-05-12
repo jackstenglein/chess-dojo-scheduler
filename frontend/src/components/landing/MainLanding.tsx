@@ -17,7 +17,7 @@ export function MainLanding({
                 src={backgroundImage}
                 background='linear-gradient(270deg, rgba(7, 7, 18, 0.765) 10%, rgba(7, 7, 18, 0.9) 100%)'
                 slotProps={{
-                    image: { style: { opacity: 0.15 } },
+                    image: { style: { opacity: 0.15 }, priority: true },
                     container: { sx: { pt: 0, pb: { xs: 3, md: 0 } } },
                 }}
             >
@@ -27,7 +27,6 @@ export function MainLanding({
                     sx={{
                         alignItems: 'center',
                         height: {
-                            // xs: 'calc(100vh - var(--navbar-height) - var(--stats-height) - 40px)',
                             md: 'calc(100vh - var(--stats-height) - 40px)',
                         },
                         mt: {
@@ -131,6 +130,7 @@ export function MainLanding({
                             alt=''
                             src={heroImage}
                             style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+                            priority
                         />
                     </Grid>
                 </Grid>
