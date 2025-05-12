@@ -1,10 +1,10 @@
-import background4 from '@/components/landing/background4.png';
 import { Box, Button, Grid, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BackgroundImageContainer } from './BackgroundImage';
 import { anton, barlow } from './fonts';
 import heroImage from './hero.webp';
+import backgroundImage from './main-background.webp';
 
 export function MainLanding({
     searchParams,
@@ -14,10 +14,10 @@ export function MainLanding({
     return (
         <>
             <BackgroundImageContainer
-                src={background4}
+                src={backgroundImage}
                 background='linear-gradient(270deg, rgba(7, 7, 18, 0.765) 10%, rgba(7, 7, 18, 0.9) 100%)'
                 slotProps={{
-                    image: { style: { opacity: 0.3 } },
+                    image: { style: { opacity: 0.15 } },
                     container: { sx: { pt: 0, pb: { xs: 3, md: 0 } } },
                 }}
             >
@@ -27,7 +27,8 @@ export function MainLanding({
                     sx={{
                         alignItems: 'center',
                         height: {
-                            md: 'calc(100vh - var(--navbar-height) - var(--stats-height) - 80px)',
+                            // xs: 'calc(100vh - var(--navbar-height) - var(--stats-height) - 40px)',
+                            md: 'calc(100vh - var(--stats-height) - 40px)',
                         },
                         mt: {
                             xs: 1,

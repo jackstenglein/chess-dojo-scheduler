@@ -47,7 +47,7 @@ const LandingPage = ({
     }
 
     return (
-        <Box sx={{ '--stats-height': '110px' }}>
+        <Box sx={{ '--stats-height': '110px', mt: { md: 'calc(-1*var(--stats-height))' } }}>
             <MainLanding />
             <Features />
             <TestimonialSection />

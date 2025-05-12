@@ -1,10 +1,10 @@
-import { Button, Container, Grid, Stack, Typography } from '@mui/material';
+import { Container, Grid, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
-import { Link } from '../navigation/Link';
 import { BulletPoint } from './BulletPoint';
 import { trainingPlanBulletPoints } from './bulletPoints';
 import mockUIImage from './features-mock.webp';
 import { barlowCondensed } from './fonts';
+import { JoinDojoButton } from './JoinDojoButton';
 
 export function Features() {
     return (
@@ -38,20 +38,7 @@ export function Features() {
                             ))}
                         </Stack>
 
-                        <Button
-                            variant='contained'
-                            component={Link}
-                            href='/signup'
-                            sx={{
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                py: 1.5,
-                                px: 2.5,
-                            }}
-                            color='dojoOrange'
-                        >
-                            Join the Dojo
-                        </Button>
+                        <JoinDojoButton />
                     </Stack>
                 </Grid>
 
