@@ -11,57 +11,43 @@ function perfectLine(
     return { slope: slope, intercept: intercept };
 }
 
-function normalLine(
-    dataset: Datum[],
-    startMoveIndex: number = 0,
-    endMoveIndex: number,
-): { slope: number; intercept: number } {
-    console.log('Normal line reverse', dataset);
-    const { seconds: y2, moveNumber: x2 } = dataset[endMoveIndex];
-    const { seconds: y1, moveNumber: x1 } = dataset[startMoveIndex];
+function normalLine(dataset: Datum[], start: number, end: number): {slope: number, intercept: number} {
+    const intercept = dataset[start].seconds;
+    const y1 = intercept;
+    const y2 = dataset[end].seconds;
+    const x1 = dataset[start].moveNumber;
+    const x2 = dataset[end].moveNumber
 
     const slope = (y2 - y1) / (x2 - x1);
-    return { slope, intercept: y1 };
+    return {slope: slope, intercept: intercept};
 }
 
-function fitLine(
-    dataset: Datum[],
-    startMoveIndex: number = 0,
-    endMoveIndex: number,
-): { slope: number; intercept: number } {
-    console.log('Fit line reverse', dataset);
-    if (startMoveIndex >= endMoveIndex || endMoveIndex - startMoveIndex < 2) {
-        console.warn('[TimeRating] Not enough data points to fit line, returning default values');
-        return { slope: -2.0, intercept: 100 };
+function calculateAreaUnderCurve(dataset: Datum[], start: number, end: number): number {
+    let area = 0;
+    for (let i = start; i < end; i++) {
+        const x1 = dataset[i].moveNumber;
+        const x2 = dataset[i + 1].moveNumber;
+        const y1 = dataset[i].seconds;
+        const y2 = dataset[i + 1].seconds;
+
+        const base = x2 - x1;
+        const height = (y1 + y2) / 2;
+
+        area += base * height;
     }
+    return area;
+}
 
-    let sumX = 0,
-        sumY = 0,
-        sumXY = 0,
-        sumXX = 0,
-        count = 0;
-
-    for (let i = startMoveIndex; i < endMoveIndex && i < dataset.length; i++) {
-        const { moveNumber: x, seconds: y } = dataset[i];
-        sumX += x;
-        sumY += y;
-        sumXY += x * y;
-        sumXX += x * x;
-        count++;
-    }
-
-    const denominator = count * sumXX - sumX * sumX;
-    if (count < 2 || denominator === 0) {
-        console.warn(
-            '[TimeRating] Cannot calculate slope (division by zero), returning default values',
-        );
-        return { slope: -2.0, intercept: 100 };
-    }
-
-    const slope = (count * sumXY - sumX * sumY) / denominator;
-    const intercept = (sumY - slope * sumX) / count;
-
-    return { slope, intercept };
+function calculateAreaUnderLine(
+    slope: number,
+    intercept: number,
+    xStart: number,
+    xEnd: number,
+): number {
+    // ∫(mx + b) dx from xStart to xEnd = [0.5 * m * x^2 + b * x] from xStart to xEnd
+    const areaAtStart = 0.5 * slope * xStart ** 2 + intercept * xStart;
+    const areaAtEnd = 0.5 * slope * xEnd ** 2 + intercept * xEnd;
+    return areaAtEnd - areaAtStart;
 }
 
 function calculateDatasetRating(
@@ -80,74 +66,33 @@ function calculateDatasetRating(
         return 0;
     }
 
-    console.log(endMoveIndex);
-    console.log(dataset.length);
     endMoveIndex = Math.min(endMoveIndex, dataset.length - 1);
-
     const inc = increment || 0;
 
-    let { slope: predictedSlope, intercept: predictedIntercept } = fitLine(
-        dataset,
-        startMoveIndex,
-        endMoveIndex,
-    );
-    let { slope: standardSlope, intercept: standardIntercept } = normalLine(
-        dataset,
-        startMoveIndex,
-        endMoveIndex,
-    );
-    const { slope: perfectSlope, intercept: perfectIntercept } = perfectLine(
-        timeControl,
-        inc,
-        endMoveIndex,
+    const { slope: perfectSlope, intercept: perfectIntercept } = normalLine(dataset, startMoveIndex, endMoveIndex);
+
+    const actualArea = calculateAreaUnderCurve(dataset, startMoveIndex, endMoveIndex);
+    const perfectArea = calculateAreaUnderLine(
+        perfectSlope,
+        perfectIntercept,
+        dataset[startMoveIndex].moveNumber,
+        dataset[endMoveIndex].moveNumber,
     );
 
-    if ((predictedSlope < 0 && standardSlope > 0) || (predictedSlope > 0 && standardSlope < 0)) {
-        standardSlope = -standardSlope;
-    }
-
-    const avgSlope = (predictedSlope + standardSlope) / 2;
-    const avgIntercept = (predictedIntercept + standardIntercept) / 2;
-
-    // Deviation calculations
-    const slopeEpsilon = 0.01;
-    const interceptEpsilon = 0.01;
-
-    const slopeDeviation = Math.min(
+    const areaDeviation = Math.min(
         1,
-        Math.abs(avgSlope - perfectSlope) / Math.max(slopeEpsilon, Math.abs(perfectSlope)),
+        Math.abs(actualArea - perfectArea) / Math.max(1, Math.abs(perfectArea)),
     );
 
-    const interceptDeviation = Math.min(
-        1,
-        Math.abs(avgIntercept - perfectIntercept) /
-            Math.max(interceptEpsilon, Math.abs(perfectIntercept)),
-    );
-
-    const SLOPE_WEIGHT = 0.8;
-    const INTERCEPT_WEIGHT = 0.2;
-
-    const totalDeviation = slopeDeviation * SLOPE_WEIGHT + interceptDeviation * INTERCEPT_WEIGHT;
-
-    const rating = Math.max(0, Math.round(MAX_RATING * (1 - totalDeviation)));
+    const rating = Math.max(0, Math.round(MAX_RATING * (1 - areaDeviation)));
 
     console.log(`[TimeRating] ${side} side analysis: for ${phase}`);
-    console.log(
-        `Perfect slope: ${perfectSlope.toFixed(2)}, Perfect intercept: ${perfectIntercept.toFixed(2)}`,
-    );
-    console.log(
-        `Predicted slope: ${predictedSlope.toFixed(2)}, Standard slope: ${standardSlope.toFixed(2)}`,
-    );
-    console.log(
-        `Avg slope: ${avgSlope.toFixed(2)}, Predicted intercept: ${predictedIntercept.toFixed(2)}`,
-    );
-    console.log(
-        `Slope deviation: ${slopeDeviation.toFixed(3)}, Intercept deviation: ${interceptDeviation.toFixed(3)}`,
-    );
-    console.log(`Total deviation: ${totalDeviation.toFixed(3)}, Final rating: ${rating}`);
+    console.log(`Actual Area: ${actualArea.toFixed(2)}, Perfect Area: ${perfectArea.toFixed(2)}`);
+    console.log(`Area deviation: ${areaDeviation.toFixed(3)}, Final rating: ${rating}`);
 
-    return Math.round(rating);
+    return rating;
 }
+
 
 export function calculateTimeRating(
     dataset: Datum[],
@@ -158,7 +103,17 @@ export function calculateTimeRating(
     side: string,
     endMoveIndex: number,
 ): number {
-    const openingStartMoveIndex = dataset.length >= 20 ? 9 : Math.floor(dataset.length * 0.3);
+
+    if (dataset.length <= 20) {
+        return 0;
+    }
+
+    const openingStartMoveIndex = 5;
+    const totalMoveCount = dataset.length - openingStartMoveIndex;
+
+    const preBonusMoveCount = Math.max(0, endMoveIndex - openingStartMoveIndex);
+    const postBonusMoveCount = Math.max(0, dataset.length - endMoveIndex);
+
     const preBonusRating = calculateDatasetRating(
         dataset,
         timeControl,
@@ -168,7 +123,8 @@ export function calculateTimeRating(
         side,
         'PREBONUS',
     );
-    if (endMoveIndex !== dataset.length) {
+
+    if (postBonusMoveCount > 0 && bonusTimeControl !== undefined) {
         const postBonusRating = calculateDatasetRating(
             dataset,
             bonusTimeControl,
@@ -179,10 +135,14 @@ export function calculateTimeRating(
             'POSTBONUS',
         );
 
-        const finalRating = (preBonusRating + postBonusRating) / 2;
+        const preWeight = preBonusMoveCount / totalMoveCount;
+        const postWeight = postBonusMoveCount / totalMoveCount;
+
+        const finalRating = preBonusRating * preWeight + postBonusRating * postWeight;
 
         return Math.round(finalRating);
     } else {
         return Math.round(preBonusRating);
     }
 }
+
