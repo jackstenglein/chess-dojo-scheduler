@@ -150,7 +150,7 @@ const senseis = [
         image: jesseImage,
         title: 'Grandmaster',
         name: 'Jesse Kraai',
-        bio: `GM Kraai has been playing and teaching chess since before you were born. Playing in seven US championships helped him elevate his game to GM in 2007. He won the Denker tournament of High School Champions in 1989 and 1990 and the Irwin tournament of Senior Champions in 2023. He is currently using the Dojo Training Program with the dream of winning the US Senior Closed in 2024.`,
+        bio: `GM Kraai has been playing and teaching chess since deep in the last millennium. He became a GM in 2007 by consistently examining his games, a pillar of the ChessDojo Training Program. He's played in seven US Championships and scored clear second in the 2024 US Senior Closed. When not chessing he herds two smallish children and finds time to lift heavy things.`,
     },
     {
         image: kostyaImage,

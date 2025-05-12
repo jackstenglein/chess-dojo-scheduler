@@ -1,54 +1,66 @@
-import { Button, Container, Grid, Link, Typography } from '@mui/material';
+import { Button, Container, Grid, Stack, Typography } from '@mui/material';
+import Image from 'next/image';
+import { Link } from '../navigation/Link';
 import { BulletPoint } from './BulletPoint';
 import { trainingPlanBulletPoints } from './bulletPoints';
+import mockUIImage from './features-mock.webp';
 import { barlowCondensed } from './fonts';
 
 export function Features() {
     return (
         <Container maxWidth='lg' sx={{ py: '5.5rem' }}>
             <Grid container spacing='2rem'>
-                <Grid size={4}>
-                    <Typography
-                        sx={{
-                            fontSize: '3rem',
-                            lineHeight: '3.375rem',
-                            fontFamily: barlowCondensed.style.fontFamily,
-                            fontWeight: 500,
-                            letterSpacing: 0,
-                            position: 'sticky',
-                            top: 'calc(var(--navbar-height) + 1rem)',
-                        }}
-                    >
-                        Rating-based training plans for players of all levels from 0-2500
-                    </Typography>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Stack alignItems={{ xs: 'center', md: 'start' }}>
+                        <Typography
+                            sx={{
+                                fontSize: '3rem',
+                                lineHeight: '3.375rem',
+                                fontFamily: barlowCondensed.style.fontFamily,
+                                fontWeight: 500,
+                                letterSpacing: 0,
+                                textAlign: { xs: 'center', md: 'start' },
+                            }}
+                        >
+                            ChessDojo can take you from 0-2400+ with our innovative training plan
+                            and features
+                        </Typography>
+
+                        <Stack sx={{ my: '2.5rem', gap: '1.25rem' }}>
+                            {trainingPlanBulletPoints.map((bp) => (
+                                <BulletPoint
+                                    key={bp.title}
+                                    {...bp}
+                                    slotProps={{
+                                        description: { mt: '-0.25rem' },
+                                    }}
+                                />
+                            ))}
+                        </Stack>
+
+                        <Button
+                            variant='contained'
+                            component={Link}
+                            href='/signup'
+                            sx={{
+                                fontSize: '1rem',
+                                fontWeight: '600',
+                                py: 1.5,
+                                px: 2.5,
+                            }}
+                            color='dojoOrange'
+                        >
+                            Join the Dojo
+                        </Button>
+                    </Stack>
                 </Grid>
 
-                <Grid size={8}>
-                    <Grid container spacing='2rem'>
-                        {trainingPlanBulletPoints.map((bp) => (
-                            <Grid size={6} key={bp.title}>
-                                <BulletPoint {...bp} />
-                            </Grid>
-                        ))}
-
-                        <Grid size={12} display='flex' justifyContent='center'>
-                            <Button
-                                variant='contained'
-                                component={Link}
-                                href='/signup'
-                                sx={{
-                                    fontSize: '1rem',
-                                    fontWeight: '600',
-                                    py: 1.5,
-                                    px: 2.5,
-                                    mt: 3,
-                                }}
-                                color='darkBlue'
-                            >
-                                Join the Dojo
-                            </Button>
-                        </Grid>
-                    </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Image
+                        alt=''
+                        src={mockUIImage}
+                        style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+                    />
                 </Grid>
             </Grid>
         </Container>

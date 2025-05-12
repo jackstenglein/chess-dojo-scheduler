@@ -12,6 +12,7 @@ interface BulletPointProps extends BulletPointData {
     slotProps?: {
         root?: StackProps;
         title?: TypographyProps;
+        description?: TypographyProps;
     };
 }
 
@@ -26,19 +27,21 @@ export function BulletPoint({
             {icon}
 
             <Stack gap={0.75}>
-                <Typography
-                    sx={{
-                        textTransform: 'uppercase',
-                        fontFamily: barlowCondensed.style.fontFamily,
-                        fontWeight: '600',
-                        fontSize: '1.375rem',
-                        letterSpacing: '2%',
-                        lineHeight: 1,
-                    }}
-                    {...slotProps?.title}
-                >
-                    {title}
-                </Typography>
+                {title && (
+                    <Typography
+                        sx={{
+                            textTransform: 'uppercase',
+                            fontFamily: barlowCondensed.style.fontFamily,
+                            fontWeight: '600',
+                            fontSize: '1.375rem',
+                            letterSpacing: '2%',
+                            lineHeight: 1,
+                        }}
+                        {...slotProps?.title}
+                    >
+                        {title}
+                    </Typography>
+                )}
 
                 {description && (
                     <Typography
@@ -47,6 +50,7 @@ export function BulletPoint({
                             fontSize: '1.1875rem',
                             lineHeight: '1.9375rem',
                         }}
+                        {...slotProps?.description}
                     >
                         {description}
                     </Typography>

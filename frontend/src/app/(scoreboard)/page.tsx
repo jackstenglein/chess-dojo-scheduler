@@ -86,9 +86,9 @@ const LandingPage = ({
                                     fontFamily={anton.style.fontFamily}
                                     fontWeight={anton.style.fontWeight}
                                 >
-                                    Start improving at chess today.
+                                    Got Mated?
                                     <br />
-                                    Learn the right way.
+                                    Time to join the ChessDojo!
                                 </Typography>
                                 <Typography
                                     variant='h5'
@@ -102,11 +102,8 @@ const LandingPage = ({
                                         letterSpacing: 0,
                                     }}
                                 >
-                                    No spare time, no study plan, overwhelmed by chess content? No
-                                    problem.
-                                    <br />
-                                    The Dojo is built for real people, with real lives and real
-                                    ambition to improve.
+                                    A chess training plan for every level and a community to do it
+                                    with.
                                 </Typography>
                             </Stack>
 
