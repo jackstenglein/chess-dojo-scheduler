@@ -21,7 +21,7 @@ export function JoinDojoButton(props: ButtonProps) {
                 ...props.sx,
             }}
         >
-            Join the Dojo
+            {props.children ?? 'Join the Dojo'}
         </Button>
     );
 }
