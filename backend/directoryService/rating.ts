@@ -22,9 +22,10 @@ import { fetchDirectory, getDirectorySchema } from './get';
 
 /**
  * Handles requests to the get directory API. Returns an error if the directory does
- * not exist or is private and the caller does not have viewer access.
+ * not exist or is private and the caller does not have viewer access. Calculates and
+ * returns the performance rating for the given username and rating system.
  * @param event The API gateway event that triggered the request.
- * @returns The requested directory.
+ * @returns The performance rating object.
  */
 export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -53,15 +54,79 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
             throw new ApiError({
                 statusCode: 403,
                 publicMessage:
-                    'This directory is private. Performance rating can not be generated.',
+                    'This directory is private. Performance rating cannot be generated.',
             });
         }
 
-        return success({ directory, accessRole });
+        const queryParams = event.queryStringParameters || {};
+        const username = queryParams.username;
+        const ratingSystemQuery = queryParams.ratingsystem;
+        const playerCohort = queryParams.playerCohort;
+        
+
+        if (!username || !ratingSystemQuery || !playerCohort) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Missing required query parameters: username and ratingsystem',
+            });
+        }
+
+        const ratingSystem = convertQueryParamToRatingSystem(ratingSystemQuery);
+        
+
+        const performanceRating = getPerformanceRating(username, directory, ratingSystem, playerCohort);
+
+        return success({ performanceRating });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
     }
 };
+
+// export enum RatingSystem {
+//     Chesscom = 'CHESSCOM',
+//     Lichess = 'LICHESS',
+//     Fide = 'FIDE',
+//     Uscf = 'USCF',
+//     Ecf = 'ECF',
+//     Cfc = 'CFC',
+//     Dwz = 'DWZ',
+//     Acf = 'ACF',
+//     Knsb = 'KNSB',
+//     Custom = 'CUSTOM',
+//     Custom2 = 'CUSTOM_2',
+//     Custom3 = 'CUSTOM_3',
+// }
+
+function convertQueryParamToRatingSystem(query: string): RatingSystem {
+    switch (query.toLowerCase()) {
+        case "chesscom":
+            return RatingSystem.Chesscom;
+        case "lichess":
+            return RatingSystem.Lichess;
+        case "fide":
+            return RatingSystem.Fide;
+        case "uscf":
+            return RatingSystem.Uscf;
+        case "ecf":
+            return RatingSystem.Ecf;
+        case "cfc":
+            return RatingSystem.Cfc;
+        case "dwz":
+            return RatingSystem.Dwz;
+        case "acf":
+            return RatingSystem.Acf;
+        case "knsb":
+            return RatingSystem.Knsb;
+        case "custom":
+            return RatingSystem.Custom;
+        case "custom_2":
+            return RatingSystem.Custom2;
+        case "custom_3":
+            return RatingSystem.Custom3;
+        default:
+            throw new Error(`Unknown rating system: ${query}`);
+    }
+}
 
 interface PerformanceRatingMetric {
     combinedRating: number,
@@ -187,6 +252,7 @@ const fideDpTable: Record<number, number> = {
     0.00: -800
   };
   
+
 
 
 export function getPerformanceRating(
