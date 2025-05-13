@@ -2,8 +2,7 @@
     "name": "chess-dojo-directory-service",
     "main": "handler.js",
     "scripts": {
-        "test": "vitest",
-        "jtest": "jest"
+        "test": "vitest"
     },
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.436.0",
@@ -11,7 +10,7 @@
         "@aws-sdk/client-s3": "^3.782.0",
         "@aws-sdk/s3-request-presigner": "^3.782.0",
         "@aws-sdk/util-dynamodb": "^3.436.0",
-        "@jackstenglein/chess": "^2.2.10",
+        "@jackstenglein/chess": "^2.2.11",
         "@jackstenglein/chess-dojo-common": "file:../../common",
         "adm-zip": "^0.5.16",
         "uuid": "^10.0.0",
@@ -21,14 +20,12 @@
         "@types/adm-zip": "^0.5.7",
         "@types/aws-lambda": "^8.10.125",
         "@types/deep-equal": "^1.0.4",
-        "@types/jest": "^29.5.14",
         "@types/node": "^18.18.7",
         "@types/uuid": "^10.0.0",
         "esbuild": "^0.25.1",
         "prettier-plugin-organize-imports": "^3.2.4",
         "serverless": "^3.22.0",
-        "serverless-esbuild": "^1.55.0",
-        "ts-jest": "^29.3.2",
+        "serverless-esbuild": "^1.48.5",
         "vitest": "^3.0.9"
     }
 }
