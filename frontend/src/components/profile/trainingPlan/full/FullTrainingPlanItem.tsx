@@ -144,11 +144,11 @@ export const FullTrainingPlanItem = ({
                         rowGap='0.25rem'
                     >
                         {expired && (
-                            <Tooltip title='Your progress on this task has expired and it must be recompleted'>
+                            <Tooltip title="It's time for you to renew this task!">
                                 <Chip
                                     variant='outlined'
-                                    color='error'
-                                    label='Expired'
+                                    color='warning'
+                                    label='Renew'
                                     size='small'
                                     sx={{ alignSelf: 'start', mb: 0.5 }}
                                 />
