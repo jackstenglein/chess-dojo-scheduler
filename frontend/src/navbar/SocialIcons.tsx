@@ -62,45 +62,9 @@ const icons = [
 ];
 
 const SocialIcons = () => {
-    const showAll = true;
-
-    // useMediaQuery('(min-width:1272px)');
-    // const hide1 = useMediaQuery('(min-width:1232px)');
-    // const hide2 = useMediaQuery('(min-width:1191px)');
-    // const hide3 = useMediaQuery('(min-width:1155px)');
-    // const hide4 = useMediaQuery('(min-width:1120px)');
-    // const hide5 = useMediaQuery('(min-width:1084px)');
-    // const hide6 = useMediaQuery('(min-width:1045px)');
-    // const hide7 = useMediaQuery('(min-width:1005px)');
-
-    let displayedIcons: JSX.Element[] = [];
-
-    if (showAll) {
-        displayedIcons = icons;
-    }
-    // else if (hide1) {
-    //     displayedIcons = icons.slice(0, -1);
-    // } else if (hide2) {
-    //     displayedIcons = icons.slice(0, -2);
-    // } else if (hide3) {
-    //     displayedIcons = icons.slice(0, -3);
-    // } else if (hide4) {
-    //     displayedIcons = icons.slice(0, -4);
-    // } else if (hide5) {
-    //     displayedIcons = icons.slice(0, -5);
-    // } else if (hide6) {
-    //     displayedIcons = icons.slice(0, -6);
-    // } else if (hide7) {
-    //     displayedIcons = icons.slice(0, -7);
-    // }
-
-    if (displayedIcons.length === 0) {
-        return null;
-    }
-
     return (
-        <Stack direction='row' alignItems='center'>
-            {displayedIcons}
+        <Stack direction='row' alignItems='center' flexWrap='wrap' justifyContent='center'>
+            {icons}
         </Stack>
     );
 };

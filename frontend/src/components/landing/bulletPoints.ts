@@ -1,44 +1,15 @@
 export interface BulletPointData {
-    title: string;
+    title?: string;
     description?: string;
 }
 
 export const trainingPlanBulletPoints: BulletPointData[] = [
-    {
-        title: 'Daily and Weekly Tasks',
-        description:
-            'Your study plan is broken down into daily tasks bespoke to your training needs.',
-    },
-    {
-        title: 'Hand-picked Training Material',
-        description:
-            'All the material is hand-picked for each level of chess player by our GM and IM senseis.',
-    },
-    {
-        title: 'Advanced Improvement Tracking',
-        description: 'Get insights and tracking data to see your chess progress and areas of work.',
-    },
-    {
-        title: 'Innovative Tests and Tactics',
-        description: `ChessDojo's proprietary tests will pinpoint your tactics strength.`,
-    },
-    {
-        title: 'Access to Our Chess Community',
-        description:
-            'Find real opponents and chess mentors ready to analyze, spar and help your game.',
-    },
-    {
-        title: 'Ratings Dashboard',
-        description: 'ChessDojo translates all rating systems into a universal Dojo rating.',
-    },
-    {
-        title: 'Chess Sparring',
-        description: 'A core feature of the program is having people and positions to spar.',
-    },
-    {
-        title: 'Opening Courses',
-        description: 'Members get free access to a bunch of our opening courses.',
-    },
+    { description: 'Get daily and weekly tasks with the Dojo smart algorithm' },
+    { description: 'Training material is hand-picked by IM and GM coaches' },
+    { description: 'Tracking your training progress, not just your rating' },
+    { description: `Find training partners and mentors in the Dojo community` },
+    { description: 'Access to an extensive database of annotated games' },
+    { description: `Prep your opening with Dojo's Opening Repertoire Spy` },
 ];
 
 export const communityBulletPoints: BulletPointData[] = [
@@ -80,7 +51,7 @@ export const membershipBulletPoints: BulletPointData[] = [
     { title: 'Daily and Weekly Tasks' },
     { title: 'Hand-picked Training Material' },
     { title: 'Advanced Improvement Tracking' },
-    { title: 'Access to Our Chess Community' },
+    { title: 'Opening Repertoire Spy' },
     { title: 'Innovative Tests and Tactics' },
     { title: 'Opening Courses' },
     { title: 'Study Groups' },
@@ -92,7 +63,7 @@ export const freeBulletPoints = [
     { title: 'Limited Training Plans' },
     { title: 'Limited Games Database' },
     { title: 'Advanced Improvement Tracking', excluded: true },
-    { title: 'Access to Our Chess Community', excluded: true },
+    { title: 'Opening Repertoire Spy', excluded: true },
     { title: 'Innovative Tests and Tactics', excluded: true },
     { title: 'Opening Courses', excluded: true },
     { title: 'Study Groups', excluded: true },
