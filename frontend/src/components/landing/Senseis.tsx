@@ -97,6 +97,7 @@ function Sensei({
                     width: '9.375rem',
                     height: '9.375rem',
                     borderRadius: '50%',
+                    objectFit: 'contain',
                     gridArea: 'image',
                 }}
             />

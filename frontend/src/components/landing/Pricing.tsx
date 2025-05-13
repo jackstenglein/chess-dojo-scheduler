@@ -1,20 +1,23 @@
 import { ArrowForward, Close } from '@mui/icons-material';
 import { Box, Button, Grid, Link, Stack, Typography } from '@mui/material';
-import backgroundImage from './background2.jpg';
+import { useState } from 'react';
 import { BackgroundImageContainer } from './BackgroundImage';
 import { BulletPoint } from './BulletPoint';
 import { freeBulletPoints, membershipBulletPoints } from './bulletPoints';
 import { barlow, barlowCondensed } from './fonts';
+import { JoinDojoButton } from './JoinDojoButton';
+import backgroundImage from './pricing-background.webp';
 
 export function Pricing() {
     return (
         <BackgroundImageContainer
             src={backgroundImage}
             background='linear-gradient(270deg, #141422 0%, #06060B 100%)'
+            slotProps={{ image: { style: { opacity: 0.2 } } }}
         >
             <Stack gap='1rem' alignItems='center'>
                 <Typography
-                    sx={{ textTransform: 'uppercase' }}
+                    sx={{ textTransform: 'uppercase', textAlign: 'center' }}
                     color='dojoOrange'
                     fontWeight='600'
                     fontSize='1.1875rem'
@@ -49,12 +52,15 @@ export function Pricing() {
 }
 
 function MembershipSection() {
+    const [timeframe, setTimeframe] = useState<'yearly' | 'monthly'>('yearly');
+
     return (
         <Box
             sx={{
                 background: 'linear-gradient(180deg, #1B1B2C 0%, #06060B 100%)',
-                padding: '3.75rem 3.375rem',
+                padding: { xs: '1rem', md: '3.75rem 3.375rem' },
                 borderRadius: 1,
+                width: 1,
             }}
         >
             <Stack
@@ -70,9 +76,9 @@ function MembershipSection() {
                     <Typography
                         sx={{
                             fontFamily: barlowCondensed.style.fontFamily,
-                            fontSize: '3rem',
+                            fontSize: { xs: '2rem', md: '3rem' },
                             fontWeight: '500',
-                            lineHeight: '3.375rem',
+                            lineHeight: { xs: '2.5rem', md: '3.375rem' },
                         }}
                     >
                         ChessDojo Membership
@@ -80,8 +86,8 @@ function MembershipSection() {
                     <Typography
                         sx={{
                             fontFamily: barlow.style.fontFamily,
-                            fontSize: '1.1875rem',
-                            lineHeight: '1.9375rem',
+                            fontSize: { xs: '0.85rem', md: '1.1875rem' },
+                            lineHeight: { xs: '1.3rem', md: '1.9375rem' },
                             color: 'rgba(255, 255, 255, 0.9)',
                         }}
                     >
@@ -94,13 +100,19 @@ function MembershipSection() {
                         sx={{
                             fontFamily: barlow.style.fontFamily,
                             fontWeight: '400',
-                            fontSize: '3rem',
-                            lineHeight: '3.375rem',
+                            fontSize: { xs: '2rem', md: '3rem' },
+                            lineHeight: { xs: '2.5rem', md: '3.375rem' },
                             textAlign: 'right',
                             letterSpacing: '0%',
                         }}
                     >
-                        $<span style={{ fontWeight: '300', fontSize: '5.125rem' }}>120</span>
+                        $
+                        <Box
+                            component='span'
+                            sx={{ fontWeight: '300', fontSize: { xs: '3rem', md: '5.125rem' } }}
+                        >
+                            {timeframe === 'yearly' ? '120' : '15'}
+                        </Box>
                     </Typography>
                     <Typography
                         color='dojoOrange'
@@ -113,14 +125,14 @@ function MembershipSection() {
                             textAlign: 'right',
                         }}
                     >
-                        Each Year
+                        Each {timeframe === 'yearly' ? 'Year' : 'Month'}
                     </Typography>
                 </Stack>
             </Stack>
 
             <Grid container sx={{ mt: '3.75rem' }} spacing='1.375rem'>
                 {membershipBulletPoints.map((bp) => (
-                    <Grid key={bp.title} size={4}>
+                    <Grid key={bp.title} size={{ xs: 6, md: 4 }}>
                         <BulletPoint {...bp} icon={<ArrowForward color='dojoOrange' />} />
                     </Grid>
                 ))}
@@ -131,50 +143,39 @@ function MembershipSection() {
                 justifyContent='space-between'
                 alignItems='center'
                 sx={{ mt: '3.75rem' }}
+                flexWrap='wrap'
             >
-                <Button
-                    variant='contained'
-                    component={Link}
-                    href='/signup'
-                    sx={{
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        py: 1.5,
-                        px: 2.5,
-                        mt: 3,
-                    }}
-                    color='dojoOrange'
-                >
-                    Join the Dojo
-                </Button>
+                <JoinDojoButton />
 
-                <Stack direction='row' gap='0.5rem'>
+                <Stack direction='row' gap='0.5rem' display={{ xs: 'none', md: 'flex' }}>
                     <Button
-                        variant='contained'
+                        variant={timeframe === 'yearly' ? 'contained' : 'outlined'}
                         sx={{
                             fontSize: '0.8125rem',
                             fontWeight: '700',
                             py: '0.875rem',
                             px: '1.75rem',
                             letterSpacing: '8%',
-                            lineHeight: '1.375rem',
+                            lineHeight: 1,
                         }}
                         color='dojoOrange'
+                        onClick={() => setTimeframe('yearly')}
                     >
                         Annual
                     </Button>
 
                     <Button
-                        variant='outlined'
+                        variant={timeframe === 'yearly' ? 'outlined' : 'contained'}
                         sx={{
                             fontSize: '0.8125rem',
                             fontWeight: '700',
-                            py: '0.875rem',
-                            px: '1.75rem',
+                            py: '0.25rem',
+                            px: '1rem',
                             letterSpacing: '8%',
-                            lineHeight: '1.375rem',
+                            lineHeight: 1,
                         }}
                         color='dojoOrange'
+                        onClick={() => setTimeframe('monthly')}
                     >
                         Monthly
                     </Button>
@@ -187,9 +188,11 @@ function MembershipSection() {
 function FreeSection() {
     return (
         <Stack
-            width={0.83}
+            width={{ xs: 1, md: 0.83 }}
             sx={{
-                padding: '2rem 3.375rem',
+                padding: { xs: '1rem', md: '2rem 3.375rem' },
+                background: 'linear-gradient(180deg, #1B1B2C88 0%, #06060B88 100%)',
+                borderRadius: 1,
             }}
         >
             <Stack
@@ -205,7 +208,7 @@ function FreeSection() {
                         fontFamily: barlowCondensed.style.fontFamily,
                         fontSize: '2rem',
                         fontWeight: '500',
-                        lineHeight: '2rem',
+                        lineHeight: { xs: '2.5rem', md: '2rem' },
                     }}
                 >
                     Free Membership
@@ -213,8 +216,8 @@ function FreeSection() {
                 <Typography
                     sx={{
                         fontFamily: barlow.style.fontFamily,
-                        fontSize: '1.1875rem',
-                        lineHeight: '1.9375rem',
+                        fontSize: { xs: '0.85rem', md: '1.1875rem' },
+                        lineHeight: { xs: '1.3rem', md: '1.9375rem' },
                         color: 'rgba(255, 255, 255, 0.9)',
                     }}
                 >
@@ -224,7 +227,7 @@ function FreeSection() {
 
             <Grid container sx={{ mt: '1.875rem' }} spacing='1.375rem'>
                 {freeBulletPoints.map((bp) => (
-                    <Grid key={bp.title} size={4}>
+                    <Grid key={bp.title} size={{ xs: 6, md: 4 }}>
                         <BulletPoint
                             title={bp.title}
                             icon={

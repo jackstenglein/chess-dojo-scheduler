@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthStatus, useAuth } from '@/auth/Auth';
-import background3 from '@/components/landing/background3.jpg';
+import background3 from '@/components/landing/background3.webp';
 import { BackgroundImageContainer } from '@/components/landing/BackgroundImage';
 import { Community } from '@/components/landing/Community';
 import { Features } from '@/components/landing/Features';
@@ -12,17 +12,15 @@ import { Pricing } from '@/components/landing/Pricing';
 import { Senseis } from '@/components/landing/Senseis';
 import { TestimonialSection } from '@/components/landing/Testimonial';
 import { Link } from '@/components/navigation/Link';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { Hub } from 'aws-amplify/utils';
 import { useEffect } from 'react';
 
-const LandingPage = ({
-    searchParams,
-}: {
-    searchParams?: Record<string, string | string[] | undefined>;
-}) => {
+const LandingPage = () => {
+    const { searchParams } = useNextSearchParams();
     const auth = useAuth();
     const router = useRouter();
 
@@ -37,7 +35,7 @@ const LandingPage = ({
         });
     }, [router]);
 
-    if (searchParams?.code && auth.status === AuthStatus.Loading) {
+    if (searchParams.get('code') && auth.status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
 
@@ -47,7 +45,7 @@ const LandingPage = ({
     }
 
     return (
-        <Box sx={{ '--stats-height': '110px', mt: { md: 'calc(-1*var(--stats-height))' } }}>
+        <Box sx={{ '--stats-height': '110px' }}>
             <MainLanding />
             <Features />
             <TestimonialSection />

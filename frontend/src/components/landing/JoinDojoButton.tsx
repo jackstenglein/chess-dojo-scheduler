@@ -12,8 +12,8 @@ export function JoinDojoButton(props: ButtonProps) {
             sx={{
                 fontSize: '1rem',
                 fontWeight: '600',
-                py: 1.5,
-                px: 2.5,
+                py: '0.75rem',
+                px: '1.25rem',
                 ...props.sx,
             }}
         >

@@ -27,7 +27,7 @@ export function MainLanding({
                     sx={{
                         alignItems: 'center',
                         height: {
-                            md: 'calc(100vh - var(--stats-height) - 40px)',
+                            md: 'calc(100vh - var(--navbar-height) - var(--stats-height) - 40px)',
                         },
                         mt: {
                             xs: 1,
@@ -139,15 +139,16 @@ export function MainLanding({
             <Box
                 sx={{
                     width: 1,
-                    height: 'var(--stats-height)',
+                    height: { xs: 'auto', md: 'var(--stats-height)' },
                     background:
                         'linear-gradient(90deg, var(--mui-palette-darkBlue-main) 0%, var(--mui-palette-darkBlue-light) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    py: { xs: 0.5, md: 0 },
                 }}
             >
-                <Typography sx={{ fontSize: '1.5rem' }}>
+                <Typography sx={{ fontSize: '1.5rem' }} textAlign='center'>
                     Since its launch in 2022, ChessDojo members have gained more than{' '}
                     <strong>186,000</strong> rating points.
                 </Typography>
