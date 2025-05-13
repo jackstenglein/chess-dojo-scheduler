@@ -1,3 +1,4 @@
+import { fontFamily } from '@/style/font';
 import { ArrowForward } from '@mui/icons-material';
 import { Stack, StackProps, Typography, TypographyProps } from '@mui/material';
 import { BulletPointData } from './bulletPoints';
@@ -31,7 +32,7 @@ export function BulletPoint({
                     <Typography
                         sx={{
                             textTransform: 'uppercase',
-                            fontFamily: barlowCondensed.style.fontFamily,
+                            fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                             fontWeight: '600',
                             fontSize: '1.375rem',
                             letterSpacing: '2%',
@@ -46,7 +47,7 @@ export function BulletPoint({
                 {description && (
                     <Typography
                         sx={{
-                            fontFamily: barlow.style.fontFamily,
+                            fontFamily: (theme) => fontFamily(theme, barlow),
                             fontSize: '1.1875rem',
                             lineHeight: '1.9375rem',
                         }}

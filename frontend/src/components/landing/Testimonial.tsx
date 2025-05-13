@@ -1,4 +1,5 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
+import { fontFamily } from '@/style/font';
 import { Button, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 import Image from 'next/image';
 import Carousel from 'react-material-ui-carousel';
@@ -21,7 +22,7 @@ export function TestimonialSection() {
             <Stack gap='1rem' alignItems='center'>
                 <Typography
                     textAlign='center'
-                    fontFamily={anton.style.fontFamily}
+                    fontFamily={(theme) => fontFamily(theme, anton)}
                     lineHeight='4.625rem'
                     fontSize='3.75rem'
                 >
@@ -119,7 +120,7 @@ function Testimonial({ quote, name, rating, cohort }: TestimonialProps) {
 
             <Typography
                 sx={{
-                    fontFamily: barlow.style.fontFamily,
+                    fontFamily: (theme) => fontFamily(theme, barlow),
                     fontSize: '1.0625rem',
                     lineHeight: '1.75rem',
                 }}
@@ -133,7 +134,7 @@ function Testimonial({ quote, name, rating, cohort }: TestimonialProps) {
                 <Stack gap={0.75}>
                     <Typography
                         sx={{
-                            fontFamily: barlowCondensed.style.fontFamily,
+                            fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                             fontWeight: '600',
                             fontSize: '1.3125rem',
                             lineHeight: '1.3125rem',

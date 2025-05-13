@@ -1,3 +1,4 @@
+import { fontFamily } from '@/style/font';
 import { Box, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import davidImage from './david.webp';
@@ -22,7 +23,7 @@ export function Senseis() {
                             sx={{
                                 fontSize: '3rem',
                                 lineHeight: '3.375rem',
-                                fontFamily: barlowCondensed.style.fontFamily,
+                                fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                                 fontWeight: '500',
                             }}
                         >
@@ -40,7 +41,7 @@ export function Senseis() {
 
                         <Typography
                             sx={{
-                                fontFamily: barlow.style.fontFamily,
+                                fontFamily: (theme) => fontFamily(theme, barlow),
                                 fontSize: '1.5rem',
                                 lineHeight: '2.125rem',
                             }}

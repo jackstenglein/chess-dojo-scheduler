@@ -1,3 +1,4 @@
+import { fontFamily } from '@/style/font';
 import { Container, Grid, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import { BulletPoint } from './BulletPoint';
@@ -16,7 +17,7 @@ export function Features() {
                             sx={{
                                 fontSize: '3rem',
                                 lineHeight: '3.375rem',
-                                fontFamily: barlowCondensed.style.fontFamily,
+                                fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                                 fontWeight: 500,
                                 letterSpacing: 0,
                                 textAlign: { xs: 'center', md: 'start' },

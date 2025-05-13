@@ -15,6 +15,7 @@ import { Link } from '@/components/navigation/Link';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
+import { fontFamily } from '@/style/font';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { Hub } from 'aws-amplify/utils';
 import { useEffect } from 'react';
@@ -60,7 +61,7 @@ const LandingPage = () => {
                 <Stack alignItems='center'>
                     <Typography
                         sx={{
-                            fontFamily: barlowCondensed.style.fontFamily,
+                            fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                             fontWeight: '400',
                             fontSize: '3rem',
                             lineHeight: '3.5rem',

@@ -1,19 +1,17 @@
 'use client';
 
+import { barlowCondensed } from '@/components/landing/fonts';
 import { DonateIcon } from '@/style/DonateIcon';
+import { fontFamily } from '@/style/font';
 import {
-    AutoStories,
     ChevronRight,
-    ContactSupport,
     ExpandLess,
     ExpandMore,
     Forum,
     ImportContacts,
-    MenuBook,
     Menu as MenuIcon,
     RocketLaunch,
     Sell,
-    SignalCellularAlt,
     Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
@@ -34,7 +32,6 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { Logo, NavMenuItem, NavbarItem, StartItem } from './NavbarMenu';
-import SocialIcons from './SocialIcons';
 
 const UnauthenticatedMenu = () => {
     const largeMenu = useMediaQuery('(min-width:450px)');
@@ -51,39 +48,7 @@ function unauthenticatedStartItems(toggleExpansion: (item: string) => void): Nav
         {
             name: 'Tournaments',
             icon: <Tournaments />,
-            onClick: () => toggleExpansion('Tournaments'),
-            children: [
-                {
-                    name: 'DojoLiga',
-                    href: '/tournaments/liga',
-                },
-                {
-                    name: 'Open Classical',
-                    href: '/tournaments/open-classical',
-                },
-            ],
-        },
-        {
-            name: 'Material',
-            icon: <MenuBook />,
-            onClick: () => toggleExpansion('Material'),
-            children: [
-                {
-                    name: 'Courses',
-                    icon: <ImportContacts />,
-                    href: '/courses',
-                },
-                {
-                    name: 'Books',
-                    icon: <AutoStories />,
-                    href: '/material/books',
-                },
-                {
-                    name: 'Rating Conversions',
-                    icon: <SignalCellularAlt />,
-                    href: '/material/ratings',
-                },
-            ],
+            href: '/tournaments',
         },
         {
             name: 'Blog',
@@ -118,21 +83,16 @@ function unauthenticatedStartItems(toggleExpansion: (item: string) => void): Nav
                 },
             ],
         },
-        {
-            name: 'Contact Us',
-            icon: <ContactSupport />,
-            href: '/help',
-        },
     ];
 }
 
 function useNavbarItems(handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
-    const showAll = useMediaQuery('(min-width:963px)');
-    const hide2 = useMediaQuery('(min-width:758px)');
-    const hide3 = useMediaQuery('(min-width:665px)');
-    const hide4 = useMediaQuery('(min-width:600px)');
+    const showAll = useMediaQuery('(min-width:785px)');
+    const hide2 = useMediaQuery('(min-width:640px)');
+    const hide3 = useMediaQuery('(min-width:400px)');
+    const hide4 = useMediaQuery('(min-width:400px)');
 
     const startItems = unauthenticatedStartItems((item: string) =>
         setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
@@ -186,7 +146,22 @@ export const LargeMenuUnauthenticated = () => {
     return (
         <>
             <Logo />
-            <Stack spacing={1} direction='row' sx={{ flexGrow: 1 }}>
+            <Typography
+                component='a'
+                href='/'
+                sx={{
+                    fontFamily: (theme) => fontFamily(theme, barlowCondensed),
+                    fontSize: '2rem',
+                    fontWeight: '600',
+                    letterSpacing: '2%',
+                    textDecoration: 'none',
+                }}
+                color='white'
+            >
+                ChessDojo
+            </Typography>
+
+            <Stack spacing={1} direction='row' sx={{ flexGrow: 1, justifyContent: 'end' }}>
                 {startItems}
 
                 {menuItems.length > 0 && (
@@ -211,14 +186,10 @@ export const LargeMenuUnauthenticated = () => {
                     </>
                 )}
 
-                <SocialIcons />
-            </Stack>
-
-            <Stack spacing={1} direction='row'>
-                <Button href='/signin' sx={{ color: 'white' }}>
+                <Button href='/signin' color='dojoOrange' sx={{ fontWeight: 'bold' }}>
                     Sign In
                 </Button>
-                <Button href='/signup' sx={{ color: 'white' }}>
+                <Button href='/signup' color='dojoOrange' sx={{ fontWeight: 'bold' }}>
                     Sign Up
                 </Button>
             </Stack>

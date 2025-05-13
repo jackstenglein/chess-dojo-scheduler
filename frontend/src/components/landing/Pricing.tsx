@@ -1,3 +1,4 @@
+import { fontFamily } from '@/style/font';
 import { ArrowForward, Close } from '@mui/icons-material';
 import { Box, Button, Grid, Link, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
@@ -29,7 +30,7 @@ export function Pricing() {
 
                 <Typography
                     sx={{
-                        fontFamily: barlowCondensed.style.fontFamily,
+                        fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                         fontSize: '3rem',
                         lineHeight: '3.5rem',
                         textAlign: 'center',
@@ -75,7 +76,7 @@ function MembershipSection() {
                 <Stack>
                     <Typography
                         sx={{
-                            fontFamily: barlowCondensed.style.fontFamily,
+                            fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                             fontSize: { xs: '2rem', md: '3rem' },
                             fontWeight: '500',
                             lineHeight: { xs: '2.5rem', md: '3.375rem' },
@@ -85,7 +86,7 @@ function MembershipSection() {
                     </Typography>
                     <Typography
                         sx={{
-                            fontFamily: barlow.style.fontFamily,
+                            fontFamily: (theme) => fontFamily(theme, barlow),
                             fontSize: { xs: '0.85rem', md: '1.1875rem' },
                             lineHeight: { xs: '1.3rem', md: '1.9375rem' },
                             color: 'rgba(255, 255, 255, 0.9)',
@@ -98,7 +99,7 @@ function MembershipSection() {
                 <Stack>
                     <Typography
                         sx={{
-                            fontFamily: barlow.style.fontFamily,
+                            fontFamily: (theme) => fontFamily(theme, barlow),
                             fontWeight: '400',
                             fontSize: { xs: '2rem', md: '3rem' },
                             lineHeight: { xs: '2.5rem', md: '3.375rem' },
@@ -205,7 +206,7 @@ function FreeSection() {
             >
                 <Typography
                     sx={{
-                        fontFamily: barlowCondensed.style.fontFamily,
+                        fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                         fontSize: '2rem',
                         fontWeight: '500',
                         lineHeight: { xs: '2.5rem', md: '2rem' },
@@ -215,7 +216,7 @@ function FreeSection() {
                 </Typography>
                 <Typography
                     sx={{
-                        fontFamily: barlow.style.fontFamily,
+                        fontFamily: (theme) => fontFamily(theme, barlow),
                         fontSize: { xs: '0.85rem', md: '1.1875rem' },
                         lineHeight: { xs: '1.3rem', md: '1.9375rem' },
                         color: 'rgba(255, 255, 255, 0.9)',
@@ -242,7 +243,7 @@ function FreeSection() {
                                 title: {
                                     sx: {
                                         textTransform: 'uppercase',
-                                        fontFamily: barlowCondensed.style.fontFamily,
+                                        fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                                         fontWeight: '600',
                                         fontSize: '1.1875rem',
                                         letterSpacing: '3%',

@@ -1,3 +1,4 @@
+import { fontFamily } from '@/style/font';
 import { Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { BulletPoint } from './BulletPoint';
 import { communityBulletPoints } from './bulletPoints';
@@ -21,7 +22,7 @@ export function Community() {
                             sx={{
                                 fontSize: '3rem',
                                 lineHeight: '3.375rem',
-                                fontFamily: barlowCondensed.style.fontFamily,
+                                fontFamily: (theme) => fontFamily(theme, barlowCondensed),
                                 fontWeight: '500',
                                 textAlign: { xs: 'center', md: 'start' },
                             }}
@@ -40,7 +41,7 @@ export function Community() {
 
                         <Typography
                             sx={{
-                                fontFamily: barlow.style.fontFamily,
+                                fontFamily: (theme) => fontFamily(theme, barlow),
                                 fontSize: '1.5rem',
                                 lineHeight: '2.125rem',
                                 textAlign: { xs: 'center', md: 'start' },

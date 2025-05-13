@@ -1,3 +1,4 @@
+import { fontFamily } from '@/style/font';
 import { Box, Button, Grid, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -52,8 +53,8 @@ export function MainLanding({
                                     variant='h2'
                                     textAlign={{ xs: 'center', md: 'start' }}
                                     data-cy='title'
-                                    fontFamily={anton.style.fontFamily}
-                                    fontWeight={anton.style.fontWeight}
+                                    fontFamily={(theme) => fontFamily(theme, anton)}
+                                    fontWeight='400'
                                 >
                                     Got Mated?
                                     <br />
@@ -64,7 +65,7 @@ export function MainLanding({
                                     textAlign={{ xs: 'center', md: 'start' }}
                                     data-cy='subtitle'
                                     sx={{
-                                        fontFamily: barlow.style.fontFamily,
+                                        fontFamily: (theme) => fontFamily(theme, barlow),
                                         fontWeight: 400,
                                         fontSize: '1.5rem',
                                         lineHeight: '2.125rem',
