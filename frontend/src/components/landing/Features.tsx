@@ -7,9 +7,15 @@ import mockUIImage from './features-mock.webp';
 import { barlowCondensed } from './fonts';
 import { JoinDojoButton } from './JoinDojoButton';
 
+export const FEATURES_ELEMENT_ID = 'features';
+
 export function Features() {
     return (
-        <Container maxWidth='lg' sx={{ py: '5.5rem' }}>
+        <Container
+            id={FEATURES_ELEMENT_ID}
+            maxWidth='lg'
+            sx={{ py: '5.5rem', scrollMarginTop: { xs: 0, md: 'var(--navbar-height)' } }}
+        >
             <Grid container spacing='2rem'>
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Stack alignItems={{ xs: 'center', md: 'start' }}>

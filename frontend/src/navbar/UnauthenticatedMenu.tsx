@@ -221,7 +221,23 @@ export const ExtraSmallMenuUnauthenticated = () => {
             alignItems='center'
             sx={{ flexGrow: 1, height: 1 }}
         >
-            <Logo />
+            <Stack direction='row' alignItems='center'>
+                <Logo />
+                <Typography
+                    component='a'
+                    href='/'
+                    sx={{
+                        fontFamily: (theme) => fontFamily(theme, barlowCondensed),
+                        fontSize: '1.5rem',
+                        fontWeight: '600',
+                        letterSpacing: '2%',
+                        textDecoration: 'none',
+                    }}
+                    color='white'
+                >
+                    ChessDojo
+                </Typography>
+            </Stack>
             <IconButton
                 data-cy='navbar-more-button'
                 size='medium'

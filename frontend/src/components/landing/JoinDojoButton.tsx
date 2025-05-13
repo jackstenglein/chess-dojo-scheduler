@@ -1,12 +1,16 @@
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { Button, ButtonProps } from '@mui/material';
 import { Link } from '../navigation/Link';
 
 export function JoinDojoButton(props: ButtonProps) {
+    const { searchParams } = useNextSearchParams();
+    const paramsString = searchParams.toString();
+
     return (
         <Button
             variant='contained'
             component={Link}
-            href='/signup'
+            href={`/signup${paramsString ? `?${paramsString}` : ''}`}
             color='dojoOrange'
             {...props}
             sx={{

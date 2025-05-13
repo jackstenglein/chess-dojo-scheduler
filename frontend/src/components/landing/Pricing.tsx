@@ -260,6 +260,7 @@ function FreeSection() {
             <Button
                 variant='outlined'
                 component={Link}
+                href='/signup'
                 sx={{
                     mt: '1.875rem',
                     fontSize: '0.94rem',

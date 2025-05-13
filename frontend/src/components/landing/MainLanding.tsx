@@ -1,17 +1,24 @@
 import { fontFamily } from '@/style/font';
 import { Box, Button, Grid, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
-import Link from 'next/link';
 import { BackgroundImageContainer } from './BackgroundImage';
+import { FEATURES_ELEMENT_ID } from './Features';
 import { anton, barlow } from './fonts';
 import heroImage from './hero.webp';
+import { JoinDojoButton } from './JoinDojoButton';
 import backgroundImage from './main-background.webp';
 
-export function MainLanding({
-    searchParams,
-}: {
-    searchParams?: Record<string, string | string[] | undefined>;
-}) {
+export function MainLanding() {
+    const scrollToId = (e: React.MouseEvent, id: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <>
             <BackgroundImageContainer
@@ -19,7 +26,7 @@ export function MainLanding({
                 background='linear-gradient(270deg, rgba(7, 7, 18, 0.765) 10%, rgba(7, 7, 18, 0.9) 100%)'
                 slotProps={{
                     image: { style: { opacity: 0.15 }, priority: true },
-                    container: { sx: { pt: 0, pb: { xs: 3, md: 0 } } },
+                    container: { sx: { pt: { xs: 1, md: 0 }, pb: { xs: 3, md: 0 } } },
                 }}
             >
                 <Grid
@@ -86,24 +93,10 @@ export function MainLanding({
                                     gap: 3,
                                 }}
                             >
-                                <Button
-                                    variant='contained'
-                                    component={Link}
-                                    href='/signup'
-                                    sx={{
-                                        fontSize: '1rem',
-                                        fontWeight: '600',
-                                        py: 1.5,
-                                        px: 2.5,
-                                    }}
-                                    color='dojoOrange'
-                                >
-                                    Join the Dojo
-                                </Button>
+                                <JoinDojoButton />
                                 <Button
                                     variant='outlined'
-                                    component={Link}
-                                    href={`/signin${searchParams?.redirectUri ? `?redirectUri=${searchParams.redirectUri.toString()}` : ''}`}
+                                    onClick={(e) => scrollToId(e, FEATURES_ELEMENT_ID)}
                                     sx={{
                                         fontSize: '0.94rem',
                                         fontWeight: '600',

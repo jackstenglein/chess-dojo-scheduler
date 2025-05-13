@@ -1,11 +1,11 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { fontFamily } from '@/style/font';
-import { Button, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 import Image from 'next/image';
 import Carousel from 'react-material-ui-carousel';
-import { Link } from '../navigation/Link';
 import { BackgroundImageContainer } from './BackgroundImage';
 import { anton, barlow, barlowCondensed } from './fonts';
+import { JoinDojoButton } from './JoinDojoButton';
 import quoteImage from './quote.webp';
 import backgroundImage from './testimonial-background.webp';
 import { TestimonialProps, testimonials } from './testimonials';
@@ -83,21 +83,7 @@ export function TestimonialSection() {
             </Stack>
 
             <Stack alignItems='center' mt='3rem'>
-                <Button
-                    variant='contained'
-                    component={Link}
-                    href='/signup'
-                    sx={{
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        py: 1.5,
-                        px: 2.5,
-                        mt: 3,
-                    }}
-                    color='dojoOrange'
-                >
-                    Join the Dojo
-                </Button>
+                <JoinDojoButton />
             </Stack>
         </BackgroundImageContainer>
     );
