@@ -25,6 +25,7 @@ export interface DirectoryApiContextType {
      * @returns The requested directory and the caller's access role for that directory.
      */
     getDirectory: (owner: string, id: string) => Promise<AxiosResponse<GetDirectoryResponse>>;
+    getDirectoryStats: (owner: string, id: string, username: string, ratingSystem: string, cohort: string) => Promise<AxiosResponse<PerformanceRatingMetric>>;
 
     /**
      * Sends an API request to list the breadcrumbs for a directory.
@@ -117,6 +118,28 @@ export interface GetDirectoryResponse {
     accessRole?: DirectoryAccessRole;
 }
 
+export interface PerformanceRatingMetric {
+    combinedRating: number,
+    combinedScorePercent: number,
+    normalizedCombinedRating: number,
+    whiteRating: number,
+    whiteScorePercent: number,
+    normalizedWhiteRating: number,
+    blackRating: number,
+    blackScorePercent: number,
+    normalizedBlackRating: number,
+    winRatio: number,
+    drawRatio: number, 
+    lossRatio: number
+    equalCohortRating: number,
+    previousCohortRating: number,
+    prePreviousCohortRating: number,
+    nextCohortRating: number,
+    nextNextCohortRating: number
+}
+
+
+
 /**
  * Sends an API request to get a directory.
  * @param idToken The id token of the current signed-in user.
@@ -131,6 +154,27 @@ export function getDirectory(idToken: string, owner: string, id: string) {
         },
     });
 }
+
+/**
+ * Sends an API request to get a directory.
+ * @param idToken The id token of the current signed-in user.
+ * @param owner The owner of the directory to get.
+ * @param id The id of the directory to get.
+ * @returns The requested directory and the caller's access role for that directory.
+ */
+export function getDirectoryStats(idToken: string, owner: string, id: string, username: string, ratingSystem: string, cohort: string) {
+    return axios.get<PerformanceRatingMetric>(`${BASE_URL}/directory/${owner}/${id}/stats`, {
+        params: {
+            username: username,
+            ratingsystem: ratingSystem,
+            playerCohort: cohort
+        },
+        headers: {
+            Authorization: `Bearer ${idToken}`,
+        },
+    });
+}
+
 
 /**
  * Sends an API request to list the breadcrumbs for a directory.
