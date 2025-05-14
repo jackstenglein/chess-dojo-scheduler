@@ -37,6 +37,7 @@ import {
     Scoreboard,
     Sell,
     SignalCellularAlt,
+    SmartToy,
     Speed,
     Storefront,
     EmojiEvents as Tournaments,
@@ -211,6 +212,11 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     name: 'Rating Conversions',
                     icon: <SignalCellularAlt />,
                     href: '/material/ratings',
+                },
+                {
+                    name: 'Guide to Bots',
+                    icon: <SmartToy />,
+                    href: '/material/bots',
                 },
                 {
                     name: 'Discord',
