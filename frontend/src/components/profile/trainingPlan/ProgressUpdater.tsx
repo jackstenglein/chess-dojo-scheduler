@@ -30,41 +30,7 @@ import InputSlider from './InputSlider';
 import { TaskDialogView } from './TaskDialog';
 
 const NUMBER_REGEX = /^[0-9]*$/;
-
 const TIME_WARNING_THRESHOLD_MINS = 60 * 5;
-
-function getIncrementalCount(
-    alreadyComplete: boolean,
-    isSlider: boolean,
-    isNonDojo: boolean,
-    markComplete: boolean,
-    value: number,
-    currentCount: number,
-    totalCount: number,
-): number {
-    if (isNonDojo) {
-        return 0;
-    }
-    if (isSlider) {
-        return value - currentCount;
-    }
-
-    if (alreadyComplete) {
-        if (!markComplete) {
-            // Reset to 0
-            return -currentCount;
-        }
-        // No change
-        return 0;
-    }
-
-    if (!markComplete) {
-        // The user is just changing the time
-        return 0;
-    }
-
-    return totalCount - currentCount;
-}
 
 interface ProgressUpdaterProps {
     requirement: Requirement | CustomTask;
@@ -97,8 +63,6 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [notes, setNotes] = useState('');
     const request = useRequest();
-
-    const isComplete = currentCount >= totalCount;
 
     const isCheckbox =
         requirement.scoreboardDisplay === ScoreboardDisplay.Hidden ||
@@ -133,35 +97,38 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             return;
         }
 
-        const incrementalCount = isMinutes
-            ? addedTime
-            : getIncrementalCount(
-                  isComplete,
-                  isSlider,
-                  isNonDojo,
-                  markComplete,
-                  value,
-                  currentCount,
-                  totalCount,
-              );
+        let newCount = value;
+        if (isMinutes) {
+            newCount = totalTime;
+        } else if (isNonDojo) {
+            newCount = 0;
+        } else if (isCheckbox) {
+            if (markComplete) {
+                newCount = totalCount;
+            } else {
+                newCount = 0;
+            }
+        }
 
         request.onStart();
-        api.updateUserProgress(
+        api.updateUserProgress({
             cohort,
-            requirement.id,
-            incrementalCount,
-            hoursInt * 60 + minutesInt,
+            requirementId: requirement.id,
+            previousCount: currentCount,
+            newCount: newCount,
+            incrementalMinutesSpent: addedTime,
             date,
             notes,
-        )
+        })
             .then((resp) => {
                 trackEvent(EventType.UpdateProgress, {
                     requirement_id: requirement.id,
                     requirement_name: requirement.name,
                     is_custom_requirement: !isRequirement(requirement),
                     dojo_cohort: cohort,
-                    incremental_count: incrementalCount,
-                    incremental_minutes: hoursInt * 60 + minutesInt,
+                    previous_count: currentCount,
+                    new_count: newCount,
+                    incremental_minutes: addedTime,
                 });
                 onNewEntry(resp.data.timelineEntry);
                 onClose();
@@ -178,7 +145,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     return (
         <>
             <DialogContent>
-                <Stack spacing={3} sx={{ mt: isMinutes ? 1 : undefined }}>
+                <Stack spacing={3} sx={{ mt: isMinutes || isNonDojo ? 1 : undefined }}>
                     {isSlider && (
                         <InputSlider
                             value={value}

@@ -34,6 +34,9 @@ type Task interface {
 	// Returns the score for the given requirement based on the provided
 	// cohort and progress.
 	CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32
+	// Returns the score for the given requirement based on the provided
+	// count of completed units.
+	CalculateScoreCount(cohort DojoCohort, count int) float32
 	// Returns true if the given progress is expired for the task.
 	IsExpired(progress *RequirementProgress) bool
 	// Returns the number of cohorts the task needs to be completed in.
@@ -89,6 +92,10 @@ type CustomTask struct {
 }
 
 func (t *CustomTask) CalculateScore(cohort DojoCohort, progress *RequirementProgress) float32 {
+	return 0
+}
+
+func (t *CustomTask) CalculateScoreCount(cohort DojoCohort, count int) float32 {
 	return 0
 }
 
@@ -259,6 +266,12 @@ func (r *Requirement) CalculateScore(cohort DojoCohort, progress *RequirementPro
 		count = progress.Counts[cohort]
 	}
 
+	return r.CalculateScoreCount(cohort, count)
+}
+
+// CalculateScoreCount returns the score for the given requirement based on the provided count
+// of completed units.
+func (r *Requirement) CalculateScoreCount(cohort DojoCohort, count int) float32 {
 	if r.TotalScore > 0 {
 		if count >= r.Counts[cohort] {
 			return r.TotalScore
