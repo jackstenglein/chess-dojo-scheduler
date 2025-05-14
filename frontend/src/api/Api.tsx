@@ -453,7 +453,13 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 createSupportTicket(idToken, request),
 
             getDirectory: (owner: string, id: string) => getDirectory(idToken, owner, id),
-            getDirectoryStats: (owner: string, id: string, username: string, ratingSystem: string, cohort: string) => getDirectoryStats(idToken, owner, id, username, ratingSystem, cohort),
+            getDirectoryStats: (
+                owner: string,
+                id: string,
+                username: string,
+                ratingSystem: string,
+                cohort: string,
+            ) => getDirectoryStats(idToken, owner, id, username, ratingSystem, cohort),
             listBreadcrumbs: (request: ListBreadcrumbsRequest) => listBreadcrumbs(idToken, request),
             createDirectory: (request: CreateDirectoryRequestV2Client) =>
                 createDirectory(idToken, request),

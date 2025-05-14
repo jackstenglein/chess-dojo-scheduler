@@ -1,13 +1,7 @@
 import { GameInfo } from '@/database/game';
 import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { CreateNewFolder } from '@mui/icons-material';
-import {
-    ListItemIcon,
-    ListItemText,
-    Menu,
-    MenuItem,
-    PopoverPosition,
-} from '@mui/material';
+import { ListItemIcon, ListItemText, Menu, MenuItem, PopoverPosition } from '@mui/material';
 import { useState } from 'react';
 import { AddToDirectoryDialog } from './AddToDirectoryDialog';
 
@@ -51,11 +45,7 @@ export const ListItemContextMenu = ({
                 </MenuItem>
             </Menu>
 
-            <AddToDirectoryDialog
-                open={directoryPickerOpen}
-                game={game}
-                onClose={handleClose}
-            />
+            <AddToDirectoryDialog open={directoryPickerOpen} game={game} onClose={handleClose} />
         </DirectoryCacheProvider>
     );
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useApi } from '@/api/Api';
-import { PerformanceRatingMetric } from '@/api/directoryApi';
+import { StatsApiResponse } from '@/api/directoryApi';
 import { RatingSystem } from '@/database/user';
 import {
     Box,
@@ -35,16 +35,18 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
     const [open, setOpen] = useState(false);
     const [playerName, setPlayerName] = useState('');
     const [ratingSystem, setRatingSystem] = useState(RatingSystem.Chesscom);
-    const [stats, setStats] = useState<PerformanceRatingMetric | null>(null);
+    const [stats, setStats] = useState<StatsApiResponse | null>(null);
     const [loading, setLoading] = useState(false);
 
     const handleOpen = () => {
+        setStats(null);
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
         setPlayerName('');
+        setStats(null);
         setRatingSystem(RatingSystem.Chesscom);
     };
 
@@ -68,6 +70,23 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
         } finally {
             setLoading(false);
         }
+    };
+
+    const getCohortDisplayLevel = (level: string): string => {
+        const currentCohort = parseInt(usercohort.split('-')[0]);
+        const nextCohort = parseInt(usercohort.split('-')[1]);
+        switch (level) {
+            case 'next':
+                return `${currentCohort + 100}-${nextCohort + 100}`;
+            case 'nextnext':
+                return `${currentCohort + 200}-${nextCohort + 200}`;
+            case 'pre':
+                return `${currentCohort - 100}-${nextCohort - 100}`;
+            case 'prepre':
+                return `${currentCohort - 200}-${nextCohort - 200}`;
+        }
+
+        return level;
     };
 
     return (
@@ -121,7 +140,7 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                 <Stack spacing={2}>
                                     <Box>
                                         <Typography variant='subtitle2' color='text.secondary'>
-                                            Rating Performance
+                                            {ratingSystem} Rating Performance
                                         </Typography>
                                         <Stack direction='row' spacing={3} mt={1}>
                                             <Box>
@@ -129,7 +148,9 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                     Combined
                                                 </Typography>
                                                 <Typography variant='h6'>
-                                                    {stats.combinedRating}
+                                                    {stats.performanceRating.combinedRating > 0
+                                                        ? stats.performanceRating.combinedRating
+                                                        : 'N/A'}
                                                 </Typography>
                                             </Box>
                                             <Box>
@@ -137,7 +158,9 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                     As White
                                                 </Typography>
                                                 <Typography variant='h6'>
-                                                    {stats.whiteRating}
+                                                    {stats.performanceRating.whiteRating > 0
+                                                        ? stats.performanceRating.whiteRating
+                                                        : 'N/A'}
                                                 </Typography>
                                             </Box>
                                             <Box>
@@ -145,7 +168,123 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                     As Black
                                                 </Typography>
                                                 <Typography variant='h6'>
-                                                    {stats.blackRating}
+                                                    {stats.performanceRating.blackRating > 0
+                                                        ? stats.performanceRating.blackRating
+                                                        : 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                        </Stack>
+                                    </Box>
+
+                                    <Divider />
+
+                                    <Box>
+                                        <Typography variant='subtitle2' color='text.secondary'>
+                                            Dojo Cohort Rating Performance
+                                        </Typography>
+                                        <Stack direction='row' spacing={3} mt={1}>
+                                            <Box>
+                                                <Typography variant='body2' color='text.secondary'>
+                                                    Combined
+                                                </Typography>
+                                                <Typography variant='h6'>
+                                                    {stats.performanceRating
+                                                        .normalizedCombinedRating > 0
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .normalizedCombinedRating,
+                                                          )
+                                                        : 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant='body2' color='text.secondary'>
+                                                    As White
+                                                </Typography>
+                                                <Typography variant='h6'>
+                                                    {stats.performanceRating.normalizedWhiteRating >
+                                                    0
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .normalizedWhiteRating,
+                                                          )
+                                                        : 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant='body2' color='text.secondary'>
+                                                    As Black
+                                                </Typography>
+                                                <Typography variant='h6'>
+                                                    {stats.performanceRating.normalizedBlackRating >
+                                                    0
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .normalizedBlackRating,
+                                                          )
+                                                        : 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                        </Stack>
+                                    </Box>
+
+                                    <Divider />
+
+                                    <Box>
+                                        <Typography variant='subtitle2' color='text.secondary'>
+                                            Vs Cohorts Rating Performance
+                                        </Typography>
+                                        <Stack direction='row' spacing={3} mt={1}>
+                                            <Box>
+                                                <Typography variant='body2' color='text.secondary'>
+                                                    {getCohortDisplayLevel('prepre')}
+                                                </Typography>
+                                                <Typography variant='h6'>
+                                                    {stats.performanceRating
+                                                        .prePreviousCohortRating !== undefined &&
+                                                    stats.performanceRating
+                                                        .prePreviousCohortRating > 0
+                                                        ? stats.performanceRating
+                                                              .prePreviousCohortRating
+                                                        : 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant='body2' color='text.secondary'>
+                                                    {getCohortDisplayLevel('pre')}
+                                                </Typography>
+                                                <Typography variant='h6'>
+                                                    {stats.performanceRating
+                                                        .previousCohortRating !== undefined &&
+                                                    stats.performanceRating.previousCohortRating > 0
+                                                        ? stats.performanceRating
+                                                              .previousCohortRating
+                                                        : 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant='body2' color='text.secondary'>
+                                                    {getCohortDisplayLevel('next')}
+                                                </Typography>
+                                                <Typography variant='h6'>
+                                                    {stats.performanceRating.nextCohortRating !==
+                                                        undefined &&
+                                                    stats.performanceRating.nextCohortRating > 0
+                                                        ? stats.performanceRating.nextCohortRating
+                                                        : 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant='body2' color='text.secondary'>
+                                                    {getCohortDisplayLevel('nextnext')}
+                                                </Typography>
+                                                <Typography variant='h6'>
+                                                    {stats.performanceRating
+                                                        .nextNextCohortRating !== undefined &&
+                                                    stats.performanceRating.nextNextCohortRating > 0
+                                                        ? stats.performanceRating
+                                                              .nextNextCohortRating
+                                                        : 'N/A'}
                                                 </Typography>
                                             </Box>
                                         </Stack>
@@ -163,7 +302,13 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                     Wins
                                                 </Typography>
                                                 <Typography variant='h6' color='success.main'>
-                                                    {stats.winRatio}%
+                                                    {stats.performanceRating.winRatio !== undefined
+                                                        ? Math.round(
+                                                              stats.performanceRating.winRatio *
+                                                                  100,
+                                                          )
+                                                        : 'N/A'}
+                                                    %
                                                 </Typography>
                                             </Box>
                                             <Box>
@@ -171,7 +316,13 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                     Draws
                                                 </Typography>
                                                 <Typography variant='h6' color='info.main'>
-                                                    {stats.drawRatio}%
+                                                    {stats.performanceRating.drawRatio !== undefined
+                                                        ? Math.round(
+                                                              stats.performanceRating.drawRatio *
+                                                                  100,
+                                                          )
+                                                        : 'N/A'}
+                                                    %
                                                 </Typography>
                                             </Box>
                                             <Box>
@@ -179,7 +330,13 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                     Losses
                                                 </Typography>
                                                 <Typography variant='h6' color='error.main'>
-                                                    {stats.lossRatio}%
+                                                    {stats.performanceRating.lossRatio !== undefined
+                                                        ? Math.round(
+                                                              stats.performanceRating.lossRatio *
+                                                                  100,
+                                                          )
+                                                        : 'N/A'}
+                                                    %
                                                 </Typography>
                                             </Box>
                                         </Stack>
