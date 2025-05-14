@@ -82,10 +82,10 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     setView,
 }) => {
     const api = useApi();
-    const { onNewEntry } = useTimelineContext();
+    const { entries, onNewEntry } = useTimelineContext();
 
     const totalCount = requirement.counts[cohort] || 0;
-    const currentCount = getCurrentCount(cohort, requirement, progress);
+    const currentCount = getCurrentCount({ cohort, requirement, progress, timeline: entries });
 
     const [value, setValue] = useState<number>(currentCount);
     const [markComplete, setMarkComplete] = useState(true);
@@ -105,7 +105,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
         requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox;
     const isSlider =
         requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
-        requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
+        requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified ||
+        requirement.scoreboardDisplay === ScoreboardDisplay.Yearly;
     const isNonDojo = requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo;
     const isMinutes = requirement.scoreboardDisplay === ScoreboardDisplay.Minutes;
 

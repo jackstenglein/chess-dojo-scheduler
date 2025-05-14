@@ -61,11 +61,12 @@ export function EditTimelinEntryDialog({
         entry.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
     const progress = user?.progress[entry.requirementId];
-    const currentCount = getCurrentCount(
-        entry.cohort,
-        requirement || user?.customTasks?.find((t) => t.id === entry.requirementId),
+    const currentCount = getCurrentCount({
+        cohort: entry.cohort,
+        requirement: requirement || user?.customTasks?.find((t) => t.id === entry.requirementId),
         progress,
-    );
+        timeline: timeline.entries,
+    });
     const currentMinutes = progress?.minutesSpent[entry.cohort] ?? 0;
     const totalCount =
         currentCount + (parseInt(count || '0') - (entry.newCount - entry.previousCount));

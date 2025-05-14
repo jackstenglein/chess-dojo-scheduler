@@ -23,10 +23,11 @@ const (
 	Checkbox    ScoreboardDisplay = "CHECKBOX"
 	ProgressBar ScoreboardDisplay = "PROGRESS_BAR"
 	NonDojo     ScoreboardDisplay = "NON_DOJO"
+	Yearly      ScoreboardDisplay = "YEARLY"
 )
 
 func (s ScoreboardDisplay) IsValid() bool {
-	return s == Hidden || s == Checkbox || s == ProgressBar || s == NonDojo
+	return s == Hidden || s == Checkbox || s == ProgressBar || s == NonDojo || s == Yearly
 }
 
 type Task interface {

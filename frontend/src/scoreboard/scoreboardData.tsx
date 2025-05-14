@@ -80,11 +80,15 @@ export function getColumnDefinition(
     const totalCount = requirement.counts[cohort] || 0;
 
     const valueGetter = (_value: never, row: ScoreboardRow) => {
-        return getCurrentCount(cohort, requirement, getProgress(row)[requirement.id]);
+        return getCurrentCount({ cohort, requirement, progress: getProgress(row)[requirement.id] });
     };
 
     const renderCell = (params: GridRenderCellParams<ScoreboardRow>) => {
-        const score = getCurrentCount(cohort, requirement, getProgress(params.row)[requirement.id]);
+        const score = getCurrentCount({
+            cohort,
+            requirement,
+            progress: getProgress(params.row)[requirement.id],
+        });
         switch (requirement.scoreboardDisplay) {
             case ScoreboardDisplay.Checkbox:
                 return (
