@@ -68,6 +68,9 @@ export enum ScoreboardDisplay {
 
     /** The requirement is a non-dojo task. */
     NonDojo = 'NON_DOJO',
+
+    /** The requirement is a yearly task. */
+    Yearly = 'YEARLY',
 }
 
 /** The categories of a requirement. */
@@ -80,4 +83,6 @@ export enum RequirementCategory {
     Opening = 'Opening',
     Graduation = 'Graduation',
     NonDojo = 'Non-Dojo',
+    SuggestedTasks = 'Suggested Tasks',
+    Pinned = 'Pinned Tasks',
 }

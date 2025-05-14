@@ -4,6 +4,7 @@ import { useAuth } from '@/auth/Auth';
 import { CustomTask, Requirement } from '@/database/requirement';
 import { ALL_COHORTS, User, WeeklyPlan, WorkGoalSettings } from '@/database/user';
 import { useEffect, useMemo } from 'react';
+import { useTimelineContext } from '../activity/useTimeline';
 import { SuggestedTask, TaskSuggestionAlgorithm } from './suggestedTasks';
 
 /**
@@ -52,10 +53,15 @@ export function useWeeklyTrainingPlan(user: User) {
     const api = useApi();
     const trainingPlan = useTrainingPlan(user);
     const { pinnedTasks, requirements, isCurrentUser } = trainingPlan;
+    const { entries: timeline } = useTimelineContext();
 
     const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt, nextGame } =
         useMemo(() => {
-            const result = new TaskSuggestionAlgorithm(user, requirements).getWeeklySuggestions();
+            const result = new TaskSuggestionAlgorithm(
+                user,
+                requirements,
+                timeline,
+            ).getWeeklySuggestions();
 
             const weekSuggestions: SuggestedTask[] = [];
             for (const day of result.suggestionsByDay) {
@@ -70,7 +76,7 @@ export function useWeeklyTrainingPlan(user: User) {
             }
 
             return { ...result, weekSuggestions };
-        }, [user, requirements]);
+        }, [user, requirements, timeline]);
 
     const savedPlan = user.weeklyPlan;
     const isLoading = requirements.length === 0;

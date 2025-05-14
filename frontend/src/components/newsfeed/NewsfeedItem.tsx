@@ -84,6 +84,7 @@ const NewsfeedItemBody: React.FC<Omit<NewsfeedItemProps, 'onEdit'>> = ({ entry }
     const isComplete = entry.newCount >= entry.totalCount;
     const isSlider =
         entry.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
+        entry.scoreboardDisplay === ScoreboardDisplay.Yearly ||
         entry.scoreboardDisplay === ScoreboardDisplay.Minutes ||
         entry.scoreboardDisplay === ScoreboardDisplay.Unspecified;
 

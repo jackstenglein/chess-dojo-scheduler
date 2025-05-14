@@ -33,6 +33,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { useTimelineContext } from '../activity/useTimeline';
 import CustomTaskEditor from './CustomTaskEditor';
 
 export enum TaskDialogView {
@@ -156,6 +157,7 @@ type DetailsDialogProps = Pick<TaskDialogProps, 'task' | 'onClose' | 'cohort'> &
 
 function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
     const { user } = useAuth();
+    const { entries: timeline } = useTimelineContext();
     const [showEditor, setShowEditor] = useState(false);
     const [showDeleter, setShowDeleter] = useState(false);
     const isFreeTier = useFreeTier();
@@ -197,7 +199,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
             if (
                 blocker &&
                 selectedCohort &&
-                !isComplete(selectedCohort, blocker, user?.progress[blockerId])
+                !isComplete(selectedCohort, blocker, user?.progress[blockerId], timeline)
             ) {
                 return {
                     isBlocked: true,
@@ -206,7 +208,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
             }
         }
         return { isBlocked: false };
-    }, [task, requirements, selectedCohort, user]);
+    }, [task, requirements, selectedCohort, user, timeline]);
 
     if (!selectedCohort) {
         return null;
