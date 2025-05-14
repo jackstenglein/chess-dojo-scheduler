@@ -36,7 +36,7 @@ export function Features() {
                         <Stack sx={{ my: '2.5rem', gap: '1.25rem' }}>
                             {trainingPlanBulletPoints.map((bp) => (
                                 <BulletPoint
-                                    key={bp.title}
+                                    key={bp.description}
                                     {...bp}
                                     slotProps={{
                                         description: { mt: '-0.25rem' },

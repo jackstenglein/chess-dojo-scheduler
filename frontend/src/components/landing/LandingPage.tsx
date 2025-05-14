@@ -46,7 +46,7 @@ export const LandingPage = () => {
     }
 
     return (
-        <Box sx={{ '--stats-height': '110px' }}>
+        <Box sx={{ '--stats-height': '100px' }}>
             <MainLanding />
             <Features />
             <TestimonialSection />

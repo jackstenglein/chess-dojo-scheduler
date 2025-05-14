@@ -35,7 +35,7 @@ export function MainLanding() {
                     sx={{
                         alignItems: 'center',
                         height: {
-                            md: 'calc(100vh - var(--navbar-height) - var(--stats-height) - 40px)',
+                            md: 'max(100vh - var(--navbar-height) - var(--stats-height) - 40px, 470px)',
                         },
                         mt: {
                             xs: 1,
