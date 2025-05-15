@@ -285,6 +285,7 @@ export function getPerformanceRating(
     const oppWhiteAvgRating: number[] = [];
 
     const currentCohortStart = parseInt(playerCohort.split('-')[0]);
+    const checkPlayerName = playername.toLowerCase();
 
     userDirectory.itemIds.forEach((currentId) => {
         const currentItem = userDirectory.items[currentId];
@@ -331,11 +332,11 @@ export function getPerformanceRating(
             }
         };
 
-        if (white.includes(playername)) {
+        if (white.includes(checkPlayerName)) {
             if (result === "1-0") updateStats(true, false, true, blackElo);
             else if (result === "0-1") updateStats(false, false, true, blackElo);
             else if (result === "1/2-1/2") updateStats(false, true, true, blackElo);
-        } else if (black.includes(playername)) {
+        } else if (black.includes(checkPlayerName)) {
             if (result === "0-1") updateStats(true, false, false, whiteElo);
             else if (result === "1-0") updateStats(false, false, false, whiteElo);
             else if (result === "1/2-1/2") updateStats(false, true, false, whiteElo);
