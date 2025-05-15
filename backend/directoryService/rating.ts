@@ -130,13 +130,10 @@ function convertQueryParamToRatingSystem(query: string): RatingSystem {
 
 interface PerformanceRatingMetric {
     combinedRating: number,
-    combinedScorePercent: number,
     normalizedCombinedRating: number,
     whiteRating: number,
-    whiteScorePercent: number,
     normalizedWhiteRating: number,
     blackRating: number,
-    blackScorePercent: number,
     normalizedBlackRating: number,
     winRatio: number,
     drawRatio: number, 
@@ -283,7 +280,7 @@ export function getPerformanceRating(
         nextNextCohort: [],
     };
 
-    const oppAvgRating: number[] = [];
+   
     const oppBlackAvgRating: number[] = [];
     const oppWhiteAvgRating: number[] = [];
 
@@ -320,7 +317,6 @@ export function getPerformanceRating(
                 cohortWDLCounts[cohortKey][isWin ? 0 : isDraw ? 1 : 2]++;
             }
 
-            oppAvgRating.push(rating);
             (isWhite ? oppBlackAvgRating : oppWhiteAvgRating).push(rating);
 
             if (isWin) {
@@ -346,16 +342,13 @@ export function getPerformanceRating(
         }
     });
 
-    if (total === 0 || oppAvgRating.length === 0) {
+    if (total === 0) {
         return {
             combinedRating: 0,
-            combinedScorePercent: 0,
             normalizedCombinedRating: 0,
             whiteRating: 0,
-            whiteScorePercent: 0,
             normalizedWhiteRating: 0,
             blackRating: 0,
-            blackScorePercent: 0,
             normalizedBlackRating: 0,
             winRatio: 0,
             drawRatio: 0,
@@ -371,7 +364,6 @@ export function getPerformanceRating(
     const calculateAverage = (ratings: number[]) =>
         Math.round(ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length);
 
-    const totalAvg = calculateAverage(oppAvgRating);
     const totalWhiteAvg = calculateAverage(oppBlackAvgRating);
     const totalBlackAvg = calculateAverage(oppWhiteAvgRating);
 
@@ -391,23 +383,35 @@ export function getPerformanceRating(
     const calculateRating = (avg: number, scorePercent: number) =>
         avg + fideDpTable[scorePercent];
 
+    const whiteRating =  calculateRating(totalWhiteAvg, totalWhiteScorePercent);
+    const blackRating = calculateRating(totalBlackAvg, totalBlackScorePercent);
+    const combinedRating = Math.round((whiteRating + blackRating)/2);
+    const combinedNormalRating = getNormalizedRating(combinedRating, ratingSystem);
+    const normalizedWhiteRating = getNormalizedRating(whiteRating, ratingSystem);
+    const normalizedBlackRating = getNormalizedRating(blackRating, ratingSystem);
+    const winRatio = Math.round(parseFloat((wins / total).toFixed(2)) * 100);
+    const drawRatio = Math.round(parseFloat((draws / total).toFixed(2)) * 100);
+    const lossRatio = Math.round(parseFloat((losses / total).toFixed(2)) * 100);
+    const equalCohortRating = calculateRating(totalEqualCohortAvg, totalScorePercent);
+    const previousCohortRating =  calculateRating(totalPreviousCohortAvg, totalScorePercent);
+    const  prePreviousCohortRating = calculateRating(totalPrePreviousCohortAvg, totalScorePercent);
+    const nextCohortRating = calculateRating(totalNextCohortAvg, totalScorePercent)
+    const nextNextCohortRating = calculateRating(totalNextNextCohortAvg, totalScorePercent)
+
     return {
-        combinedRating: calculateRating(totalAvg, totalScorePercent),
-        combinedScorePercent: totalScorePercent,
-        normalizedCombinedRating: getNormalizedRating(calculateRating(totalAvg, totalScorePercent), ratingSystem),
-        whiteRating: calculateRating(totalWhiteAvg, totalWhiteScorePercent),
-        whiteScorePercent: totalWhiteScorePercent,
-        normalizedWhiteRating: getNormalizedRating(calculateRating(totalWhiteAvg, totalWhiteScorePercent), ratingSystem),
-        blackRating: calculateRating(totalBlackAvg, totalBlackScorePercent),
-        blackScorePercent: totalBlackScorePercent,
-        normalizedBlackRating: getNormalizedRating(calculateRating(totalBlackAvg, totalBlackScorePercent), ratingSystem),
-        winRatio: parseFloat((wins / total).toFixed(2)),
-        drawRatio: parseFloat((draws / total).toFixed(2)),
-        lossRatio: parseFloat((losses / total).toFixed(2)),
-        equalCohortRating: calculateRating(totalEqualCohortAvg, totalScorePercent),
-        previousCohortRating: calculateRating(totalPreviousCohortAvg, totalScorePercent),
-        prePreviousCohortRating: calculateRating(totalPrePreviousCohortAvg, totalScorePercent),
-        nextCohortRating: calculateRating(totalNextCohortAvg, totalScorePercent),
-        nextNextCohortRating: calculateRating(totalNextNextCohortAvg, totalScorePercent),
+        combinedRating: combinedRating,
+        normalizedCombinedRating: combinedNormalRating,
+        whiteRating: whiteRating,
+        normalizedWhiteRating: normalizedWhiteRating,
+        blackRating: blackRating,
+        normalizedBlackRating: normalizedBlackRating,
+        winRatio: winRatio,
+        drawRatio: drawRatio,
+        lossRatio: lossRatio,
+        equalCohortRating: equalCohortRating,
+        previousCohortRating: previousCohortRating,
+        prePreviousCohortRating: prePreviousCohortRating,
+        nextCohortRating: nextCohortRating,
+        nextNextCohortRating: nextNextCohortRating,
     };
 }
