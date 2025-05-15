@@ -397,6 +397,14 @@ function ExpirationChip({ requirement }: { requirement: Requirement }) {
         return null;
     }
 
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Yearly) {
+        return (
+            <Tooltip title='Activity logged on this task expires after 1 year'>
+                <Chip color='secondary' icon={<AccessAlarm />} label='1 year' />
+            </Tooltip>
+        );
+    }
+
     if (requirement.expirationDays < 0) {
         return null;
     }
@@ -429,7 +437,10 @@ const RepeatChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => 
     let title = '';
     let label = '';
 
-    if (requirement.numberOfCohorts === -1) {
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Yearly) {
+        title = 'Progress on this task carries over to other cohorts';
+        label = 'Progress Carries Over';
+    } else if (requirement.numberOfCohorts === -1) {
         title = 'Progress on this task resets across each cohort';
         label = 'Progress Resets';
     } else if (requirement.numberOfCohorts === 1 || requirement.numberOfCohorts === 0) {

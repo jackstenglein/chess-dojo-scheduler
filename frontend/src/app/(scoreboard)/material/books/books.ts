@@ -626,7 +626,7 @@ export const sections: BookSection[] = [
                     {
                         title: 'Checkmate Patterns Manual',
                         author: 'CraftyRaf',
-                        link: 'https://www.chessable.com/the-checkmate-patterns-manual/course/17841/',
+                        link: 'https://www.chessable.com/the-checkmate-patterns-manual/course/243265/',
                     },
                     {
                         title: 'Quality Chess Puzzle Book',
