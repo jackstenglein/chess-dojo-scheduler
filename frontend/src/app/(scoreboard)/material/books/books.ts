@@ -658,21 +658,20 @@ export const sections: BookSection[] = [
             {
                 cohort: '1800-1900',
                 books: [
-                    // TODO
                     {
                         title: 'Chess: 5334 Problems, Combinations & Games',
                         author: 'Laszlo Polgar',
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Endgame Studies 101',
-                        author: 'Kostya Kavutskiy',
-                        link: 'https://www.chessable.com/endgame-studies-101/course/81472/',
+                        title: '1001 Chess Exercises for Club Players',
+                        author: 'Frank Erwich',
+                        link: 'https://amzn.to/3Ue8AMA',
                     },
                     {
-                        title: 'Woodpecker Method',
-                        author: 'Axel Smith & Hans Tikkanen',
-                        link: 'https://amzn.to/3FuI0bR',
+                        title: 'Chess Tactics From Scratch',
+                        author: 'Martin Weteschnik',
+                        link: 'https://amzn.to/3YvXB1l',
                     },
                     {
                         title: 'Think Like a Super-GM',
