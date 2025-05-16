@@ -175,9 +175,8 @@ export default function CustomTasks() {
                 </Stack>
 
                 <Typography mt={4}>
-                    That's all for now! Shout-out to site architect JackStenglein (C, L, -5) 🫡
-                    Reminder that you can use code DOJO at checkout to get 40% off your first month
-                    at{' '}
+                    That's all for now! Reminder that you can use code DOJO at checkout to get 40%
+                    off your first month at{' '}
                     <Link href='https://chessdojo.club/' target='_blank'>
                         chessdojo.club.
                     </Link>

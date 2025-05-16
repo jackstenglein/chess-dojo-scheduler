@@ -179,6 +179,21 @@
         <lastmod>2025-02-15</lastmod>
     </url>
 
+    <url>
+        <loc>https://www.chessdojo.club/blog/dojo-digest/vol-18</loc>
+        <lastmod>2025-05-16</lastmod>
+    </url>
+
+    <url>
+        <loc>https://www.chessdojo.club/blog/dojo-digest/vol-19</loc>
+        <lastmod>2025-05-16</lastmod>
+    </url>
+
+    <url>
+        <loc>https://www.chessdojo.club/blog/dojo-digest/vol-20</loc>
+        <lastmod>2025-05-16</lastmod>
+    </url>
+
     <!-- Player Spotlight -->
     <url>
         <loc>https://www.chessdojo.club/blog/player-spotlight/lifecanbesonice</loc>
@@ -233,5 +248,9 @@
     <url>
         <loc>https://www.chessdojo.club/blog/dojo-blog/custom-tasks</loc>
         <lastmod>2025-02-15</lastmod>
+    </url>
+    <url>
+        <loc>https://www.chessdojo.club/blog/dojo-blog/4-0</loc>
+        <lastmod>2025-05-16</lastmod>
     </url>
 </urlset>
