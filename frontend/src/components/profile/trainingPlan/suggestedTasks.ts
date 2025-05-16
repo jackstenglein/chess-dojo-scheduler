@@ -13,6 +13,7 @@ import {
     isComplete,
     isRequirement,
 } from '@/database/requirement';
+import { TimelineEntry } from '@/database/timeline';
 import {
     ALL_COHORTS,
     GameScheduleEntry,
@@ -55,7 +56,7 @@ export interface WeeklySuggestedTasks {
 }
 
 /** The id of the play classical games task. */
-const CLASSICAL_GAMES_TASK_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
+export const CLASSICAL_GAMES_TASK_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
 
 /** The id of the annotate classical games task. */
 const ANNOTATE_GAMES_TASK_ID = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
@@ -126,11 +127,12 @@ function getRemainingSuggestionScore(
     cohort: string,
     requirement: Requirement,
     progress: RequirementProgress,
+    timeline: TimelineEntry[],
 ): number {
     if (requirement.atomic) {
         return getTotalScore(cohort, [requirement]);
     }
-    return getRemainingScore(cohort, requirement, progress);
+    return getRemainingScore(cohort, requirement, progress, timeline);
 }
 
 enum SuggestedTaskGenerationReason {
@@ -145,13 +147,15 @@ export class TaskSuggestionAlgorithm {
     private readonly requirements: Requirement[];
     private readonly customTasks: CustomTask[];
     private readonly pinnedTasks: Task[];
+    private readonly timeline: TimelineEntry[];
 
     private user: User;
     private timePerTask: Record<string, number> = {};
 
-    constructor(user: User, requirements: Requirement[]) {
+    constructor(user: User, requirements: Requirement[], timeline: TimelineEntry[]) {
         this.user = JSON.parse(JSON.stringify(user)) as User;
         this.requirements = requirements;
+        this.timeline = timeline;
         this.customTasks = this.user.customTasks ?? [];
         this.pinnedTasks =
             this.user.pinnedTasks
@@ -406,7 +410,12 @@ export class TaskSuggestionAlgorithm {
             return suggestedTasks;
         }
 
-        const eligibleRequirements = getEligibleTasks(suggestedTasks, this.requirements, this.user);
+        const eligibleRequirements = getEligibleTasks(
+            suggestedTasks,
+            this.requirements,
+            this.user,
+            this.timeline,
+        );
         if (eligibleRequirements.length === 0) {
             return suggestedTasks;
         }
@@ -418,6 +427,7 @@ export class TaskSuggestionAlgorithm {
                 this.user.dojoCohort,
                 category,
                 this.requirements,
+                this.timeline,
             ),
         })).sort((lhs, rhs) => rhs.percent - lhs.percent);
 
@@ -447,11 +457,13 @@ export class TaskSuggestionAlgorithm {
                                 this.user.dojoCohort,
                                 rhs,
                                 this.user.progress[rhs.id],
+                                this.timeline,
                             ) -
                             getRemainingSuggestionScore(
                                 this.user.dojoCohort,
                                 lhs,
                                 this.user.progress[lhs.id],
+                                this.timeline,
                             ),
                     );
 
@@ -489,7 +501,12 @@ export class TaskSuggestionAlgorithm {
  * @param user The user to suggest tasks for.
  * @returns A subset of requirements that are eligible to be suggested to the user.
  */
-function getEligibleTasks(suggestedTasks: Task[], requirements: Requirement[], user: User) {
+function getEligibleTasks(
+    suggestedTasks: Task[],
+    requirements: Requirement[],
+    user: User,
+    timeline: TimelineEntry[],
+) {
     const isFreeUser = isFree(user);
     let eligibleRequirements = requirements.filter(
         (r) =>
@@ -506,12 +523,18 @@ function getEligibleTasks(suggestedTasks: Task[], requirements: Requirement[], u
     if (
         annotateTask &&
         classicalGamesTask &&
-        getCurrentCount(user.dojoCohort, annotateTask, user.progress[ANNOTATE_GAMES_TASK_ID]) >=
-            getCurrentCount(
-                user.dojoCohort,
-                classicalGamesTask,
-                user.progress[CLASSICAL_GAMES_TASK_ID],
-            )
+        getCurrentCount({
+            cohort: user.dojoCohort,
+            requirement: annotateTask,
+            progress: user.progress[ANNOTATE_GAMES_TASK_ID],
+            timeline,
+        }) >=
+            getCurrentCount({
+                cohort: user.dojoCohort,
+                requirement: classicalGamesTask,
+                progress: user.progress[CLASSICAL_GAMES_TASK_ID],
+                timeline,
+            })
     ) {
         // If the user is already caught up on annotations, then do not suggest that
         // they annotate a game.

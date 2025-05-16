@@ -6,7 +6,10 @@ import axios from 'axios';
 import { Browser, BrowserErrorCaptureEnum } from 'happy-dom';
 import moment from 'moment';
 
-const chesscomGameRegex = new RegExp('/game/(live|daily)/(\\d+)');
+const chesscomGameRegexes = [
+    new RegExp('/game/(live|daily)/(\\d+)'),
+    new RegExp('/(live|daily)/game/(\\d+)'),
+];
 const chesscomEventRegex = new RegExp('/events/(.*)');
 
 export interface PgnImportError {
@@ -327,7 +330,16 @@ export async function getChesscomAnalysis(url?: string): Promise<PgnImportResult
  * @returns The PGN of the game.
  */
 export async function getChesscomGame(gameURL?: string): Promise<PgnImportResult<string>> {
-    const [, gameType, gameId] = (gameURL ?? '').match(chesscomGameRegex) ?? [];
+    let gameType: string | undefined = undefined;
+    let gameId: string | undefined = undefined;
+
+    for (const regex of chesscomGameRegexes) {
+        [, gameType, gameId] = (gameURL ?? '').match(regex) ?? [];
+        if (gameType && gameId) {
+            break;
+        }
+    }
+
     if (!gameType || !gameId) {
         return {
             error: {

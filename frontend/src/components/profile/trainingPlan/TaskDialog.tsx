@@ -33,6 +33,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { useTimelineContext } from '../activity/useTimeline';
 import CustomTaskEditor from './CustomTaskEditor';
 
 export enum TaskDialogView {
@@ -156,6 +157,7 @@ type DetailsDialogProps = Pick<TaskDialogProps, 'task' | 'onClose' | 'cohort'> &
 
 function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
     const { user } = useAuth();
+    const { entries: timeline } = useTimelineContext();
     const [showEditor, setShowEditor] = useState(false);
     const [showDeleter, setShowDeleter] = useState(false);
     const isFreeTier = useFreeTier();
@@ -197,7 +199,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
             if (
                 blocker &&
                 selectedCohort &&
-                !isComplete(selectedCohort, blocker, user?.progress[blockerId])
+                !isComplete(selectedCohort, blocker, user?.progress[blockerId], timeline)
             ) {
                 return {
                     isBlocked: true,
@@ -206,7 +208,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
             }
         }
         return { isBlocked: false };
-    }, [task, requirements, selectedCohort, user]);
+    }, [task, requirements, selectedCohort, user, timeline]);
 
     if (!selectedCohort) {
         return null;
@@ -395,6 +397,14 @@ function ExpirationChip({ requirement }: { requirement: Requirement }) {
         return null;
     }
 
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Yearly) {
+        return (
+            <Tooltip title='Activity logged on this task expires after 1 year'>
+                <Chip color='secondary' icon={<AccessAlarm />} label='1 year' />
+            </Tooltip>
+        );
+    }
+
     if (requirement.expirationDays < 0) {
         return null;
     }
@@ -427,7 +437,10 @@ const RepeatChip: React.FC<{ requirement: Requirement }> = ({ requirement }) => 
     let title = '';
     let label = '';
 
-    if (requirement.numberOfCohorts === -1) {
+    if (requirement.scoreboardDisplay === ScoreboardDisplay.Yearly) {
+        title = 'Progress on this task carries over to other cohorts';
+        label = 'Progress Carries Over';
+    } else if (requirement.numberOfCohorts === -1) {
         title = 'Progress on this task resets across each cohort';
         label = 'Progress Resets';
     } else if (requirement.numberOfCohorts === 1 || requirement.numberOfCohorts === 0) {

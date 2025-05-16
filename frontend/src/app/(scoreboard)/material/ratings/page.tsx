@@ -12,8 +12,14 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
+import { Metadata } from 'next';
 
 const { Custom, Custom2, Custom3, ...others } = RatingSystem;
+
+export const metadata: Metadata = {
+    title: 'ChessDojo Rating Converter',
+    description: `Convert your ratings between FIDE, USCF, Chess.com, Lichess, and more.`,
+};
 
 export default function RatingConversionsPage() {
     const ratingSystems = Object.values(others);

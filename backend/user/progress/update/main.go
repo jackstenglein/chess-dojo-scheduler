@@ -20,7 +20,8 @@ var repository database.UserProgressUpdater = database.DynamoDB
 type ProgressUpdateRequest struct {
 	RequirementId           string              `json:"requirementId"`
 	Cohort                  database.DojoCohort `json:"cohort"`
-	IncrementalCount        int                 `json:"incrementalCount"`
+	PreviousCount           int                 `json:"previousCount"`
+	NewCount                int                 `json:"newCount"`
 	IncrementalMinutesSpent int                 `json:"incrementalMinutesSpent"`
 	Date                    string              `json:"date"`
 	Notes                   string              `json:"notes"`
@@ -46,6 +47,14 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
+	if strings.HasSuffix(event.RawPath, "/v3") {
+		return handlerV3(info, event)
+	}
+
+	return api.Failure(errors.New(400, "You are using an outdated version of the website. Please refresh and try again", "")), nil
+}
+
+func handlerV3(info *api.UserInfo, event api.Request) (api.Response, error) {
 	request := &ProgressUpdateRequest{}
 	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
 		return api.Failure(errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)), nil
@@ -97,17 +106,10 @@ func handleTask(event api.Request, request *ProgressUpdateRequest, user *databas
 		progress.Counts = make(map[database.DojoCohort]int)
 	}
 
-	originalScore := task.CalculateScore(request.Cohort, progress)
-
-	var originalCount int
-	if task.IsExpired(progress) {
-		originalCount = 0
-	} else if task.GetNumberOfCohorts() == 1 || task.GetNumberOfCohorts() == 0 {
-		originalCount = progress.Counts[database.AllCohorts]
-		progress.Counts[database.AllCohorts] += request.IncrementalCount
+	if task.GetNumberOfCohorts() == 1 || task.GetNumberOfCohorts() == 0 {
+		progress.Counts[database.AllCohorts] = request.NewCount
 	} else {
-		originalCount = progress.Counts[request.Cohort]
-		progress.Counts[request.Cohort] += request.IncrementalCount
+		progress.Counts[request.Cohort] = request.NewCount
 	}
 	progress.MinutesSpent[request.Cohort] += request.IncrementalMinutesSpent
 
@@ -125,7 +127,8 @@ func handleTask(event api.Request, request *ProgressUpdateRequest, user *databas
 		}
 	}
 
-	newScore := task.CalculateScore(request.Cohort, progress)
+	originalScore := task.CalculateScoreCount(request.Cohort, request.PreviousCount)
+	newScore := task.CalculateScoreCount(request.Cohort, request.NewCount)
 
 	timelineEntry := &database.TimelineEntry{
 		TimelineEntryKey: database.TimelineEntryKey{
@@ -141,8 +144,8 @@ func handleTask(event api.Request, request *ProgressUpdateRequest, user *databas
 		ProgressBarSuffix:   task.GetProgressBarSuffix(),
 		Cohort:              request.Cohort,
 		TotalCount:          totalCount,
-		PreviousCount:       originalCount,
-		NewCount:            originalCount + request.IncrementalCount,
+		PreviousCount:       request.PreviousCount,
+		NewCount:            request.NewCount,
 		DojoPoints:          newScore - originalScore,
 		TotalDojoPoints:     newScore,
 		MinutesSpent:        request.IncrementalMinutesSpent,
@@ -161,8 +164,5 @@ func handleTask(event api.Request, request *ProgressUpdateRequest, user *databas
 		return api.Failure(err), nil
 	}
 
-	if strings.Contains(event.RawPath, "/v2") {
-		return api.Success(ProgressUpdateResponse{User: user, TimelineEntry: timelineEntry}), nil
-	}
-	return api.Success(user), nil
+	return api.Success(ProgressUpdateResponse{User: user, TimelineEntry: timelineEntry}), nil
 }

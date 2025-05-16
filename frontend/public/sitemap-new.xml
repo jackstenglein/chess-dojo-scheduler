@@ -109,12 +109,17 @@
 
     <url>
         <loc>https://www.chessdojo.club/material/books</loc>
-        <lastmod>2024-05-08</lastmod>
+        <lastmod>2025-05-15</lastmod>
     </url>
 
     <url>
         <loc>https://www.chessdojo.club/material/ratings</loc>
-        <lastmod>2024-05-08</lastmod>
+        <lastmod>2025-05-15</lastmod>
+    </url>
+
+    <url>
+        <loc>https://www.chessdojo.club/material/bots</loc>
+        <lastmod>2025-05-15</lastmod>
     </url>
 
     <!-- Blog -->

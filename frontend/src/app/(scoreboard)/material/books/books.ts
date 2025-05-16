@@ -156,11 +156,21 @@ export const sections: BookSection[] = [
                         author: 'Irving Chernev',
                         link: 'https://amzn.to/41XE8ta',
                     },
+                    {
+                        title: 'Mastering Time in Chess',
+                        author: 'Jesse Kraai',
+                        link: 'https://www.chessable.com/mastering-time-in-chess/course/277570/',
+                    },
                 ],
             },
             {
                 cohort: '1100-1200',
                 books: [
+                    {
+                        title: 'Mastering Time in Chess',
+                        author: 'Jesse Kraai',
+                        link: 'https://www.chessable.com/mastering-time-in-chess/course/277570/',
+                    },
                     {
                         title: 'Most Instructive Games',
                         author: 'Irving Chernev',
@@ -171,6 +181,11 @@ export const sections: BookSection[] = [
             {
                 cohort: '1200-1300',
                 books: [
+                    {
+                        title: 'Mastering Time in Chess',
+                        author: 'Jesse Kraai',
+                        link: 'https://www.chessable.com/mastering-time-in-chess/course/277570/',
+                    },
                     {
                         title: 'Modern Ideas in Chess',
                         author: 'Richard Reti',
@@ -220,6 +235,11 @@ export const sections: BookSection[] = [
                         title: 'How to Reassess Your Chess',
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Lfqfk6',
+                    },
+                    {
+                        title: 'Art of Attack in Chess',
+                        author: 'Vladimir Vukovic',
+                        link: 'https://amzn.to/3SYIw7c',
                     },
                 ],
             },
@@ -280,6 +300,11 @@ export const sections: BookSection[] = [
                         title: 'Tal-Botvinnik 1960',
                         author: 'Mikhail Tal',
                         link: 'https://amzn.to/3F7taHI',
+                    },
+                    {
+                        title: 'Seven Deadly Chess Sins',
+                        author: 'Jonathan Rowson',
+                        link: 'https://amzn.to/3F8P39T',
                     },
                 ],
             },
@@ -584,7 +609,7 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Chess Tactics From Scratch',
+                        title: 'Chess Tactics From Scratch (skip 5-star problems)',
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
                     },
@@ -599,14 +624,14 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Chess Tactics From Scratch',
-                        author: 'Martin Weteschnik',
-                        link: 'https://amzn.to/3YvXB1l',
-                    },
-                    {
                         title: 'Checkmate Patterns Manual',
                         author: 'CraftyRaf',
-                        link: 'https://www.chessable.com/the-checkmate-patterns-manual/course/17841/',
+                        link: 'https://www.chessable.com/the-checkmate-patterns-manual/course/243265/',
+                    },
+                    {
+                        title: 'Quality Chess Puzzle Book',
+                        author: 'John Shaw',
+                        link: 'https://amzn.to/3ZgfDI0',
                     },
                 ],
             },
@@ -619,14 +644,14 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Chess Tactics From Scratch',
-                        author: 'Martin Weteschnik',
-                        link: 'https://amzn.to/3YvXB1l',
-                    },
-                    {
                         title: 'Endgame Studies 101',
                         author: 'Kostya Kavutskiy',
                         link: 'https://www.chessable.com/endgame-studies-101/course/81472/',
+                    },
+                    {
+                        title: 'Forcing Chess Moves',
+                        author: 'Charles Hertan',
+                        link: 'https://amzn.to/3SyZ1aC',
                     },
                 ],
             },
@@ -639,14 +664,19 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Endgame Studies 101',
-                        author: 'Kostya Kavutskiy',
-                        link: 'https://www.chessable.com/endgame-studies-101/course/81472/',
+                        title: '1001 Chess Exercises for Club Players',
+                        author: 'Frank Erwich',
+                        link: 'https://amzn.to/3Ue8AMA',
                     },
                     {
-                        title: 'Woodpecker Method',
-                        author: 'Axel Smith & Hans Tikkanen',
-                        link: 'https://amzn.to/3FuI0bR',
+                        title: 'Chess Tactics From Scratch (5-star problems)',
+                        author: 'Martin Weteschnik',
+                        link: 'https://amzn.to/3YvXB1l',
+                    },
+                    {
+                        title: 'Think Like a Super-GM',
+                        author: 'Michael Adams & Philip Hurtado',
+                        link: 'https://amzn.to/3Fbr61x',
                     },
                 ],
             },
@@ -659,14 +689,19 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Woodpecker Method',
-                        author: 'Axel Smith & Hans Tikkanen',
-                        link: 'https://amzn.to/3FuI0bR',
+                        title: 'Think Like a Super-GM',
+                        author: 'Michael Adams & Philip Hurtado',
+                        link: 'https://amzn.to/3Fbr61x',
                     },
                     {
-                        title: 'Turbo Charge Your Tactics 1',
-                        author: ' Mykhaylo Oleksiyenko & Vladimir Grabinsky',
-                        link: 'https://www.amazon.com/Turbo-Charge-Your-Tactics-Drive-Improvement/dp/B0CPHYPGCQ',
+                        title: 'How to Calculate Chess Tactics',
+                        author: 'Valeri Beim',
+                        link: 'https://amzn.to/42V1YIO',
+                    },
+                    {
+                        title: 'Chess Tactics for Advanced Players',
+                        author: 'Yuri Averbakh',
+                        link: 'https://amzn.to/4kjV2uD',
                     },
                 ],
             },
@@ -684,14 +719,19 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3FuI0bR',
                     },
                     {
-                        title: 'Turbo Charge Your Tactics 1',
-                        author: ' Mykhaylo Oleksiyenko & Vladimir Grabinsky',
-                        link: 'https://www.amazon.com/Turbo-Charge-Your-Tactics-Drive-Improvement/dp/B0CPHYPGCQ',
-                    },
-                    {
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
+                    },
+                    {
+                        title: 'Excelling at Combinational Play',
+                        author: 'Jacob Aagaard',
+                        link: 'https://amzn.to/4jlVqbf',
+                    },
+                    {
+                        title: 'Chess Calculation Training',
+                        author: 'Romain Edouard',
+                        link: 'https://amzn.to/3SHnTNr',
                     },
                 ],
             },
@@ -707,6 +747,16 @@ export const sections: BookSection[] = [
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
+                    },
+                    {
+                        title: 'Excelling at Combinational Play 2',
+                        author: 'Jacob Aagaard',
+                        link: 'https://amzn.to/457Af9a',
+                    },
+                    {
+                        title: 'Cognitive Chess',
+                        author: 'Konstantin Chernyshov',
+                        link: 'https://amzn.to/459HCgh',
                     },
                     {
                         title: 'Tactical Play',
@@ -734,9 +784,19 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3xVl6t3',
                     },
                     {
+                        title: 'Turbo-Charge Your Tactics 1',
+                        author: 'Mykhaylo Oleksiyenko and Vladimir Grabinsky',
+                        link: 'https://www.amazon.com/Turbo-Charge-Your-Tactics-Drive-Improvement/dp/B0CPHYPGCQ',
+                    },
+                    {
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
+                    },
+                    {
+                        title: 'Calculation!',
+                        author: 'Sam Shankland',
+                        link: 'https://amzn.to/4dis2RG',
                     },
                     {
                         title: 'Tactical Play',
@@ -769,9 +829,19 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3xVl6t3',
                     },
                     {
+                        title: 'Turbo-Charge Your Tactics 1',
+                        author: 'Mykhaylo Oleksiyenko and Vladimir Grabinsky',
+                        link: 'https://www.amazon.com/Turbo-Charge-Your-Tactics-Drive-Improvement/dp/B0CPHYPGCQ',
+                    },
+                    {
                         title: 'Think Like a Super-GM',
                         author: 'Michael Adams & Philip Hurtado',
                         link: 'https://amzn.to/3Fbr61x',
+                    },
+                    {
+                        title: 'Imagination in Chess',
+                        author: 'Paata Gaprindashvili',
+                        link: 'https://amzn.to/3SD8JsC',
                     },
                     {
                         title: 'Tactical Play',
@@ -807,6 +877,11 @@ export const sections: BookSection[] = [
                         title: 'Grandmaster Preparation: Calculation',
                         author: 'Jacob Aagaard',
                         link: 'https://amzn.to/3xVl6t3',
+                    },
+                    {
+                        title: 'Turbo-Charge Your Tactics 1',
+                        author: 'Mykhaylo Oleksiyenko and Vladimir Grabinsky',
+                        link: 'https://www.amazon.com/Turbo-Charge-Your-Tactics-Drive-Improvement/dp/B0CPHYPGCQ',
                     },
                     {
                         title: 'Think Like a Super-GM',
@@ -887,7 +962,7 @@ export const sections: BookSection[] = [
                 cohort: '1300-1400',
                 books: [
                     {
-                        title: "Silman's Complete Endgame Course Parts 1-3, Part 4 through pg. 120",
+                        title: "Silman's Complete Endgame Course Parts 1-4",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
@@ -917,7 +992,7 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3V36NKg',
                     },
                     {
-                        title: "Silman's Complete Endgame Course Part 4",
+                        title: "Silman's Complete Endgame Course Parts 3-4",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
@@ -932,7 +1007,7 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3V36NKg',
                     },
                     {
-                        title: "Silman's Complete Endgame Course Part 5",
+                        title: "Silman's Complete Endgame Course Parts 4, 5, and 9",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
@@ -942,12 +1017,12 @@ export const sections: BookSection[] = [
                 cohort: '1700-1800',
                 books: [
                     {
-                        title: "Silman's Complete Endgame Course Part 5, Part 6 through pg. 242",
+                        title: "Silman's Complete Endgame Course Parts 5, 6, and 9",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
                     {
-                        title: 'Endgame Strategy (original version)',
+                        title: 'Endgame Strategy (original version preferred)',
                         author: 'Mikhail Shereshevsky',
                         link: 'https://amzn.to/3J3K2k3',
                     },
@@ -957,14 +1032,14 @@ export const sections: BookSection[] = [
                 cohort: '1800-1900',
                 books: [
                     {
-                        title: 'Endgame Strategy',
-                        author: 'Mikhail Shereshevsky',
-                        link: 'https://amzn.to/3J3K2k3',
-                    },
-                    {
-                        title: "Silman's Complete Endgame Course Part 6",
+                        title: "Silman's Complete Endgame Course Parts 6 and 9",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
+                    },
+                    {
+                        title: 'Endgame Strategy (original version preferred)',
+                        author: 'Mikhail Shereshevsky',
+                        link: 'https://amzn.to/3J3K2k3',
                     },
                 ],
             },
@@ -972,7 +1047,7 @@ export const sections: BookSection[] = [
                 cohort: '1900-2000',
                 books: [
                     {
-                        title: "Silman's Complete Endgame Course Part 6",
+                        title: "Silman's Complete Endgame Course Parts 6 and 9",
                         author: 'Jeremy Silman',
                         link: 'https://amzn.to/3Yt3goN',
                     },
@@ -987,6 +1062,11 @@ export const sections: BookSection[] = [
                 cohort: '2000-2100',
                 books: [
                     {
+                        title: 'Endgame Strategy',
+                        author: 'Mikhail Shereshevsky',
+                        link: 'https://amzn.to/3J3K2k3',
+                    },
+                    {
                         title: '100 Endgames You Must Know',
                         author: 'Jesus de la Villa',
                         link: 'https://amzn.to/3J2hSpo',
@@ -995,6 +1075,11 @@ export const sections: BookSection[] = [
                         title: 'Endgame Virtuoso',
                         author: 'Vasily Smyslov',
                         link: 'https://amzn.to/3yobRyE',
+                    },
+                    {
+                        title: 'Mastering Endgame Strategy',
+                        author: 'Johan Hellsten',
+                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
                     },
                 ],
             },
@@ -1012,9 +1097,9 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3yobRyE',
                     },
                     {
-                        title: 'Endgame Virtuoso (Karpov)',
-                        author: 'Tibor Karolyi',
-                        link: 'https://amzn.to/44mSXr8',
+                        title: 'Mastering Endgame Strategy',
+                        author: 'Johan Hellsten',
+                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
                     },
                 ],
             },
@@ -1027,16 +1112,6 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3J2hSpo',
                     },
                     {
-                        title: 'Endgame Virtuoso (Karpov)',
-                        author: 'Tibor Karolyi',
-                        link: 'https://amzn.to/44mSXr8',
-                    },
-                    {
-                        title: 'Mastering Endgame Strategy',
-                        author: 'Johan Hellsten',
-                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
-                    },
-                    {
                         title: 'Rook Endings',
                         author: 'Grigory Levenfish & Vasily Smyslov',
                         link: 'https://amzn.to/3ZIYmW0',
@@ -1047,11 +1122,6 @@ export const sections: BookSection[] = [
                 cohort: '2300-2400',
                 books: [
                     {
-                        title: 'Mastering Endgame Strategy',
-                        author: 'Johan Hellsten',
-                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
-                    },
-                    {
                         title: 'Rook Endings',
                         author: 'Grigory Levenfish & Vasily Smyslov',
                         link: 'https://amzn.to/3ZIYmW0',
@@ -1060,6 +1130,11 @@ export const sections: BookSection[] = [
                         title: 'Endgame Tactics',
                         author: 'Ger van Perlo',
                         link: 'https://amzn.to/3T1lbBK',
+                    },
+                    {
+                        title: 'Practical Rook Endgames',
+                        author: 'Victor Korchnoi',
+                        link: 'https://amzn.to/4kmeUxi',
                     },
                     {
                         title: "Dvoretsky's Endgame Manual",
@@ -1072,11 +1147,6 @@ export const sections: BookSection[] = [
                 cohort: '2400+',
                 books: [
                     {
-                        title: 'Mastering Endgame Strategy',
-                        author: 'Johan Hellsten',
-                        link: 'https://www.amazon.com/Mastering-Endgame-Strategy-Johan-Hellsten/dp/1781940185',
-                    },
-                    {
                         title: 'Rook Endings',
                         author: 'Grigory Levenfish & Vasily Smyslov',
                         link: 'https://amzn.to/3ZIYmW0',
@@ -1085,6 +1155,11 @@ export const sections: BookSection[] = [
                         title: 'Endgame Tactics',
                         author: 'Ger van Perlo',
                         link: 'https://amzn.to/3T1lbBK',
+                    },
+                    {
+                        title: 'Practical Rook Endgames',
+                        author: 'Victor Korchnoi',
+                        link: 'https://amzn.to/4kmeUxi',
                     },
                     {
                         title: "Dvoretsky's Endgame Manual",
