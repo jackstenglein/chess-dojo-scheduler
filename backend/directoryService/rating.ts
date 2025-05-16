@@ -394,25 +394,32 @@ export function getPerformanceRating(
     const drawRatio = Math.round(parseFloat((draws / total).toFixed(2)) * 100);
     const lossRatio = Math.round(parseFloat((losses / total).toFixed(2)) * 100);
     const equalCohortRating = calculateRating(totalEqualCohortAvg, totalScorePercent);
-    const previousCohortRating =  calculateRating(totalPreviousCohortAvg, totalScorePercent);
-    const  prePreviousCohortRating = calculateRating(totalPrePreviousCohortAvg, totalScorePercent);
-    const nextCohortRating = calculateRating(totalNextCohortAvg, totalScorePercent)
-    const nextNextCohortRating = calculateRating(totalNextNextCohortAvg, totalScorePercent)
+    const previousCohortRating = calculateRating(totalPreviousCohortAvg, totalScorePercent);
+    const prePreviousCohortRating = calculateRating(totalPrePreviousCohortAvg, totalScorePercent);
+    const nextCohortRating = calculateRating(totalNextCohortAvg, totalScorePercent);
+    const nextNextCohortRating = calculateRating(totalNextNextCohortAvg, totalScorePercent);
+
+    // Normalize the cohort ratings
+    const normalizedEqualCohortRating = getNormalizedRating(equalCohortRating, ratingSystem);
+    const normalizedPreviousCohortRating = getNormalizedRating(previousCohortRating, ratingSystem);
+    const normalizedPrePreviousCohortRating = getNormalizedRating(prePreviousCohortRating, ratingSystem);
+    const normalizedNextCohortRating = getNormalizedRating(nextCohortRating, ratingSystem);
+    const normalizedNextNextCohortRating = getNormalizedRating(nextNextCohortRating, ratingSystem);
 
     return {
         combinedRating: combinedRating,
         normalizedCombinedRating: combinedNormalRating,
-        whiteRating: whiteRating,
+        whiteRating: normalizedWhiteRating,
         normalizedWhiteRating: normalizedWhiteRating,
-        blackRating: blackRating,
+        blackRating: normalizedBlackRating,
         normalizedBlackRating: normalizedBlackRating,
         winRatio: winRatio,
         drawRatio: drawRatio,
         lossRatio: lossRatio,
-        equalCohortRating: equalCohortRating,
-        previousCohortRating: previousCohortRating,
-        prePreviousCohortRating: prePreviousCohortRating,
-        nextCohortRating: nextCohortRating,
-        nextNextCohortRating: nextNextCohortRating,
+        equalCohortRating: normalizedEqualCohortRating,
+        previousCohortRating: normalizedPreviousCohortRating,
+        prePreviousCohortRating: normalizedPrePreviousCohortRating,
+        nextCohortRating: normalizedNextCohortRating,
+        nextNextCohortRating: normalizedNextNextCohortRating,
     };
 }
