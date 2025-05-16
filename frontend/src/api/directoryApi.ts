@@ -130,13 +130,10 @@ export interface StatsApiResponse {
 
 interface PerformanceRatingMetric {
     combinedRating: number;
-    combinedScorePercent: number;
     normalizedCombinedRating: number;
     whiteRating: number;
-    whiteScorePercent: number;
     normalizedWhiteRating: number;
     blackRating: number;
-    blackScorePercent: number;
     normalizedBlackRating: number;
     winRatio: number;
     drawRatio: number;
@@ -147,7 +144,6 @@ interface PerformanceRatingMetric {
     nextCohortRating: number;
     nextNextCohortRating: number;
 }
-
 /**
  * Sends an API request to get a directory.
  * @param idToken The id token of the current signed-in user.

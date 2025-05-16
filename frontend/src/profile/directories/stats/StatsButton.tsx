@@ -3,6 +3,7 @@
 import { useApi } from '@/api/Api';
 import { StatsApiResponse } from '@/api/directoryApi';
 import { RatingSystem } from '@/database/user';
+import { TimelineOutlined } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -84,6 +85,8 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                 return `${currentCohort - 100}-${nextCohort - 100}`;
             case 'prepre':
                 return `${currentCohort - 200}-${nextCohort - 200}`;
+            case 'equal':
+                return usercohort;
         }
 
         return level;
@@ -91,8 +94,8 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
 
     return (
         <>
-            <Button variant='outlined' onClick={handleOpen}>
-                View Stats
+            <Button variant='contained' startIcon={<TimelineOutlined />} onClick={handleOpen}>
+                Stats
             </Button>
 
             <Dialog open={open} onClose={handleClose} fullWidth maxWidth='sm'>
@@ -112,11 +115,13 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                             onChange={(e) => setRatingSystem(e.target.value as RatingSystem)}
                             fullWidth
                         >
-                            {Object.values(RatingSystem).map((system) => (
-                                <MenuItem key={system} value={system}>
-                                    {system}
-                                </MenuItem>
-                            ))}
+                            {Object.values(RatingSystem)
+                                .slice(0, 8)
+                                .map((system) => (
+                                    <MenuItem key={system} value={system}>
+                                        {system}
+                                    </MenuItem>
+                                ))}
                         </TextField>
 
                         <Button
@@ -149,7 +154,10 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                 </Typography>
                                                 <Typography variant='h6'>
                                                     {stats.performanceRating.combinedRating > 0
-                                                        ? stats.performanceRating.combinedRating
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .combinedRating,
+                                                          )
                                                         : 'N/A'}
                                                 </Typography>
                                             </Box>
@@ -159,7 +167,9 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                 </Typography>
                                                 <Typography variant='h6'>
                                                     {stats.performanceRating.whiteRating > 0
-                                                        ? stats.performanceRating.whiteRating
+                                                        ? Math.round(
+                                                              stats.performanceRating.whiteRating,
+                                                          )
                                                         : 'N/A'}
                                                 </Typography>
                                             </Box>
@@ -169,7 +179,9 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                 </Typography>
                                                 <Typography variant='h6'>
                                                     {stats.performanceRating.blackRating > 0
-                                                        ? stats.performanceRating.blackRating
+                                                        ? Math.round(
+                                                              stats.performanceRating.blackRating,
+                                                          )
                                                         : 'N/A'}
                                                 </Typography>
                                             </Box>
@@ -264,6 +276,18 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                             </Box>
                                             <Box>
                                                 <Typography variant='body2' color='text.secondary'>
+                                                    {getCohortDisplayLevel('equal')}
+                                                </Typography>
+                                                <Typography variant='h6'>
+                                                    {stats.performanceRating.equalCohortRating !==
+                                                        undefined &&
+                                                    stats.performanceRating.equalCohortRating > 0
+                                                        ? stats.performanceRating.equalCohortRating
+                                                        : 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant='body2' color='text.secondary'>
                                                     {getCohortDisplayLevel('next')}
                                                 </Typography>
                                                 <Typography variant='h6'>
@@ -303,10 +327,7 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                 </Typography>
                                                 <Typography variant='h6' color='success.main'>
                                                     {stats.performanceRating.winRatio !== undefined
-                                                        ? Math.round(
-                                                              stats.performanceRating.winRatio *
-                                                                  100,
-                                                          )
+                                                        ? stats.performanceRating.winRatio
                                                         : 'N/A'}
                                                     %
                                                 </Typography>
@@ -317,10 +338,7 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                 </Typography>
                                                 <Typography variant='h6' color='info.main'>
                                                     {stats.performanceRating.drawRatio !== undefined
-                                                        ? Math.round(
-                                                              stats.performanceRating.drawRatio *
-                                                                  100,
-                                                          )
+                                                        ? stats.performanceRating.drawRatio
                                                         : 'N/A'}
                                                     %
                                                 </Typography>
@@ -331,10 +349,7 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                 </Typography>
                                                 <Typography variant='h6' color='error.main'>
                                                     {stats.performanceRating.lossRatio !== undefined
-                                                        ? Math.round(
-                                                              stats.performanceRating.lossRatio *
-                                                                  100,
-                                                          )
+                                                        ? stats.performanceRating.lossRatio
                                                         : 'N/A'}
                                                     %
                                                 </Typography>
