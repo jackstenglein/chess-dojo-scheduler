@@ -609,7 +609,7 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3lwCsGN',
                     },
                     {
-                        title: 'Chess Tactics From Scratch',
+                        title: 'Chess Tactics From Scratch (skip 5-star problems)',
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
                     },
@@ -669,7 +669,7 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3Ue8AMA',
                     },
                     {
-                        title: 'Chess Tactics From Scratch',
+                        title: 'Chess Tactics From Scratch (5-star problems)',
                         author: 'Martin Weteschnik',
                         link: 'https://amzn.to/3YvXB1l',
                     },
@@ -1022,7 +1022,7 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3Yt3goN',
                     },
                     {
-                        title: 'Endgame Strategy (original version)',
+                        title: 'Endgame Strategy (original version preferred)',
                         author: 'Mikhail Shereshevsky',
                         link: 'https://amzn.to/3J3K2k3',
                     },
@@ -1037,7 +1037,7 @@ export const sections: BookSection[] = [
                         link: 'https://amzn.to/3Yt3goN',
                     },
                     {
-                        title: 'Endgame Strategy',
+                        title: 'Endgame Strategy (original version preferred)',
                         author: 'Mikhail Shereshevsky',
                         link: 'https://amzn.to/3J3K2k3',
                     },
