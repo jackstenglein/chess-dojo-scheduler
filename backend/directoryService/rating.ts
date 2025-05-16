@@ -409,9 +409,9 @@ export function getPerformanceRating(
     return {
         combinedRating: combinedRating,
         normalizedCombinedRating: combinedNormalRating,
-        whiteRating: normalizedWhiteRating,
+        whiteRating: whiteRating,
         normalizedWhiteRating: normalizedWhiteRating,
-        blackRating: normalizedBlackRating,
+        blackRating: blackRating,
         normalizedBlackRating: normalizedBlackRating,
         winRatio: winRatio,
         drawRatio: drawRatio,
