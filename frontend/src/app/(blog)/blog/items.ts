@@ -32,6 +32,12 @@ export interface BlogItem {
 
 const items: BlogItem[] = [
     {
+        title: 'Dojo 4.0 is live!',
+        subtitle: 'Dojo Blog • May 16, 2025',
+        body: `Our yearly update to the Dojo Training Program is here! Here's all the (major) changes from 3.0 to 4.0`,
+        href: '/blog/dojo-blog/4-0',
+    },
+    {
         title: 'Annotation Workshop, Dojo Opening Scout & more!',
         subtitle: 'Dojo Digest • May 1, 2025',
         body: `Sensei Kraai is reviving the Dojo's coaching workshops!`,
