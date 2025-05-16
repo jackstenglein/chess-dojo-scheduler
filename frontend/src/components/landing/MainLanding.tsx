@@ -65,7 +65,7 @@ export function MainLanding() {
                                 >
                                     Got Mated?
                                     <br />
-                                    Time to join the ChessDojo!
+                                    Time to join ChessDojo!
                                 </Typography>
                                 <Typography
                                     variant='h5'

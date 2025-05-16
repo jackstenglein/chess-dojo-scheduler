@@ -158,7 +158,7 @@ const senseis = [
         image: kostyaImage,
         title: 'International Master',
         name: 'Kostya Kavutskiy',
-        bio: `Kostya comes from a Ukrainian chess family and has been playing and  teaching the game since he was a pup. Since attaining the IM title in 2016, he has struggled to find the time for his own study while also coaching. He is a FIDE trainer and has coached at the World Youth and Pan-American Youth Championships, earning several gold medals for the US national team. Like many of us he needs a structure and a plan! Kostya is committed to following the Dojo Training Program to the GM title, and we are rooting for him!`,
+        bio: `Kostya earned the IM title at the age of 24 and has been teaching chess to all levels and ages for over 15 years. He previously served as a coach for the United States at several World Youth & Pan-American Championships, with multiple students earning gold medals. Kostya is also a published author and has produced several popular courses for Chess.com, Chessable, and other sites.`,
     },
     {
         image: davidImage,
