@@ -631,7 +631,7 @@ export const sections: BookSection[] = [
                     {
                         title: 'Quality Chess Puzzle Book',
                         author: 'John Shaw',
-                        link: 'https://amzn.to/3ZgfDI0',
+                        link: 'https://qualitychess.co.uk/products/opening/50/quality_chess_puzzle_book_-_by_john_shaw/',
                     },
                 ],
             },
