@@ -332,11 +332,11 @@ export function getPerformanceRating(
             }
         };
 
-        if (white.includes(checkPlayerName)) {
+        if (white.toLowerCase().includes(checkPlayerName)) {
             if (result === "1-0") updateStats(true, false, true, blackElo);
             else if (result === "0-1") updateStats(false, false, true, blackElo);
             else if (result === "1/2-1/2") updateStats(false, true, true, blackElo);
-        } else if (black.includes(checkPlayerName)) {
+        } else if (black.toLowerCase().includes(checkPlayerName)) {
             if (result === "0-1") updateStats(true, false, false, whiteElo);
             else if (result === "1-0") updateStats(false, false, false, whiteElo);
             else if (result === "1/2-1/2") updateStats(false, true, false, whiteElo);
