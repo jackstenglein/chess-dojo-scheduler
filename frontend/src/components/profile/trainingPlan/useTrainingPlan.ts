@@ -15,7 +15,7 @@ import { SuggestedTask, TaskSuggestionAlgorithm } from './suggestedTasks';
 export function useTrainingPlan(user: User, cohort?: string) {
     const { user: currentUser, updateUser } = useAuth();
     const api = useApi();
-    const { request } = useRequirements(ALL_COHORTS, false);
+    const { request, requirements: allRequirements } = useRequirements(ALL_COHORTS, false);
     const { requirements } = useRequirements(cohort || user.dojoCohort, false);
     const pinnedTasks = useMemo(() => {
         return (
@@ -23,11 +23,11 @@ export function useTrainingPlan(user: User, cohort?: string) {
                 ?.map(
                     (id) =>
                         user.customTasks?.find((task) => task.id === id) ||
-                        requirements.find((task) => task.id === id),
+                        allRequirements.find((task) => task.id === id),
                 )
                 .filter((t) => !!t) ?? []
         );
-    }, [user, requirements]);
+    }, [user, allRequirements]);
 
     const togglePin = (task: Requirement | CustomTask) => {
         const isPinned = pinnedTasks.some((t) => t.id === task.id);
@@ -43,6 +43,7 @@ export function useTrainingPlan(user: User, cohort?: string) {
     return {
         request,
         requirements,
+        allRequirements,
         pinnedTasks,
         togglePin,
         isCurrentUser: currentUser?.username === user.username,
@@ -52,7 +53,7 @@ export function useTrainingPlan(user: User, cohort?: string) {
 export function useWeeklyTrainingPlan(user: User) {
     const api = useApi();
     const trainingPlan = useTrainingPlan(user);
-    const { pinnedTasks, requirements, isCurrentUser } = trainingPlan;
+    const { pinnedTasks, requirements, allRequirements, isCurrentUser } = trainingPlan;
     const { entries: timeline } = useTimelineContext();
 
     const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt, nextGame } =
@@ -60,6 +61,7 @@ export function useWeeklyTrainingPlan(user: User) {
             const result = new TaskSuggestionAlgorithm(
                 user,
                 requirements,
+                allRequirements,
                 timeline,
             ).getWeeklySuggestions();
 
@@ -76,7 +78,7 @@ export function useWeeklyTrainingPlan(user: User) {
             }
 
             return { ...result, weekSuggestions };
-        }, [user, requirements, timeline]);
+        }, [user, requirements, allRequirements, timeline]);
 
     const savedPlan = user.weeklyPlan;
     const isLoading = requirements.length === 0;

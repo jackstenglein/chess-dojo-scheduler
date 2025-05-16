@@ -7,6 +7,7 @@ import {
     ScoreboardDisplay,
     formatTime,
     getCurrentCount,
+    getTotalCount,
     getTotalTime,
     isBlocked,
     isExpired,
@@ -57,7 +58,7 @@ export const FullTrainingPlanItem = ({
         return isBlocked(cohort, user, requirement, requirements, entries);
     }, [requirement, requirements, cohort, user, entries]);
 
-    const totalCount = requirement.counts[cohort] || 0;
+    const totalCount = getTotalCount(cohort, requirement);
     const currentCount = getCurrentCount({ cohort, requirement, progress, timeline: entries });
     const time = formatTime(getTotalTime(cohort, progress));
     const expired = isExpired(requirement, progress);

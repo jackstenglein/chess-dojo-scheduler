@@ -4,7 +4,7 @@ describe('Landing Page', () => {
     });
 
     it('has correct content', () => {
-        cy.getBySel('title').should('contain', 'Got Mated?Time to join the ChessDojo!');
+        cy.getBySel('title').should('contain', 'Got Mated?Time to join ChessDojo!');
         cy.getBySel('subtitle').should(
             'contain',
             'A chess training plan for every level and a community to do it with.',
