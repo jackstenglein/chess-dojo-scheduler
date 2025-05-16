@@ -7,6 +7,9 @@ import fileSharingImage from './dojo-digest/vol-14/share-directory.png';
 import heatmap from './dojo-digest/vol-15/Finochess.jpg';
 import freemonth from './dojo-digest/vol-16/freemonth.webp';
 import yearstats from './dojo-digest/vol-17/2024+stats.png';
+import masteringtime from './dojo-digest/vol-18/mastering-time.jpg';
+import weeklyplanner from './dojo-digest/vol-19/weekly-planner.png';
+import openingscout from './dojo-digest/vol-20/openingscout.png';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import worldrapid from './dojo-talks/2024-world-rapid-blitz/2024-rapid.png';
@@ -28,6 +31,42 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Dojo 4.0 is live!',
+        subtitle: 'Dojo Blog • May 16, 2025',
+        body: `Our yearly update to the Dojo Training Program is here! Here's all the (major) changes from 3.0 to 4.0`,
+        href: '/blog/dojo-blog/4-0',
+    },
+    {
+        title: 'Annotation Workshop, Dojo Opening Scout & more!',
+        subtitle: 'Dojo Digest • May 1, 2025',
+        body: `Sensei Kraai is reviving the Dojo's coaching workshops!`,
+        href: '/blog/dojo-digest/vol-20',
+        image: {
+            src: openingscout,
+            alt: '',
+        },
+    },
+    {
+        title: 'Tournament Prizes, New Course, Weekly Planner & more!',
+        subtitle: 'Dojo Digest • April 1, 2025',
+        body: `Dojo tournaments now have prizes!`,
+        href: '/blog/dojo-digest/vol-19',
+        image: {
+            src: weeklyplanner,
+            alt: '',
+        },
+    },
+    {
+        title: 'New Courses, Badges, & more!',
+        subtitle: 'Dojo Digest • March 1, 2025',
+        body: `Mastering Time in Chess is finally out on Chessable!`,
+        href: '/blog/dojo-digest/vol-18',
+        image: {
+            src: masteringtime,
+            alt: '',
+        },
+    },
     {
         title: 'Custom Tasks Are Here!',
         subtitle: 'Dojo Blog • February 14, 2025',
