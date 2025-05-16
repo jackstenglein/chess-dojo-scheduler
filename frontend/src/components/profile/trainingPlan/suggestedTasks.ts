@@ -152,9 +152,14 @@ export class TaskSuggestionAlgorithm {
     private user: User;
     private timePerTask: Record<string, number> = {};
 
-    constructor(user: User, requirements: Requirement[], timeline: TimelineEntry[]) {
+    constructor(
+        user: User,
+        cohortRequirements: Requirement[],
+        allRequirements: Requirement[],
+        timeline: TimelineEntry[],
+    ) {
         this.user = JSON.parse(JSON.stringify(user)) as User;
-        this.requirements = requirements;
+        this.requirements = cohortRequirements;
         this.timeline = timeline;
         this.customTasks = this.user.customTasks ?? [];
         this.pinnedTasks =
@@ -162,7 +167,7 @@ export class TaskSuggestionAlgorithm {
                 ?.map(
                     (id) =>
                         this.customTasks.find((task) => task.id === id) ||
-                        this.requirements.find((task) => task.id === id),
+                        allRequirements.find((task) => task.id === id),
                 )
                 .filter((t) => !!t) ?? [];
     }

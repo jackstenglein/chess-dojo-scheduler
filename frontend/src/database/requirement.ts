@@ -363,7 +363,6 @@ function getYearlyCount({
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - 365);
     const cutoff = cutoffDate.toISOString();
-    console.log('Cutoff date: ', cutoff);
     let count = 0;
 
     for (const entry of timeline) {
@@ -382,7 +381,7 @@ function getYearlyCount({
  * @returns The total count for the given cohort and requirement.
  */
 export function getTotalCount(cohort: string, requirement: Requirement | CustomTask): number {
-    return requirement.counts[cohort] || 0;
+    return requirement.counts[cohort] || Object.values(requirement.counts)[0];
 }
 
 /**
