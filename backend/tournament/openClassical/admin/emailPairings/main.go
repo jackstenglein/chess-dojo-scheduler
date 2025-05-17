@@ -98,12 +98,12 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 }
 
 func sendPairingEmail(section *database.OpenClassicalSection, pairing *database.OpenClassicalPairing, round int) int {
-	white, ok := section.Players[strings.ToLower(pairing.White.Username)]
+	white, ok := section.Players[pairing.White.Username]
 	if !ok {
 		log.Debugf("Skipping pairing because white player not found: %v", pairing)
 		return 0
 	}
-	black, ok := section.Players[strings.ToLower(pairing.Black.Username)]
+	black, ok := section.Players[pairing.Black.Username]
 	if !ok {
 		log.Debugf("Skipping pairing because black player not found: %v", pairing)
 		return 0

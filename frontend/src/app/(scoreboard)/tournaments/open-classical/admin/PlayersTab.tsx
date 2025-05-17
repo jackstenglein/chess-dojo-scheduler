@@ -155,7 +155,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
         ratingRange: 'Open',
     });
 
-    const [updatePlayer, setUpdatePlayer] = useState('');
+    const [updatePlayer, setUpdatePlayer] = useState<OpenClassicalPlayer>();
     const [updateType, setUpdateType] = useState<'' | 'ban' | 'withdraw'>('');
 
     const api = useApi();
@@ -183,7 +183,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                         icon={<PersonRemove />}
                         label='Withdraw Player'
                         onClick={() => {
-                            setUpdatePlayer(params.row.lichessUsername);
+                            setUpdatePlayer(params.row);
                             setUpdateType('withdraw');
                         }}
                     />
@@ -194,7 +194,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                         icon={<Block color='error' />}
                         label='Ban Player'
                         onClick={() => {
-                            setUpdatePlayer(params.row.lichessUsername);
+                            setUpdatePlayer(params.row);
                             setUpdateType('ban');
                         }}
                     />
@@ -204,15 +204,17 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
     }, [setUpdatePlayer]);
 
     const onConfirmUpdate = () => {
+        if (!updatePlayer) return;
+
         updateRequest.onStart();
         const func = updateType === 'ban' ? api.adminBanPlayer : api.adminWithdrawPlayer;
 
-        func(updatePlayer, region, ratingRange)
+        func(updatePlayer.username, region, ratingRange)
             .then((resp) => {
                 onUpdate(resp.data);
-                setUpdatePlayer('');
+                setUpdatePlayer(undefined);
                 updateRequest.onSuccess(
-                    `${updatePlayer} ${updateType === 'ban' ? 'banned' : 'withdrawn'}`,
+                    `${updatePlayer.displayName} ${updateType === 'ban' ? 'banned' : 'withdrawn'}`,
                 );
             })
             .catch((err: unknown) => {
@@ -277,12 +279,12 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
             />
             <Dialog
                 open={Boolean(updatePlayer)}
-                onClose={updateRequest.isLoading() ? undefined : () => setUpdatePlayer('')}
+                onClose={updateRequest.isLoading() ? undefined : () => setUpdatePlayer(undefined)}
                 maxWidth='sm'
                 fullWidth
             >
                 <DialogTitle>
-                    {updateType === 'ban' ? 'Ban' : 'Withdraw'} {updatePlayer}?
+                    {updateType === 'ban' ? 'Ban' : 'Withdraw'} {updatePlayer?.displayName}?
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -293,7 +295,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        onClick={() => setUpdatePlayer('')}
+                        onClick={() => setUpdatePlayer(undefined)}
                         disabled={updateRequest.isLoading()}
                     >
                         Cancel
