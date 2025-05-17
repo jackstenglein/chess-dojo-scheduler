@@ -160,7 +160,7 @@ type OpenClassical struct {
 	// The sections in the tournament
 	Sections map[string]OpenClassicalSection `dynamodbav:"sections" json:"sections"`
 
-	// Players who are not in good standing and cannot register, mapped by their Lichess username.
+	// Players who are not in good standing and cannot register, mapped by their Dojo username.
 	BannedPlayers map[string]OpenClassicalPlayer `dynamodbav:"bannedPlayers" json:"bannedPlayers"`
 
 	// The month that the tournament started, in ISO format. Empty for tournaments still
@@ -182,7 +182,7 @@ type OpenClassicalSection struct {
 	// The rating section of the section.
 	Section string `dynamodbav:"section" json:"section"`
 
-	// The players in the section, mapped by their Lichess username.
+	// The players in the section, mapped by their Dojo username.
 	Players map[string]OpenClassicalPlayer `dynamodbav:"players" json:"players"`
 
 	// The rounds in the tournament for this section.
@@ -201,7 +201,7 @@ type OpenClassicalRound struct {
 // OpenClassicalPairing represents a single pairing in the Open Classical tournaments,
 // which are separate from the regular leaderboards.
 type OpenClassicalPairing struct {
-	// The Lichess username of the player with the white pieces
+	// The player with the white pieces
 	White OpenClassicalPlayerSummary `dynamodbav:"white" json:"white"`
 
 	// The player with the black pieces
@@ -226,6 +226,9 @@ type OpenClassicalPairing struct {
 // OpenClassicalPlayerSummary represents the minimum information needed to schedule
 // a game with a player in the Open Classical.
 type OpenClassicalPlayerSummary struct {
+	// The Dojo username of the player
+	Username string `dynamodbav:"username" json:"username"`
+
 	// The display name of the player
 	DisplayName string `dynamodbav:"displayName" json:"displayName"`
 
@@ -250,9 +253,6 @@ type OpenClassicalPlayerSummary struct {
 // this type contains the player's full registration information.
 type OpenClassicalPlayer struct {
 	OpenClassicalPlayerSummary
-
-	// The username of the player in the Dojo Scoreboard
-	Username string `dynamodbav:"username" json:"username"`
 
 	// The email of the player
 	Email string `dynamodbav:"email" json:"-"`
@@ -518,11 +518,10 @@ func (repo *dynamoRepository) BanPlayer(player *OpenClassicalPlayer) (*OpenClass
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to marshal player", err)
 	}
 
-	username := strings.ToLower(player.LichessUsername)
 	updateExpr := "SET #bannedPlayers.#username = :item, #sections.#sectionName.#players.#username = :item"
 	exprAttrNames := map[string]*string{
 		"#bannedPlayers": aws.String("bannedPlayers"),
-		"#username":      aws.String(username),
+		"#username":      aws.String(player.Username),
 		"#sections":      aws.String("sections"),
 		"#sectionName":   aws.String(fmt.Sprintf("%s_%s", player.Region, player.Section)),
 		"#players":       aws.String("players"),
@@ -555,7 +554,7 @@ func (repo *dynamoRepository) UnbanPlayer(username string) (*OpenClassical, erro
 	updateExpr := "REMOVE #bannedPlayers.#username"
 	exprAttrNames := map[string]*string{
 		"#bannedPlayers": aws.String("bannedPlayers"),
-		"#username":      aws.String(strings.ToLower(username)),
+		"#username":      aws.String(username),
 	}
 
 	input := &dynamodb.UpdateItemInput{
@@ -584,13 +583,12 @@ func (repo *dynamoRepository) SetPlayer(player *OpenClassicalPlayer) (*OpenClass
 		return nil, errors.Wrap(500, "Temporary server error", "Failed to marshal player", err)
 	}
 
-	username := strings.ToLower(player.LichessUsername)
 	updateExpr := "SET #sections.#sectionName.#players.#username = :item"
 	exprAttrNames := map[string]*string{
 		"#sections":    aws.String("sections"),
 		"#sectionName": aws.String(fmt.Sprintf("%s_%s", player.Region, player.Section)),
 		"#players":     aws.String("players"),
-		"#username":    aws.String(username),
+		"#username":    aws.String(player.Username),
 	}
 	exprAttrValues := map[string]*dynamodb.AttributeValue{
 		":item": {M: item},

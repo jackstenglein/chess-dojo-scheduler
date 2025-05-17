@@ -94,6 +94,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 
 	openClassicalPlayer := database.OpenClassicalPlayer{
 		OpenClassicalPlayerSummary: database.OpenClassicalPlayerSummary{
+			Username:        info.Username,
 			DisplayName:     request.DisplayName,
 			LichessUsername: request.LichessUsername,
 			DiscordUsername: request.DiscordUsername,
@@ -101,7 +102,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 			Title:           request.Title,
 			Rating:          request.LichessRating,
 		},
-		Username:    info.Username,
 		Email:       request.Email,
 		Region:      request.Region,
 		Section:     request.Section,

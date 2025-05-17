@@ -98,12 +98,12 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 }
 
 func sendPairingEmail(section *database.OpenClassicalSection, pairing *database.OpenClassicalPairing, round int) int {
-	white, ok := section.Players[strings.ToLower(pairing.White.LichessUsername)]
+	white, ok := section.Players[strings.ToLower(pairing.White.Username)]
 	if !ok {
 		log.Debugf("Skipping pairing because white player not found: %v", pairing)
 		return 0
 	}
-	black, ok := section.Players[strings.ToLower(pairing.Black.LichessUsername)]
+	black, ok := section.Players[strings.ToLower(pairing.Black.Username)]
 	if !ok {
 		log.Debugf("Skipping pairing because black player not found: %v", pairing)
 		return 0
@@ -123,23 +123,39 @@ func sendPairingEmail(section *database.OpenClassicalSection, pairing *database.
 	}
 
 	templateData := struct {
-		Round        int    `json:"round"`
-		WhiteLichess string `json:"whiteLichess"`
-		WhiteDiscord string `json:"whiteDiscord"`
-		BlackLichess string `json:"blackLichess"`
-		BlackDiscord string `json:"blackDiscord"`
-		TimeControl  string `json:"timeControl"`
-		Region       string `json:"region"`
-		RatingRange  string `json:"ratingRange"`
+		Round       int    `json:"round"`
+		TimeControl string `json:"timeControl"`
+		Region      string `json:"region"`
+		RatingRange string `json:"ratingRange"`
+
+		WhiteUsername    string `json:"whiteUsername"`
+		WhiteDisplayName string `json:"whiteDisplayName"`
+		WhiteLichess     string `json:"whiteLichess"`
+		WhiteDiscordId   string `json:"whiteDiscordId"`
+		WhiteDiscord     string `json:"whiteDiscord"`
+
+		BlackUsername    string `json:"blackUsername"`
+		BlackDisplayName string `json:"blackDisplayName"`
+		BlackLichess     string `json:"blackLichess"`
+		BlackDiscordId   string `json:"blackDiscordId"`
+		BlackDiscord     string `json:"blackDiscord"`
 	}{
-		Round:        round,
-		WhiteLichess: white.LichessUsername,
-		WhiteDiscord: white.DiscordUsername,
-		BlackLichess: black.LichessUsername,
-		BlackDiscord: black.DiscordUsername,
-		TimeControl:  timeControl,
-		Region:       section.Region,
-		RatingRange:  section.Section,
+		Round:       round,
+		TimeControl: timeControl,
+		Region:      section.Region,
+		RatingRange: section.Section,
+
+		WhiteUsername:    white.Username,
+		WhiteDisplayName: white.DisplayName,
+		WhiteLichess:     white.LichessUsername,
+		WhiteDiscordId:   white.DiscordId,
+		WhiteDiscord:     white.DiscordUsername,
+
+		BlackUsername:    black.Username,
+		BlackDisplayName: black.DisplayName,
+		BlackLichess:     black.LichessUsername,
+		BlackDiscordId:   black.DiscordId,
+		BlackDiscord:     black.DiscordUsername,
 	}
 
 	templateDataStr, err := json.Marshal(templateData)

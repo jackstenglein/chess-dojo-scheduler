@@ -154,7 +154,6 @@ export interface OpenClassicalRegistrationRequest {
 
 /** A request to submit results for the Open Classical. */
 export interface OpenClassicalSubmitResultsRequest {
-    email: string;
     region: string;
     section: string;
     gameUrl: string;
@@ -260,13 +259,9 @@ export function submitResultsForOpenClassical(
     idToken: string,
     req: OpenClassicalSubmitResultsRequest,
 ) {
-    return axios.post<OpenClassical>(
-        `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/results`,
-        req,
-        {
-            headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
-        },
-    );
+    return axios.post<OpenClassical>(`${BASE_URL}/tournaments/open-classical/results`, req, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
 }
 
 /**

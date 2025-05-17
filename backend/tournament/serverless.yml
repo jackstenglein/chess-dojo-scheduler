@@ -87,9 +87,6 @@ functions:
     handler: openClassical/register/main.go
     events:
       - httpApi:
-          path: /public/tournaments/open-classical/register
-          method: post
-      - httpApi:
           path: /tournaments/open-classical/register
           method: post
           authorizer:
@@ -109,9 +106,6 @@ functions:
   ocSubmitResults:
     handler: openClassical/results/submit/main.go
     events:
-      - httpApi:
-          path: /public/tournaments/open-classical/results
-          method: post
       - httpApi:
           path: /tournaments/open-classical/results
           method: post
@@ -209,6 +203,7 @@ functions:
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
+    timeout: 20
     iamRoleStatements:
       - Effect: Allow
         Action:

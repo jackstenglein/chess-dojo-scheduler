@@ -10,7 +10,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -22,8 +21,8 @@ import (
 var repository = database.DynamoDB
 
 type BanPlayerRequest struct {
-	// The Lichess username of the player to ban
-	LichessUsername string `json:"lichessUsername"`
+	// The username of the player to ban
+	Username string `json:"username"`
 
 	// The region the player is in
 	Region string `json:"region"`
@@ -45,8 +44,8 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err)), nil
 	}
 
-	if request.LichessUsername == "" {
-		return api.Failure(errors.New(400, "Invalid request: lichessUsername is required", "")), nil
+	if request.Username == "" {
+		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 	if request.Region == "" {
 		return api.Failure(errors.New(400, "Invalid request: region is required", "")), nil
@@ -80,16 +79,15 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(errors.New(400, fmt.Sprintf("Invalid request: region %q and section %q not found", request.Region, request.Section), "")), nil
 	}
 
-	usernameLower := strings.ToLower(request.LichessUsername)
-	player, ok := section.Players[usernameLower]
+	player, ok := section.Players[request.Username]
 	if !ok {
-		return api.Failure(errors.New(400, fmt.Sprintf("Invalid request: player %q not found", request.LichessUsername), "")), nil
+		return api.Failure(errors.New(400, fmt.Sprintf("Invalid request: player %q not found", request.Username), "")), nil
 	}
 
 	lastActiveRound := 0
 	for idx := len(section.Rounds) - 1; idx >= 0; idx-- {
 		for _, pairing := range section.Rounds[idx].Pairings {
-			if strings.ToLower(pairing.White.LichessUsername) == usernameLower || strings.ToLower(pairing.Black.LichessUsername) == usernameLower {
+			if pairing.White.Username == request.Username || pairing.Black.Username == request.Username {
 				lastActiveRound = idx + 1
 				break
 			}

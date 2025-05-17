@@ -81,7 +81,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		writer.Write([]string{
 			fmt.Sprintf("%d", count),
 			player.Title,
-			fmt.Sprintf("lichess:%s,discord:%s", player.LichessUsername, player.DiscordUsername),
+			fmt.Sprintf("username:%s,lichess:%s,discord:%s", player.Username, player.LichessUsername, player.DiscordUsername),
 			fmt.Sprintf("%d", player.Rating),
 			"",                               // club
 			"",                               // birthdate
