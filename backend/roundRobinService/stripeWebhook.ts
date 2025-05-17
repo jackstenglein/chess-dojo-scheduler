@@ -1,10 +1,10 @@
-import { RoundRobinRegisterSchema } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import {
-    ApiError,
-    errToApiGatewayProxyResultV2,
-    success,
-} from 'chess-dojo-directory-service/api';
+    RoundRobinPlayer,
+    RoundRobinPlayerSchema,
+    RoundRobinRegisterSchema,
+} from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { ApiError, errToApiGatewayProxyResultV2, success } from 'chess-dojo-directory-service/api';
 import Stripe from 'stripe';
 import { register } from './register';
 import { getSecret } from './secret';
@@ -67,6 +67,7 @@ async function handleCheckoutSessionCompleted(
 async function handleRoundRobinPurchase(
     session: Stripe.Checkout.Session
 ): Promise<APIGatewayProxyResultV2> {
+    const user = RoundRobinPlayerSchema.omit({ status: true }).parse(session.metadata);
     const request = RoundRobinRegisterSchema.parse(session.metadata);
     if (!session.client_reference_id) {
         throw new ApiError({
@@ -76,7 +77,7 @@ async function handleRoundRobinPurchase(
     }
 
     await register({
-        username: session.client_reference_id,
+        user: user as RoundRobinPlayer,
         request,
         checkoutSession: session,
     });

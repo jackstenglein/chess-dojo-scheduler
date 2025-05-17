@@ -100,7 +100,7 @@ export type RoundRobinPlayerStatus = z.infer<typeof roundRobinPlayerStatus>;
 
 export const RoundRobinPlayerStatuses = roundRobinPlayerStatus.enum;
 
-const RoundRobinPlayerSchema = z.object({
+export const RoundRobinPlayerSchema = z.object({
     /** The username of the player. */
     username: z.string(),
     /** The Dojo display name of the player. */

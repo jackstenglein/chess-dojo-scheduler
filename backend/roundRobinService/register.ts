@@ -256,7 +256,7 @@ export async function register({
     request,
     checkoutSession,
 }: {
-    user: User;
+    user: User | RoundRobinPlayer;
     request: RoundRobinRegisterRequest;
     checkoutSession?: Stripe.Checkout.Session;
 }): Promise<{ waitlist: RoundRobinWaitlist; tournament?: RoundRobin }> {
