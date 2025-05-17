@@ -84,7 +84,7 @@ export interface TournamentApiContextType {
 
     /**
      * Bans the given player from the open classical.
-     * @param username The Lichess username of the player to ban.
+     * @param username The username of the player to ban.
      * @param region The region the player is in.
      * @param section The section the player is in.
      * @returns An AxiosResponse containing the updated open classical.
@@ -97,14 +97,14 @@ export interface TournamentApiContextType {
 
     /**
      * Unbans the given player from the open classical.
-     * @param username The Lichess username of the player to unban.
+     * @param username The username of the player to unban.
      * @returns An AxiosResponse containing the updated open classical.
      */
     adminUnbanPlayer: (username: string) => Promise<AxiosResponse<OpenClassical>>;
 
     /**
      * Withdraws the given player from the current open classical.
-     * @param username The Lichess username of the player to withdraw.
+     * @param username The username of the player to withdraw.
      * @param region The region the player is in.
      * @param section The section the player is in.
      * @returns An AxiosResponse containing the updated open classical.
@@ -145,9 +145,7 @@ export interface TournamentApiContextType {
 
 /** A request to register for the Open Classical. */
 export interface OpenClassicalRegistrationRequest {
-    email: string;
     lichessUsername: string;
-    discordUsername: string;
     title: string;
     region: string;
     section: string;
@@ -156,7 +154,6 @@ export interface OpenClassicalRegistrationRequest {
 
 /** A request to submit results for the Open Classical. */
 export interface OpenClassicalSubmitResultsRequest {
-    email: string;
     region: string;
     section: string;
     gameUrl: string;
@@ -247,13 +244,9 @@ export function getOpenClassical(startsAt?: string) {
  * @returns An empty AxiosResponse.
  */
 export function registerForOpenClassical(idToken: string, req: OpenClassicalRegistrationRequest) {
-    return axios.post<null>(
-        `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/register`,
-        req,
-        {
-            headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
-        },
-    );
+    return axios.post<null>(`${BASE_URL}/tournaments/open-classical/register`, req, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
 }
 
 /**
@@ -266,13 +259,9 @@ export function submitResultsForOpenClassical(
     idToken: string,
     req: OpenClassicalSubmitResultsRequest,
 ) {
-    return axios.post<OpenClassical>(
-        `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/results`,
-        req,
-        {
-            headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
-        },
-    );
+    return axios.post<OpenClassical>(`${BASE_URL}/tournaments/open-classical/results`, req, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
 }
 
 /**
@@ -328,21 +317,16 @@ export function adminGetRegistrations(idToken: string, region: string, section: 
 /**
  * Bans the given player from the open classical.
  * @param idToken The id token of the current signed-in user.
- * @param lichessUsername The Lichess username of the player to ban.
+ * @param username The username of the player to ban.
  * @param region The region the player is in.
  * @param section The section the player is in.
  * @returns An AxiosResponse containing the updated open classical.
  */
-export function adminBanPlayer(
-    idToken: string,
-    lichessUsername: string,
-    region: string,
-    section: string,
-) {
+export function adminBanPlayer(idToken: string, username: string, region: string, section: string) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/ban-player`,
         {
-            lichessUsername,
+            username,
             region,
             section,
         },
@@ -355,13 +339,13 @@ export function adminBanPlayer(
 /**
  * Unbans the given player from the open classical.
  * @param idToken The id token of the current signed-in user.
- * @param lichessUsername The Lichess username of the player to unban.
+ * @param username The username of the player to unban.
  * @returns An AxiosResponse containing the updated open classical.
  */
-export function adminUnbanPlayer(idToken: string, lichessUsername: string) {
+export function adminUnbanPlayer(idToken: string, username: string) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/unban-player`,
-        { lichessUsername },
+        { username },
         { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }
@@ -369,19 +353,19 @@ export function adminUnbanPlayer(idToken: string, lichessUsername: string) {
 /**
  * Withdraws the given player from the open classical.
  * @param idToken The id token of the current signed-in user.
- * @param lichessUsername The Lichess username of the player to withdraw.
+ * @param username The username of the player to withdraw.
  * @param region The region the player is in.
  * @param section The section the player is in.
  */
 export function adminWithdrawPlayer(
     idToken: string,
-    lichessUsername: string,
+    username: string,
     region: string,
     section: string,
 ) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/withdraw-player`,
-        { lichessUsername, region, section },
+        { username, region, section },
         { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }

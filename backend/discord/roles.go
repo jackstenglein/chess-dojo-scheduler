@@ -9,6 +9,7 @@ import (
 
 var freeRoles = makeCohortRoles(os.Getenv("discordFreeRoles"))
 var paidRoles = makeCohortRoles(os.Getenv("discordPaidRoles"))
+var openClassicalRole = os.Getenv("discordOpenClassicalRole")
 
 // makeCohortRoles returns a map from Dojo cohort to the corresponding Discord
 // role ID in the given comma separated list.

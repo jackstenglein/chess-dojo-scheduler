@@ -9,7 +9,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -142,24 +141,18 @@ func getPairings(request SetPairingsRequest, openClassical *database.OpenClassic
 			return nil, errors.New(400, fmt.Sprintf("Invalid request: CSV field length %d too short", len(line)), "")
 		}
 
-		whiteLichess, whiteDiscord := getUsernames(line[whiteIndex])
-		blackLichess, blackDiscord := getUsernames(line[blackIndex])
-		whiteRating, err := strconv.Atoi(line[whiteRatingIndex])
-		if err != nil {
-			return nil, errors.Wrap(400, fmt.Sprintf("Invalid request: white rating %q could not be converted to int", line[whiteRatingIndex]), "", err)
-		}
-		blackRating, err := strconv.Atoi(line[blackRatingIndex])
-		if err != nil && blackLichess != noOpponent {
-			return nil, errors.Wrap(400, fmt.Sprintf("Invalid request: black rating %q could not be converted to int", line[blackRatingIndex]), "", err)
-		}
+		whiteUsername, whiteLichess, _ := getUsernames(line[whiteIndex])
+		blackUsername, blackLichess, _ := getUsernames(line[blackIndex])
 
-		if white, ok := section.Players[strings.ToLower(whiteLichess)]; !ok {
+		white, ok := section.Players[whiteUsername]
+		if !ok {
 			return nil, errors.New(400, fmt.Sprintf("Invalid request: player %q not found", whiteLichess), "")
 		} else if white.Status != "" {
 			return nil, errors.New(400, fmt.Sprintf("Invalid request: player %q has status %q", whiteLichess, white.Status), "")
 		}
 
-		if black, ok := section.Players[strings.ToLower(blackLichess)]; !ok {
+		black, ok := section.Players[blackUsername]
+		if !ok {
 			if blackLichess != noOpponent {
 				return nil, errors.New(400, fmt.Sprintf("Invalid request: player %q not found", blackLichess), "")
 			}
@@ -175,18 +168,8 @@ func getPairings(request SetPairingsRequest, openClassical *database.OpenClassic
 		}
 
 		pairing := database.OpenClassicalPairing{
-			White: database.OpenClassicalPlayerSummary{
-				LichessUsername: whiteLichess,
-				DiscordUsername: whiteDiscord,
-				Title:           line[whiteTitleIndex],
-				Rating:          whiteRating,
-			},
-			Black: database.OpenClassicalPlayerSummary{
-				LichessUsername: blackLichess,
-				DiscordUsername: blackDiscord,
-				Title:           line[blackTitleIndex],
-				Rating:          blackRating,
-			},
+			White:    white.OpenClassicalPlayerSummary,
+			Black:    black.OpenClassicalPlayerSummary,
 			Result:   result,
 			Verified: resultVerified,
 		}
@@ -195,15 +178,24 @@ func getPairings(request SetPairingsRequest, openClassical *database.OpenClassic
 	return results, nil
 }
 
-func getUsernames(s string) (lichess, discord string) {
-	tokens := strings.Split(s, ",discord:")
-	lichess = strings.TrimPrefix(tokens[0], "lichess:")
-	if len(tokens) > 1 {
-		discord = tokens[1]
+func getUsernames(s string) (dojo, lichess, discord string) {
+	tokens := strings.Split(s, ",lichess:")
+	if len(tokens) != 2 {
+		return noOpponent, noOpponent, noOpponent
 	}
-	if lichess == "" {
-		lichess = noOpponent
+	if !strings.HasPrefix(tokens[0], "username:") {
+		return noOpponent, noOpponent, noOpponent
 	}
 
-	return lichess, discord
+	dojo = strings.TrimPrefix(tokens[0], "username:")
+
+	s2 := tokens[1]
+	tokens = strings.Split(s2, ",discord:")
+	if len(tokens) != 2 {
+		return noOpponent, noOpponent, noOpponent
+	}
+
+	lichess = tokens[0]
+	discord = tokens[1]
+	return
 }

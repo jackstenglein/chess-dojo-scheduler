@@ -46,11 +46,20 @@ export interface Leaderboard {
 }
 
 export interface OpenClassicalPlayer {
+    /** The username of the player. */
+    username: string;
+
+    /** The display name of the player. */
+    displayName: string;
+
     /** The Lichess username of the player. */
     lichessUsername: string;
 
     /** The Discord username of the player. */
     discordUsername: string;
+
+    /** The Discord id of the player. */
+    discordId: string;
 
     /** The player's title, if they have one. */
     title: string;

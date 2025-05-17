@@ -146,14 +146,28 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
           )
         : null;
 
+    const registeredSection = Object.values(openClassical.sections).find((s) =>
+        Boolean(s.players[viewer?.username ?? '']),
+    );
+
     return (
         <Stack mt={4} spacing={3}>
             {openClassical.acceptingRegistrations ? (
                 <Stack mt={4} pb={5} spacing={2} alignItems='start'>
                     <Typography>
-                        The tournament is still accepting registrations. Round one begins{' '}
-                        {registrationCloseDate || 'soon'}. Register beforehand if you would like to
-                        play.
+                        {registeredSection ? (
+                            <>
+                                You are registered for the Region {registeredSection.region}{' '}
+                                {registeredSection.section} section. Round one begins{' '}
+                                {registrationCloseDate || 'soon'}.
+                            </>
+                        ) : (
+                            <>
+                                The tournament is still accepting registrations. Round one begins{' '}
+                                {registrationCloseDate || 'soon'}. Register beforehand if you would
+                                like to play.
+                            </>
+                        )}
                     </Typography>
 
                     <Button
@@ -163,7 +177,7 @@ const Details: React.FC<DetailsProps> = ({ openClassical }) => {
                         href='/tournaments/open-classical/register'
                         component={Link}
                     >
-                        Register
+                        {registeredSection ? 'Update Registration' : 'Register'}
                     </Button>
                 </Stack>
             ) : openClassical.startsAt === 'CURRENT' ? (

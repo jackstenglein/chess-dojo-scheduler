@@ -36,14 +36,14 @@ func main() {
 	}
 	content := string(b)
 
-	input := &ses.CreateTemplateInput{
+	input := &ses.UpdateTemplateInput{
 		Template: &ses.Template{
 			SubjectPart:  aws.String("Your ChessDojo Open Classical Pairing"),
 			HtmlPart:     aws.String(content),
 			TemplateName: aws.String("openClassicalPairing"),
 		},
 	}
-	output, err := svc.CreateTemplate(input)
+	output, err := svc.UpdateTemplate(input)
 	if err != nil {
 		log.Fatalln("Failed to create template: ", err)
 	}
