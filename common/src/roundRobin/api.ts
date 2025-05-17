@@ -11,17 +11,11 @@ export const RoundRobinRegisterSchema = z.object({
     /** The cohort of the tournament. */
     cohort: z.string(),
 
-    /** The display name of the player registering. */
-    displayName: z.string(),
-
     /** The Lichess username of the player registering. */
     lichessUsername: z.string(),
 
     /** The Chess.com username of the player registering. */
     chesscomUsername: z.string(),
-
-    /** The discord username of the player registering. */
-    discordUsername: z.string().optional(),
 });
 
 /** A request to register for a round robin. */
@@ -116,7 +110,9 @@ const RoundRobinPlayerSchema = z.object({
     /** The Chess.com username of the player. */
     chesscomUsername: z.string(),
     /** The Discord username of the player registering. */
-    discordUsername: z.string().optional(),
+    discordUsername: z.string(),
+    /** The Discord id of the player registering. */
+    discordId: z.string(),
     /** The status of the player. */
     status: roundRobinPlayerStatus,
     /** The Stripe checkout session for players who paid to enter. */
