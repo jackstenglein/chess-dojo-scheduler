@@ -4,6 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import DiscordOAuthButton from '@/components/profile/edit/DiscordOAuthButton';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { LocationOn } from '@mui/icons-material';
 import EmailIcon from '@mui/icons-material/Email';
@@ -35,6 +36,7 @@ import { SiLichess } from 'react-icons/si';
 const RegistrationPage = () => {
     const { user, status } = useAuth();
     const api = useApi();
+    const router = useRouter();
 
     const [email, setEmail] = useState('');
     const [lichessUsername, setLichessUsername] = useState(user?.ratings.LICHESS?.username || '');
@@ -55,17 +57,7 @@ const RegistrationPage = () => {
     const request = useRequest();
 
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-    const [confirmedSteps, setConfirmedSteps] = useState([false, false, false]);
-
-    const onSetConfirmedStep = (idx: number, checked: boolean) => {
-        setConfirmedSteps([
-            ...confirmedSteps.slice(0, idx),
-            checked,
-            ...confirmedSteps.slice(idx + 1),
-        ]);
-    };
-
-    const allConfirmed = confirmedSteps.every(Boolean);
+    const [confirmedSteps, setConfirmedSteps] = useState(false);
 
     useEffect(() => {
         setLichessUsername(user?.ratings.LICHESS?.username || '');
@@ -126,9 +118,7 @@ const RegistrationPage = () => {
     const onRegister = () => {
         request.onStart();
         api.registerForOpenClassical({
-            email: email.trim(),
             lichessUsername: lichessUsername.trim(),
-            discordUsername: '',
             title,
             region,
             section,
@@ -136,7 +126,7 @@ const RegistrationPage = () => {
         })
             .then(() => {
                 request.onSuccess();
-                setShowConfirmDialog(false);
+                router.push(`/tournaments/open-classical?region=${region}&ratingRange=${section}`);
             })
             .catch((err) => {
                 console.error(err);
@@ -314,8 +304,8 @@ const RegistrationPage = () => {
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={confirmedSteps[2]}
-                                    onChange={(e) => onSetConfirmedStep(2, e.target.checked)}
+                                    checked={confirmedSteps}
+                                    onChange={(e) => setConfirmedSteps(e.target.checked)}
                                 />
                             }
                             label={
@@ -336,8 +326,8 @@ const RegistrationPage = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        href={`/tournaments/open-classical?region=${region}&ratingRange=${section}`}
-                        disabled={!allConfirmed}
+                        loading={request.isLoading()}
+                        disabled={!confirmedSteps}
                         onClick={onRegister}
                     >
                         Agree and Continue

@@ -145,9 +145,7 @@ export interface TournamentApiContextType {
 
 /** A request to register for the Open Classical. */
 export interface OpenClassicalRegistrationRequest {
-    email: string;
     lichessUsername: string;
-    discordUsername: string;
     title: string;
     region: string;
     section: string;
@@ -247,13 +245,9 @@ export function getOpenClassical(startsAt?: string) {
  * @returns An empty AxiosResponse.
  */
 export function registerForOpenClassical(idToken: string, req: OpenClassicalRegistrationRequest) {
-    return axios.post<null>(
-        `${BASE_URL}${idToken ? '' : '/public'}/tournaments/open-classical/register`,
-        req,
-        {
-            headers: idToken ? { Authorization: 'Bearer ' + idToken } : undefined,
-        },
-    );
+    return axios.post<null>(`${BASE_URL}/tournaments/open-classical/register`, req, {
+        headers: { Authorization: 'Bearer ' + idToken },
+    });
 }
 
 /**

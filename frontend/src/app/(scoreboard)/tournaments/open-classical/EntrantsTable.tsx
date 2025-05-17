@@ -1,23 +1,44 @@
-import { OpenClassical } from '@/database/tournament';
+import { Link } from '@/components/navigation/Link';
+import { OpenClassical, OpenClassicalPlayer } from '@/database/tournament';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
 
-interface EntrantsTableRow {
-    lichessUsername: string;
-    discordUsername: string;
-    rating: number;
-}
-
-const columns: GridColDef<EntrantsTableRow>[] = [
+const columns: GridColDef<OpenClassicalPlayer>[] = [
+    {
+        field: 'displayName',
+        headerName: 'Name',
+        flex: 1,
+        renderCell(params) {
+            return <Link href={`/profile/${params.row.username}`}>{params.value}</Link>;
+        },
+    },
     {
         field: 'lichessUsername',
-        headerName: 'Lichess Username',
+        headerName: 'Lichess',
         flex: 1,
+        renderCell(params) {
+            return (
+                <Link href={`https://lichess.org/@/${params.value}`} target='_blank' rel='noopener'>
+                    {params.value}
+                </Link>
+            );
+        },
     },
     {
         field: 'discordUsername',
-        headerName: 'Discord Username',
+        headerName: 'Discord',
         flex: 1,
+        renderCell(params) {
+            return (
+                <Link
+                    href={`https://discord.com/users/${params.row.discordId}`}
+                    target='_blank'
+                    rel='noopener'
+                >
+                    {params.value}
+                </Link>
+            );
+        },
     },
     {
         field: 'rating',
@@ -41,11 +62,7 @@ const EntrantsTable: React.FC<EntrantsTableProps> = ({ openClassical, region, ra
             return [];
         }
 
-        return Object.values(section.players).map((player) => ({
-            lichessUsername: player.lichessUsername,
-            discordUsername: player.discordUsername,
-            rating: player.rating,
-        }));
+        return Object.values(section.players);
     }, [openClassical, region, ratingRange]);
 
     if (!openClassical) {
@@ -54,7 +71,7 @@ const EntrantsTable: React.FC<EntrantsTableProps> = ({ openClassical, region, ra
 
     return (
         <DataGridPro
-            getRowId={(player) => player.lichessUsername}
+            getRowId={(player) => player.username}
             rows={rows}
             columns={columns}
             autoHeight

@@ -1,5 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { Link } from '@/components/navigation/Link';
 import {
     getRatingRanges,
     OpenClassical,
@@ -38,14 +39,40 @@ declare module '@mui/x-data-grid' {
 
 export const defaultPlayerColumns: GridColDef<OpenClassicalPlayer>[] = [
     {
-        field: 'lichessUsername',
-        headerName: 'Lichess Username',
+        field: 'displayName',
+        headerName: 'Name',
         flex: 1,
+        renderCell(params) {
+            return <Link href={`/profile/${params.row.username}`}>{params.value}</Link>;
+        },
+    },
+    {
+        field: 'lichessUsername',
+        headerName: 'Lichess',
+        flex: 1,
+        renderCell(params) {
+            return (
+                <Link href={`https://lichess.org/@/${params.value}`} target='_blank' rel='noopener'>
+                    {params.value}
+                </Link>
+            );
+        },
     },
     {
         field: 'discordUsername',
-        headerName: 'Discord Username',
+        headerName: 'Discord',
         flex: 1,
+        renderCell(params) {
+            return (
+                <Link
+                    href={`https://discord.com/users/${params.row.discordId}`}
+                    target='_blank'
+                    rel='noopener'
+                >
+                    {params.value}
+                </Link>
+            );
+        },
     },
     {
         field: 'rating',
@@ -228,7 +255,7 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                 </TextField>
             </Stack>
             <DataGridPro
-                getRowId={(player) => player.lichessUsername}
+                getRowId={(player) => player.username}
                 rows={players}
                 columns={columns}
                 autoHeight

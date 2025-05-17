@@ -101,6 +101,10 @@ functions:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
         Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
 
   ocSubmitResults:
     handler: openClassical/results/submit/main.go

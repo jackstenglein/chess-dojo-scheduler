@@ -226,11 +226,17 @@ type OpenClassicalPairing struct {
 // OpenClassicalPlayerSummary represents the minimum information needed to schedule
 // a game with a player in the Open Classical.
 type OpenClassicalPlayerSummary struct {
+	// The display name of the player
+	DisplayName string `dynamodbav:"displayName" json:"displayName"`
+
 	// The Lichess username of the player
 	LichessUsername string `dynamodbav:"lichessUsername" json:"lichessUsername"`
 
 	// The Discord username of the player
 	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
+
+	// The Discord ID of the player
+	DiscordId string `dynamodbav:"discordId" json:"discordId"`
 
 	// The player's title, if they have one
 	Title string `dynamodbav:"title" json:"title"`
@@ -245,7 +251,7 @@ type OpenClassicalPlayerSummary struct {
 type OpenClassicalPlayer struct {
 	OpenClassicalPlayerSummary
 
-	// The username of the player in the Dojo Scoreboard, if they are logged in
+	// The username of the player in the Dojo Scoreboard
 	Username string `dynamodbav:"username" json:"username"`
 
 	// The email of the player
@@ -334,7 +340,7 @@ func (repo *dynamoRepository) UpdateOpenClassicalRegistration(openClassical *Ope
 		"#acceptingRegistrations": aws.String("acceptingRegistrations"),
 		"#sections":               aws.String("sections"),
 		"#players":                aws.String("players"),
-		"#username":               aws.String(strings.ToLower(player.LichessUsername)),
+		"#username":               aws.String(player.Username),
 	}
 
 	for key, section := range openClassical.Sections {

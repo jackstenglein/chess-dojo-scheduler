@@ -1,7 +1,12 @@
-import { OpenClassical, OpenClassicalPlayerStatus } from '@/database/tournament';
+import {
+    OpenClassical,
+    OpenClassicalPlayer,
+    OpenClassicalPlayerStatus,
+} from '@/database/tournament';
 import { Stack, Tooltip, Typography } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import { useMemo } from 'react';
+import { PlayerCell } from './PairingsTable';
 
 enum Result {
     Win = 'W',
@@ -127,29 +132,42 @@ const standingsTableColumns: GridColDef<StandingsTableRow>[] = [
         filterable: false,
         align: 'center',
         width: 50,
+        renderCell(params) {
+            return (
+                <Stack height={1} justifyContent='center'>
+                    <Typography>{params.value}</Typography>
+                </Stack>
+            );
+        },
     },
     {
-        field: 'lichessUsername',
-        headerName: 'Lichess',
+        field: 'player',
+        headerName: 'Player',
+        headerAlign: 'center',
         flex: 1,
-    },
-    {
-        field: 'discordUsername',
-        headerName: 'Discord',
-        flex: 1,
+        valueGetter: (_value, row) =>
+            `${row.displayName} ${row.lichessUsername} ${row.discordUsername}`,
+        renderCell(params) {
+            return <PlayerCell player={params.row} />;
+        },
     },
     {
         field: 'total',
         headerName: 'Total',
         align: 'center',
         headerAlign: 'center',
+        renderCell(params) {
+            return (
+                <Stack height={1} justifyContent='center'>
+                    <Typography>{params.value}</Typography>
+                </Stack>
+            );
+        },
     },
     ...getRoundColumns(NUM_ROUNDS),
 ];
 
-interface StandingsTableRow {
-    lichessUsername: string;
-    discordUsername: string;
+interface StandingsTableRow extends OpenClassicalPlayer {
     total: number;
     rounds: Record<
         number,
@@ -229,8 +247,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({ openClassical, region, 
         const players: Record<string, StandingsTableRow> = {};
         Object.values(section.players).forEach((player) => {
             players[player.lichessUsername] = {
-                lichessUsername: player.lichessUsername,
-                discordUsername: player.discordUsername,
+                ...player,
                 total: 0,
                 rounds: {},
                 status: player.status,
@@ -292,12 +309,14 @@ const StandingsTable: React.FC<StandingsTableProps> = ({ openClassical, region, 
     }
 
     return (
-        <DataGridPro
-            getRowId={(player) => player.lichessUsername}
-            rows={rows}
-            columns={standingsTableColumns}
-            autoHeight
-        />
+        <Stack>
+            <DataGridPro
+                getRowId={(player) => player.lichessUsername}
+                rows={rows}
+                columns={standingsTableColumns}
+                getRowHeight={() => 'auto'}
+            />
+        </Stack>
     );
 };
 
