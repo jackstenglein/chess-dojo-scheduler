@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -11,6 +12,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/user/ratings"
 )
 
@@ -92,6 +94,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
+	if err := discord.SetOpenClassicalRole(user); err != nil {
+		return api.Failure(err), nil
+	}
+
 	openClassicalPlayer := database.OpenClassicalPlayer{
 		OpenClassicalPlayerSummary: database.OpenClassicalPlayerSummary{
 			Username:        info.Username,
@@ -143,14 +149,7 @@ func checkRequest(req *RegisterRequest) error {
 		return errors.New(400, "Invalid request: byeRequests has too many items", "")
 	}
 
-	found := false
-	for _, t := range validTitles {
-		if t == req.Title {
-			found = true
-			break
-		}
-	}
-	if !found {
+	if !slices.Contains(validTitles, req.Title) {
 		errors.New(400, "Invalid request: title is not in list of valid titles", "")
 	}
 

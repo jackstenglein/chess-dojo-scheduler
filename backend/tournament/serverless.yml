@@ -102,6 +102,10 @@ functions:
         Action:
           - dynamodb:GetItem
         Resource: ${param:UsersTableArn}
+    environment:
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordOpenClassicalRole: ${file(../config-${sls:stage}.yml):discordOpenClassicalRole}
 
   ocSubmitResults:
     handler: openClassical/results/submit/main.go
