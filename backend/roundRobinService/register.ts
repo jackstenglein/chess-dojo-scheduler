@@ -21,6 +21,7 @@ import {
     RoundRobinWaitlist,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import axios from 'axios';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
@@ -61,13 +62,21 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const request = parseEvent(event, RoundRobinRegisterSchema);
         const { username } = requireUserInfo(event);
         const user = await fetchUser(username);
+        if (!user.discordUsername || !user.discordId) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `You must link your Discord account in your Dojo settings to play in the round robin`,
+            });
+        }
+        await validateRequest(request);
+        await addRoundRobinRole(user);
 
         if (user.subscriptionStatus !== SubscriptionStatus.Subscribed) {
             const url = await getCheckoutUrl({ user, request });
             return success({ url });
         }
 
-        const tournaments = await register({ username, request });
+        const tournaments = await register({ user, request });
         return success(tournaments);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -95,6 +104,82 @@ async function fetchUser(username: string): Promise<User> {
         });
     }
     return unmarshall(result.Item) as User;
+}
+
+/**
+ * Checks that the Chess.com and Lichess usernames in the request are
+ * valid.
+ * @param request The request to validate.
+ */
+async function validateRequest(request: RoundRobinRegisterRequest) {
+    try {
+        await axios.get(`https://api.chess.com/pub/player/${request.chesscomUsername}/stats`);
+    } catch (err) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Unable to find Chess.com username "${request.chesscomUsername}"`,
+            cause: err,
+        });
+    }
+
+    let lichessResponse;
+    try {
+        lichessResponse = await axios.get<{ disabled?: boolean; tosViolation?: boolean }>(
+            `https://lichess.org/api/user/${request.lichessUsername}`
+        );
+    } catch (err) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Unable to find Lichess username "${request.lichessUsername}"`,
+            cause: err,
+        });
+    }
+    if (lichessResponse.data.disabled) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Lichess account "${request.lichessUsername}" is disabled`,
+        });
+    }
+    if (lichessResponse.data.tosViolation) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Lichess account "${request.lichessUsername}" has a TOS violation`,
+        });
+    }
+}
+
+/**
+ * Adds the Discord round robin role to the provided user. If the user already has the role,
+ * it is unchanged.
+ * @param user The user to add the discord round robin role to.
+ */
+async function addRoundRobinRole(user: User) {
+    const guildMemberResp = await axios.get<{ roles?: string[] }>(
+        `https://discord.com/api/guilds/${process.env.discordGuildId}/members/${user.discordId}`,
+        {
+            headers: {
+                Authorization: `Bot ${process.env.discordBotToken}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+    if (guildMemberResp.data.roles?.includes(process.env.discordRoundRobinRole || '')) {
+        return;
+    }
+
+    const roles = (guildMemberResp.data.roles ?? []).concat(
+        process.env.discordRoundRobinRole || ''
+    );
+    await axios.patch(
+        `https://discord.com/api/guilds/${process.env.discordGuildId}/members/${user.discordId}`,
+        { roles },
+        {
+            headers: {
+                Authorization: `Bot ${process.env.discordBotToken}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
 }
 
 /**
@@ -139,10 +224,11 @@ async function getCheckoutUrl({
         metadata: {
             type: 'ROUND_ROBIN',
             username: user.username,
-            displayName: request.displayName,
+            displayName: user.displayName,
             lichessUsername: request.lichessUsername,
             chesscomUsername: request.chesscomUsername,
-            discordUsername: request.discordUsername || '',
+            discordUsername: user.discordUsername || '',
+            discordId: user.discordId || '',
             cohort: request.cohort,
         },
     });
@@ -160,26 +246,34 @@ async function getCheckoutUrl({
 
 /**
  * Registers the given user for the given round robin.
- * @param username The username of the person registering.
+ * @param user The user registering.
  * @param request The round robin registration request.
  * @param checkoutSession The Stripe checkout session for users who paid to enter.
  * @returns An array of the updated tournament and waitlist.
  */
 export async function register({
-    username,
+    user,
     request,
     checkoutSession,
 }: {
-    username: string;
+    user: User | RoundRobinPlayer;
     request: RoundRobinRegisterRequest;
     checkoutSession?: Stripe.Checkout.Session;
 }): Promise<{ waitlist: RoundRobinWaitlist; tournament?: RoundRobin }> {
+    if (!user.discordUsername || !user.discordId) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `You must link your Discord account in your Dojo settings to play in the round robin`,
+        });
+    }
+
     const player: RoundRobinPlayer = {
-        username,
-        displayName: request.displayName,
+        username: user.username,
+        displayName: user.displayName,
         lichessUsername: request.lichessUsername,
         chesscomUsername: request.chesscomUsername,
-        discordUsername: request.discordUsername,
+        discordUsername: user.discordUsername,
+        discordId: user.discordId,
         status: RoundRobinPlayerStatuses.ACTIVE,
         checkoutSession: checkoutSession as { setup_intent: string; customer: string },
     };
@@ -190,12 +284,12 @@ export async function register({
             const input = new UpdateItemBuilder()
                 .key('type', `ROUND_ROBIN_${request.cohort}`)
                 .key('startsAt', 'WAITING')
-                .set(['players', username], player)
+                .set(['players', user.username], player)
                 .set('updatedAt', new Date().toISOString())
                 .condition(
                     and(
                         attributeExists('players'),
-                        attributeNotExists(['players', username]),
+                        attributeNotExists(['players', user.username]),
                         sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS)
                     )
                 )
