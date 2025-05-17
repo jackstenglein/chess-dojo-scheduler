@@ -11,8 +11,6 @@ const publicPaths = [
     /^\/tournaments\/liga$/,
     /^\/tournaments\/open-classical$/,
     /^\/tournaments\/open-classical\/info$/,
-    /^\/tournaments\/open-classical\/register$/,
-    /^\/tournaments\/open-classical\/submit-results$/,
     /^\/tournaments\/open-classical\/previous$/,
     /^\/courses$/,
     /^\/material\/books$/,

@@ -3,6 +3,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import DiscordOAuthButton from '@/components/profile/edit/DiscordOAuthButton';
 import LoadingPage from '@/loading/LoadingPage';
 import { LocationOn } from '@mui/icons-material';
 import EmailIcon from '@mui/icons-material/Email';
@@ -29,7 +30,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { SiDiscord, SiLichess } from 'react-icons/si';
+import { SiLichess } from 'react-icons/si';
 
 const RegistrationPage = () => {
     const { user, status } = useAuth();
@@ -37,7 +38,6 @@ const RegistrationPage = () => {
 
     const [email, setEmail] = useState('');
     const [lichessUsername, setLichessUsername] = useState(user?.ratings.LICHESS?.username || '');
-    const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [title, setTitle] = useState('');
     const [region, setRegion] = useState('');
     const [section, setSection] = useState('');
@@ -64,16 +64,31 @@ const RegistrationPage = () => {
             ...confirmedSteps.slice(idx + 1),
         ]);
     };
-    
-    const allConfirmed = confirmedSteps.every(Boolean);    
+
+    const allConfirmed = confirmedSteps.every(Boolean);
 
     useEffect(() => {
         setLichessUsername(user?.ratings.LICHESS?.username || '');
-        setDiscordUsername(user?.discordUsername || '');
     }, [user]);
 
-    if (status === AuthStatus.Loading) {
+    if (!user || status === AuthStatus.Loading) {
         return <LoadingPage />;
+    }
+
+    if (!user.discordId) {
+        return (
+            <Container maxWidth='md' sx={{ py: 5 }}>
+                <Typography variant='h5'>Register for the Dojo Open Classical</Typography>
+
+                <Typography variant='h6' sx={{ my: 2 }}>
+                    Playing in the Open Classical requires a Discord account linked to your Dojo
+                    profile, in order to facilitate communication and game scheduling between
+                    players.
+                </Typography>
+
+                <DiscordOAuthButton />
+            </Container>
+        );
     }
 
     const onSetByeRequest = (idx: number, value: boolean) => {
@@ -88,9 +103,6 @@ const RegistrationPage = () => {
         }
         if (lichessUsername.trim() === '') {
             newErrors.lichessUsername = 'This field is required';
-        }
-        if (discordUsername.trim() === '') {
-            newErrors.discordUsername = 'This field is required';
         }
         if (region === '') {
             newErrors.region = 'This field is required';
@@ -116,7 +128,7 @@ const RegistrationPage = () => {
         api.registerForOpenClassical({
             email: email.trim(),
             lichessUsername: lichessUsername.trim(),
-            discordUsername: discordUsername.trim(),
+            discordUsername: '',
             title,
             region,
             section,
@@ -130,8 +142,7 @@ const RegistrationPage = () => {
                 console.error(err);
                 request.onFailure(err);
             });
-            
-    }
+    };
 
     return (
         <Container maxWidth='md' sx={{ pt: 5, pb: 10 }}>
@@ -167,7 +178,6 @@ const RegistrationPage = () => {
                     label='Lichess Username'
                     value={lichessUsername}
                     onChange={(e) => setLichessUsername(e.target.value)}
-                    disabled={Boolean(user?.ratings.LICHESS?.username)}
                     required={!user?.ratings.LICHESS?.username}
                     fullWidth
                     error={Boolean(errors.lichessUsername)}
@@ -177,26 +187,6 @@ const RegistrationPage = () => {
                             startAdornment: (
                                 <InputAdornment position='start'>
                                     <SiLichess fontSize={23} />
-                                </InputAdornment>
-                            ),
-                        },
-                    }}
-                />
-
-                <TextField
-                    label='Discord Username'
-                    value={discordUsername}
-                    onChange={(e) => setDiscordUsername(e.target.value)}
-                    disabled={Boolean(user?.discordUsername)}
-                    required={!user?.discordUsername}
-                    fullWidth
-                    error={Boolean(errors.discordUsername)}
-                    helperText={errors.discordUsername}
-                    slotProps={{
-                        input: {
-                            startAdornment: (
-                                <InputAdornment position='start'>
-                                    <SiDiscord fontSize={23} style={{ color: '#5865f2' }} />
                                 </InputAdornment>
                             ),
                         },
@@ -309,49 +299,18 @@ const RegistrationPage = () => {
                 </LoadingButton>
             </Stack>
 
-            <Dialog open={showConfirmDialog} maxWidth='sm' fullWidth>
+            <Dialog
+                open={showConfirmDialog}
+                onClose={() => setShowConfirmDialog(false)}
+                maxWidth='sm'
+                fullWidth
+            >
                 <DialogTitle>Registration Confirmation</DialogTitle>
                 <DialogContent>
                     <Typography gutterBottom>
-                        Please confirm that you have completed the following steps:
+                        Please confirm that you have completed the following:
                     </Typography>
-                    <Stack spacing={2}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={confirmedSteps[0]}
-                                    onChange={(e) => onSetConfirmedStep(0, e.target.checked)}
-                                />
-                            }
-                            label={
-                                <>
-                                    I joined the{' '}
-                                    <Link target='_blank' href='https://discord.gg/dUt4ZnfBQk'>
-                                        ChessDojo Discord Server
-                                    </Link>
-                                </>
-                            }
-                        />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={confirmedSteps[1]}
-                                    onChange={(e) => onSetConfirmedStep(1, e.target.checked)}
-                                />
-                            }
-                            label={
-                                <>
-                                    I gave myself the{' '}
-                                    <Link
-                                        target='_blank'
-                                        href='https://discord.com/channels/951958534113886238/1345816468352405575/1371223815581077725'
-                                        rel='noreferrer'
-                                    >
-                                        Open Classical badge
-                                    </Link>
-                                </>
-                            }
-                        />
+                    <Stack mt={2}>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -361,7 +320,7 @@ const RegistrationPage = () => {
                             }
                             label={
                                 <>
-                                    I enabled DMs from server members (
+                                    I enabled DMs from Discord server members (
                                     <Link
                                         target='_blank'
                                         href='https://medium.com/@ZombieInu/discord-enable-disable-allowing-dms-from-server-members-f84881d896c6'
@@ -384,7 +343,6 @@ const RegistrationPage = () => {
                         Agree and Continue
                     </Button>
                 </DialogActions>
-
             </Dialog>
         </Container>
     );

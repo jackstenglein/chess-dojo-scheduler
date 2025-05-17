@@ -2,37 +2,40 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { getConfig } from '@/config';
-import { User } from '@/database/user';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { DiscordIcon } from '@/style/SocialMediaIcons';
 import { Button, Stack, Typography } from '@mui/material';
-import { useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 const config = getConfig();
-const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${config.discord.clientId}&redirect_uri=${config.discord.oauthRedirectUrl}&response_type=code&scope=identify%20guilds.join`;
 
-function DiscordOAuthButton({ user }: { user: User }) {
-    const { updateUser } = useAuth();
+function DiscordOAuthButton() {
+    const { user, updateUser } = useAuth();
     const api = useApi();
     const request = useRequest<string>();
-    const params = useSearchParams();
-    const mode = user.discordId ? 'disconnect' : 'connect';
-    const code = params.get('code');
+    const pathname = usePathname();
+    const { searchParams, updateSearchParams } = useNextSearchParams();
+    const mode = user?.discordId ? 'disconnect' : 'connect';
+    const code = searchParams.get('code');
+    const redirectUri = `${config.baseUrl}${pathname}`;
+    const discordAuthUrl = `https://discord.com/oauth2/authorize?client_id=${config.discord.clientId}&redirect_uri=${redirectUri}&response_type=code&scope=identify%20guilds.join`;
 
     useEffect(() => {
-        if (mode === 'connect' && code && !request.isSent()) {
+        if (mode === 'connect' && code && redirectUri && !request.isSent()) {
             request.onStart();
-            api.discordAuth({ mode: 'connect', code })
+            api.discordAuth({ mode: 'connect', code, redirectUri })
                 .then((resp) => {
                     request.onSuccess(`Discord account successfully connected!`);
                     updateUser(resp.data);
+                    updateSearchParams({ code: '' });
                 })
                 .catch((err) => {
                     console.error('discordAuth: ', err);
                     request.onFailure(err);
                 });
         }
-    }, [mode, code, request, api, updateUser]);
+    }, [mode, code, request, api, updateUser, redirectUri, updateSearchParams]);
 
     const handleDisconnect = () => {
         request.onStart();
@@ -55,7 +58,7 @@ function DiscordOAuthButton({ user }: { user: User }) {
                         variant='contained'
                         loading={request.isLoading()}
                         startIcon={<DiscordIcon />}
-                        href={DISCORD_AUTH_URL}
+                        href={discordAuthUrl}
                     >
                         Connect Discord
                     </Button>
@@ -63,7 +66,7 @@ function DiscordOAuthButton({ user }: { user: User }) {
             ) : (
                 <Stack direction='row' alignItems='center'>
                     <DiscordIcon />
-                    <Typography sx={{ ml: 1, mr: 2 }}>{user.discordUsername}</Typography>
+                    <Typography sx={{ ml: 1, mr: 2 }}>{user?.discordUsername}</Typography>
                     <Button
                         variant='contained'
                         color='error'

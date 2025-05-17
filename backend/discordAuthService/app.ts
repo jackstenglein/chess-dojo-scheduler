@@ -23,8 +23,8 @@ import {
     DISCORD_BOT_TOKEN,
     DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET,
+    DISCORD_DEFAULT_REDIRECT_URI,
     DISCORD_GUILD_ID,
-    DISCORD_REDIRECT_URI,
     DISCORD_TOKEN_URL,
     DISCORD_USER_URL,
     DiscordTokenResponse,
@@ -87,7 +87,7 @@ async function handleConnectRequest(
         client_secret: DISCORD_CLIENT_SECRET,
         grant_type: 'authorization_code',
         code: request.code,
-        redirect_uri: DISCORD_REDIRECT_URI,
+        redirect_uri: request.redirectUri || DISCORD_DEFAULT_REDIRECT_URI,
     });
 
     const tokenResponse = await axios.post<DiscordTokenResponse>(DISCORD_TOKEN_URL, params, {
