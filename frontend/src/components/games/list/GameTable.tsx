@@ -18,6 +18,7 @@ import {
     GridToolbarContainer,
     GridToolbarDensitySelector,
     GridToolbarFilterButton,
+    PaginationPropsOverrides,
     useGridApiRef,
 } from '@mui/x-data-grid-pro';
 import { useCallback, useMemo } from 'react';
@@ -186,7 +187,7 @@ export default function GameTable({
 }: GameTableProps) {
     const apiRef = useGridApiRef();
     const freeTierLimited = useFreeTier() && limitFreeTier;
-    const { data, request, page, pageSize, rowCount, hasMore, setPage } = pagination;
+    const { data, request, page, pageSize, rowCount, hasMore, setPage, setPageSize } = pagination;
     const [columnVisibility, setColumnVisibility] = useLocalStorage<GridColumnVisibilityModel>(
         `/GameTable/${namespace}/visibility`,
         {
@@ -213,12 +214,12 @@ export default function GameTable({
     const theme = useTheme();
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
     const isListView = dataGridProps.listView || isSmall;
+    const density = apiRef.current?.state?.density;
 
     const getEstimatedRowHeight = useCallback(() => {
         if (isListView) {
             return 105;
         }
-        const density = apiRef.current?.state?.density;
         switch (density) {
             case 'compact':
                 return 50;
@@ -229,13 +230,12 @@ export default function GameTable({
             default:
                 return 65;
         }
-    }, [isListView, apiRef]);
+    }, [isListView, density]);
 
     const getRowHeight = useCallback(() => {
         if (isListView) {
             return 'auto';
         }
-        const density = apiRef.current?.state?.density;
         switch (density) {
             case 'compact':
                 return 50;
@@ -246,7 +246,7 @@ export default function GameTable({
             default:
                 return 65;
         }
-    }, [isListView, apiRef]);
+    }, [isListView, density]);
 
     return (
         <DataGridPro
@@ -281,10 +281,12 @@ export default function GameTable({
                 },
             }}
             slots={{
-                pagination: () => (
+                basePagination: (props: PaginationPropsOverrides) => (
                     <CustomPagination
+                        {...props}
                         page={page}
                         pageSize={pageSize}
+                        setPageSize={setPageSize}
                         count={rowCount}
                         hasMore={hasMore}
                         onPrevPage={() => setPage(page - 1)}

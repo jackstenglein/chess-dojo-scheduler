@@ -60,8 +60,6 @@ export const DirectoryBreadcrumbs = ({
         }
     };
 
-    console.log('Current breadcrumbs: ', currentBreadcrumbs);
-
     return (
         <Stack spacing={1} direction='row' alignItems='center'>
             {hiddenBreadcrumbs > 0 && (

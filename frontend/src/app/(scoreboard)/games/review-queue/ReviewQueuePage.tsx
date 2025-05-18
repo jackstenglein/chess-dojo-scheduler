@@ -18,6 +18,7 @@ import {
     GridPaginationModel,
     GridRenderCellParams,
     GridRowParams,
+    PaginationPropsOverrides,
 } from '@mui/x-data-grid-pro';
 import { useCallback } from 'react';
 
@@ -190,10 +191,12 @@ export function ReviewQueuePage() {
                 }}
                 pagination
                 slots={{
-                    pagination: () => (
+                    basePagination: (props: PaginationPropsOverrides) => (
                         <CustomPagination
+                            {...props}
                             page={page}
                             pageSize={pageSize}
+                            setPageSize={setPageSize}
                             count={rowCount}
                             hasMore={hasMore}
                             onPrevPage={() => setPage(page - 1)}

@@ -47,7 +47,7 @@ export function usePagination(
     const onChangePage = useCallback(
         (newPage: number) => {
             reset();
-            updateSearchParams({ page: `${newPage}` });
+            updateSearchParams({ page: `${newPage}` }, { scroll: false });
         },
         [reset, updateSearchParams],
     );
@@ -55,7 +55,10 @@ export function usePagination(
     const onChangePageSize = useCallback(
         (newPageSize: number) => {
             const newPage = Math.floor((page * pageSize) / newPageSize);
-            updateSearchParams({ page: `${newPage}`, pageSize: `${newPageSize}` });
+            updateSearchParams(
+                { page: `${newPage}`, pageSize: `${newPageSize}` },
+                { scroll: false },
+            );
         },
         [updateSearchParams, page, pageSize],
     );

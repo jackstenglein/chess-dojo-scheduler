@@ -35,7 +35,6 @@ export const ScheduleClassicalGame = ({ hideChip }: { hideChip?: boolean }) => {
     >();
 
     const upcomingGames = getUpcomingGameSchedule(user?.gameSchedule);
-    console.log('Upcoming Games: ', upcomingGames);
     return (
         <Stack spacing={2} mt={2}>
             <Grid
