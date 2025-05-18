@@ -28,6 +28,12 @@ export const ShowSuggestedVariations = {
     default: true,
 } as const;
 
+/** Whether to scroll on the board to go to the next move. */
+export const ScrollToMove = {
+    key: 'scrollToMove',
+    default: false,
+} as const;
+
 export enum BoardStyle {
     Standard = 'STANDARD',
     Moon = 'MOON',
@@ -110,6 +116,10 @@ const ViewerSettings = () => {
     const [showSuggestedVariations, setShowSuggestedVariations] = useLocalStorage<boolean>(
         ShowSuggestedVariations.key,
         ShowSuggestedVariations.default,
+    );
+    const [scrollToMove, setScrollToMove] = useLocalStorage<boolean>(
+        ScrollToMove.key,
+        ScrollToMove.default,
     );
 
     return (
@@ -252,6 +262,16 @@ const ViewerSettings = () => {
                         />
                     }
                     label="Display other users' suggested variations in PGN text"
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={scrollToMove}
+                            onChange={(e) => setScrollToMove(e.target.checked)}
+                        />
+                    }
+                    label='Scroll on board to go to next/previous move'
                 />
             </Stack>
 
