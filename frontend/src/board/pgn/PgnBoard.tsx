@@ -10,6 +10,7 @@ import { Color } from 'chessground/types';
 import React, {
     createContext,
     forwardRef,
+    RefObject,
     useCallback,
     useContext,
     useEffect,
@@ -47,6 +48,7 @@ interface ChessContextType {
     mode?: PgnBoardMode;
     chess?: Chess;
     board?: BoardApi;
+    boardRef?: RefObject<HTMLDivElement>;
     config?: ChessConfig;
     toggleOrientation?: () => void;
     keydownMap?: React.MutableRefObject<Record<string, boolean>>;
@@ -130,6 +132,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
     ) => {
         const { game } = useGame();
         const [board, setBoard] = useState<BoardApi>();
+        const [boardRef, setBoardRef] = useState<RefObject<HTMLDivElement>>();
 
         const disableNullMoves = disableNullMovesProp ?? !game;
         const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
@@ -212,6 +215,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             () => ({
                 chess,
                 board,
+                boardRef,
                 config: {
                     initKey,
                     allowMoveDeletion,
@@ -248,6 +252,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             [
                 chess,
                 board,
+                boardRef,
                 allowMoveDeletion,
                 allowDeleteBefore,
                 orientation,
@@ -267,9 +272,10 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         );
 
         const onInitialize = useCallback(
-            (board: BoardApi, chess: Chess) => {
+            (board: BoardApi, chess: Chess, boardRef: RefObject<HTMLDivElement>) => {
                 parentOnInitialize?.(board, chess);
                 setBoard(board);
+                setBoardRef(boardRef);
             },
             [parentOnInitialize, setBoard],
         );

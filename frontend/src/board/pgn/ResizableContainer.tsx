@@ -3,7 +3,7 @@ import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'react-resizable/css/styles.css';
-import { BoardApi, Chess } from '../Board';
+import { onInitializeFunc } from '../Board';
 import KeyboardHandler from './KeyboardHandler';
 import ResizableBoardArea from './ResizableBoardArea';
 import Underboard, { UnderboardApi } from './boardTools/underboard/Underboard';
@@ -24,7 +24,7 @@ interface ResizableContainerProps {
     fen?: string;
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
-    onInitialize: (board: BoardApi, chess: Chess) => void;
+    onInitialize: onInitializeFunc;
 }
 
 const ResizableContainer: React.FC<ResizableContainerProps> = ({
