@@ -52,7 +52,7 @@ function getPerfectArea(dataset: Datum[], timeControl: number, increment: number
 }
 
 function getZeroRatingArea(dataset: Datum[], timeControl: number, increment: number): number {
-    const size = Math.min(50, dataset.length) - 1;
+    const size = Math.min(50, dataset.length);
     const tc = timeControl + increment;
 
     return (0.5) * (size - 5) * tc;
