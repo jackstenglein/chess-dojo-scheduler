@@ -1,19 +1,23 @@
 import { Datum } from '../ClockUsage';
 
-
-function normalLine(dataset: Datum[], start: number, end: number, timeControl: number, increment: number): {slope: number, intercept: number} {
-    
+function normalLine(
+    dataset: Datum[],
+    start: number,
+    end: number,
+    timeControl: number,
+    increment: number,
+): { slope: number; intercept: number } {
     const intercept = timeControl + increment;
-    console.log('i ',intercept);
+    console.log('i ', intercept);
     const y1 = intercept;
     const y2 = dataset[end].seconds;
-    console.log(y2)
+    console.log(y2);
     const x1 = 5;
-    const x2 = dataset[end].moveNumber
+    const x2 = dataset[end].moveNumber;
 
     const slope = (y2 - y1) / (x2 - x1);
-    
-    return {slope: slope, intercept: intercept};
+
+    return { slope: slope, intercept: intercept };
 }
 
 function calculateAreaUnderCurve(dataset: Datum[], start: number, end: number): number {
@@ -46,7 +50,13 @@ function calculateAreaUnderLine(
 
 function getPerfectArea(dataset: Datum[], timeControl: number, increment: number): number {
     const size = Math.min(50, dataset.length) - 1;
-    const {slope: perfectSlope, intercept: perfectIntercept} = normalLine(dataset, 5, size, timeControl, increment);
+    const { slope: perfectSlope, intercept: perfectIntercept } = normalLine(
+        dataset,
+        5,
+        size,
+        timeControl,
+        increment,
+    );
     const perfectArea = calculateAreaUnderLine(perfectSlope, perfectIntercept, 5, size);
     return perfectArea;
 }
@@ -55,36 +65,48 @@ function getZeroRatingArea(dataset: Datum[], timeControl: number, increment: num
     const size = Math.min(50, dataset.length);
     const tc = timeControl + increment;
 
-    return (0.5) * (size - 5) * tc;
+    return 0.5 * (size - 5) * tc;
 }
 
-function getRatingFormula(dataset: Datum[], timeControl: number, increment: number, comparisonArea: number): number {
+function getRatingFormula(
+    dataset: Datum[],
+    timeControl: number,
+    increment: number,
+    comparisonArea: number,
+): number {
     const zeroRatingArea = getZeroRatingArea(dataset, timeControl, increment);
-    const slope = (-3000 / zeroRatingArea);
-    console.log('Zero Rating Area', zeroRatingArea)
+    const slope = -3000 / zeroRatingArea;
+    console.log('Zero Rating Area', zeroRatingArea);
     console.log('Forumula', `y = ${slope}x + ${3000}`);
-    const rating = ((-3000 * (comparisonArea)) / zeroRatingArea) + 3000;
+    const rating = (-3000 * comparisonArea) / zeroRatingArea + 3000;
 
-    if(rating <= 0){
+    if (rating <= 0) {
         return 0;
     }
 
     return Math.round(rating);
 }
 
-export function calculateTimeRating(dataset: Datum[], timeControl: number | undefined, increment: number | undefined, side: string){
-    if(!timeControl){
+export function calculateTimeRating(
+    dataset: Datum[],
+    timeControl: number | undefined,
+    increment: number | undefined,
+    side: string,
+) {
+    if (!timeControl) {
         return 0;
     }
     let inc = 0;
-    if(increment){
+    if (increment) {
         inc = increment;
     }
     const size = Math.min(50, dataset.length);
-    const sideArea = Math.abs(calculateAreaUnderCurve(dataset, 5, size-1) - getPerfectArea(dataset, timeControl, inc));
+    const sideArea = Math.abs(
+        calculateAreaUnderCurve(dataset, 5, size - 1) - getPerfectArea(dataset, timeControl, inc),
+    );
     const sideRating = getRatingFormula(dataset, timeControl, inc, sideArea);
-    console.log(`Side: ${side} Rating Analysis`)
-    console.log(`Side: ${side} Area: ${sideArea}`)
-    console.log(`Side: ${side} Rating: ${sideRating}`)
+    console.log(`Side: ${side} Rating Analysis`);
+    console.log(`Side: ${side} Area: ${sideArea}`);
+    console.log(`Side: ${side} Rating: ${sideRating}`);
     return sideRating;
 }
