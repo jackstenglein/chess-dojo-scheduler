@@ -53,10 +53,9 @@ function getPerfectArea(dataset: Datum[], timeControl: number, increment: number
 
 function getZeroRatingArea(dataset: Datum[], timeControl: number, increment: number): number {
     const size = Math.min(50, dataset.length) - 1;
-    const perfectArea = getPerfectArea(dataset, timeControl, increment);
-    const noobArea = (timeControl + increment) * size;
+    const tc = timeControl + increment;
 
-    return Math.abs(perfectArea - noobArea);
+    return (0.5) * (size - 5) * tc;
 }
 
 function getRatingFormula(dataset: Datum[], timeControl: number, increment: number, comparisonArea: number): number {
