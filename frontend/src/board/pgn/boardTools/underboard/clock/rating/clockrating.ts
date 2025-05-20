@@ -1,15 +1,5 @@
 import { Datum } from '../ClockUsage';
 
-function perfectLine(
-    timeControl: number,
-    increment: number,
-    gameMoveLength: number,
-): { slope: number; intercept: number } {
-    const slope = -(timeControl + increment) / gameMoveLength;
-    const intercept = timeControl - 459;
-
-    return { slope: slope, intercept: intercept };
-}
 
 function normalLine(dataset: Datum[], start: number, end: number): {slope: number, intercept: number} {
     const intercept = dataset[start].seconds;
@@ -50,99 +40,48 @@ function calculateAreaUnderLine(
     return areaAtEnd - areaAtStart;
 }
 
-function calculateDatasetRating(
-    dataset: Datum[],
-    timeControl: number | undefined,
-    increment: number | undefined,
-    startMoveIndex: number,
-    endMoveIndex: number,
-    side: string,
-    phase: string,
-): number {
-    const MAX_RATING = 3000;
+function getPerfectArea(dataset: Datum[]): number {
+    const size = Math.min(50, dataset.length) - 1;
+    const {slope: perfectSlope, intercept: perfectIntercept} = normalLine(dataset, 5, size);
+    const perfectArea = calculateAreaUnderLine(perfectSlope, perfectIntercept, 5, size);
+    return perfectArea;
+}
 
-    if (!timeControl) {
-        console.warn('[TimeRating] Invalid time control');
+function getZeroRatingArea(dataset: Datum[], timeControl: number, increment: number): number {
+    const size = Math.min(50, dataset.length) - 1;
+    const perfectArea = getPerfectArea(dataset);
+    const noobArea = (timeControl + increment) * size;
+
+    return Math.abs(perfectArea - noobArea);
+}
+
+function getRatingFormula(dataset: Datum[], timeControl: number, increment: number, comparisonArea: number): number {
+    const zeroRatingArea = getZeroRatingArea(dataset, timeControl, increment);
+    const slope = (-3000 / zeroRatingArea);
+    console.log('Zero Rating Area', zeroRatingArea)
+    console.log('Forumula', `y = ${slope}x + ${3000}`);
+    const rating = ((-3000 * (comparisonArea)) / zeroRatingArea) + 3000;
+
+    if(rating <= 0){
         return 0;
     }
 
-    endMoveIndex = Math.min(endMoveIndex, dataset.length - 1);
-    const inc = increment || 0;
-
-    const { slope: perfectSlope, intercept: perfectIntercept } = normalLine(dataset, startMoveIndex, endMoveIndex);
-
-    const actualArea = calculateAreaUnderCurve(dataset, startMoveIndex, endMoveIndex);
-    const perfectArea = calculateAreaUnderLine(
-        perfectSlope,
-        perfectIntercept,
-        dataset[startMoveIndex].moveNumber,
-        dataset[endMoveIndex].moveNumber,
-    );
-
-    const areaDeviation = Math.min(
-        1,
-        Math.abs(actualArea - perfectArea) / Math.max(1, Math.abs(perfectArea)),
-    );
-
-    const rating = Math.max(0, Math.round(MAX_RATING * (1 - areaDeviation)));
-
-    console.log(`[TimeRating] ${side} side analysis: for ${phase}`);
-    console.log(`Actual Area: ${actualArea.toFixed(2)}, Perfect Area: ${perfectArea.toFixed(2)}`);
-    console.log(`Area deviation: ${areaDeviation.toFixed(3)}, Final rating: ${rating}`);
-
-    return rating;
+    return Math.round(rating);
 }
 
-
-export function calculateTimeRating(
-    dataset: Datum[],
-    timeControl: number | undefined,
-    increment: number | undefined,
-    bonusTimeControl: number | undefined,
-    bonusIncrement: number | undefined,
-    side: string,
-    endMoveIndex: number,
-): number {
-
-    if (dataset.length <= 20) {
+export function calculateTimeRating(dataset: Datum[], timeControl: number | undefined, increment: number | undefined, side: string){
+    if(!timeControl){
         return 0;
     }
-
-    const openingStartMoveIndex = 5;
-    const totalMoveCount = dataset.length - openingStartMoveIndex;
-
-    const preBonusMoveCount = Math.max(0, endMoveIndex - openingStartMoveIndex);
-    const postBonusMoveCount = Math.max(0, dataset.length - endMoveIndex);
-
-    const preBonusRating = calculateDatasetRating(
-        dataset,
-        timeControl,
-        increment,
-        openingStartMoveIndex,
-        endMoveIndex,
-        side,
-        'PREBONUS',
-    );
-
-    if (postBonusMoveCount > 0 && bonusTimeControl !== undefined) {
-        const postBonusRating = calculateDatasetRating(
-            dataset,
-            bonusTimeControl,
-            bonusIncrement,
-            endMoveIndex,
-            dataset.length - 1,
-            side,
-            'POSTBONUS',
-        );
-
-        const preWeight = preBonusMoveCount / totalMoveCount;
-        const postWeight = postBonusMoveCount / totalMoveCount;
-
-        const finalRating = preBonusRating * preWeight + postBonusRating * postWeight;
-
-        return Math.round(finalRating);
-    } else {
-        return Math.round(preBonusRating);
+    let inc = 0;
+    if(increment){
+        inc = increment;
     }
+    const size = Math.min(50, dataset.length);
+    const sideArea = Math.abs(calculateAreaUnderCurve(dataset, 5, size-1) - getPerfectArea(dataset));
+    const sideRating = getRatingFormula(dataset, timeControl, inc, sideArea);
+    console.log(`Side: ${side} Rating Analysis`)
+    console.log(`Side: ${side} Area: ${sideArea}`)
+    console.log(`Side: ${side} Rating: ${sideRating}`)
+    return sideRating;
 }
-
