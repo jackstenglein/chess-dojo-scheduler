@@ -1,14 +1,18 @@
 import { Datum } from '../ClockUsage';
 
 
-function normalLine(dataset: Datum[], start: number, end: number): {slope: number, intercept: number} {
-    const intercept = dataset[start].seconds;
+function normalLine(dataset: Datum[], start: number, end: number, timeControl: number, increment: number): {slope: number, intercept: number} {
+    
+    const intercept = timeControl + increment;
+    console.log('i ',intercept);
     const y1 = intercept;
     const y2 = dataset[end].seconds;
-    const x1 = dataset[start].moveNumber;
+    console.log(y2)
+    const x1 = 5;
     const x2 = dataset[end].moveNumber
 
     const slope = (y2 - y1) / (x2 - x1);
+    
     return {slope: slope, intercept: intercept};
 }
 
@@ -40,16 +44,16 @@ function calculateAreaUnderLine(
     return areaAtEnd - areaAtStart;
 }
 
-function getPerfectArea(dataset: Datum[]): number {
+function getPerfectArea(dataset: Datum[], timeControl: number, increment: number): number {
     const size = Math.min(50, dataset.length) - 1;
-    const {slope: perfectSlope, intercept: perfectIntercept} = normalLine(dataset, 5, size);
+    const {slope: perfectSlope, intercept: perfectIntercept} = normalLine(dataset, 5, size, timeControl, increment);
     const perfectArea = calculateAreaUnderLine(perfectSlope, perfectIntercept, 5, size);
     return perfectArea;
 }
 
 function getZeroRatingArea(dataset: Datum[], timeControl: number, increment: number): number {
     const size = Math.min(50, dataset.length) - 1;
-    const perfectArea = getPerfectArea(dataset);
+    const perfectArea = getPerfectArea(dataset, timeControl, increment);
     const noobArea = (timeControl + increment) * size;
 
     return Math.abs(perfectArea - noobArea);
@@ -78,7 +82,7 @@ export function calculateTimeRating(dataset: Datum[], timeControl: number | unde
         inc = increment;
     }
     const size = Math.min(50, dataset.length);
-    const sideArea = Math.abs(calculateAreaUnderCurve(dataset, 5, size-1) - getPerfectArea(dataset));
+    const sideArea = Math.abs(calculateAreaUnderCurve(dataset, 5, size-1) - getPerfectArea(dataset, timeControl, inc));
     const sideRating = getRatingFormula(dataset, timeControl, inc, sideArea);
     console.log(`Side: ${side} Rating Analysis`)
     console.log(`Side: ${side} Area: ${sideArea}`)
