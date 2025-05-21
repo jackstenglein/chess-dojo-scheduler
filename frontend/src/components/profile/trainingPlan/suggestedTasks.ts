@@ -349,7 +349,7 @@ export class TaskSuggestionAlgorithm {
         if (unitScore > 0 && unitScore < 1) {
             increment = Math.ceil(1 / task.unitScore);
         } else if (unitScore === 0) {
-            increment = getTotalCount(this.user.dojoCohort, task);
+            increment = getTotalCount(this.user.dojoCohort, task, true);
         }
         increment *= points;
 
@@ -519,7 +519,7 @@ function getEligibleTasks(
             !INELIGIBLE_SUGGESTED_TASKS.includes(r.id) &&
             !suggestedTasks.some((t) => r.id === t.id) &&
             SUGGESTED_TASK_CATEGORIES.includes(r.category) &&
-            !isComplete(user.dojoCohort, r, user.progress[r.id]),
+            !isComplete(user.dojoCohort, r, user.progress[r.id], timeline, false),
     );
 
     const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK_ID);

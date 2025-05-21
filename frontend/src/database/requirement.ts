@@ -380,8 +380,14 @@ function getYearlyCount({
  * @param requirement The requirement to get the total count for.
  * @returns The total count for the given cohort and requirement.
  */
-export function getTotalCount(cohort: string, requirement: Requirement | CustomTask): number {
-    return requirement.counts[cohort] || Object.values(requirement.counts)[0];
+export function getTotalCount(
+    cohort: string,
+    requirement: Requirement | CustomTask,
+    fallback?: boolean,
+): number {
+    return requirement.counts[cohort] || fallback
+        ? Object.values(requirement.counts).sort((a, b) => b - a)[0]
+        : 0;
 }
 
 /**
@@ -421,6 +427,7 @@ export function formatTime(value: number): string {
  * @param requirement The requirement to check.
  * @param progress The progress to check.
  * @param timeline The user's timeline for yearly tasks.
+ * @param fallback Whether to fallback to the highest count when fetching the total count of the task.
  * @returns True if the requirement is complete.
  */
 export function isComplete(
@@ -428,13 +435,14 @@ export function isComplete(
     requirement: Requirement | CustomTask,
     progress: RequirementProgress | undefined,
     timeline?: TimelineEntry[],
+    fallback?: boolean,
 ): boolean {
     if (requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
         return false;
     }
     return (
         getCurrentCount({ cohort, requirement, progress, timeline }) >=
-        getTotalCount(cohort, requirement)
+        getTotalCount(cohort, requirement, fallback)
     );
 }
 

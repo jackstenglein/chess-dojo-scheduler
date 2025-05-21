@@ -199,7 +199,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
             if (
                 blocker &&
                 selectedCohort &&
-                !isComplete(selectedCohort, blocker, user?.progress[blockerId], timeline)
+                !isComplete(selectedCohort, blocker, user?.progress[blockerId], timeline, false)
             ) {
                 return {
                     isBlocked: true,
