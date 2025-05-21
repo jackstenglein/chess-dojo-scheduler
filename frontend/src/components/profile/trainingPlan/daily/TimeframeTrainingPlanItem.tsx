@@ -67,7 +67,7 @@ export const TimeframeTrainingPlanItem = ({
 
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
 
-    const totalCount = getTotalCount(cohort, task);
+    const totalCount = getTotalCount(cohort, task, true);
     const currentCount = getCurrentCount({ cohort, requirement: task, progress, timeline });
 
     const name = goalMinutes > 0 ? task.dailyName : task.name;

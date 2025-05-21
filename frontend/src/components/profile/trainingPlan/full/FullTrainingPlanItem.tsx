@@ -58,7 +58,7 @@ export const FullTrainingPlanItem = ({
         return isBlocked(cohort, user, requirement, requirements, entries);
     }, [requirement, requirements, cohort, user, entries]);
 
-    const totalCount = getTotalCount(cohort, requirement);
+    const totalCount = getTotalCount(cohort, requirement, true);
     const currentCount = getCurrentCount({ cohort, requirement, progress, timeline: entries });
     const time = formatTime(getTotalTime(cohort, progress));
     const expired = isExpired(requirement, progress);

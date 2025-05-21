@@ -53,7 +53,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
 
         if (pinnedTasks.length > 0) {
             const uncompletedTasks = pinnedTasks.filter(
-                (t) => !isComplete(cohort, t, user.progress[t.id], timeline),
+                (t) => !isComplete(cohort, t, user.progress[t.id], timeline, true),
             );
             sections.push({
                 category: RequirementCategory.Pinned,
@@ -72,7 +72,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
             const s = sections.find((s) => s.category === task.category);
             const complete =
                 task.id !== SCHEDULE_CLASSICAL_GAME_TASK_ID
-                    ? isComplete(cohort, task, user.progress[task.id], timeline)
+                    ? isComplete(cohort, task, user.progress[task.id], timeline, false)
                     : getUpcomingGameSchedule(user.gameSchedule).length > 0;
 
             if (s === undefined) {
