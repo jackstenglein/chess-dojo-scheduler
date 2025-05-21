@@ -17,14 +17,19 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { orange, pink } from '@mui/material/colors';
+import { green, orange, pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
 import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
 import { useLocalStorage } from 'usehooks-ts';
 import { TimeControlEditor } from '../tags/TimeControlEditor';
 import ClockEditor from './ClockEditor';
 import { TimeControlDescription } from './TimeControlDescription';
-import { calculateTimeRating } from './rating/clockrating';
+import {
+    calculateTimeRating,
+    getPerfectLineSeconds,
+    MAX_MOVE,
+    MIN_MOVE,
+} from './rating/clockRating';
 
 const showEvalInClockGraph = {
     key: 'showEvalInClockGraph',
@@ -220,6 +225,9 @@ function shouldRerender(chess: Chess, event: Event): boolean {
 }
 
 function getSeriesStyle(series: Series<Datum>, light: boolean) {
+    if (series.label === 'Perfect') {
+        return { fill: green[500], stroke: green[500] };
+    }
     if (series.label === 'White') {
         if (light) {
             return { fill: pink[200], stroke: pink[200] };
@@ -268,8 +276,6 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         showEvalInClockGraph.key,
         showEvalInClockGraph.default,
     );
-    let whiteClockRating = 0;
-    let blackClockRating = 0;
 
     const timeControls = chess?.header().tags.TimeControl?.items;
 
@@ -306,6 +312,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         }
 
         let timeControl = timeControls?.[0] ?? {};
+        const initialTimeControl = timeControl.seconds ?? 0;
 
         console.log(timeControls);
         let timeControlIdx = 0;
@@ -338,11 +345,22 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         const whiteTimePerMove: Datum[] = [];
         const blackTimePerMove: Datum[] = [];
 
+        const perfectLine: Datum[] = [];
+
         let whiteSecTotal = 0;
         let blackSecTotal = 0;
 
         const moves = chess.history();
         for (let i = 0; i < moves.length; i += 2) {
+            const moveNumber = i / 2 + 1;
+            if (moveNumber >= MIN_MOVE && moveNumber <= MAX_MOVE) {
+                perfectLine.push({
+                    moveNumber,
+                    move: moves[i],
+                    seconds: getPerfectLineSeconds(initialTimeControl, moveNumber),
+                });
+            }
+
             const bonus = Math.max(0, timeControl.increment || timeControl.delay || 0);
             let additionalTime = 0;
 
@@ -431,27 +449,15 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         // let blackSize = timeControls?.[0].moves ?? blackClockDisplay.length;
         // let bonusTime = timeControls?.length === 2 ? timeControls[1].seconds : 0;
         // let bonusInc = timeControls?.length === 2 ? timeControls[1].increment : 0;
-        
 
         console.log(timeControls);
 
-        whiteClockRating = calculateTimeRating(
-            whiteClockDisplay,
-            timeControls?.[0].seconds,
-            timeControls?.[0].increment,
-            'white',
-        );
-        
-        blackClockRating = calculateTimeRating(
-            blackClockDisplay,
-            timeControls?.[0].seconds,
-            timeControls?.[0].increment,
-           'black',
-        );
+        const whiteClockRating = calculateTimeRating(whiteClockDisplay, 'white');
+        const blackClockRating = calculateTimeRating(blackClockDisplay, 'black');
 
         return {
-            whiteClockRating: whiteClockRating,
-            blackClockRating: blackClockRating,
+            whiteClockRating,
+            blackClockRating,
             total: [
                 {
                     label: 'Total Time',
@@ -474,6 +480,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             remainingPerMove: [
                 { label: 'White', data: whiteClockDisplay },
                 { label: 'Black', data: blackClockDisplay },
+                { label: 'Perfect', data: perfectLine },
                 { label: 'Eval', data: evalData, secondaryAxisId: 'eval' },
             ],
             usedPerMove: [
@@ -588,9 +595,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 White
                             </Typography>
                             <Typography variant='body2' align='center' color='text.primary'>
-                                {data.whiteClockRating != undefined && data.whiteClockRating > 0
-                                    ? data.whiteClockRating
-                                    : '?'}
+                                {(data.whiteClockRating ?? 0) >= 0 ? data.whiteClockRating : '?'}
                             </Typography>
                         </Card>
                         <Card sx={{ p: 1, minWidth: 120 }}>
@@ -598,9 +603,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 Black
                             </Typography>
                             <Typography variant='body2' align='center' color='text.primary'>
-                                {data.blackClockRating != undefined && data.blackClockRating > 0
-                                    ? data.blackClockRating
-                                    : '?'}
+                                {(data.blackClockRating ?? 0) >= 0 ? data.blackClockRating : '?'}
                             </Typography>
                         </Card>
                     </Stack>
