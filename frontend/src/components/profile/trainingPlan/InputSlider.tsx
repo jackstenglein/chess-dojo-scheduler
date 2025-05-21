@@ -1,4 +1,4 @@
-import { FormControl, Grid2, InputLabel, OutlinedInput, Slider } from '@mui/material';
+import { FormControl, Grid, InputLabel, OutlinedInput, Slider } from '@mui/material';
 
 interface InputSliderProps {
     value: number;
@@ -28,7 +28,7 @@ const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max, min, su
     };
 
     return (
-        <Grid2
+        <Grid
             container
             width={1}
             columnGap={4}
@@ -37,7 +37,7 @@ const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max, min, su
             justifyContent='space-between'
             pt={1}
         >
-            <Grid2
+            <Grid
                 size={{
                     xs: 12,
                     sm: 'grow',
@@ -51,8 +51,8 @@ const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max, min, su
                     max={max}
                     min={min}
                 />
-            </Grid2>
-            <Grid2
+            </Grid>
+            <Grid
                 size={{
                     xs: 12,
                     sm: 3,
@@ -80,8 +80,8 @@ const InputSlider: React.FC<InputSliderProps> = ({ value, setValue, max, min, su
                         sx={{ width: 1 }}
                     />
                 </FormControl>
-            </Grid2>
-        </Grid2>
+            </Grid>
+        </Grid>
     );
 };
 

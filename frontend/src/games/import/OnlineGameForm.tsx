@@ -40,7 +40,7 @@ import {
     CardContent,
     DialogContent,
     DialogTitle,
-    Grid2,
+    Grid,
     Stack,
     TextField,
     Typography,
@@ -131,7 +131,7 @@ const RecentGameCell = ({
                                         : undefined
                                 }
                             >
-                                {game.timeClass === OnlineGameTimeClass.Correspondence
+                                {game.timeClass === OnlineGameTimeClass.Daily
                                     ? 'daily'
                                     : `${game.timeControl.initialSeconds / 60} | ${game.timeControl.incrementSeconds}`}
                             </Typography>
@@ -166,9 +166,9 @@ const RecentGameGrid = ({
     onClickGame: (game: OnlineGame) => void;
 }) => {
     return (
-        <Grid2 container spacing={{ xs: 1, sm: 2 }}>
+        <Grid container spacing={{ xs: 1, sm: 2 }}>
             {games.map((game) => (
-                <Grid2
+                <Grid
                     key={game.id}
                     size={{
                         xs: 12,
@@ -176,9 +176,9 @@ const RecentGameGrid = ({
                     }}
                 >
                     <RecentGameCell onClick={onClickGame} game={game} />
-                </Grid2>
+                </Grid>
             ))}
-        </Grid2>
+        </Grid>
     );
 };
 

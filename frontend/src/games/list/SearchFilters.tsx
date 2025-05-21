@@ -17,7 +17,7 @@ import {
     AccordionSummaryProps,
     Button,
     FormControl,
-    Grid2,
+    Grid,
     InputLabel,
     MenuItem,
     Accordion as MuiAccordion,
@@ -116,8 +116,8 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                 </Select>
             </FormControl>
 
-            <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                <Grid2 size={{ xs: 12, lg: 'grow' }}>
+            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='Start Date'
                         value={startDate}
@@ -128,9 +128,9 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                             textField: { id: 'cohort-start-date', fullWidth: true },
                         }}
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={{ xs: 12, lg: 'grow' }}>
+                <Grid size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='End Date'
                         value={endDate}
@@ -141,8 +141,8 @@ export const SearchByCohort: React.FC<SearchByCohortProps> = ({
                             textField: { id: 'cohort-end-date', fullWidth: true },
                         }}
                     />
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
 
             <LoadingButton
                 data-cy='cohort-search-button'
@@ -171,8 +171,8 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                 Find games that you have uploaded to the Dojo Database. Note that games uploaded
                 previously through Dojo 1.0's Google Form submission will not be matched.
             </Typography>
-            <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                <Grid2 size={{ xs: 12, lg: 'grow' }}>
+            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='Start Date'
                         value={startDate}
@@ -183,9 +183,9 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                             textField: { id: 'owner-start-date', fullWidth: true },
                         }}
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={{ xs: 12, lg: 'grow' }}>
+                <Grid size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='End Date'
                         value={endDate}
@@ -196,8 +196,8 @@ const SearchByOwner: React.FC<BaseFilterProps> = ({
                             textField: { id: 'owner-end-date', fullWidth: true },
                         }}
                     />
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
 
             <LoadingButton
                 data-cy='owner-search-button'
@@ -274,8 +274,8 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                 <MenuItem value='black'>Black</MenuItem>
             </Select>
 
-            <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                <Grid2 size={{ xs: 12, lg: 'grow' }}>
+            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='Start Date'
                         value={startDate}
@@ -286,9 +286,9 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                             textField: { id: 'player-start-date', fullWidth: true },
                         }}
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={{ xs: 12, lg: 'grow' }}>
+                <Grid size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='End Date'
                         value={endDate}
@@ -299,8 +299,8 @@ const SearchByPlayer: React.FC<SearchByPlayerProps> = ({
                             textField: { id: 'player-end-date', fullWidth: true },
                         }}
                     />
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
 
             <LoadingButton
                 data-cy='player-search-button'
@@ -370,8 +370,8 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                 />
             </FormControl>
 
-            <Grid2 container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
-                <Grid2 size={{ xs: 12, lg: 'grow' }}>
+            <Grid container rowGap={1} columnGap={{ md: 0, lg: 1 }}>
+                <Grid size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='Start Date'
                         value={startDate}
@@ -382,9 +382,9 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                             textField: { id: 'opening-start-date', fullWidth: true },
                         }}
                     />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={{ xs: 12, lg: 'grow' }}>
+                <Grid size={{ xs: 12, lg: 'grow' }}>
                     <DatePicker
                         label='End Date'
                         value={endDate}
@@ -395,8 +395,8 @@ const SearchByOpening: React.FC<SearchByOpeningProps> = ({
                             textField: { id: 'opening-end-date', fullWidth: true },
                         }}
                     />
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
 
             <LoadingButton
                 data-cy='opening-search-button'

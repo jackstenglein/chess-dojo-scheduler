@@ -37,11 +37,11 @@ const faqs = [
     },
     {
         question: 'What are the time controls for different cohorts?',
-        answer: 'Time controls are based on your cohort: Under 800: 30+0, 800-1200: 30+30, 1200+: 45+30, 1600+: 60+30, 2000+: 90+30.',
+        answer: 'Minimum time controls are based on your cohort: Under 800: 30+0, 800-1200: 30+30, 1200+: 45+30, 1600+: 60+30, 2000+: 90+30. If both players agree, you can play a longer time control.',
     },
     {
         question: 'How do I schedule the games?',
-        answer: 'Use the players tab on the tournament to find the Chess.com, Lichess and/or Discord username of your opponent. Message them on those platforms to schedule the game.',
+        answer: 'Use the players tab on the tournament to find the Chess.com, Lichess and/or Discord username of your opponent. Message them on those platforms to schedule the game. You can also search for scheduling threads in Dojo Discord in the #round-robin-chat to connect with players.',
     },
     {
         question: 'How do I submit my games?',
@@ -117,7 +117,7 @@ export const InfoPage = () => {
                     <ListItemIcon>
                         <Icon name='Classical' sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Play rated, classical time control games for your cohort, as recommended by the training program:' />
+                    <ListItemText primary='Play rated, classical time control games for your cohort, as recommended by the training program. If both players agree, you can play a longer time control.' />
                 </ListItem>
             </List>
             <TimeControlTable />

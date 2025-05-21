@@ -1,11 +1,16 @@
 import { useNotifications } from '@/api/cache/Cache';
+import { AuthStatus, useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import NotificationButton from '@/components/notifications/NotificationButton';
 import { getConfig } from '@/config';
+import { hasCreatedProfile } from '@/database/user';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { PawnIcon } from '@/style/ChessIcons';
+import { CrossedSwordIcon } from '@/style/CrossedSwordIcon';
+import { DonateIcon } from '@/style/DonateIcon';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
+import { TournamentBracketIcon } from '@/style/TournamentIcon';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 import {
     AutoStories,
@@ -32,6 +37,7 @@ import {
     Scoreboard,
     Sell,
     SignalCellularAlt,
+    SmartToy,
     Speed,
     Storefront,
     EmojiEvents as Tournaments,
@@ -56,8 +62,6 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { AuthStatus, useAuth, useFreeTier } from '../auth/Auth';
-import { hasCreatedProfile } from '../database/user';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, { ExtraSmallMenuUnauthenticated } from './UnauthenticatedMenu';
 
@@ -93,7 +97,7 @@ export interface NavbarItem {
     target?: '_blank';
 }
 
-function allStartItems(toggleExpansion: (item: string) => void, isFreeTier: boolean): NavbarItem[] {
+function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
     return [
         {
             name: 'Newsfeed',
@@ -143,19 +147,19 @@ function allStartItems(toggleExpansion: (item: string) => void, isFreeTier: bool
             onClick: () => toggleExpansion('Tournaments'),
             children: [
                 {
-                    name: 'DojoLiga',
-                    icon: <MilitaryTech />,
-                    href: '/tournaments',
+                    name: 'Round Robin',
+                    icon: <CrossedSwordIcon />,
+                    href: '/tournaments/round-robin',
                 },
                 {
                     name: 'Open Classical',
-                    icon: <MilitaryTech />,
+                    icon: <TournamentBracketIcon />,
                     href: '/tournaments/open-classical',
                 },
                 {
-                    name: 'Round Robin',
+                    name: 'DojoLiga',
                     icon: <MilitaryTech />,
-                    href: '/tournaments/round-robin',
+                    href: '/tournaments/liga',
                 },
             ],
         },
@@ -210,9 +214,14 @@ function allStartItems(toggleExpansion: (item: string) => void, isFreeTier: bool
                     href: '/material/ratings',
                 },
                 {
+                    name: 'Guide to Bots',
+                    icon: <SmartToy />,
+                    href: '/material/bots',
+                },
+                {
                     name: 'Discord',
                     icon: <DiscordIcon sx={{ color: '#5865f2' }} />,
-                    href: isFreeTier ? config.discord.publicUrl : config.discord.privateUrl,
+                    href: config.discord.url,
                     target: '_blank',
                 },
                 {
@@ -265,6 +274,11 @@ function allStartItems(toggleExpansion: (item: string) => void, isFreeTier: bool
                     icon: <Storefront />,
                     href: 'https://www.chessdojo.shop/shop',
                     target: '_blank',
+                },
+                {
+                    name: 'Donate',
+                    href: '/donate',
+                    icon: <DonateIcon />,
                 },
             ],
         },
@@ -436,7 +450,6 @@ function HelpButton() {
 function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
-    const isFreeTier = useFreeTier();
 
     const showAll = useMediaQuery('(min-width:1560px)');
     const hide2 = useMediaQuery('(min-width:1416px)');
@@ -450,9 +463,8 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const showNotifications = useMediaQuery('(min-width:567px)');
     const showProfileDropdown = useMediaQuery('(min-width:542px)');
 
-    const startItems = allStartItems(
-        (item: string) => setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
-        isFreeTier,
+    const startItems = allStartItems((item: string) =>
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
     let startItemCount = 0;
@@ -619,11 +631,9 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { notifications } = useNotifications();
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
-    const isFreeTier = useFreeTier();
 
-    const startItems = allStartItems(
-        (item: string) => setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
-        isFreeTier,
+    const startItems = allStartItems((item: string) =>
+        setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
     );
 
     if (auth.status === AuthStatus.Unauthenticated) {

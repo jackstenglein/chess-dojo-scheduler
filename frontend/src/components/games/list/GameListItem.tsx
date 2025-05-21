@@ -8,7 +8,7 @@ import { useLightMode } from '@/style/useLightMode';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { Box, Grid2, Stack, Typography } from '@mui/material';
+import { Box, Grid, Stack, Typography } from '@mui/material';
 import {
     gridColumnVisibilityModelSelector,
     GridRenderCellParams,
@@ -343,12 +343,12 @@ export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
 
     return (
         <Stack height={1} justifyContent='center' py={1}>
-            <Grid2 container>
-                <Grid2 size={1}>
+            <Grid container>
+                <Grid size={1}>
                     <RenderGameResultStack result={params.row.headers.Result} />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={11}>
+                <Grid size={11}>
                     <Stack
                         direction='row'
                         flexWrap='wrap'
@@ -364,17 +364,17 @@ export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
                             <Visibility sx={{ color: 'text.secondary' }} />
                         )}
                     </Stack>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={1}></Grid2>
-                <Grid2 size={11} sx={{ mt: 1 }}>
+                <Grid size={1}></Grid>
+                <Grid size={11} sx={{ mt: 1 }}>
                     <Typography variant='body2' color='text.secondary'>
                         {description}
                     </Typography>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={1}></Grid2>
-                <Grid2 size={11}>
+                <Grid size={1}></Grid>
+                <Grid size={11}>
                     <Stack direction='row' alignItems='center'>
                         <CohortIcon
                             cohort={params.row.cohort}
@@ -394,8 +394,8 @@ export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
                             </>
                         )}
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
         </Stack>
     );
 }

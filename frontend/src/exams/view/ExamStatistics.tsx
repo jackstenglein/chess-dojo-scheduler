@@ -6,16 +6,16 @@ import { getExamMaxScore, getRegression } from '@jackstenglein/chess-dojo-common
 import { Speed } from '@mui/icons-material';
 import { CardContent, Stack, Typography } from '@mui/material';
 import {
+    ChartContainer,
+    ChartDataProvider,
     ChartsClipPath,
     ChartsGrid,
     ChartsLegend,
     ChartsTooltip,
-    ChartsVoronoiHandler,
     ChartsXAxis,
     ChartsYAxis,
     LinePlot,
     LineSeriesType,
-    ResponsiveChartContainer,
     ScatterPlot,
     ScatterSeriesType,
     ScatterValueType,
@@ -173,8 +173,8 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                           },
                       ],
                       highlightScope: {
-                          highlighted: 'item',
-                          faded: 'global',
+                          highlight: 'item',
+                          fade: 'global',
                       },
                       valueFormatter: (value) => `Score: ${value?.x},\nRating: ${value?.y}`,
                       color: isLight ? '#000' : '#fff',
@@ -250,69 +250,74 @@ const ExamStatistics: React.FC<ExamStatisticsProps> = ({ exam }) => {
                     </Typography>
                 </Stack>
 
-                <ResponsiveChartContainer
-                    disableAxisListener
-                    xAxis={[
-                        {
-                            label: 'Score',
-                            data: Array.from(Array(totalScore + 2)).map((_, i) => i),
-                            min: 0,
-                        },
-                    ]}
-                    yAxis={[
-                        {
-                            label: 'Normalized Rating',
-                            valueFormatter: (value) => `${value}`,
-                            min: 0,
-                        },
-                    ]}
-                    series={[...series, ...yourScoreSeries, ...lineSeries]}
-                    margin={{ left: 60, right: 8, top: legendMargin }}
-                    sx={{
-                        [`& .${axisClasses.left} .${axisClasses.label}`]: {
-                            transform: 'translateX(-20px)',
-                        },
-                        [`.${lineElementClasses.root}`]: {
-                            strokeWidth: 1,
-                        },
-                        '.MuiLineElement-series-best-fit': {
-                            strokeDasharray: '5 5',
-                        },
-
-                        [`& .${legendClasses.series}`]: {
-                            '&:last-of-type': {
-                                display: 'none',
-                            },
-                            [`:nth-last-child(2) .${legendClasses.mark}`]: {
-                                height: '3px',
-                                transform: 'translateY(3px)',
-                            },
-                        },
-                    }}
-                >
+                <ChartDataProvider>
                     <ChartsLegend
                         slotProps={{
                             legend: {
-                                itemMarkWidth: 10,
-                                itemMarkHeight: 10,
-                                labelStyle: { fontSize: 13 },
-                                padding: 0,
+                                sx: {
+                                    fontSize: 13,
+                                    padding: 0,
+                                    [`.${legendClasses.mark}`]: {
+                                        height: 15,
+                                        width: 15,
+                                    },
+                                },
                             },
                         }}
                     />
-                    <ChartsGrid vertical horizontal />
+                    <ChartContainer
+                        disableAxisListener
+                        xAxis={[
+                            {
+                                label: 'Score',
+                                data: Array.from(Array(totalScore + 2)).map((_, i) => i),
+                                min: 0,
+                            },
+                        ]}
+                        yAxis={[
+                            {
+                                label: 'Normalized Rating',
+                                valueFormatter: (value: number) => `${value}`,
+                                min: 0,
+                            },
+                        ]}
+                        series={[...series, ...yourScoreSeries, ...lineSeries]}
+                        margin={{ left: 60, right: 8, top: legendMargin }}
+                        sx={{
+                            [`& .${axisClasses.left} .${axisClasses.label}`]: {
+                                transform: 'translateX(-20px)',
+                            },
+                            [`.${lineElementClasses.root}`]: {
+                                strokeWidth: 1,
+                            },
+                            '.MuiLineElement-series-best-fit': {
+                                strokeDasharray: '5 5',
+                            },
 
-                    <ChartsYAxis />
-                    <ChartsXAxis />
+                            [`& .${legendClasses.series}`]: {
+                                '&:last-of-type': {
+                                    display: 'none',
+                                },
+                                [`:nth-last-child(2) .${legendClasses.mark}`]: {
+                                    height: '3px',
+                                    transform: 'translateY(3px)',
+                                },
+                            },
+                        }}
+                    >
+                        <ChartsGrid vertical horizontal />
 
-                    <g clipPath='url(#clip-path)'>
-                        <LinePlot />
-                    </g>
-                    <ScatterPlot />
-                    <ChartsVoronoiHandler />
-                    <ChartsTooltip trigger='item' />
-                    <ChartsClipPath id='clip-path' />
-                </ResponsiveChartContainer>
+                        <ChartsYAxis />
+                        <ChartsXAxis />
+
+                        <g clipPath='url(#clip-path)'>
+                            <LinePlot />
+                        </g>
+                        <ScatterPlot />
+                        <ChartsTooltip trigger='item' />
+                        <ChartsClipPath id='clip-path' />
+                    </ChartContainer>
+                </ChartDataProvider>
             </Stack>
         </CardContent>
     );

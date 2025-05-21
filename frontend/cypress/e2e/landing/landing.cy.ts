@@ -4,24 +4,24 @@ describe('Landing Page', () => {
     });
 
     it('has correct content', () => {
-        cy.getBySel('title').should('contain', 'ChessDojo');
+        cy.getBySel('title').should('contain', 'Got Mated?Time to join ChessDojo!');
         cy.getBySel('subtitle').should(
             'contain',
-            'The ChessDojo Training Program offers structured training plans',
+            'A chess training plan for every level and a community to do it with.',
         );
         cy.get('img').should('be.visible');
     });
 
     it('has sign up button', () => {
-        cy.getBySel('landing-page').contains('Sign Up for Free').click();
+        cy.contains('Join the Dojo').click();
 
         cy.location('pathname').should('equal', '/signup');
     });
 
-    it('has sign in button', () => {
-        cy.getBySel('landing-page').contains('Sign In').click();
+    it('has explore button', () => {
+        cy.contains('Explore the Program').click();
 
-        cy.location('pathname').should('equal', '/signin');
+        cy.location('pathname').should('equal', '/');
     });
 
     it('should redirect unauthenticated user to landing', () => {

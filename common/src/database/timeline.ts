@@ -1,3 +1,5 @@
+import { ScoreboardDisplay } from './requirement';
+
 /** The categories of a requirement. */
 export enum RequirementCategory {
     Welcome = 'Welcome to the Dojo',
@@ -10,21 +12,6 @@ export enum RequirementCategory {
     NonDojo = 'Non-Dojo',
     SuggestedTasks = 'Suggested Tasks',
     Pinned = 'Pinned Tasks',
-}
-
-/** Defines how the requirement is displayed on the scoreboard. */
-export enum ScoreboardDisplay {
-    Unspecified = '',
-    /** The requirement is not displayed on the scoreboard. */
-    Hidden = 'HIDDEN',
-    /** The requirement is displayed as a checkbox. */
-    Checkbox = 'CHECKBOX',
-    /** The requirement is displayed as a progress bar. */
-    ProgressBar = 'PROGRESS_BAR',
-    /** The requirement is a set amount of time. */
-    Minutes = 'MINUTES',
-    /** The requirement is a non-dojo task. */
-    NonDojo = 'NON_DOJO',
 }
 
 /** A single entry in a user's timeline. */

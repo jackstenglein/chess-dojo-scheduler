@@ -1,9 +1,9 @@
 import { PopoverPosition } from '@mui/material';
-import { GridRowSelectionModel } from '@mui/x-data-grid-pro';
+import { GridRowId, GridRowSelectionModel } from '@mui/x-data-grid-pro';
 import { useState } from 'react';
 
 export interface DataGridContextMenu {
-    rowIds: GridRowSelectionModel;
+    rowIds: GridRowId[];
     position: PopoverPosition | undefined;
     open: (event: React.MouseEvent) => void;
     close: () => void;
@@ -16,14 +16,14 @@ export interface DataGridContextMenu {
 export function useDataGridContextMenu(
     rowSelectionModel?: GridRowSelectionModel,
 ): DataGridContextMenu {
-    const [rowIds, setRowIds] = useState<GridRowSelectionModel>([]);
+    const [rowIds, setRowIds] = useState<GridRowId[]>([]);
     const [position, setPosition] = useState<PopoverPosition>();
 
     const open = (event: React.MouseEvent) => {
         event.preventDefault();
 
-        if (rowSelectionModel && rowSelectionModel.length > 0) {
-            setRowIds(rowSelectionModel);
+        if (rowSelectionModel && rowSelectionModel.ids.size > 0) {
+            setRowIds([...rowSelectionModel.ids]);
         } else {
             setRowIds([event.currentTarget.getAttribute('data-id') || '']);
         }

@@ -5,7 +5,7 @@ import {
     CardActionArea,
     CardContent,
     Container,
-    Grid2,
+    Grid,
     Stack,
     SvgIconProps,
     SvgIconTypeMap,
@@ -20,7 +20,7 @@ import { OverridableComponent } from '@mui/material/OverridableComponent';
 export const ExamLandingPage = () => {
     return (
         <Container maxWidth='lg' sx={{ py: 5 }}>
-            <Grid2 container rowSpacing={2} columnSpacing={2}>
+            <Grid container rowSpacing={2} columnSpacing={2}>
                 <ExamCard
                     name='Tactics Tests'
                     description='All Ratings'
@@ -41,7 +41,7 @@ export const ExamLandingPage = () => {
                     href='/tests/endgame'
                     icon={RookIcon}
                 />
-            </Grid2>
+            </Grid>
         </Container>
     );
 };
@@ -59,7 +59,7 @@ interface ExamCardProps {
 const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) => {
     const Icon = icon;
     return (
-        <Grid2
+        <Grid
             size={{
                 xs: 12,
                 sm: 6,
@@ -84,6 +84,6 @@ const ExamCard = ({ name, description, href, icon, disabled }: ExamCardProps) =>
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>
+        </Grid>
     );
 };

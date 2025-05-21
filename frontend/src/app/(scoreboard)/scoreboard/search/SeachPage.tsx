@@ -279,7 +279,6 @@ export function SearchPage() {
 
                 {request.data && (
                     <DataGridPro
-                        data-cy='search-results'
                         autoHeight
                         columns={columns}
                         rows={request.data ?? []}
@@ -294,6 +293,9 @@ export function SearchPage() {
                         }}
                         getRowId={(row: GridRowModel<User>) => row.username}
                         pagination
+                        slotProps={{
+                            root: { 'data-cy': 'search-results' },
+                        }}
                     />
                 )}
             </Stack>

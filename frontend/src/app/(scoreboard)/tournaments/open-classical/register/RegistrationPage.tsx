@@ -1,8 +1,10 @@
 'use client';
 
 import { useApi } from '@/api/Api';
-import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import DiscordOAuthButton from '@/components/profile/edit/DiscordOAuthButton';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { LocationOn } from '@mui/icons-material';
 import EmailIcon from '@mui/icons-material/Email';
@@ -29,15 +31,15 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { SiDiscord, SiLichess } from 'react-icons/si';
+import { SiLichess } from 'react-icons/si';
 
 const RegistrationPage = () => {
     const { user, status } = useAuth();
     const api = useApi();
+    const router = useRouter();
 
     const [email, setEmail] = useState('');
     const [lichessUsername, setLichessUsername] = useState(user?.ratings.LICHESS?.username || '');
-    const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [title, setTitle] = useState('');
     const [region, setRegion] = useState('');
     const [section, setSection] = useState('');
@@ -54,20 +56,38 @@ const RegistrationPage = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
 
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [confirmedSteps, setConfirmedSteps] = useState(false);
+
     useEffect(() => {
         setLichessUsername(user?.ratings.LICHESS?.username || '');
-        setDiscordUsername(user?.discordUsername || '');
     }, [user]);
 
-    if (status === AuthStatus.Loading) {
+    if (!user || status === AuthStatus.Loading) {
         return <LoadingPage />;
+    }
+
+    if (!user.discordId) {
+        return (
+            <Container maxWidth='md' sx={{ py: 5 }}>
+                <Typography variant='h5'>Register for the Dojo Open Classical</Typography>
+
+                <Typography variant='h6' sx={{ my: 2 }}>
+                    Playing in the Open Classical requires a Discord account linked to your Dojo
+                    profile, in order to facilitate communication and game scheduling between
+                    players.
+                </Typography>
+
+                <DiscordOAuthButton />
+            </Container>
+        );
     }
 
     const onSetByeRequest = (idx: number, value: boolean) => {
         setByeRequests([...byeRequests.slice(0, idx), value, ...byeRequests.slice(idx + 1)]);
     };
 
-    const onRegister = () => {
+    const validateAndProceed = () => {
         const newErrors: Record<string, string> = {};
 
         if (!user && email.trim() === '') {
@@ -75,9 +95,6 @@ const RegistrationPage = () => {
         }
         if (lichessUsername.trim() === '') {
             newErrors.lichessUsername = 'This field is required';
-        }
-        if (discordUsername.trim() === '') {
-            newErrors.discordUsername = 'This field is required';
         }
         if (region === '') {
             newErrors.region = 'This field is required';
@@ -95,11 +112,13 @@ const RegistrationPage = () => {
             return;
         }
 
+        setShowConfirmDialog(true);
+    };
+
+    const onRegister = () => {
         request.onStart();
         api.registerForOpenClassical({
-            email: email.trim(),
             lichessUsername: lichessUsername.trim(),
-            discordUsername: discordUsername.trim(),
             title,
             region,
             section,
@@ -107,6 +126,7 @@ const RegistrationPage = () => {
         })
             .then(() => {
                 request.onSuccess();
+                router.push(`/tournaments/open-classical?region=${region}&ratingRange=${section}`);
             })
             .catch((err) => {
                 console.error(err);
@@ -148,7 +168,6 @@ const RegistrationPage = () => {
                     label='Lichess Username'
                     value={lichessUsername}
                     onChange={(e) => setLichessUsername(e.target.value)}
-                    disabled={Boolean(user?.ratings.LICHESS?.username)}
                     required={!user?.ratings.LICHESS?.username}
                     fullWidth
                     error={Boolean(errors.lichessUsername)}
@@ -158,26 +177,6 @@ const RegistrationPage = () => {
                             startAdornment: (
                                 <InputAdornment position='start'>
                                     <SiLichess fontSize={23} />
-                                </InputAdornment>
-                            ),
-                        },
-                    }}
-                />
-
-                <TextField
-                    label='Discord Username'
-                    value={discordUsername}
-                    onChange={(e) => setDiscordUsername(e.target.value)}
-                    disabled={Boolean(user?.discordUsername)}
-                    required={!user?.discordUsername}
-                    fullWidth
-                    error={Boolean(errors.discordUsername)}
-                    helperText={errors.discordUsername}
-                    slotProps={{
-                        input: {
-                            startAdornment: (
-                                <InputAdornment position='start'>
-                                    <SiDiscord fontSize={23} style={{ color: '#5865f2' }} />
                                 </InputAdornment>
                             ),
                         },
@@ -283,54 +282,55 @@ const RegistrationPage = () => {
                 <LoadingButton
                     variant='contained'
                     loading={request.isLoading()}
-                    onClick={onRegister}
+                    onClick={validateAndProceed}
                     color='success'
                 >
                     Register
                 </LoadingButton>
             </Stack>
 
-            <Dialog open={request.status === RequestStatus.Success} maxWidth='sm' fullWidth>
-                <DialogTitle>Registration Complete</DialogTitle>
+            <Dialog
+                open={showConfirmDialog}
+                onClose={() => setShowConfirmDialog(false)}
+                maxWidth='sm'
+                fullWidth
+            >
+                <DialogTitle>Registration Confirmation</DialogTitle>
                 <DialogContent>
-                    You've successfully registered for the Open Classical. Make sure to follow these
-                    steps so that your opponents can contact you:
-                    <ol>
-                        <li>
-                            Join the{' '}
-                            <Link target='_blank' href='https://discord.gg/FGGrGVZKGG'>
-                                ChessDojo Discord Server
-                            </Link>
-                        </li>
-                        <li>
-                            Give yourself the{' '}
-                            <Link
-                                rel='noreferrer'
-                                target='_blank'
-                                href='https://discord.com/channels/419042970558398469/830193432260640848/1097541886039834684'
-                            >
-                                Open Classical badge
-                            </Link>
-                        </li>
-                        <li>
-                            Make sure you are able to receive messages from people you share a
-                            server with (
-                            <Link
-                                rel='noreferrer'
-                                target='_blank'
-                                href='https://medium.com/@ZombieInu/discord-enable-disable-allowing-dms-from-server-members-f84881d896c6'
-                            >
-                                instructions
-                            </Link>
-                            )
-                        </li>
-                    </ol>
+                    <Typography gutterBottom>
+                        Please confirm that you have completed the following:
+                    </Typography>
+                    <Stack mt={2}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={confirmedSteps}
+                                    onChange={(e) => setConfirmedSteps(e.target.checked)}
+                                />
+                            }
+                            label={
+                                <>
+                                    I enabled DMs from Discord server members (
+                                    <Link
+                                        target='_blank'
+                                        href='https://medium.com/@ZombieInu/discord-enable-disable-allowing-dms-from-server-members-f84881d896c6'
+                                        rel='noreferrer'
+                                    >
+                                        instructions
+                                    </Link>
+                                    )
+                                </>
+                            }
+                        />
+                    </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        href={`/tournaments/open-classical?region=${region}&ratingRange=${section}`}
+                        loading={request.isLoading()}
+                        disabled={!confirmedSteps}
+                        onClick={onRegister}
                     >
-                        Done
+                        Agree and Continue
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -15,12 +15,14 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import { useTimelineContext } from '../../activity/useTimeline';
 import { getUpcomingGameSchedule, SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
 import { Section, TrainingPlanSection } from '../TrainingPlanSection';
 import { useTrainingPlan } from '../useTrainingPlan';
 
 /** Renders the full training plan view of the training plan tab. */
 export function FullTrainingPlan({ user }: { user: User }) {
+    const { entries: timeline } = useTimelineContext();
     const [cohort, setCohort] = useState(user.dojoCohort);
     const {
         request: requirementRequest,
@@ -51,7 +53,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
 
         if (pinnedTasks.length > 0) {
             const uncompletedTasks = pinnedTasks.filter(
-                (t) => !isComplete(cohort, t, user.progress[t.id]),
+                (t) => !isComplete(cohort, t, user.progress[t.id], timeline, true),
             );
             sections.push({
                 category: RequirementCategory.Pinned,
@@ -70,7 +72,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
             const s = sections.find((s) => s.category === task.category);
             const complete =
                 task.id !== SCHEDULE_CLASSICAL_GAME_TASK_ID
-                    ? isComplete(cohort, task, user.progress[task.id])
+                    ? isComplete(cohort, task, user.progress[task.id], timeline, false)
                     : getUpcomingGameSchedule(user.gameSchedule).length > 0;
 
             if (s === undefined) {
@@ -92,7 +94,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
         }
 
         return sections;
-    }, [requirements, user, cohort, showCompleted, pinnedTasks]);
+    }, [requirements, user, cohort, showCompleted, pinnedTasks, timeline]);
 
     if (requirementRequest.isLoading() || sections.length === 0) {
         return <LoadingPage />;

@@ -127,13 +127,13 @@ functions:
     handler: progress/update/main.go
     events:
       - httpApi:
-          path: /user/progress
+          path: /user/progress/v2
           method: post
           authorizer:
             type: jwt
             id: ${param:apiAuthorizer}
       - httpApi:
-          path: /user/progress/v2
+          path: /user/progress/v3
           method: post
           authorizer:
             type: jwt

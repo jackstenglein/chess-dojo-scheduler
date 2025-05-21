@@ -5,7 +5,7 @@ import { Api as BoardApi } from 'chessground/api';
 import { Config } from 'chessground/config';
 import { DrawShape } from 'chessground/draw';
 import { Color, Key } from 'chessground/types';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
 import './board.css';
@@ -222,9 +222,15 @@ export type BoardConfig = Config & {
 
 export type onMoveFunc = (board: BoardApi, chess: Chess, move: PrimitiveMove) => void;
 
+export type onInitializeFunc = (
+    board: BoardApi,
+    chess: Chess,
+    boardRef: RefObject<HTMLDivElement>,
+) => void;
+
 interface BoardProps {
     config?: BoardConfig;
-    onInitialize?: (board: BoardApi, chess: Chess) => void;
+    onInitialize?: onInitializeFunc;
     onInitializeBoard?: (board: BoardApi) => void;
     onMove?: onMoveFunc;
 }
@@ -334,7 +340,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onInitializeBoard, 
                     pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue,
             });
 
-            onInitialize?.(board, chess);
+            onInitialize?.(board, chess, boardRef);
             setIsInitialized(true);
         } else if (boardRef.current && board && !isInitialized) {
             board.set({ ...config });

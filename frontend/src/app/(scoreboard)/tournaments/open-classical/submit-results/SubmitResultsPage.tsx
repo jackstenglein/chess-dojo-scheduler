@@ -2,11 +2,9 @@
 
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { AuthStatus, useAuth } from '@/auth/Auth';
 import { useRouter } from '@/hooks/useRouter';
-import LoadingPage from '@/loading/LoadingPage';
 import { PawnIcon } from '@/style/ChessIcons';
-import { Email, LocationOn, Person, TrendingUp } from '@mui/icons-material';
+import { LocationOn, Person, TrendingUp } from '@mui/icons-material';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -40,12 +38,9 @@ function gamePlayed(result: string): boolean {
 }
 
 const SubmitResultsPage = () => {
-    const auth = useAuth();
-    const user = auth.user;
     const api = useApi();
     const router = useRouter();
 
-    const [email, setEmail] = useState('');
     const [section, setSection] = useState('');
     const [region, setRegion] = useState('');
     const [gameUrl, setGameUrl] = useState('');
@@ -57,10 +52,6 @@ const SubmitResultsPage = () => {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const request = useRequest();
-
-    if (auth.status === AuthStatus.Loading) {
-        return <LoadingPage />;
-    }
 
     const onBlurGameUrl = () => {
         if (!gameUrl.startsWith('https://lichess.org/')) {
@@ -100,9 +91,6 @@ const SubmitResultsPage = () => {
     const onSubmit = () => {
         const newErrors: Record<string, string> = {};
 
-        if (!user && email.trim() === '') {
-            newErrors.email = 'This field is required';
-        }
         if (region === '') {
             newErrors.region = 'This field is required';
         }
@@ -129,7 +117,6 @@ const SubmitResultsPage = () => {
 
         request.onStart();
         api.submitResultsForOpenClassical({
-            email: email.trim(),
             region,
             section,
             gameUrl: gameUrl.trim(),
@@ -167,30 +154,6 @@ const SubmitResultsPage = () => {
                         accepted.
                     </Typography>
                 </Stack>
-
-                {!user && (
-                    <TextField
-                        data-cy='email'
-                        label='Email'
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        error={Boolean(errors.email)}
-                        helperText={
-                            errors.email ||
-                            'Please provide the same email addess you used to register for the tournament'
-                        }
-                        slotProps={{
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position='start'>
-                                        <Email fontSize='medium' color='dojoOrange' />
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                    />
-                )}
 
                 <TextField
                     data-cy='region'

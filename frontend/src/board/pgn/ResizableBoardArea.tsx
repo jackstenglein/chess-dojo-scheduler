@@ -1,8 +1,7 @@
 import { Stack } from '@mui/material';
 import { Color } from 'chessground/types';
 import { ResizeCallbackData } from 'react-resizable';
-
-import Board, { BoardApi, Chess } from '../Board';
+import Board, { onInitializeFunc } from '../Board';
 import { useChess } from './PgnBoard';
 import PlayerHeader from './PlayerHeader';
 import BoardButtons from './boardTools/boardButtons/BoardButtons';
@@ -17,7 +16,7 @@ interface ResizableBoardAreaProps {
     fen?: string;
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
-    onInitialize: (board: BoardApi, chess: Chess) => void;
+    onInitialize: onInitializeFunc;
     underboardRef: React.RefObject<UnderboardApi>;
 }
 

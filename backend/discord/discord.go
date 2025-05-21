@@ -3,6 +3,7 @@ package discord
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -162,4 +163,30 @@ func SetCohortRole(user *database.User) error {
 
 	_, err = discord.GuildMemberEdit(privateGuildId, member.User.ID, &discordgo.GuildMemberParams{Roles: &newRoles})
 	return errors.Wrap(500, "Temporary server error", fmt.Sprintf("Failed to set guild member roles to %v", newRoles), err)
+}
+
+// SetOpenClassicalRole adds the open classical Discord role to the given user. The user
+// must have the DiscordId field set, or an error will be returned.
+func SetOpenClassicalRole(user *database.User) error {
+	discord, err := discordgo.New("Bot " + authToken)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to create discord session", err)
+	}
+
+	member, err := discord.GuildMember(privateGuildId, user.DiscordId)
+	if err != nil {
+		return errors.Wrap(500, "Temporary server error", "Failed to get discord guild member", err)
+	}
+	if member == nil {
+		return errors.New(404, fmt.Sprintf("Discord user not found with ID %s and username %s", user.DiscordId, user.DiscordUsername), "")
+	}
+
+	roles := member.Roles
+	if slices.Contains(roles, openClassicalRole) {
+		return nil
+	}
+
+	roles = append(roles, openClassicalRole)
+	_, err = discord.GuildMemberEdit(privateGuildId, member.User.ID, &discordgo.GuildMemberParams{Roles: &roles})
+	return errors.Wrap(500, "Temporary server error", fmt.Sprintf("Failed to set guild member roles to %v", roles), err)
 }

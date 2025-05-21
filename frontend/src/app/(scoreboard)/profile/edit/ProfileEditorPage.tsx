@@ -32,7 +32,7 @@ import {
     Card,
     CardContent,
     Container,
-    Grid2,
+    Grid,
     Stack,
     Typography,
 } from '@mui/material';
@@ -263,8 +263,8 @@ export function ProfileEditorPage({ user }: { user: User }) {
     return (
         <Container maxWidth='xl' sx={{ pt: 6, pb: 4 }}>
             <RequestSnackbar request={request} showSuccess />
-            <Grid2 container columnSpacing={8}>
-                <Grid2
+            <Grid container columnSpacing={8}>
+                <Grid
                     sx={{
                         display: { xs: 'none', sm: 'initial' },
                         borderRightWidth: 1,
@@ -327,9 +327,9 @@ export function ProfileEditorPage({ user }: { user: User }) {
                             </Stack>
                         </CardContent>
                     </Card>
-                </Grid2>
+                </Grid>
 
-                <Grid2
+                <Grid
                     size={{
                         xs: 12,
                         sm: 'grow',
@@ -425,8 +425,8 @@ export function ProfileEditorPage({ user }: { user: User }) {
 
                         <SubscriptionManager user={user} />
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
         </Container>
     );
 }

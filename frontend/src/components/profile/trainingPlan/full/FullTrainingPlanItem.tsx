@@ -7,6 +7,7 @@ import {
     ScoreboardDisplay,
     formatTime,
     getCurrentCount,
+    getTotalCount,
     getTotalTime,
     isBlocked,
     isExpired,
@@ -19,13 +20,14 @@ import {
     Checkbox,
     Chip,
     Divider,
-    Grid2,
+    Grid,
     IconButton,
     Stack,
     Tooltip,
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { useTimelineContext } from '../../activity/useTimeline';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
 import { displayProgress } from '../daily/TimeframeTrainingPlanItem';
 
@@ -50,13 +52,14 @@ export const FullTrainingPlanItem = ({
 }: FullTrainingPlanItemProps) => {
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
     const { requirements } = useRequirements(ALL_COHORTS, false);
+    const { entries } = useTimelineContext();
 
     const blocker = useMemo(() => {
-        return isBlocked(cohort, user, requirement, requirements);
-    }, [requirement, requirements, cohort, user]);
+        return isBlocked(cohort, user, requirement, requirements, entries);
+    }, [requirement, requirements, cohort, user, entries]);
 
-    const totalCount = requirement.counts[cohort] || 0;
-    const currentCount = getCurrentCount(cohort, requirement, progress);
+    const totalCount = getTotalCount(cohort, requirement, true);
+    const currentCount = getCurrentCount({ cohort, requirement, progress, timeline: entries });
     const time = formatTime(getTotalTime(cohort, progress));
     const expired = isExpired(requirement, progress);
 
@@ -80,12 +83,14 @@ export const FullTrainingPlanItem = ({
         case ScoreboardDisplay.ProgressBar:
         case ScoreboardDisplay.Minutes:
         case ScoreboardDisplay.Unspecified:
+        case ScoreboardDisplay.Yearly:
             UpdateElement =
                 currentCount >= totalCount ? (
                     <Tooltip title='Update Progress'>
                         <Checkbox
                             checked
                             onClick={() => setTaskDialogView(TaskDialogView.Progress)}
+                            disabled={!isCurrentUser}
                         />
                     </Tooltip>
                 ) : !isCurrentUser ? null : (
@@ -127,14 +132,14 @@ export const FullTrainingPlanItem = ({
     return (
         <Tooltip title={blocker.reason} followCursor>
             <Stack spacing={2} mt={2}>
-                <Grid2
+                <Grid
                     container
                     columnGap={0.5}
                     alignItems='center'
                     justifyContent='space-between'
                     position='relative'
                 >
-                    <Grid2
+                    <Grid
                         size={9}
                         onClick={() => setTaskDialogView(TaskDialogView.Details)}
                         sx={{ cursor: 'pointer', position: 'relative' }}
@@ -144,11 +149,11 @@ export const FullTrainingPlanItem = ({
                         rowGap='0.25rem'
                     >
                         {expired && (
-                            <Tooltip title='Your progress on this task has expired and it must be recompleted'>
+                            <Tooltip title="It's time for you to renew this task!">
                                 <Chip
                                     variant='outlined'
-                                    color='error'
-                                    label='Expired'
+                                    color='warning'
+                                    label='Renew'
                                     size='small'
                                     sx={{ alignSelf: 'start', mb: 0.5 }}
                                 />
@@ -195,8 +200,8 @@ export const FullTrainingPlanItem = ({
                                 sx={{ height: '6px' }}
                             />
                         )}
-                    </Grid2>
-                    <Grid2 size={{ xs: 2, sm: 'auto' }} id='task-status'>
+                    </Grid>
+                    <Grid size={{ xs: 2, sm: 'auto' }} id='task-status'>
                         <Stack direction='row' alignItems='center' justifyContent='end'>
                             {!blocker.isBlocked && (
                                 <Typography
@@ -234,8 +239,8 @@ export const FullTrainingPlanItem = ({
                                     </Tooltip>
                                 )}
                         </Stack>
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
                 <Divider />
 
                 {taskDialogView && (

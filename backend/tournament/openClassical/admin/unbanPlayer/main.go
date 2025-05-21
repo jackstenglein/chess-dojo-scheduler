@@ -17,8 +17,8 @@ import (
 var repository = database.DynamoDB
 
 type UnbanPlayerRequest struct {
-	// The Lichess username of the player to unban
-	LichessUsername string `json:"lichessUsername"`
+	// The username of the player to unban
+	Username string `json:"username"`
 }
 
 func main() {
@@ -34,8 +34,8 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(errors.Wrap(400, "Invalid request: failed to unmarshal body", "", err)), nil
 	}
 
-	if request.LichessUsername == "" {
-		return api.Failure(errors.New(400, "Invalid request: lichessUsername is required", "")), nil
+	if request.Username == "" {
+		return api.Failure(errors.New(400, "Invalid request: username is required", "")), nil
 	}
 
 	info := api.GetUserInfo(event)
@@ -53,7 +53,7 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	openClassical, err := repository.UnbanPlayer(request.LichessUsername)
+	openClassical, err := repository.UnbanPlayer(request.Username)
 	if err != nil {
 		return api.Failure(err), nil
 	}

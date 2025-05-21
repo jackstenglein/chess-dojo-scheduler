@@ -87,13 +87,41 @@ export function Players({ tournament }: { tournament: RoundRobin | RoundRobinWai
                             </Stack>
                         </TableCell>
                         <TableCell align='center'>
-                            <Typography>{player.lichessUsername}</Typography>
+                            <Typography>
+                                <Link
+                                    href={`https://lichess.org/@/${player.lichessUsername}`}
+                                    target='_blank'
+                                    rel='noopener'
+                                >
+                                    {player.lichessUsername}
+                                </Link>
+                            </Typography>
                         </TableCell>
                         <TableCell align='center'>
-                            <Typography>{player.chesscomUsername}</Typography>
+                            <Typography>
+                                <Link
+                                    href={`https://www.chess.com/member/${player.chesscomUsername}`}
+                                    target='_blank'
+                                    rel='noopener'
+                                >
+                                    {player.chesscomUsername}
+                                </Link>
+                            </Typography>
                         </TableCell>
                         <TableCell align='center'>
-                            <Typography>{player.discordUsername}</Typography>
+                            <Typography>
+                                {player.discordId ? (
+                                    <Link
+                                        href={`https://discord.com/users/${player.discordId}`}
+                                        target='_blank'
+                                        rel='noopener'
+                                    >
+                                        {player.discordUsername}
+                                    </Link>
+                                ) : (
+                                    player.discordUsername
+                                )}
+                            </Typography>
                         </TableCell>
                         {stats && (
                             <TableCell align='center'>

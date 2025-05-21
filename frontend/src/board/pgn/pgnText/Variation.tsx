@@ -1,5 +1,5 @@
 import { Chess, Event, EventType } from '@jackstenglein/chess';
-import { Grid2, Paper } from '@mui/material';
+import { Grid, Paper } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useChess } from '../PgnBoard';
 import MoveDisplay from './MoveDisplay';
@@ -36,11 +36,11 @@ const Variation: React.FC<VariationProps> = ({ handleScroll }) => {
 
     return (
         <Paper sx={{ boxShadow: 'none' }}>
-            <Grid2 container>
+            <Grid container>
                 {chess?.history().map((move) => {
                     return <MoveDisplay move={move} handleScroll={handleScroll} key={move.ply} />;
                 })}
-            </Grid2>
+            </Grid>
         </Paper>
     );
 };

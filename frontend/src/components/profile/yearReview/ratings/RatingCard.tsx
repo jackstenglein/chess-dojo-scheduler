@@ -12,7 +12,7 @@ import {
     Card,
     CardContent,
     Chip,
-    Grid2,
+    Grid,
     Link,
     Stack,
     Tooltip,
@@ -73,8 +73,8 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, per
                     )}
                 </Stack>
 
-                <Grid2 container alignItems='center' rowSpacing={2}>
-                    <Grid2
+                <Grid container alignItems='center' rowSpacing={2}>
+                    <Grid
                         display='flex'
                         justifyContent={{ xs: 'start', sm: 'center' }}
                         size={{
@@ -98,9 +98,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, per
                                 {data.startRating}
                             </Typography>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2
+                    <Grid
                         display='flex'
                         justifyContent={{ xs: 'end', sm: 'center' }}
                         size={{
@@ -123,9 +123,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, per
                                 {data.currentRating.value}
                             </Typography>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2
+                    <Grid
                         display='flex'
                         justifyContent={{ xs: 'start', sm: 'center' }}
                         size={{
@@ -172,11 +172,11 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, per
                                 </Typography>
                             </Stack>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
                     {!isCustom(system) && (
                         <>
-                            <Grid2
+                            <Grid
                                 display='flex'
                                 justifyContent={{ xs: 'end', sm: 'center' }}
                                 size={{
@@ -212,9 +212,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, per
                                         )}
                                     </Typography>
                                 </Stack>
-                            </Grid2>
+                            </Grid>
 
-                            <Grid2
+                            <Grid
                                 display='flex'
                                 justifyContent={{ xs: 'start', sm: 'center' }}
                                 size={{
@@ -256,9 +256,9 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, per
                                         {Math.round(10 * data.currentRating.percentile) / 10}%
                                     </Typography>
                                 </Stack>
-                            </Grid2>
+                            </Grid>
 
-                            <Grid2
+                            <Grid
                                 display='flex'
                                 justifyContent={{ xs: 'end', sm: 'center' }}
                                 size={{
@@ -300,10 +300,10 @@ const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, per
                                         {Math.round(10 * data.currentRating.cohortPercentile) / 10}%
                                     </Typography>
                                 </Stack>
-                            </Grid2>
+                            </Grid>
                         </>
                     )}
-                </Grid2>
+                </Grid>
 
                 <Stack>
                     <Box height={300} mt={2}>

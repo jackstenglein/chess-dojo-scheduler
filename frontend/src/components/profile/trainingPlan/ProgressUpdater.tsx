@@ -19,7 +19,7 @@ import {
     DialogContent,
     DialogContentText,
     FormControlLabel,
-    Grid2,
+    Grid,
     Stack,
     TextField,
 } from '@mui/material';
@@ -30,41 +30,7 @@ import InputSlider from './InputSlider';
 import { TaskDialogView } from './TaskDialog';
 
 const NUMBER_REGEX = /^[0-9]*$/;
-
 const TIME_WARNING_THRESHOLD_MINS = 60 * 5;
-
-function getIncrementalCount(
-    alreadyComplete: boolean,
-    isSlider: boolean,
-    isNonDojo: boolean,
-    markComplete: boolean,
-    value: number,
-    currentCount: number,
-    totalCount: number,
-): number {
-    if (isNonDojo) {
-        return 0;
-    }
-    if (isSlider) {
-        return value - currentCount;
-    }
-
-    if (alreadyComplete) {
-        if (!markComplete) {
-            // Reset to 0
-            return -currentCount;
-        }
-        // No change
-        return 0;
-    }
-
-    if (!markComplete) {
-        // The user is just changing the time
-        return 0;
-    }
-
-    return totalCount - currentCount;
-}
 
 interface ProgressUpdaterProps {
     requirement: Requirement | CustomTask;
@@ -82,10 +48,10 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     setView,
 }) => {
     const api = useApi();
-    const { onNewEntry } = useTimelineContext();
+    const { entries, onNewEntry } = useTimelineContext();
 
     const totalCount = requirement.counts[cohort] || 0;
-    const currentCount = getCurrentCount(cohort, requirement, progress);
+    const currentCount = getCurrentCount({ cohort, requirement, progress, timeline: entries });
 
     const [value, setValue] = useState<number>(currentCount);
     const [markComplete, setMarkComplete] = useState(true);
@@ -98,14 +64,13 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     const [notes, setNotes] = useState('');
     const request = useRequest();
 
-    const isComplete = currentCount >= totalCount;
-
     const isCheckbox =
         requirement.scoreboardDisplay === ScoreboardDisplay.Hidden ||
         requirement.scoreboardDisplay === ScoreboardDisplay.Checkbox;
     const isSlider =
         requirement.scoreboardDisplay === ScoreboardDisplay.ProgressBar ||
-        requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified;
+        requirement.scoreboardDisplay === ScoreboardDisplay.Unspecified ||
+        requirement.scoreboardDisplay === ScoreboardDisplay.Yearly;
     const isNonDojo = requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo;
     const isMinutes = requirement.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
@@ -132,35 +97,38 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
             return;
         }
 
-        const incrementalCount = isMinutes
-            ? addedTime
-            : getIncrementalCount(
-                  isComplete,
-                  isSlider,
-                  isNonDojo,
-                  markComplete,
-                  value,
-                  currentCount,
-                  totalCount,
-              );
+        let newCount = value;
+        if (isMinutes) {
+            newCount = totalTime;
+        } else if (isNonDojo) {
+            newCount = 0;
+        } else if (isCheckbox) {
+            if (markComplete) {
+                newCount = totalCount;
+            } else {
+                newCount = 0;
+            }
+        }
 
         request.onStart();
-        api.updateUserProgress(
+        api.updateUserProgress({
             cohort,
-            requirement.id,
-            incrementalCount,
-            hoursInt * 60 + minutesInt,
+            requirementId: requirement.id,
+            previousCount: currentCount,
+            newCount: newCount,
+            incrementalMinutesSpent: addedTime,
             date,
             notes,
-        )
+        })
             .then((resp) => {
                 trackEvent(EventType.UpdateProgress, {
                     requirement_id: requirement.id,
                     requirement_name: requirement.name,
                     is_custom_requirement: !isRequirement(requirement),
                     dojo_cohort: cohort,
-                    incremental_count: incrementalCount,
-                    incremental_minutes: hoursInt * 60 + minutesInt,
+                    previous_count: currentCount,
+                    new_count: newCount,
+                    incremental_minutes: addedTime,
                 });
                 onNewEntry(resp.data.timelineEntry);
                 onClose();
@@ -177,7 +145,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     return (
         <>
             <DialogContent>
-                <Stack spacing={3} sx={{ mt: isMinutes ? 1 : undefined }}>
+                <Stack spacing={3} sx={{ mt: isMinutes || isNonDojo ? 1 : undefined }}>
                     {isSlider && (
                         <InputSlider
                             value={value}
@@ -210,8 +178,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     />
 
                     <Stack spacing={2}>
-                        <Grid2 container width={1} gap={2}>
-                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                        <Grid container width={1} gap={2}>
+                            <Grid size={{ xs: 12, sm: 'grow' }}>
                                 <DatePicker
                                     label='Date'
                                     disableFuture
@@ -219,8 +187,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                                     onChange={setDate}
                                     slotProps={{ textField: { fullWidth: true } }}
                                 />
-                            </Grid2>
-                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 'grow' }}>
                                 <TextField
                                     label='Hours'
                                     value={hours}
@@ -235,8 +203,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                                     helperText={errors.hours}
                                     fullWidth
                                 />
-                            </Grid2>
-                            <Grid2 size={{ xs: 12, sm: 'grow' }}>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 'grow' }}>
                                 <TextField
                                     label='Minutes'
                                     value={minutes}
@@ -251,8 +219,8 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                                     helperText={errors.minutes}
                                     fullWidth
                                 />
-                            </Grid2>
-                        </Grid2>
+                            </Grid>
+                        </Grid>
                         <DialogContentText>
                             Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
                         </DialogContentText>

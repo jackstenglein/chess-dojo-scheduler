@@ -3,7 +3,7 @@ import { ScoreCategories } from '@/components/profile/activity/activity';
 import { RequirementCategory } from '@/database/requirement';
 import { YearReviewDataSection } from '@/database/yearReview';
 import { CategoryColors } from '@/style/ThemeProvider';
-import { Box, Card, CardContent, CardHeader, Grid2, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardHeader, Grid, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { AxisOptions, Chart } from 'react-charts';
 import Percentiles from './Percentiles';
@@ -106,8 +106,8 @@ const DojoPointSection = ({ review }: SectionProps) => {
         <Card variant='outlined' sx={{ width: 1, mt: 4 }}>
             <CardHeader title='Dojo Points' />
             <CardContent>
-                <Grid2 container alignItems='center' rowSpacing={2}>
-                    <Grid2
+                <Grid container alignItems='center' rowSpacing={2}>
+                    <Grid
                         display='flex'
                         justifyContent='center'
                         size={{
@@ -130,7 +130,7 @@ const DojoPointSection = ({ review }: SectionProps) => {
                                 {Math.round(100 * data.total.value) / 100}
                             </Typography>
                         </Stack>
-                    </Grid2>
+                    </Grid>
 
                     <Percentiles
                         description='total Dojo points'
@@ -138,7 +138,7 @@ const DojoPointSection = ({ review }: SectionProps) => {
                         percentile={data.total.percentile}
                         cohortPercentile={data.total.cohortPercentile}
                     />
-                </Grid2>
+                </Grid>
 
                 <Stack mt={4} spacing={4}>
                     <Stack alignItems='start' spacing={0.5}>

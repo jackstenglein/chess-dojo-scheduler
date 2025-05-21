@@ -3,6 +3,8 @@ import { z } from 'zod';
 const DiscordConnectRequestSchema = z.object({
     mode: z.literal('connect'),
     code: z.string(),
+    /** The redirect URI used in the Discord oauth flow. */
+    redirectUri: z.string().optional(),
 });
 
 const DiscordDisconnectRequestSchema = z.object({

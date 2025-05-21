@@ -3,7 +3,7 @@
 import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Graduation } from '@/database/graduation';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { Card, CardActionArea, CardContent, Grid2, Stack, Typography } from '@mui/material';
+import { Card, CardActionArea, CardContent, Grid, Stack, Typography } from '@mui/material';
 import Link from 'next/link';
 
 interface GraduationLinkCardProps {
@@ -18,7 +18,7 @@ export const GraduationLinkCard = ({ graduation, to }: GraduationLinkCardProps) 
     const timeStr = toDojoTimeString(new Date(graduatedAt), undefined, undefined);
 
     return (
-        <Grid2
+        <Grid
             size={{
                 xs: 12,
                 sm: 6,
@@ -46,6 +46,6 @@ export const GraduationLinkCard = ({ graduation, to }: GraduationLinkCardProps) 
                     </CardContent>
                 </CardActionArea>
             </Card>
-        </Grid2>
+        </Grid>
     );
 };

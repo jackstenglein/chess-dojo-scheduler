@@ -34,8 +34,7 @@ export const EnvSchema = z.object({
     isBeta: z.boolean(),
     metaPixelId: z.string(),
     discord: z.object({
-        publicUrl: z.string(),
-        privateUrl: z.string(),
+        url: z.string(),
         clientId: z.string(),
         oauthRedirectUrl: z.string(),
     }),
@@ -72,8 +71,7 @@ export function getConfig(): Config {
         isBeta: process.env.NEXT_PUBLIC_IS_BETA === 'true',
         metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID,
         discord: {
-            publicUrl: process.env.NEXT_PUBLIC_DISCORD_PUBLIC_URL,
-            privateUrl: process.env.NEXT_PUBLIC_DISCORD_PRIVATE_URL,
+            url: process.env.NEXT_PUBLIC_DISCORD_URL,
             clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
             oauthRedirectUrl: process.env.NEXT_PUBLIC_DISCORD_OAUTH_REDIRECT_URL,
         },

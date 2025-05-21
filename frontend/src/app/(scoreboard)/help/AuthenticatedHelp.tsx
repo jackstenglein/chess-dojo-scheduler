@@ -1,6 +1,8 @@
 'use client';
-
+import SupportTicket from '@/components/help/SupportTicket';
 import { Link } from '@/components/navigation/Link';
+import { getConfig } from '@/config';
+import { SmartToy } from '@mui/icons-material';
 import {
     Button,
     Card,
@@ -8,14 +10,14 @@ import {
     CardHeader,
     Container,
     Divider,
-    Grid2,
+    Grid,
     Stack,
     Typography,
 } from '@mui/material';
-import { DiscordHelpItem } from './DiscordHelpItem';
 import HelpItem from './HelpItem';
-import SupportTicket from './SupportTicket';
 import { faq } from './UnauthenticatedHelp';
+
+const config = getConfig();
 
 const helpSections = [
     faq,
@@ -55,7 +57,17 @@ const helpSections = [
             },
             {
                 title: 'How do I communicate with other Dojo members?',
-                content: <DiscordHelpItem />,
+                content: (
+                    <>
+                        Discord is the primary method of communication between Dojo members. You can
+                        join our server{' '}
+                        <Link href={config.discord.url} target='_blank' rel='noopener'>
+                            here
+                        </Link>
+                        . You can use Discord to schedule sparring sessions, tournament games, and
+                        just chat generally with others about chess.
+                    </>
+                ),
             },
             {
                 title: 'How do I switch cohorts without graduating?',
@@ -336,8 +348,8 @@ const AuthenticatedHelp = () => {
 
     return (
         <Container maxWidth='xl' sx={{ py: 4 }}>
-            <Grid2 container columnSpacing={4}>
-                <Grid2
+            <Grid container columnSpacing={4}>
+                <Grid
                     sx={{ display: { xs: 'none', md: 'initial' } }}
                     size={{
                         md: 3,
@@ -387,9 +399,9 @@ const AuthenticatedHelp = () => {
                             </Stack>
                         </CardContent>
                     </Card>
-                </Grid2>
+                </Grid>
 
-                <Grid2
+                <Grid
                     id='scroll-parent'
                     size={{
                         md: 9,
@@ -400,10 +412,23 @@ const AuthenticatedHelp = () => {
                             <Typography variant='h4'>Help/FAQs</Typography>
                             <Divider />
                             <Typography variant='body1' mt={3}>
-                                If you have trouble using the site, please check this section before
-                                asking for help. If your issue is not listed here or is not solved
-                                by the advice here, then please submit a support ticket below.
+                                If you are having trouble using the site, ask{' '}
+                                <strong>
+                                    <Link href='/help/chat'>DojoAI</Link>
+                                </strong>{' '}
+                                for assistance or check the FAQs. If you're still stuck, please
+                                contact customer support below.
                             </Typography>
+                            <Button
+                                variant='contained'
+                                color='primary'
+                                startIcon={<SmartToy />}
+                                component={Link}
+                                href='/help/chat'
+                                sx={{ mt: 2, alignSelf: 'start' }}
+                            >
+                                Ask Dojo AI
+                            </Button>
                         </Stack>
 
                         <Stack>
@@ -472,8 +497,8 @@ const AuthenticatedHelp = () => {
 
                         <SupportTicket />
                     </Stack>
-                </Grid2>
-            </Grid2>
+                </Grid>
+            </Grid>
         </Container>
     );
 };

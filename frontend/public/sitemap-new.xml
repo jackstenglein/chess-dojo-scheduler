@@ -27,17 +27,17 @@
 
     <url>
         <loc>https://www.chessdojo.club/tournaments</loc>
-        <lastmod>2023-12-07</lastmod>
+        <lastmod>2025-05-02</lastmod>
     </url>
 
     <url>
-        <loc>https://www.chessdojo.club/tournaments?type=leaderboard</loc>
-        <lastmod>2023-12-07</lastmod>
+        <loc>https://www.chessdojo.club/tournaments/liga?type=leaderboard</loc>
+        <lastmod>2025-05-02</lastmod>
     </url>
 
     <url>
-        <loc>https://www.chessdojo.club/tournaments?type=info</loc>
-        <lastmod>2023-09-13</lastmod>
+        <loc>https://www.chessdojo.club/tournaments/liga?type=info</loc>
+        <lastmod>2025-05-02</lastmod>
     </url>
 
     <url>
@@ -109,12 +109,17 @@
 
     <url>
         <loc>https://www.chessdojo.club/material/books</loc>
-        <lastmod>2024-05-08</lastmod>
+        <lastmod>2025-05-15</lastmod>
     </url>
 
     <url>
         <loc>https://www.chessdojo.club/material/ratings</loc>
-        <lastmod>2024-05-08</lastmod>
+        <lastmod>2025-05-15</lastmod>
+    </url>
+
+    <url>
+        <loc>https://www.chessdojo.club/material/bots</loc>
+        <lastmod>2025-05-15</lastmod>
     </url>
 
     <!-- Blog -->
@@ -174,6 +179,21 @@
         <lastmod>2025-02-15</lastmod>
     </url>
 
+    <url>
+        <loc>https://www.chessdojo.club/blog/dojo-digest/vol-18</loc>
+        <lastmod>2025-05-16</lastmod>
+    </url>
+
+    <url>
+        <loc>https://www.chessdojo.club/blog/dojo-digest/vol-19</loc>
+        <lastmod>2025-05-16</lastmod>
+    </url>
+
+    <url>
+        <loc>https://www.chessdojo.club/blog/dojo-digest/vol-20</loc>
+        <lastmod>2025-05-16</lastmod>
+    </url>
+
     <!-- Player Spotlight -->
     <url>
         <loc>https://www.chessdojo.club/blog/player-spotlight/lifecanbesonice</loc>
@@ -228,5 +248,9 @@
     <url>
         <loc>https://www.chessdojo.club/blog/dojo-blog/custom-tasks</loc>
         <lastmod>2025-02-15</lastmod>
+    </url>
+    <url>
+        <loc>https://www.chessdojo.club/blog/dojo-blog/4-0</loc>
+        <lastmod>2025-05-16</lastmod>
     </url>
 </urlset>

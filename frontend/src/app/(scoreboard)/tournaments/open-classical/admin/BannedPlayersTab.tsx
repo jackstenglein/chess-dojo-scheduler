@@ -1,6 +1,6 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { OpenClassical } from '@/database/tournament';
+import { OpenClassical, OpenClassicalPlayer } from '@/database/tournament';
 import { Check } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -24,7 +24,7 @@ interface BannedPlayersTabProps {
 }
 
 const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({ openClassical, onUpdate }) => {
-    const [unbanPlayer, setUnbanPlayer] = useState('');
+    const [unbanPlayer, setUnbanPlayer] = useState<OpenClassicalPlayer>();
     const api = useApi();
     const unbanRequest = useRequest<string>();
 
@@ -38,7 +38,7 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({ openClassical, onUp
                     <GridActionsCellItem
                         icon={<Check color='success' />}
                         label='Unban Player'
-                        onClick={() => setUnbanPlayer(params.row.lichessUsername)}
+                        onClick={() => setUnbanPlayer(params.row)}
                     />
                 </Tooltip>,
             ],
@@ -48,12 +48,14 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({ openClassical, onUp
     const players = useMemo(() => Object.values(openClassical.bannedPlayers), [openClassical]);
 
     const onConfirmUnban = () => {
+        if (!unbanPlayer) return;
+
         unbanRequest.onStart();
-        api.adminUnbanPlayer(unbanPlayer)
+        api.adminUnbanPlayer(unbanPlayer.username)
             .then((resp) => {
                 onUpdate(resp.data);
-                setUnbanPlayer('');
-                unbanRequest.onSuccess(`${unbanPlayer} unbanned`);
+                setUnbanPlayer(undefined);
+                unbanRequest.onSuccess(`${unbanPlayer.displayName} unbanned`);
             })
             .catch((err) => {
                 console.error('adminUnbanPlayer: ', err);
@@ -81,11 +83,11 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({ openClassical, onUp
 
             <Dialog
                 open={Boolean(unbanPlayer)}
-                onClose={unbanRequest.isLoading() ? undefined : () => setUnbanPlayer('')}
+                onClose={unbanRequest.isLoading() ? undefined : () => setUnbanPlayer(undefined)}
                 maxWidth='sm'
                 fullWidth
             >
-                <DialogTitle>Unban {unbanPlayer}?</DialogTitle>
+                <DialogTitle>Unban {unbanPlayer?.displayName}?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         This will allow the player to register and participate in future open
@@ -93,7 +95,10 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({ openClassical, onUp
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setUnbanPlayer('')} disabled={unbanRequest.isLoading()}>
+                    <Button
+                        onClick={() => setUnbanPlayer(undefined)}
+                        disabled={unbanRequest.isLoading()}
+                    >
                         Cancel
                     </Button>
                     <LoadingButton loading={unbanRequest.isLoading()} onClick={onConfirmUnban}>

@@ -214,7 +214,7 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                         >
                             <CoachChip user={user} />
                             <InactiveChip user={user} />
-                            <DiscordChip username={user.discordUsername} />
+                            <DiscordChip username={user.discordUsername} id={user.discordId} />
                             <TimezoneChip timezone={user.timezoneOverride} />
                             <CreatedAtChip createdAt={user.createdAt} />
                             <CountChip

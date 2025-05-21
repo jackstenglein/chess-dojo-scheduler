@@ -18,7 +18,7 @@ import {
     DialogTitle,
     Divider,
     FormControlLabel,
-    Grid2,
+    Grid,
     IconButton,
     MenuItem,
     Stack,
@@ -239,8 +239,8 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                 </Typography>
                 <Divider sx={{ mb: 1 }} />
 
-                <Grid2 container columnSpacing={1}>
-                    <Grid2 size={12}>
+                <Grid container columnSpacing={1}>
+                    <Grid size={12}>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -260,9 +260,9 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                                 </Stack>
                             }
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={12}>
+                    <Grid size={12}>
                         <FormControlLabel
                             disabled={!enableDojo}
                             control={
@@ -283,9 +283,9 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                                 </Stack>
                             }
                         />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={{ xs: 12, sm: 6 }} sx={{ mt: 2 }}>
+                    <Grid size={{ xs: 12, sm: 6 }} sx={{ mt: 2 }}>
                         <TextField
                             select
                             fullWidth
@@ -301,9 +301,9 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={{ xs: 12, sm: 6 }} sx={{ mt: 2 }}>
+                    <Grid size={{ xs: 12, sm: 6 }} sx={{ mt: 2 }}>
                         <TextField
                             select
                             fullWidth
@@ -319,8 +319,8 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
 
                 <Typography variant='h6' sx={{ mt: 3 }}>
                     Masters Games

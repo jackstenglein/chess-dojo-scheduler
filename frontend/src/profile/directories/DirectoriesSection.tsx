@@ -90,7 +90,10 @@ export const DirectoriesSection = ({
     const directoryId = searchParams.get('directory') || 'home';
     const directoryOwner = searchParams.get('directoryOwner') || defaultDirectoryOwner;
 
-    const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
+    const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({
+        type: 'include',
+        ids: new Set([]),
+    });
     const contextMenu = useDataGridContextMenu(rowSelectionModel);
 
     const { directory, accessRole, request, putDirectory } = useDirectory(
@@ -188,7 +191,6 @@ export const DirectoriesSection = ({
                 enabled={enableNavigationMenu}
                 defaultValue={defaultNavigationMenuOpen}
             />
-
             <Stack spacing={2} alignItems='start' flexGrow={1}>
                 <DirectoryBreadcrumbs
                     owner={directoryOwner}
@@ -203,15 +205,16 @@ export const DirectoriesSection = ({
 
                         <BulkItemEditor
                             directory={directory}
-                            itemIds={rowSelectionModel as string[]}
-                            onClear={() => setRowSelectionModel([])}
+                            itemIds={[...rowSelectionModel.ids] as string[]}
+                            onClear={() =>
+                                setRowSelectionModel({ type: 'include', ids: new Set() })
+                            }
                         />
                     </Stack>
                 )}
 
                 <DataGridPro
                     autoHeight
-                    data-cy='directories-data-grid'
                     rows={rows}
                     columns={isAdmin ? adminColumns : publicColumns}
                     columnVisibilityModel={columnVisibility}
@@ -224,6 +227,7 @@ export const DirectoriesSection = ({
                         toolbar: CustomGridToolbar,
                     }}
                     slotProps={{
+                        root: { 'data-cy': 'directories-data-grid' },
                         row: isEditor
                             ? {
                                   onContextMenu: contextMenu.open,
@@ -245,6 +249,7 @@ export const DirectoriesSection = ({
                     pagination
                     pageSizeOptions={pageSizeOptions}
                     sx={{ width: 1, ...sx }}
+                    showToolbar
                 />
 
                 <ContextMenu
