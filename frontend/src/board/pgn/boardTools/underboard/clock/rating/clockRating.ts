@@ -39,7 +39,7 @@ export function getPerfectLineSeconds(timeControl: number, move: number): number
 function calculatePlayerArea(dataset: Datum[], timeControl: number): number {
     let area = 0;
 
-    for (let i = MIN_MOVE + 1; i < Math.min(dataset.length, MAX_MOVE) - 1; i++) {
+    for (let i = MIN_MOVE; i < Math.min(dataset.length, MAX_MOVE) - 1; i++) {
         const f1 = dataset[i].seconds;
         const f2 = dataset[i + 1].seconds;
 
@@ -74,7 +74,7 @@ export function calculateTimeRating(dataset: Datum[], side: string) {
 
     // zeroRatingArea is the area of the triangle created by the perfect line and the initial time control
     // If the user has this area or more, they are given a rating of 0.
-    const zeroRatingArea = 0.5 * (Math.min(dataset.length, MAX_MOVE) - MIN_MOVE) * timeControl;
+    const zeroRatingArea = 0.5 * (Math.min(dataset.length - 1, MAX_MOVE) - MIN_MOVE) * timeControl;
 
     console.log(`${side} Rating Analysis`);
     console.log(`${side} Dataset: `, dataset);
