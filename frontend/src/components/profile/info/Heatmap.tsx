@@ -652,9 +652,7 @@ function Block({
         weekSummary =
             weekSummaries[Object.keys(weekSummaries).sort((lhs, rhs) => (rhs > lhs ? 1 : -1))[0]];
         for (let i = new Date(activity.date).getUTCDay(); i !== weekEndOn; i = (i + 1) % 7) {
-            console.log(`before i: ${i}; weekSummaryY: ${weekSummaryY}`);
             weekSummaryY += (block.props.height as number) + BLOCK_SPACING;
-            console.log(`after i: ${i}; weekSummaryY: ${weekSummaryY}`);
         }
     }
 
