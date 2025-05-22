@@ -6,7 +6,7 @@ import { User, WorkGoalHistory, WorkGoalSettings } from '@/database/user';
 import CohortIcon, { cohortIcons } from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
-import { CheckCircle, Close } from '@mui/icons-material';
+import { CheckCircle, Close, HourglassBottom } from '@mui/icons-material';
 import {
     Box,
     Checkbox,
@@ -277,6 +277,7 @@ export function Heatmap({
                                 workGoalHistory={workGoalHistory}
                                 defaultWorkGoal={defaultWorkGoal}
                                 monochrome={colorMode === 'monochrome'}
+                                maxDate={maxDate}
                             />
                         )}
                         maxLevel={MAX_LEVEL}
@@ -592,6 +593,7 @@ function Block({
     workGoalHistory,
     defaultWorkGoal,
     monochrome,
+    maxDate,
 }: {
     block: BlockElement;
     activity: Activity | ExtendedBaseActivity;
@@ -603,6 +605,7 @@ function Block({
     workGoalHistory: WorkGoalHistory[];
     defaultWorkGoal?: WorkGoalSettings;
     monochrome?: boolean;
+    maxDate: string;
 }) {
     let maxCategory: RequirementCategory | undefined = undefined;
     let totalCount = 0;
@@ -641,6 +644,19 @@ function Block({
     const icon = Boolean(activity.graduation || activity.gamePlayed);
 
     const isEndOfWeek = new Date(activity.date).getUTCDay() === weekEndOn;
+    const isEnd = activity.date === maxDate;
+    let weekSummaryY = (block.props.y as number) + (block.props.height as number) + 12;
+    let weekSummary = weekSummaries[activity.date] ?? defaultWeekSummary(activity.date);
+
+    if (isEnd && !isEndOfWeek) {
+        weekSummary =
+            weekSummaries[Object.keys(weekSummaries).sort((lhs, rhs) => (rhs > lhs ? 1 : -1))[0]];
+        for (let i = new Date(activity.date).getUTCDay(); i !== weekEndOn; i = (i + 1) % 7) {
+            console.log(`before i: ${i}; weekSummaryY: ${weekSummaryY}`);
+            weekSummaryY += (block.props.height as number) + BLOCK_SPACING;
+            console.log(`after i: ${i}; weekSummaryY: ${weekSummaryY}`);
+        }
+    }
 
     return (
         <>
@@ -700,15 +716,16 @@ function Block({
                 )}
             </Tooltip>
 
-            {isEndOfWeek && (
+            {(isEndOfWeek || isEnd) && (
                 <WeekSummaryBlock
                     workGoalHistory={workGoalHistory}
                     defaultWorkGoal={defaultWorkGoal}
-                    weekSummary={weekSummaries[activity.date] ?? defaultWeekSummary(activity.date)}
+                    weekSummary={weekSummary}
                     x={block.props.x as number}
-                    y={(block.props.y as number) + (block.props.height as number) + 12}
+                    y={weekSummaryY}
                     size={block.props.width as number}
                     field={field}
+                    inProgress={!isEndOfWeek}
                 />
             )}
         </>
@@ -724,6 +741,7 @@ function Block({
  * @param x The x position of the block.
  * @param y The y position of the block.
  * @param size The size of the block.
+ * @param inProgress Whether the week is still in progress.
  * @returns
  */
 function WeekSummaryBlock({
@@ -734,6 +752,7 @@ function WeekSummaryBlock({
     x,
     y,
     size,
+    inProgress,
 }: {
     workGoalHistory: WorkGoalHistory[];
     defaultWorkGoal?: WorkGoalSettings;
@@ -742,6 +761,7 @@ function WeekSummaryBlock({
     x: number;
     y: number;
     size: number;
+    inProgress: boolean;
 }) {
     const workGoal =
         workGoalHistory.findLast((history) => history.date.split('T')[0] <= weekSummary.date)
@@ -750,26 +770,26 @@ function WeekSummaryBlock({
         DEFAULT_WORK_GOAL;
     const goalMinutes = workGoal.minutesPerDay.reduce((sum, value) => sum + value, 0);
 
-    let Icon = Close;
-    let color: 'error' | 'success' = 'error';
+    let Icon = inProgress ? HourglassBottom : Close;
+    let color: 'error.main' | 'success.main' | 'text.secondary' = inProgress
+        ? 'text.secondary'
+        : 'error.main';
     if (weekSummary.minutesSpent >= goalMinutes) {
         Icon = CheckCircle;
-        color = 'success';
+        color = 'success.main';
     }
 
     return (
         <>
-            <Icon
-                x={x}
-                y={y}
-                width={size}
-                height={size}
-                sx={{ fontSize: `${size}px` }}
-                color={color}
-            />
+            <Icon x={x} y={y} width={size} height={size} sx={{ fontSize: `${size}px`, color }} />
             <Tooltip
                 title={
-                    <WeekSummaryTooltip weekSummary={weekSummary} field={field} goal={workGoal} />
+                    <WeekSummaryTooltip
+                        weekSummary={weekSummary}
+                        field={field}
+                        goal={workGoal}
+                        inProgress={inProgress}
+                    />
                 }
             >
                 <rect x={x} y={y} width={size} height={size} fill='transparent' />
@@ -891,16 +911,19 @@ function BlockTooltip({
  * @param weekSummary The week summary to render the tooltip for.
  * @param field The field (dojo points/minutes) being displayed.
  * @param goal The work goal for the week.
+ * @param inProgress Whether the week is still in progress.
  * @returns A tooltip displaying the week summary in detail.
  */
 function WeekSummaryTooltip({
     weekSummary,
     field,
     goal,
+    inProgress,
 }: {
     weekSummary: WeekSummary;
     field: TimelineEntryField;
     goal: WorkGoalSettings;
+    inProgress: boolean;
 }) {
     const startDate = new Date(weekSummary.date);
     startDate.setDate(startDate.getDate() - 6);
@@ -917,7 +940,7 @@ function WeekSummaryTooltip({
 
     const goalMinutes = goal.minutesPerDay.reduce((sum, value) => sum + value, 0);
     const metGoal = weekSummary.minutesSpent >= goalMinutes;
-    let Icon = Close;
+    let Icon = inProgress ? HourglassBottom : Close;
     if (metGoal) {
         Icon = CheckCircle;
     }
@@ -940,11 +963,17 @@ function WeekSummaryTooltip({
                     <Icon
                         width={12}
                         height={12}
-                        sx={{ fontSize: '14px' }}
-                        color={metGoal ? 'success' : 'error'}
+                        sx={{
+                            fontSize: '14px',
+                            color: metGoal
+                                ? 'success.main'
+                                : inProgress
+                                  ? 'text.secondary'
+                                  : 'error.main',
+                        }}
                     />
                     <Typography variant='caption' pt='2px'>
-                        {metGoal ? 'Met' : 'Missed'} Weekly Goal
+                        {metGoal ? 'Met' : !inProgress ? 'Missed' : ''} Weekly Goal
                     </Typography>
                 </Stack>
 
