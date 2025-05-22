@@ -385,9 +385,10 @@ export function getTotalCount(
     requirement: Requirement | CustomTask,
     fallback?: boolean,
 ): number {
-    return requirement.counts[cohort] || fallback
-        ? Object.values(requirement.counts).sort((a, b) => b - a)[0]
-        : 0;
+    return (
+        requirement.counts[cohort] ??
+        (fallback ? Object.values(requirement.counts).sort((a, b) => b - a)[0] : 0)
+    );
 }
 
 /**
