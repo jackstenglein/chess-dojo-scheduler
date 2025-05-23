@@ -1,11 +1,12 @@
 import { useReconcile } from '@/board/Board';
 import { getStandardNag } from '@/board/pgn/Nag';
 import { useChess } from '@/board/pgn/PgnBoard';
+import { RabbitIcon } from '@/style/RabbitIcon';
+import { TurtleIcon } from '@/style/TurtleIcon';
 import { useLightMode } from '@/style/useLightMode';
 import { Chess, Event, EventType, Move } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Edit } from '@mui/icons-material';
-
 import {
     Box,
     Card,
@@ -29,11 +30,20 @@ import {
     getPerfectLineSecondsParabola,
     MAX_MOVE,
     MIN_MOVE,
+    MIN_TIME_CONTROL,
 } from './rating/clockRating';
+
+const IDEAL_CLOCK_SERIES_LABEL = 'Ideal';
+const EVAL_SERIES_LABEL = 'Eval';
 
 const showEvalInClockGraph = {
     key: 'showEvalInClockGraph',
     default: true,
+} as const;
+
+const showIdealClockUsage = {
+    key: 'showIdealClockUsage',
+    default: false,
 } as const;
 
 const nagEvals: Record<string, number> = {
@@ -225,7 +235,7 @@ function shouldRerender(chess: Chess, event: Event): boolean {
 }
 
 function getSeriesStyle(series: Series<Datum>, light: boolean) {
-    if (series.label === 'Ideal') {
+    if (series.label === IDEAL_CLOCK_SERIES_LABEL) {
         return { fill: green[500], stroke: green[500] };
     }
     if (series.label === 'White') {
@@ -235,7 +245,7 @@ function getSeriesStyle(series: Series<Datum>, light: boolean) {
         return { fill: 'white', stroke: 'white' };
     }
 
-    if (series.label === 'Eval') {
+    if (series.label === EVAL_SERIES_LABEL) {
         if (light) {
             return { fill: orange[300], stroke: orange[300] };
         }
@@ -276,6 +286,10 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         showEvalInClockGraph.key,
         showEvalInClockGraph.default,
     );
+    const [showIdealClock, setShowIdealClock] = useLocalStorage<boolean>(
+        showIdealClockUsage.key,
+        showIdealClockUsage.default,
+    );
 
     const timeControls = chess?.header().tags.TimeControl?.items;
 
@@ -305,6 +319,11 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
     const data = useMemo(() => {
         if (!chess || forceRender < 0) {
             return {
+                whiteClockRating: -1,
+                whiteClockArea: 0,
+                blackClockRating: -1,
+                blackClockArea: 0,
+                timeRatingEnabled: false,
                 total: [],
                 remainingPerMove: [],
                 usedPerMove: [],
@@ -314,7 +333,6 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         let timeControl = timeControls?.[0] ?? {};
         const initialTimeControl = timeControl.seconds ?? 0;
 
-        console.log(timeControls);
         let timeControlIdx = 0;
         let pliesSinceTimeControl = 0;
 
@@ -353,7 +371,11 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         const moves = chess.history();
         for (let i = 0; i < moves.length; i += 2) {
             const moveNumber = i / 2 + 1;
-            if (moveNumber >= MIN_MOVE && moveNumber <= MAX_MOVE) {
+            if (
+                initialTimeControl >= MIN_TIME_CONTROL &&
+                moveNumber >= MIN_MOVE &&
+                moveNumber <= MAX_MOVE
+            ) {
                 perfectLine.push({
                     moveNumber,
                     move: moves[i],
@@ -445,12 +467,21 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             });
         }
 
-        const whiteClockRating = calculateTimeRating(whiteClockDisplay, 'white');
-        const blackClockRating = calculateTimeRating(blackClockDisplay, 'black');
+        const { rating: whiteClockRating, area: whiteClockArea } = calculateTimeRating(
+            whiteClockDisplay,
+            'white',
+        ) ?? { rating: -1, area: 0 };
+        const { rating: blackClockRating, area: blackClockArea } = calculateTimeRating(
+            blackClockDisplay,
+            'black',
+        ) ?? { rating: -1, area: 0 };
 
         return {
             whiteClockRating,
+            whiteClockArea,
             blackClockRating,
+            blackClockArea,
+            timeRatingEnabled: whiteClockRating >= 0 || blackClockRating >= 0,
             total: [
                 {
                     label: 'Total Time',
@@ -473,8 +504,8 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             remainingPerMove: [
                 { label: 'White', data: whiteClockDisplay },
                 { label: 'Black', data: blackClockDisplay },
-                { label: 'Ideal', data: perfectLine },
-                { label: 'Eval', data: evalData, secondaryAxisId: 'eval' },
+                { label: IDEAL_CLOCK_SERIES_LABEL, data: perfectLine },
+                { label: EVAL_SERIES_LABEL, data: evalData, secondaryAxisId: 'eval' },
             ],
             usedPerMove: [
                 { label: 'White', data: whiteTimePerMove.reverse() },
@@ -498,6 +529,18 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         chess.setHeader('TimeControl', value);
         setShowTimeControlEditor(false);
     };
+
+    let remainingPerMoveData = data.remainingPerMove;
+    if (!showIdealClock) {
+        remainingPerMoveData = remainingPerMoveData.filter(
+            (series) => series.label !== IDEAL_CLOCK_SERIES_LABEL,
+        );
+    }
+    if (!showEval) {
+        remainingPerMoveData = remainingPerMoveData.filter(
+            (series) => series.label !== EVAL_SERIES_LABEL,
+        );
+    }
 
     return (
         <CardContent sx={{ height: 1 }}>
@@ -545,9 +588,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     <Box width={1} height={300}>
                         <Chart
                             options={{
-                                data: showEval
-                                    ? data.remainingPerMove
-                                    : data.remainingPerMove.slice(0, -1),
+                                data: remainingPerMoveData,
                                 primaryAxis,
                                 secondaryAxes: showEval
                                     ? secondaryAxes
@@ -562,45 +603,72 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                             }}
                         />
                     </Box>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={showEval}
-                                onChange={(e) => setShowEval(e.target.checked)}
-                                sx={{ '& .MuiSvgIcon-root': { fontSize: 16 } }}
+
+                    <Stack direction='row' sx={{ alignSelf: 'start', flexWrap: 'wrap' }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={showEval}
+                                    onChange={(e) => setShowEval(e.target.checked)}
+                                    sx={{ '& .MuiSvgIcon-root': { fontSize: 16 } }}
+                                />
+                            }
+                            label='Overlay evaluation'
+                            slotProps={{
+                                typography: {
+                                    color: 'text.secondary',
+                                    fontSize: '14px',
+                                },
+                            }}
+                        />
+
+                        {data.timeRatingEnabled && (
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={showIdealClock}
+                                        onChange={(e) => setShowIdealClock(e.target.checked)}
+                                        sx={{ '& .MuiSvgIcon-root': { fontSize: 16 } }}
+                                    />
+                                }
+                                label='Show ideal time usage'
+                                slotProps={{
+                                    typography: {
+                                        color: 'text.secondary',
+                                        fontSize: '14px',
+                                    },
+                                }}
                             />
-                        }
-                        label='Overlay evaluation'
-                        sx={{ alignSelf: 'start' }}
-                        slotProps={{
-                            typography: {
-                                color: 'text.secondary',
-                                fontSize: '14px',
-                            },
-                        }}
-                    />
-                    <Typography variant='caption' color='text.secondary'>
-                        Clock Rating
-                    </Typography>
-                    <Stack direction='row' spacing={2}>
-                        <Card sx={{ p: 1, minWidth: 120 }}>
-                            <Typography variant='caption' color='text.secondary' align='center'>
-                                White
-                            </Typography>
-                            <Typography variant='body2' align='center' color='text.primary'>
-                                {(data.whiteClockRating ?? 0) >= 0 ? data.whiteClockRating : '?'}
-                            </Typography>
-                        </Card>
-                        <Card sx={{ p: 1, minWidth: 120 }}>
-                            <Typography variant='caption' color='text.secondary' align='center'>
-                                Black
-                            </Typography>
-                            <Typography variant='body2' align='center' color='text.primary'>
-                                {(data.blackClockRating ?? 0) >= 0 ? data.blackClockRating : '?'}
-                            </Typography>
-                        </Card>
+                        )}
                     </Stack>
                 </Stack>
+
+                {data.timeRatingEnabled && (
+                    <Stack alignItems='center'>
+                        <Typography variant='caption' color='text.secondary' sx={{ mb: 1 }}>
+                            Time Management Rating
+                        </Typography>
+                        <Stack direction='row' spacing={2}>
+                            <TimeRatingCard
+                                backgroundColor='common.white'
+                                title='White'
+                                titleColor='grey.800'
+                                rating={data.whiteClockRating}
+                                ratingColor='common.black'
+                                area={data.whiteClockArea}
+                            />
+
+                            <TimeRatingCard
+                                backgroundColor='#121212'
+                                title='Black'
+                                titleColor='rgba(255, 255, 255, 0.7)'
+                                rating={data.blackClockRating}
+                                ratingColor='common.white'
+                                area={data.blackClockArea}
+                            />
+                        </Stack>
+                    </Stack>
+                )}
 
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
@@ -638,5 +706,63 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         </CardContent>
     );
 };
+
+function TimeRatingCard({
+    backgroundColor,
+    title,
+    titleColor,
+    rating,
+    ratingColor,
+    area,
+}: {
+    backgroundColor: string;
+    title: string;
+    titleColor: string;
+    rating: number;
+    ratingColor: string;
+    area: number;
+}) {
+    return (
+        <Card sx={{ p: 1, minWidth: 120, backgroundColor }} elevation={10}>
+            <Box
+                display='grid'
+                gridTemplateAreas='". title ." " . rating icon"'
+                gridTemplateColumns='1fr auto 1fr'
+                alignItems='center'
+            >
+                <Typography
+                    component='div'
+                    variant='caption'
+                    color={titleColor}
+                    textAlign='center'
+                    gridArea='title'
+                >
+                    {title}
+                </Typography>
+
+                <Typography
+                    color={ratingColor}
+                    variant='body1'
+                    align='center'
+                    fontWeight='bold'
+                    gridArea='rating'
+                >
+                    {rating >= 0 ? rating : '?'}
+                </Typography>
+
+                {area > 0 && (
+                    <Tooltip title='Player moved faster than ideal on average'>
+                        <RabbitIcon sx={{ gridArea: 'icon', color: ratingColor }} />
+                    </Tooltip>
+                )}
+                {area < 0 && (
+                    <Tooltip title='Player moved slower than ideal on average'>
+                        <TurtleIcon sx={{ gridArea: 'icon', color: ratingColor }} />
+                    </Tooltip>
+                )}
+            </Box>
+        </Card>
+    );
+}
 
 export default ClockUsage;

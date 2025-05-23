@@ -4,6 +4,7 @@ export const MIN_MOVE = 5;
 export const MAX_MOVE = 50;
 const PERFECT_TIME_AT_MAX_MOVE = 120; // Expected to have 2 minutes at move 50
 const MAX_RATING = 3000; // The rating given if the player has zero area
+export const MIN_TIME_CONTROL = 30 * 60; // 30 minutes
 
 /**
  * Returns the number of seconds the perfect line would have on the clock for the given
@@ -57,8 +58,12 @@ export function getPerfectLineSecondsParabola(timeControl: number, move: number)
  * @param timeControl The initial time control.
  * @returns The player's area and the zero rating area.
  */
-function calculateAreas(dataset: Datum[], timeControl: number): [number, number] {
+function calculateAreas(
+    dataset: Datum[],
+    timeControl: number,
+): { playerArea: number; absolutePlayerArea: number; zeroRatingArea: number } {
     let playerArea = 0;
+    let absolutePlayerArea = 0;
     let zeroRatingArea = 0;
 
     for (let i = MIN_MOVE; i < Math.min(dataset.length, MAX_MOVE) - 1; i++) {
@@ -76,11 +81,17 @@ function calculateAreas(dataset: Datum[], timeControl: number): [number, number]
             `player(${i}) - perfect(${i}) = ${Math.abs(player1 - perfect1)}; player(${i + 1}) - perfect(${i + 1}) = ${Math.abs(player2 - perfect2)}; area = ${pointArea} `,
         );
 
-        playerArea += pointArea;
+        if (player1 > perfect1 || player2 > perfect2) {
+            playerArea += pointArea;
+        } else {
+            playerArea -= pointArea;
+        }
+
+        absolutePlayerArea += pointArea;
         zeroRatingArea += (timeControl - perfect1 + (timeControl - perfect2)) / 2;
     }
 
-    return [playerArea, zeroRatingArea];
+    return { playerArea, absolutePlayerArea, zeroRatingArea };
 }
 
 /**
@@ -89,13 +100,16 @@ function calculateAreas(dataset: Datum[], timeControl: number): [number, number]
  * @param side The side whose rating is being calculated. Used only for debug logs.
  * @returns The time management rating for the given dataset, or -1 if it cannot be calculated.
  */
-export function calculateTimeRating(dataset: Datum[], side: string) {
+export function calculateTimeRating(
+    dataset: Datum[],
+    side: string,
+): { rating: number; area: number } | undefined {
     if (dataset.length < MIN_MOVE) {
-        return -1;
+        return;
     }
     const timeControl = dataset[0].seconds;
-    if (timeControl <= 0) {
-        return -1;
+    if (timeControl <= MIN_TIME_CONTROL) {
+        return;
     }
 
     console.log(`${side} Rating Analysis`);
@@ -104,13 +118,14 @@ export function calculateTimeRating(dataset: Datum[], side: string) {
     console.log(`${side} Number of moves: ${dataset.length}`);
 
     // The player's rating is calculated as a point on the line between (0, MAX_RATING) and (zeroRatingArea, 0).
-    const [playerArea, zeroRatingArea] = calculateAreas(dataset, timeControl);
-    const playerRating = ((-1 * MAX_RATING) / zeroRatingArea) * playerArea + MAX_RATING;
+    const { playerArea, absolutePlayerArea, zeroRatingArea } = calculateAreas(dataset, timeControl);
+    const playerRating = ((-1 * MAX_RATING) / zeroRatingArea) * absolutePlayerArea + MAX_RATING;
 
     console.log(`${side} Zero Rating Area: ${zeroRatingArea}`);
-    console.log(`${side} Forumula: y = ${(-1 * MAX_RATING) / zeroRatingArea}x + ${MAX_RATING}`);
     console.log(`${side} Area: ${playerArea}`);
+    console.log(`${side} Absolute Area: ${absolutePlayerArea}`);
+    console.log(`${side} Forumula: y = ${(-1 * MAX_RATING) / zeroRatingArea}x + ${MAX_RATING}`);
     console.log(`${side} Rating: ${playerRating}`);
 
-    return Math.round(Math.max(0, playerRating));
+    return { rating: Math.round(Math.max(0, playerRating)), area: playerArea };
 }
