@@ -26,7 +26,7 @@ import ClockEditor from './ClockEditor';
 import { TimeControlDescription } from './TimeControlDescription';
 import {
     calculateTimeRating,
-    getPerfectLineSeconds,
+    getPerfectLineSecondsParabola,
     MAX_MOVE,
     MIN_MOVE,
 } from './rating/clockRating';
@@ -357,7 +357,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 perfectLine.push({
                     moveNumber,
                     move: moves[i],
-                    seconds: getPerfectLineSeconds(initialTimeControl, moveNumber),
+                    seconds: getPerfectLineSecondsParabola(initialTimeControl, moveNumber),
                 });
             }
 
@@ -445,13 +445,6 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             });
         }
 
-        // let whiteSize = timeControls?.[0].moves ?? whiteClockDisplay.length;
-        // let blackSize = timeControls?.[0].moves ?? blackClockDisplay.length;
-        // let bonusTime = timeControls?.length === 2 ? timeControls[1].seconds : 0;
-        // let bonusInc = timeControls?.length === 2 ? timeControls[1].increment : 0;
-
-        console.log(timeControls);
-
         const whiteClockRating = calculateTimeRating(whiteClockDisplay, 'white');
         const blackClockRating = calculateTimeRating(blackClockDisplay, 'black');
 
@@ -480,7 +473,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             remainingPerMove: [
                 { label: 'White', data: whiteClockDisplay },
                 { label: 'Black', data: blackClockDisplay },
-                { label: 'Perfect', data: perfectLine },
+                { label: 'Ideal', data: perfectLine },
                 { label: 'Eval', data: evalData, secondaryAxisId: 'eval' },
             ],
             usedPerMove: [
