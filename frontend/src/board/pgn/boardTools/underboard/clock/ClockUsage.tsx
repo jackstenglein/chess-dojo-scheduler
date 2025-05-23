@@ -225,7 +225,7 @@ function shouldRerender(chess: Chess, event: Event): boolean {
 }
 
 function getSeriesStyle(series: Series<Datum>, light: boolean) {
-    if (series.label === 'Perfect') {
+    if (series.label === 'Ideal') {
         return { fill: green[500], stroke: green[500] };
     }
     if (series.label === 'White') {
