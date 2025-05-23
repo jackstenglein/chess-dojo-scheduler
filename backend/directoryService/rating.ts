@@ -392,7 +392,8 @@ export function getPerformanceRating(
         const scorePercent = metric.gamesCount > 0
             ? parseFloat((metric.ratios.reduce((sum, r) => sum + r, 0) / metric.gamesCount).toFixed(2))
             : 0;
-        metric.rating = avgOppRating + (fideDpTable[scorePercent] ?? 0);
+        const cohortKeyRating = avgOppRating + (fideDpTable[scorePercent] ?? 0);    
+        metric.rating = getNormalizedRating(cohortKeyRating, ratingSystem);
     });
 
     return {
