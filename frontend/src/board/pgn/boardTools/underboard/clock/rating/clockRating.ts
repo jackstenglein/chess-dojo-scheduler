@@ -1,3 +1,4 @@
+import { TimeControl } from '@jackstenglein/chess';
 import { Datum } from '../ClockUsage';
 
 export const MIN_MOVE = 5;
@@ -31,11 +32,11 @@ export function getPerfectLineSeconds(timeControl: number, move: number): number
 /**
  * Returns the number of seconds the perfect line would have on the clock for the given
  * time control and move.
- * @param timeControl The initial time on the clock at the start of the game.
+ * @param timeControls The time controls of the game.
  * @param move The move to calculate the number of seconds for.
  * @returns The number of seconds the perfect line would have on the clock at the given move.
  */
-export function getPerfectLineSecondsParabola(timeControl: number, move: number): number {
+export function getPerfectLineSecondsParabola(timeControls: TimeControl[], move: number): number {
     if (move < MIN_MOVE) {
         throw new Error(
             `Provided move ${move} must be greater than or equal to min move ${MIN_MOVE}`,
@@ -45,8 +46,15 @@ export function getPerfectLineSecondsParabola(timeControl: number, move: number)
         throw new Error(`Provided move ${move} must be less than or equal to max move ${MAX_MOVE}`);
     }
 
-    const coefficient = (timeControl - PERFECT_TIME_AT_MAX_MOVE) / (MAX_MOVE - MIN_MOVE) ** 2;
-    return coefficient * (move - MAX_MOVE) ** 2 + PERFECT_TIME_AT_MAX_MOVE;
+    const initialTime = timeControls[0].seconds ?? 0;
+    const coefficient = (initialTime - PERFECT_TIME_AT_MAX_MOVE) / (MAX_MOVE - MIN_MOVE) ** 2;
+    let expectedTime = coefficient * (move - MAX_MOVE) ** 2 + PERFECT_TIME_AT_MAX_MOVE;
+
+    if (timeControls[0].moves && move >= timeControls[0].moves) {
+        expectedTime += timeControls[1]?.seconds ?? 0;
+    }
+
+    return expectedTime;
 }
 
 /**
@@ -55,23 +63,25 @@ export function getPerfectLineSecondsParabola(timeControl: number, move: number)
  * approximation is calculated using the trapezoidal method, where each trapezoid has
  * a height of 1.
  * @param dataset The player's clock at each move.
- * @param timeControl The initial time control.
+ * @param timeControls The time controls for the game.
  * @returns The player's area and the zero rating area.
  */
 function calculateAreas(
     dataset: Datum[],
-    timeControl: number,
+    timeControls: TimeControl[],
 ): { playerArea: number; absolutePlayerArea: number; zeroRatingArea: number } {
     let playerArea = 0;
     let absolutePlayerArea = 0;
     let zeroRatingArea = 0;
 
+    const initialSeconds = timeControls[0].seconds ?? 0;
+
     for (let i = MIN_MOVE; i < Math.min(dataset.length, MAX_MOVE) - 1; i++) {
         const player1 = dataset[i].seconds;
         const player2 = dataset[i + 1].seconds;
 
-        const perfect1 = getPerfectLineSecondsParabola(timeControl, i);
-        const perfect2 = getPerfectLineSecondsParabola(timeControl, i + 1);
+        const perfect1 = getPerfectLineSecondsParabola(timeControls, i);
+        const perfect2 = getPerfectLineSecondsParabola(timeControls, i + 1);
 
         const pointArea = (Math.abs(player1 - perfect1) + Math.abs(player2 - perfect2)) / 2;
         console.debug(
@@ -88,7 +98,7 @@ function calculateAreas(
         }
 
         absolutePlayerArea += pointArea;
-        zeroRatingArea += (timeControl - perfect1 + (timeControl - perfect2)) / 2;
+        zeroRatingArea += (initialSeconds - perfect1 + (initialSeconds - perfect2)) / 2;
     }
 
     return { playerArea, absolutePlayerArea, zeroRatingArea };
@@ -96,29 +106,33 @@ function calculateAreas(
 
 /**
  * Calculates the time management rating for the given dataset.
+ * @param timeControls The time controls for the game.
  * @param dataset The player's clock at each move.
  * @param side The side whose rating is being calculated. Used only for debug logs.
  * @returns The time management rating for the given dataset, or -1 if it cannot be calculated.
  */
 export function calculateTimeRating(
+    timeControls: TimeControl[],
     dataset: Datum[],
     side: string,
 ): { rating: number; area: number } | undefined {
     if (dataset.length < MIN_MOVE) {
         return;
     }
-    const timeControl = dataset[0].seconds;
-    if (timeControl <= MIN_TIME_CONTROL) {
+    if ((timeControls[0].seconds ?? 0) <= MIN_TIME_CONTROL) {
         return;
     }
 
     console.log(`${side} Rating Analysis`);
     console.log(`${side} Dataset: `, dataset);
-    console.log(`${side} Time Control: `, timeControl);
+    console.log(`${side} Time Control: `, timeControls[0].seconds);
     console.log(`${side} Number of moves: ${dataset.length}`);
 
     // The player's rating is calculated as a point on the line between (0, MAX_RATING) and (zeroRatingArea, 0).
-    const { playerArea, absolutePlayerArea, zeroRatingArea } = calculateAreas(dataset, timeControl);
+    const { playerArea, absolutePlayerArea, zeroRatingArea } = calculateAreas(
+        dataset,
+        timeControls,
+    );
     const playerRating = ((-1 * MAX_RATING) / zeroRatingArea) * absolutePlayerArea + MAX_RATING;
 
     console.log(`${side} Zero Rating Area: ${zeroRatingArea}`);

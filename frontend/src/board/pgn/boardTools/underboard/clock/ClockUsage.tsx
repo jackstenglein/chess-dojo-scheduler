@@ -330,6 +330,8 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             };
         }
 
+        console.log('Time controls: ', timeControls);
+
         let timeControl = timeControls?.[0] ?? {};
         const initialTimeControl = timeControl.seconds ?? 0;
 
@@ -379,7 +381,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 perfectLine.push({
                     moveNumber,
                     move: moves[i],
-                    seconds: getPerfectLineSecondsParabola(initialTimeControl, moveNumber),
+                    seconds: getPerfectLineSecondsParabola(timeControls ?? [{}], moveNumber),
                 });
             }
 
@@ -468,10 +470,12 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
         }
 
         const { rating: whiteClockRating, area: whiteClockArea } = calculateTimeRating(
+            timeControls ?? [{}],
             whiteClockDisplay,
             'white',
         ) ?? { rating: -1, area: 0 };
         const { rating: blackClockRating, area: blackClockArea } = calculateTimeRating(
+            timeControls ?? [{}],
             blackClockDisplay,
             'black',
         ) ?? { rating: -1, area: 0 };
@@ -564,6 +568,33 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                     <TimeControlDescription timeControls={timeControls || []} />
                 </Stack>
 
+                {data.timeRatingEnabled && (
+                    <Stack alignItems='center'>
+                        <Typography variant='caption' color='text.secondary' sx={{ mb: 1 }}>
+                            Time Management Rating
+                        </Typography>
+                        <Stack direction='row' spacing={2}>
+                            <TimeRatingCard
+                                backgroundColor='common.white'
+                                title='White'
+                                titleColor='grey.800'
+                                rating={data.whiteClockRating}
+                                ratingColor='common.black'
+                                area={data.whiteClockArea}
+                            />
+
+                            <TimeRatingCard
+                                backgroundColor='#121212'
+                                title='Black'
+                                titleColor='rgba(255, 255, 255, 0.7)'
+                                rating={data.blackClockRating}
+                                ratingColor='common.white'
+                                area={data.blackClockArea}
+                            />
+                        </Stack>
+                    </Stack>
+                )}
+
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
                         Total Time Used
@@ -642,33 +673,6 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                         )}
                     </Stack>
                 </Stack>
-
-                {data.timeRatingEnabled && (
-                    <Stack alignItems='center'>
-                        <Typography variant='caption' color='text.secondary' sx={{ mb: 1 }}>
-                            Time Management Rating
-                        </Typography>
-                        <Stack direction='row' spacing={2}>
-                            <TimeRatingCard
-                                backgroundColor='common.white'
-                                title='White'
-                                titleColor='grey.800'
-                                rating={data.whiteClockRating}
-                                ratingColor='common.black'
-                                area={data.whiteClockArea}
-                            />
-
-                            <TimeRatingCard
-                                backgroundColor='#121212'
-                                title='Black'
-                                titleColor='rgba(255, 255, 255, 0.7)'
-                                rating={data.blackClockRating}
-                                ratingColor='common.white'
-                                area={data.blackClockArea}
-                            />
-                        </Stack>
-                    </Stack>
-                )}
 
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
