@@ -366,7 +366,8 @@ async function setStartEligibleAt(
 export async function startTournament(
     waitlist: RoundRobinWaitlist
 ): Promise<{ waitlist: RoundRobinWaitlist; tournament: RoundRobin }> {
-    if (Object.keys(waitlist.players).length < MIN_ROUND_ROBIN_PLAYERS) {
+    const numPlayers = Object.keys(waitlist.players).length;
+    if (numPlayers < MIN_ROUND_ROBIN_PLAYERS) {
         throw new ApiError({
             statusCode: 500,
             publicMessage: 'Temporary server error',
@@ -376,7 +377,7 @@ export async function startTournament(
 
     const startDate = new Date();
     const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + 3);
+    endDate.setDate(endDate.getDate() + 7 * (numPlayers + 1));
 
     const tournament = {
         ...waitlist,
