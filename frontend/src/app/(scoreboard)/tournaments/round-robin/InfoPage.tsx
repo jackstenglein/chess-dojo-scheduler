@@ -21,7 +21,7 @@ import {
 const faqs = [
     {
         question: 'Is there a registration period for Dojo Round robins?',
-        answer: "No, you can join the waitlist at any time. Once 10 players have joined the waitlist for your cohort's round robin, the tournament will automatically start. To prevent indefinite waiting, if nobody has joined the waitlist in 10 days and there are at least 4 players on the waitlist, the tournament will start.",
+        answer: 'No, you can join the waitlist at any time. The tournament will start a week after 4 players have joined the waitlist, or immediately once 10 players have joined the waitlist.',
     },
     {
         question: 'How do I register for the Dojo Round Robin?',
@@ -29,11 +29,15 @@ const faqs = [
     },
     {
         question: 'When do the tournaments start?',
-        answer: 'As soon as 10 players have joined the waitlist, or if there are at least 4 players on the waitlist and the waitlist has not updated in 10 days.',
+        answer: 'A week after 4 players have joined the waitlist, or immediately once 10 players have joined the waitlist.',
     },
     {
         question: 'How do I know when the tournament has started?',
         answer: 'By default, you will be notified on this site, as well as on Discord and via email. You can disable the Discord and email notifications in your settings.',
+    },
+    {
+        question: 'How long does the tournament last?',
+        answer: 'N+1 weeks, where N is the number of players. For example, if your tournament has 6 players, then it lasts for 7 weeks.',
     },
     {
         question: 'What are the time controls for different cohorts?',
@@ -41,7 +45,7 @@ const faqs = [
     },
     {
         question: 'How do I schedule the games?',
-        answer: 'Use the players tab on the tournament to find the Chess.com, Lichess and/or Discord username of your opponent. Message them on those platforms to schedule the game. You can also search for scheduling threads in Dojo Discord in the #round-robin-chat to connect with players.',
+        answer: 'Use the players tab on the tournament to find the Chess.com, Lichess and/or Discord username of your opponent. Message them on those platforms to schedule the game. You can also search for scheduling threads in the Dojo Discord in the #round-robin-chat to connect with players.',
     },
     {
         question: 'How do I submit my games?',
@@ -58,6 +62,10 @@ const faqs = [
     {
         question: 'What happens if I suspect someone of cheating?',
         answer: 'Report it immediately. Cheating is taken very seriously, and players caught cheating will be banned.',
+    },
+    {
+        question: 'Is there any penalty for not playing my games?',
+        answer: 'Yes. Not playing your games creates a poor experience for the other players. If you fail to submit any games by the time the tournament ends, you will be required to pay $15 the next time you register for a round robin.',
     },
 ];
 
@@ -111,7 +119,7 @@ export const InfoPage = () => {
                     <ListItemIcon>
                         <CalendarMonth sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
-                    <ListItemText primary='Schedule games at your own pace, with 3 months to complete all 9 games' />
+                    <ListItemText primary='Schedule games at your own pace, with 11 weeks to complete all 9 games' />
                 </ListItem>
                 <ListItem>
                     <ListItemIcon>
@@ -161,6 +169,12 @@ export const InfoPage = () => {
                         <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
                     </ListItemIcon>
                     <ListItemText primary='After the tournament begins, no refunds will be provided for withdrawals.' />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <RadioButtonCheckedIcon sx={{ color: 'text.secondary' }} />
+                    </ListItemIcon>
+                    <ListItemText primary='Players who enter the tournament and complete zero games will face a penalty of $15 the next time they register for a round robin, regardless of subscription status.' />
                 </ListItem>
             </List>
 
