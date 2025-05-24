@@ -306,6 +306,10 @@ export async function register({
                 return startTournament(waitlist);
             }
 
+            if (Object.keys(waitlist.players).length >= MIN_ROUND_ROBIN_PLAYERS) {
+                return setStartEligibleAt(waitlist);
+            }
+
             return { waitlist };
         } catch (err) {
             if (err instanceof ConditionalCheckFailedException) {
@@ -321,6 +325,36 @@ export async function register({
         publicMessage: 'Temporary server error',
         privateMessage: 'Exhausted max retries while conditional check failed',
     });
+}
+
+/**
+ * Sets the startEligibleAt field on the given waitlist to the current date and time.
+ * If the field is already set, the waitlist is returned unchanged.
+ * @param waitlist The waitlist to update.
+ * @returns The updated waitlist.
+ */
+async function setStartEligibleAt(
+    waitlist: RoundRobinWaitlist
+): Promise<{ waitlist: RoundRobinWaitlist }> {
+    if (waitlist.startEligibleAt) {
+        return { waitlist };
+    }
+
+    const input = new UpdateItemBuilder()
+        .key('type', waitlist.type)
+        .key('startsAt', 'WAITING')
+        .set('startEligibleAt', new Date().toISOString())
+        .condition(
+            and(attributeExists('players'), sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS))
+        )
+        .table(tournamentsTable)
+        .return('ALL_NEW')
+        .build();
+
+    const result = await dynamo.send(input);
+    waitlist = unmarshall(result.Attributes!) as RoundRobinWaitlist;
+
+    return { waitlist };
 }
 
 /**
@@ -364,6 +398,7 @@ export async function startTournament(
     waitlist.players = {};
     waitlist.name = `${parseInt(waitlist.name) + 1}`;
     waitlist.updatedAt = new Date().toISOString();
+    waitlist.startEligibleAt = '';
     await dynamo.send(
         new PutItemCommand({
             Item: marshall(waitlist, { removeUndefinedValues: true }),
