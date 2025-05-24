@@ -170,6 +170,8 @@ export const RoundRobinSchema = z.object({
     updatedAt: z.string(),
     /** The time the tournament reached enough registrations to be eligible to start. */
     startEligibleAt: z.string().optional(),
+    /** Whether reminders were sent to players who did not submit games. */
+    reminderSent: z.boolean().optional(),
 });
 
 export type RoundRobin = z.infer<typeof RoundRobinSchema>;

@@ -386,6 +386,7 @@ export async function startTournament(
         endDate: endDate.toISOString(),
         name: generateName(startDate, waitlist.name),
         updatedAt: new Date().toISOString(),
+        reminderSent: false,
     } as RoundRobin;
     setPairings(tournament);
 
