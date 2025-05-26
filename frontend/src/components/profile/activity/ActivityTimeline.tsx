@@ -28,6 +28,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import { DateTime } from 'luxon';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { EditTimelinEntryDialog } from './EditTimelineEntryDialog';
 import { UseTimelineResponse } from './useTimeline';
@@ -343,7 +344,7 @@ const ActivityTimelineCalendar = ({
                 }
                 navigationPickerProps={{
                     disableFuture: true,
-                    minDate: new Date('2023-05-01'),
+                    minDate: new Date('2023-05-01') as unknown as DateTime,
                 }}
                 onSelectedDateChange={onSelectedDateChange}
             />
