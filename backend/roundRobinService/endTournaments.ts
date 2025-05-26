@@ -11,13 +11,12 @@ import { dojoCohorts } from '@jackstenglein/chess-dojo-common/src/database/cohor
 import {
     calculatePlayerStats,
     RoundRobin,
+    RoundRobinPlayer,
+    RoundRobinPlayerStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { ScheduledEvent } from 'aws-lambda';
-import {
-    attributeExists,
-    dynamo,
-    UpdateItemBuilder,
-} from 'chess-dojo-directory-service/database';
+import { attributeExists, dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
+import { sendChannelMessage } from 'chess-dojo-notification-service/discord';
 import { tournamentsTable } from './register';
 
 const usersTable = `${process.env.stage}-users`;
@@ -67,8 +66,7 @@ async function processCohort(cohort: string) {
     do {
         input.ExclusiveStartKey = lastEvaluatedKey;
         const output = await dynamo.send(new QueryCommand(input));
-        const tournaments = (output.Items?.map((item) => unmarshall(item)) ||
-            []) as RoundRobin[];
+        const tournaments = (output.Items?.map((item) => unmarshall(item)) || []) as RoundRobin[];
         for (const t of tournaments) {
             try {
                 await markComplete(t);
@@ -82,7 +80,8 @@ async function processCohort(cohort: string) {
 
 /**
  * Sets the winners for the tournament, marks it as complete and deletes
- * the active tournament from the database.
+ * the active tournament from the database. Players who did not play any
+ * games are added to the list of banned players.
  * @param tournament The tournament to mark complete.
  */
 async function markComplete(tournament: RoundRobin) {
@@ -125,6 +124,9 @@ async function markComplete(tournament: RoundRobin) {
             console.error(`Failed to set ${winner} as winner: `, err);
         }
     }
+
+    await banPlayers(tournament);
+    await announceWinners(completedTournament);
 }
 
 /**
@@ -153,4 +155,73 @@ async function setWinners(tournament: RoundRobin) {
     }
 
     tournament.winners = topPlayers.map(([username]) => username);
+}
+
+/**
+ * Sends an announcement message in Discord congratulating the winners of the tournament.
+ * @param tournament The tournament to send the announcement for.
+ */
+async function announceWinners(tournament: RoundRobin) {
+    if (!tournament.winners || tournament.winners.length === 0) {
+        return;
+    }
+
+    let message = `Congratulations to `;
+    for (let i = 0; i < tournament.winners.length; i++) {
+        const player = tournament.players[tournament.winners[i]];
+        if (player.discordId) {
+            message += `<@${player.discordId}>`;
+        } else {
+            message += `${player.displayName}`;
+        }
+
+        if (tournament.winners.length === 2 && i === 0) {
+            message += ' and ';
+        } else if (tournament.winners.length > 2) {
+            if (i + 1 < tournament.winners.length) {
+                message += ', ';
+            }
+            if (i + 2 === tournament.winners.length) {
+                message += ' and ';
+            }
+        }
+    }
+
+    message += ` for winning the ${tournament.cohort} ${tournament.name} Round Robin!`;
+
+    await sendChannelMessage(process.env.discordAchievementsChannelId || '', message);
+}
+
+/**
+ * Bans players who did not submit any games in the round robin.
+ * @param tournament The tournament to ban players from.
+ */
+async function banPlayers(tournament: RoundRobin) {
+    const playerStats = calculatePlayerStats(tournament);
+    const bannedPlayers: RoundRobinPlayer[] = [];
+    for (const player of Object.values(tournament.players)) {
+        if (
+            player.status === RoundRobinPlayerStatuses.ACTIVE &&
+            !playerStats[player.username]?.played
+        ) {
+            bannedPlayers.push(player);
+        }
+    }
+    if (bannedPlayers.length === 0) {
+        return;
+    }
+
+    const input = new UpdateItemBuilder()
+        .key('type', 'ROUND_ROBIN')
+        .key('startsAt', 'BANNED_PLAYERS')
+        .return('NONE')
+        .table(tournamentsTable);
+    for (const player of bannedPlayers) {
+        input.set(['players', player.username], {
+            ...player,
+            updatedAt: new Date().toISOString(),
+            tournament: `${tournament.cohort} ${tournament.name}`,
+        });
+    }
+    await dynamo.send(input.build());
 }

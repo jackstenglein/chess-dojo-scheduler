@@ -46,6 +46,8 @@ export function RegisterModal({
     const [hasAgreedToScheduling, setHasAgreedToScheduling] = useState(false);
     const [hasAgreedNotToCheat, setHasAgreedNotToCheat] = useState(false);
 
+    const [unbanUrl, setUnbanUrl] = useState('');
+
     const request = useRequest<string>();
     const api = useApi();
 
@@ -78,7 +80,9 @@ export function RegisterModal({
             });
             console.log('registerForRoundRobin: ', resp);
 
-            if ('url' in resp.data) {
+            if ('banned' in resp.data) {
+                setUnbanUrl(resp.data.url);
+            } else if ('url' in resp.data) {
                 window.location.href = resp.data.url;
             } else {
                 request.onSuccess('Successfully registered for the tournament');
@@ -93,6 +97,25 @@ export function RegisterModal({
             request.onFailure(err);
         }
     };
+
+    if (unbanUrl) {
+        return (
+            <Dialog open={open} onClose={onClose}>
+                <DialogTitle>Register for the Round Robin?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Your account is not in good standing, due to not submitting any games in a
+                        prior round robin tournament. To register for this tournament, you must pay
+                        a fee of $15, in accordance with the terms on the info page.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={onClose}>Cancel</Button>
+                    <Button href={unbanUrl}>Continue</Button>
+                </DialogActions>
+            </Dialog>
+        );
+    }
 
     return (
         <>

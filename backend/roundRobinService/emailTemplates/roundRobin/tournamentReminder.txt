@@ -1,0 +1,5 @@
+Hello,
+
+Your round robin tournament {{name}} has been running for 2 weeks, and you haven't submitted any games! Your tournament info can be found here: {{tournamentUrl}}
+
+Not playing your games creates a poor experience for the other players, and failure to submit any games will result in a $15 fee the next time you register for a round robin. Please schedule and submit your games soon!

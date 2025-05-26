@@ -10,6 +10,7 @@
         "@jackstenglein/chess-dojo-common": "file:../../common",
         "chess-dojo-directory-service": "file:../directoryService",
         "chess-dojo-pgn-service": "file:../pgnService",
+        "chess-dojo-notification-service": "file:../notificationService",
         "stripe": "^17.5.0",
         "uuid": "^11.0.3"
     },

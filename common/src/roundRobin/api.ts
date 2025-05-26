@@ -73,7 +73,7 @@ export type RoundRobinListRequest = z.infer<typeof RoundRobinListSchema>;
 
 export type RoundRobinWaitlist = Pick<
     RoundRobin,
-    'type' | 'startsAt' | 'updatedAt' | 'cohort' | 'players' | 'name'
+    'type' | 'startsAt' | 'updatedAt' | 'cohort' | 'players' | 'name' | 'startEligibleAt'
 >;
 
 const RoundRobinPairingSchema = z.object({
@@ -124,6 +124,8 @@ export const RoundRobinPlayerSchema = z.object({
             customer: z.string().nullish(),
         })
         .optional(),
+    /** The price the user must pay when the tournament starts. */
+    price: z.string().optional(),
 });
 
 export type RoundRobinPlayer = z.infer<typeof RoundRobinPlayerSchema>;
@@ -168,6 +170,10 @@ export const RoundRobinSchema = z.object({
     winners: z.string().array().optional(),
     /** The time the tournament was last updated. */
     updatedAt: z.string(),
+    /** The time the tournament reached enough registrations to be eligible to start. */
+    startEligibleAt: z.string().optional(),
+    /** Whether reminders were sent to players who did not submit games. */
+    reminderSent: z.boolean().optional(),
 });
 
 export type RoundRobin = z.infer<typeof RoundRobinSchema>;

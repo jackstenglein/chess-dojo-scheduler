@@ -53,6 +53,7 @@ functions:
         Action:
           - dynamodb:UpdateItem
           - dynamodb:PutItem
+          - dynamodb:GetItem
         Resource: ${param:TournamentsTableArn}
       - Effect: Allow
         Action:
@@ -81,6 +82,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:PutItem
+          - dynamodb:UpdateItem
         Resource: ${param:TournamentsTableArn}
       - Effect: Allow
         Action:
@@ -90,6 +92,37 @@ functions:
       - Effect: Allow
         Action: sqs:SendMessage
         Resource: ${param:NotificationEventQueueArn}
+
+  sendReminder:
+    handler: sendReminder.handler
+    package:
+      individually: true
+      patterns:
+        - emailTemplates/roundRobin/tournamentReminder.minified.html
+        - emailTemplates/roundRobin/tournamentReminder.subject
+        - emailTemplates/roundRobin/tournamentReminder.txt
+    events:
+      - schedule:
+          rate: cron(0 0 * * ? *)
+    timeout: 300
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      discordAuth: ${file(../discord.yml):discordAuth}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - ses:SendTemplatedEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
 
   withdraw:
     handler: withdraw.handler
@@ -147,12 +180,17 @@ functions:
       - schedule:
           rate: cron(0 0 * * ? *)
     timeout: 180
+    environment:
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordAchievementsChannelId: ${file(../config-${sls:stage}.yml):discordAchievementsChannelId}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
           - dynamodb:PutItem
           - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
         Resource: ${param:TournamentsTableArn}
       - Effect: Allow
         Action:

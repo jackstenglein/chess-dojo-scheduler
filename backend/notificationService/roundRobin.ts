@@ -110,6 +110,7 @@ async function handleEmailNotification(user: PartialUser | undefined, tournament
         name: `${tournament.cohort} ${tournament.name}`,
         tournamentUrl: `${frontendHost}/tournaments/round-robin?cohort=${tournament.cohort}`,
         timeControl: timeControls[tournament.cohort],
+        numWeeks: `${tournament.playerOrder.length + 1}`,
         pairingHtml,
         pairingText,
     };

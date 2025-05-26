@@ -41,7 +41,7 @@ export interface RoundRobinApiContextType {
 }
 
 export type RoundRobinRegisterResponse =
-    | { url: string }
+    | { url: string; banned?: boolean }
     | {
           waitlist: RoundRobinWaitlist;
           tournament?: RoundRobin;

@@ -12,8 +12,7 @@ import { startTournament, tournamentsTable } from './register';
 
 /**
  * Handles a CloudWatch cron job to list all round robin waitlists
- * and start any that have not been updated in 10 days and have >=4
- * players.
+ * and start any that have >=4 players and startEligibleAt >=7 days ago.
  * @param event The scheduled event that triggered the handler.
  */
 export const handler = async (event: ScheduledEvent) => {
@@ -47,12 +46,13 @@ async function processCohort(cohort: string) {
     }
 
     const waitlist = unmarshall(output.Item) as RoundRobinWaitlist;
-    const tenDaysAgo = new Date();
-    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     if (
         Object.keys(waitlist.players).length >= MIN_ROUND_ROBIN_PLAYERS &&
-        waitlist.updatedAt <= tenDaysAgo.toISOString()
+        waitlist.startEligibleAt &&
+        waitlist.startEligibleAt <= sevenDaysAgo.toISOString()
     ) {
         console.log(`Starting tournament for ${cohort}: `, waitlist);
         await startTournament(waitlist);
