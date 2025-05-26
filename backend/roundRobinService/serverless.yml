@@ -180,6 +180,10 @@ functions:
       - schedule:
           rate: cron(0 0 * * ? *)
     timeout: 180
+    environment:
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordAchievementsChannelId: ${file(../config-${sls:stage}.yml):discordAchievementsChannelId}
     iamRoleStatements:
       - Effect: Allow
         Action:
