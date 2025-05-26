@@ -27,7 +27,7 @@ import ClockEditor from './ClockEditor';
 import { TimeControlDescription } from './TimeControlDescription';
 import {
     calculateTimeRating,
-    getPerfectLineSecondsParabola,
+    getPerfectLineSeconds,
     MAX_MOVE,
     MIN_MOVE,
     MIN_TIME_CONTROL,
@@ -330,8 +330,6 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             };
         }
 
-        console.log('Time controls: ', timeControls);
-
         let timeControl = timeControls?.[0] ?? {};
         const initialTimeControl = timeControl.seconds ?? 0;
 
@@ -381,7 +379,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 perfectLine.push({
                     moveNumber,
                     move: moves[i],
-                    seconds: getPerfectLineSecondsParabola(timeControls ?? [{}], moveNumber),
+                    seconds: getPerfectLineSeconds(timeControls ?? [{}], moveNumber),
                 });
             }
 

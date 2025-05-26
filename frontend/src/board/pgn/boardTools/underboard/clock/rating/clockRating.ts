@@ -10,33 +10,11 @@ export const MIN_TIME_CONTROL = 30 * 60; // 30 minutes
 /**
  * Returns the number of seconds the perfect line would have on the clock for the given
  * time control and move.
- * @param timeControl The initial time on the clock at the start of the game.
- * @param move The move to calculate the number of seconds for.
- * @returns The number of seconds the perfect line would have on the clock at the given move.
- */
-export function getPerfectLineSeconds(timeControl: number, move: number): number {
-    if (move < MIN_MOVE) {
-        throw new Error(
-            `Provided move ${move} must be greater than or equal to min move ${MIN_MOVE}`,
-        );
-    }
-    if (move > MAX_MOVE) {
-        throw new Error(`Provided move ${move} must be less than or equal to max move ${MAX_MOVE}`);
-    }
-    return (
-        ((PERFECT_TIME_AT_MAX_MOVE - timeControl) / (MAX_MOVE - MIN_MOVE)) * (move - MIN_MOVE) +
-        timeControl
-    );
-}
-
-/**
- * Returns the number of seconds the perfect line would have on the clock for the given
- * time control and move.
  * @param timeControls The time controls of the game.
  * @param move The move to calculate the number of seconds for.
  * @returns The number of seconds the perfect line would have on the clock at the given move.
  */
-export function getPerfectLineSecondsParabola(timeControls: TimeControl[], move: number): number {
+export function getPerfectLineSeconds(timeControls: TimeControl[], move: number): number {
     if (move < MIN_MOVE) {
         throw new Error(
             `Provided move ${move} must be greater than or equal to min move ${MIN_MOVE}`,
@@ -80,16 +58,10 @@ function calculateAreas(
         const player1 = dataset[i].seconds;
         const player2 = dataset[i + 1].seconds;
 
-        const perfect1 = getPerfectLineSecondsParabola(timeControls, i);
-        const perfect2 = getPerfectLineSecondsParabola(timeControls, i + 1);
+        const perfect1 = getPerfectLineSeconds(timeControls, i);
+        const perfect2 = getPerfectLineSeconds(timeControls, i + 1);
 
         const pointArea = (Math.abs(player1 - perfect1) + Math.abs(player2 - perfect2)) / 2;
-        console.debug(
-            `player(${i}) = ${player1}; perfect(${i}) = ${perfect1}; player(${i + 1}) = ${player2}; perfect(${i + 1}) = ${perfect2}; area = ${pointArea}`,
-        );
-        console.debug(
-            `player(${i}) - perfect(${i}) = ${Math.abs(player1 - perfect1)}; player(${i + 1}) - perfect(${i + 1}) = ${Math.abs(player2 - perfect2)}; area = ${pointArea} `,
-        );
 
         if (player1 > perfect1 || player2 > perfect2) {
             playerArea += pointArea;
@@ -114,7 +86,7 @@ function calculateAreas(
 export function calculateTimeRating(
     timeControls: TimeControl[],
     dataset: Datum[],
-    side: string,
+    _side: string,
 ): { rating: number; area: number } | undefined {
     if (dataset.length < MIN_MOVE) {
         return;
@@ -123,23 +95,11 @@ export function calculateTimeRating(
         return;
     }
 
-    console.log(`${side} Rating Analysis`);
-    console.log(`${side} Dataset: `, dataset);
-    console.log(`${side} Time Control: `, timeControls[0].seconds);
-    console.log(`${side} Number of moves: ${dataset.length}`);
-
     // The player's rating is calculated as a point on the line between (0, MAX_RATING) and (zeroRatingArea, 0).
     const { playerArea, absolutePlayerArea, zeroRatingArea } = calculateAreas(
         dataset,
         timeControls,
     );
     const playerRating = ((-1 * MAX_RATING) / zeroRatingArea) * absolutePlayerArea + MAX_RATING;
-
-    console.log(`${side} Zero Rating Area: ${zeroRatingArea}`);
-    console.log(`${side} Area: ${playerArea}`);
-    console.log(`${side} Absolute Area: ${absolutePlayerArea}`);
-    console.log(`${side} Forumula: y = ${(-1 * MAX_RATING) / zeroRatingArea}x + ${MAX_RATING}`);
-    console.log(`${side} Rating: ${playerRating}`);
-
     return { rating: Math.round(Math.max(0, playerRating)), area: playerArea };
 }
