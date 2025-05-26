@@ -53,6 +53,7 @@ functions:
         Action:
           - dynamodb:UpdateItem
           - dynamodb:PutItem
+          - dynamodb:GetItem
         Resource: ${param:TournamentsTableArn}
       - Effect: Allow
         Action:
@@ -81,6 +82,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:PutItem
+          - dynamodb:UpdateItem
         Resource: ${param:TournamentsTableArn}
       - Effect: Allow
         Action:
@@ -184,6 +186,7 @@ functions:
           - dynamodb:Query
           - dynamodb:PutItem
           - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
         Resource: ${param:TournamentsTableArn}
       - Effect: Allow
         Action:

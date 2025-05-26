@@ -71,9 +71,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         await validateRequest(request);
         await addRoundRobinRole(user);
 
-        if (user.subscriptionStatus !== SubscriptionStatus.Subscribed) {
-            const url = await getCheckoutUrl({ user, request });
-            return success({ url });
+        const banned = await isBanned(username);
+        if (banned || user.subscriptionStatus !== SubscriptionStatus.Subscribed) {
+            const url = await getCheckoutUrl({ user, request, price: banned ? 1500 : 200 });
+            return success({ url, banned });
         }
 
         const tournaments = await register({ user, request });
@@ -182,6 +183,33 @@ async function addRoundRobinRole(user: User) {
     );
 }
 
+interface RoundRobinBannedList {
+    type: 'ROUND_ROBIN';
+    startsAt: 'BANNED_PLAYERS';
+    players: Record<string, RoundRobinPlayer>;
+}
+
+/**
+ * Returns true if the given username is banned from playing in the round robins.
+ * @param username The username to check.
+ */
+async function isBanned(username: string): Promise<boolean> {
+    const output = await dynamo.send(
+        new GetItemCommand({
+            Key: {
+                type: { S: 'ROUND_ROBIN' },
+                startsAt: { S: 'BANNED_PLAYERS' },
+            },
+            TableName: tournamentsTable,
+        })
+    );
+    if (!output.Item) {
+        return false;
+    }
+    const bannedList = unmarshall(output.Item) as RoundRobinBannedList;
+    return Boolean(bannedList.players[username]);
+}
+
 /**
  * Initializes Stripe using the current stage's key.
  * @returns The new Stripe object.
@@ -194,14 +222,17 @@ async function initStripe(): Promise<Stripe> {
  * Creates and returns a Stripe checkout URL in setup mode.
  * @param user The user being redirected to Stripe.
  * @param request The round robin register request.
+ * @param price The price the user will be charged, in cents.
  * @returns The Stripe checkout URL.
  */
 async function getCheckoutUrl({
     user,
     request,
+    price,
 }: {
     user: User;
     request: RoundRobinRegisterRequest;
+    price: number;
 }): Promise<string> {
     if (!stripe) {
         stripe = await initStripe();
@@ -215,8 +246,9 @@ async function getCheckoutUrl({
         payment_method_types: ['card', 'cashapp', 'link', 'bancontact', 'ideal', 'sepa_debit'],
         custom_text: {
             after_submit: {
-                message:
-                    'ChessDojo will charge you $2 once the Round Robin tournament begins. Withdraw before the tournament starts for free. After the tournament starts, no refunds will be provided.',
+                message: `ChessDojo will charge you $${
+                    price / 100
+                } once the Round Robin tournament begins. Withdraw before the tournament starts for free. After the tournament starts, no refunds will be provided.`,
             },
         },
         success_url: `${FRONTEND_HOST}/tournaments/round-robin?cohort=${request.cohort}`,
@@ -230,6 +262,7 @@ async function getCheckoutUrl({
             discordUsername: user.discordUsername || '',
             discordId: user.discordId || '',
             cohort: request.cohort,
+            price,
         },
     });
     console.log('Session: %j', session);
@@ -276,6 +309,7 @@ export async function register({
         discordId: user.discordId,
         status: RoundRobinPlayerStatuses.ACTIVE,
         checkoutSession: checkoutSession as { setup_intent: string; customer: string },
+        price: (user as any).price,
     };
 
     let attempts = 0;
@@ -418,6 +452,14 @@ export async function startTournament(
  * @param tournament The tournament to charge free users for.
  */
 async function chargeFreeUsers(tournament: RoundRobin) {
+    const input = new UpdateItemBuilder()
+        .key('type', 'ROUND_ROBIN')
+        .key('startsAt', 'BANNED_PLAYERS')
+        .return('NONE')
+        .table(tournamentsTable);
+
+    let unbanPlayers = false;
+
     for (const player of Object.values(tournament.players)) {
         if (!player.checkoutSession?.setup_intent) {
             continue;
@@ -431,7 +473,7 @@ async function chargeFreeUsers(tournament: RoundRobin) {
                 player.checkoutSession.setup_intent
             );
             await stripe.paymentIntents.create({
-                amount: 200,
+                amount: parseInt(player.price || '200'),
                 currency: 'usd',
                 customer: player.checkoutSession.customer ?? undefined,
                 payment_method: setupIntent.payment_method as string,
@@ -439,9 +481,16 @@ async function chargeFreeUsers(tournament: RoundRobin) {
                 confirm: true,
                 statement_descriptor: 'CHESSDOJO ROUND ROBIN',
             });
+
+            input.remove(['players', player.username]);
+            unbanPlayers = true;
         } catch (err) {
             console.error(`Failed to charge player %j: %j`, player, err);
         }
+    }
+
+    if (unbanPlayers) {
+        await dynamo.send(input.build());
     }
 }
 

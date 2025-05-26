@@ -124,6 +124,8 @@ export const RoundRobinPlayerSchema = z.object({
             customer: z.string().nullish(),
         })
         .optional(),
+    /** The price the user must pay when the tournament starts. */
+    price: z.string().optional(),
 });
 
 export type RoundRobinPlayer = z.infer<typeof RoundRobinPlayerSchema>;
