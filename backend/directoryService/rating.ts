@@ -138,7 +138,7 @@ interface PerformanceRatingMetric {
     winRatio: number,
     drawRatio: number, 
     lossRatio: number,
-    cohortRatings: Map<string, CohortRatingMetric>;
+    cohortRatings: Record<string, CohortRatingMetric>;
 }
 
 interface CohortRatingMetric {
@@ -260,6 +260,13 @@ const fideDpTable: Record<number, number> = {
 // fideTable[key] where key = score / oppRating.length
 // oppCohortRating is avg of opp Rating[] + fideTable[score / oppRating.length]
 
+function getCombinedRating(white: number, black: number): number {
+  if (white > 0 && black > 0) {
+    return Math.round((white + black) / 2);
+  }
+  return Math.round(white > 0 ? white : black);
+}
+
 export function getPerformanceRating(
     playername: string,
     userDirectory: Directory,
@@ -358,7 +365,7 @@ export function getPerformanceRating(
             winRatio: 0,
             drawRatio: 0,
             lossRatio: 0,
-            cohortRatings: new Map()
+            cohortRatings: {}
         };
     }
 
@@ -377,7 +384,7 @@ export function getPerformanceRating(
 
     const whiteRating =  Math.round(calculateRating(totalWhiteAvg, totalWhiteScorePercent));
     const blackRating = Math.round(calculateRating(totalBlackAvg, totalBlackScorePercent));
-    const combinedRating = Math.round(calculateRating(calculateAverage(oppBlackAvgRating.concat(oppWhiteAvgRating)), totalScorePercent));
+    const combinedRating = getCombinedRating(whiteRating, blackRating)
     const combinedNormalRating = getNormalizedRating(combinedRating, ratingSystem);
     const normalizedWhiteRating = getNormalizedRating(whiteRating, ratingSystem);
     const normalizedBlackRating = getNormalizedRating(blackRating, ratingSystem);
@@ -396,6 +403,12 @@ export function getPerformanceRating(
         metric.rating = getNormalizedRating(cohortKeyRating, ratingSystem);
     });
 
+    
+    const cohortRatingsObject: Record<string, CohortRatingMetric> = {};
+    cohortRatings.forEach((value, key) => {
+        cohortRatingsObject[key] = value;
+    });
+
     return {
         combinedRating: combinedRating,
         normalizedCombinedRating: combinedNormalRating,
@@ -406,6 +419,6 @@ export function getPerformanceRating(
         winRatio: winRatio,
         drawRatio: drawRatio,
         lossRatio: lossRatio,
-        cohortRatings: cohortRatings
+        cohortRatings: cohortRatingsObject
     };
 }
