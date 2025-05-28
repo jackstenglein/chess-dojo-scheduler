@@ -3,10 +3,19 @@
 import { useApi } from '@/api/Api';
 import { StatsApiResponse } from '@/api/directoryApi';
 import { RatingSystem } from '@/database/user';
-import { TimelineOutlined } from '@mui/icons-material';
 import {
+    Directory,
+    DirectoryItemTypes,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
+import { TimelineOutlined } from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Box,
     Button,
+    Chip,
     Dialog,
     DialogActions,
     DialogContent,
@@ -18,18 +27,27 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 interface StatsButtonProps {
     directoryId: string;
     directoryOwner: string;
     usercohort: string;
+    directory: Directory;
+}
+
+interface CohortRatingMetric {
+    rating: number;
+    oppRatings: number[];
+    gamesCount: number;
+    ratios: number[];
 }
 
 export const StatsButton: React.FC<StatsButtonProps> = ({
     directoryId,
     directoryOwner,
     usercohort,
+    directory,
 }) => {
     const api = useApi();
 
@@ -38,6 +56,39 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
     const [ratingSystem, setRatingSystem] = useState(RatingSystem.Chesscom);
     const [stats, setStats] = useState<StatsApiResponse | null>(null);
     const [loading, setLoading] = useState(false);
+
+    // Create playerNameMap and sort players by game count
+    const playerNameMap = useMemo(() => {
+        const map: Map<string, number> = new Map();
+
+        directory.itemIds.forEach((id) => {
+            const currentItem = directory.items[id];
+
+            if (currentItem.type !== DirectoryItemTypes.OWNED_GAME) {
+                return;
+            }
+
+            const metaData = currentItem.metadata;
+
+            map.set(metaData.black, (map.get(metaData.black) || 0) + 1);
+            map.set(metaData.white, (map.get(metaData.white) || 0) + 1);
+        });
+
+        for(const [key, value] of map){
+            if(value < 2){
+                map.delete(key);
+            }
+        }
+
+        return map;
+    }, [directory]);
+
+    // Get sorted list of players by game count (descending)
+    const sortedPlayers = useMemo(() => {
+        return Array.from(playerNameMap.entries())
+            .sort((a, b) => b[1] - a[1])
+            .map(([name, count]) => ({ name, count }));
+    }, [playerNameMap]);
 
     const handleOpen = () => {
         setStats(null);
@@ -73,23 +124,63 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
         }
     };
 
-    const getCohortDisplayLevel = (level: string): string => {
-        const currentCohort = parseInt(usercohort.split('-')[0]);
-        const nextCohort = parseInt(usercohort.split('-')[1]);
-        switch (level) {
-            case 'next':
-                return `${currentCohort + 100}-${nextCohort + 100}`;
-            case 'nextnext':
-                return `${currentCohort + 200}-${nextCohort + 200}`;
-            case 'pre':
-                return `${currentCohort - 100}-${nextCohort - 100}`;
-            case 'prepre':
-                return `${currentCohort - 200}-${nextCohort - 200}`;
-            case 'equal':
-                return usercohort;
-        }
+    const renderCohortRatings = () => {
+        if (!stats?.performanceRating?.cohortRatings) return null;
 
-        return level;
+        const cohortItems: JSX.Element[] = [];
+        const entries = Object.entries(stats.performanceRating.cohortRatings);
+
+        console.log(entries);
+
+        entries.forEach(([cohortName, cohortData]) => {
+            cohortItems.push(
+                <Accordion key={cohortName} variant='outlined'>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Box display='flex' alignItems='center' gap={2} width='100%'>
+                            <Typography variant='body1' fontWeight='medium'>
+                                {cohortName}
+                            </Typography>
+                            <Chip
+                                label={`${cohortData.gamesCount} games`}
+                                size='small'
+                                variant='outlined'
+                            />
+                            <Typography variant='body2' color='primary' fontWeight='bold'>
+                                {cohortData.rating > 0 ? Math.round(cohortData.rating) : 'N/A'}
+                            </Typography>
+                        </Box>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Stack spacing={2}>
+                            <Box>
+                                <Typography variant='body2' color='text.secondary'>
+                                    Performance Rating:{' '}
+                                    <strong>
+                                        {cohortData.rating > 0
+                                            ? Math.round(cohortData.rating)
+                                            : 'N/A'}
+                                    </strong>
+                                </Typography>
+                                <Typography variant='body2' color='text.secondary'>
+                                    Games Played: <strong>{cohortData.gamesCount}</strong>
+                                </Typography>
+                            </Box>
+                        </Stack>
+                    </AccordionDetails>
+                </Accordion>,
+            );
+        });
+
+        if (cohortItems.length === 0) return null;
+
+        return (
+            <Box>
+                <Typography variant='subtitle2' color='text.secondary' gutterBottom>
+                    Cohort Performance Breakdown
+                </Typography>
+                <Stack spacing={1}>{cohortItems}</Stack>
+            </Box>
+        );
     };
 
     return (
@@ -98,16 +189,36 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                 Stats
             </Button>
 
-            <Dialog open={open} onClose={handleClose} fullWidth maxWidth='sm'>
+            <Dialog open={open} onClose={handleClose} fullWidth maxWidth='md'>
                 <DialogTitle>Player Stats</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} mt={1}>
                         <TextField
-                            label='Player Name'
+                            select
+                            label='Select Player'
                             value={playerName}
                             onChange={(e) => setPlayerName(e.target.value)}
                             fullWidth
-                        />
+                            helperText={
+                                playerName
+                                    ? `${playerNameMap.get(playerName)} games in directory`
+                                    : 'Select a player from the directory'
+                            }
+                        >
+                            {sortedPlayers.map(({ name, count }) => (
+                                <MenuItem key={name} value={name}>
+                                    <Box display='flex' justifyContent='space-between' width='100%'>
+                                        <Typography>{name}</Typography>
+                                        <Chip
+                                            label={`${count} games`}
+                                            size='small'
+                                            variant='outlined'
+                                        />
+                                    </Box>
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
                         <TextField
                             select
                             label='Rating System'
@@ -244,80 +355,6 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
 
                                     <Box>
                                         <Typography variant='subtitle2' color='text.secondary'>
-                                            Vs Cohorts Rating Performance
-                                        </Typography>
-                                        <Stack direction='row' spacing={3} mt={1}>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    {getCohortDisplayLevel('prepre')}
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating
-                                                        .prePreviousCohortRating !== undefined &&
-                                                    stats.performanceRating
-                                                        .prePreviousCohortRating > 0
-                                                        ? stats.performanceRating
-                                                              .prePreviousCohortRating
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    {getCohortDisplayLevel('pre')}
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating
-                                                        .previousCohortRating !== undefined &&
-                                                    stats.performanceRating.previousCohortRating > 0
-                                                        ? stats.performanceRating
-                                                              .previousCohortRating
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    {getCohortDisplayLevel('equal')}
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating.equalCohortRating !==
-                                                        undefined &&
-                                                    stats.performanceRating.equalCohortRating > 0
-                                                        ? stats.performanceRating.equalCohortRating
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    {getCohortDisplayLevel('next')}
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating.nextCohortRating !==
-                                                        undefined &&
-                                                    stats.performanceRating.nextCohortRating > 0
-                                                        ? stats.performanceRating.nextCohortRating
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    {getCohortDisplayLevel('nextnext')}
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating
-                                                        .nextNextCohortRating !== undefined &&
-                                                    stats.performanceRating.nextNextCohortRating > 0
-                                                        ? stats.performanceRating
-                                                              .nextNextCohortRating
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                        </Stack>
-                                    </Box>
-
-                                    <Divider />
-
-                                    <Box>
-                                        <Typography variant='subtitle2' color='text.secondary'>
                                             Win/Draw/Loss Ratio
                                         </Typography>
                                         <Stack direction='row' spacing={3} mt={1}>
@@ -356,6 +393,10 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                             </Box>
                                         </Stack>
                                     </Box>
+
+                                    <Divider />
+
+                                    {renderCohortRatings()}
                                 </Stack>
                             </Paper>
                         )}

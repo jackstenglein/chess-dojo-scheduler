@@ -210,6 +210,7 @@ export const DirectoriesSection = ({
                             directoryId={directoryId}
                             directoryOwner={directoryOwner}
                             usercohort={userCohort}
+                            directory={directory}
                         />
 
                         <BulkItemEditor

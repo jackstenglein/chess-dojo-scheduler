@@ -129,21 +129,25 @@ export interface StatsApiResponse {
 }
 
 interface PerformanceRatingMetric {
-    combinedRating: number;
-    normalizedCombinedRating: number;
-    whiteRating: number;
-    normalizedWhiteRating: number;
-    blackRating: number;
-    normalizedBlackRating: number;
-    winRatio: number;
-    drawRatio: number;
-    lossRatio: number;
-    equalCohortRating: number;
-    previousCohortRating: number;
-    prePreviousCohortRating: number;
-    nextCohortRating: number;
-    nextNextCohortRating: number;
+    combinedRating: number,
+    normalizedCombinedRating: number,
+    whiteRating: number,
+    normalizedWhiteRating: number,
+    blackRating: number,
+    normalizedBlackRating: number,
+    winRatio: number,
+    drawRatio: number, 
+    lossRatio: number,
+    cohortRatings: Record<string, CohortRatingMetric>;
 }
+
+interface CohortRatingMetric {
+    rating: number;
+    oppRatings: number[];
+    gamesCount: number;
+    ratios: number[];
+}
+
 /**
  * Sends an API request to get a directory.
  * @param idToken The id token of the current signed-in user.
