@@ -4,7 +4,6 @@ import Board from '@/board/Board';
 import { getLigaIconBasedOnTimeControl } from '@/components/calendar/eventViewer/LigaTournamentViewer';
 import { Position as PositionModel } from '@/database/requirement';
 import Icon from '@/style/Icon';
-import { Computer } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { LoadingButton } from '@mui/lab';
@@ -23,6 +22,7 @@ import axios from 'axios';
 import copy from 'copy-to-clipboard';
 import { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { SiChessdotcom } from 'react-icons/si';
 
 export function turnColor(fen: string): 'white' | 'black' {
     const turn = fen.split(' ')[1];
@@ -182,7 +182,7 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
 
                 <Tooltip title='Play against computer on Chess.com'>
                     <Button
-                        startIcon={<Computer color='dojoOrange' />}
+                        startIcon={<SiChessdotcom size={20} color='#81b64c'/>}
                         href={`https://www.chess.com/practice/custom?fen=${position.fen}&is960=false`}
                         target='_blank'
                         rel='noopener'

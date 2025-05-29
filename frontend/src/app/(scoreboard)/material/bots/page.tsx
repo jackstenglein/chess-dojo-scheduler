@@ -1,5 +1,6 @@
 import { dojoCohorts } from '@/database/user';
 import {
+    Box,
     Container,
     Paper,
     Stack,
@@ -40,6 +41,16 @@ export default function BotsPage() {
                     Chess.com diamond member.
                 </Typography>
             </Stack>
+            <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }}>
+                <iframe
+                    src='https://www.youtube.com/embed/WsZknsdk504'
+                    title={`Dojo Guide To Bots`}
+                    allow='accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share'
+                    allowFullScreen={true}
+                    style={{ width: '100%', height: '100%' }}
+                    frameBorder={0}
+                />
+            </Box>
 
             <TableContainer component={Paper}>
                 <Table stickyHeader>
