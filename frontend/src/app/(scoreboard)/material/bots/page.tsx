@@ -38,7 +38,7 @@ export default function BotsPage() {
                     Below is a list of bots who are appropriate for your cohort. The Chess.com bots
                     are at the moment better than the Lichess ones as they are far more dialed in
                     terms of playing strength. The downside of them however is that you have to be a
-                    Chess.com diamond member.
+                    Chess.com diamond member. GM Jesse Kraai explains the guide in the video below.
                 </Typography>
             </Stack>
             <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }}>
