@@ -3,29 +3,43 @@
 import { useApi } from '@/api/Api';
 import { StatsApiResponse } from '@/api/directoryApi';
 import { RatingSystem } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import { ChessDojoIcon } from '@/style/ChessDojoIcon';
+import { PawnIcon } from '@/style/ChessIcons';
+import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import {
     Directory,
     DirectoryItemTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { TimelineOutlined } from '@mui/icons-material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
+    Assessment,
+    PeopleAlt,
+    Percent,
+    Person,
+    Remove,
+    TimelineOutlined,
+    TrendingDown,
+    TrendingUp,
+} from '@mui/icons-material';
+import {
     Box,
     Button,
+    Card,
+    CardContent,
     Chip,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    Divider,
+    Fade,
+    LinearProgress,
     MenuItem,
-    Paper,
     Stack,
     TextField,
     Typography,
+    Zoom,
+    alpha,
+    useTheme,
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 
@@ -36,12 +50,200 @@ interface StatsButtonProps {
     directory: Directory;
 }
 
-interface CohortRatingMetric {
-    rating: number;
-    oppRatings: number[];
-    gamesCount: number;
-    ratios: number[];
+interface StatCardProps {
+    title: string;
+    value: string | number;
+    subtitle?: string;
+    color?: 'primary' | 'success' | 'error' | 'warning' | 'info' | 'white' | 'grey';
+    icon?: React.ReactNode;
+    trend?: 'up' | 'down' | 'neutral';
+    delay?: number;
 }
+
+const StatCard: React.FC<StatCardProps> = ({
+    title,
+    value,
+    subtitle,
+    color = 'primary',
+    icon,
+    trend,
+    delay = 0,
+}) => {
+    const theme = useTheme();
+
+    const getTrendIcon = () => {
+        switch (trend) {
+            case 'up':
+                return <TrendingUp fontSize='small' color='success' />;
+            case 'down':
+                return <TrendingDown fontSize='small' color='error' />;
+            case 'neutral':
+                return <Remove fontSize='small' color='disabled' />;
+            default:
+                return null;
+        }
+    };
+
+    const getColorValue = (colorName: string) => {
+        switch (colorName) {
+            case 'success':
+                return theme.palette.success.main;
+            case 'error':
+                return theme.palette.error.main;
+            case 'warning':
+                return theme.palette.warning.main;
+            case 'info':
+                return theme.palette.info.main;
+            case 'white':
+                return '#ffffff';
+            case 'grey':
+                return theme.palette.grey[600];
+            default:
+                return theme.palette.primary.main;
+        }
+    };
+
+    return (
+        <Zoom in timeout={300 + delay * 100}>
+            <Card
+                elevation={1}
+                sx={{
+                    height: '100%',
+                    minHeight: 140,
+                    flex: 1,
+                    backgroundColor: alpha(getColorValue(color), color === 'white' ? 0.1 : 0.08),
+                    border: `1px solid ${alpha(getColorValue(color), color === 'white' ? 0.3 : 0.2)}`,
+                    borderRadius: 2,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                        transform: 'translateY(-4px)',
+                        elevation: 3,
+                        backgroundColor: alpha(
+                            getColorValue(color),
+                            color === 'white' ? 0.15 : 0.12,
+                        ),
+                        border: `1px solid ${alpha(getColorValue(color), color === 'white' ? 0.4 : 0.3)}`,
+                    },
+                }}
+            >
+                <CardContent
+                    sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <Stack spacing={2}>
+                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                            <Stack direction='row' alignItems='center' spacing={1}>
+                                {icon && <Box sx={{ color: getColorValue(color) }}>{icon}</Box>}
+                                <Typography variant='body2' color='text.secondary' fontWeight={500}>
+                                    {title}
+                                </Typography>
+                            </Stack>
+                            {getTrendIcon()}
+                        </Stack>
+
+                        <Typography variant='h4' fontWeight='bold' color={getColorValue(color)}>
+                            {value}
+                        </Typography>
+
+                        {subtitle && (
+                            <Typography variant='caption' color='text.secondary'>
+                                {subtitle}
+                            </Typography>
+                        )}
+                    </Stack>
+                </CardContent>
+            </Card>
+        </Zoom>
+    );
+};
+
+interface WinRatioBarProps {
+    wins: number;
+    draws: number;
+    losses: number;
+    delay?: number;
+}
+
+const WinRatioBar: React.FC<WinRatioBarProps> = ({ wins, draws, losses, delay = 0 }) => {
+    const theme = useTheme();
+    const total = wins + draws + losses;
+
+    if (total === 0) return null;
+
+    const winPercent = (wins / total) * 100;
+    const drawPercent = (draws / total) * 100;
+    const lossPercent = (losses / total) * 100;
+
+    return (
+        <Fade in timeout={500 + delay * 100}>
+            <Card elevation={1} sx={{ borderRadius: 2 }}>
+                <CardContent>
+                    <Stack spacing={3}>
+                        <Box>
+                            <Stack
+                                direction='row'
+                                sx={{ height: 24, borderRadius: 12, overflow: 'hidden' }}
+                            >
+                                <Box
+                                    sx={{
+                                        flex: winPercent,
+                                        backgroundColor: theme.palette.success.main,
+                                        transition: 'flex 1s ease-out',
+                                    }}
+                                />
+                                <Box
+                                    sx={{
+                                        flex: drawPercent,
+                                        backgroundColor: theme.palette.info.main,
+                                        transition: 'flex 1s ease-out 0.2s',
+                                    }}
+                                />
+                                <Box
+                                    sx={{
+                                        flex: lossPercent,
+                                        backgroundColor: theme.palette.error.main,
+                                        transition: 'flex 1s ease-out 0.4s',
+                                    }}
+                                />
+                            </Stack>
+                        </Box>
+
+                        <Stack direction='row' spacing={3} justifyContent='center'>
+                            <Stack alignItems='center' spacing={0.5}>
+                                <Typography variant='h6' color='success.main' fontWeight='bold'>
+                                    {winPercent.toFixed(1)}%
+                                </Typography>
+                                <Typography variant='body2' color='text.secondary'>
+                                    Wins ({wins})
+                                </Typography>
+                            </Stack>
+                            <Stack alignItems='center' spacing={0.5}>
+                                <Typography variant='h6' color='info.main' fontWeight='bold'>
+                                    {drawPercent.toFixed(1)}%
+                                </Typography>
+                                <Typography variant='body2' color='text.secondary'>
+                                    Draws ({draws})
+                                </Typography>
+                            </Stack>
+                            <Stack alignItems='center' spacing={0.5}>
+                                <Typography variant='h6' color='error.main' fontWeight='bold'>
+                                    {lossPercent.toFixed(1)}%
+                                </Typography>
+                                <Typography variant='body2' color='text.secondary'>
+                                    Losses ({losses})
+                                </Typography>
+                            </Stack>
+                        </Stack>
+                    </Stack>
+                </CardContent>
+            </Card>
+        </Fade>
+    );
+};
 
 export const StatsButton: React.FC<StatsButtonProps> = ({
     directoryId,
@@ -56,6 +258,17 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
     const [ratingSystem, setRatingSystem] = useState(RatingSystem.Chesscom);
     const [stats, setStats] = useState<StatsApiResponse | null>(null);
     const [loading, setLoading] = useState(false);
+
+    const getRatingSystemName = (ratingSystem: RatingSystem) => {
+        switch (ratingSystem) {
+            case RatingSystem.Chesscom:
+                return 'Chess.com';
+            case RatingSystem.Lichess:
+                return 'Lichess.org';
+            default:
+                return ratingSystem;
+        }
+    };
 
     // Create playerNameMap and sort players by game count
     const playerNameMap = useMemo(() => {
@@ -74,8 +287,8 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
             map.set(metaData.white, (map.get(metaData.white) || 0) + 1);
         });
 
-        for(const [key, value] of map){
-            if(value < 2){
+        for (const [key, value] of map) {
+            if (value < 2) {
                 map.delete(key);
             }
         }
@@ -83,7 +296,6 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
         return map;
     }, [directory]);
 
-    // Get sorted list of players by game count (descending)
     const sortedPlayers = useMemo(() => {
         return Array.from(playerNameMap.entries())
             .sort((a, b) => b[1] - a[1])
@@ -124,287 +336,424 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
         }
     };
 
+    const calculateWinDrawLoss = () => {
+        if (!stats) return { wins: 0, draws: 0, losses: 0 };
+
+        const winRatio = stats.performanceRating.winRatio || 0;
+        const drawRatio = stats.performanceRating.drawRatio || 0;
+        const lossRatio = stats.performanceRating.lossRatio || 0;
+
+        const totalGames = Object.values(stats.performanceRating.cohortRatings || {}).reduce(
+            (sum, cohort) => sum + cohort.gamesCount,
+            0,
+        );
+
+        return {
+            wins: Math.round((winRatio / 100) * totalGames),
+            draws: Math.round((drawRatio / 100) * totalGames),
+            losses: Math.round((lossRatio / 100) * totalGames),
+        };
+    };
+
     const renderCohortRatings = () => {
         if (!stats?.performanceRating?.cohortRatings) return null;
 
         const cohortItems: JSX.Element[] = [];
         const entries = Object.entries(stats.performanceRating.cohortRatings);
 
-        console.log(entries);
-
-        entries.forEach(([cohortName, cohortData]) => {
+        entries.forEach(([cohortName, cohortData], index) => {
             cohortItems.push(
-                <Accordion key={cohortName} variant='outlined'>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Box display='flex' alignItems='center' gap={2} width='100%'>
-                            <Typography variant='body1' fontWeight='medium'>
-                                {cohortName}
-                            </Typography>
-                            <Chip
-                                label={`${cohortData.gamesCount} games`}
-                                size='small'
-                                variant='outlined'
-                            />
-                            <Typography variant='body2' color='primary' fontWeight='bold'>
-                                {cohortData.rating > 0 ? Math.round(cohortData.rating) : 'N/A'}
-                            </Typography>
-                        </Box>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Stack spacing={2}>
-                            <Box>
-                                <Typography variant='body2' color='text.secondary'>
-                                    Performance Rating:{' '}
-                                    <strong>
+                <Zoom in timeout={300 + index * 100} key={cohortName}>
+                    <Card
+                        elevation={1}
+                        sx={{
+                            height: 140,
+                            flex: 1,
+                            borderRadius: 2,
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                                transform: 'translateY(-4px)',
+                                elevation: 3,
+                            },
+                        }}
+                    >
+                        <CardContent
+                            sx={{
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Stack direction='row' alignItems='center' spacing={3}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: 48,
+                                        height: 48,
+                                    }}
+                                >
+                                    <CohortIcon cohort={cohortName} />
+                                </Box>
+
+                                <Stack alignItems='center' spacing={0.5}>
+                                    <Typography variant='h6' fontWeight='bold' textAlign='center'>
+                                        {cohortName}
+                                    </Typography>
+                                    <Typography variant='caption' color='text.secondary'>
+                                        Cohort
+                                    </Typography>
+                                </Stack>
+
+                                <Stack alignItems='center' spacing={0.5}>
+                                    <Typography variant='h6' fontWeight='bold' color='primary.main'>
                                         {cohortData.rating > 0
                                             ? Math.round(cohortData.rating)
                                             : 'N/A'}
-                                    </strong>
-                                </Typography>
-                                <Typography variant='body2' color='text.secondary'>
-                                    Games Played: <strong>{cohortData.gamesCount}</strong>
-                                </Typography>
-                            </Box>
-                        </Stack>
-                    </AccordionDetails>
-                </Accordion>,
+                                    </Typography>
+                                    <Typography variant='caption' color='text.secondary'>
+                                        Rating
+                                    </Typography>
+                                </Stack>
+
+                                <Stack alignItems='center' spacing={0.5}>
+                                    <Typography variant='h6' fontWeight='bold' color='info.main'>
+                                        {cohortData.gamesCount}
+                                    </Typography>
+                                    <Typography variant='caption' color='text.secondary'>
+                                        Games
+                                    </Typography>
+                                </Stack>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Zoom>,
             );
         });
 
         if (cohortItems.length === 0) return null;
 
         return (
-            <Box>
-                <Typography variant='subtitle2' color='text.secondary' gutterBottom>
-                    Cohort Performance Breakdown
+            <Stack spacing={2}>
+                <Typography variant='h6' fontWeight='bold'>
+                    <Stack direction='row' alignItems='center' spacing={1}>
+                        <PeopleAlt color='primary' />
+                        <span>Cohort Performance Breakdown</span>
+                    </Stack>
                 </Typography>
-                <Stack spacing={1}>{cohortItems}</Stack>
-            </Box>
+                <Stack direction={{ xs: 'column', md: 'column' }} spacing={2}>
+                    {cohortItems}
+                </Stack>
+            </Stack>
         );
     };
 
+    const { wins, draws, losses } = calculateWinDrawLoss();
+
     return (
         <>
-            <Button variant='contained' startIcon={<TimelineOutlined />} onClick={handleOpen}>
+            <Button variant='contained' startIcon={<Assessment />} onClick={handleOpen}>
                 Stats
             </Button>
 
-            <Dialog open={open} onClose={handleClose} fullWidth maxWidth='md'>
-                <DialogTitle>Player Stats</DialogTitle>
+            <Dialog open={open} onClose={handleClose} fullWidth maxWidth='lg'>
+                <DialogTitle>
+                    <Stack direction='row' alignItems='center' spacing={2}>
+                        <Assessment color='primary' />
+                        <Typography variant='h5' fontWeight='bold'>
+                            Player Performance Analytics
+                        </Typography>
+                    </Stack>
+                </DialogTitle>
                 <DialogContent>
-                    <Stack spacing={2} mt={1}>
-                        <TextField
-                            select
-                            label='Select Player'
-                            value={playerName}
-                            onChange={(e) => setPlayerName(e.target.value)}
-                            fullWidth
-                            helperText={
-                                playerName
-                                    ? `${playerNameMap.get(playerName)} games in directory`
-                                    : 'Select a player from the directory'
-                            }
-                        >
-                            {sortedPlayers.map(({ name, count }) => (
-                                <MenuItem key={name} value={name}>
-                                    <Box display='flex' justifyContent='space-between' width='100%'>
-                                        <Typography>{name}</Typography>
-                                        <Chip
-                                            label={`${count} games`}
-                                            size='small'
-                                            variant='outlined'
-                                        />
-                                    </Box>
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                    <Stack spacing={4} sx={{ mt: 1 }}>
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+                            <TextField
+                                select
+                                label='Select Player'
+                                value={playerName}
+                                onChange={(e) => setPlayerName(e.target.value)}
+                                fullWidth
+                                variant='outlined'
+                                helperText={
+                                    playerName
+                                        ? `${playerNameMap.get(playerName)} games in directory`
+                                        : 'Choose a player to analyze'
+                                }
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 2,
+                                    },
+                                }}
+                            >
+                                {sortedPlayers.map(({ name, count }) => (
+                                    <MenuItem key={name} value={name}>
+                                        <Stack
+                                            direction='row'
+                                            alignItems='center'
+                                            spacing={2}
+                                            width='100%'
+                                        >
+                                            <Person fontSize='small' />
 
-                        <TextField
-                            select
-                            label='Rating System'
-                            value={ratingSystem}
-                            onChange={(e) => setRatingSystem(e.target.value as RatingSystem)}
-                            fullWidth
-                        >
-                            {Object.values(RatingSystem)
-                                .slice(0, 8)
-                                .map((system) => (
-                                    <MenuItem key={system} value={system}>
-                                        {system}
+                                            <Stack sx={{ flex: 1 }}>
+                                                <Typography fontWeight={500}>{name}</Typography>
+                                            </Stack>
+                                            <Chip
+                                                label={`${count} games`}
+                                                size='small'
+                                                color='primary'
+                                                variant='outlined'
+                                            />
+                                        </Stack>
                                     </MenuItem>
                                 ))}
-                        </TextField>
+                            </TextField>
+
+                            <TextField
+                                select
+                                label='Rating System'
+                                value={ratingSystem}
+                                onChange={(e) => setRatingSystem(e.target.value as RatingSystem)}
+                                fullWidth
+                                variant='outlined'
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 2,
+                                    },
+                                }}
+                            >
+                                {Object.values(RatingSystem)
+                                    .slice(0, 8)
+                                    .map((system) => (
+                                        <MenuItem key={system} value={system}>
+                                            <Stack direction='row' alignItems='center' spacing={2}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        width: 24,
+                                                        height: 24,
+                                                    }}
+                                                >
+                                                    <RatingSystemIcon
+                                                        system={system}
+                                                        size='small'
+                                                    />
+                                                </Box>
+                                                <Typography fontWeight={500}>
+                                                    {getRatingSystemName(system)}
+                                                </Typography>
+                                            </Stack>
+                                        </MenuItem>
+                                    ))}
+                            </TextField>
+                        </Stack>
 
                         <Button
                             variant='contained'
+                            color='success'
                             onClick={handleFetchStats}
+                            startIcon={<TimelineOutlined />}
                             disabled={loading || !playerName}
+                            sx={{
+                                py: 1.5,
+                                borderRadius: 2,
+                                fontWeight: 'bold',
+                                textTransform: 'none',
+                                fontSize: '1.1rem',
+                            }}
                         >
-                            {loading ? 'Loading...' : 'Get Stats'}
+                            {loading ? 'Analyzing...' : 'Generate Stats'}
                         </Button>
 
-                        {stats && !loading && (
-                            <Paper
-                                elevation={2}
-                                sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2 }}
-                            >
-                                <Typography variant='h6' gutterBottom color='primary'>
-                                    Performance Metrics for {playerName}
+                        {loading && (
+                            <Stack spacing={2}>
+                                <LinearProgress
+                                    sx={{
+                                        borderRadius: 4,
+                                        height: 6,
+                                    }}
+                                />
+                                <Typography
+                                    variant='body2'
+                                    color='text.secondary'
+                                    textAlign='center'
+                                >
+                                    Crunching the numbers...
                                 </Typography>
-                                <Divider sx={{ mb: 2 }} />
+                            </Stack>
+                        )}
 
-                                <Stack spacing={2}>
-                                    <Box>
-                                        <Typography variant='subtitle2' color='text.secondary'>
-                                            {ratingSystem} Rating Performance
+                        {stats && !loading && (
+                            <Fade in timeout={500}>
+                                <Stack spacing={4}>
+                                    <Typography
+                                        variant='h4'
+                                        color='primary'
+                                        fontWeight='bold'
+                                        textAlign='center'
+                                    >
+                                        {playerName}'s Performance Stats
+                                    </Typography>
+
+                                    {/* Platform Performance Cards */}
+                                    <Stack spacing={3}>
+                                        <Typography variant='h6' fontWeight='bold'>
+                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                <RatingSystemIcon
+                                                    system={ratingSystem}
+                                                    size='medium'
+                                                />
+                                                <span>
+                                                    {getRatingSystemName(ratingSystem)} Performance
+                                                </span>
+                                            </Stack>
                                         </Typography>
-                                        <Stack direction='row' spacing={3} mt={1}>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    Combined
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating.combinedRating > 0
+                                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                                            <StatCard
+                                                title='Combined Rating'
+                                                value={
+                                                    stats.performanceRating.combinedRating > 0
                                                         ? Math.round(
                                                               stats.performanceRating
                                                                   .combinedRating,
                                                           )
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    As White
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating.whiteRating > 0
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Overall performance'
+                                                color='success'
+                                                icon={<Assessment />}
+                                                delay={0}
+                                            />
+                                            <StatCard
+                                                title='As White'
+                                                value={
+                                                    stats.performanceRating.whiteRating > 0
                                                         ? Math.round(
                                                               stats.performanceRating.whiteRating,
                                                           )
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    As Black
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating.blackRating > 0
+                                                        : 'N/A'
+                                                }
+                                                subtitle='White pieces'
+                                                color='primary'
+                                                icon={<PawnIcon />}
+                                                delay={1}
+                                            />
+                                            <StatCard
+                                                title='As Black'
+                                                value={
+                                                    stats.performanceRating.blackRating > 0
                                                         ? Math.round(
                                                               stats.performanceRating.blackRating,
                                                           )
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Black pieces'
+                                                color='primary'
+                                                icon={<PawnIcon />}
+                                                delay={2}
+                                            />
                                         </Stack>
-                                    </Box>
+                                    </Stack>
 
-                                    <Divider />
-
-                                    <Box>
-                                        <Typography variant='subtitle2' color='text.secondary'>
-                                            Dojo Cohort Rating Performance
+                                    {/* Dojo Performance Cards */}
+                                    <Stack spacing={3}>
+                                        <Typography variant='h6' fontWeight='bold'>
+                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                <ChessDojoIcon />
+                                                <span>Dojo Cohort Performance</span>
+                                            </Stack>
                                         </Typography>
-                                        <Stack direction='row' spacing={3} mt={1}>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    Combined
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating
+                                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                                            <StatCard
+                                                title='Combined Rating'
+                                                value={
+                                                    stats.performanceRating
                                                         .normalizedCombinedRating > 0
                                                         ? Math.round(
                                                               stats.performanceRating
                                                                   .normalizedCombinedRating,
                                                           )
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    As White
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating.normalizedWhiteRating >
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Normalized overall'
+                                                color='success'
+                                                icon={<Assessment />}
+                                                delay={0}
+                                            />
+                                            <StatCard
+                                                title='As White'
+                                                value={
+                                                    stats.performanceRating.normalizedWhiteRating >
                                                     0
                                                         ? Math.round(
                                                               stats.performanceRating
                                                                   .normalizedWhiteRating,
                                                           )
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    As Black
-                                                </Typography>
-                                                <Typography variant='h6'>
-                                                    {stats.performanceRating.normalizedBlackRating >
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Normalized white'
+                                                color='primary'
+                                                icon={<PawnIcon />}
+                                                delay={1}
+                                            />
+                                            <StatCard
+                                                title='As Black'
+                                                value={
+                                                    stats.performanceRating.normalizedBlackRating >
                                                     0
                                                         ? Math.round(
                                                               stats.performanceRating
                                                                   .normalizedBlackRating,
                                                           )
-                                                        : 'N/A'}
-                                                </Typography>
-                                            </Box>
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Normalized black'
+                                                color='primary'
+                                                icon={<PawnIcon />}
+                                                delay={2}
+                                            />
                                         </Stack>
-                                    </Box>
+                                    </Stack>
 
-                                    <Divider />
-
-                                    <Box>
-                                        <Typography variant='subtitle2' color='text.secondary'>
-                                            Win/Draw/Loss Ratio
+                                    <Stack spacing={2}>
+                                        {/* Win/Draw/Loss Visualization */}
+                                        <Typography variant='h6' fontWeight='bold'>
+                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                <Percent color='primary' />
+                                                <span>Result Percent</span>
+                                            </Stack>
                                         </Typography>
-                                        <Stack direction='row' spacing={3} mt={1}>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    Wins
-                                                </Typography>
-                                                <Typography variant='h6' color='success.main'>
-                                                    {stats.performanceRating.winRatio !== undefined
-                                                        ? stats.performanceRating.winRatio
-                                                        : 'N/A'}
-                                                    %
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    Draws
-                                                </Typography>
-                                                <Typography variant='h6' color='info.main'>
-                                                    {stats.performanceRating.drawRatio !== undefined
-                                                        ? stats.performanceRating.drawRatio
-                                                        : 'N/A'}
-                                                    %
-                                                </Typography>
-                                            </Box>
-                                            <Box>
-                                                <Typography variant='body2' color='text.secondary'>
-                                                    Losses
-                                                </Typography>
-                                                <Typography variant='h6' color='error.main'>
-                                                    {stats.performanceRating.lossRatio !== undefined
-                                                        ? stats.performanceRating.lossRatio
-                                                        : 'N/A'}
-                                                    %
-                                                </Typography>
-                                            </Box>
-                                        </Stack>
-                                    </Box>
+                                        <WinRatioBar
+                                            wins={wins}
+                                            draws={draws}
+                                            losses={losses}
+                                            delay={1}
+                                        />
+                                    </Stack>
 
-                                    <Divider />
-
+                                    {/* Cohort Breakdown */}
                                     {renderCohortRatings()}
                                 </Stack>
-                            </Paper>
+                            </Fade>
                         )}
                     </Stack>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color='secondary'>
-                        Cancel
+                <DialogActions sx={{ p: 3 }}>
+                    <Button
+                        onClick={handleClose}
+                        variant='outlined'
+                        sx={{
+                            borderRadius: 2,
+                            fontWeight: 500,
+                            textTransform: 'none',
+                        }}
+                    >
+                        Close
                     </Button>
                 </DialogActions>
             </Dialog>

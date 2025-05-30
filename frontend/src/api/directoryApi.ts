@@ -129,15 +129,15 @@ export interface StatsApiResponse {
 }
 
 interface PerformanceRatingMetric {
-    combinedRating: number,
-    normalizedCombinedRating: number,
-    whiteRating: number,
-    normalizedWhiteRating: number,
-    blackRating: number,
-    normalizedBlackRating: number,
-    winRatio: number,
-    drawRatio: number, 
-    lossRatio: number,
+    combinedRating: number;
+    normalizedCombinedRating: number;
+    whiteRating: number;
+    normalizedWhiteRating: number;
+    blackRating: number;
+    normalizedBlackRating: number;
+    winRatio: number;
+    drawRatio: number;
+    lossRatio: number;
     cohortRatings: Record<string, CohortRatingMetric>;
 }
 
