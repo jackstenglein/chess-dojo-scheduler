@@ -595,23 +595,6 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
 
                 <Stack spacing={0.5} alignItems='center'>
                     <Typography variant='caption' color='text.secondary'>
-                        Total Time Used
-                    </Typography>
-                    <Box width={1} height={120}>
-                        <Chart
-                            options={{
-                                data: data.total,
-                                primaryAxis: totalTimePrimaryAxis,
-                                secondaryAxes: secondaryBarAxis,
-                                dark: !light,
-                                getDatumStyle: (datum) => getDatumStyle(datum, light),
-                            }}
-                        />
-                    </Box>
-                </Stack>
-
-                <Stack spacing={0.5} alignItems='center'>
-                    <Typography variant='caption' color='text.secondary'>
                         Remaining Clock Time by Move
                     </Typography>
                     <Box width={1} height={300}>
@@ -689,6 +672,23 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 dark: !light,
                                 onClickDatum,
                                 getSeriesStyle: (series) => getSeriesStyle(series, light),
+                            }}
+                        />
+                    </Box>
+                </Stack>
+
+                <Stack spacing={0.5} alignItems='center'>
+                    <Typography variant='caption' color='text.secondary'>
+                        Total Time Used
+                    </Typography>
+                    <Box width={1} height={120}>
+                        <Chart
+                            options={{
+                                data: data.total,
+                                primaryAxis: totalTimePrimaryAxis,
+                                secondaryAxes: secondaryBarAxis,
+                                dark: !light,
+                                getDatumStyle: (datum) => getDatumStyle(datum, light),
                             }}
                         />
                     </Box>
