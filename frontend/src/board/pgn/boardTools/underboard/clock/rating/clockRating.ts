@@ -91,7 +91,7 @@ export function calculateTimeRating(
     if (dataset.length < MIN_MOVE) {
         return;
     }
-    if ((timeControls[0].seconds ?? 0) <= MIN_TIME_CONTROL) {
+    if ((timeControls[0].seconds ?? 0) < MIN_TIME_CONTROL) {
         return;
     }
 
