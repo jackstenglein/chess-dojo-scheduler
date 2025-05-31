@@ -1,6 +1,6 @@
+import { DirectoryBreadcrumbs } from '@/components/profile/directories/DirectoryBreadcrumbs';
+import { useDirectory } from '@/components/profile/directories/DirectoryCache';
 import LoadingPage from '@/loading/LoadingPage';
-import { DirectoryBreadcrumbs } from '@/profile/directories/DirectoryBreadcrumbs';
-import { useDirectory } from '@/profile/directories/DirectoryCache';
 import {
     Box,
     Dialog,

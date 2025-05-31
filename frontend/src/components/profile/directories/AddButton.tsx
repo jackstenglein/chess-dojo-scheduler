@@ -2,6 +2,7 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
+import Avatar from '@/profile/Avatar';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
     compareRoles,
@@ -12,7 +13,6 @@ import {
 import { Add, CreateNewFolder } from '@mui/icons-material';
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
-import Avatar from '../Avatar';
 import { AddCurrentGameMenuItem } from './AddCurrentGameMenuItem';
 import { AddExistingGamesDialog } from './AddExistingGamesDialog';
 import { useDirectoryCache } from './DirectoryCache';

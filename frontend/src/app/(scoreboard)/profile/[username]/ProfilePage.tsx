@@ -8,6 +8,8 @@ import { Link } from '@/components/navigation/Link';
 import { SwitchCohortPrompt } from '@/components/profile/SwitchCohortPrompt';
 import ActivityTab from '@/components/profile/activity/ActivityTab';
 import { TimelineProvider } from '@/components/profile/activity/useTimeline';
+import { DirectoriesSection } from '@/components/profile/directories/DirectoriesSection';
+import { DirectoryCacheProvider } from '@/components/profile/directories/DirectoryCache';
 import { BadgeCard } from '@/components/profile/info/BadgeCard';
 import Bio from '@/components/profile/info/Bio';
 import CoachChip from '@/components/profile/info/CoachChip';
@@ -31,8 +33,6 @@ import GraduationDialog from '@/profile/GraduationDialog';
 import ClubsTab from '@/profile/clubs/ClubsTab';
 import CoachTab from '@/profile/coach/CoachTab';
 import ProfileCreatorPage from '@/profile/creator/ProfileCreatorPage';
-import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
-import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
     Folder,
