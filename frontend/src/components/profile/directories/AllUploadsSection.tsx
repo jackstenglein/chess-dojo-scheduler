@@ -16,6 +16,7 @@ import { ALL_MY_UPLOADS_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/sr
 import { Button, Stack } from '@mui/material';
 import { GridPaginationModel, GridRowParams, GridRowSelectionModel } from '@mui/x-data-grid-pro';
 import { useCallback, useState } from 'react';
+import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 
 /**
  * Renders a table of all uploaded games for the given user.
@@ -78,6 +79,8 @@ export function AllUploadsSection({
 
     return (
         <Stack direction='row' columnGap={2}>
+            <RequestSnackbar request={request} />
+
             <NavigationMenu
                 namespace={namespace}
                 id={ALL_MY_UPLOADS_DIRECTORY_ID}
@@ -87,7 +90,12 @@ export function AllUploadsSection({
             />
 
             <Stack spacing={2} alignItems='start' flexGrow={1}>
-                <RequestSnackbar request={request} />
+                <DirectoryBreadcrumbs
+                    owner={username}
+                    id={ALL_MY_UPLOADS_DIRECTORY_ID}
+                    currentProfile={currentUser?.username}
+                />
+
                 {currentUser?.username === username && (
                     <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
                         <Button
