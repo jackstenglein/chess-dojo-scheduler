@@ -13,7 +13,9 @@ import { DiscordIcon, TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
 import { TournamentBracketIcon } from '@/style/TournamentIcon';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 import {
+    AccountCircle,
     AutoStories,
+    Biotech,
     BorderColor,
     CalendarToday,
     Checklist,
@@ -39,6 +41,7 @@ import {
     SignalCellularAlt,
     SmartToy,
     Speed,
+    Storage,
     Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
@@ -166,7 +169,24 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
         {
             name: 'Games',
             icon: <PawnIcon />,
-            href: '/games',
+            onClick: () => toggleExpansion('Games'),
+            children: [
+                {
+                    name: 'Analysis Board',
+                    icon: <Biotech />,
+                    href: '/games/import',
+                },
+                {
+                    name: 'Full Database',
+                    icon: <Storage />,
+                    href: '/games',
+                },
+                {
+                    name: 'My Games',
+                    icon: <AccountCircle />,
+                    href: '/profile?view=games',
+                },
+            ],
         },
         {
             name: 'Calendar',
