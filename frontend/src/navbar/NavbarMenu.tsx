@@ -471,12 +471,12 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
 
-    const showAll = useMediaQuery('(min-width:1560px)');
-    const hide2 = useMediaQuery('(min-width:1416px)');
-    const hide3 = useMediaQuery('(min-width:1315px)');
-    const hide4 = useMediaQuery('(min-width:1196px)');
-    const hide5 = useMediaQuery('(min-width:1066px)');
-    const hide6 = useMediaQuery('(min-width:963px)');
+    const showAll = useMediaQuery('(min-width:1615px)');
+    const hide2 = useMediaQuery('(min-width:1488px)');
+    const hide3 = useMediaQuery('(min-width:1370px)');
+    const hide4 = useMediaQuery('(min-width:1256px)');
+    const hide5 = useMediaQuery('(min-width:1120px)');
+    const hide6 = useMediaQuery('(min-width:979px)');
     const hide7 = useMediaQuery('(min-width:772px)');
 
     const showHelp = useMediaQuery('(min-width:624px)');
