@@ -1,6 +1,6 @@
 'use client';
 
-import { EventType, setUserCohort, trackEvent } from '@/analytics/events';
+import { EventType, setUserProperties, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, RequestStatus, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
@@ -237,7 +237,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
                 trackEvent(EventType.EditProfile, {
                     fields: Object.keys(update),
                 });
-                setUserCohort(update.dojoCohort);
+                setUserProperties({ ...user, ...update });
 
                 if (update.profilePictureData !== undefined) {
                     setImageBypass(Date.now());

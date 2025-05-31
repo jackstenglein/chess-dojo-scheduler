@@ -3,8 +3,6 @@
 import { useReportWebVitals } from 'next/web-vitals';
 import ReactGA from 'react-ga4';
 
-ReactGA.initialize('G-9VPNTDELD2');
-
 export function WebVitals() {
     useReportWebVitals(({ id, name, value }) => {
         ReactGA.event({

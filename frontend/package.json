@@ -21,6 +21,7 @@
         "@mui/x-charts": "^8.2.0",
         "@mui/x-data-grid-pro": "^8.2.0",
         "@mui/x-date-pickers-pro": "^8.2.0",
+        "@next/third-parties": "^15.3.3",
         "@savi2w/chess-tcn": "^1.0.0",
         "@types/node": "^22.15.3",
         "@types/react": "^18.3.12",
