@@ -18,6 +18,7 @@ import {
     success,
 } from './api';
 import { attributeExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
+import { addAllUploads } from './get';
 
 /**
  * Handles requests to the update directory API, which allows updating the name,
@@ -36,8 +37,7 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         if (!request.name && !request.visibility && !request.itemIds) {
             throw new ApiError({
                 statusCode: 400,
-                publicMessage:
-                    'At least one of `name`, `visibility` and `itemIds` is required',
+                publicMessage: 'At least one of `name`, `visibility` and `itemIds` is required',
             });
         }
 
@@ -64,6 +64,8 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         }
 
         const result = await updateDirectory(request);
+        addAllUploads(result.directory);
+        addAllUploads(result.parent);
         return success(result);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);

@@ -140,14 +140,17 @@ export const HOME_DIRECTORY_ID = 'home';
 /** The id of the shared with me directory. */
 export const SHARED_DIRECTORY_ID = 'shared';
 
+/** The id of the all my uploads directory. */
+export const ALL_MY_UPLOADS_DIRECTORY_ID = 'uploads';
+
 /** The ids of default directories. */
-const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID, SHARED_DIRECTORY_ID];
+const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID, SHARED_DIRECTORY_ID, ALL_MY_UPLOADS_DIRECTORY_ID];
 
 /**
  * The ids of directories fully managed by the platform.
  * These directories cannot be manually updated.
  */
-const PLATFORM_MANAGED_DIRECTORIES = [SHARED_DIRECTORY_ID];
+const PLATFORM_MANAGED_DIRECTORIES = [SHARED_DIRECTORY_ID, ALL_MY_UPLOADS_DIRECTORY_ID];
 
 /**
  * Returns true if the given id is a default directory.
@@ -192,8 +195,14 @@ export const DirectorySchema = z.object({
      * fixed, known values:
      *   - The home directory is `home`.
      *   - The shared with me directory is `shared`.
+     *   - The all uploads directory is `uploads`.
      */
-    id: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID), z.literal(SHARED_DIRECTORY_ID)]),
+    id: z.union([
+        z.string().uuid(),
+        z.literal(HOME_DIRECTORY_ID),
+        z.literal(SHARED_DIRECTORY_ID),
+        z.literal(ALL_MY_UPLOADS_DIRECTORY_ID),
+    ]),
 
     /** The id of the parent directory. Top-level directories use uuid.NIL. */
     parent: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID)]),

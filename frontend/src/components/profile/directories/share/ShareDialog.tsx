@@ -114,7 +114,7 @@ export const ShareDialog = ({
 
     const onCopyLink = () => {
         copy(
-            `${getConfig().baseUrl}/profile/${directory.owner}?view=files&directory=${directory.id}`,
+            `${getConfig().baseUrl}/profile/${directory.owner}?view=games&directory=${directory.id}`,
         );
         setCopied(true);
         setTimeout(() => setCopied(false), 3000);

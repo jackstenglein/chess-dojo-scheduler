@@ -47,6 +47,7 @@ export function DirectorySelectDialog({ value, onChange, slotProps }: DirectoryS
                         defaultValue={false}
                         enabled
                         horizontal
+                        hideAllUploads
                         onClick={onChange}
                     />
                 </Box>

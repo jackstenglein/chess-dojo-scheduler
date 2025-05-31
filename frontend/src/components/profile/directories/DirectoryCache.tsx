@@ -2,8 +2,10 @@ import { useApi } from '@/api/Api';
 import { IdentifiableCache, useIdentifiableCache } from '@/api/cache/Cache';
 import { Request, useRequest } from '@/api/Request';
 import {
+    ALL_MY_UPLOADS_DIRECTORY_ID,
     Directory,
     DirectoryAccessRole,
+    DirectoryItemTypes,
     DirectoryVisibility,
     HOME_DIRECTORY_ID,
     SHARED_DIRECTORY_ID,
@@ -144,8 +146,19 @@ const defaultHomeDirectory: Omit<Directory, 'owner'> = {
     visibility: DirectoryVisibility.PUBLIC,
     createdAt: '',
     updatedAt: '',
-    items: {},
-    itemIds: [],
+    items: {
+        [ALL_MY_UPLOADS_DIRECTORY_ID]: {
+            id: ALL_MY_UPLOADS_DIRECTORY_ID,
+            type: DirectoryItemTypes.DIRECTORY,
+            metadata: {
+                name: 'All Uploads',
+                visibility: DirectoryVisibility.PUBLIC,
+                createdAt: '',
+                updatedAt: '',
+            },
+        },
+    },
+    itemIds: [ALL_MY_UPLOADS_DIRECTORY_ID],
 };
 
 const defaultSharedDirectory: Omit<Directory, 'owner'> = {
