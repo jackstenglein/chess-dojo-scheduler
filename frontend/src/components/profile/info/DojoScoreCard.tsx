@@ -145,7 +145,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     const nextCohort = dojoCohorts[dojoCohorts.indexOf(cohort) + 1];
 
     return (
-        <Card id='cohort-score-card'>
+        <Card id='cohort-score-card' sx={{ height: 1 }}>
             <CardContent>
                 <Grid container rowGap={2} columnSpacing={3} alignItems='center'>
                     {showRatingProgress && (
