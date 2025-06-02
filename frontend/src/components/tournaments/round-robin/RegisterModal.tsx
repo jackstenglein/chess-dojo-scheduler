@@ -80,7 +80,7 @@ export function RegisterModal({
             });
             console.log('registerForRoundRobin: ', resp);
 
-            if ('banned' in resp.data) {
+            if ('banned' in resp.data && resp.data.banned) {
                 setUnbanUrl(resp.data.url);
             } else if ('url' in resp.data) {
                 window.location.href = resp.data.url;
