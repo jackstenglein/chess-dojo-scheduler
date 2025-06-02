@@ -276,7 +276,7 @@ func FetchUscfRating(uscfId string) (*database.Rating, error) {
 }
 
 func FetchEcfRating(ecfId string) (*database.Rating, error) {
-	resp, err := client.Get(fmt.Sprintf("https://www.ecfrating.org.uk/v2/new/api.php?v2/ratings/S/%s/%s", ecfId, time.Now().Format(time.DateOnly)))
+	resp, err := client.Get(fmt.Sprintf("https://rating.englishchess.org.uk/v2/new/api.php?v2/ratings/S/%s/%s", ecfId, time.Now().Format(time.DateOnly)))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed call to ECF API", err)
 		return nil, err
