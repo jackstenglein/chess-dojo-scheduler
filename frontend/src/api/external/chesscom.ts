@@ -83,9 +83,13 @@ export function useChesscomGames(): [
                 fetchChesscomArchiveGames(params.username, t.year, t.month),
             );
 
-            Promise.all(games)
+            Promise.allSettled(games)
                 .then((resp) => {
-                    request.onSuccess(resp.flat());
+                    const games = resp
+                        .filter((r) => r.status === 'fulfilled')
+                        .map((r) => r.value)
+                        .flat();
+                    request.onSuccess(games);
                 })
                 .catch((err: unknown) => {
                     console.log('Failed to get Chesscom games: ', err);
