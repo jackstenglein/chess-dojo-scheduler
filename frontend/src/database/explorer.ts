@@ -128,6 +128,19 @@ export interface LichessExplorerPosition {
 
     /** The list of Lichess explorer moves continuing from this position. */
     moves: LichessExplorerMove[];
+
+    /**
+     * The performance rating of the player (normalized to the Dojo system).
+     */
+    performanceRating?: number;
+    /** The number of times the player won.*/
+    playerWins?: number;
+    /** The number of times the player lost. */
+    playerLosses?: number;
+    /** The number of times the player drew. */
+    playerDraws?: number;
+    /** The average rating of the opponents (normalized to the Dojo system). */
+    averageOpponentRating?: number;
 }
 
 /** A single move option in the games explorer, as returned from the Lichess API. */
@@ -143,6 +156,19 @@ export interface LichessExplorerMove {
 
     /** The number of games in which the move drew. */
     draws: number;
+
+    /**
+     * The performance rating of the player (normalized to the Dojo system).
+     */
+    performanceRating?: number;
+    /** The number of times the player won.*/
+    playerWins?: number;
+    /** The number of times the player lost. */
+    playerLosses?: number;
+    /** The number of times the player drew. */
+    playerDraws?: number;
+    /** The average rating of the opponents (normalized to the Dojo system). */
+    averageOpponentRating?: number;
 }
 
 /**

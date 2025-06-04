@@ -1,6 +1,8 @@
 import { ChesscomGame, fetchChesscomArchiveGames } from '@/api/external/chesscom';
 import { LichessGame } from '@/api/external/lichess';
 import { chesscomGameResult, getTimeClass, lichessGameResult } from '@/api/external/onlineGame';
+import { RatingSystem } from '@/database/ratings';
+import { getNormalizedRating } from '@/database/user';
 import { Mutex } from 'async-mutex';
 import axios from 'axios';
 import { expose, proxy } from 'comlink';
@@ -131,7 +133,9 @@ export class OpeningTreeLoader {
             white: game.white.username,
             black: game.black.username,
             whiteElo: game.white.rating,
+            normalizedWhiteElo: getNormalizedRating(game.white.rating, RatingSystem.Chesscom),
             blackElo: game.black.rating,
+            normalizedBlackElo: getNormalizedRating(game.black.rating, RatingSystem.Chesscom),
             result: chesscomGameResult(game)[0],
             plyCount: 0,
             rated: game.rated,
@@ -222,7 +226,15 @@ export class OpeningTreeLoader {
             white: game.players.white.user?.id ?? '',
             black: game.players.black.user?.id ?? '',
             whiteElo: game.players.white.rating ?? 0,
+            normalizedWhiteElo: getNormalizedRating(
+                game.players.white.rating ?? 0,
+                RatingSystem.Lichess,
+            ),
             blackElo: game.players.black.rating ?? 0,
+            normalizedBlackElo: getNormalizedRating(
+                game.players.black.rating ?? 0,
+                RatingSystem.Lichess,
+            ),
             result: lichessGameResult(game)[0],
             plyCount: 0,
             rated: game.rated,

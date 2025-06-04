@@ -29,10 +29,12 @@ import {
     Stack,
     TextField,
     Tooltip,
+    TooltipProps,
     Typography,
     darken,
     lighten,
     styled,
+    tooltipClasses,
 } from '@mui/material';
 import {
     DataGridPro,
@@ -46,6 +48,7 @@ import { useMemo } from 'react';
 import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
 import { ExplorerDatabaseType } from './Explorer';
+import { PerformanceSummary } from './player/PerformanceSummary';
 
 export const getBackgroundColor = (color: string, mode: string) =>
     mode === 'dark' ? darken(color, 0.65) : lighten(color, 0.65);
@@ -56,6 +59,15 @@ const StyledDataGrid = styled(DataGridPro<ExplorerMove | LichessExplorerMove>)((
             theme.palette.info.main,
             theme.palette.mode,
         )} !important`,
+    },
+}));
+
+const OpaqueTooltip = styled(({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))(() => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: 'rgb(97, 97, 97)',
+        padding: 0,
     },
 }));
 
@@ -147,6 +159,11 @@ function Database({
                     white: position?.white || 0,
                     black: position?.black || 0,
                     draws: position?.draws || 0,
+                    performanceRating: position?.performanceRating,
+                    playerWins: position?.playerWins,
+                    playerLosses: position?.playerLosses,
+                    playerDraws: position?.playerDraws,
+                    averageOpponentRating: position?.averageOpponentRating,
                 },
             ],
         };
@@ -202,6 +219,46 @@ function Database({
                 },
                 flex: 0.75,
             },
+            ...(type === ExplorerDatabaseType.Player
+                ? [
+                      {
+                          field: 'performanceRating',
+                          headerName: 'Performance',
+                          align: 'left',
+                          headerAlign: 'left',
+                          flex: 0.6,
+                          renderCell: (
+                              params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>,
+                          ) => {
+                              return (
+                                  <OpaqueTooltip
+                                      disableInteractive
+                                      title={
+                                          <PerformanceSummary
+                                              position={params.row as LichessExplorerMove}
+                                          />
+                                      }
+                                  >
+                                      <Stack
+                                          direction='row'
+                                          height={1}
+                                          alignItems='center'
+                                          justifyContent='center'
+                                          gap={0.5}
+                                      >
+                                          {params.value}
+
+                                          <Help
+                                              sx={{ color: 'text.secondary' }}
+                                              fontSize='inherit'
+                                          />
+                                      </Stack>
+                                  </OpaqueTooltip>
+                              );
+                          },
+                      },
+                  ]
+                : []),
             {
                 field: 'results',
                 headerName: 'Results',
@@ -249,7 +306,7 @@ function Database({
                 flex: 1,
             },
         ];
-    }, [totalGames, cohortRange]);
+    }, [totalGames, cohortRange, type]);
 
     if (type !== ExplorerDatabaseType.Lichess && isFreeTier) {
         return (
@@ -400,6 +457,10 @@ function Database({
                     }}
                 />
             </Grid>
+
+            {type === ExplorerDatabaseType.Player && (
+                <PerformanceSummary position={position as LichessExplorerPosition} />
+            )}
 
             {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
                 <>

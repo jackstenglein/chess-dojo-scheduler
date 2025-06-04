@@ -11,6 +11,7 @@ import {
     MIN_PLY_COUNT,
     PlayerSource,
 } from './PlayerSource';
+import { fideDpTable } from './performanceRating';
 
 interface PositionDataMove extends LichessExplorerMove {
     /**
@@ -40,8 +41,12 @@ export interface GameData {
     black: string;
     /** The ELO of the player with white. */
     whiteElo: number;
+    /** The Dojo normalized ELO of the player with white. */
+    normalizedWhiteElo: number;
     /** The ELO of the player with black. */
     blackElo: number;
+    /** The Dojo normalized ELO of the player with black. */
+    normalizedBlackElo: number;
     /** The result of the game. */
     result: GameResult;
     /** The number of moves in the game. */
@@ -205,6 +210,8 @@ export class OpeningTree {
         let white = 0;
         let black = 0;
         let draws = 0;
+        let playerWins = 0;
+        let totalOpponentRating = 0;
         for (const url of position.games) {
             const game = this.getGame(url);
             if (
@@ -212,9 +219,25 @@ export class OpeningTree {
                 (this.mostRecentGames?.has(url) ||
                     (!this.mostRecentGames && matchesFilter(game, this.filters)))
             ) {
-                if (game.result === GameResult.White) white++;
-                else if (game.result === GameResult.Black) black++;
-                else draws++;
+                if (game.result === GameResult.White) {
+                    white++;
+                    if (game.playerColor === Color.White) {
+                        playerWins++;
+                    }
+                } else if (game.result === GameResult.Black) {
+                    black++;
+                    if (game.playerColor === Color.Black) {
+                        playerWins++;
+                    }
+                } else {
+                    draws++;
+                }
+
+                if (game.playerColor === Color.White) {
+                    totalOpponentRating += game.normalizedBlackElo;
+                } else {
+                    totalOpponentRating += game.normalizedWhiteElo;
+                }
             }
         }
 
@@ -223,6 +246,8 @@ export class OpeningTree {
                 let white = 0;
                 let black = 0;
                 let draws = 0;
+                let playerWins = 0;
+                let totalOpponentRating = 0;
                 for (const url of move.games) {
                     const game = this.getGame(url);
                     if (
@@ -230,12 +255,43 @@ export class OpeningTree {
                         (this.mostRecentGames?.has(url) ||
                             (!this.mostRecentGames && matchesFilter(game, this.filters)))
                     ) {
-                        if (game?.result === GameResult.White) white++;
-                        else if (game?.result === GameResult.Black) black++;
-                        else draws++;
+                        if (game.result === GameResult.White) {
+                            white++;
+                            if (game.playerColor === Color.White) {
+                                playerWins++;
+                            }
+                        } else if (game.result === GameResult.Black) {
+                            black++;
+                            if (game.playerColor === Color.Black) {
+                                playerWins++;
+                            }
+                        } else {
+                            draws++;
+                        }
+
+                        if (game.playerColor === Color.White) {
+                            totalOpponentRating += game.normalizedBlackElo;
+                        } else {
+                            totalOpponentRating += game.normalizedWhiteElo;
+                        }
                     }
                 }
-                return { ...move, white, black, draws };
+                const result = { ...move, white, black, draws };
+                const totalGames = white + black + draws;
+                if (totalGames > 0) {
+                    const score = playerWins + draws / 2;
+                    const percentage = (score / totalGames) * 100;
+                    const ratingDiff = fideDpTable[Math.round(percentage)];
+                    const averageOpponentRating = Math.round(totalOpponentRating / totalGames);
+                    const performanceRating = averageOpponentRating + ratingDiff;
+
+                    result.playerWins = playerWins;
+                    result.playerDraws = draws;
+                    result.playerLosses = totalGames - playerWins - draws;
+                    result.performanceRating = performanceRating;
+                    result.averageOpponentRating = averageOpponentRating;
+                }
+                return result;
             })
             .filter((m) => m.white || m.black || m.draws)
             .sort(
@@ -243,7 +299,24 @@ export class OpeningTree {
                     rhs.white + rhs.black + rhs.draws - (lhs.white + lhs.black + lhs.draws),
             );
 
-        return { ...position, white, black, draws, moves };
+        const result = { ...position, white, black, draws, moves };
+
+        const totalGames = white + black + draws;
+        if (totalGames > 0) {
+            const score = playerWins + draws / 2;
+            const percentage = (score / totalGames) * 100;
+            const ratingDiff = fideDpTable[Math.round(percentage)];
+            const averageOpponentRating = Math.round(totalOpponentRating / totalGames);
+            const performanceRating = averageOpponentRating + ratingDiff;
+
+            result.playerWins = playerWins;
+            result.playerDraws = draws;
+            result.playerLosses = totalGames - playerWins - draws;
+            result.performanceRating = performanceRating;
+            result.averageOpponentRating = averageOpponentRating;
+        }
+
+        return result;
     }
 
     /**
