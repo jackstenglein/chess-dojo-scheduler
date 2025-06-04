@@ -7,7 +7,7 @@ import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-
 import { SiLichess } from 'react-icons/si';
 
 export function PlayerCell({ player }: { player: OpenClassicalPlayer }) {
-    if (player.lichessUsername === 'No Opponent') {
+    if (player.lichessUsername === 'No Opponent' || player.lichessUsername === '') {
         return (
             <Stack alignItems='center' justifyContent='center' height={1}>
                 No Opponent

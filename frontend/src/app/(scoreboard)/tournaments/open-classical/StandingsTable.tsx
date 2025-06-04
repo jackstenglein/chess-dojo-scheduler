@@ -181,6 +181,9 @@ interface StandingsTableRow extends OpenClassicalPlayer {
 }
 
 function getResult(result: string, color: 'w' | 'b'): Result {
+    if (result === 'Bye') {
+        return Result.Bye;
+    }
     if (result === '' || result === '*') {
         return Result.Unknown;
     }
@@ -261,10 +264,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({ openClassical, region, 
                 if (white) {
                     white.rounds[idx] = {
                         opponent: pairing.result ? pairing.black.lichessUsername : '',
-                        result:
-                            pairing.black.lichessUsername === 'No Opponent'
-                                ? Result.Bye
-                                : getResult(pairing.result, 'w'),
+                        result: getResult(pairing.result, 'w'),
                     };
                 }
 
@@ -272,10 +272,7 @@ const StandingsTable: React.FC<StandingsTableProps> = ({ openClassical, region, 
                 if (black) {
                     black.rounds[idx] = {
                         opponent: pairing.result ? pairing.white.lichessUsername : '',
-                        result:
-                            pairing.white.lichessUsername === 'No Opponent'
-                                ? Result.Bye
-                                : getResult(pairing.result, 'b'),
+                        result: getResult(pairing.result, 'b'),
                     };
                 }
             });
