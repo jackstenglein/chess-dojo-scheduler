@@ -889,16 +889,6 @@ export function getNormalizedRating(
     return Math.round(result * 10) / 10;
 }
 
-// export function denormalizeRating(
-//     rating: number,
-//     ratingSystem: RatingSystem,
-//     boundaries: Record<string, Record<RatingSystem, number>> = ratingBoundaries,
-// ): number {
-//     if (isCustom(ratingSystem)) {
-//         return -1;
-//     }
-// }
-
 export function shouldPromptGraduation(user?: User): boolean {
     if (!user?.dojoCohort || !user.ratingSystem) {
         return false;
