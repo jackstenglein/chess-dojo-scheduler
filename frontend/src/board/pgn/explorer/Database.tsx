@@ -159,11 +159,7 @@ function Database({
                     white: position?.white || 0,
                     black: position?.black || 0,
                     draws: position?.draws || 0,
-                    performanceRating: position?.performanceRating,
-                    playerWins: position?.playerWins,
-                    playerLosses: position?.playerLosses,
-                    playerDraws: position?.playerDraws,
-                    averageOpponentRating: position?.averageOpponentRating,
+                    performanceData: position?.performanceData,
                 },
             ],
         };
@@ -198,7 +194,7 @@ function Database({
                 headerName: 'Games',
                 align: 'left',
                 headerAlign: 'left',
-                valueGetter: (_value, row) => {
+                valueGetter: (_value, row: ExplorerMove | LichessExplorerMove) => {
                     if (isExplorerMove(row)) {
                         return getGameCount(row.results, cohortRange);
                     }
@@ -222,20 +218,25 @@ function Database({
             ...(type === ExplorerDatabaseType.Player
                 ? [
                       {
-                          field: 'performanceRating',
+                          type: 'number',
+                          field: 'performanceData',
                           headerName: 'Performance',
                           align: 'left',
                           headerAlign: 'left',
                           flex: 0.6,
+                          valueGetter: (_value: never, row: ExplorerMove | LichessExplorerMove) =>
+                              (row as LichessExplorerMove).performanceData?.performanceRating,
                           renderCell: (
                               params: GridRenderCellParams<ExplorerMove | LichessExplorerMove>,
                           ) => {
                               return (
                                   <OpaqueTooltip
-                                      disableInteractive
                                       title={
                                           <PerformanceSummary
-                                              position={params.row as LichessExplorerMove}
+                                              data={
+                                                  (params.row as LichessExplorerMove)
+                                                      .performanceData
+                                              }
                                           />
                                       }
                                   >
@@ -246,7 +247,10 @@ function Database({
                                           justifyContent='center'
                                           gap={0.5}
                                       >
-                                          {params.value}
+                                          {
+                                              (params.row as LichessExplorerMove).performanceData
+                                                  ?.performanceRating
+                                          }
 
                                           <Help
                                               sx={{ color: 'text.secondary' }}
@@ -264,7 +268,7 @@ function Database({
                 headerName: 'Results',
                 align: 'right',
                 headerAlign: 'left',
-                valueGetter: (_value, row) => {
+                valueGetter: (_value, row: ExplorerMove | LichessExplorerMove) => {
                     if (isExplorerMove(row)) {
                         return getResultCount(row, 'white', cohortRange);
                     }
@@ -305,7 +309,7 @@ function Database({
                 },
                 flex: 1,
             },
-        ];
+        ] as GridColDef[];
     }, [totalGames, cohortRange, type]);
 
     if (type !== ExplorerDatabaseType.Lichess && isFreeTier) {
@@ -459,7 +463,7 @@ function Database({
             </Grid>
 
             {type === ExplorerDatabaseType.Player && (
-                <PerformanceSummary position={position as LichessExplorerPosition} />
+                <PerformanceSummary data={(position as LichessExplorerPosition).performanceData} />
             )}
 
             {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (

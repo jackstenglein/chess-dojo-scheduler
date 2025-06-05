@@ -1,5 +1,7 @@
+import { OnlineGameTimeClass } from '@/api/external/onlineGame';
+import { Color, PlayerSource } from '@/board/pgn/explorer/player/PlayerSource';
 import { ExplorerPositionFollower } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
-import { Game } from './game';
+import { Game, GameResult } from './game';
 import { isObject } from './scoreboard';
 
 export type { ExplorerPositionFollower };
@@ -129,18 +131,60 @@ export interface LichessExplorerPosition {
     /** The list of Lichess explorer moves continuing from this position. */
     moves: LichessExplorerMove[];
 
+    /** The performance data for the position. */
+    performanceData?: PerformanceData;
+}
+
+export interface GameData {
+    /** The source the game comes from. */
+    source: PlayerSource;
+    /** The color of the source in the game. */
+    playerColor: Color.White | Color.Black;
+    /** The username of the player with white. */
+    white: string;
+    /** The username of the player with black. */
+    black: string;
+    /** The ELO of the player with white. */
+    whiteElo: number;
+    /** The Dojo normalized ELO of the player with white. */
+    normalizedWhiteElo: number;
+    /** The ELO of the player with black. */
+    blackElo: number;
+    /** The Dojo normalized ELO of the player with black. */
+    normalizedBlackElo: number;
+    /** The result of the game. */
+    result: GameResult;
+    /** The number of moves in the game. */
+    plyCount: number;
+    /** Whether the game is rated. */
+    rated: boolean;
+    /** The URL of the game. */
+    url: string;
+    /** The PGN headers of the game. */
+    headers: Record<string, string>;
+    /** The time class of the game. */
+    timeClass: OnlineGameTimeClass;
+}
+
+export interface PerformanceData {
     /**
      * The performance rating of the player (normalized to the Dojo system).
      */
-    performanceRating?: number;
-    /** The number of times the player won.*/
-    playerWins?: number;
+    performanceRating: number;
+    /** The number of times the player won. */
+    playerWins: number;
     /** The number of times the player lost. */
-    playerLosses?: number;
+    playerLosses: number;
     /** The number of times the player drew. */
-    playerDraws?: number;
+    playerDraws: number;
     /** The average rating of the opponents (normalized to the Dojo system). */
-    averageOpponentRating?: number;
+    averageOpponentRating: number;
+    /** Metadata for the last time the player had this position. */
+    lastPlayed: GameData;
+    /** Metadata for the player's best win in this position. */
+    bestWin?: GameData;
+    /** Metadata for the player's worst loss in this position. */
+    worstLoss?: GameData;
 }
 
 /** A single move option in the games explorer, as returned from the Lichess API. */
@@ -157,18 +201,8 @@ export interface LichessExplorerMove {
     /** The number of games in which the move drew. */
     draws: number;
 
-    /**
-     * The performance rating of the player (normalized to the Dojo system).
-     */
-    performanceRating?: number;
-    /** The number of times the player won.*/
-    playerWins?: number;
-    /** The number of times the player lost. */
-    playerLosses?: number;
-    /** The number of times the player drew. */
-    playerDraws?: number;
-    /** The average rating of the opponents (normalized to the Dojo system). */
-    averageOpponentRating?: number;
+    /** The performance data for the move. */
+    performanceData?: PerformanceData;
 }
 
 /**

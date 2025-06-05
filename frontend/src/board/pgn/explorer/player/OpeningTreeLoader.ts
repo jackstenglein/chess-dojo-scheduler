@@ -1,12 +1,13 @@
 import { ChesscomGame, fetchChesscomArchiveGames } from '@/api/external/chesscom';
 import { LichessGame } from '@/api/external/lichess';
 import { chesscomGameResult, getTimeClass, lichessGameResult } from '@/api/external/onlineGame';
+import { GameData } from '@/database/explorer';
 import { RatingSystem } from '@/database/ratings';
 import { getNormalizedRating } from '@/database/user';
 import { Mutex } from 'async-mutex';
 import axios from 'axios';
 import { expose, proxy } from 'comlink';
-import { GameData, OpeningTree } from './OpeningTree';
+import { OpeningTree } from './OpeningTree';
 import { Color, MIN_DOWNLOAD_LIMIT, PlayerSource, SourceType } from './PlayerSource';
 
 interface ChesscomListArchivesResponse {

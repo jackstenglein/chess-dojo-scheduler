@@ -207,8 +207,8 @@ export function useGameFilters(sources: PlayerSource[]): [EditableGameFilters, G
             opponentRating,
             downloadLimit,
             dateRange: [
-                dateRange[0]?.toISO()?.replaceAll('-', '.') ?? '',
-                dateRange[1]?.toISO()?.replaceAll('-', '.') ?? '',
+                dateRange[0]?.toISO()?.replaceAll('-', '.').slice(0, '2025.12.31'.length) ?? '',
+                dateRange[1]?.toISO()?.replaceAll('-', '.').slice(0, '2025.12.31'.length) ?? '',
             ],
             plyCount,
             hiddenSources: sources

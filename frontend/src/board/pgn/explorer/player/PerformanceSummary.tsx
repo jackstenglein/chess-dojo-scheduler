@@ -1,4 +1,6 @@
-import { LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
+import { GameData, PerformanceData } from '@/database/explorer';
+import { GameResult } from '@/database/game';
+import { OpenInNew } from '@mui/icons-material';
 import {
     Link,
     styled,
@@ -9,20 +11,21 @@ import {
     TableFooter,
     TableRow,
 } from '@mui/material';
+import { Color } from './PlayerSource';
 
 const StyledTableCell = styled(TableCell)(() => ({
     color: 'inherit',
 }));
 
-export function PerformanceSummary({
-    position,
-}: {
-    position: LichessExplorerPosition | LichessExplorerMove;
-}) {
-    const totalGames = position.white + position.black + position.draws;
-    const wins = position.playerWins ?? 0;
-    const draws = position.playerDraws ?? 0;
-    const losses = position.playerLosses ?? 0;
+export function PerformanceSummary({ data }: { data?: PerformanceData }) {
+    if (!data) {
+        return null;
+    }
+
+    const totalGames = data.playerWins + data.playerLosses + data.playerDraws;
+    const wins = data.playerWins;
+    const draws = data.playerDraws;
+    const losses = data.playerLosses;
     const score = wins + draws / 2;
     const percentage = totalGames > 0 ? Math.round((score / totalGames) * 1000) / 10 : undefined;
     return (
@@ -36,11 +39,11 @@ export function PerformanceSummary({
                 <TableBody>
                     <TableRow>
                         <StyledTableCell>Performance Rating (Normalized)</StyledTableCell>
-                        <StyledTableCell>{position.performanceRating ?? '-'}</StyledTableCell>
+                        <StyledTableCell>{data.performanceRating}</StyledTableCell>
                     </TableRow>
                     <TableRow>
                         <StyledTableCell>Avg Opponent Rating (Normalized)</StyledTableCell>
-                        <StyledTableCell>{position.averageOpponentRating ?? '-'}</StyledTableCell>
+                        <StyledTableCell>{data.averageOpponentRating}</StyledTableCell>
                     </TableRow>
                     <TableRow>
                         <StyledTableCell>Total Games</StyledTableCell>
@@ -59,6 +62,22 @@ export function PerformanceSummary({
                             {percentage !== undefined && <>({percentage}%)</>}
                         </StyledTableCell>
                     </TableRow>
+                    <TableRow>
+                        <StyledTableCell>Last Played</StyledTableCell>
+                        <GameMetadata game={data.lastPlayed} showResult showRating />
+                    </TableRow>
+                    {data.bestWin && (
+                        <TableRow>
+                            <StyledTableCell>Best Win</StyledTableCell>
+                            <GameMetadata game={data.bestWin} showRating />
+                        </TableRow>
+                    )}
+                    {data.worstLoss && (
+                        <TableRow>
+                            <StyledTableCell>Worst Loss</StyledTableCell>
+                            <GameMetadata game={data.worstLoss} showRating />
+                        </TableRow>
+                    )}
                 </TableBody>
                 <TableFooter>
                     <TableRow>
@@ -72,5 +91,43 @@ export function PerformanceSummary({
                 </TableFooter>
             </Table>
         </TableContainer>
+    );
+}
+
+function GameMetadata({
+    game,
+    showResult,
+    showRating,
+}: {
+    game: GameData;
+    showResult?: boolean;
+    showRating?: boolean;
+}) {
+    const result =
+        game.result === GameResult.Draw
+            ? 'Draw'
+            : (game.result === GameResult.White) === (game.playerColor === Color.White)
+              ? 'Win'
+              : 'Loss';
+
+    let description = showResult ? result : '';
+    if (showRating) {
+        if (description) {
+            description += ' ';
+        }
+        description += 'vs ';
+        description +=
+            game.playerColor === Color.White
+                ? `${game.normalizedBlackElo}`
+                : `${game.normalizedWhiteElo}`;
+    }
+
+    return (
+        <StyledTableCell>
+            {game.headers.Date} {description && <>({description})</>}{' '}
+            <Link href={game.url} target='_blank'>
+                <OpenInNew fontSize='inherit' sx={{ verticalAlign: 'middle' }} />
+            </Link>
+        </StyledTableCell>
     );
 }
