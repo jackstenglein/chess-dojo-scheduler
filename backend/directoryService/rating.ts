@@ -131,18 +131,28 @@ function convertQueryParamToRatingSystem(query: string): RatingSystem {
 interface PerformanceRatingMetric {
     combinedRating: number,
     normalizedCombinedRating: number,
+    avgOppRating: number,
+    normalizedAvgOppRating: number,
     whiteRating: number,
     normalizedWhiteRating: number,
+    avgOppWhiteRating: number,
+    normalizedAvgWhiteOppRating: number
     blackRating: number,
     normalizedBlackRating: number,
+    avgOppBlackRating: number,
+    normalizedAvgBlackOppRating: number,
     winRatio: number,
     drawRatio: number, 
     lossRatio: number,
-    cohortRatings: Record<string, CohortRatingMetric>;
+    cohortRatings: Map<string, CohortRatingMetric>;
 }
 
 interface CohortRatingMetric {
     rating: number;
+    avgOppRating: number;
+    winRate: number;
+    drawRate: number;
+    lossRate: number;
     oppRatings: number[];
     gamesCount: number;
     ratios: number[];
@@ -260,13 +270,6 @@ const fideDpTable: Record<number, number> = {
 // fideTable[key] where key = score / oppRating.length
 // oppCohortRating is avg of opp Rating[] + fideTable[score / oppRating.length]
 
-function getCombinedRating(white: number, black: number): number {
-  if (white > 0 && black > 0) {
-    return Math.round((white + black) / 2);
-  }
-  return Math.round(white > 0 ? white : black);
-}
-
 export function getPerformanceRating(
     playername: string,
     userDirectory: Directory,
@@ -312,6 +315,10 @@ export function getPerformanceRating(
                         oppRatings: [rating],
                         gamesCount: 1,
                         ratios: ratios,
+                        winRate: 0,
+                        drawRate: 0,
+                        lossRate: 0,
+                        avgOppRating: 0,
                     }
                     cohortRatings.set(oppCohort, metric);
                 }else{
@@ -365,7 +372,13 @@ export function getPerformanceRating(
             winRatio: 0,
             drawRatio: 0,
             lossRatio: 0,
-            cohortRatings: {}
+            avgOppRating: 0,
+            normalizedAvgOppRating: 0,
+            avgOppWhiteRating: 0,
+            normalizedAvgWhiteOppRating: 0,
+            avgOppBlackRating: 0,
+            normalizedAvgBlackOppRating: 0,
+            cohortRatings: new Map()
         };
     }
 
@@ -374,17 +387,29 @@ export function getPerformanceRating(
 
     const totalWhiteAvg = calculateAverage(oppBlackAvgRating);
     const totalBlackAvg = calculateAverage(oppWhiteAvgRating);
+    const totalCombinedAvg = calculateAverage(oppBlackAvgRating.concat(oppWhiteAvgRating));
+
+    console.log('Played White Against ', oppBlackAvgRating.join(","))
+    console.log('Played Black Against ', oppWhiteAvgRating.join(","))
 
     const totalScorePercent = parseFloat((((1) * wins + (0.5) * draws) / total).toFixed(2));
-    const totalWhiteScorePercent = parseFloat((((1) * whiteWins + (0.5) * whiteDraws) / total).toFixed(2));
-    const totalBlackScorePercent = parseFloat((((1) * blackWins +(0.5) * blackDraws) / total).toFixed(2));
+    const totalWhiteScorePercent = parseFloat((((1) * whiteWins + (0.5) * whiteDraws) / (whiteWins + whiteDraws + whiteLoss)).toFixed(2));
+    const totalBlackScorePercent = parseFloat((((1) * blackWins +(0.5) * blackDraws) / (blackWins + blackDraws + blackLoss)).toFixed(2));
+
+    console.log('Total games:', total);
+    console.log('Wins:', wins, 'Draws:', draws, 'Losses:', losses);
+    console.log('White Wins:', whiteWins, 'White Draws:', whiteDraws, 'White Losses:', whiteLoss);
+    console.log('Black Wins:', blackWins, 'Black Draws:', blackDraws, 'Black Losses:', blackLoss);
+    console.log('Total Score Percent:', totalScorePercent);
+    console.log('Total White Score Percent:', totalWhiteScorePercent);
+    console.log('Total Black Score Percent:', totalBlackScorePercent);
 
     const calculateRating = (avg: number, scorePercent: number) =>
         avg + fideDpTable[scorePercent];
 
     const whiteRating =  Math.round(calculateRating(totalWhiteAvg, totalWhiteScorePercent));
     const blackRating = Math.round(calculateRating(totalBlackAvg, totalBlackScorePercent));
-    const combinedRating = getCombinedRating(whiteRating, blackRating)
+    const combinedRating = Math.round(calculateRating(totalCombinedAvg, totalScorePercent));
     const combinedNormalRating = getNormalizedRating(combinedRating, ratingSystem);
     const normalizedWhiteRating = getNormalizedRating(whiteRating, ratingSystem);
     const normalizedBlackRating = getNormalizedRating(blackRating, ratingSystem);
@@ -400,13 +425,11 @@ export function getPerformanceRating(
             ? parseFloat((metric.ratios.reduce((sum, r) => sum + r, 0) / metric.gamesCount).toFixed(2))
             : 0;
         const cohortKeyRating = avgOppRating + (fideDpTable[scorePercent] ?? 0);    
-        metric.rating = getNormalizedRating(cohortKeyRating, ratingSystem);
-    });
-
-    
-    const cohortRatingsObject: Record<string, CohortRatingMetric> = {};
-    cohortRatings.forEach((value, key) => {
-        cohortRatingsObject[key] = value;
+        metric.rating = cohortKeyRating;
+        metric.avgOppRating = avgOppRating;
+        metric.winRate = Math.round((metric.ratios[0] / metric.gamesCount) * 100);
+        metric.drawRate = Math.round((metric.ratios[1] / metric.gamesCount) * 100);
+        metric.lossRate = Math.round(((metric.gamesCount - metric.ratios[0] - metric.ratios[1]) / metric.gamesCount) * 100);
     });
 
     return {
@@ -417,8 +440,14 @@ export function getPerformanceRating(
         blackRating: blackRating,
         normalizedBlackRating: normalizedBlackRating,
         winRatio: winRatio,
+        avgOppRating: totalCombinedAvg,
+        normalizedAvgOppRating: getNormalizedRating(totalCombinedAvg, ratingSystem),
+        avgOppWhiteRating: totalWhiteAvg,
+        normalizedAvgWhiteOppRating: getNormalizedRating(totalWhiteAvg, ratingSystem),
+        avgOppBlackRating: totalBlackAvg,
+        normalizedAvgBlackOppRating: getNormalizedRating(totalBlackAvg, ratingSystem),
         drawRatio: drawRatio,
         lossRatio: lossRatio,
-        cohortRatings: cohortRatingsObject
+        cohortRatings: cohortRatings
     };
 }
