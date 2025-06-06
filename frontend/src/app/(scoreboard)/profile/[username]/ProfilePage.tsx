@@ -110,20 +110,20 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                          "scorecard profile"
                          "badges    profile"
                          ".         profile"`,
-                    xl: `"userInfo profile heatmap"
-                         "userInfo profile scorecard"
-                         "userInfo profile badges"
-                         "userInfo profile ."`,
+                    // xl: `"userInfo profile heatmap"
+                    //      "userInfo profile scorecard"
+                    //      "userInfo profile badges"
+                    //      "userInfo profile ."`,
                 },
                 gridTemplateColumns: {
                     xs: '100%',
                     sm: 'repeat(2, minmax(0, 1fr))',
-                    lg: 'minmax(350px, 444px) minmax(750px, 900px)',
-                    xl: 'minmax(350px, 444px) minmax(750px, 1200px) minmax(350px, 444px)',
+                    lg: 'minmax(350px, 444px) minmax(750px, 1200px)',
+                    // xl: 'minmax(350px, 444px) minmax(750px, 1200px) minmax(350px, 444px)',
                 },
                 gridTemplateRows: {
                     lg: 'auto auto auto auto 1fr',
-                    xl: 'auto auto auto 1fr',
+                    // xl: 'auto auto auto 1fr',
                 },
                 gridAutoColumns: 0,
                 columnGap: 2,
