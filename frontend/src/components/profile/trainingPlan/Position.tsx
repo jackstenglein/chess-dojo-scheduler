@@ -35,7 +35,7 @@ export function turnColor(fen: string): 'white' | 'black' {
 interface PositionProps {
     position: PositionModel;
     orientation?: 'white' | 'black';
-    requirement: Requirement;
+    requirement?: Requirement;
 }
 
 const Position: React.FC<PositionProps> = ({ position, orientation, requirement }) => {
@@ -86,8 +86,8 @@ const Position: React.FC<PositionProps> = ({ position, orientation, requirement 
     const turn = turnColor(position.fen);
 
     const isMatchRequirement =
-        requirement.name.toLowerCase().includes('spar') ||
-        requirement.name.toLowerCase().includes('rep');
+        requirement?.name.toLowerCase().includes('spar') ||
+        requirement?.name.toLowerCase().includes('rep');
     const whiteFen = turn === 'white' ? position.fen : position.fen.replace(' b ', ' w ');
     const blackFen = turn === 'black' ? position.fen : position.fen.replace(' w ', ' b ');
 
