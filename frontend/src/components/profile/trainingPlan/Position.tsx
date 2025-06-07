@@ -2,7 +2,7 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import Board from '@/board/Board';
 import { getLigaIconBasedOnTimeControl } from '@/components/calendar/eventViewer/LigaTournamentViewer';
-import { Position as PositionModel } from '@/database/requirement';
+import { Position as PositionModel, Requirement } from '@/database/requirement';
 import Icon from '@/style/Icon';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
@@ -35,9 +35,10 @@ export function turnColor(fen: string): 'white' | 'black' {
 interface PositionProps {
     position: PositionModel;
     orientation?: 'white' | 'black';
+    requirement: Requirement;
 }
 
-const Position: React.FC<PositionProps> = ({ position, orientation }) => {
+const Position: React.FC<PositionProps> = ({ position, orientation, requirement }) => {
     const [copied, setCopied] = useState('');
     const lichessRequest = useRequest();
 
@@ -83,6 +84,12 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
     };
 
     const turn = turnColor(position.fen);
+
+    const isMatchRequirement =
+        requirement.name.toLowerCase().includes('spar') ||
+        requirement.name.toLowerCase().includes('rep');
+    const whiteFen = turn === 'white' ? position.fen : position.fen.replace(' b ', ' w ');
+    const blackFen = turn === 'black' ? position.fen : position.fen.replace(' w ', ' b ');
 
     const timeControlName = getLigaIconBasedOnTimeControl(position.limitSeconds) ?? 'unknown';
 
@@ -169,27 +176,52 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     </LoadingButton>
                 </Tooltip>
 
-                <Tooltip title='Open in position explorer'>
-                    <Button
-                        startIcon={<Icon name='explore' color='dojoOrange' />}
-                        href={`/games/explorer?fen=${position.fen}`}
-                        rel='noopener'
-                        target='_blank'
-                    >
-                        Explorer
-                    </Button>
-                </Tooltip>
+                {isMatchRequirement ? (
+                    <>
+                        <Tooltip title='Open in position explorer'>
+                            <Button
+                                startIcon={<Icon name='explore' color='dojoOrange' />}
+                                href={`/games/explorer?fen=${position.fen}`}
+                                rel='noopener'
+                                target='_blank'
+                            >
+                                Explorer
+                            </Button>
+                        </Tooltip>
 
-                <Tooltip title='Play against computer on Chess.com'>
-                    <Button
-                        startIcon={<SiChessdotcom size={20} color='#81b64c'/>}
-                        href={`https://www.chess.com/practice/custom?fen=${position.fen}&is960=false`}
-                        target='_blank'
-                        rel='noopener'
-                    >
-                        Play Computer
-                    </Button>
-                </Tooltip>
+                        <Tooltip title='Play against computer on Chess.com as White'>
+                            <Button
+                                startIcon={<SiChessdotcom size={20} color='white' />}
+                                href={`https://www.chess.com/practice/custom?fen=${whiteFen}&is960=false`}
+                                target='_blank'
+                                rel='noopener'
+                            >
+                                Play Computer
+                            </Button>
+                        </Tooltip>
+                        <Tooltip title='Play against computer on Chess.com as Black'>
+                            <Button
+                                startIcon={<SiChessdotcom size={20} color='grey' />}
+                                href={`https://www.chess.com/practice/custom?fen=${blackFen}&is960=false`}
+                                target='_blank'
+                                rel='noopener'
+                            >
+                                Play Computer
+                            </Button>
+                        </Tooltip>
+                    </>
+                ) : (
+                    <Tooltip title='Play against computer on Chess.com'>
+                        <Button
+                            startIcon={<SiChessdotcom size={20} color='#81b64c' />}
+                            href={`https://www.chess.com/practice/custom?fen=${position.fen}&is960=false`}
+                            target='_blank'
+                            rel='noopener'
+                        >
+                            Play Computer
+                        </Button>
+                    </Tooltip>
+                )}
             </CardActions>
         </Card>
     );
