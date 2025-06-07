@@ -144,7 +144,7 @@ interface PerformanceRatingMetric {
     winRatio: number,
     drawRatio: number, 
     lossRatio: number,
-    cohortRatings: Map<string, CohortRatingMetric>;
+    cohortRatings: Record<string, CohortRatingMetric>;
 }
 
 interface CohortRatingMetric {
@@ -378,7 +378,7 @@ export function getPerformanceRating(
             normalizedAvgWhiteOppRating: 0,
             avgOppBlackRating: 0,
             normalizedAvgBlackOppRating: 0,
-            cohortRatings: new Map()
+            cohortRatings: {}
         };
     }
 
@@ -432,6 +432,11 @@ export function getPerformanceRating(
         metric.lossRate = Math.round(((metric.gamesCount - metric.ratios[0] - metric.ratios[1]) / metric.gamesCount) * 100);
     });
 
+    const cohortRatingsObject: Record<string, CohortRatingMetric> = {};
+    cohortRatings.forEach((value, key) => {
+        cohortRatingsObject[key] = value;
+    });
+
     return {
         combinedRating: combinedRating,
         normalizedCombinedRating: combinedNormalRating,
@@ -448,6 +453,6 @@ export function getPerformanceRating(
         normalizedAvgBlackOppRating: getNormalizedRating(totalBlackAvg, ratingSystem),
         drawRatio: drawRatio,
         lossRatio: lossRatio,
-        cohortRatings: cohortRatings
+        cohortRatings: cohortRatingsObject
     };
 }

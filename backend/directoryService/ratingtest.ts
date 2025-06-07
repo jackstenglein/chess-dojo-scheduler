@@ -227,7 +227,7 @@ interface PerformanceRatingMetric {
     winRatio: number,
     drawRatio: number, 
     lossRatio: number,
-    cohortRatings: Map<string, CohortRatingMetric>;
+    cohortRatings: Record<string, CohortRatingMetric>;
 }
 
 interface CohortRatingMetric {
@@ -258,17 +258,17 @@ function printPerformanceRatingMetric(metric: PerformanceRatingMetric): void {
   console.log("drawRatio:", metric.drawRatio);
   console.log("lossRatio:", metric.lossRatio);
   console.log("cohortRatings:");
-  for (const [cohort, cohortMetric] of metric.cohortRatings.entries()) {
-    console.log(`  ${cohort}:`);
-    console.log(`    rating: ${cohortMetric.rating}`);
-    console.log(`    oppRatings: [${cohortMetric.oppRatings.join(", ")}]`);
-    console.log(`    gamesCount: ${cohortMetric.gamesCount}`);
-    console.log(`    ratios: [${cohortMetric.ratios.join(", ")}]`);
-    console.log(`    AvgOppRating: ${cohortMetric.avgOppRating}`)
-    console.log(`    winRate: ${cohortMetric.winRate}`);
-    console.log(`    drawRate: ${cohortMetric.drawRate}`);
-    console.log(`    lossRate: ${cohortMetric.lossRate}`);
-  }
+  // for (const [cohort, cohortMetric] of metric.cohortRatings.entries()) {
+  //   console.log(`  ${cohort}:`);
+  //   console.log(`    rating: ${cohortMetric.rating}`);
+  //   console.log(`    oppRatings: [${cohortMetric.oppRatings.join(", ")}]`);
+  //   console.log(`    gamesCount: ${cohortMetric.gamesCount}`);
+  //   console.log(`    ratios: [${cohortMetric.ratios.join(", ")}]`);
+  //   console.log(`    AvgOppRating: ${cohortMetric.avgOppRating}`)
+  //   console.log(`    winRate: ${cohortMetric.winRate}`);
+  //   console.log(`    drawRate: ${cohortMetric.drawRate}`);
+  //   console.log(`    lossRate: ${cohortMetric.lossRate}`);
+  // }
 }
 
 function testPerformanceRatingKostya() {
