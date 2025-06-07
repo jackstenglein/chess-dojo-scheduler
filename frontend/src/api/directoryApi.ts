@@ -129,25 +129,34 @@ export interface StatsApiResponse {
 }
 
 interface PerformanceRatingMetric {
-    combinedRating: number;
-    normalizedCombinedRating: number;
-    whiteRating: number;
-    normalizedWhiteRating: number;
-    blackRating: number;
-    normalizedBlackRating: number;
-    winRatio: number;
-    drawRatio: number;
-    lossRatio: number;
+    combinedRating: number,
+    normalizedCombinedRating: number,
+    avgOppRating: number,
+    normalizedAvgOppRating: number,
+    whiteRating: number,
+    normalizedWhiteRating: number,
+    avgOppWhiteRating: number,
+    normalizedAvgWhiteOppRating: number
+    blackRating: number,
+    normalizedBlackRating: number,
+    avgOppBlackRating: number,
+    normalizedAvgBlackOppRating: number,
+    winRatio: number,
+    drawRatio: number, 
+    lossRatio: number,
     cohortRatings: Record<string, CohortRatingMetric>;
 }
 
 interface CohortRatingMetric {
     rating: number;
+    avgOppRating: number;
+    winRate: number;
+    drawRate: number;
+    lossRate: number;
     oppRatings: number[];
     gamesCount: number;
     ratios: number[];
 }
-
 /**
  * Sends an API request to get a directory.
  * @param idToken The id token of the current signed-in user.
@@ -186,6 +195,7 @@ export function getDirectoryStats(
         },
         headers: {
             Authorization: `Bearer ${idToken}`,
+            
         },
     });
 }
