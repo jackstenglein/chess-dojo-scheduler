@@ -13,10 +13,12 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     Assessment,
+    EmojiEvents,
     PeopleAlt,
     Percent,
     Person,
     Remove,
+    StarBorder,
     TimelineOutlined,
     TrendingDown,
     TrendingUp,
@@ -162,21 +164,14 @@ const StatCard: React.FC<StatCardProps> = ({
 };
 
 interface WinRatioBarProps {
-    wins: number;
-    draws: number;
-    losses: number;
+    winRate: number;
+    drawRate: number;
+    lossRate: number;
     delay?: number;
 }
 
-const WinRatioBar: React.FC<WinRatioBarProps> = ({ wins, draws, losses, delay = 0 }) => {
+const WinRatioBar: React.FC<WinRatioBarProps> = ({ winRate, drawRate, lossRate, delay = 0 }) => {
     const theme = useTheme();
-    const total = wins + draws + losses;
-
-    if (total === 0) return null;
-
-    const winPercent = (wins / total) * 100;
-    const drawPercent = (draws / total) * 100;
-    const lossPercent = (losses / total) * 100;
 
     return (
         <Fade in timeout={500 + delay * 100}>
@@ -190,21 +185,21 @@ const WinRatioBar: React.FC<WinRatioBarProps> = ({ wins, draws, losses, delay = 
                             >
                                 <Box
                                     sx={{
-                                        flex: winPercent,
+                                        flex: winRate,
                                         backgroundColor: theme.palette.success.main,
                                         transition: 'flex 1s ease-out',
                                     }}
                                 />
                                 <Box
                                     sx={{
-                                        flex: drawPercent,
+                                        flex: drawRate,
                                         backgroundColor: theme.palette.info.main,
                                         transition: 'flex 1s ease-out 0.2s',
                                     }}
                                 />
                                 <Box
                                     sx={{
-                                        flex: lossPercent,
+                                        flex: lossRate,
                                         backgroundColor: theme.palette.error.main,
                                         transition: 'flex 1s ease-out 0.4s',
                                     }}
@@ -215,26 +210,26 @@ const WinRatioBar: React.FC<WinRatioBarProps> = ({ wins, draws, losses, delay = 
                         <Stack direction='row' spacing={3} justifyContent='center'>
                             <Stack alignItems='center' spacing={0.5}>
                                 <Typography variant='h6' color='success.main' fontWeight='bold'>
-                                    {winPercent.toFixed(1)}%
+                                    {winRate.toFixed(1)}%
                                 </Typography>
                                 <Typography variant='body2' color='text.secondary'>
-                                    Wins ({wins})
+                                    Wins
                                 </Typography>
                             </Stack>
                             <Stack alignItems='center' spacing={0.5}>
                                 <Typography variant='h6' color='info.main' fontWeight='bold'>
-                                    {drawPercent.toFixed(1)}%
+                                    {drawRate.toFixed(1)}%
                                 </Typography>
                                 <Typography variant='body2' color='text.secondary'>
-                                    Draws ({draws})
+                                    Draws
                                 </Typography>
                             </Stack>
                             <Stack alignItems='center' spacing={0.5}>
                                 <Typography variant='h6' color='error.main' fontWeight='bold'>
-                                    {lossPercent.toFixed(1)}%
+                                    {lossRate.toFixed(1)}%
                                 </Typography>
                                 <Typography variant='body2' color='text.secondary'>
-                                    Losses ({losses})
+                                    Losses
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -336,104 +331,20 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
         }
     };
 
-    const calculateWinDrawLoss = () => {
-        if (!stats) return { wins: 0, draws: 0, losses: 0 };
+    const calculateTotalGames = () => {
+        if (!stats?.performanceRating?.cohortRatings) return 0;
 
-        const winRatio = stats.performanceRating.winRatio || 0;
-        const drawRatio = stats.performanceRating.drawRatio || 0;
-        const lossRatio = stats.performanceRating.lossRatio || 0;
-
-        const totalGames = Object.values(stats.performanceRating.cohortRatings || {}).reduce(
+        return Object.values(stats.performanceRating.cohortRatings).reduce(
             (sum, cohort) => sum + cohort.gamesCount,
             0,
         );
-
-        return {
-            wins: Math.round((winRatio / 100) * totalGames),
-            draws: Math.round((drawRatio / 100) * totalGames),
-            losses: Math.round((lossRatio / 100) * totalGames),
-        };
     };
 
     const renderCohortRatings = () => {
         if (!stats?.performanceRating?.cohortRatings) return null;
 
-        const cohortItems: JSX.Element[] = [];
         const entries = Object.entries(stats.performanceRating.cohortRatings);
-
-        entries.forEach(([cohortName, cohortData], index) => {
-            cohortItems.push(
-                <Zoom in timeout={300 + index * 100} key={cohortName}>
-                    <Card
-                        elevation={1}
-                        sx={{
-                            height: 140,
-                            flex: 1,
-                            borderRadius: 2,
-                            transition: 'all 0.2s ease',
-                            '&:hover': {
-                                transform: 'translateY(-4px)',
-                                elevation: 3,
-                            },
-                        }}
-                    >
-                        <CardContent
-                            sx={{
-                                height: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Stack direction='row' alignItems='center' spacing={3}>
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        width: 48,
-                                        height: 48,
-                                    }}
-                                >
-                                    <CohortIcon cohort={cohortName} />
-                                </Box>
-
-                                <Stack alignItems='center' spacing={0.5}>
-                                    <Typography variant='h6' fontWeight='bold' textAlign='center'>
-                                        {cohortName}
-                                    </Typography>
-                                    <Typography variant='caption' color='text.secondary'>
-                                        Cohort
-                                    </Typography>
-                                </Stack>
-
-                                <Stack alignItems='center' spacing={0.5}>
-                                    <Typography variant='h6' fontWeight='bold' color='primary.main'>
-                                        {cohortData.rating > 0
-                                            ? Math.round(cohortData.rating)
-                                            : 'N/A'}
-                                    </Typography>
-                                    <Typography variant='caption' color='text.secondary'>
-                                        Rating
-                                    </Typography>
-                                </Stack>
-
-                                <Stack alignItems='center' spacing={0.5}>
-                                    <Typography variant='h6' fontWeight='bold' color='info.main'>
-                                        {cohortData.gamesCount}
-                                    </Typography>
-                                    <Typography variant='caption' color='text.secondary'>
-                                        Games
-                                    </Typography>
-                                </Stack>
-                            </Stack>
-                        </CardContent>
-                    </Card>
-                </Zoom>,
-            );
-        });
-
-        if (cohortItems.length === 0) return null;
+        if (entries.length === 0) return null;
 
         return (
             <Stack spacing={2}>
@@ -443,14 +354,180 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                         <span>Cohort Performance Breakdown</span>
                     </Stack>
                 </Typography>
-                <Stack direction={{ xs: 'column', md: 'column' }} spacing={2}>
-                    {cohortItems}
-                </Stack>
+
+                <Fade in timeout={500}>
+                    <Card elevation={1} sx={{ borderRadius: 2 }}>
+                        <CardContent sx={{ p: 0 }}>
+                            {/* Header Row */}
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr 1fr',
+                                    gap: 2,
+                                    p: 2,
+                                }}
+                            >
+                                <Typography
+                                    variant='subtitle2'
+                                    fontWeight='bold'
+                                    color='text.secondary'
+                                >
+                                    Cohort
+                                </Typography>
+                                <Typography
+                                    variant='subtitle2'
+                                    fontWeight='bold'
+                                    color='text.secondary'
+                                    textAlign='center'
+                                >
+                                    Rating
+                                </Typography>
+                                <Typography
+                                    variant='subtitle2'
+                                    fontWeight='bold'
+                                    color='text.secondary'
+                                    textAlign='center'
+                                >
+                                    Average opponent rating
+                                </Typography>
+                                <Typography
+                                    variant='subtitle2'
+                                    fontWeight='bold'
+                                    color='text.secondary'
+                                    textAlign='center'
+                                >
+                                    Games
+                                </Typography>
+                                <Typography
+                                    variant='subtitle2'
+                                    fontWeight='bold'
+                                    color='text.secondary'
+                                    textAlign='center'
+                                >
+                                    Win%
+                                </Typography>
+                                <Typography
+                                    variant='subtitle2'
+                                    fontWeight='bold'
+                                    color='text.secondary'
+                                    textAlign='center'
+                                >
+                                    Draw%
+                                </Typography>
+                                <Typography
+                                    variant='subtitle2'
+                                    fontWeight='bold'
+                                    color='text.secondary'
+                                    textAlign='center'
+                                >
+                                    Loss%
+                                </Typography>
+                            </Box>
+
+                            {/* Data Rows */}
+                            {entries.map(([cohortName, cohortData], index) => (
+                                <Zoom in timeout={300 + index * 100} key={cohortName}>
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr 1fr',
+                                            gap: 2,
+                                            p: 2,
+                                            
+                                            
+                                            transition: 'background-color 0.2s ease',
+                                        }}
+                                    >
+                                        {/* Cohort Name with Icon */}
+                                        <Stack direction='row' alignItems='center' spacing={1.5}>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    width: 32,
+                                                    height: 32,
+                                                }}
+                                            >
+                                                <CohortIcon cohort={cohortName} />
+                                            </Box>
+                                            <Typography variant='body2' fontWeight='600'>
+                                                {cohortName}
+                                            </Typography>
+                                        </Stack>
+
+                                        {/* Rating */}
+                                        <Typography
+                                            variant='body2'
+                                            fontWeight='bold'
+                                            color='primary.main'
+                                            textAlign='center'
+                                        >
+                                            {cohortData.rating > 0
+                                                ? Math.round(cohortData.rating)
+                                                : 'N/A'}
+                                        </Typography>
+
+                                        {/* Average Opponent Rating */}
+                                        <Typography
+                                            variant='body2'
+                                            fontWeight='bold'
+                                            color='success.main'
+                                            textAlign='center'
+                                        >
+                                            {cohortData.avgOppRating > 0
+                                                ? Math.round(cohortData.avgOppRating)
+                                                : 'N/A'}
+                                        </Typography>
+
+                                        {/* Games Count */}
+                                        <Typography
+                                            variant='body2'
+                                            fontWeight='bold'
+                                            color='info.main'
+                                            textAlign='center'
+                                        >
+                                            {cohortData.gamesCount}
+                                        </Typography>
+
+                                        {/* Win Rate */}
+                                        <Typography
+                                            variant='body2'
+                                            fontWeight='bold'
+                                            color='success.main'
+                                            textAlign='center'
+                                        >
+                                            {cohortData.winRate.toFixed(1)}%
+                                        </Typography>
+
+                                        {/* Draw Rate */}
+                                        <Typography
+                                            variant='body2'
+                                            fontWeight='bold'
+                                            color='info.main'
+                                            textAlign='center'
+                                        >
+                                            {cohortData.drawRate.toFixed(1)}%
+                                        </Typography>
+
+                                        {/* Loss Rate */}
+                                        <Typography
+                                            variant='body2'
+                                            fontWeight='bold'
+                                            color='error.main'
+                                            textAlign='center'
+                                        >
+                                            {cohortData.lossRate.toFixed(1)}%
+                                        </Typography>
+                                    </Box>
+                                </Zoom>
+                            ))}
+                        </CardContent>
+                    </Card>
+                </Fade>
             </Stack>
         );
     };
-
-    const { wins, draws, losses } = calculateWinDrawLoss();
 
     return (
         <>
@@ -657,6 +734,14 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                                 icon={<PawnIcon />}
                                                 delay={2}
                                             />
+                                            <StatCard
+                                                title='Total Games'
+                                                value={calculateTotalGames()}
+                                                subtitle='Games analyzed'
+                                                color='info'
+                                                icon={<EmojiEvents />}
+                                                delay={3}
+                                            />
                                         </Stack>
                                     </Stack>
 
@@ -720,18 +805,124 @@ export const StatsButton: React.FC<StatsButtonProps> = ({
                                         </Stack>
                                     </Stack>
 
+                                    {/* Average Opposition Rating Cards */}
+                                    <Stack spacing={3}>
+                                        <Typography variant='h6' fontWeight='bold'>
+                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                <StarBorder color='primary' />
+                                                <span>Average Opposition Rating</span>
+                                            </Stack>
+                                        </Typography>
+                                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                                            <StatCard
+                                                title='Overall Average'
+                                                value={
+                                                    stats.performanceRating.avgOppRating > 0
+                                                        ? Math.round(
+                                                              stats.performanceRating.avgOppRating,
+                                                          )
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Opponent strength'
+                                                color='warning'
+                                                icon={<StarBorder />}
+                                                delay={0}
+                                            />
+                                            <StatCard
+                                                title='As White'
+                                                value={
+                                                    stats.performanceRating.avgOppWhiteRating > 0
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .avgOppWhiteRating,
+                                                          )
+                                                        : 'N/A'
+                                                }
+                                                subtitle='White opponents'
+                                                color='warning'
+                                                icon={<StarBorder />}
+                                                delay={1}
+                                            />
+                                            <StatCard
+                                                title='As Black'
+                                                value={
+                                                    stats.performanceRating.avgOppBlackRating > 0
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .avgOppBlackRating,
+                                                          )
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Black opponents'
+                                                color='warning'
+                                                icon={<StarBorder />}
+                                                delay={2}
+                                            />
+                                        </Stack>
+                                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                                            <StatCard
+                                                title='Overall Average'
+                                                value={
+                                                    stats.performanceRating.normalizedAvgOppRating >
+                                                    0
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .normalizedAvgOppRating,
+                                                          )
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Normalized opponent strength'
+                                                color='info'
+                                                icon={<StarBorder />}
+                                                delay={0}
+                                            />
+                                            <StatCard
+                                                title='As White'
+                                                value={
+                                                    stats.performanceRating
+                                                        .normalizedAvgWhiteOppRating > 0
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .normalizedAvgWhiteOppRating,
+                                                          )
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Normalized white opponents'
+                                                color='info'
+                                                icon={<StarBorder />}
+                                                delay={1}
+                                            />
+                                            <StatCard
+                                                title='As Black'
+                                                value={
+                                                    stats.performanceRating
+                                                        .normalizedAvgBlackOppRating > 0
+                                                        ? Math.round(
+                                                              stats.performanceRating
+                                                                  .normalizedAvgBlackOppRating,
+                                                          )
+                                                        : 'N/A'
+                                                }
+                                                subtitle='Normalized black opponents'
+                                                color='info'
+                                                icon={<StarBorder />}
+                                                delay={2}
+                                            />
+                                        </Stack>
+                                    </Stack>
+
                                     <Stack spacing={2}>
                                         {/* Win/Draw/Loss Visualization */}
                                         <Typography variant='h6' fontWeight='bold'>
                                             <Stack direction='row' alignItems='center' spacing={1}>
                                                 <Percent color='primary' />
-                                                <span>Result Percent</span>
+                                                <span>Result Distribution</span>
                                             </Stack>
                                         </Typography>
                                         <WinRatioBar
-                                            wins={wins}
-                                            draws={draws}
-                                            losses={losses}
+                                            winRate={stats.performanceRating.winRatio || 0}
+                                            drawRate={stats.performanceRating.drawRatio || 0}
+                                            lossRate={stats.performanceRating.lossRatio || 0}
                                             delay={1}
                                         />
                                     </Stack>

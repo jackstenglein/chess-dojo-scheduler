@@ -82,20 +82,6 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
     }
 };
 
-// export enum RatingSystem {
-//     Chesscom = 'CHESSCOM',
-//     Lichess = 'LICHESS',
-//     Fide = 'FIDE',
-//     Uscf = 'USCF',
-//     Ecf = 'ECF',
-//     Cfc = 'CFC',
-//     Dwz = 'DWZ',
-//     Acf = 'ACF',
-//     Knsb = 'KNSB',
-//     Custom = 'CUSTOM',
-//     Custom2 = 'CUSTOM_2',
-//     Custom3 = 'CUSTOM_3',
-// }
 
 function convertQueryParamToRatingSystem(query: string): RatingSystem {
     switch (query.toLowerCase()) {
@@ -263,12 +249,7 @@ const fideDpTable: Record<number, number> = {
   };
   
 
-// loop over all cohort keys and calculate rating for that key and return it
-// avg rating of that cohort is avg of opps ratings []
-// calculate score wins (winCount) + 0.5 (drawCount) + 0 (0) 
-// at least for the score we don't need the loss, but we might need the loss for loss rate for cohorts but we don't need that?
-// fideTable[key] where key = score / oppRating.length
-// oppCohortRating is avg of opp Rating[] + fideTable[score / oppRating.length]
+
 
 export function getPerformanceRating(
     playername: string,
@@ -304,7 +285,7 @@ export function getPerformanceRating(
             
             if(oppCohort){
                 if(!cohortRatings.has(oppCohort)){
-                    const ratios: number[] = [0, 0, 0]; //w/d/l
+                    const ratios: number[] = [0, 0, 0]; 
                     if(isWin){
                         ratios[0] = 1
                     }else if(isDraw){
@@ -388,22 +369,10 @@ export function getPerformanceRating(
     const totalWhiteAvg = calculateAverage(oppBlackAvgRating);
     const totalBlackAvg = calculateAverage(oppWhiteAvgRating);
     const totalCombinedAvg = calculateAverage(oppBlackAvgRating.concat(oppWhiteAvgRating));
-
-    console.log('Played White Against ', oppBlackAvgRating.join(","))
-    console.log('Played Black Against ', oppWhiteAvgRating.join(","))
-
     const totalScorePercent = parseFloat((((1) * wins + (0.5) * draws) / total).toFixed(2));
     const totalWhiteScorePercent = parseFloat((((1) * whiteWins + (0.5) * whiteDraws) / (whiteWins + whiteDraws + whiteLoss)).toFixed(2));
     const totalBlackScorePercent = parseFloat((((1) * blackWins +(0.5) * blackDraws) / (blackWins + blackDraws + blackLoss)).toFixed(2));
-
-    console.log('Total games:', total);
-    console.log('Wins:', wins, 'Draws:', draws, 'Losses:', losses);
-    console.log('White Wins:', whiteWins, 'White Draws:', whiteDraws, 'White Losses:', whiteLoss);
-    console.log('Black Wins:', blackWins, 'Black Draws:', blackDraws, 'Black Losses:', blackLoss);
-    console.log('Total Score Percent:', totalScorePercent);
-    console.log('Total White Score Percent:', totalWhiteScorePercent);
-    console.log('Total Black Score Percent:', totalBlackScorePercent);
-
+    
     const calculateRating = (avg: number, scorePercent: number) =>
         avg + fideDpTable[scorePercent];
 
@@ -416,6 +385,9 @@ export function getPerformanceRating(
     const winRatio = Math.round(parseFloat((wins / total).toFixed(2)) * 100);
     const drawRatio = Math.round(parseFloat((draws / total).toFixed(2)) * 100);
     const lossRatio = Math.round(parseFloat((losses / total).toFixed(2)) * 100);
+    const normalizedAvgOppRating = getNormalizedRating(totalCombinedAvg, ratingSystem);
+    const normalizedAvgWhiteOppRating = getNormalizedRating(totalWhiteAvg, ratingSystem);
+    const normalizedAvgBlackOppRating = getNormalizedRating(totalBlackAvg, ratingSystem);
 
     cohortRatings.forEach((metric) => {
         const avgOppRating = metric.oppRatings.length > 0
@@ -446,11 +418,11 @@ export function getPerformanceRating(
         normalizedBlackRating: normalizedBlackRating,
         winRatio: winRatio,
         avgOppRating: totalCombinedAvg,
-        normalizedAvgOppRating: getNormalizedRating(totalCombinedAvg, ratingSystem),
+        normalizedAvgOppRating: normalizedAvgOppRating,
         avgOppWhiteRating: totalWhiteAvg,
-        normalizedAvgWhiteOppRating: getNormalizedRating(totalWhiteAvg, ratingSystem),
+        normalizedAvgWhiteOppRating: normalizedAvgWhiteOppRating,
         avgOppBlackRating: totalBlackAvg,
-        normalizedAvgBlackOppRating: getNormalizedRating(totalBlackAvg, ratingSystem),
+        normalizedAvgBlackOppRating: normalizedAvgBlackOppRating,
         drawRatio: drawRatio,
         lossRatio: lossRatio,
         cohortRatings: cohortRatingsObject

@@ -119,7 +119,7 @@ export const mockDirectory: Directory = {
         white: "Davies, Nigel R",
         black: "Kavutskiy, Kostya",
         whiteElo: "2328",
-        blackElo: "2328",
+        blackElo: "2328", // change
         result: "0-1",
         unlisted: false
       }
@@ -258,17 +258,18 @@ function printPerformanceRatingMetric(metric: PerformanceRatingMetric): void {
   console.log("drawRatio:", metric.drawRatio);
   console.log("lossRatio:", metric.lossRatio);
   console.log("cohortRatings:");
-  // for (const [cohort, cohortMetric] of metric.cohortRatings.entries()) {
-  //   console.log(`  ${cohort}:`);
-  //   console.log(`    rating: ${cohortMetric.rating}`);
-  //   console.log(`    oppRatings: [${cohortMetric.oppRatings.join(", ")}]`);
-  //   console.log(`    gamesCount: ${cohortMetric.gamesCount}`);
-  //   console.log(`    ratios: [${cohortMetric.ratios.join(", ")}]`);
-  //   console.log(`    AvgOppRating: ${cohortMetric.avgOppRating}`)
-  //   console.log(`    winRate: ${cohortMetric.winRate}`);
-  //   console.log(`    drawRate: ${cohortMetric.drawRate}`);
-  //   console.log(`    lossRate: ${cohortMetric.lossRate}`);
-  // }
+  for (const key in metric.cohortRatings) {
+    const cohortMetric = metric.cohortRatings[key];
+    console.log(`  ${key}:`);
+    console.log(`    rating: ${cohortMetric.rating}`);
+    console.log(`    oppRatings: [${cohortMetric.oppRatings.join(", ")}]`);
+    console.log(`    gamesCount: ${cohortMetric.gamesCount}`);
+    console.log(`    ratios: [${cohortMetric.ratios.join(", ")}]`);
+    console.log(`    AvgOppRating: ${cohortMetric.avgOppRating}`)
+    console.log(`    winRate: ${cohortMetric.winRate}`);
+    console.log(`    drawRate: ${cohortMetric.drawRate}`);
+    console.log(`    lossRate: ${cohortMetric.lossRate}`);
+  }
 }
 
 function testPerformanceRatingKostya() {
