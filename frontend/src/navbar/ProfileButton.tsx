@@ -1,30 +1,24 @@
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import NightlightIcon from '@mui/icons-material/Nightlight';
 import Person2Icon from '@mui/icons-material/Person2';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SportsIcon from '@mui/icons-material/Sports';
 import {
     Button,
-    FormControlLabel,
     ListItemIcon,
     Menu,
     MenuItem,
     Stack,
-    Switch,
     Typography,
-    useColorScheme,
 } from '@mui/material';
 import { useState } from 'react';
-import { useApi } from '../api/Api';
 import { useAuth } from '../auth/Auth';
 import Avatar from '../profile/Avatar';
+import DarkModeToggle from './DarkModeToggle';
 
 const ProfileButton = () => {
     const auth = useAuth();
     const user = auth.user;
-    const { mode, setMode } = useColorScheme();
-    const api = useApi();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     if (!user) {
@@ -44,11 +38,6 @@ const ProfileButton = () => {
             func();
             handleClose();
         };
-    };
-
-    const toggleColorMode = () => {
-        setMode(mode === 'light' ? 'dark' : 'light');
-        void api.updateUser({ enableLightMode: mode === 'dark' });
     };
 
     return (
@@ -96,25 +85,7 @@ const ProfileButton = () => {
                     </MenuItem>
                 )}
 
-                <MenuItem>
-                    <ListItemIcon>
-                        <NightlightIcon />
-                    </ListItemIcon>
-
-                    <FormControlLabel
-                        value='start'
-                        control={
-                            <Switch
-                                color='primary'
-                                checked={mode === 'dark'}
-                                onChange={toggleColorMode}
-                            />
-                        }
-                        label='Dark Mode'
-                        labelPlacement='start'
-                        sx={{ ml: 0 }}
-                    />
-                </MenuItem>
+                <DarkModeToggle />
 
                 <MenuItem onClick={handleClick(auth.signout)}>
                     <ListItemIcon>
