@@ -164,6 +164,8 @@ export interface GameData {
     headers: Record<string, string>;
     /** The time class of the game. */
     timeClass: OnlineGameTimeClass;
+    /** The date/time the game ended, in ISO 8601. */
+    playedAt: string;
 }
 
 export interface PerformanceData {

@@ -19,7 +19,6 @@ import { PaginationResult } from '@/hooks/usePagination';
 import LoadingPage from '@/loading/LoadingPage';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
-import { FEN } from '@jackstenglein/chess';
 import { Help, QuestionMark } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import {
@@ -466,7 +465,7 @@ function Database({
                 <PerformanceSummary data={(position as LichessExplorerPosition).performanceData} />
             )}
 
-            {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
+            {type !== ExplorerDatabaseType.Lichess && (
                 <>
                     {pagination && (
                         <GameTable
