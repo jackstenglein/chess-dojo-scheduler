@@ -6,7 +6,6 @@ import GameTable from '@/components/games/list/GameTable';
 import { ListItemContextMenu } from '@/components/games/list/ListItemContextMenu';
 import { GameInfo } from '@/database/game';
 import { RequirementCategory } from '@/database/requirement';
-import { User } from '@/database/user';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { usePagination } from '@/hooks/usePagination';
 import { useRouter } from '@/hooks/useRouter';
@@ -16,11 +15,7 @@ import { Button, Stack } from '@mui/material';
 import { GridPaginationModel, GridRowParams, GridRowSelectionModel } from '@mui/x-data-grid-pro';
 import { useCallback, useState } from 'react';
 
-interface GamesTabProps {
-    user: User;
-}
-
-const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
+export function GamesTab({ username }: { username: string }) {
     const api = useApi();
     const { user: currentUser } = useAuth();
     const isFreeTier = useFreeTier();
@@ -32,8 +27,8 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     const router = useRouter();
 
     const searchByOwner = useCallback(
-        (startKey: string) => api.listGamesByOwner(user.username, startKey),
-        [api, user.username],
+        (startKey: string) => api.listGamesByOwner(username, startKey),
+        [api, username],
     );
 
     const pagination = usePagination(searchByOwner, 0, 10);
@@ -65,7 +60,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
     return (
         <Stack spacing={2} alignItems='start'>
             <RequestSnackbar request={request} />
-            {currentUser?.username === user.username && (
+            {currentUser?.username === username && (
                 <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
                     <Button
                         variant='contained'
@@ -86,7 +81,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 </Stack>
             )}
 
-            {isFreeTier && currentUser?.username !== user.username && (
+            {isFreeTier && currentUser?.username !== username && (
                 <Stack alignItems='center' mb={5}>
                     <UpsellAlert>
                         To avoid unfair preparation against Dojo members, free-tier users cannot
@@ -96,7 +91,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                 </Stack>
             )}
 
-            {(!isFreeTier || currentUser?.username === user.username) && (
+            {(!isFreeTier || currentUser?.username === username) && (
                 <GameTable
                     namespace='games-profile-tab'
                     pagination={pagination}
@@ -107,9 +102,9 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
                         publishedAt: false,
                         cohort: false,
                         owner: false,
-                        unlisted: currentUser?.username === user.username,
+                        unlisted: currentUser?.username === username,
                     }}
-                    checkboxSelection={currentUser?.username === user.username}
+                    checkboxSelection={currentUser?.username === username}
                     checkboxSelectionVisibleOnly
                     onRowSelectionModelChange={setRowSelectionModel}
                     rowSelectionModel={rowSelectionModel}
@@ -127,6 +122,4 @@ const GamesTab: React.FC<GamesTabProps> = ({ user }) => {
             />
         </Stack>
     );
-};
-
-export default GamesTab;
+}

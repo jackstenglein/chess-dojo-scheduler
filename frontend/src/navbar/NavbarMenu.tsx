@@ -13,7 +13,9 @@ import { DiscordIcon, TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
 import { TournamentBracketIcon } from '@/style/TournamentIcon';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 import {
+    AccountCircle,
     AutoStories,
+    Biotech,
     BorderColor,
     CalendarToday,
     Checklist,
@@ -39,6 +41,7 @@ import {
     SignalCellularAlt,
     SmartToy,
     Speed,
+    Storage,
     Storefront,
     EmojiEvents as Tournaments,
 } from '@mui/icons-material';
@@ -167,7 +170,24 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
         {
             name: 'Games',
             icon: <PawnIcon />,
-            href: '/games',
+            onClick: () => toggleExpansion('Games'),
+            children: [
+                {
+                    name: 'Analysis Board',
+                    icon: <Biotech />,
+                    href: '/games/import',
+                },
+                {
+                    name: 'Full Database',
+                    icon: <Storage />,
+                    href: '/games',
+                },
+                {
+                    name: 'My Games',
+                    icon: <AccountCircle />,
+                    href: '/profile?view=games',
+                },
+            ],
         },
         {
             name: 'Calendar',
@@ -452,12 +472,12 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
 
-    const showAll = useMediaQuery('(min-width:1560px)');
-    const hide2 = useMediaQuery('(min-width:1416px)');
-    const hide3 = useMediaQuery('(min-width:1315px)');
-    const hide4 = useMediaQuery('(min-width:1196px)');
-    const hide5 = useMediaQuery('(min-width:1066px)');
-    const hide6 = useMediaQuery('(min-width:963px)');
+    const showAll = useMediaQuery('(min-width:1615px)');
+    const hide2 = useMediaQuery('(min-width:1488px)');
+    const hide3 = useMediaQuery('(min-width:1370px)');
+    const hide4 = useMediaQuery('(min-width:1256px)');
+    const hide5 = useMediaQuery('(min-width:1120px)');
+    const hide6 = useMediaQuery('(min-width:979px)');
     const hide7 = useMediaQuery('(min-width:772px)');
 
     const showHelp = useMediaQuery('(min-width:624px)');

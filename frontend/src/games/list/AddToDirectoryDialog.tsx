@@ -2,11 +2,11 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRequiredAuth } from '@/auth/Auth';
+import { DirectoryBreadcrumbs } from '@/components/profile/directories/DirectoryBreadcrumbs';
+import { useDirectory, useDirectoryCache } from '@/components/profile/directories/DirectoryCache';
+import { MoveListItem } from '@/components/profile/directories/MoveDialog';
 import { GameInfo } from '@/database/game';
 import LoadingPage from '@/loading/LoadingPage';
-import { DirectoryBreadcrumbs } from '@/profile/directories/DirectoryBreadcrumbs';
-import { useDirectory, useDirectoryCache } from '@/profile/directories/DirectoryCache';
-import { MoveListItem } from '@/profile/directories/MoveDialog';
 import { HOME_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { LoadingButton } from '@mui/lab';
 import {

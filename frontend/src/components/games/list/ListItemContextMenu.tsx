@@ -1,6 +1,6 @@
 import { useFreeTier } from '@/auth/Auth';
+import { DirectoryCacheProvider } from '@/components/profile/directories/DirectoryCache';
 import { GameInfo, GameKey } from '@/database/game';
-import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { CreateNewFolder, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     Alert,

@@ -29,7 +29,7 @@ import {
     gameTable,
     UpdateItemBuilder,
 } from './database';
-import { fetchDirectory } from './get';
+import { addAllUploads, fetchDirectory } from './get';
 import { getItemIndexMap } from './moveItems';
 
 /**
@@ -65,6 +65,7 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
             undefined,
             accessRole === DirectoryAccessRole.Editor ? userInfo.username : undefined,
         );
+        addAllUploads(directory);
         return success({ directory });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -112,10 +113,7 @@ export async function removeDirectoryItems(
             builder.remove(['itemIds', itemIndices[id]]);
             conditions.push(equal(['itemIds', itemIndices[id]], id));
 
-            if (
-                !allowSubdirectory &&
-                directory.items[id].type === DirectoryItemTypes.DIRECTORY
-            ) {
+            if (!allowSubdirectory && directory.items[id].type === DirectoryItemTypes.DIRECTORY) {
                 throw new ApiError({
                     statusCode: 400,
                     publicMessage: `Invalid request: item ${id} is a directory and must be removed through the delete API.`,
@@ -167,11 +165,7 @@ export async function removeDirectoryItems(
  * @param id The id of the directory.
  * @param items The items to remove the directory from.
  */
-export async function removeDirectoryFromGames(
-    owner: string,
-    id: string,
-    items: string[],
-) {
+export async function removeDirectoryFromGames(owner: string, id: string, items: string[]) {
     const gameItems = items.filter((item) => item.includes('/'));
 
     for (let i = 0; i < gameItems.length; i += 25) {

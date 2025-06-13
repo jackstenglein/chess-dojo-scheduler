@@ -32,7 +32,7 @@ export default function DojoDigestVol12() {
                 <Typography mt={2}>
                     <strong>Dojo File System</strong> - The Dojo has a new file system to help you
                     organize and manage your games! A new{' '}
-                    <Link href='https://www.chessdojo.club/profile?view=files&utm_source=newsletter&utm_medium=email&utm_campaign=digest12'>
+                    <Link href='https://www.chessdojo.club/profile?view=games&utm_source=newsletter&utm_medium=email&utm_campaign=digest12'>
                         files
                     </Link>{' '}
                     tab has been added to your profile. You'll start out with an empty Home folder,

@@ -4,6 +4,7 @@ import { RenderGameResultStack, RenderPlayers } from '@/components/games/list/Ga
 import { Link } from '@/components/navigation/Link';
 import { MastersCohort, MastersOwnerDisplayName } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
+import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import {
     DirectoryItem,
@@ -14,7 +15,6 @@ import {
 import { Folder, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Stack, Tooltip, Typography } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro';
-import Avatar from '../Avatar';
 
 export const publicColumns: GridColDef<DirectoryItem>[] = [
     {

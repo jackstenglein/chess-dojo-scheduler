@@ -1,9 +1,6 @@
 'use strict';
 
-import {
-    ConditionalCheckFailedException,
-    PutItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import { ConditionalCheckFailedException, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     compareRoles,
@@ -19,26 +16,16 @@ import {
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { NIL as uuidNil } from 'uuid';
 import { getAccessRole } from './access';
-import {
-    ApiError,
-    errToApiGatewayProxyResultV2,
-    getUserInfo,
-    parseEvent,
-    success,
-} from './api';
-import {
-    attributeNotExists,
-    directoryTable,
-    dynamo,
-    UpdateItemBuilder,
-} from './database';
-import { fetchDirectory } from './get';
+import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, parseEvent, success } from './api';
+import { attributeNotExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
+import { addAllUploads, fetchDirectory } from './get';
 
 export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
         const request = parseEvent(event, CreateDirectorySchemaV2);
         const result = await handleCreateDirectory(event, request);
+        addAllUploads(result.parent);
         return success(result);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -82,8 +69,7 @@ async function handleCreateDirectory(
     if (
         Object.values(parent?.items || {}).some(
             (item) =>
-                item.type === DirectoryItemTypes.DIRECTORY &&
-                item.metadata.name === request.name,
+                item.type === DirectoryItemTypes.DIRECTORY && item.metadata.name === request.name,
         )
     ) {
         throw new ApiError({

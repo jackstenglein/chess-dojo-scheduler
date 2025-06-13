@@ -7,10 +7,12 @@ import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import {
+    ALL_MY_UPLOADS_DIRECTORY_ID,
     compareRoles,
     DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
+    isManagedDirectory,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Stack, SxProps } from '@mui/material';
@@ -30,6 +32,7 @@ import {
 import React, { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { AddButton } from './AddButton';
+import { AllUploadsSection } from './AllUploadsSection';
 import { BulkItemEditor } from './BulkItemEditor';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
@@ -59,7 +62,26 @@ interface DirectoriesSectionProps {
     sx?: SxProps;
 }
 
-export const DirectoriesSection = ({
+export const DirectoriesSection = (props: DirectoriesSectionProps) => {
+    const { searchParams } = useNextSearchParams({ directory: 'home' });
+    const directoryId = searchParams.get('directory') || 'home';
+    const directoryOwner = searchParams.get('directoryOwner') || props.defaultDirectoryOwner;
+
+    if (directoryId === ALL_MY_UPLOADS_DIRECTORY_ID) {
+        return (
+            <AllUploadsSection
+                namespace={props.namespace}
+                username={directoryOwner}
+                enableNavigationMenu={props.enableNavigationMenu}
+                defaultNavigationMenuOpen={props.defaultNavigationMenuOpen}
+            />
+        );
+    }
+
+    return <DirectorySection {...props} />;
+};
+
+const DirectorySection = ({
     namespace,
     defaultDirectoryOwner,
     enableNavigationMenu,
@@ -191,6 +213,7 @@ export const DirectoriesSection = ({
                 enabled={enableNavigationMenu}
                 defaultValue={defaultNavigationMenuOpen}
             />
+
             <Stack spacing={2} alignItems='start' flexGrow={1}>
                 <DirectoryBreadcrumbs
                     owner={directoryOwner}
@@ -244,6 +267,7 @@ export const DirectoriesSection = ({
                     checkboxSelectionVisibleOnly
                     onRowSelectionModelChange={setRowSelectionModel}
                     rowSelectionModel={rowSelectionModel}
+                    isRowSelectable={isDirectorySelectable}
                     rowReordering={isAdmin}
                     onRowOrderChange={handleRowOrderChange}
                     pagination
@@ -263,6 +287,13 @@ export const DirectoriesSection = ({
         </Stack>
     );
 };
+
+/**
+ * Returns true if the directory is selectable in the data grid.
+ */
+function isDirectorySelectable(params: GridRowParams<DirectoryItem>) {
+    return !isManagedDirectory(params.row.id);
+}
 
 function CustomGridToolbar() {
     return (

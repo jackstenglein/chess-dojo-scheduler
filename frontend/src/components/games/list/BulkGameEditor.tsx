@@ -1,6 +1,6 @@
 import { useFreeTier } from '@/auth/Auth';
+import { DirectoryCacheProvider } from '@/components/profile/directories/DirectoryCache';
 import { GameInfo, GameKey } from '@/database/game';
-import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
 import { Close, CreateNewFolder, Download, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Alert, IconButton, Paper, Snackbar, Stack, Tooltip, Typography } from '@mui/material';
 import { Dispatch, SetStateAction, useState } from 'react';

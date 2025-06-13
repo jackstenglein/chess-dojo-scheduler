@@ -31,6 +31,7 @@ import {
     gameTable,
     UpdateItemBuilder,
 } from './database';
+import { addAllUploads } from './get';
 
 const ADD_ITEMS_BATCH_SIZE = 200;
 const MAX_BATCHES = 5;
@@ -74,6 +75,7 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         }
 
         const directory = await addDirectoryItems(request.owner, request.id, items);
+        addAllUploads(directory);
         return success({ directory });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -86,10 +88,7 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
  * @param caller The username of the person adding the items.
  * @returns An array of the converted DirectoryItems.
  */
-function getDirectoryItems(
-    request: AddDirectoryItemsRequestV2,
-    caller: string,
-): DirectoryItem[] {
+function getDirectoryItems(request: AddDirectoryItemsRequestV2, caller: string): DirectoryItem[] {
     const result: DirectoryItem[] = [];
 
     for (const game of request.games) {
@@ -190,11 +189,7 @@ export async function addDirectoryItems(
  * @param id The id of the directory.
  * @param items The items to add the directory to. Only items representing games are affected.
  */
-export async function addDirectoryToGames(
-    owner: string,
-    id: string,
-    items: DirectoryItem[],
-) {
+export async function addDirectoryToGames(owner: string, id: string, items: DirectoryItem[]) {
     const gameItems = items.filter((item) => item.type !== DirectoryItemTypes.DIRECTORY);
     console.log('Game items: %j', gameItems);
 

@@ -1,6 +1,6 @@
 import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { useDirectory } from '@/profile/directories/DirectoryCache';
+import { useDirectory } from '@/components/profile/directories/DirectoryCache';
 import { HOME_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { FolderOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';

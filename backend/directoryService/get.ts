@@ -3,6 +3,7 @@
 import { GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import {
+    ALL_MY_UPLOADS_DIRECTORY_ID,
     compareRoles,
     Directory,
     DirectoryAccessRole,
@@ -70,6 +71,7 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
             await filterPrivateItems(directory, userInfo.username);
         }
 
+        addAllUploads(directory);
         return success({ directory, accessRole });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -82,10 +84,7 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
  * @param id The id of the directory.
  * @returns The given directory, or undefined if it does not exist.
  */
-export async function fetchDirectory(
-    owner: string,
-    id: string,
-): Promise<Directory | undefined> {
+export async function fetchDirectory(owner: string, id: string): Promise<Directory | undefined> {
     const getItemOutput = await dynamo.send(
         new GetItemCommand({
             Key: {
@@ -134,4 +133,31 @@ async function filterPrivateItems(directory: Directory, viewer: string) {
         i++;
     }
     directory.itemIds.length = j;
+}
+
+/**
+ * Adds a fake subdirectory named "All Uploads" which links to the user's
+ * All My Uploads page. The subdirectory is added to the front of the items
+ * order, unless the user has manually reordered it.
+ * @param directory The directory to add the subdirectory to. If not the home directory,
+ * this function is a no-op.
+ */
+export function addAllUploads(directory?: Directory) {
+    if (directory?.id !== HOME_DIRECTORY_ID) {
+        return;
+    }
+
+    directory.items[ALL_MY_UPLOADS_DIRECTORY_ID] = {
+        id: ALL_MY_UPLOADS_DIRECTORY_ID,
+        type: DirectoryItemTypes.DIRECTORY,
+        metadata: {
+            name: 'All Uploads',
+            visibility: DirectoryVisibility.PUBLIC,
+            createdAt: directory.createdAt,
+            updatedAt: directory.updatedAt,
+        },
+    };
+    if (!directory.itemIds.includes(ALL_MY_UPLOADS_DIRECTORY_ID)) {
+        directory.itemIds.unshift(ALL_MY_UPLOADS_DIRECTORY_ID);
+    }
 }
