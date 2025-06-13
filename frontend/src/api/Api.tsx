@@ -18,6 +18,7 @@ import {
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
+import { PlayerExplorerRequest } from '@jackstenglein/chess-dojo-common/src/explorer/playerExplorer';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import {
     RoundRobinRegisterRequest,
@@ -84,6 +85,7 @@ import { ExamApiContextType, getExam, getExamAnswer, listExams, putExamAttempt }
 import {
     ExplorerApiContextType,
     followPosition,
+    getPlayerPosition,
     getPosition,
     listFollowedPositions,
 } from './explorerApi';
@@ -399,6 +401,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             getScoreboard: (type: string) => getScoreboard(idToken, type),
 
             getPosition: (fen: string) => getPosition(idToken, fen),
+            getPlayerPosition: (request: PlayerExplorerRequest) =>
+                getPlayerPosition(idToken, request),
             followPosition: (request: FollowPositionRequest) => followPosition(idToken, request),
             listFollowedPositions: () => listFollowedPositions(idToken),
 

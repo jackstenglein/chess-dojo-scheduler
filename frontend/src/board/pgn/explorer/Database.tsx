@@ -16,7 +16,6 @@ import {
 import { GameInfo } from '@/database/game';
 import { dojoCohorts, getCohortRange } from '@/database/user';
 import { PaginationResult } from '@/hooks/usePagination';
-import LoadingPage from '@/loading/LoadingPage';
 import Icon from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
 import { Help, QuestionMark } from '@mui/icons-material';
@@ -79,7 +78,7 @@ interface DatabaseProps {
     type: ExplorerDatabaseType;
     fen: string;
     position: ExplorerPosition | LichessExplorerPosition | null | undefined;
-    isLoading: boolean;
+    isLoading?: boolean;
     minCohort?: string;
     maxCohort?: string;
     setMinCohort?: (v: string) => void;
@@ -322,11 +321,7 @@ function Database({
         );
     }
 
-    if (!position && isLoading) {
-        return <LoadingPage />;
-    }
-
-    if (!position) {
+    if (!position && !isLoading) {
         return (
             <Stack width={1} alignItems='center' mt={2}>
                 <Typography>No games found in this position</Typography>
@@ -458,11 +453,12 @@ function Database({
                     sx={{
                         fontSize: '0.8rem',
                     }}
+                    loading={isLoading}
                 />
             </Grid>
 
             {type === ExplorerDatabaseType.Player && (
-                <PerformanceSummary data={(position as LichessExplorerPosition).performanceData} />
+                <PerformanceSummary data={(position as LichessExplorerPosition)?.performanceData} />
             )}
 
             {type !== ExplorerDatabaseType.Lichess && (

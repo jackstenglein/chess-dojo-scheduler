@@ -283,7 +283,6 @@ export function Filters({ filters }: { filters: EditableGameFilters }) {
                 >
                     <FormControlLabel control={<Radio />} label='White' value={Color.White} />
                     <FormControlLabel control={<Radio />} label='Black' value={Color.Black} />
-                    <FormControlLabel control={<Radio />} label='Both' value={Color.Both} />
                 </RadioGroup>
             </FormControl>
 

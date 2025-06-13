@@ -19,7 +19,6 @@ export const DEFAULT_PLAYER_SOURCE: PlayerSource = {
 export enum Color {
     White = 'white',
     Black = 'black',
-    Both = 'both',
 }
 
 export interface GameFilters {

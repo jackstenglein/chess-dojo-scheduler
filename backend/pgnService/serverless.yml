@@ -116,6 +116,33 @@ functions:
             - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/prod-masters-explorer
           - !GetAtt ExplorerTable.Arn
 
+  playerExplorer:
+    handler: explorer/playerExplorer.handler
+    events:
+      - httpApi:
+          path: /explorer/player/position
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      DB_CLUSTER_ARN: arn:aws:rds:us-east-1:717403174598:cluster:test-player-explorer
+      DB_SECRET_ARN: arn:aws:secretsmanager:us-east-1:717403174598:secret:rds!cluster-a5bcf0c8-0d1b-4df2-808f-e259107ed5f2-etFYC3
+      DB_NAME: player_explorer
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - rds-data:ExecuteStatement
+          - rds-data:BatchExecuteStatement
+          - rds-data:BeginTransaction
+          - rds-data:RollbackTransaction
+          - rds-data:CommitTransaction
+        Resource: arn:aws:rds:us-east-1:717403174598:cluster:test-player-explorer
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource: arn:aws:secretsmanager:us-east-1:717403174598:secret:rds!cluster-a5bcf0c8-0d1b-4df2-808f-e259107ed5f2-etFYC3
+
   listGamesByPosition:
     handler: explorer/listGames.handler
     events:
@@ -303,26 +330,6 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - ${param:GamesTableArn}
-
-  playerExplorer:
-    handler: explorer/playerExplorer.handler
-    environment:
-      DB_CLUSTER_ARN: arn:aws:rds:us-east-1:717403174598:cluster:test-player-explorer
-      DB_SECRET_ARN: arn:aws:secretsmanager:us-east-1:717403174598:secret:rds!cluster-a5bcf0c8-0d1b-4df2-808f-e259107ed5f2-etFYC3
-      DB_NAME: player_explorer
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - rds-data:ExecuteStatement
-          - rds-data:BatchExecuteStatement
-          - rds-data:BeginTransaction
-          - rds-data:RollbackTransaction
-          - rds-data:CommitTransaction
-        Resource: arn:aws:rds:us-east-1:717403174598:cluster:test-player-explorer
-      - Effect: Allow
-        Action:
-          - secretsmanager:GetSecretValue
-        Resource: arn:aws:secretsmanager:us-east-1:717403174598:secret:rds!cluster-a5bcf0c8-0d1b-4df2-808f-e259107ed5f2-etFYC3
 
 resources:
   Conditions:

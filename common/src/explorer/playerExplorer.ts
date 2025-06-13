@@ -31,8 +31,8 @@ export type PlayerExplorerRequest = z.infer<typeof PlayerExplorerRequestSchema>;
 /** Verifies the format of a player explorer response. */
 export const PlayerExplorerResponseSchema = z
     .object({
-        /** The SAN of the move. */
-        san: z.string(),
+        /** The SAN of the move. Optional for the last position of a game. */
+        san: z.string().optional(),
         /** The sum of the normalized ELO of the players with white. */
         totalWhiteElo: z.number().int(),
         /** The sum of the normalized ELO of the players with black. */

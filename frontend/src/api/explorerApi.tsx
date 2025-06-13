@@ -1,4 +1,8 @@
 import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
+import {
+    PlayerExplorerRequest,
+    PlayerExplorerResponse,
+} from '@jackstenglein/chess-dojo-common/src/explorer/playerExplorer';
 import { LichessTablebasePosition } from '@jackstenglein/chess-dojo-common/src/explorer/types';
 import axios, { AxiosResponse } from 'axios';
 import { getConfig } from '../config';
@@ -20,6 +24,10 @@ export interface ExplorerApiContextType {
      * @returns The ExplorerPosition, if it exists.
      */
     getPosition: (fen: string) => Promise<AxiosResponse<GetExplorerPositionResult>>;
+
+    getPlayerPosition: (
+        request: PlayerExplorerRequest,
+    ) => Promise<AxiosResponse<PlayerExplorerResponse>>;
 
     /**
      * Creates, updates or deletes an ExplorerPositionFollower with the provided parameters.
@@ -67,6 +75,12 @@ export function getPosition(idToken: string, fen: string) {
     return axios.get<GetExplorerPositionResult>(`${BASE_URL}/explorer/position`, {
         params: { fen },
         headers: { Authorization: 'Bearer ' + idToken },
+    });
+}
+
+export function getPlayerPosition(idToken: string, request: PlayerExplorerRequest) {
+    return axios.put<PlayerExplorerResponse>(`${BASE_URL}/explorer/player/position`, request, {
+        headers: { Authorization: `Bearer ${idToken}` },
     });
 }
 

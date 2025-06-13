@@ -7,8 +7,6 @@ import {
     AccordionDetails,
     AccordionSummary,
     Box,
-    Button,
-    CircularProgress,
     Stack,
     Typography,
 } from '@mui/material';
@@ -18,27 +16,28 @@ import { ExplorerDatabaseType } from '../Explorer';
 import { Filters } from './Filters';
 import { usePlayerOpeningTree } from './PlayerOpeningTree';
 import { PlayerSources } from './PlayerSources';
-import { usePlayerGames } from './usePlayerGames';
+import { usePlayerPosition } from './usePlayerPosition';
 
 function onClickGame(game: GameInfo) {
     window.open(game.headers.Site, '_blank');
 }
 
 export function PlayerTab({ fen }: { fen: string }) {
-    const {
-        sources,
-        setSources,
-        isLoading,
-        onLoad: parentOnLoad,
-        onClear,
-        indexedCount,
-        openingTree,
-        filters,
-        readonlyFilters,
-    } = usePlayerOpeningTree();
+    const { sources, setSources, filters, readonlyFilters, positionCache, setPositionCache } =
+        usePlayerOpeningTree();
     const isFreeTier = useFreeTier();
-    const pagination = usePlayerGames(fen, openingTree, readonlyFilters);
+    // const pagination = usePlayerGames(fen, openingTree, readonlyFilters);
     const [filtersOpen, setFiltersOpen] = useState(false);
+    const positionCacheItem = usePlayerPosition({
+        sources,
+        filters: readonlyFilters,
+        fen,
+        cache: positionCache,
+        setCache: setPositionCache,
+    });
+
+    // console.log('positionCache: ', positionCache);
+    // console.log('positionCacheItem: ', positionCacheItem);
 
     if (isFreeTier) {
         return (
@@ -48,15 +47,10 @@ export function PlayerTab({ fen }: { fen: string }) {
         );
     }
 
-    const onLoad = () => {
-        setFiltersOpen(false);
-        void parentOnLoad();
-    };
-
     return (
         <Stack>
             <Accordion
-                expanded={filtersOpen || (!isLoading && !openingTree.current)}
+                expanded={filtersOpen}
                 onChange={(_, expanded) => setFiltersOpen(expanded)}
                 disableGutters
                 elevation={0}
@@ -67,7 +61,7 @@ export function PlayerTab({ fen }: { fen: string }) {
                         flexDirection: 'row-reverse',
                         gap: 1,
                         p: 0,
-                        display: !isLoading && !openingTree.current ? 'none' : undefined,
+                        // display: !isLoading && !openingTree.current ? 'none' : undefined,
                     }}
                     expandIcon={<ExpandMore />}
                 >
@@ -77,38 +71,27 @@ export function PlayerTab({ fen }: { fen: string }) {
                     <PlayerSources
                         sources={sources}
                         setSources={setSources}
-                        locked={isLoading || !!openingTree.current}
-                        onClear={onClear}
+                        locked={false}
+                        onClear={() => null}
                     />
                     <Filters filters={filters} />
                 </AccordionDetails>
             </Accordion>
 
-            {isLoading && (
-                <Stack direction='row' spacing={1} my={1}>
-                    <Typography>
-                        {indexedCount} game{indexedCount === 1 ? '' : 's'} loaded...
-                    </Typography>
-                    <CircularProgress size={20} />
-                </Stack>
-            )}
+            <Database
+                type={ExplorerDatabaseType.Player}
+                fen={fen}
+                position={positionCacheItem?.position}
+                isLoading={positionCacheItem?.loading ?? false}
+                // pagination={pagination}
+                onClickGame={onClickGame}
+            />
 
-            {openingTree.current && (
-                <Database
-                    type={ExplorerDatabaseType.Player}
-                    fen={fen}
-                    position={openingTree.current?.getPosition(fen, readonlyFilters)}
-                    isLoading={false}
-                    pagination={pagination}
-                    onClickGame={onClickGame}
-                />
-            )}
-
-            {!isLoading && !openingTree.current && (
+            {/* {!isLoading && !openingTree.current && (
                 <Button variant='contained' onClick={onLoad} sx={{ mt: 3 }} color='dojoOrange'>
                     Load Games
                 </Button>
-            )}
+            )} */}
         </Stack>
     );
 }
