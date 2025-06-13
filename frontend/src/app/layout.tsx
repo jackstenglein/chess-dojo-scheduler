@@ -6,7 +6,7 @@ import { defaultMetadata } from './(scoreboard)/defaultMetadata';
 
 export const metadata = defaultMetadata;
 
-ReactGA.initialize('AW-11305370226');
+ReactGA.initialize('G-9VPNTDELD2');
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
