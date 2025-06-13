@@ -64,6 +64,7 @@ import {
 import React, { useState } from 'react';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, { ExtraSmallMenuUnauthenticated } from './UnauthenticatedMenu';
+import DarkModeToggle from './DarkModeToggle';
 
 const config = getConfig();
 
@@ -719,6 +720,8 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
                     </ListItemIcon>
                     <Typography textAlign='center'>Help</Typography>
                 </MenuItem>
+
+                <DarkModeToggle />
 
                 <MenuItem
                     onClick={() => {
