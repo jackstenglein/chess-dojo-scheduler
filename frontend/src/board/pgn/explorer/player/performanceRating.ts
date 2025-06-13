@@ -3,7 +3,7 @@
  * However, this table uses whole numbers from 0 to 100 instead of fractional numbers.
  */
 export const fideDpTable: Record<number, number> = {
-    100: 800,
+    100: 400,
     99: 677,
     98: 589,
     97: 538,
@@ -103,5 +103,5 @@ export const fideDpTable: Record<number, number> = {
     3: -538,
     2: -589,
     1: -677,
-    0: -800,
+    0: -400,
 };
