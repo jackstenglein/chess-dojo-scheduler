@@ -1,4 +1,3 @@
-import { sendGTMEvent } from '@next/third-parties/google';
 import ReactGA from 'react-ga4';
 import { User } from '../database/user';
 
@@ -57,7 +56,7 @@ export enum EventType {
 }
 
 export function trackEvent(type: EventType, params?: unknown) {
-    sendGTMEvent({ event: type, eventParams: params });
+    ReactGA.event(type, params);
 }
 
 export function setUserProperties(user: User) {
