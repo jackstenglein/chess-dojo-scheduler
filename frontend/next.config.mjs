@@ -78,6 +78,7 @@ const pagesWithVideos = [
     '/blog/olympiad-2024',
     '/blog/new-ratings',
     '/blog/dojo-talks/:path*',
+    '/material/bots',
 
     // K+P Endings
     '/courses/ENDGAME/34241b4d-3a8f-4d5f-9a15-b26cf718a0d0/1/1',
