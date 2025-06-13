@@ -3,14 +3,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Person2Icon from '@mui/icons-material/Person2';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SportsIcon from '@mui/icons-material/Sports';
-import {
-    Button,
-    ListItemIcon,
-    Menu,
-    MenuItem,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Button, ListItemIcon, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useAuth } from '../auth/Auth';
 import Avatar from '../profile/Avatar';

@@ -62,9 +62,9 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import React, { useState } from 'react';
+import DarkModeToggle from './DarkModeToggle';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, { ExtraSmallMenuUnauthenticated } from './UnauthenticatedMenu';
-import DarkModeToggle from './DarkModeToggle';
 
 const config = getConfig();
 

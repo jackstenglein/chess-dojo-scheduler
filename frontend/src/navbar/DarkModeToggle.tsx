@@ -1,14 +1,7 @@
 import NightlightIcon from '@mui/icons-material/Nightlight';
-import {
-    FormControlLabel,
-    ListItemIcon,
-    MenuItem,
-    Switch,
-    useColorScheme,
-} from '@mui/material';
+import { FormControlLabel, ListItemIcon, MenuItem, Switch, useColorScheme } from '@mui/material';
 import { useApi } from '../api/Api';
 import { useAuth } from '../auth/Auth';
-
 
 const DarkModeToggle = () => {
     const auth = useAuth();
