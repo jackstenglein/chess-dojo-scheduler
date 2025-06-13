@@ -89,7 +89,7 @@ export function AllUploadsSection({
                 defaultValue={defaultNavigationMenuOpen}
             />
 
-            <Stack spacing={2} alignItems='start' flexGrow={1}>
+            <Stack spacing={2} alignItems='start' flexGrow={1} minWidth='0'>
                 <DirectoryBreadcrumbs
                     owner={username}
                     id={ALL_MY_UPLOADS_DIRECTORY_ID}

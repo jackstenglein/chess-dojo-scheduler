@@ -293,7 +293,7 @@ export default function GameTable({
                         onNextPage={() => setPage(page + 1)}
                     />
                 ),
-                toolbar: isListView ? undefined : CustomGridToolbar,
+                toolbar: isListView ? ListViewToolbar : CustomGridToolbar,
             }}
             slotProps={
                 contextMenu
@@ -321,4 +321,8 @@ function CustomGridToolbar() {
             <GridToolbarFilterButton />
         </GridToolbarContainer>
     );
+}
+
+function ListViewToolbar() {
+    return null;
 }
