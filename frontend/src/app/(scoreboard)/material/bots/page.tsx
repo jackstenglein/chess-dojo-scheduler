@@ -41,7 +41,7 @@ export default function BotsPage() {
                     Chess.com diamond member. GM Jesse Kraai explains the guide in the video below.
                 </Typography>
             </Stack>
-            <Box sx={{ mt: 3, width: 1, aspectRatio: '1.77' }}>
+            <Box sx={{ mt: 3, mb: 3, width: 1, aspectRatio: '1.77' }}>
                 <iframe
                     src='https://www.youtube.com/embed/WsZknsdk504'
                     title={`Dojo Guide To Bots`}
