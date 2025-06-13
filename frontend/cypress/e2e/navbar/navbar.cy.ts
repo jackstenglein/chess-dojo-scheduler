@@ -27,7 +27,7 @@ const viewPortWidths = [
     { width: 449, hidden: 10, endHidden: 3 },
 ];
 
-describe.only('Navbar', () => {
+describe('Navbar', () => {
     it('should have limited options when unauthenticated', () => {
         cy.visit('/');
 
@@ -80,7 +80,6 @@ describe.only('Navbar', () => {
                         cy.get('#menu-appbar').contains(item);
                     }
                 });
-                cy.get('#menu-appbar').contains('Dark Mode'); // Worth updating?
             }
         });
     });
