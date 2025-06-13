@@ -41,54 +41,56 @@ const closedMixin = (theme: Theme): CSSObject => ({
     width: theme.spacing(6),
 });
 
-const List = styled(MuiList, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme }) => ({
-    width: openWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    '& .MuiListItemButton-root': {
-        borderRadius: theme.spacing(0.75),
+const List = styled(MuiList, { shouldForwardProp: (prop) => prop !== 'open' })<{ open: boolean }>(
+    ({ theme }) => ({
+        width: openWidth,
+        flexShrink: 0,
+        whiteSpace: 'nowrap',
+        boxSizing: 'border-box',
+        '& .MuiListItemButton-root': {
+            borderRadius: theme.spacing(0.75),
 
-        '& .MuiListItemIcon-root': {
-            minWidth: 0,
-            justifyContent: 'center',
+            '& .MuiListItemIcon-root': {
+                minWidth: 0,
+                justifyContent: 'center',
+            },
         },
-    },
-    variants: [
-        {
-            props: ({ open }: { open: boolean }) => open,
-            style: {
-                ...openedMixin(theme),
-                '& .MuiList-root': openedMixin(theme),
-                '& .MuiListItemButton-root': {
-                    '& .MuiListItemIcon-root': {
-                        minWidth: 0,
+        variants: [
+            {
+                props: ({ open }: { open: boolean }) => open,
+                style: {
+                    ...openedMixin(theme),
+                    '& .MuiList-root': openedMixin(theme),
+                    '& .MuiListItemButton-root': {
+                        '& .MuiListItemIcon-root': {
+                            minWidth: 0,
+                            justifyContent: 'center',
+                            marginRight: theme.spacing(2),
+                        },
+                    },
+                },
+            },
+            {
+                props: ({ open }: { open: boolean }) => !open,
+                style: {
+                    ...closedMixin(theme),
+                    '& .MuiList-root': closedMixin(theme),
+                    '& .MuiListItemButton-root': {
                         justifyContent: 'center',
-                        marginRight: theme.spacing(2),
+
+                        '& .MuiListItemIcon-root': {
+                            marginRight: 'auto',
+                        },
+
+                        '& .MuiListItemText-root': {
+                            opacity: 0,
+                        },
                     },
                 },
             },
-        },
-        {
-            props: ({ open }: { open: boolean }) => !open,
-            style: {
-                ...closedMixin(theme),
-                '& .MuiList-root': closedMixin(theme),
-                '& .MuiListItemButton-root': {
-                    justifyContent: 'center',
-
-                    '& .MuiListItemIcon-root': {
-                        marginRight: 'auto',
-                    },
-
-                    '& .MuiListItemText-root': {
-                        opacity: 0,
-                    },
-                },
-            },
-        },
-    ],
-}));
+        ],
+    }),
+);
 
 export const NavigationMenu = ({
     namespace,
