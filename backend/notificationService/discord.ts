@@ -1,5 +1,13 @@
+import axios from 'axios';
 import { ApiError } from 'chess-dojo-directory-service/api';
-import { Client, Events, GatewayIntentBits, GuildMember, TextChannel } from 'discord.js';
+import {
+    ChannelType,
+    Client,
+    Events,
+    GatewayIntentBits,
+    GuildMember,
+    TextChannel,
+} from 'discord.js';
 
 const privateGuildId = process.env.discordPrivateGuildId || '';
 
@@ -25,6 +33,50 @@ export async function sendChannelMessage(channelId: string, message: string) {
     const client = await getClient();
     const channel = client.channels.cache.get(channelId);
     await (channel as TextChannel | undefined)?.send(message);
+}
+
+/**
+ * Creates a private thread in the given channel.
+ * @param channelId The channel to contain the thread.
+ * @param threadName The name of the thread.
+ * @returns The thread's id.
+ */
+export async function createPrivateThread(
+    channelId: string,
+    threadName: string,
+): Promise<string | undefined> {
+    const client = await getClient();
+    const channel = client.channels.cache.get(channelId);
+    const thread = await (channel as TextChannel | undefined)?.threads.create({
+        name: threadName,
+        type: ChannelType.PrivateThread,
+        invitable: true,
+    });
+    return thread?.id;
+}
+
+/**
+ * Adds the given user IDs to the given thread.
+ * @param threadId The thread to add users to.
+ * @param users The ids of the users to add.
+ */
+export async function addMembersToThread(threadId: string, users: string[]) {
+    for (const user of users) {
+        try {
+            await axios.put(
+                `https://discord.com/api/channels/${threadId}/thread-members/${user}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bot ${process.env.discordAuth}`,
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+        } catch (err) {
+            console.error(`Failed to add user ${user} to thread ${threadId}: `, err);
+        }
+    }
 }
 
 /**
