@@ -4,7 +4,7 @@
     "private": true,
     "type": "module",
     "dependencies": {
-        "@aws-amplify/adapter-nextjs": "^1.6.2",
+        "@aws-amplify/adapter-nextjs": "^1.6.3",
         "@dotenvx/dotenvx": "^1.44.1",
         "@emotion/cache": "^11.13.5",
         "@emotion/react": "^11.14.0",
@@ -26,7 +26,7 @@
         "@types/react": "^18.3.12",
         "@types/react-dom": "^18.3.1",
         "async-mutex": "^0.5.0",
-        "aws-amplify": "^6.14.4",
+        "aws-amplify": "^6.15.0",
         "axios": "^1.9.0",
         "bad-words": "^4.0.0",
         "chessground": "^9.2.1",
