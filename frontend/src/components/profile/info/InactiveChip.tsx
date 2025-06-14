@@ -13,7 +13,7 @@ const InactiveChip: React.FC<InactiveChipProps> = ({ user }) => {
 
     return (
         <Tooltip title='User has not updated progress in the past month'>
-            <Chip label='Inactive' color='error' variant='outlined' />
+            <Chip label='Inactive' color='error' variant='outlined' size='small' />
         </Tooltip>
     );
 };
