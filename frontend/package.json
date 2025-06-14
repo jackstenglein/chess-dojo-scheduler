@@ -39,7 +39,7 @@
         "next": "^14.2.11",
         "next-navigation-guard": "^0.1.2",
         "react": "^18.2.0",
-        "react-activity-calendar": "^2.7.10",
+        "react-activity-calendar": "^2.7.12",
         "react-charts": "^3.0.0-beta.57",
         "react-copy-to-clipboard": "^5.1.0",
         "react-countdown-circle-timer": "^3.2.1",
