@@ -1,3 +1,4 @@
+import { TimelineEntry } from '@/database/timeline';
 import { cohortColors, compareCohorts, dojoCohorts, User } from '@/database/user';
 import { TacticsRating } from '@/exams/view/exam';
 import { cohortIcons } from '@/scoreboard/CohortIcon';
@@ -23,6 +24,8 @@ enum BadgeTask {
     ClassicalGames = '38f46441-7a4e-4506-8632-166bcbe78baf',
     AnnotateGames = '4d23d689-1284-46e6-b2a2-4b4bfdc37174',
 }
+
+const yearlyBadgeTasks: string[] = [BadgeTask.ClassicalGames, BadgeTask.AnnotateGames] as const;
 
 /** The categories a badge can be in. */
 export enum BadgeCategory {
@@ -126,21 +129,30 @@ function getBadgeImage(level: number, task: BadgeTask): string | undefined {
 /**
  * Returns the badge level for the given user and requirement.
  * @param user The user to get the level for.
+ * @param timeline The timeline of the user to get the level for.
  * @param requirementId The requirement to get the level for.
  * @param levels The badge requirement levels.
  * @returns The max level and the total count the user has achieved in the badge.
  */
 function getBadgeLevel(
     user: User,
+    timeline: TimelineEntry[],
     requirementId: string,
     levels: number[],
 ): { maxLevel: number; currentCount: number } {
-    const progress = user.progress[requirementId];
-    if (!progress) {
-        return { maxLevel: -1, currentCount: 0 };
-    }
+    let currentCount = 0;
 
-    const currentCount = Object.values(progress.counts || {}).reduce((sum, v) => sum + v, 0);
+    if (yearlyBadgeTasks.includes(requirementId)) {
+        currentCount = timeline
+            .filter((t) => t.requirementId === requirementId)
+            .reduce((sum, t) => sum + t.newCount - t.previousCount, 0);
+    } else {
+        const progress = user.progress[requirementId];
+        if (!progress) {
+            return { maxLevel: -1, currentCount: 0 };
+        }
+        currentCount = Object.values(progress.counts || {}).reduce((sum, v) => sum + v, 0);
+    }
 
     let maxLevel = -1;
     for (const level of levels) {
@@ -321,9 +333,14 @@ function getTaskBadge({
  * Returns a list of all possible badges.
  * @param user The user to get badges for.
  * @param tacticsRating The current tactics rating of the user.
+ * @param timeline The timeline of the user to get badges for.
  * @returns A list of all possible badges, both earned and not earned.
  */
-export function getBadges(user: User, tacticsRating: TacticsRating): Badge[] {
+export function getBadges(
+    user: User,
+    tacticsRating: TacticsRating,
+    timeline: TimelineEntry[],
+): Badge[] {
     const allBadges = [getDojoerBadge(!user.createdAt), getBetaTesterBadge(user.isBetaTester)];
 
     const [, minTacticsRating] = getCohortRangeInt(user.dojoCohort);
@@ -335,6 +352,7 @@ export function getBadges(user: User, tacticsRating: TacticsRating): Badge[] {
     for (const task of Object.values(BadgeTask)) {
         const { maxLevel: eligibleLevel, currentCount } = getBadgeLevel(
             user,
+            timeline,
             task,
             BADGE_LIMITS[task],
         );
