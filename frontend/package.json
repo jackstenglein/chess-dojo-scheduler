@@ -125,7 +125,7 @@
         "@vitejs/plugin-react": "^4.4.1",
         "command-line-args": "^6.0.1",
         "command-line-usage": "^7.0.3",
-        "cypress": "^14.3.2",
+        "cypress": "^14.4.0",
         "cypress-parallel": "^0.15.0",
         "dotenv": "^16.5.0",
         "eslint": "^8.57.0",
