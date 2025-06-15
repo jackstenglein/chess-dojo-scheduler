@@ -40,7 +40,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
 
     useEffect(() => {
         if (!previousEarnedBadges) {
-            if (requirements.length) {
+            if (requirements.length && timeline.length) {
                 setPreviousEarnedBadges(earnedBadges);
             }
             return;
@@ -59,6 +59,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
         setSelectedBadge,
         setPreviousEarnedBadges,
         requirements,
+        timeline,
     ]);
 
     if (!user.createdAt || user.createdAt < '2023-12') {
