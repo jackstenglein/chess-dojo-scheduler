@@ -73,7 +73,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                                     md: 'auto',
                                 }}
                             >
-                                <Position position={p} requirement={requirement} />
+                                <Position position={p} />
                             </Grid>
                         ))}
                     </Grid>
@@ -92,7 +92,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                             md: 'auto',
                         }}
                     >
-                        <Position position={p} requirement={requirement} />
+                        <Position position={p} />
                     </Grid>
                 ))}
             </Grid>
@@ -108,7 +108,7 @@ const SparringRequirement: React.FC<SparringRequirementProps> = ({
                         md: 'auto',
                     }}
                 >
-                    <Position position={p} requirement={requirement} />
+                    <Position position={p} />
                 </Grid>
             ))}
         </>
