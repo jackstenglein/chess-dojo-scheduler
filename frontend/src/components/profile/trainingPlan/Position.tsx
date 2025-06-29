@@ -4,6 +4,7 @@ import Board from '@/board/Board';
 import { getLigaIconBasedOnTimeControl } from '@/components/calendar/eventViewer/LigaTournamentViewer';
 import { Position as PositionModel } from '@/database/requirement';
 import Icon from '@/style/Icon';
+import { Biotech } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { LoadingButton } from '@mui/lab';
@@ -156,14 +157,14 @@ const Position = ({ position, orientation }: PositionProps) => {
                     </Tooltip>
                 </CopyToClipboard>
 
-                <Tooltip title='Open in position explorer'>
+                <Tooltip title='Open in analysis board'>
                     <Button
-                        startIcon={<Icon name='explore' color='dojoOrange' />}
+                        startIcon={<Biotech color='dojoOrange' />}
                         href={`/games/explorer?fen=${position.fen}`}
                         rel='noopener'
                         target='_blank'
                     >
-                        Explorer
+                        Analysis
                     </Button>
                 </Tooltip>
 
