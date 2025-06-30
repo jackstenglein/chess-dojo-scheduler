@@ -21,11 +21,11 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
-import CustomTaskEditor from './CustomTaskEditor';
-import { ScheduleClassicalGame } from './ScheduleClassicalGame';
-import { TrainingPlanIcon } from './TrainingPlanCategory';
-import { FullTrainingPlanItem } from './full/FullTrainingPlanItem';
-import { SCHEDULE_CLASSICAL_GAME_TASK_ID } from './suggestedTasks';
+import CustomTaskEditor from '../CustomTaskEditor';
+import { ScheduleClassicalGame } from '../ScheduleClassicalGame';
+import { SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
+import { TrainingPlanIcon } from '../TrainingPlanIcon';
+import { FullTrainingPlanItem } from './FullTrainingPlanItem';
 
 /** A section in the training plan view. */
 export interface Section {

@@ -17,8 +17,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useTimelineContext } from '../../activity/useTimeline';
 import { getUpcomingGameSchedule, SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
-import { Section, TrainingPlanSection } from '../TrainingPlanSection';
 import { useTrainingPlan } from '../useTrainingPlan';
+import { Section, TrainingPlanSection } from './TrainingPlanSection';
 
 /** Renders the full training plan view of the training plan tab. */
 export function FullTrainingPlan({ user }: { user: User }) {
