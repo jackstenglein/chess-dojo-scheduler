@@ -52,14 +52,21 @@ export function FullTrainingPlan({ user }: { user: User }) {
         const sections: Section[] = [];
 
         if (pinnedTasks.length > 0) {
-            const uncompletedTasks = pinnedTasks.filter(
-                (t) => !isComplete(cohort, t, user.progress[t.id], timeline, true),
-            );
+            const uncompletedTasks = [];
+            const completedTasks = [];
+
+            for (const task of pinnedTasks) {
+                if (isComplete(cohort, task, user.progress[task.id], timeline, true)) {
+                    completedTasks.push(task);
+                } else {
+                    uncompletedTasks.push(task);
+                }
+            }
+
             sections.push({
                 category: RequirementCategory.Pinned,
-                tasks: showCompleted ? pinnedTasks : uncompletedTasks,
-                complete: pinnedTasks.length - uncompletedTasks.length,
-                total: pinnedTasks.length,
+                uncompletedTasks: uncompletedTasks,
+                completedTasks,
             });
         }
 
@@ -78,23 +85,18 @@ export function FullTrainingPlan({ user }: { user: User }) {
             if (s === undefined) {
                 sections.push({
                     category: task.category,
-                    tasks: !complete || showCompleted ? [task] : [],
-                    complete: complete ? 1 : 0,
-                    total: 1,
+                    uncompletedTasks: complete ? [] : [task],
+                    completedTasks: complete ? [task] : [],
                 });
+            } else if (complete) {
+                s.completedTasks.push(task);
             } else {
-                s.total++;
-                if (complete) {
-                    s.complete++;
-                }
-                if (!complete || showCompleted) {
-                    s.tasks.push(task);
-                }
+                s.uncompletedTasks.push(task);
             }
         }
 
         return sections;
-    }, [requirements, user, cohort, showCompleted, pinnedTasks, timeline]);
+    }, [requirements, user, cohort, pinnedTasks, timeline]);
 
     if (requirementRequest.isLoading() || sections.length === 0) {
         return <LoadingPage />;
@@ -207,7 +209,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
     );
 }
 
-function useShowCompleted(isCurrentUser: boolean) {
+export function useShowCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('showCompletedTasks', false);
     const otherProfile = useState(false);
 
