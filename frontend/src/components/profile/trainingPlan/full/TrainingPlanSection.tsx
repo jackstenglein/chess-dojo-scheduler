@@ -9,6 +9,7 @@ import {
 } from '@/database/requirement';
 import { User } from '@/database/user';
 import { ProgressText } from '@/scoreboard/ScoreboardProgress';
+import { Checklist } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
     Accordion,
@@ -21,22 +22,21 @@ import {
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
-import CustomTaskEditor from './CustomTaskEditor';
-import { ScheduleClassicalGame } from './ScheduleClassicalGame';
-import { TrainingPlanIcon } from './TrainingPlanCategory';
-import { FullTrainingPlanItem } from './full/FullTrainingPlanItem';
-import { SCHEDULE_CLASSICAL_GAME_TASK_ID } from './suggestedTasks';
+import CustomTaskEditor from '../CustomTaskEditor';
+import { ScheduleClassicalGame } from '../ScheduleClassicalGame';
+import { SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
+import { TrainingPlanIcon } from '../TrainingPlanIcon';
+import { useShowCompleted } from './FullTrainingPlan';
+import { FullTrainingPlanItem } from './FullTrainingPlanItem';
 
 /** A section in the training plan view. */
 export interface Section {
     /** The category of the section. */
     category: RequirementCategory;
-    /** The tasks to display in the section. */
-    tasks: (Requirement | CustomTask)[];
-    /** The number of complete tasks in the section. */
-    complete: number;
-    /** The total number of tasks in the section. */
-    total: number;
+    /** The uncompleted tasks to display in the section. */
+    uncompletedTasks: (Requirement | CustomTask)[];
+    /** The completed tasks in the section. */
+    completedTasks: (Requirement | CustomTask)[];
     /** The color of the icon in the section header. */
     color?: SvgIconOwnProps['color'];
 }
@@ -72,13 +72,14 @@ export function TrainingPlanSection({
 }: TrainingPlanSectionProps) {
     const isFreeTier = useFreeTier();
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
+    const [showCompleted, setShowCompleted] = useShowCompleted(isCurrentUser);
 
     const hiddenTaskCount = useMemo(() => {
         if (!isFreeTier) {
             return 0;
         }
-        return section.tasks.filter((r) => isRequirement(r) && !r.isFree).length;
-    }, [section.tasks, isFreeTier]);
+        return section.uncompletedTasks.filter((r) => isRequirement(r) && !r.isFree).length;
+    }, [section.uncompletedTasks, isFreeTier]);
 
     return (
         <Accordion
@@ -110,8 +111,8 @@ export function TrainingPlanSection({
                         {section.category}
                     </Typography>
                     <ProgressText
-                        value={section.complete}
-                        max={section.total}
+                        value={section.completedTasks.length}
+                        max={section.completedTasks.length + section.uncompletedTasks.length}
                         min={0}
                         suffix='Complete'
                     />
@@ -119,26 +120,52 @@ export function TrainingPlanSection({
             </AccordionSummary>
             <AccordionDetails data-cy={`progress-category-${section.category}`}>
                 <Divider />
-                {section.tasks.map((r) => {
-                    if (r.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
-                        return <ScheduleClassicalGame key={r.id} hideChip />;
-                    }
-                    if (isFreeTier && isRequirement(r) && !r.isFree) {
-                        return null;
-                    }
-                    return (
-                        <FullTrainingPlanItem
-                            key={r.id}
-                            requirement={r}
-                            progress={user.progress[r.id]}
-                            cohort={cohort}
-                            isCurrentUser={isCurrentUser}
-                            user={user}
-                            togglePin={togglePin}
-                            isPinned={pinnedTasks.some((t) => t.id === r.id)}
-                        />
-                    );
-                })}
+
+                <TaskList
+                    tasks={section.uncompletedTasks}
+                    user={user}
+                    cohort={cohort}
+                    isFreeTier={isFreeTier}
+                    isCurrentUser={isCurrentUser}
+                    togglePin={togglePin}
+                    pinnedTasks={pinnedTasks}
+                />
+
+                {section.completedTasks.length > 0 &&
+                    (showCompleted ? (
+                        <>
+                            <Stack direction='row' alignItems='center' sx={{ mt: 6, mb: 1 }}>
+                                <Checklist color='primary' />
+                                <Typography
+                                    variant='body1'
+                                    fontWeight={700}
+                                    sx={{ ml: 1, flexGrow: 1 }}
+                                >
+                                    Completed Tasks
+                                </Typography>
+                                <Button onClick={() => setShowCompleted(false)}>Hide</Button>
+                            </Stack>
+
+                            <Divider sx={{ mb: 2 }} />
+                            <TaskList
+                                tasks={section.completedTasks}
+                                user={user}
+                                cohort={cohort}
+                                isFreeTier={isFreeTier}
+                                isCurrentUser={isCurrentUser}
+                                togglePin={togglePin}
+                                pinnedTasks={pinnedTasks}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <Button sx={{ my: 2 }} onClick={() => setShowCompleted(true)}>
+                                Show {section.completedTasks.length} completed task
+                                {section.completedTasks.length !== 1 && 's'}
+                            </Button>
+                            <Divider />
+                        </>
+                    ))}
 
                 {!isFreeTier && isCustomTaskCategory(section.category) && isCurrentUser && (
                     <Button sx={{ mt: 2 }} onClick={() => setShowCustomTaskEditor(true)}>
@@ -167,5 +194,50 @@ export function TrainingPlanSection({
                 initialCategory={section.category as unknown as CustomTaskCategory}
             />
         </Accordion>
+    );
+}
+
+function TaskList({
+    tasks,
+    isFreeTier,
+    user,
+    cohort,
+    isCurrentUser,
+    togglePin,
+    pinnedTasks,
+}: {
+    tasks: (Requirement | CustomTask)[];
+    isFreeTier: boolean;
+    user: User;
+    cohort: string;
+    isCurrentUser: boolean;
+    /** A callback invoked when the user toggles a pinned task. */
+    togglePin: (req: Requirement | CustomTask) => void;
+    /** The set of pinned tasks. */
+    pinnedTasks: (Requirement | CustomTask)[];
+}) {
+    return (
+        <>
+            {tasks.map((r) => {
+                if (r.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
+                    return <ScheduleClassicalGame key={r.id} hideChip />;
+                }
+                if (isFreeTier && isRequirement(r) && !r.isFree) {
+                    return null;
+                }
+                return (
+                    <FullTrainingPlanItem
+                        key={r.id}
+                        requirement={r}
+                        progress={user.progress[r.id]}
+                        cohort={cohort}
+                        isCurrentUser={isCurrentUser}
+                        user={user}
+                        togglePin={togglePin}
+                        isPinned={pinnedTasks.some((t) => t.id === r.id)}
+                    />
+                );
+            })}
+        </>
     );
 }
