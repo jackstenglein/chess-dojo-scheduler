@@ -237,7 +237,12 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
                         multiline
                         minRows={isMainline ? 3 : 7}
                         value={comment}
-                        onChange={(event) => chess.setComment(event.target.value, commentType)}
+                        onChange={(event) =>
+                            chess.setComment(
+                                event.target.value,
+                                isMainline ? CommentType.After : commentType,
+                            )
+                        }
                         fullWidth
                         sx={{
                             flexGrow: { md: 1 },
