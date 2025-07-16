@@ -26,7 +26,6 @@ import CustomTaskEditor from '../CustomTaskEditor';
 import { ScheduleClassicalGame } from '../ScheduleClassicalGame';
 import { SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
 import { TrainingPlanIcon } from '../TrainingPlanIcon';
-import { useShowCompleted } from './FullTrainingPlan';
 import { FullTrainingPlanItem } from './FullTrainingPlanItem';
 
 /** A section in the training plan view. */
@@ -58,6 +57,10 @@ interface TrainingPlanSectionProps {
     togglePin: (req: Requirement | CustomTask) => void;
     /** The set of pinned tasks. */
     pinnedTasks: (Requirement | CustomTask)[];
+    /** Whether to show completed tasks */
+    showCompleted: boolean;
+    /** Callback to set whether to show completed tasks. */
+    setShowCompleted: (v: boolean) => void;
 }
 
 export function TrainingPlanSection({
@@ -69,10 +72,11 @@ export function TrainingPlanSection({
     cohort,
     togglePin,
     pinnedTasks,
+    showCompleted,
+    setShowCompleted,
 }: TrainingPlanSectionProps) {
     const isFreeTier = useFreeTier();
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
-    const [showCompleted, setShowCompleted] = useShowCompleted(isCurrentUser);
 
     const hiddenTaskCount = useMemo(() => {
         if (!isFreeTier) {
