@@ -203,6 +203,8 @@ export function FullTrainingPlan({ user }: { user: User }) {
                     cohort={cohort}
                     togglePin={togglePin}
                     pinnedTasks={pinnedTasks}
+                    showCompleted={showCompleted}
+                    setShowCompleted={setShowCompleted}
                 />
             ))}
         </Stack>
