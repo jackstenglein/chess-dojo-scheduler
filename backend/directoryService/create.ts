@@ -12,6 +12,7 @@ import {
     DirectoryItemTypes,
     DirectoryVisibility,
     HOME_DIRECTORY_ID,
+    MY_GAMES_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { NIL as uuidNil } from 'uuid';
@@ -128,8 +129,20 @@ export async function createHomeDirectory(
         visibility: DirectoryVisibility.PUBLIC,
         createdAt,
         updatedAt: createdAt,
-        items: {},
-        itemIds: [],
+        items: {
+            [MY_GAMES_DIRECTORY_ID]: {
+                type: DirectoryItemTypes.DIRECTORY,
+                id: MY_GAMES_DIRECTORY_ID,
+                metadata: {
+                    createdAt,
+                    updatedAt: createdAt,
+                    visibility: DirectoryVisibility.PUBLIC,
+                    name: 'My Games',
+                    description: 'Serious classical games I have played',
+                },
+            },
+        },
+        itemIds: [MY_GAMES_DIRECTORY_ID],
     };
     if (request) {
         directory.items[request.id] = {
@@ -142,10 +155,24 @@ export async function createHomeDirectory(
                 name: request.name,
             },
         };
-        directory.itemIds = [request.id];
+        directory.itemIds.push(request.id);
     }
 
+    const myGamesDirectory: Directory = {
+        owner,
+        id: MY_GAMES_DIRECTORY_ID,
+        parent: HOME_DIRECTORY_ID,
+        name: 'My Games',
+        description: 'Serious classical games I have played',
+        visibility: DirectoryVisibility.PUBLIC,
+        createdAt,
+        updatedAt: createdAt,
+        items: {},
+        itemIds: [],
+    };
+
     await createDirectory(directory);
+    await createDirectory(myGamesDirectory);
     return directory;
 }
 

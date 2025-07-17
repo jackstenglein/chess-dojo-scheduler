@@ -152,6 +152,7 @@ export function addAllUploads(directory?: Directory) {
         type: DirectoryItemTypes.DIRECTORY,
         metadata: {
             name: 'All Uploads',
+            description: 'Everything I have ever saved to the Dojo',
             visibility: DirectoryVisibility.PUBLIC,
             createdAt: directory.createdAt,
             updatedAt: directory.updatedAt,

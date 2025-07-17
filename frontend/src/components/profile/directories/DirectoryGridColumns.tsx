@@ -74,9 +74,25 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
             const item = params.row;
             if (item.type === DirectoryItemTypes.DIRECTORY) {
                 return (
-                    <Link color='inherit' sx={{ cursor: 'pointer' }}>
-                        {params.value}
-                    </Link>
+                    <Stack sx={{ height: 1, justifyContent: 'center', rowGap: '2px' }}>
+                        <Link color='inherit' sx={{ cursor: 'pointer', lineHeight: 'initial' }}>
+                            {params.value}
+                        </Link>
+                        {item.metadata.description && (
+                            <Typography
+                                variant='caption'
+                                color='text.secondary'
+                                sx={{
+                                    lineHeight: 'initial',
+                                    whiteSpace: 'nowrap',
+                                    textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                {item.metadata.description}
+                            </Typography>
+                        )}
+                    </Stack>
                 );
             }
 

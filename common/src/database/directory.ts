@@ -54,6 +54,19 @@ export type DirectoryItemType = z.infer<typeof directoryItemType>;
 /** The type of a directory item. */
 export const DirectoryItemTypes = directoryItemType.enum;
 
+/** The id of the home directory. */
+export const HOME_DIRECTORY_ID = 'home';
+
+/** The id of the shared with me directory. */
+export const SHARED_DIRECTORY_ID = 'shared';
+
+/** The id of the all my uploads directory. */
+export const ALL_MY_UPLOADS_DIRECTORY_ID = 'uploads';
+
+/** The id of the my games directory. */
+export const MY_GAMES_DIRECTORY_ID = 'mygames';
+
+/** Verifies the type of a directory item. */
 export const DirectoryItemSchema = z.discriminatedUnion('type', [
     z.object({
         /** The type of the directory item. */
@@ -61,7 +74,11 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 
         /**
          * The id of the directory item. For a subdirectory, this is the id of the directory. */
-        id: z.string().uuid(),
+        id: z.union([
+            z.string().uuid(),
+            z.literal(MY_GAMES_DIRECTORY_ID),
+            z.literal(ALL_MY_UPLOADS_DIRECTORY_ID),
+        ]),
 
         /**
          * The username of the person who added the item to the directory. If
@@ -82,6 +99,9 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 
             /** The name of the directory. */
             name: z.string().trim().max(100),
+
+            /** The description of the directory. */
+            description: z.string().trim().max(100).optional(),
         }),
     }),
     z.object({
@@ -134,17 +154,8 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
     }),
 ]);
 
-/** The id of the home directory. */
-export const HOME_DIRECTORY_ID = 'home';
-
-/** The id of the shared with me directory. */
-export const SHARED_DIRECTORY_ID = 'shared';
-
-/** The id of the all my uploads directory. */
-export const ALL_MY_UPLOADS_DIRECTORY_ID = 'uploads';
-
 /** The ids of default directories. */
-const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID, SHARED_DIRECTORY_ID, ALL_MY_UPLOADS_DIRECTORY_ID];
+const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID, SHARED_DIRECTORY_ID, ALL_MY_UPLOADS_DIRECTORY_ID, MY_GAMES_DIRECTORY_ID];
 
 /**
  * The ids of directories fully managed by the platform.
@@ -202,13 +213,17 @@ export const DirectorySchema = z.object({
         z.literal(HOME_DIRECTORY_ID),
         z.literal(SHARED_DIRECTORY_ID),
         z.literal(ALL_MY_UPLOADS_DIRECTORY_ID),
+        z.literal(MY_GAMES_DIRECTORY_ID),
     ]),
 
     /** The id of the parent directory. Top-level directories use uuid.NIL. */
-    parent: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID)]),
+    parent: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID), z.literal(MY_GAMES_DIRECTORY_ID)]),
 
     /** The name of the directory. */
     name: z.string().trim().max(100),
+
+    /** The description of the directory. */
+    description: z.string().trim().max(100).optional(),
 
     /** Whether the directory is visible to other users. */
     visibility: directoryVisibility,
