@@ -12,7 +12,6 @@ import {
     DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
-    isManagedDirectory,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Stack, SxProps } from '@mui/material';
@@ -229,6 +228,7 @@ const DirectorySection = ({
                         <BulkItemEditor
                             directory={directory}
                             itemIds={[...rowSelectionModel.ids] as string[]}
+                            accessRole={accessRole}
                             onClear={() =>
                                 setRowSelectionModel({ type: 'include', ids: new Set() })
                             }
@@ -267,7 +267,6 @@ const DirectorySection = ({
                     checkboxSelectionVisibleOnly
                     onRowSelectionModelChange={setRowSelectionModel}
                     rowSelectionModel={rowSelectionModel}
-                    isRowSelectable={isDirectorySelectable}
                     rowReordering={isAdmin}
                     onRowOrderChange={handleRowOrderChange}
                     pagination
@@ -287,13 +286,6 @@ const DirectorySection = ({
         </Stack>
     );
 };
-
-/**
- * Returns true if the directory is selectable in the data grid.
- */
-function isDirectorySelectable(params: GridRowParams<DirectoryItem>) {
-    return !isManagedDirectory(params.row.id);
-}
 
 function CustomGridToolbar() {
     return (

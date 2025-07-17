@@ -1,24 +1,8 @@
 import {
-    compareRoles,
     Directory,
     DirectoryAccessRole,
-    DirectoryItemTypes,
-    SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import {
-    Delete,
-    DriveFileMoveOutlined,
-    DriveFileRenameOutline,
-    FolderOff,
-} from '@mui/icons-material';
-import {
-    Divider,
-    ListItemIcon,
-    ListItemText,
-    Menu,
-    MenuItem,
-    PopoverPosition,
-} from '@mui/material';
+import { ListItemIcon, ListItemText, Menu, MenuItem, PopoverPosition } from '@mui/material';
 import { ItemEditorDialogs, useDirectoryEditor } from './BulkItemEditor';
 
 export const ContextMenu = ({
@@ -34,16 +18,10 @@ export const ContextMenu = ({
     position?: PopoverPosition;
     onClose: () => void;
 }) => {
-    const editor = useDirectoryEditor(directory, itemIds, onClose);
-
+    const editor = useDirectoryEditor({ directory, itemIds, accessRole, onClose });
     if (editor.items.length === 0) {
         return null;
     }
-
-    const isDirectory =
-        editor.items.length === 1 && editor.items[0].type === DirectoryItemTypes.DIRECTORY;
-
-    const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     return (
         <>
@@ -61,29 +39,12 @@ export const ContextMenu = ({
                     },
                 }}
             >
-                {isDirectory && isAdmin && (
-                    <MenuItem onClick={editor.onRename}>
-                        <ListItemIcon>
-                            <DriveFileRenameOutline />
-                        </ListItemIcon>
-                        <ListItemText primary='Edit Name/Visibility' />
+                {editor.actions.map((action) => (
+                    <MenuItem key={action.title} onClick={action.onClick}>
+                        <ListItemIcon>{action.icon}</ListItemIcon>
+                        <ListItemText primary={action.title} />
                     </MenuItem>
-                )}
-                {directory.id !== SHARED_DIRECTORY_ID && (
-                    <>
-                        <MenuItem onClick={editor.onMove}>
-                            <ListItemIcon>
-                                <DriveFileMoveOutlined />
-                            </ListItemIcon>
-                            <ListItemText primary='Move' />
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={editor.onRemove}>
-                            <ListItemIcon>{isDirectory ? <Delete /> : <FolderOff />}</ListItemIcon>
-                            <ListItemText primary={isDirectory ? 'Delete' : 'Remove from Folder'} />
-                        </MenuItem>
-                    </>
-                )}
+                ))}
             </Menu>
 
             <ItemEditorDialogs editor={editor} />
