@@ -180,6 +180,14 @@ export function isManagedDirectory(id: string): boolean {
     return PLATFORM_MANAGED_DIRECTORIES.includes(id);
 }
 
+/** 
+ * Returns true if the given directory is selectable.
+ * @param id The id to check.
+ */
+export function isSelectableDirectory(id: string): boolean {
+    return id !== ALL_MY_UPLOADS_DIRECTORY_ID;
+}
+
 /**
  * Access roles a user can have on a shared directory.
  */
