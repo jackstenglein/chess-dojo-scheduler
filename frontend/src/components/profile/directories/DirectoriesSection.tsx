@@ -113,7 +113,7 @@ const DirectorySection = ({
 
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({
         type: 'include',
-        ids: new Set([]),
+        ids: new Set(),
     });
     const contextMenu = useDataGridContextMenu(rowSelectionModel);
 
@@ -167,6 +167,7 @@ const DirectorySection = ({
                         ? (params.row.addedBy ?? directory.owner)
                         : directory.owner,
             });
+            setRowSelectionModel({ type: 'include', ids: new Set() });
         } else {
             const url = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
                 '?',
@@ -265,6 +266,7 @@ const DirectorySection = ({
                     getRowHeight={getRowHeight}
                     checkboxSelection={isEditor}
                     checkboxSelectionVisibleOnly
+                    disableRowSelectionOnClick
                     onRowSelectionModelChange={setRowSelectionModel}
                     rowSelectionModel={rowSelectionModel}
                     rowReordering={isAdmin}
