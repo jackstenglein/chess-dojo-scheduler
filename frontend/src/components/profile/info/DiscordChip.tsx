@@ -26,7 +26,13 @@ const DiscordChip: React.FC<DiscordChipProps> = ({ username, id }) => {
                 rel='noopener'
                 href={id ? `https://discord.com/users/${id}` : undefined}
             >
-                <Chip icon={<DiscordIcon />} label={username} variant='outlined' color='primary' />
+                <Chip
+                    icon={<DiscordIcon />}
+                    label={username}
+                    variant='outlined'
+                    color='primary'
+                    size='small'
+                />
             </Link>
         </Tooltip>
     );
