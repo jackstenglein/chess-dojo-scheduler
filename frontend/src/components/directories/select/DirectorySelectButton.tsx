@@ -63,8 +63,11 @@ export function DirectorySelectButton<T>({
         request?.reset();
     };
 
-    const onClose = () => {
+    const onCancel = () => {
         setOpen(false);
+        setDirectoryInfo(
+            initialDirectory || { owner: user?.username || '', id: HOME_DIRECTORY_ID },
+        );
         request?.reset();
     };
 
@@ -94,7 +97,7 @@ export function DirectorySelectButton<T>({
                 slotProps={{
                     dialog: {
                         open,
-                        onClose: request?.isLoading() ? undefined : onClose,
+                        onClose: request?.isLoading() ? undefined : onCancel,
                         fullWidth: true,
                     },
                     dialogTitle: {
@@ -103,7 +106,7 @@ export function DirectorySelectButton<T>({
                     dialogActions: {
                         children: (
                             <>
-                                <Button onClick={request?.isLoading() ? undefined : onClose}>
+                                <Button onClick={request?.isLoading() ? undefined : onCancel}>
                                     Cancel
                                 </Button>
                                 <LoadingButton
