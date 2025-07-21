@@ -80,7 +80,7 @@ export const DirectoriesSection = (props: DirectoriesSectionProps) => {
             return () => window.removeEventListener("resize", handleResize);
         }, []);
 
-        return screenWidth <= 768;
+        return screenWidth <= 1024;
     };
 
     if (directoryId === ALL_MY_UPLOADS_DIRECTORY_ID) {
@@ -255,7 +255,6 @@ const DirectorySection = ({
                 )}
 
                 <DataGridPro
-                    autoHeight
                     rows={rows}
                     columns={isAdmin ? adminColumns : publicColumns}
                     columnVisibilityModel={columnVisibility}
@@ -286,7 +285,7 @@ const DirectorySection = ({
                     onRowSelectionModelChange={setRowSelectionModel}
                     rowSelectionModel={rowSelectionModel}
                     isRowSelectable={isDirectorySelectable}
-                    rowReordering={isAdmin}
+                    rowReordering={isAdmin && !isMobile}
                     onRowOrderChange={handleRowOrderChange}
                     pagination
                     pageSizeOptions={pageSizeOptions}
