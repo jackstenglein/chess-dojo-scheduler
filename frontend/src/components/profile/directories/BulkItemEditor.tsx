@@ -128,7 +128,7 @@ export function useDirectoryEditor({
 
     if (showEdit && isAdmin) {
         actions.push({
-            title: 'Edit Name/Visbility',
+            title: 'Edit Name/Visibility',
             onClick: onRename,
             icon: <DriveFileRenameOutline />,
         });
