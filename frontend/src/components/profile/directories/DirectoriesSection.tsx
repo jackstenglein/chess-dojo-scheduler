@@ -29,7 +29,7 @@ import {
     GridToolbarDensitySelector,
     GridToolbarFilterButton,
 } from '@mui/x-data-grid-pro';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { AddButton } from './AddButton';
 import { AllUploadsSection } from './AllUploadsSection';
@@ -58,6 +58,8 @@ interface DirectoriesSectionProps {
     /** The default column visibility, if the user has not changed any settings. */
     defaultColumnVisibility?: Record<string, boolean>;
 
+    isMobile?: boolean;
+
     /** The sx prop passed to the DataGrid component. */
     sx?: SxProps;
 }
@@ -67,6 +69,20 @@ export const DirectoriesSection = (props: DirectoriesSectionProps) => {
     const directoryId = searchParams.get('directory') || 'home';
     const directoryOwner = searchParams.get('directoryOwner') || props.defaultDirectoryOwner;
 
+    const isMobile = () => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useEffect(() => {
+            const handleResize = () => setScreenWidth(window.innerWidth);
+            window.addEventListener("resize", handleResize);
+            return () => window.removeEventListener("resize", handleResize);
+        }, []);
+
+        return screenWidth <= 768;
+    };
+
     if (directoryId === ALL_MY_UPLOADS_DIRECTORY_ID) {
         return (
             <AllUploadsSection
@@ -74,11 +90,12 @@ export const DirectoriesSection = (props: DirectoriesSectionProps) => {
                 username={directoryOwner}
                 enableNavigationMenu={props.enableNavigationMenu}
                 defaultNavigationMenuOpen={props.defaultNavigationMenuOpen}
+                isMobile={isMobile()}
             />
         );
     }
 
-    return <DirectorySection {...props} />;
+    return <DirectorySection isMobile={isMobile()} {...props} />;
 };
 
 const DirectorySection = ({
@@ -87,6 +104,7 @@ const DirectorySection = ({
     enableNavigationMenu,
     defaultNavigationMenuOpen,
     defaultColumnVisibility,
+    isMobile,
     sx,
 }: DirectoriesSectionProps) => {
     const api = useApi();
@@ -205,7 +223,7 @@ const DirectorySection = ({
     const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     return (
-        <Stack direction='row' columnGap={2}>
+        <Stack direction={isMobile ? "column" : "row"} columnGap={2}>
             <NavigationMenu
                 namespace={namespace}
                 id={directoryId}
