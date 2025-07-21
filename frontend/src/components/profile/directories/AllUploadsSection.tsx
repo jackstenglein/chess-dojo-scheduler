@@ -15,7 +15,7 @@ import UpsellAlert from '@/upsell/UpsellAlert';
 import { ALL_MY_UPLOADS_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Button, Stack } from '@mui/material';
 import { GridPaginationModel, GridRowParams, GridRowSelectionModel } from '@mui/x-data-grid-pro';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 
 /**
@@ -77,8 +77,20 @@ export function AllUploadsSection({
         router.push('/games/import');
     };
 
+    const useScreenWidth = () => {
+        const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+        useEffect(() => {
+            const handleResize = () => setScreenWidth(window.innerWidth);
+            window.addEventListener("resize", handleResize);
+            return () => window.removeEventListener("resize", handleResize);
+        }, []);
+
+        return screenWidth;
+    };
+
     return (
-        <Stack direction='row' columnGap={2}>
+        <Stack direction={useScreenWidth() <= 768 ? "column": "row"} columnGap={2}>
             <RequestSnackbar request={request} />
 
             <NavigationMenu
