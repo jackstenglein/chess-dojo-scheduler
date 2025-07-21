@@ -75,7 +75,7 @@ def fetch_games(user):
 def process_user(user):
     print("Processing user: ", user["username"])
     games = fetch_games(user)
-    print(f'Got {len(games)} games for user f{user["username"]}')
+    print(f'Got {len(games)} games for user {user["username"]}')
     
     mygames = {
         'owner': user['username'],
@@ -84,8 +84,8 @@ def process_user(user):
         'name': 'My Games',
         'description': 'Serious classical games I have played',
         'visibility': 'PUBLIC',
-        'createdAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        'updatedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        'createdAt': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z'),
+        'updatedAt': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z'),
         'items': {
             f'{game["cohort"]}/{game["id"]}': {
                 "type": "OWNED_GAME",
@@ -115,16 +115,16 @@ def process_user(user):
         print(f'{user["username"]} already has mygames')
 
     mygames_subitem = {
-                    'type': 'DIRECTORY',
-                    'id': 'mygames',
-                    'metadata': {
-                        'createdAt': mygames['createdAt'],
-                        'updatedAt': mygames['updatedAt'],
-                        'visibility': 'PUBLIC',
-                        'name': 'My Games',
-                        'description': 'Serious classical games I have played',
-                    }
-                }
+        'type': 'DIRECTORY',
+        'id': 'mygames',
+        'metadata': {
+            'createdAt': mygames['createdAt'],
+            'updatedAt': mygames['updatedAt'],
+            'visibility': 'PUBLIC',
+            'name': 'My Games',
+            'description': 'Serious classical games I have played',
+        }
+    }
     try:
         default_home = {
             'owner': user['username'],
@@ -132,8 +132,8 @@ def process_user(user):
             'parent': '00000000-0000-0000-0000-000000000000',
             'name': 'Home',
             'visibility': 'PUBLIC',
-            'createdAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            'updatedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'createdAt': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z'),
+            'updatedAt': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z'),
             'items': {'mygames': mygames_subitem},
             'itemIds': ['mygames'],
         }

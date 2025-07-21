@@ -13,7 +13,7 @@ const gameMetadataSchema = z.object({
     owner: z.string(),
 
     /** The display name of the owner of the game. */
-    ownerDisplayName: z.string().optional(),
+    ownerDisplayName: z.string().optional().nullable(),
 
     /** The datetime the game was uploaded to the database, in ISO format. */
     createdAt: z.string(),
@@ -25,13 +25,13 @@ const gameMetadataSchema = z.object({
     black: z.string(),
 
     /** The elo of the player with the white pieces. */
-    whiteElo: z.string().optional(),
+    whiteElo: z.string().optional().nullable(),
 
     /** The elo of the player with the black pieces. */
-    blackElo: z.string().optional(),
+    blackElo: z.string().optional().nullable(),
 
     /** The result of the game. */
-    result: z.string().optional(),
+    result: z.string().optional().nullable(),
 
     /** Whether the game is unlisted or not. */
     unlisted: z.boolean().optional(),
