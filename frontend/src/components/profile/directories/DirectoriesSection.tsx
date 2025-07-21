@@ -15,11 +15,11 @@ import {
     isManagedDirectory,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { Stack, SxProps } from '@mui/material';
+import { Stack, SvgIcon, SxProps, Typography } from '@mui/material';
 import {
     DataGridPro,
     GridColumnVisibilityModel,
-    GridDensity,
+    GridDensity, GridListViewColDef, GridRenderCellParams,
     GridRowHeightParams,
     GridRowOrderChangeParams,
     GridRowParams,
@@ -27,7 +27,7 @@ import {
     GridToolbarColumnsButton,
     GridToolbarContainer,
     GridToolbarDensitySelector,
-    GridToolbarFilterButton,
+    GridToolbarFilterButton
 } from '@mui/x-data-grid-pro';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -39,6 +39,9 @@ import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { adminColumns, publicColumns } from './DirectoryGridColumns';
 import { ShareButton } from './share/ShareButton';
+import CohortIcon from '@/scoreboard/CohortIcon.tsx';
+import { MastersCohort } from '@/database/game.ts';
+import { Folder } from '@mui/icons-material';
 
 const pageSizeOptions = [10, 25, 50, 100] as const;
 
@@ -255,6 +258,8 @@ const DirectorySection = ({
                 )}
 
                 <DataGridPro
+                    listViewColumn={listViewColDef}
+                    listView={isMobile}
                     rows={rows}
                     columns={isAdmin ? adminColumns : publicColumns}
                     columnVisibilityModel={columnVisibility}
@@ -290,7 +295,7 @@ const DirectorySection = ({
                     pagination
                     pageSizeOptions={pageSizeOptions}
                     sx={{ width: 1, ...sx }}
-                    showToolbar
+                    showToolbar={!isMobile}
                 />
 
                 <ContextMenu
@@ -303,6 +308,62 @@ const DirectorySection = ({
             </Stack>
         </Stack>
     );
+};
+
+function ListViewCell(params: GridRenderCellParams) {
+    console.log(params)
+    if(params.row.type == "DIRECTORY"){
+        return <Stack direction="row" alignItems="left" spacing={2} height={"100%"}>
+            <Stack width="4rem" alignItems='center' justifyContent='center'>
+                <Folder sx={{ height: 1 }} />
+            </Stack>
+            <Stack direction="column" alignItems="left" spacing={0}>
+                <Stack>
+                    <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>created at: {params.row.metadata.createdAt.substring(0, 10)}</Typography>
+                </Stack>
+                <Stack>
+                    <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>updated at: {params.row.metadata.updatedAt.substring(0, 10)}</Typography>
+                </Stack>
+                <Stack>
+                    <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>Description: {params.row.metadata.description}</Typography>
+                </Stack>
+            </Stack>
+        </Stack>
+    }
+    return <Stack direction="row" alignItems="center" spacing={2} height={"100%"}>
+        <Stack sx={{ height: 1 }} width="4rem" alignItems='center' justifyContent='center'>
+            <CohortIcon
+                cohort={params.row.metadata.cohort}
+                tooltip={params.row.metadata.cohort}
+                size={30}
+            />
+            <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
+                {params.row.metadata.cohort === MastersCohort ? 'masters' : params.row.metadata.cohort}
+            </Typography>
+        </Stack>
+        <Stack direction="column">
+            <Stack>
+                <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>name: {params.row.__reorder__}</Typography>
+            </Stack>
+            <Stack>
+                <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>result: {params.row.metadata.result}</Typography>
+            </Stack>
+        </Stack>
+
+        <Stack direction="column">
+            <Stack>
+                <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>owner: {params.row.metadata.ownerDisplayName}</Typography>
+            </Stack>
+            <Stack>
+                <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>created at: {params.row.metadata.createdAt.substring(0, 10)}</Typography>
+            </Stack>
+        </Stack>
+    </Stack>
+}
+
+const listViewColDef: GridListViewColDef = {
+    field: 'listColumn',
+    renderCell: ListViewCell,
 };
 
 /**
