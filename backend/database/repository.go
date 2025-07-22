@@ -44,6 +44,7 @@ var newsfeedTable = stage + "-newsfeed"
 var yearReviewTable = stage + "-yearReviews"
 var clubTable = stage + "-clubs"
 var examsTable = stage + "-exams"
+var directoryTable = stage + "-directories"
 
 const gameTableOwnerIndex = "OwnerIdx"
 const gameTableWhiteIndex = "WhiteIndex"

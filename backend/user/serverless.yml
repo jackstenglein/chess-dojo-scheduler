@@ -58,6 +58,10 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: ${param:DirectoriesTableArn}
 
   checkAccess:
     condition: IsNotSimple

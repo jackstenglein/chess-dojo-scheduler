@@ -34,7 +34,7 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
     );
 }
 
-export function GameResultIcon({ result, asWhite }: { result?: string; asWhite: boolean }) {
+export function GameResultIcon({ result, asWhite }: { result?: string | null; asWhite: boolean }) {
     if (result === GameResult.White) {
         return asWhite ? <WinIcon /> : <LoseIcon />;
     }
@@ -145,16 +145,16 @@ export function DrawIcon() {
 
 interface RenderPlayersProps {
     white: string;
-    whiteElo?: string | number;
+    whiteElo?: string | number | null;
     whiteProvisional?: boolean;
     black: string;
-    blackElo?: string | number;
+    blackElo?: string | number | null;
     blackProvisional?: boolean;
     fullHeight?: boolean;
-    result?: GameResult | string;
+    result?: GameResult | string | null;
 }
 
-export function RenderGameResultStack({ result }: { result: string | undefined }) {
+export function RenderGameResultStack({ result }: { result: string | undefined | null }) {
     return (
         <Stack justifyContent='center' height='100%' spacing={0.25}>
             <GameResultIcon result={result} asWhite />

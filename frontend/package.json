@@ -137,7 +137,7 @@
         "happy-dom": "^17.4.1",
         "json-2-csv": "^5.5.9",
         "nyc": "^17.1.0",
-        "prettier": "^3.6.2",
+        "prettier": "^3.5.3",
         "prettier-plugin-organize-imports": "^4.1.0",
         "serve": "^14.2.4",
         "typedoc": "^0.28.7",

@@ -152,6 +152,7 @@ const defaultHomeDirectory: Omit<Directory, 'owner'> = {
             type: DirectoryItemTypes.DIRECTORY,
             metadata: {
                 name: 'All Uploads',
+                description: 'Everything I have ever uploaded to the Dojo',
                 visibility: DirectoryVisibility.PUBLIC,
                 createdAt: '',
                 updatedAt: '',

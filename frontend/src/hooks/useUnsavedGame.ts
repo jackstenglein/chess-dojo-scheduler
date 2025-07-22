@@ -15,7 +15,7 @@ import useSaveGame from './useSaveGame';
 export function useUnsavedGame(chess?: Chess) {
     const [showDialog, setShowDialog] = useState(false);
     const [showBanner, setShowBanner] = useState(true);
-    const { createGame, stagedGame, request } = useSaveGame();
+    const { createGame, stagedGame, setStagedGame, request } = useSaveGame();
     const { chess: chessContext } = useChess();
 
     if (!chess) {
@@ -42,6 +42,10 @@ export function useUnsavedGame(chess?: Chess) {
         req.publish = form.publish;
         req.orientation = form.orientation;
 
+        if (form.skipFolder) {
+            req.directory = undefined;
+        }
+
         await createGame(req).then(() => {
             setShowDialog(false);
         });
@@ -54,5 +58,7 @@ export function useUnsavedGame(chess?: Chess) {
         setShowBanner,
         request,
         onSubmit,
+        stagedGame,
+        setStagedGame,
     };
 }

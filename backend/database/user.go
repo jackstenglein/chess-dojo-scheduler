@@ -867,7 +867,16 @@ func (repo *dynamoRepository) CreateUser(username, email, name, subscriptionStat
 	}
 
 	err := repo.SetUserConditional(user, aws.String("attribute_not_exists(username)"))
-	return user, err
+	if err != nil {
+		return nil, err
+	}
+
+	err = repo.createDefaultDirectories(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // SetUserConditional saves the provided User object in the database using an optional condition statement.
@@ -905,6 +914,97 @@ func (repo *dynamoRepository) SetUserConditional(user *User, condition *string) 
 
 	_, err = repo.svc.PutItem(input)
 	return errors.Wrap(500, "Temporary server error", "DynamoDB PutItem failure", err)
+}
+
+// createDefaultDirectories creates the default directories that a user should have when
+// they first start using the Dojo.
+func (repo *dynamoRepository) createDefaultDirectories(user *User) error {
+	type directoryItemMetadata struct {
+		CreatedAt   string `dynamodbav:"createdAt"`
+		UpdatedAt   string `dynamodbav:"updatedAt"`
+		Visibility  string `dynamodbav:"visibility"`
+		Name        string `dynamodbav:"name"`
+		Description string `dynamodbav:"description"`
+	}
+
+	type directoryItem struct {
+		Type     string                `dynamodbav:"type"`
+		ID       string                `dynamodbav:"id"`
+		Metadata directoryItemMetadata `dynamodbav:"metadata"`
+	}
+
+	type directory struct {
+		Owner       string                   `dynamodbav:"owner"`
+		ID          string                   `dynamodbav:"id"`
+		Parent      string                   `dynamodbav:"parent"`
+		Name        string                   `dynamodbav:"name"`
+		Description string                   `dynamodbav:"description,omitempty"`
+		Visibility  string                   `dynamodbav:"visibility"`
+		CreatedAt   string                   `dynamodbav:"createdAt"`
+		UpdatedAt   string                   `dynamodbav:"updatedAt"`
+		Items       map[string]directoryItem `dynamodbav:"items"`
+		ItemIds     []string                 `dynamodbav:"itemIds"`
+	}
+
+	home := directory{
+		Owner:      user.Username,
+		ID:         "home",
+		Parent:     "00000000-0000-0000-0000-000000000000",
+		Name:       "Home",
+		Visibility: "PUBLIC",
+		CreatedAt:  user.CreatedAt,
+		UpdatedAt:  user.CreatedAt,
+		Items: map[string]directoryItem{
+			"mygames": {
+				Type: "DIRECTORY",
+				ID:   "mygames",
+				Metadata: directoryItemMetadata{
+					CreatedAt:   user.CreatedAt,
+					UpdatedAt:   user.CreatedAt,
+					Visibility:  "PUBLIC",
+					Name:        "My Games",
+					Description: "Serious classical games I have played",
+				},
+			},
+		},
+		ItemIds: []string{"mygames"},
+	}
+	item, err := dynamodbattribute.MarshalMap(home)
+	if err != nil {
+		return err
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(directoryTable),
+	}
+	_, err = repo.svc.PutItem(input)
+	if err != nil {
+		return err
+	}
+
+	mygames := directory{
+		Owner:       user.Username,
+		ID:          "mygames",
+		Parent:      "home",
+		Name:        "My Games",
+		Description: "Serious classical games I have played",
+		Visibility:  "PUBLIC",
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+	}
+	item, err = dynamodbattribute.MarshalMap(mygames)
+	if err != nil {
+		return err
+	}
+	item["items"] = &dynamodb.AttributeValue{M: make(map[string]*dynamodb.AttributeValue)}
+	item["itemIds"] = &dynamodb.AttributeValue{L: make([]*dynamodb.AttributeValue, 0)}
+	input = &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(directoryTable),
+	}
+	_, err = repo.svc.PutItem(input)
+	return err
 }
 
 // UpdateUser applies the specified update to the user with the provided username.

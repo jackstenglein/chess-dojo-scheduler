@@ -115,9 +115,11 @@ async function filterPrivateItems(directory: Directory, viewer: string) {
 
     while (i < directory.itemIds.length) {
         const id = directory.itemIds[i];
+        const item = directory.items[id];
         if (
-            directory.items[id]?.type !== DirectoryItemTypes.DIRECTORY ||
-            directory.items[id].metadata.visibility === DirectoryVisibility.PUBLIC ||
+            (item?.type === DirectoryItemTypes.DIRECTORY &&
+                item.metadata.visibility === DirectoryVisibility.PUBLIC) ||
+            (item?.type !== DirectoryItemTypes.DIRECTORY && !item.metadata.unlisted) ||
             (await checkAccess({
                 owner: directory.owner,
                 id,
@@ -152,6 +154,7 @@ export function addAllUploads(directory?: Directory) {
         type: DirectoryItemTypes.DIRECTORY,
         metadata: {
             name: 'All Uploads',
+            description: 'Everything I have ever saved to the Dojo',
             visibility: DirectoryVisibility.PUBLIC,
             createdAt: directory.createdAt,
             updatedAt: directory.updatedAt,

@@ -1,9 +1,12 @@
 import { useApi } from '@/api/Api';
 import { DownloadGamesDialog } from '@/components/games/list/DownloadGamesDialog';
 import {
+    compareRoles,
     Directory,
+    DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
+    isDefaultDirectory,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     Close,
@@ -53,13 +56,28 @@ interface UseDirectoryEditorResponse {
     onDelete: () => void;
     /** Closes any open dialogs. */
     handleClose: () => void;
+    /** The actions the user can take. */
+    actions: {
+        /** The title of the action. */
+        title: string;
+        /** The handler for when the user clicks the action. */
+        onClick: () => void;
+        /** The element to render for the icon of the action. */
+        icon: JSX.Element;
+    }[];
 }
 
-export function useDirectoryEditor(
-    directory: Directory,
-    itemIds: string[],
-    onClose: () => void,
-): UseDirectoryEditorResponse {
+export function useDirectoryEditor({
+    directory,
+    itemIds,
+    accessRole,
+    onClose,
+}: {
+    directory: Directory;
+    itemIds: string[];
+    accessRole: DirectoryAccessRole | undefined;
+    onClose: () => void;
+}): UseDirectoryEditorResponse {
     const items = useMemo(() => {
         return itemIds.map((id) => directory.items[id]).filter((item) => item);
     }, [directory, itemIds]);
@@ -99,6 +117,36 @@ export function useDirectoryEditor(
         setDeleteOpen(false);
     };
 
+    const defaultDirectorySelected = itemIds.some((id) => isDefaultDirectory(id));
+    const showEdit =
+        !defaultDirectorySelected &&
+        itemIds.length === 1 &&
+        directory.items[itemIds[0]]?.type === DirectoryItemTypes.DIRECTORY;
+    const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
+
+    const actions = [{ title: 'Download PGN', onClick: onDownload, icon: <Download /> }];
+
+    if (showEdit && isAdmin) {
+        actions.push({
+            title: 'Edit Name/Visibility',
+            onClick: onRename,
+            icon: <DriveFileRenameOutline />,
+        });
+    }
+
+    if (!defaultDirectorySelected) {
+        actions.push({ title: 'Move', onClick: onMove, icon: <DriveFileMoveOutlined /> });
+    }
+
+    if (showEdit) {
+        actions.push({ title: 'Delete', onClick: onDelete, icon: <Delete /> });
+    } else if (!defaultDirectorySelected) {
+        actions.push(
+            { title: 'Remove from Folder', onClick: onRemove, icon: <FolderOff /> },
+            { title: 'Delete', onClick: onDelete, icon: <Delete /> },
+        );
+    }
+
     return {
         directory,
         items,
@@ -113,25 +161,25 @@ export function useDirectoryEditor(
         onRemove,
         onDelete,
         handleClose,
+        actions,
     };
 }
 
 export const BulkItemEditor = ({
     directory,
     itemIds,
+    accessRole,
     onClear,
 }: {
     directory: Directory;
     itemIds: string[];
+    accessRole: DirectoryAccessRole | undefined;
     onClear: () => void;
 }) => {
-    const editor = useDirectoryEditor(directory, itemIds, onClear);
+    const editor = useDirectoryEditor({ directory, itemIds, accessRole, onClose: onClear });
     if (editor.items.length === 0) {
         return null;
     }
-
-    const showEdit =
-        itemIds.length === 1 && directory.items[itemIds[0]]?.type === DirectoryItemTypes.DIRECTORY;
 
     return (
         <Paper elevation={4} sx={{ borderRadius: '1.5rem', flexGrow: 1, py: 0.5, px: 1 }}>
@@ -144,46 +192,13 @@ export const BulkItemEditor = ({
 
                 <Typography sx={{ ml: 1, mr: 2.5 }}>{itemIds.length} selected</Typography>
 
-                {showEdit && (
-                    <Tooltip title='Edit Name/Visibility' onClick={editor.onRename}>
-                        <IconButton size='small' sx={{ mr: 1 }}>
-                            <DriveFileRenameOutline />
+                {editor.actions.map((action) => (
+                    <Tooltip key={action.title} title={action.title}>
+                        <IconButton size='small' sx={{ mr: 1 }} onClick={action.onClick}>
+                            {action.icon}
                         </IconButton>
                     </Tooltip>
-                )}
-
-                <Tooltip title='Move'>
-                    <IconButton size='small' sx={{ mr: 1 }} onClick={editor.onMove}>
-                        <DriveFileMoveOutlined />
-                    </IconButton>
-                </Tooltip>
-
-                <Tooltip title='Download PGN'>
-                    <IconButton size='small' sx={{ mr: 1 }} onClick={editor.onDownload}>
-                        <Download />
-                    </IconButton>
-                </Tooltip>
-
-                {showEdit ? (
-                    <Tooltip title='Delete' onClick={editor.onDelete}>
-                        <IconButton size='small' sx={{ mr: 1 }}>
-                            <Delete />
-                        </IconButton>
-                    </Tooltip>
-                ) : (
-                    <>
-                        <Tooltip title='Remove from Folder' onClick={editor.onRemove}>
-                            <IconButton size='small' sx={{ mr: 1 }}>
-                                <FolderOff />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title='Delete' onClick={editor.onDelete}>
-                            <IconButton size='small' sx={{ mr: 1 }}>
-                                <Delete />
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )}
+                ))}
             </Stack>
 
             <ItemEditorDialogs editor={editor} />
