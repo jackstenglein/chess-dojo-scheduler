@@ -284,7 +284,7 @@ const DirectorySection = ({
                             paginationModel: { pageSize: 10 },
                         },
                     }}
-                    getRowHeight={getRowHeight}
+                    getRowHeight={isMobile ? getRowHeightMobile : getRowHeight}
                     checkboxSelection={isEditor}
                     checkboxSelectionVisibleOnly
                     onRowSelectionModelChange={setRowSelectionModel}
@@ -317,7 +317,7 @@ function ListViewCell(params: GridRenderCellParams) {
             <Stack width="4rem" alignItems='center' justifyContent='center'>
                 <Folder sx={{ height: 1 }} />
             </Stack>
-            <Stack direction="column" alignItems="left" spacing={0}>
+            <Stack direction="column" alignItems="left" spacing={0} justifyContent='center'>
                 <Stack>
                     <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>created at: {params.row.metadata.createdAt.substring(0, 10)}</Typography>
                 </Stack>
@@ -348,9 +348,6 @@ function ListViewCell(params: GridRenderCellParams) {
             <Stack>
                 <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>result: {params.row.metadata.result}</Typography>
             </Stack>
-        </Stack>
-
-        <Stack direction="column">
             <Stack>
                 <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>owner: {params.row.metadata.ownerDisplayName}</Typography>
             </Stack>
@@ -387,4 +384,8 @@ function getRowHeight(params: GridRowHeightParams) {
     if (typeof params.id === 'string' && params.id.includes('/')) {
         return 70;
     }
+}
+
+function getRowHeightMobile(params: GridRowHeightParams) {
+    return 105
 }
