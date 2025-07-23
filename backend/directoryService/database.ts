@@ -248,7 +248,11 @@ export class UpdateItemBuilder {
             updateExpression += ` ADD ${this.addExpression}`;
         }
 
-        const conditionExpr = this._condition?.build(this.exprAttrNames, this.exprAttrValues);
+        const conditionExpr = this._condition?.build(
+            this.exprAttrNames,
+            this.exprAttrValues,
+            this.reversedExprAttrNames,
+        );
         return new UpdateItemCommand({
             Key: this.keys,
             UpdateExpression: updateExpression,
@@ -296,6 +300,7 @@ class Condition {
     build(
         _exprAttrNames: Record<string, string>,
         _exprAttrValues: Record<string, AttributeValue>,
+        _reversedExprAttrNames: Record<string, string>,
         _parentAttrIndex = '',
     ): string {
         throw new ApiError({
@@ -308,6 +313,7 @@ class Condition {
     protected addExpressionPath(
         path: AttributePathTokens,
         exprAttrNames: Record<string, string>,
+        reversedExprAttrNames: Record<string, string>,
         parentAttrIndex: string,
     ) {
         let result = '';
@@ -316,9 +322,14 @@ class Condition {
             if (typeof token === 'number') {
                 result = result.slice(0, -1) + `[${token}].`;
             } else {
-                result += `#c${parentAttrIndex}${this.attrIndex}.`;
-                exprAttrNames[`#c${parentAttrIndex}${this.attrIndex}`] = token;
-                this.attrIndex++;
+                if (reversedExprAttrNames[token]) {
+                    result += `${reversedExprAttrNames[token]}.`;
+                } else {
+                    result += `#c${parentAttrIndex}${this.attrIndex}.`;
+                    exprAttrNames[`#c${parentAttrIndex}${this.attrIndex}`] = token;
+                    reversedExprAttrNames[token] = `#c${parentAttrIndex}${this.attrIndex}`;
+                    this.attrIndex++;
+                }
             }
         }
 
@@ -337,11 +348,17 @@ class AndCondition extends Condition {
     build(
         exprAttrNames: Record<string, string>,
         exprAttrValues: Record<string, AttributeValue>,
+        reversedExprAttrNames: Record<string, string>,
         parentAttrIndex = '',
     ) {
         const result = this.conditions
             .map((condition, index) =>
-                condition.build(exprAttrNames, exprAttrValues, `${parentAttrIndex}${index}`),
+                condition.build(
+                    exprAttrNames,
+                    exprAttrValues,
+                    reversedExprAttrNames,
+                    `${parentAttrIndex}${index}`,
+                ),
             )
             .join(' AND ');
         return `(${result})`;
@@ -363,9 +380,10 @@ class AttributeExistsCondition extends Condition {
     build(
         exprAttrNames: Record<string, string>,
         _exprAttrValues: Record<string, AttributeValue>,
+        reversedExprAttrNames: Record<string, string>,
         parentAttrIndex = '',
     ) {
-        return `attribute_exists (${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)})`;
+        return `attribute_exists (${this.addExpressionPath(this.path, exprAttrNames, reversedExprAttrNames, parentAttrIndex)})`;
     }
 }
 
@@ -384,9 +402,10 @@ class AttributeNotExistsCondition extends Condition {
     build(
         exprAttrNames: Record<string, string>,
         _exprAttrValues: Record<string, AttributeValue>,
+        reversedExprAttrNames: Record<string, string>,
         parentAttrIndex = '',
     ) {
-        return `attribute_not_exists (${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)})`;
+        return `attribute_not_exists (${this.addExpressionPath(this.path, exprAttrNames, reversedExprAttrNames, parentAttrIndex)})`;
     }
 }
 
@@ -411,13 +430,14 @@ class EqualityCondition extends Condition {
     build(
         exprAttrNames: Record<string, string>,
         exprAttrValues: Record<string, AttributeValue>,
+        reversedExprAttrNames: Record<string, string>,
         parentAttrIndex = '',
     ) {
         const valueName = `:c${parentAttrIndex}${this.attrIndex}`;
         this.attrIndex++;
         exprAttrValues[valueName] = marshall(this.value, { removeUndefinedValues: true });
 
-        return `${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)} ${this.comparator} ${valueName}`;
+        return `${this.addExpressionPath(this.path, exprAttrNames, reversedExprAttrNames, parentAttrIndex)} ${this.comparator} ${valueName}`;
     }
 }
 
@@ -429,13 +449,14 @@ class SizeCondition extends EqualityCondition {
     build(
         exprAttrNames: Record<string, string>,
         exprAttrValues: Record<string, AttributeValue>,
+        reversedExprAttrNames: Record<string, string>,
         parentAttrIndex = '',
     ) {
         const valueName = `:c${parentAttrIndex}${this.attrIndex}`;
         this.attrIndex++;
         exprAttrValues[valueName] = marshall(this.value, { removeUndefinedValues: true });
 
-        return `size(${this.addExpressionPath(this.path, exprAttrNames, parentAttrIndex)}) ${this.comparator} ${valueName}`;
+        return `size(${this.addExpressionPath(this.path, exprAttrNames, reversedExprAttrNames, parentAttrIndex)}) ${this.comparator} ${valueName}`;
     }
 }
 
