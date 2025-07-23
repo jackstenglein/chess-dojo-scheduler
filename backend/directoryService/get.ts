@@ -117,16 +117,17 @@ async function filterPrivateItems(directory: Directory, viewer: string) {
         const id = directory.itemIds[i];
         const item = directory.items[id];
         if (
-            (item?.type === DirectoryItemTypes.DIRECTORY &&
+            item &&
+            ((item.type === DirectoryItemTypes.DIRECTORY &&
                 item.metadata.visibility === DirectoryVisibility.PUBLIC) ||
-            (item?.type !== DirectoryItemTypes.DIRECTORY && !item.metadata.unlisted) ||
-            (await checkAccess({
-                owner: directory.owner,
-                id,
-                role: DirectoryAccessRole.Viewer,
-                skipRecursion: true,
-                username: viewer,
-            }))
+                (item.type !== DirectoryItemTypes.DIRECTORY && !item.metadata.unlisted) ||
+                (await checkAccess({
+                    owner: directory.owner,
+                    id,
+                    role: DirectoryAccessRole.Viewer,
+                    skipRecursion: true,
+                    username: viewer,
+                })))
         ) {
             directory.itemIds[j++] = id;
         } else if (directory.items[id]) {
