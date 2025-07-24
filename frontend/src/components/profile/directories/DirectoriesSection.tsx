@@ -294,7 +294,7 @@ const DirectorySection = ({
                     onRowOrderChange={handleRowOrderChange}
                     pagination
                     pageSizeOptions={pageSizeOptions}
-                    sx={{ width: 1, ...sx }}
+                    sx={{ width: 1, ...sx, display: 'grid' }}
                     showToolbar={!isMobile}
                 />
 
