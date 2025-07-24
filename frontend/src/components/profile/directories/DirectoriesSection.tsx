@@ -318,20 +318,14 @@ function ListViewCell(params: GridRenderCellParams) {
                 <Folder sx={{ height: 1 }} />
             </Stack>
             <Stack direction="column" alignItems="left" spacing={0} justifyContent='center'>
-                <Stack>
-                    <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>created at: {params.row.metadata.createdAt.substring(0, 10)}</Typography>
-                </Stack>
-                <Stack>
-                    <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>updated at: {params.row.metadata.updatedAt.substring(0, 10)}</Typography>
-                </Stack>
-                <Stack>
-                    <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>Description: {params.row.metadata.description}</Typography>
-                </Stack>
+                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>Created at {params.row.metadata.createdAt.substring(0, 10)}</Typography>
+                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>Updated at {params.row.metadata.updatedAt.substring(0, 10)}</Typography>
+                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>{params.row.metadata.description}</Typography>
             </Stack>
         </Stack>
     }
     return <Stack direction="row" alignItems="center" spacing={2} height={"100%"}>
-        <Stack sx={{ height: 1 }} width="4rem" alignItems='center' justifyContent='center'>
+        <Stack width="4rem" alignItems='center' justifyContent='center'>
             <CohortIcon
                 cohort={params.row.metadata.cohort}
                 tooltip={params.row.metadata.cohort}
@@ -342,18 +336,10 @@ function ListViewCell(params: GridRenderCellParams) {
             </Typography>
         </Stack>
         <Stack direction="column">
-            <Stack>
-                <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>name: {params.row.__reorder__}</Typography>
-            </Stack>
-            <Stack>
-                <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>result: {params.row.metadata.result}</Typography>
-            </Stack>
-            <Stack>
-                <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>owner: {params.row.metadata.ownerDisplayName}</Typography>
-            </Stack>
-            <Stack>
-                <Typography variant='caption' sx={{ fontSize: '0.75rem' }}>created at: {params.row.metadata.createdAt.substring(0, 10)}</Typography>
-            </Stack>
+            <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>{params.row.__reorder__}</Typography>
+            <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>{params.row.metadata.result}</Typography>
+            <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>{params.row.metadata.ownerDisplayName}</Typography>
+            <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>Created at {params.row.metadata.createdAt.substring(0, 10)}</Typography>
         </Stack>
     </Stack>
 }
