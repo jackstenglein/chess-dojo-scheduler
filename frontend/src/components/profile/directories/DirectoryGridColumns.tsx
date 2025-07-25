@@ -68,7 +68,7 @@ export const publicColumns: GridColDef<DirectoryItem>[] = [
                 case DirectoryItemTypes.DIRECTORY:
                     return row.metadata.name;
             }
-            return '';
+            return `${row.metadata.white} ${row.metadata.black}`;
         },
         renderCell: (params: GridRenderCellParams<DirectoryItem, string>) => {
             const item = params.row;

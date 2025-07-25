@@ -1,20 +1,8 @@
-import { useFreeTier } from '@/auth/Auth';
 import { DirectoryCacheProvider } from '@/components/profile/directories/DirectoryCache';
-import { GameInfo, GameKey } from '@/database/game';
-import { CreateNewFolder, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
-import {
-    Alert,
-    ListItemIcon,
-    ListItemText,
-    Menu,
-    MenuItem,
-    PopoverPosition,
-    Snackbar,
-} from '@mui/material';
-import { Dispatch, SetStateAction, useState } from 'react';
-import { AddToDirectoryDialog } from '../../../games/list/AddToDirectoryDialog';
-import { DeleteGamesDialog } from '../../../games/view/DeleteGameButton';
-import { ChangeVisibilityDialog } from './ChangeVisibilityDialog';
+import { GameInfo } from '@/database/game';
+import { ListItemIcon, ListItemText, Menu, MenuItem, PopoverPosition } from '@mui/material';
+import { Dispatch, SetStateAction } from 'react';
+import { BulkGameEditorDialogs, useBulkGameEditor } from './BulkGameEditor';
 
 export const ListItemContextMenu = ({
     games,
@@ -31,44 +19,7 @@ export const ListItemContextMenu = ({
     /** Callback invoked to update the cached list of games after they have been edited. */
     setGames?: Dispatch<SetStateAction<GameInfo[]>>;
 }) => {
-    const [directoryPickerOpen, setDirectoryPickerOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
-    const [visibilityDialog, setVisibilityDialog] = useState('');
-    const [visibilitySkipped, setVisibilitySkipped] = useState<GameKey[]>([]);
-    const isFreeTier = useFreeTier();
-
-    const handleClose = () => {
-        setDirectoryPickerOpen(false);
-        setDeleteOpen(false);
-        onClose();
-    };
-
-    const handleDelete = (keys: GameKey[]) => {
-        setGames?.((gs) =>
-            gs.filter((g) => {
-                const key = keys.find((key) => key.cohort === g.cohort && key.id === g.id);
-                return !key;
-            }),
-        );
-        handleClose();
-    };
-
-    const handleVisibilityChange = (updated: GameKey[], skipped: GameKey[]) => {
-        setGames?.((games) => {
-            return games.map((g) => {
-                if (updated.some((g2) => g.cohort === g2.cohort && g.id === g2.id)) {
-                    return { ...g, unlisted: visibilityDialog === 'unlisted' };
-                }
-                return g;
-            });
-        });
-        setVisibilityDialog('');
-        setVisibilitySkipped(skipped);
-        onClose();
-    };
-
-    const unpublished = games?.filter((g) => g.unlisted) ?? [];
-    const published = games?.filter((g) => !g.unlisted) ?? [];
+    const editor = useBulkGameEditor({ games, setGames, onClear: onClose, allowEdits });
 
     return (
         <DirectoryCacheProvider>
@@ -81,84 +32,20 @@ export const ListItemContextMenu = ({
                     root: {
                         onContextMenu: (e: React.MouseEvent) => {
                             e.preventDefault();
-                            handleClose();
+                            editor.handleClose();
                         },
                     },
                 }}
             >
-                <MenuItem onClick={() => setDirectoryPickerOpen(true)}>
-                    <ListItemIcon>
-                        <CreateNewFolder />
-                    </ListItemIcon>
-                    <ListItemText primary='Add to Folder' />
-                </MenuItem>
-
-                {allowEdits && (
-                    <>
-                        {unpublished.length > 0 && !isFreeTier && (
-                            <MenuItem onClick={() => setVisibilityDialog('published')}>
-                                <ListItemIcon>
-                                    <Visibility />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={`Publish Game${unpublished.length !== 1 ? 's' : ''}`}
-                                />
-                            </MenuItem>
-                        )}
-
-                        {published.length > 0 && (
-                            <MenuItem onClick={() => setVisibilityDialog('unlisted')}>
-                                <ListItemIcon>
-                                    <VisibilityOff />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={`Unlist Game${published.length !== 1 ? 's' : ''}`}
-                                />
-                            </MenuItem>
-                        )}
-
-                        <MenuItem onClick={() => setDeleteOpen(true)}>
-                            <ListItemIcon>
-                                <Delete />
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={`Delete Game${games?.length !== 1 ? 's' : ''}`}
-                            />
-                        </MenuItem>
-                    </>
-                )}
+                {editor.actions.map((action) => (
+                    <MenuItem key={action.title} onClick={action.onClick}>
+                        <ListItemIcon>{action.icon}</ListItemIcon>
+                        <ListItemText primary={action.title} />
+                    </MenuItem>
+                ))}
             </Menu>
 
-            <AddToDirectoryDialog open={directoryPickerOpen} games={games} onClose={handleClose} />
-
-            {games && (
-                <DeleteGamesDialog
-                    open={deleteOpen}
-                    onClose={() => setDeleteOpen(false)}
-                    onSuccess={handleDelete}
-                    games={games}
-                />
-            )}
-
-            {visibilityDialog && (
-                <ChangeVisibilityDialog
-                    games={visibilityDialog === 'unlisted' ? published : unpublished}
-                    onCancel={() => setVisibilityDialog('')}
-                    onSuccess={handleVisibilityChange}
-                    unlisted={visibilityDialog === 'unlisted'}
-                />
-            )}
-
-            <Snackbar
-                open={visibilitySkipped.length > 0}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert severity='error' variant='filled' onClose={() => setVisibilitySkipped([])}>
-                    {visibilitySkipped.length} game
-                    {visibilitySkipped.length !== 1 ? 's were' : ' was'} not able to be published
-                    because {visibilitySkipped.length !== 1 ? 'they are' : 'it is'} missing data.
-                </Alert>
-            </Snackbar>
+            <BulkGameEditorDialogs editor={editor} />
         </DirectoryCacheProvider>
     );
 };
