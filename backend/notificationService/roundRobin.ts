@@ -9,6 +9,7 @@ import { sendEmailTemplate } from './email';
 import { getNotificationSettings, PartialUser } from './user';
 
 const notificationTable = `${process.env.stage}-notifications`;
+const tournamentsTable = `${process.env.stage}-tournaments`;
 const frontendHost = process.env.frontendHost;
 const roundRobinChannel = process.env.discordRoundRobinChannelId ?? '';
 
@@ -50,6 +51,14 @@ async function createRoundRobinThread(tournament: RoundRobin) {
         threadId,
         `@everyone Your Round Robin tournament has started! Use this thread to schedule your games. Click [**here**](${frontendHost}/tournaments/round-robin?cohort=${tournament.cohort}) to view rules/pairings and submit games.`,
     );
+    const input = new UpdateItemBuilder()
+        .key('type', tournament.type)
+        .key('startsAt', tournament.startsAt)
+        .set('discordThreadId', threadId)
+        .table(tournamentsTable)
+        .return('NONE')
+        .build();
+    await dynamo.send(input);
 }
 
 /**

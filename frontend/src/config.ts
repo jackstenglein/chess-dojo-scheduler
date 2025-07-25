@@ -37,6 +37,7 @@ export const EnvSchema = z.object({
         url: z.string(),
         clientId: z.string(),
         oauthRedirectUrl: z.string(),
+        guildId: z.string(),
     }),
 });
 
@@ -74,6 +75,7 @@ export function getConfig(): Config {
             url: process.env.NEXT_PUBLIC_DISCORD_URL,
             clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
             oauthRedirectUrl: process.env.NEXT_PUBLIC_DISCORD_OAUTH_REDIRECT_URL,
+            guildId: process.env.NEXT_PUBLIC_DISCORD_GUILD_ID,
         },
     });
 }

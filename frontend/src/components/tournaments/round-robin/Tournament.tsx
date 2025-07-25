@@ -1,5 +1,7 @@
 import { useAuth } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { TournamentInfo } from '@/components/tournaments/round-robin/TournamentInfo';
+import { getConfig } from '@/config';
 import { PawnIcon } from '@/style/ChessIcons';
 import {
     RoundRobin,
@@ -27,6 +29,8 @@ import { Stats } from './Stats';
 import SubmitGameModal from './SubmitGameModal';
 import { WithdrawModal } from './WithdrawModal';
 
+const discordGuildId = getConfig().discord.guildId;
+
 /** Renders a single Round Robin tournament. */
 export function Tournament({
     tournament,
@@ -48,22 +52,34 @@ export function Tournament({
                 {user &&
                     tournament.players[user.username]?.status ===
                         RoundRobinPlayerStatuses.ACTIVE && (
-                        <Stack direction='row' sx={{ mt: -2, mb: 3 }} gap={1}>
-                            <Button
-                                variant='contained'
-                                color='success'
-                                onClick={() => setShowSubmitGame(true)}
-                            >
-                                Submit Game
-                            </Button>
+                        <Stack sx={{ mt: -2, mb: 3 }} gap={2}>
+                            <Stack direction='row' gap={1}>
+                                <Button
+                                    variant='contained'
+                                    color='success'
+                                    onClick={() => setShowSubmitGame(true)}
+                                >
+                                    Submit Game
+                                </Button>
 
-                            <Button
-                                variant='contained'
-                                color='error'
-                                onClick={() => setShowWithdraw(true)}
-                            >
-                                Withdraw
-                            </Button>
+                                <Button
+                                    variant='contained'
+                                    color='error'
+                                    onClick={() => setShowWithdraw(true)}
+                                >
+                                    Withdraw
+                                </Button>
+                            </Stack>
+
+                            {tournament.discordThreadId && (
+                                <Link
+                                    href={`https://discord.com/channels/${discordGuildId}/${tournament.discordThreadId}`}
+                                    target='_blank'
+                                    rel='noopener'
+                                >
+                                    Schedule games with other players in Discord
+                                </Link>
+                            )}
                         </Stack>
                     )}
 
