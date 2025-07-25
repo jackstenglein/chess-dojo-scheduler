@@ -174,6 +174,8 @@ export const RoundRobinSchema = z.object({
     startEligibleAt: z.string().optional(),
     /** Whether reminders were sent to players who did not submit games. */
     reminderSent: z.boolean().optional(),
+    /** The ID of the scheduling thread on Discord. */
+    discordThreadId: z.string().optional(),
 });
 
 export type RoundRobin = z.infer<typeof RoundRobinSchema>;
