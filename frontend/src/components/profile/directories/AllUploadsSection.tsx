@@ -34,8 +34,9 @@ export function AllUploadsSection({
     enableNavigationMenu: boolean;
     /** Whether to default the navigation menu to open. */
     defaultNavigationMenuOpen?: boolean;
-    /** The namespace for the local storage data. */
+    /** Wheater the current render should use the mobile layout */
     isMobile: boolean;
+    /** The namespace for the local storage data. */
     namespace: string;
 }) {
     const api = useApi();
@@ -80,7 +81,7 @@ export function AllUploadsSection({
     };
 
     return (
-        <Stack direction={isMobile ? "column": "row"} columnGap={2}>
+        <Stack direction={isMobile ? 'column' : 'row'} columnGap={2}>
             <RequestSnackbar request={request} />
 
             <NavigationMenu
