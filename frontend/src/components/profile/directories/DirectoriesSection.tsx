@@ -2,10 +2,12 @@ import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { NavigationMenu } from '@/components/directories/navigation/NavigationMenu';
+import { MastersCohort } from '@/database/game.ts';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
+import CohortIcon from '@/scoreboard/CohortIcon.tsx';
 import {
     ALL_MY_UPLOADS_DIRECTORY_ID,
     compareRoles,
@@ -14,11 +16,14 @@ import {
     DirectoryItemTypes,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { Stack, SxProps } from '@mui/material';
+import { Folder } from '@mui/icons-material';
+import { Stack, SxProps, Typography, useMediaQuery } from '@mui/material';
 import {
     DataGridPro,
     GridColumnVisibilityModel,
     GridDensity,
+    GridListViewColDef,
+    GridRenderCellParams,
     GridRowHeightParams,
     GridRowOrderChangeParams,
     GridRowParams,
@@ -57,6 +62,8 @@ interface DirectoriesSectionProps {
     /** The default column visibility, if the user has not changed any settings. */
     defaultColumnVisibility?: Record<string, boolean>;
 
+    isMobile?: boolean;
+
     /** The sx prop passed to the DataGrid component. */
     sx?: SxProps;
 }
@@ -65,6 +72,7 @@ export const DirectoriesSection = (props: DirectoriesSectionProps) => {
     const { searchParams } = useNextSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const directoryOwner = searchParams.get('directoryOwner') || props.defaultDirectoryOwner;
+    const isMobile = useMediaQuery('(max-width:1024px)');
 
     if (directoryId === ALL_MY_UPLOADS_DIRECTORY_ID) {
         return (
@@ -73,11 +81,12 @@ export const DirectoriesSection = (props: DirectoriesSectionProps) => {
                 username={directoryOwner}
                 enableNavigationMenu={props.enableNavigationMenu}
                 defaultNavigationMenuOpen={props.defaultNavigationMenuOpen}
+                isMobile={isMobile}
             />
         );
     }
 
-    return <DirectorySection {...props} />;
+    return <DirectorySection isMobile={isMobile} {...props} />;
 };
 
 const DirectorySection = ({
@@ -86,6 +95,7 @@ const DirectorySection = ({
     enableNavigationMenu,
     defaultNavigationMenuOpen,
     defaultColumnVisibility,
+    isMobile,
     sx,
 }: DirectoriesSectionProps) => {
     const api = useApi();
@@ -205,7 +215,7 @@ const DirectorySection = ({
     const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     return (
-        <Stack direction='row' columnGap={2}>
+        <Stack direction={isMobile ? 'column' : 'row'} columnGap={2}>
             <NavigationMenu
                 namespace={namespace}
                 id={directoryId}
@@ -239,6 +249,8 @@ const DirectorySection = ({
 
                 <DataGridPro
                     autoHeight
+                    listViewColumn={listViewColDef}
+                    listView={isMobile}
                     rows={rows}
                     columns={isAdmin ? adminColumns : publicColumns}
                     columnVisibilityModel={columnVisibility}
@@ -263,18 +275,18 @@ const DirectorySection = ({
                             paginationModel: { pageSize: 10 },
                         },
                     }}
-                    getRowHeight={getRowHeight}
+                    getRowHeight={isMobile ? getRowHeightMobile : getRowHeight}
                     checkboxSelection={isEditor}
                     checkboxSelectionVisibleOnly
                     disableRowSelectionOnClick
                     onRowSelectionModelChange={setRowSelectionModel}
                     rowSelectionModel={rowSelectionModel}
-                    rowReordering={isAdmin}
+                    rowReordering={isAdmin && !isMobile}
                     onRowOrderChange={handleRowOrderChange}
                     pagination
                     pageSizeOptions={pageSizeOptions}
-                    sx={{ width: 1, ...sx }}
-                    showToolbar
+                    sx={{ width: 1, ...sx, display: 'grid' }}
+                    showToolbar={!isMobile}
                 />
 
                 <ContextMenu
@@ -287,6 +299,64 @@ const DirectorySection = ({
             </Stack>
         </Stack>
     );
+};
+
+function ListViewCell(params: GridRenderCellParams) {
+    if (params.row.type === 'DIRECTORY') {
+        return (
+            <Stack direction='row' alignItems='left' spacing={2} height={'100%'}>
+                <Stack width='4rem' alignItems='center' justifyContent='center'>
+                    <Folder sx={{ height: 1 }} />
+                </Stack>
+                <Stack direction='column' alignItems='left' spacing={0} justifyContent='center'>
+                    <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
+                        Created at {params.row.metadata.createdAt.substring(0, 10)}
+                    </Typography>
+                    <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
+                        Updated at {params.row.metadata.updatedAt.substring(0, 10)}
+                    </Typography>
+                    <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
+                        {params.row.metadata.description}
+                    </Typography>
+                </Stack>
+            </Stack>
+        );
+    }
+    return (
+        <Stack direction='row' alignItems='center' spacing={2} height={'100%'}>
+            <Stack width='4rem' alignItems='center' justifyContent='center'>
+                <CohortIcon
+                    cohort={params.row.metadata.cohort}
+                    tooltip={params.row.metadata.cohort}
+                    size={30}
+                />
+                <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
+                    {params.row.metadata.cohort === MastersCohort
+                        ? 'masters'
+                        : params.row.metadata.cohort}
+                </Typography>
+            </Stack>
+            <Stack direction='column'>
+                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
+                    {params.row.__reorder__}
+                </Typography>
+                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
+                    {params.row.metadata.result}
+                </Typography>
+                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
+                    {params.row.metadata.ownerDisplayName}
+                </Typography>
+                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
+                    Created at {params.row.metadata.createdAt.substring(0, 10)}
+                </Typography>
+            </Stack>
+        </Stack>
+    );
+}
+
+const listViewColDef: GridListViewColDef = {
+    field: 'listColumn',
+    renderCell: ListViewCell,
 };
 
 function CustomGridToolbar() {
@@ -303,4 +373,8 @@ function getRowHeight(params: GridRowHeightParams) {
     if (typeof params.id === 'string' && params.id.includes('/')) {
         return 70;
     }
+}
+
+function getRowHeightMobile(params: GridRowHeightParams) {
+    return 105;
 }
