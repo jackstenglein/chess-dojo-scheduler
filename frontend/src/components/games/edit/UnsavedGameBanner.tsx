@@ -13,8 +13,16 @@ interface UnsavedGameBannerProps {
  * can be optionally dismissed and can open a dialog to save the game.
  */
 export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
-    const { showDialog, setShowDialog, showBanner, setShowBanner, request, onSubmit } =
-        useUnsavedGame();
+    const {
+        showDialog,
+        setShowDialog,
+        showBanner,
+        setShowBanner,
+        request,
+        onSubmit,
+        stagedGame,
+        setStagedGame,
+    } = useUnsavedGame();
 
     return (
         <>
@@ -44,6 +52,8 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
                     loading={request.isLoading()}
                     onSubmit={onSubmit}
                     onClose={() => setShowDialog(false)}
+                    createGameRequest={stagedGame}
+                    setCreateGameRequest={setStagedGame}
                 />
             )}
             <RequestSnackbar request={request} />
@@ -56,7 +66,8 @@ export function UnsavedGameBanner({ dismissable }: UnsavedGameBannerProps) {
  * a dialog opens to save the game.
  */
 export function UnsavedGameIcon() {
-    const { showDialog, setShowDialog, request, onSubmit } = useUnsavedGame();
+    const { showDialog, setShowDialog, request, onSubmit, stagedGame, setStagedGame } =
+        useUnsavedGame();
 
     return (
         <>
@@ -74,6 +85,8 @@ export function UnsavedGameIcon() {
                     loading={request.isLoading()}
                     onSubmit={onSubmit}
                     onClose={() => setShowDialog(false)}
+                    createGameRequest={stagedGame}
+                    setCreateGameRequest={setStagedGame}
                 />
             )}
             <RequestSnackbar request={request} />

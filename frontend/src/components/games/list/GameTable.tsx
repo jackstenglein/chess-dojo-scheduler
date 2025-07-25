@@ -58,8 +58,7 @@ export const gameTableColumns: GridColDef<GameInfo>[] = [
     {
         field: 'players',
         headerName: 'Players',
-        valueGetter: (_value, row) =>
-            `${row.headers.White} (${row.headers.WhiteElo}) - ${row.headers.Black} (${row.headers.BlackElo})`,
+        valueGetter: (_value, row) => `${row.headers.White} ${row.headers.Black}`,
         renderCell: RenderPlayersCell,
         minWidth: 150,
         flex: 1,

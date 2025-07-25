@@ -49,7 +49,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: ${param:NotificationsTableArn}
+        Resource:
+          - ${param:NotificationsTableArn}
+          - ${param:TournamentsTableArn}
       - Effect: Allow
         Action:
           - sqs:ReceiveMessage
