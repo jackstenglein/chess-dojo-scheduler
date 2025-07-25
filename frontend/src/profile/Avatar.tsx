@@ -19,7 +19,7 @@ interface AvatarProps {
      * The displayName of the Avatar. If provided, the Avatar will fallback to displaying the
      * initials if the image cannot be loaded.
      */
-    displayName?: string;
+    displayName?: string | null;
 
     /**
      * The size in px of the image.

@@ -124,7 +124,7 @@ export function DeleteGamesDialog({
     return (
         <Dialog open={open} onClose={request.isLoading() ? undefined : handleClose}>
             <DialogTitle>
-                Delete{games.length !== 1 ? ` ${games.length}` : ''} Game
+                Permanently Delete{games.length !== 1 ? ` ${games.length}` : ''} Game
                 {games.length !== 1 ? 's' : ''}?
             </DialogTitle>
             <DialogContent>

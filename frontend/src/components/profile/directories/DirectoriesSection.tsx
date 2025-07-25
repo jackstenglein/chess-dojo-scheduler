@@ -14,7 +14,6 @@ import {
     DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
-    isManagedDirectory,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { Folder } from '@mui/icons-material';
@@ -124,7 +123,7 @@ const DirectorySection = ({
 
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({
         type: 'include',
-        ids: new Set([]),
+        ids: new Set(),
     });
     const contextMenu = useDataGridContextMenu(rowSelectionModel);
 
@@ -178,6 +177,7 @@ const DirectorySection = ({
                         ? (params.row.addedBy ?? directory.owner)
                         : directory.owner,
             });
+            setRowSelectionModel({ type: 'include', ids: new Set() });
         } else {
             const url = `/games/${params.row.metadata.cohort.replaceAll('+', '%2B')}/${params.row.metadata.id.replaceAll(
                 '?',
@@ -239,6 +239,7 @@ const DirectorySection = ({
                         <BulkItemEditor
                             directory={directory}
                             itemIds={[...rowSelectionModel.ids] as string[]}
+                            accessRole={accessRole}
                             onClear={() =>
                                 setRowSelectionModel({ type: 'include', ids: new Set() })
                             }
@@ -277,9 +278,9 @@ const DirectorySection = ({
                     getRowHeight={isMobile ? getRowHeightMobile : getRowHeight}
                     checkboxSelection={isEditor}
                     checkboxSelectionVisibleOnly
+                    disableRowSelectionOnClick
                     onRowSelectionModelChange={setRowSelectionModel}
                     rowSelectionModel={rowSelectionModel}
-                    isRowSelectable={isDirectorySelectable}
                     rowReordering={isAdmin && !isMobile}
                     onRowOrderChange={handleRowOrderChange}
                     pagination
@@ -357,13 +358,6 @@ const listViewColDef: GridListViewColDef = {
     field: 'listColumn',
     renderCell: ListViewCell,
 };
-
-/**
- * Returns true if the directory is selectable in the data grid.
- */
-function isDirectorySelectable(params: GridRowParams<DirectoryItem>) {
-    return !isManagedDirectory(params.row.id);
-}
 
 function CustomGridToolbar() {
     return (

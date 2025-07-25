@@ -229,7 +229,7 @@ const DeleteDialogContentText = ({
                 <DialogContentText>
                     This will <strong>permanently delete</strong> {items[0].metadata.name} and any
                     folders it contains. Any of your games within these folders will not be deleted
-                    and will still be available in the Games tab.
+                    and will still be available in the All Uploads folder.
                 </DialogContentText>
             );
         }
@@ -241,7 +241,7 @@ const DeleteDialogContentText = ({
                         {items[0].metadata.white} - {items[0].metadata.black}
                     </strong>{' '}
                     from the <strong>{directory.name}</strong> folder. The game will still be
-                    accessible from the Games tab and from any other folders it is in.
+                    accessible from the All Uploads folder and from any other folders it is in.
                 </DialogContentText>
             );
         }
@@ -251,8 +251,8 @@ const DeleteDialogContentText = ({
                 <strong>
                     {items[0].metadata.white} - {items[0].metadata.black}
                 </strong>
-                . It will be removed from the Games tab and will no longer be accessible from other
-                folders.
+                . It will be removed from the All Uploads folder and will no longer be accessible
+                from other folders.
             </DialogContentText>
         );
     }
@@ -273,8 +273,8 @@ const DeleteDialogContentText = ({
             <DialogContentText>
                 This will <strong>permanently delete</strong> {directoryCount} folders and any
                 subfolders. Any of your games within these folders will not be permanently deleted
-                and will still be available in the Games tab and from any other folders they may be
-                in.
+                and will still be available in the All Uploads folder and from any other folders
+                they may be in.
             </DialogContentText>
         );
     }
@@ -284,15 +284,16 @@ const DeleteDialogContentText = ({
             return (
                 <DialogContentText>
                     This will remove {gameCount} games from the <strong>{directory.name}</strong>{' '}
-                    folder. The games will still be accessible from the Games tab and from any other
-                    folders they may be in.
+                    folder. The games will still be accessible from the All Uploads folder and from
+                    any other folders they may be in.
                 </DialogContentText>
             );
         }
         return (
             <DialogContentText>
                 This will <strong>permanently delete</strong> {gameCount} games. The games will be
-                removed from the Games tab and will no longer be accessible from other folders.
+                removed from the All Uploads folder and will no longer be accessible from other
+                folders.
             </DialogContentText>
         );
     }
@@ -302,8 +303,8 @@ const DeleteDialogContentText = ({
             <DialogContentText>
                 This will delete {directoryCount} folder{directoryCount > 1 && 's'} and remove{' '}
                 {gameCount} game{gameCount > 1 && 's'} from the {directory.name} folder. The game
-                {gameCount > 1 && 's'} will still be available in the Games tab and from any other
-                folders they may be in. However, the folder
+                {gameCount > 1 && 's'} will still be available in the All Uploads folder and from
+                any other folders they may be in. However, the folder
                 {directoryCount > 1 && 's'} will be <strong>permanently deleted</strong>, along with
                 any subfolders.
             </DialogContentText>
@@ -314,7 +315,7 @@ const DeleteDialogContentText = ({
         <DialogContentText>
             This will <strong>permanently delete</strong> {directoryCount} folder
             {directoryCount > 1 && 's'} and {gameCount} game{gameCount > 1 && 's'}. The game
-            {gameCount > 1 && 's'} will be removed from the Games tab and will no longer be
+            {gameCount > 1 && 's'} will be removed from the All Uploads folder and will no longer be
             accessible from other folders. Any subfolders will also be{' '}
             <strong>permanently deleted</strong>.
         </DialogContentText>

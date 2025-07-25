@@ -55,7 +55,7 @@ export function AllUploadsSection({
     );
 
     const pagination = usePagination(searchByOwner, 0, 10);
-    const { request, data, pageSize, setPageSize, onDelete, setGames } = pagination;
+    const { request, data, pageSize, setPageSize, setGames } = pagination;
 
     const onClickRow = (params: GridRowParams<GameInfo>, event: React.MouseEvent) => {
         const url = `/games/${params.row.cohort.replaceAll(
@@ -116,7 +116,6 @@ export function AllUploadsSection({
                             onClear={() =>
                                 setRowSelectionModel({ type: 'include', ids: new Set() })
                             }
-                            onDelete={onDelete}
                             setGames={setGames}
                         />
                     </Stack>
