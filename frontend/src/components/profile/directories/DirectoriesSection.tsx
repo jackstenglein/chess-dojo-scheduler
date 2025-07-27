@@ -2,22 +2,23 @@ import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { NavigationMenu } from '@/components/directories/navigation/NavigationMenu';
-import { MastersCohort } from '@/database/game.ts';
+import { GameCell } from '@/components/games/list/GameListItem';
+import { GameResult } from '@/database/game.ts';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
-import CohortIcon from '@/scoreboard/CohortIcon.tsx';
 import {
     ALL_MY_UPLOADS_DIRECTORY_ID,
     compareRoles,
     DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
+    DirectoryVisibility,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { Folder } from '@mui/icons-material';
-import { Stack, SxProps, Typography, useMediaQuery } from '@mui/material';
+import { Folder, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Grid, Stack, SxProps, Typography, useMediaQuery } from '@mui/material';
 import {
     DataGridPro,
     GridColumnVisibilityModel,
@@ -41,7 +42,7 @@ import { BulkItemEditor } from './BulkItemEditor';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
-import { adminColumns, publicColumns } from './DirectoryGridColumns';
+import { adminColumns, DirectoryCreatedAt, publicColumns } from './DirectoryGridColumns';
 import { ShareButton } from './share/ShareButton';
 
 const pageSizeOptions = [10, 25, 50, 100] as const;
@@ -72,7 +73,7 @@ export const DirectoriesSection = (props: DirectoriesSectionProps) => {
     const { searchParams } = useNextSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const directoryOwner = searchParams.get('directoryOwner') || props.defaultDirectoryOwner;
-    const isMobile = useMediaQuery('(max-width:1024px)');
+    const isMobile = useMediaQuery('(max-width:800px)');
 
     if (directoryId === ALL_MY_UPLOADS_DIRECTORY_ID) {
         return (
@@ -222,9 +223,10 @@ const DirectorySection = ({
                 owner={directoryOwner}
                 enabled={enableNavigationMenu}
                 defaultValue={defaultNavigationMenuOpen}
+                horizontal={isMobile}
             />
 
-            <Stack spacing={2} alignItems='start' flexGrow={1}>
+            <Stack spacing={2} alignItems='start' flexGrow={1} mt={isMobile ? 2 : 0}>
                 <DirectoryBreadcrumbs
                     owner={directoryOwner}
                     id={directoryId}
@@ -271,6 +273,7 @@ const DirectorySection = ({
                             : undefined,
                     }}
                     initialState={{
+                        density: 'standard',
                         pagination: {
                             paginationModel: { pageSize: 10 },
                         },
@@ -285,7 +288,7 @@ const DirectorySection = ({
                     onRowOrderChange={handleRowOrderChange}
                     pagination
                     pageSizeOptions={pageSizeOptions}
-                    sx={{ width: 1, ...sx, display: 'grid' }}
+                    sx={{ width: 1, display: 'grid', ...sx }}
                     showToolbar={!isMobile}
                 />
 
@@ -301,55 +304,61 @@ const DirectorySection = ({
     );
 };
 
-function ListViewCell(params: GridRenderCellParams) {
-    if (params.row.type === 'DIRECTORY') {
+function ListViewCell(params: GridRenderCellParams<DirectoryItem>) {
+    if (params.row.type !== DirectoryItemTypes.DIRECTORY) {
         return (
-            <Stack direction='row' alignItems='left' spacing={2} height={'100%'}>
-                <Stack width='4rem' alignItems='center' justifyContent='center'>
-                    <Folder sx={{ height: 1 }} />
-                </Stack>
-                <Stack direction='column' alignItems='left' spacing={0} justifyContent='center'>
-                    <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
-                        Created at {params.row.metadata.createdAt.substring(0, 10)}
-                    </Typography>
-                    <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
-                        Updated at {params.row.metadata.updatedAt.substring(0, 10)}
-                    </Typography>
-                    <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
-                        {params.row.metadata.description}
-                    </Typography>
-                </Stack>
-            </Stack>
+            <GameCell
+                {...params.row.metadata}
+                date={params.row.metadata.createdAt}
+                headers={{
+                    White: params.row.metadata.white,
+                    Black: params.row.metadata.black,
+                    WhiteElo: params.row.metadata.whiteElo ?? '',
+                    BlackElo: params.row.metadata.blackElo ?? '',
+                    Result: params.row.metadata.result as GameResult,
+                }}
+                showVisibility
+            />
         );
     }
+
     return (
-        <Stack direction='row' alignItems='center' spacing={2} height={'100%'}>
-            <Stack width='4rem' alignItems='center' justifyContent='center'>
-                <CohortIcon
-                    cohort={params.row.metadata.cohort}
-                    tooltip={params.row.metadata.cohort}
-                    size={30}
-                />
-                <Typography variant='caption' sx={{ fontSize: '0.65rem' }}>
-                    {params.row.metadata.cohort === MastersCohort
-                        ? 'masters'
-                        : params.row.metadata.cohort}
-                </Typography>
-            </Stack>
-            <Stack direction='column'>
-                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
-                    {params.row.__reorder__}
-                </Typography>
-                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
-                    {params.row.metadata.result}
-                </Typography>
-                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
-                    {params.row.metadata.ownerDisplayName}
-                </Typography>
-                <Typography variant='body1' sx={{ fontSize: '0.75rem', textWrap: 'auto' }}>
-                    Created at {params.row.metadata.createdAt.substring(0, 10)}
-                </Typography>
-            </Stack>
+        <Stack height={1} justifyContent='center' py={1}>
+            <Grid container>
+                <Grid size={1} display='flex' justifyContent='center'>
+                    <Folder />
+                </Grid>
+                <Grid size={11}>
+                    <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        justifyContent='space-between'
+                        alignItems='center'
+                    >
+                        <Stack gap={0.25}>
+                            <Typography variant='body2'>{params.row.metadata.name}</Typography>
+                            {params.row.metadata.description && (
+                                <Typography variant='body2' color='text.secondary'>
+                                    {params.row.metadata.description}
+                                </Typography>
+                            )}
+                        </Stack>
+
+                        {params.row.metadata.visibility === DirectoryVisibility.PUBLIC ? (
+                            <Visibility sx={{ color: 'text.secondary' }} />
+                        ) : (
+                            <VisibilityOff sx={{ color: 'text.secondary' }} />
+                        )}
+                    </Stack>
+                </Grid>
+
+                <Grid size={1} />
+                <Grid size={11} mt={0.25}>
+                    <Typography variant='body2' color='text.secondary'>
+                        Created <DirectoryCreatedAt createdAt={params.row.metadata.createdAt} />
+                    </Typography>
+                </Grid>
+            </Grid>
         </Stack>
     );
 }
@@ -375,6 +384,6 @@ function getRowHeight(params: GridRowHeightParams) {
     }
 }
 
-function getRowHeightMobile(params: GridRowHeightParams) {
-    return 105;
+function getRowHeightMobile(): number | 'auto' {
+    return 'auto';
 }

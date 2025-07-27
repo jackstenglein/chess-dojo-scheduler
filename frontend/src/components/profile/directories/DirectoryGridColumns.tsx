@@ -229,7 +229,7 @@ export const adminColumns: GridColDef<DirectoryItem>[] = [
     ...publicColumns.slice(2),
 ];
 
-function DirectoryCreatedAt({ createdAt }: { createdAt?: string }) {
+export function DirectoryCreatedAt({ createdAt }: { createdAt?: string }) {
     const { user } = useAuth();
 
     if (!createdAt) {
