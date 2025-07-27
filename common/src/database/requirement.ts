@@ -86,3 +86,16 @@ export enum RequirementCategory {
     SuggestedTasks = 'Suggested Tasks',
     Pinned = 'Pinned Tasks',
 }
+
+/**
+ * Converts a requirement category into a user-facing display string.
+ * @param category The category to convert.
+ */
+export function displayRequirementCategory(category: RequirementCategory): string {
+    switch(category) {
+        case RequirementCategory.Middlegames:
+            return 'Middlegame';
+        default:
+            return category;
+    }
+}

@@ -8,7 +8,8 @@ import {
     RequirementCategory,
 } from '@/database/requirement';
 import { User } from '@/database/user';
-import { ProgressText } from '@/scoreboard/ScoreboardProgress';
+import ScoreboardProgress, { ProgressText } from '@/scoreboard/ScoreboardProgress';
+import { displayRequirementCategory } from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { Checklist } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -17,8 +18,8 @@ import {
     AccordionSummary,
     Button,
     Divider,
+    Grid,
     Stack,
-    SvgIconOwnProps,
     Typography,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
@@ -36,8 +37,10 @@ export interface Section {
     uncompletedTasks: (Requirement | CustomTask)[];
     /** The completed tasks in the section. */
     completedTasks: (Requirement | CustomTask)[];
-    /** The color of the icon in the section header. */
-    color?: SvgIconOwnProps['color'];
+    /** The color of the icon in the section header and the progress bar. */
+    color?: string;
+    /** The value of the progress bar for the section. */
+    progressBar?: number;
 }
 
 interface TrainingPlanSectionProps {
@@ -97,30 +100,55 @@ export function TrainingPlanSection({
                 aria-controls={`${section.category.replaceAll(' ', '-')}-content`}
                 id={`${section.category.replaceAll(' ', '-')}-header`}
             >
-                <Stack
-                    direction='row'
-                    justifyContent='space-between'
+                <Grid
+                    container
+                    width={1}
                     alignItems='center'
-                    flexWrap='wrap'
-                    columnGap='1rem'
-                    rowGap={0.5}
-                    sx={{ width: 1, mr: 2 }}
+                    justifyContent='space-between'
+                    sx={{ mr: 2 }}
+                    columnGap={3}
                 >
-                    <Typography fontWeight='bold'>
-                        <TrainingPlanIcon
-                            category={section.category}
-                            color={section.color || 'primary'}
-                            sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
+                    <Grid size={{ xs: 'auto', sm: 5.5, lg: 5, xl: 3 }}>
+                        <Typography fontWeight='bold' sx={{ whiteSpace: 'nowrap' }}>
+                            <TrainingPlanIcon
+                                category={section.category}
+                                sx={{
+                                    color: section.color || 'primary.main',
+                                    marginRight: '0.6rem',
+                                    verticalAlign: 'middle',
+                                }}
+                            />
+                            {displayRequirementCategory(section.category)}
+                        </Typography>
+                    </Grid>
+
+                    <Grid
+                        size={{ xs: 0, sm: 'grow' }}
+                        color={section.color}
+                        sx={{ display: { xs: 'none', sm: 'initial' } }}
+                    >
+                        {section.progressBar !== undefined && (
+                            <ScoreboardProgress
+                                value={section.progressBar}
+                                min={0}
+                                max={100}
+                                color={'inherit'}
+                                label={`${section.progressBar}%`}
+                            />
+                        )}
+                    </Grid>
+
+                    <Grid
+                        size={{ xs: 'auto', sm: 0 }}
+                        sx={{ display: { xs: 'initial', sm: 'none' } }}
+                    >
+                        <ProgressText
+                            value={section.completedTasks.length}
+                            max={section.completedTasks.length + section.uncompletedTasks.length}
+                            min={0}
                         />
-                        {section.category}
-                    </Typography>
-                    <ProgressText
-                        value={section.completedTasks.length}
-                        max={section.completedTasks.length + section.uncompletedTasks.length}
-                        min={0}
-                        suffix='Complete'
-                    />
-                </Stack>
+                    </Grid>
+                </Grid>
             </AccordionSummary>
             <AccordionDetails data-cy={`progress-category-${section.category}`}>
                 <Divider />

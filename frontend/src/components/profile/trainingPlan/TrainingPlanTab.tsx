@@ -1,9 +1,10 @@
 import { TrainingPlanView } from '@/components/profile/trainingPlan/TrainingPlanViewSelect';
 import { User } from '@/database/user';
-import { Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 import { DailyTrainingPlan } from './daily/DailyTrainingPlan';
 import { FullTrainingPlan } from './full/FullTrainingPlan';
+import { WeeklyTrainingPlanSection } from './weekly/WeeklyTrainingPlanSection';
 
 const TRAINING_PLAN_VIEW = {
     Key: 'trainingPlanView',
@@ -31,9 +32,22 @@ export function TrainingPlanTab({ user, isCurrentUser }: { user: User; isCurrent
                 />
             )} */}
 
-            <DailyTrainingPlan user={user} />
+            <Stack spacing={2} width={1}>
+                <Typography variant='h5' fontWeight='bold'>
+                    Today
+                </Typography>
+                <DailyTrainingPlan user={user} />
+            </Stack>
 
-            <FullTrainingPlan user={user} />
+            <WeeklyTrainingPlanSection />
+
+            <Stack spacing={2} width={1}>
+                <Typography variant='h5' fontWeight='bold'>
+                    Full Training Plan
+                </Typography>
+
+                <FullTrainingPlan user={user} />
+            </Stack>
 
             {/* {trainingPlanView === TrainingPlanView.Daily && <DailyTrainingPlan user={user} />}
 
