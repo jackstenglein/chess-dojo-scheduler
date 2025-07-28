@@ -1,5 +1,12 @@
+import {
+    RequirementCategory,
+    ScoreboardDisplay,
+} from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { isObject } from './scoreboard';
+import { TimelineEntry } from './timeline';
 import { SubscriptionStatus, User } from './user';
+
+export { RequirementCategory, ScoreboardDisplay };
 
 /** The status of a requirement. */
 export enum RequirementStatus {
@@ -11,26 +18,6 @@ export enum RequirementStatus {
      * We instead have just deleted old requirements.
      */
     Archived = 'ARCHIVED',
-}
-
-/** Defines how the requirement is displayed on the scoreboard. */
-export enum ScoreboardDisplay {
-    Unspecified = '',
-
-    /** The requirement is not displayed on the scoreboard. */
-    Hidden = 'HIDDEN',
-
-    /** The requirement is displayed as a checkbox. */
-    Checkbox = 'CHECKBOX',
-
-    /** The requirement is displayed as a progress bar. */
-    ProgressBar = 'PROGRESS_BAR',
-
-    /** The requirement is a set amount of time. */
-    Minutes = 'MINUTES',
-
-    /** The requirement is a non-dojo task. */
-    NonDojo = 'NON_DOJO',
 }
 
 /** A custom non-dojo task created by a user. */
@@ -101,20 +88,6 @@ export interface Position {
 
     /** The expected result of the position. */
     result: string;
-}
-
-/** The categories of a requirement. */
-export enum RequirementCategory {
-    Welcome = 'Welcome to the Dojo',
-    Games = 'Games + Analysis',
-    Tactics = 'Tactics',
-    Middlegames = 'Middlegames + Strategy',
-    Endgame = 'Endgame',
-    Opening = 'Opening',
-    Graduation = 'Graduation',
-    NonDojo = 'Non-Dojo',
-    SuggestedTasks = 'Suggested Tasks',
-    Pinned = 'Pinned Tasks',
 }
 
 /** The categories of a custom task. This is a subset of RequirementCategory. */
@@ -316,12 +289,19 @@ function clampCount(
  * @param clamp Whether to clamp the count.
  * @returns The user's current count on the requirement.
  */
-export function getCurrentCount(
-    cohort: string,
-    requirement?: Requirement | CustomTask,
-    progress?: RequirementProgress,
-    clamp?: boolean,
-): number {
+export function getCurrentCount({
+    cohort,
+    requirement,
+    progress,
+    clamp,
+    timeline,
+}: {
+    cohort: string;
+    requirement?: Requirement | CustomTask;
+    progress?: RequirementProgress;
+    clamp?: boolean;
+    timeline?: TimelineEntry[];
+}): number {
     if (!requirement) {
         return 0;
     }
@@ -330,6 +310,13 @@ export function getCurrentCount(
     }
     if (isRequirement(requirement) && requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
         return 0;
+    }
+    if (
+        isRequirement(requirement) &&
+        requirement.scoreboardDisplay === ScoreboardDisplay.Yearly &&
+        timeline
+    ) {
+        return getYearlyCount({ cohort, requirement, timeline, clamp });
     }
 
     if (isExpired(requirement, progress)) {
@@ -362,14 +349,46 @@ export function getCurrentCount(
     return clampCount(cohort, requirement, progress.counts?.[cohort] || 0, clamp);
 }
 
+function getYearlyCount({
+    cohort,
+    requirement,
+    timeline,
+    clamp,
+}: {
+    cohort: string;
+    requirement: Requirement;
+    timeline: TimelineEntry[];
+    clamp?: boolean;
+}): number {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 365);
+    const cutoff = cutoffDate.toISOString();
+    let count = 0;
+
+    for (const entry of timeline) {
+        if ((entry.date || entry.createdAt) >= cutoff && entry.requirementId === requirement.id) {
+            count += entry.newCount - entry.previousCount;
+        }
+    }
+
+    return clampCount(cohort, requirement, count, clamp);
+}
+
 /**
  * Returns the total count for the given cohort and requirement.
  * @param cohort The cohort to get the total count for.
  * @param requirement The requirement to get the total count for.
  * @returns The total count for the given cohort and requirement.
  */
-export function getTotalCount(cohort: string, requirement: Requirement | CustomTask): number {
-    return requirement.counts[cohort] || 0;
+export function getTotalCount(
+    cohort: string,
+    requirement: Requirement | CustomTask,
+    fallback?: boolean,
+): number {
+    return (
+        requirement.counts[cohort] ??
+        (fallback ? Object.values(requirement.counts).sort((a, b) => b - a)[0] : 0)
+    );
 }
 
 /**
@@ -408,17 +427,24 @@ export function formatTime(value: number): string {
  * @param cohort The cohort to check.
  * @param requirement The requirement to check.
  * @param progress The progress to check.
+ * @param timeline The user's timeline for yearly tasks.
+ * @param fallback Whether to fallback to the highest count when fetching the total count of the task.
  * @returns True if the requirement is complete.
  */
 export function isComplete(
     cohort: string,
     requirement: Requirement | CustomTask,
-    progress?: RequirementProgress,
+    progress: RequirementProgress | undefined,
+    timeline?: TimelineEntry[],
+    fallback?: boolean,
 ): boolean {
     if (requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo) {
         return false;
     }
-    return getCurrentCount(cohort, requirement, progress) >= getTotalCount(cohort, requirement);
+    return (
+        getCurrentCount({ cohort, requirement, progress, timeline }) >=
+        getTotalCount(cohort, requirement, fallback)
+    );
 }
 
 /**
@@ -455,26 +481,28 @@ export function isExpired(
  * @param cohort The cohort to get the dojo points for.
  * @param requirement The requirement to get the dojo points for.
  * @param progress The progress to get the dojo points for.
+ * @param timeline The user's timeline for yearly tasks.
  * @returns The current dojo points of the given progress.
  */
 export function getCurrentScore(
     cohort: string,
     requirement: Requirement,
-    progress?: RequirementProgress,
+    progress: RequirementProgress | undefined,
+    timeline?: TimelineEntry[],
 ) {
     if (!progress) {
         return 0;
     }
 
     if (requirement.totalScore) {
-        if (isComplete(cohort, requirement, progress)) {
+        if (isComplete(cohort, requirement, progress, timeline)) {
             return requirement.totalScore;
         }
         return 0;
     }
 
     const unitScore = getUnitScore(cohort, requirement);
-    const currentCount = getCurrentCount(cohort, requirement, progress, true);
+    const currentCount = getCurrentCount({ cohort, requirement, progress, clamp: true, timeline });
     return Math.max(currentCount - requirement.startCount, 0) * unitScore;
 }
 
@@ -509,14 +537,16 @@ export function getTotalScore(cohort: string | undefined, requirements: Requirem
  * @param cohort The cohort to get the points for.
  * @param requirement The requirement to get the points for.
  * @param progress The progress to get the points for.
+ * @param timeline The user's timeline for yearly tasks.
  */
 export function getRemainingScore(
     cohort: string,
     requirement: Requirement,
-    progress?: RequirementProgress,
+    progress: RequirementProgress | undefined,
+    timeline: TimelineEntry[],
 ): number {
     const total = getTotalScore(cohort, [requirement]);
-    const current = getCurrentScore(cohort, requirement, progress);
+    const current = getCurrentScore(cohort, requirement, progress, timeline);
     return total - current;
 }
 
@@ -525,12 +555,14 @@ export function getRemainingScore(
  * @param user The user to get the dojo points for.
  * @param cohort The cohort to get the dojo points for.
  * @param requirements The requirements to get the dojo points for.
+ * @param timeline The user's timeline for yearly tasks.
  * @returns The user's dojo points for the given cohort and requirements.
  */
 export function getCohortScore(
     user: User,
     cohort: string | undefined,
     requirements: Requirement[],
+    timeline: TimelineEntry[],
 ): number {
     if (!cohort) {
         return 0;
@@ -538,7 +570,7 @@ export function getCohortScore(
 
     let score = 0;
     for (const requirement of requirements) {
-        score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+        score += getCurrentScore(cohort, requirement, user.progress[requirement.id], timeline);
     }
     return Math.round(score * 100) / 100;
 }
@@ -549,6 +581,7 @@ export function getCohortScore(
  * @param cohort The cohort to get the score for.
  * @param category The requirement category to get the score for.
  * @param requirements The set of requirements to get the score for.
+ * @param timeline The user's timeline for yearly tasks.
  * @returns The dojo score for the given parameters.
  */
 export function getCategoryScore(
@@ -556,6 +589,7 @@ export function getCategoryScore(
     cohort: string | undefined,
     category: string,
     requirements: Requirement[],
+    timeline: TimelineEntry[],
 ): number {
     if (!cohort) {
         return 0;
@@ -564,7 +598,7 @@ export function getCategoryScore(
     let score = 0;
     for (const requirement of requirements) {
         if (requirement.category === category) {
-            score += getCurrentScore(cohort, requirement, user.progress[requirement.id]);
+            score += getCurrentScore(cohort, requirement, user.progress[requirement.id], timeline);
         }
     }
     return Math.round(score * 100) / 100;
@@ -604,9 +638,10 @@ export function getRemainingCategoryScorePercent(
     cohort: string,
     category: string,
     requirements: Requirement[],
+    timeline: TimelineEntry[],
 ): number {
     const total = getTotalCategoryScore(cohort, category, requirements);
-    const score = getCategoryScore(user, cohort, category, requirements);
+    const score = getCategoryScore(user, cohort, category, requirements, timeline);
     return (total - score) / total;
 }
 
@@ -636,6 +671,7 @@ export function isBlocked(
     user: User,
     requirement: Requirement | CustomTask,
     requirements: Requirement[],
+    timeline: TimelineEntry[],
 ): { isBlocked: boolean; reason?: string } {
     if (!isRequirement(requirement)) {
         return { isBlocked: false };
@@ -657,7 +693,7 @@ export function isBlocked(
         if (
             blocker &&
             (blocker.isFree || !isFreeTier) &&
-            !isComplete(cohort, blocker, user.progress[blockerId])
+            !isComplete(cohort, blocker, user.progress[blockerId], timeline)
         ) {
             return {
                 isBlocked: true,

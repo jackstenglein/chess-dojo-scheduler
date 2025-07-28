@@ -24,7 +24,6 @@ import {
     RoundRobinSubmitGameRequest,
     RoundRobinWithdrawRequest,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { DateTime } from 'luxon';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Club, ClubJoinRequestStatus } from '../database/club';
@@ -174,6 +173,7 @@ import {
     submitResultsForOpenClassical,
 } from './tournamentApi';
 import {
+    UpdateUserProgressRequest,
     UserApiContextType,
     checkUserAccess,
     discordAuth,
@@ -248,24 +248,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             searchUsers,
             updateUser: (update: Partial<User>, autopickCohort?: boolean) =>
                 updateUser(idToken, update, auth.updateUser, autopickCohort),
-            updateUserProgress: (
-                cohort: string,
-                requirementId: string,
-                incrementalCount: number,
-                incrementalMinutesSpent: number,
-                date: DateTime | null,
-                notes: string,
-            ) =>
-                updateUserProgress(
-                    idToken,
-                    cohort,
-                    requirementId,
-                    incrementalCount,
-                    incrementalMinutesSpent,
-                    date,
-                    notes,
-                    auth.updateUser,
-                ),
+            updateUserProgress: (request: UpdateUserProgressRequest) =>
+                updateUserProgress(idToken, request, auth.updateUser),
             updateUserTimeline: (
                 requirementId: string,
                 cohort: string,

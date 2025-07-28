@@ -10,7 +10,7 @@ describe('Directories', () => {
 
     it('displays empty home directory', () => {
         cy.contains('Home');
-        cy.contains('No rows');
+        cy.contains('All Uploads');
     });
 
     it('links to game import page', () => {

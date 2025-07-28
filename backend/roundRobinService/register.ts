@@ -21,6 +21,7 @@ import {
     RoundRobinWaitlist,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import axios from 'axios';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
@@ -61,13 +62,22 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const request = parseEvent(event, RoundRobinRegisterSchema);
         const { username } = requireUserInfo(event);
         const user = await fetchUser(username);
+        if (!user.discordUsername || !user.discordId) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `You must link your Discord account in your Dojo settings to play in the round robin`,
+            });
+        }
+        await validateRequest(request);
+        await addRoundRobinRole(user);
 
-        if (user.subscriptionStatus !== SubscriptionStatus.Subscribed) {
-            const url = await getCheckoutUrl({ user, request });
-            return success({ url });
+        const banned = await isBanned(username);
+        if (banned || user.subscriptionStatus !== SubscriptionStatus.Subscribed) {
+            const url = await getCheckoutUrl({ user, request, price: banned ? 1500 : 200 });
+            return success({ url, banned });
         }
 
-        const tournaments = await register({ username, request });
+        const tournaments = await register({ user, request });
         return success(tournaments);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -98,6 +108,109 @@ async function fetchUser(username: string): Promise<User> {
 }
 
 /**
+ * Checks that the Chess.com and Lichess usernames in the request are
+ * valid.
+ * @param request The request to validate.
+ */
+async function validateRequest(request: RoundRobinRegisterRequest) {
+    try {
+        await axios.get(`https://api.chess.com/pub/player/${request.chesscomUsername}/stats`);
+    } catch (err) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Unable to find Chess.com username "${request.chesscomUsername}"`,
+            cause: err,
+        });
+    }
+
+    let lichessResponse;
+    try {
+        lichessResponse = await axios.get<{ disabled?: boolean; tosViolation?: boolean }>(
+            `https://lichess.org/api/user/${request.lichessUsername}`
+        );
+    } catch (err) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Unable to find Lichess username "${request.lichessUsername}"`,
+            cause: err,
+        });
+    }
+    if (lichessResponse.data.disabled) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Lichess account "${request.lichessUsername}" is disabled`,
+        });
+    }
+    if (lichessResponse.data.tosViolation) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Lichess account "${request.lichessUsername}" has a TOS violation`,
+        });
+    }
+}
+
+/**
+ * Adds the Discord round robin role to the provided user. If the user already has the role,
+ * it is unchanged.
+ * @param user The user to add the discord round robin role to.
+ */
+async function addRoundRobinRole(user: User) {
+    const guildMemberResp = await axios.get<{ roles?: string[] }>(
+        `https://discord.com/api/guilds/${process.env.discordGuildId}/members/${user.discordId}`,
+        {
+            headers: {
+                Authorization: `Bot ${process.env.discordBotToken}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+    if (guildMemberResp.data.roles?.includes(process.env.discordRoundRobinRole || '')) {
+        return;
+    }
+
+    const roles = (guildMemberResp.data.roles ?? []).concat(
+        process.env.discordRoundRobinRole || ''
+    );
+    await axios.patch(
+        `https://discord.com/api/guilds/${process.env.discordGuildId}/members/${user.discordId}`,
+        { roles },
+        {
+            headers: {
+                Authorization: `Bot ${process.env.discordBotToken}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+}
+
+interface RoundRobinBannedList {
+    type: 'ROUND_ROBIN';
+    startsAt: 'BANNED_PLAYERS';
+    players: Record<string, RoundRobinPlayer>;
+}
+
+/**
+ * Returns true if the given username is banned from playing in the round robins.
+ * @param username The username to check.
+ */
+async function isBanned(username: string): Promise<boolean> {
+    const output = await dynamo.send(
+        new GetItemCommand({
+            Key: {
+                type: { S: 'ROUND_ROBIN' },
+                startsAt: { S: 'BANNED_PLAYERS' },
+            },
+            TableName: tournamentsTable,
+        })
+    );
+    if (!output.Item) {
+        return false;
+    }
+    const bannedList = unmarshall(output.Item) as RoundRobinBannedList;
+    return Boolean(bannedList.players[username]);
+}
+
+/**
  * Initializes Stripe using the current stage's key.
  * @returns The new Stripe object.
  */
@@ -109,14 +222,17 @@ async function initStripe(): Promise<Stripe> {
  * Creates and returns a Stripe checkout URL in setup mode.
  * @param user The user being redirected to Stripe.
  * @param request The round robin register request.
+ * @param price The price the user will be charged, in cents.
  * @returns The Stripe checkout URL.
  */
 async function getCheckoutUrl({
     user,
     request,
+    price,
 }: {
     user: User;
     request: RoundRobinRegisterRequest;
+    price: number;
 }): Promise<string> {
     if (!stripe) {
         stripe = await initStripe();
@@ -130,8 +246,9 @@ async function getCheckoutUrl({
         payment_method_types: ['card', 'cashapp', 'link', 'bancontact', 'ideal', 'sepa_debit'],
         custom_text: {
             after_submit: {
-                message:
-                    'ChessDojo will charge you $2 once the Round Robin tournament begins. Withdraw before the tournament starts for free. After the tournament starts, no refunds will be provided.',
+                message: `ChessDojo will charge you $${
+                    price / 100
+                } once the Round Robin tournament begins. Withdraw before the tournament starts for free. After the tournament starts, no refunds will be provided.`,
             },
         },
         success_url: `${FRONTEND_HOST}/tournaments/round-robin?cohort=${request.cohort}`,
@@ -139,11 +256,13 @@ async function getCheckoutUrl({
         metadata: {
             type: 'ROUND_ROBIN',
             username: user.username,
-            displayName: request.displayName,
+            displayName: user.displayName,
             lichessUsername: request.lichessUsername,
             chesscomUsername: request.chesscomUsername,
-            discordUsername: request.discordUsername || '',
+            discordUsername: user.discordUsername || '',
+            discordId: user.discordId || '',
             cohort: request.cohort,
+            price,
         },
     });
     console.log('Session: %j', session);
@@ -160,28 +279,37 @@ async function getCheckoutUrl({
 
 /**
  * Registers the given user for the given round robin.
- * @param username The username of the person registering.
+ * @param user The user registering.
  * @param request The round robin registration request.
  * @param checkoutSession The Stripe checkout session for users who paid to enter.
  * @returns An array of the updated tournament and waitlist.
  */
 export async function register({
-    username,
+    user,
     request,
     checkoutSession,
 }: {
-    username: string;
+    user: User | RoundRobinPlayer;
     request: RoundRobinRegisterRequest;
     checkoutSession?: Stripe.Checkout.Session;
 }): Promise<{ waitlist: RoundRobinWaitlist; tournament?: RoundRobin }> {
+    if (!user.discordUsername || !user.discordId) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `You must link your Discord account in your Dojo settings to play in the round robin`,
+        });
+    }
+
     const player: RoundRobinPlayer = {
-        username,
-        displayName: request.displayName,
+        username: user.username,
+        displayName: user.displayName,
         lichessUsername: request.lichessUsername,
         chesscomUsername: request.chesscomUsername,
-        discordUsername: request.discordUsername,
+        discordUsername: user.discordUsername,
+        discordId: user.discordId,
         status: RoundRobinPlayerStatuses.ACTIVE,
         checkoutSession: checkoutSession as { setup_intent: string; customer: string },
+        price: (user as any).price,
     };
 
     let attempts = 0;
@@ -190,12 +318,12 @@ export async function register({
             const input = new UpdateItemBuilder()
                 .key('type', `ROUND_ROBIN_${request.cohort}`)
                 .key('startsAt', 'WAITING')
-                .set(['players', username], player)
+                .set(['players', user.username], player)
                 .set('updatedAt', new Date().toISOString())
                 .condition(
                     and(
                         attributeExists('players'),
-                        attributeNotExists(['players', username]),
+                        attributeNotExists(['players', user.username]),
                         sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS)
                     )
                 )
@@ -210,6 +338,10 @@ export async function register({
 
             if (Object.keys(waitlist.players).length >= MAX_ROUND_ROBIN_PLAYERS) {
                 return startTournament(waitlist);
+            }
+
+            if (Object.keys(waitlist.players).length >= MIN_ROUND_ROBIN_PLAYERS) {
+                return setStartEligibleAt(waitlist);
             }
 
             return { waitlist };
@@ -230,6 +362,36 @@ export async function register({
 }
 
 /**
+ * Sets the startEligibleAt field on the given waitlist to the current date and time.
+ * If the field is already set, the waitlist is returned unchanged.
+ * @param waitlist The waitlist to update.
+ * @returns The updated waitlist.
+ */
+async function setStartEligibleAt(
+    waitlist: RoundRobinWaitlist
+): Promise<{ waitlist: RoundRobinWaitlist }> {
+    if (waitlist.startEligibleAt) {
+        return { waitlist };
+    }
+
+    const input = new UpdateItemBuilder()
+        .key('type', waitlist.type)
+        .key('startsAt', 'WAITING')
+        .set('startEligibleAt', new Date().toISOString())
+        .condition(
+            and(attributeExists('players'), sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS))
+        )
+        .table(tournamentsTable)
+        .return('ALL_NEW')
+        .build();
+
+    const result = await dynamo.send(input);
+    waitlist = unmarshall(result.Attributes!) as RoundRobinWaitlist;
+
+    return { waitlist };
+}
+
+/**
  * Converts the given waitlist into an active tournament. After the tournament
  * is started, the waitlist is emptied to allow additional registrations.
  * @param waitlist The waitlist to convert.
@@ -238,7 +400,8 @@ export async function register({
 export async function startTournament(
     waitlist: RoundRobinWaitlist
 ): Promise<{ waitlist: RoundRobinWaitlist; tournament: RoundRobin }> {
-    if (Object.keys(waitlist.players).length < MIN_ROUND_ROBIN_PLAYERS) {
+    const numPlayers = Object.keys(waitlist.players).length;
+    if (numPlayers < MIN_ROUND_ROBIN_PLAYERS) {
         throw new ApiError({
             statusCode: 500,
             publicMessage: 'Temporary server error',
@@ -248,7 +411,7 @@ export async function startTournament(
 
     const startDate = new Date();
     const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + 3);
+    endDate.setDate(endDate.getDate() + 7 * (numPlayers + 1));
 
     const tournament = {
         ...waitlist,
@@ -257,6 +420,7 @@ export async function startTournament(
         endDate: endDate.toISOString(),
         name: generateName(startDate, waitlist.name),
         updatedAt: new Date().toISOString(),
+        reminderSent: false,
     } as RoundRobin;
     setPairings(tournament);
 
@@ -270,6 +434,7 @@ export async function startTournament(
     waitlist.players = {};
     waitlist.name = `${parseInt(waitlist.name) + 1}`;
     waitlist.updatedAt = new Date().toISOString();
+    waitlist.startEligibleAt = '';
     await dynamo.send(
         new PutItemCommand({
             Item: marshall(waitlist, { removeUndefinedValues: true }),
@@ -287,6 +452,14 @@ export async function startTournament(
  * @param tournament The tournament to charge free users for.
  */
 async function chargeFreeUsers(tournament: RoundRobin) {
+    const input = new UpdateItemBuilder()
+        .key('type', 'ROUND_ROBIN')
+        .key('startsAt', 'BANNED_PLAYERS')
+        .return('NONE')
+        .table(tournamentsTable);
+
+    let unbanPlayers = false;
+
     for (const player of Object.values(tournament.players)) {
         if (!player.checkoutSession?.setup_intent) {
             continue;
@@ -300,7 +473,7 @@ async function chargeFreeUsers(tournament: RoundRobin) {
                 player.checkoutSession.setup_intent
             );
             await stripe.paymentIntents.create({
-                amount: 200,
+                amount: parseInt(player.price || '200'),
                 currency: 'usd',
                 customer: player.checkoutSession.customer ?? undefined,
                 payment_method: setupIntent.payment_method as string,
@@ -308,9 +481,16 @@ async function chargeFreeUsers(tournament: RoundRobin) {
                 confirm: true,
                 statement_descriptor: 'CHESSDOJO ROUND ROBIN',
             });
+
+            input.remove(['players', player.username]);
+            unbanPlayers = true;
         } catch (err) {
             console.error(`Failed to charge player %j: %j`, player, err);
         }
+    }
+
+    if (unbanPlayers) {
+        await dynamo.send(input.build());
     }
 }
 

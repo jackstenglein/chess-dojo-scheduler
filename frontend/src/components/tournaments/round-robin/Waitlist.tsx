@@ -2,10 +2,11 @@ import { useAuth, useFreeTier } from '@/auth/Auth';
 import { dojoCohorts } from '@/database/user';
 import {
     MAX_ROUND_ROBIN_PLAYERS,
+    MIN_ROUND_ROBIN_PLAYERS,
     RoundRobin,
     RoundRobinWaitlist,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { PeopleAlt } from '@mui/icons-material';
+import { AccessAlarm, PeopleAlt } from '@mui/icons-material';
 import { Button, Card, CardContent, CardHeader, Chip, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Players } from './Players';
@@ -31,6 +32,8 @@ export function Waitlist({
         Math.abs(dojoCohorts.indexOf(user.dojoCohort) - dojoCohorts.indexOf(tournament.cohort)) <=
             1;
 
+    const daysTillStart = getDaysTillStart(tournament);
+
     return (
         <Card>
             <CardHeader
@@ -45,6 +48,14 @@ export function Waitlist({
                         />
 
                         <TimeControlChip cohort={tournament.cohort} />
+
+                        {daysTillStart > 0 && (
+                            <Chip
+                                label={`Starts in ~${daysTillStart} day${daysTillStart !== 1 ? 's' : ''}`}
+                                icon={<AccessAlarm />}
+                                color='warning'
+                            />
+                        )}
                     </Stack>
                 }
             />
@@ -72,8 +83,19 @@ export function Waitlist({
                 )}
 
                 <Typography>
-                    The tournament will start automatically once {MAX_ROUND_ROBIN_PLAYERS} players
-                    have joined.
+                    {daysTillStart > 0 ? (
+                        <>
+                            The tournament will start automatically in ~{daysTillStart} day
+                            {daysTillStart !== 1 && 's'} or when {MAX_ROUND_ROBIN_PLAYERS} players
+                            have joined.
+                        </>
+                    ) : (
+                        <>
+                            The tournament will start automatically once {MAX_ROUND_ROBIN_PLAYERS}{' '}
+                            players have joined or a week after {MIN_ROUND_ROBIN_PLAYERS} players
+                            have joined.
+                        </>
+                    )}
                 </Typography>
 
                 <Players tournament={tournament} />
@@ -101,4 +123,22 @@ export function Waitlist({
             )}
         </Card>
     );
+}
+
+function getDaysTillStart(waitlist: RoundRobinWaitlist): number {
+    if (Object.values(waitlist.players).length < MIN_ROUND_ROBIN_PLAYERS) {
+        return 0;
+    }
+    if (!waitlist.startEligibleAt) {
+        return 0;
+    }
+
+    const now = new Date();
+    const startEligibleAt = new Date(waitlist.startEligibleAt);
+
+    const diffInMs = now.getTime() - startEligibleAt.getTime();
+    const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+
+    const daysLeft = Math.max(1, 7 - diffInDays);
+    return daysLeft;
 }

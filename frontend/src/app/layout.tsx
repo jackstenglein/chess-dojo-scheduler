@@ -1,15 +1,9 @@
 import { MetaPixel } from '@/components/analytics/MetaPixel';
 import { WebVitals } from '@/components/analytics/WebVitals';
-import { getConfig } from '@/config';
-import { Metadata } from 'next';
 import { NavigationGuardProvider } from 'next-navigation-guard';
+import { defaultMetadata } from './(scoreboard)/defaultMetadata';
 
-export const metadata: Metadata = {
-    metadataBase: new URL(getConfig().baseUrl),
-    title: 'ChessDojo Training Program',
-    description:
-        'The ChessDojo Training Program offers structured training plans for all levels 0-2500, along with an active and supportive community',
-};
+export const metadata = defaultMetadata;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (

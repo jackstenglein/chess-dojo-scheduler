@@ -338,7 +338,11 @@ function getAllTimeCategoryScoreChartData(
             const cohortScore = getCurrentScore(cohort, requirement, user.progress[requirement.id]);
             if (cohortScore > score) {
                 score = cohortScore;
-                count = getCurrentCount(cohort, requirement, user.progress[requirement.id]);
+                count = getCurrentCount({
+                    cohort,
+                    requirement,
+                    progress: user.progress[requirement.id],
+                });
             }
         }
 

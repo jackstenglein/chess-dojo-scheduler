@@ -4,24 +4,61 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/notification';
 import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
-import { getGuildMember, sendDirectMessage } from './discord';
+import { addMembersToThread, createPrivateThread, sendChannelMessage } from './discord';
 import { sendEmailTemplate } from './email';
 import { getNotificationSettings, PartialUser } from './user';
 
 const notificationTable = `${process.env.stage}-notifications`;
+const tournamentsTable = `${process.env.stage}-tournaments`;
 const frontendHost = process.env.frontendHost;
+const roundRobinChannel = process.env.discordRoundRobinChannelId ?? '';
 
 /**
  * Creates notifications for round robin start events.
  * @param event The event to create notifications for.
  */
 export async function handleRoundRobinStart(event: RoundRobinStartEvent) {
+    await createRoundRobinThread(event.tournament);
     for (const username of Object.keys(event.tournament.players)) {
         const user = await getNotificationSettings(username);
         await handleSiteNotification(user, event.tournament);
-        await handleDiscordNotification(user, event.tournament);
         await handleEmailNotification(user, event.tournament);
     }
+}
+
+/**
+ * Creates a private thread in the round robin channel, adds all tournament members to
+ * the thread and then sends a message notifying them of the tournament.
+ * @param tournament The tournament that was started.
+ */
+async function createRoundRobinThread(tournament: RoundRobin) {
+    const threadId = await createPrivateThread(
+        roundRobinChannel,
+        `${tournament.cohort} ${tournament.name}`,
+    );
+    if (!threadId) {
+        console.error(`Failed to create round robin thread for tournament: `, tournament);
+        return;
+    }
+
+    await addMembersToThread(
+        threadId,
+        Object.values(tournament.players)
+            .map((p) => p.discordId)
+            .filter((id) => id),
+    );
+    await sendChannelMessage(
+        threadId,
+        `@everyone Your Round Robin tournament has started! Use this thread to schedule your games. Click [**here**](${frontendHost}/tournaments/round-robin?cohort=${tournament.cohort}) to view rules/pairings and submit games.`,
+    );
+    const input = new UpdateItemBuilder()
+        .key('type', tournament.type)
+        .key('startsAt', tournament.startsAt)
+        .set('discordThreadId', threadId)
+        .table(tournamentsTable)
+        .return('NONE')
+        .build();
+    await dynamo.send(input);
 }
 
 /**
@@ -57,28 +94,6 @@ async function handleSiteNotification(user: PartialUser | undefined, tournament:
 }
 
 /**
- * Sends a discord notification for the round robin tournament starting.
- * @param user The user to notify.
- * @param tournament The tournament that started.
- */
-async function handleDiscordNotification(user: PartialUser | undefined, tournament: RoundRobin) {
-    if (
-        !user ||
-        !user.discordUsername ||
-        user.notificationSettings?.discordNotificationSettings?.disableRoundRobinStart
-    ) {
-        return;
-    }
-
-    const discordId = user.discordId ?? (await getGuildMember(user.discordUsername)).user.id;
-    const message = `Round robin tournament ${tournament.cohort} ${tournament.name} has started. Click [**here**](${frontendHost}/tournaments/round-robin?cohort=${tournament.cohort}) to view rules/pairings and submit games.`;
-    await sendDirectMessage(discordId, message);
-    console.log(
-        `Successfully sent Discord message to ${user.username} for ${NotificationTypes.ROUND_ROBIN_START}`,
-    );
-}
-
-/**
  * Sends an email notification for the round robin tournament starting.
  * @param user The user to notify.
  * @param tournament The tournament that started.
@@ -110,6 +125,7 @@ async function handleEmailNotification(user: PartialUser | undefined, tournament
         name: `${tournament.cohort} ${tournament.name}`,
         tournamentUrl: `${frontendHost}/tournaments/round-robin?cohort=${tournament.cohort}`,
         timeControl: timeControls[tournament.cohort],
+        numWeeks: `${tournament.playerOrder.length + 1}`,
         pairingHtml,
         pairingText,
     };

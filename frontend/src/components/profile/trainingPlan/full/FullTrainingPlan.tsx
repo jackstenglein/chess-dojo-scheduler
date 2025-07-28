@@ -15,12 +15,14 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import { useTimelineContext } from '../../activity/useTimeline';
 import { getUpcomingGameSchedule, SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
-import { Section, TrainingPlanSection } from '../TrainingPlanSection';
 import { useTrainingPlan } from '../useTrainingPlan';
+import { Section, TrainingPlanSection } from './TrainingPlanSection';
 
 /** Renders the full training plan view of the training plan tab. */
 export function FullTrainingPlan({ user }: { user: User }) {
+    const { entries: timeline } = useTimelineContext();
     const [cohort, setCohort] = useState(user.dojoCohort);
     const {
         request: requirementRequest,
@@ -50,14 +52,21 @@ export function FullTrainingPlan({ user }: { user: User }) {
         const sections: Section[] = [];
 
         if (pinnedTasks.length > 0) {
-            const uncompletedTasks = pinnedTasks.filter(
-                (t) => !isComplete(cohort, t, user.progress[t.id]),
-            );
+            const uncompletedTasks = [];
+            const completedTasks = [];
+
+            for (const task of pinnedTasks) {
+                if (isComplete(cohort, task, user.progress[task.id], timeline, true)) {
+                    completedTasks.push(task);
+                } else {
+                    uncompletedTasks.push(task);
+                }
+            }
+
             sections.push({
                 category: RequirementCategory.Pinned,
-                tasks: showCompleted ? pinnedTasks : uncompletedTasks,
-                complete: pinnedTasks.length - uncompletedTasks.length,
-                total: pinnedTasks.length,
+                uncompletedTasks: uncompletedTasks,
+                completedTasks,
             });
         }
 
@@ -70,29 +79,24 @@ export function FullTrainingPlan({ user }: { user: User }) {
             const s = sections.find((s) => s.category === task.category);
             const complete =
                 task.id !== SCHEDULE_CLASSICAL_GAME_TASK_ID
-                    ? isComplete(cohort, task, user.progress[task.id])
+                    ? isComplete(cohort, task, user.progress[task.id], timeline, false)
                     : getUpcomingGameSchedule(user.gameSchedule).length > 0;
 
             if (s === undefined) {
                 sections.push({
                     category: task.category,
-                    tasks: !complete || showCompleted ? [task] : [],
-                    complete: complete ? 1 : 0,
-                    total: 1,
+                    uncompletedTasks: complete ? [] : [task],
+                    completedTasks: complete ? [task] : [],
                 });
+            } else if (complete) {
+                s.completedTasks.push(task);
             } else {
-                s.total++;
-                if (complete) {
-                    s.complete++;
-                }
-                if (!complete || showCompleted) {
-                    s.tasks.push(task);
-                }
+                s.uncompletedTasks.push(task);
             }
         }
 
         return sections;
-    }, [requirements, user, cohort, showCompleted, pinnedTasks]);
+    }, [requirements, user, cohort, pinnedTasks, timeline]);
 
     if (requirementRequest.isLoading() || sections.length === 0) {
         return <LoadingPage />;
@@ -199,13 +203,15 @@ export function FullTrainingPlan({ user }: { user: User }) {
                     cohort={cohort}
                     togglePin={togglePin}
                     pinnedTasks={pinnedTasks}
+                    showCompleted={showCompleted}
+                    setShowCompleted={setShowCompleted}
                 />
             ))}
         </Stack>
     );
 }
 
-function useShowCompleted(isCurrentUser: boolean) {
+export function useShowCompleted(isCurrentUser: boolean) {
     const myProfile = useLocalStorage('showCompletedTasks', false);
     const otherProfile = useState(false);
 

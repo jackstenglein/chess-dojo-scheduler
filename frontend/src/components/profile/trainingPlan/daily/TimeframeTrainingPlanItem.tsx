@@ -67,8 +67,8 @@ export const TimeframeTrainingPlanItem = ({
 
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
 
-    const totalCount = getTotalCount(cohort, task);
-    const currentCount = getCurrentCount(cohort, task, progress);
+    const totalCount = getTotalCount(cohort, task, true);
+    const currentCount = getCurrentCount({ cohort, requirement: task, progress, timeline });
 
     const name = goalMinutes > 0 ? task.dailyName : task.name;
     let requirementName = (name || task.name)
@@ -222,6 +222,7 @@ export function displayProgress(task: Requirement | CustomTask): boolean {
         case ScoreboardDisplay.Unspecified:
         case ScoreboardDisplay.ProgressBar:
         case ScoreboardDisplay.Minutes:
+        case ScoreboardDisplay.Yearly:
             return true;
     }
     return false;

@@ -14,12 +14,12 @@ const navbarStartItems = [
 const navbarEndItems = ['Help', 'Notifications', 'navbar-profile-button'];
 
 const viewPortWidths = [
-    { width: 1560, hidden: 0, endHidden: 0 },
-    { width: 1416, hidden: 2, endHidden: 0 },
-    { width: 1315, hidden: 3, endHidden: 0 },
-    { width: 1196, hidden: 4, endHidden: 0 },
-    { width: 1066, hidden: 5, endHidden: 0 },
-    { width: 963, hidden: 6, endHidden: 0 },
+    { width: 1615, hidden: 0, endHidden: 0 },
+    { width: 1488, hidden: 2, endHidden: 0 },
+    { width: 1370, hidden: 3, endHidden: 0 },
+    { width: 1256, hidden: 4, endHidden: 0 },
+    { width: 1120, hidden: 5, endHidden: 0 },
+    { width: 979, hidden: 6, endHidden: 0 },
     { width: 772, hidden: 7, endHidden: 0 },
     { width: 624, hidden: 8, endHidden: 0 },
     { width: 567, hidden: 8, endHidden: 1 },
@@ -32,10 +32,8 @@ describe('Navbar', () => {
         cy.visit('/');
 
         cy.getBySel('navbar').contains('Tournaments');
-        cy.getBySel('navbar').contains('Material');
         cy.getBySel('navbar').contains('Blog');
         cy.getBySel('navbar').contains('Shop');
-        cy.getBySel('navbar').contains('Contact Us');
         cy.getBySel('navbar').contains('Sign In');
         cy.getBySel('navbar').contains('Sign Up');
         cy.getBySel('navbar').get('Profile').should('not.exist');
@@ -45,7 +43,7 @@ describe('Navbar', () => {
 
         cy.getBySel('navbar-more-button').click();
         cy.get('#menu-appbar').contains('Tournaments');
-        cy.get('#menu-appbar').contains('Material');
+        cy.get('#menu-appbar').contains('Blog');
         cy.get('#menu-appbar').contains('Shop');
         cy.get('#menu-appbar').contains('Sign In');
         cy.get('#menu-appbar').contains('Sign Up');

@@ -79,7 +79,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
     const onClick = canUpdate ? () => setShowUpdateDialog(true) : undefined;
 
     const normalized = ((value - min) * 100) / (max - min);
-    const displayValue = Math.min(Math.max(normalized, 0), 100);
+    const displayValue = isNaN(value) ? 0 : Math.min(Math.max(normalized, 0), 100);
 
     return (
         <>
@@ -95,7 +95,7 @@ const ScoreboardProgress: React.FC<LinearProgressProps & ScoreboardProgressProps
                 <Box sx={{ flexGrow: 1, mr: 1 }}>
                     <LinearProgress variant='determinate' {...rest} value={displayValue} />
                 </Box>
-                {!hideProgressText && (
+                {!hideProgressText && !isNaN(value) && (
                     <ProgressText
                         label={label}
                         isTime={isTime}

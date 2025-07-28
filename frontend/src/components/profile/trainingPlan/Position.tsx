@@ -4,7 +4,7 @@ import Board from '@/board/Board';
 import { getLigaIconBasedOnTimeControl } from '@/components/calendar/eventViewer/LigaTournamentViewer';
 import { Position as PositionModel } from '@/database/requirement';
 import Icon from '@/style/Icon';
-import { Computer } from '@mui/icons-material';
+import { Biotech } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { LoadingButton } from '@mui/lab';
@@ -15,14 +15,17 @@ import {
     CardActions,
     CardContent,
     CardHeader,
+    Menu,
+    MenuItem,
     Stack,
     Tooltip,
     Typography,
 } from '@mui/material';
 import axios from 'axios';
 import copy from 'copy-to-clipboard';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { SiChessdotcom } from 'react-icons/si';
 
 export function turnColor(fen: string): 'white' | 'black' {
     const turn = fen.split(' ')[1];
@@ -37,9 +40,11 @@ interface PositionProps {
     orientation?: 'white' | 'black';
 }
 
-const Position: React.FC<PositionProps> = ({ position, orientation }) => {
+const Position = ({ position, orientation }: PositionProps) => {
     const [copied, setCopied] = useState('');
     const lichessRequest = useRequest();
+    const playComputerAnchor = useRef<HTMLButtonElement>(null);
+    const [playComputerOpen, setPlayComputerOpen] = useState(false);
 
     const onCopy = (name: string) => {
         setCopied(name);
@@ -152,6 +157,17 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     </Tooltip>
                 </CopyToClipboard>
 
+                <Tooltip title='Open in analysis board'>
+                    <Button
+                        startIcon={<Biotech color='dojoOrange' />}
+                        href={`/games/explorer?fen=${position.fen}`}
+                        rel='noopener'
+                        target='_blank'
+                    >
+                        Analysis
+                    </Button>
+                </Tooltip>
+
                 <Tooltip title='Copy a URL and send to another player to play on Lichess'>
                     <LoadingButton
                         data-cy='position-challenge-url'
@@ -169,27 +185,40 @@ const Position: React.FC<PositionProps> = ({ position, orientation }) => {
                     </LoadingButton>
                 </Tooltip>
 
-                <Tooltip title='Open in position explorer'>
-                    <Button
-                        startIcon={<Icon name='explore' color='dojoOrange' />}
-                        href={`/games/explorer?fen=${position.fen}`}
-                        rel='noopener'
-                        target='_blank'
-                    >
-                        Explorer
-                    </Button>
-                </Tooltip>
-
                 <Tooltip title='Play against computer on Chess.com'>
                     <Button
-                        startIcon={<Computer color='dojoOrange' />}
-                        href={`https://www.chess.com/practice/custom?fen=${position.fen}&is960=false`}
-                        target='_blank'
-                        rel='noopener'
+                        ref={playComputerAnchor}
+                        startIcon={<SiChessdotcom size={20} color='#81b64c' />}
+                        onClick={() => setPlayComputerOpen(true)}
                     >
                         Play Computer
                     </Button>
                 </Tooltip>
+
+                <Menu
+                    open={playComputerOpen}
+                    onClose={() => setPlayComputerOpen(false)}
+                    anchorEl={playComputerAnchor.current}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                    <MenuItem
+                        component='a'
+                        href={`https://www.chess.com/practice/custom?fen=${position.fen}&is960=false`}
+                        target='_blank'
+                        rel='noopener'
+                    >
+                        Play as white
+                    </MenuItem>
+                    <MenuItem
+                        component='a'
+                        href={`https://www.chess.com/practice/custom?fen=${position.fen}&is960=false&color=black`}
+                        target='_blank'
+                        rel='noopener'
+                    >
+                        Play as black
+                    </MenuItem>
+                </Menu>
             </CardActions>
         </Card>
     );

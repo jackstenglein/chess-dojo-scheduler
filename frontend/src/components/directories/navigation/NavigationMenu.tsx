@@ -1,10 +1,11 @@
 import { useAuth } from '@/auth/Auth';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import {
+    ALL_MY_UPLOADS_DIRECTORY_ID,
     HOME_DIRECTORY_ID,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { ChevronLeft, ChevronRight, Home, PeopleAlt } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, Home, PeopleAlt, Upload } from '@mui/icons-material';
 import {
     CSSObject,
     Divider,
@@ -40,54 +41,56 @@ const closedMixin = (theme: Theme): CSSObject => ({
     width: theme.spacing(6),
 });
 
-const List = styled(MuiList, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme }) => ({
-    width: openWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    '& .MuiListItemButton-root': {
-        borderRadius: theme.spacing(0.75),
+const List = styled(MuiList, { shouldForwardProp: (prop) => prop !== 'open' })<{ open: boolean }>(
+    ({ theme }) => ({
+        width: openWidth,
+        flexShrink: 0,
+        whiteSpace: 'nowrap',
+        boxSizing: 'border-box',
+        '& .MuiListItemButton-root': {
+            borderRadius: theme.spacing(0.75),
 
-        '& .MuiListItemIcon-root': {
-            minWidth: 0,
-            justifyContent: 'center',
+            '& .MuiListItemIcon-root': {
+                minWidth: 0,
+                justifyContent: 'center',
+            },
         },
-    },
-    variants: [
-        {
-            props: ({ open }: { open: boolean }) => open,
-            style: {
-                ...openedMixin(theme),
-                '& .MuiList-root': openedMixin(theme),
-                '& .MuiListItemButton-root': {
-                    '& .MuiListItemIcon-root': {
-                        minWidth: 0,
+        variants: [
+            {
+                props: ({ open }: { open: boolean }) => open,
+                style: {
+                    ...openedMixin(theme),
+                    '& .MuiList-root': openedMixin(theme),
+                    '& .MuiListItemButton-root': {
+                        '& .MuiListItemIcon-root': {
+                            minWidth: 0,
+                            justifyContent: 'center',
+                            marginRight: theme.spacing(2),
+                        },
+                    },
+                },
+            },
+            {
+                props: ({ open }: { open: boolean }) => !open,
+                style: {
+                    ...closedMixin(theme),
+                    '& .MuiList-root': closedMixin(theme),
+                    '& .MuiListItemButton-root': {
                         justifyContent: 'center',
-                        marginRight: theme.spacing(2),
+
+                        '& .MuiListItemIcon-root': {
+                            marginRight: 'auto',
+                        },
+
+                        '& .MuiListItemText-root': {
+                            opacity: 0,
+                        },
                     },
                 },
             },
-        },
-        {
-            props: ({ open }: { open: boolean }) => !open,
-            style: {
-                ...closedMixin(theme),
-                '& .MuiList-root': closedMixin(theme),
-                '& .MuiListItemButton-root': {
-                    justifyContent: 'center',
-
-                    '& .MuiListItemIcon-root': {
-                        marginRight: 'auto',
-                    },
-
-                    '& .MuiListItemText-root': {
-                        opacity: 0,
-                    },
-                },
-            },
-        },
-    ],
-}));
+        ],
+    }),
+);
 
 export const NavigationMenu = ({
     namespace,
@@ -96,6 +99,7 @@ export const NavigationMenu = ({
     enabled,
     defaultValue,
     horizontal,
+    hideAllUploads,
     onClick,
 }: {
     namespace: string;
@@ -104,6 +108,7 @@ export const NavigationMenu = ({
     enabled?: boolean;
     defaultValue?: boolean;
     horizontal?: boolean;
+    hideAllUploads?: boolean;
     onClick?: (value: { owner: string; id: string }) => void;
 }) => {
     const { user } = useAuth();
@@ -159,6 +164,20 @@ export const NavigationMenu = ({
                         <PeopleAlt />
                     </IconButton>
                 </Tooltip>
+                {!hideAllUploads && (
+                    <Tooltip title='All My Uploads' disableInteractive>
+                        <IconButton
+                            onClick={handleClick(ALL_MY_UPLOADS_DIRECTORY_ID)}
+                            color={
+                                id === ALL_MY_UPLOADS_DIRECTORY_ID && owner === user.username
+                                    ? 'primary'
+                                    : undefined
+                            }
+                        >
+                            <Upload />
+                        </IconButton>
+                    </Tooltip>
+                )}
             </Stack>
         );
     }
@@ -188,6 +207,20 @@ export const NavigationMenu = ({
                     <ListItemText primary='Shared with Me' />
                 </ListItemButton>
             </Tooltip>
+
+            {!hideAllUploads && (
+                <Tooltip title={open ? '' : 'All My Uploads'} disableInteractive>
+                    <ListItemButton
+                        selected={id === ALL_MY_UPLOADS_DIRECTORY_ID && owner === user.username}
+                        onClick={handleClick(ALL_MY_UPLOADS_DIRECTORY_ID)}
+                    >
+                        <ListItemIcon>
+                            <Upload />
+                        </ListItemIcon>
+                        <ListItemText primary='All My Uploads' />
+                    </ListItemButton>
+                </Tooltip>
+            )}
 
             <Divider />
 

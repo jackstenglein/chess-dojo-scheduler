@@ -1,6 +1,8 @@
+import { useAuth } from '@/auth/Auth';
 import { getIncrement, getInitialClock } from '@/board/pgn/boardTools/underboard/clock/ClockUsage';
+import { toDojoDateString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
-import { GameInfo, GameResult } from '@/database/game';
+import { GameInfo, GameResult, PgnHeaders } from '@/database/game';
 import { dojoCohorts } from '@/database/user';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -34,7 +36,7 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
     );
 }
 
-export function GameResultIcon({ result, asWhite }: { result?: string; asWhite: boolean }) {
+export function GameResultIcon({ result, asWhite }: { result?: string | null; asWhite: boolean }) {
     if (result === GameResult.White) {
         return asWhite ? <WinIcon /> : <LoseIcon />;
     }
@@ -144,17 +146,17 @@ export function DrawIcon() {
 }
 
 interface RenderPlayersProps {
-    white: string;
-    whiteElo?: string | number;
+    white?: string;
+    whiteElo?: string | number | null;
     whiteProvisional?: boolean;
-    black: string;
-    blackElo?: string | number;
+    black?: string;
+    blackElo?: string | number | null;
     blackProvisional?: boolean;
     fullHeight?: boolean;
-    result?: GameResult | string;
+    result?: GameResult | string | null;
 }
 
-export function RenderGameResultStack({ result }: { result: string | undefined }) {
+export function RenderGameResultStack({ result }: { result: string | undefined | null }) {
     return (
         <Stack justifyContent='center' height='100%' spacing={0.25}>
             <GameResultIcon result={result} asWhite />
@@ -321,12 +323,33 @@ function getPlayerRating(rating?: string | number, provisional?: boolean) {
 export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
     const apiRef = useGridApiContext();
     const columnVisibilityModel = useGridSelector(apiRef, gridColumnVisibilityModelSelector);
-
     const showVisibility = columnVisibilityModel.unlisted;
 
-    let description = getTimeControl({ timeControl: params.row.headers.TimeControl }) || '';
+    return <GameCell {...params.row} showVisibility={showVisibility} />;
+}
 
-    const moves = formatMoves(params.row.headers.PlyCount);
+export function GameCell({
+    cohort,
+    owner,
+    ownerDisplayName,
+    unlisted,
+    date,
+    headers,
+    showVisibility,
+}: {
+    cohort: string;
+    owner?: string;
+    ownerDisplayName?: string | null;
+    unlisted?: boolean;
+    date?: string;
+    headers?: Partial<PgnHeaders>;
+    showVisibility?: boolean;
+}) {
+    const { user } = useAuth();
+
+    let description = getTimeControl({ timeControl: headers?.TimeControl }) || '';
+
+    const moves = formatMoves(headers?.PlyCount);
     if (moves !== '?') {
         if (description) {
             description += ' • ';
@@ -334,18 +357,20 @@ export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
         description += `${moves} move${moves !== 1 ? 's' : ''}`;
     }
 
-    if (params.row.date) {
+    if (date) {
         if (description) {
             description += ' • ';
         }
-        description += params.row.date;
+        const d = new Date(date);
+        date = toDojoDateString(d, user?.timezoneOverride);
+        description += date;
     }
 
     return (
         <Stack height={1} justifyContent='center' py={1}>
             <Grid container>
                 <Grid size={1}>
-                    <RenderGameResultStack result={params.row.headers.Result} />
+                    <RenderGameResultStack result={headers?.Result} />
                 </Grid>
 
                 <Grid size={11}>
@@ -355,12 +380,17 @@ export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
                         justifyContent='space-between'
                         alignItems='center'
                     >
-                        {RenderPlayersCell(params)}
+                        {RenderPlayers({
+                            white: headers?.White,
+                            whiteElo: headers?.WhiteElo,
+                            black: headers?.Black,
+                            blackElo: headers?.BlackElo,
+                        })}
 
-                        {showVisibility && params.row.unlisted && (
+                        {showVisibility && unlisted && (
                             <VisibilityOff sx={{ color: 'text.secondary' }} />
                         )}
-                        {showVisibility && !params.row.unlisted && (
+                        {showVisibility && !unlisted && (
                             <Visibility sx={{ color: 'text.secondary' }} />
                         )}
                     </Stack>
@@ -376,21 +406,17 @@ export function ListViewCell(params: GridRenderCellParams<GameInfo>) {
                 <Grid size={1}></Grid>
                 <Grid size={11}>
                     <Stack direction='row' alignItems='center'>
-                        <CohortIcon
-                            cohort={params.row.cohort}
-                            tooltip={params.row.cohort}
-                            size={16}
-                        />
+                        <CohortIcon cohort={cohort} tooltip={cohort} size={16} />
                         <Typography variant='body2' color='text.secondary' sx={{ ml: 0.5 }}>
-                            {params.row.cohort === MastersCohort ? 'Masters DB' : params.row.cohort}
+                            {cohort === MastersCohort ? 'Masters DB' : cohort}
                         </Typography>
 
-                        {params.row.cohort !== MastersCohort && params.row.ownerDisplayName && (
+                        {cohort !== MastersCohort && ownerDisplayName && owner && (
                             <>
                                 <Typography variant='body2' sx={{ mx: 0.5 }} color='text.secondary'>
                                     •
                                 </Typography>
-                                {RenderOwner({ ...params.row, avatarSize: 0 })}
+                                {RenderOwner({ ownerDisplayName, owner, avatarSize: 0 })}
                             </>
                         )}
                     </Stack>

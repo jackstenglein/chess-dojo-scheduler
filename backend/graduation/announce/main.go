@@ -19,7 +19,7 @@ import (
 type Event events.CloudWatchEvent
 
 var repository = database.DynamoDB
-var achievementsChannelId = os.Getenv("discordAchievementsChannelId")
+var graduationsChannelId = os.Getenv("discordGraduationsChannelId")
 var frontendHost = os.Getenv("frontendHost")
 
 var wednesdayCohorts = []database.DojoCohort{
@@ -95,8 +95,8 @@ func handler(ctx context.Context, event Event) (Event, error) {
 		}
 
 		if sb.Len() >= 1000 {
-			log.Infof("Sending message to ID %s: %s", achievementsChannelId, sb.String())
-			_, err = discord.SendMessageInChannel(sb.String(), achievementsChannelId)
+			log.Infof("Sending message to ID %s: %s", graduationsChannelId, sb.String())
+			_, err = discord.SendMessageInChannel(sb.String(), graduationsChannelId)
 			if err != nil {
 				log.Errorf("Failed to post message in Discord: %v", err)
 				return event, err
@@ -111,8 +111,8 @@ func handler(ctx context.Context, event Event) (Event, error) {
 		return event, nil
 	}
 
-	log.Infof("Sending message to ID %s: %s", achievementsChannelId, sb.String())
-	_, err = discord.SendMessageInChannel(sb.String(), achievementsChannelId)
+	log.Infof("Sending message to ID %s: %s", graduationsChannelId, sb.String())
+	_, err = discord.SendMessageInChannel(sb.String(), graduationsChannelId)
 	if err != nil {
 		log.Errorf("Failed to post message in Discord: %v", err)
 		return event, err

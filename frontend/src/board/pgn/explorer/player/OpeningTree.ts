@@ -1,5 +1,5 @@
 import { OnlineGameTimeClass } from '@/api/external/onlineGame';
-import { LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
+import { GameData, LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
 import { GameResult } from '@/database/game';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
 import deepEqual from 'deep-equal';
@@ -9,8 +9,8 @@ import {
     MAX_DOWNLOAD_LIMIT,
     MAX_PLY_COUNT,
     MIN_PLY_COUNT,
-    PlayerSource,
 } from './PlayerSource';
+import { fideDpTable } from './performanceRating';
 
 interface PositionDataMove extends LichessExplorerMove {
     /**
@@ -27,33 +27,6 @@ export interface PositionData extends LichessExplorerPosition {
      * for the starting position.
      */
     games: Set<string>;
-}
-
-export interface GameData {
-    /** The source the game comes from. */
-    source: PlayerSource;
-    /** The color of the source in the game. */
-    playerColor: Color.White | Color.Black;
-    /** The username of the player with white. */
-    white: string;
-    /** The username of the player with black. */
-    black: string;
-    /** The ELO of the player with white. */
-    whiteElo: number;
-    /** The ELO of the player with black. */
-    blackElo: number;
-    /** The result of the game. */
-    result: GameResult;
-    /** The number of moves in the game. */
-    plyCount: number;
-    /** Whether the game is rated. */
-    rated: boolean;
-    /** The URL of the game. */
-    url: string;
-    /** The PGN headers of the game. */
-    headers: Record<string, string>;
-    /** The time class of the game. */
-    timeClass: OnlineGameTimeClass;
 }
 
 export class OpeningTree {
@@ -205,16 +178,55 @@ export class OpeningTree {
         let white = 0;
         let black = 0;
         let draws = 0;
+        let playerWins = 0;
+        let totalOpponentRating = 0;
+
+        let lastPlayed: GameData | undefined = undefined;
+        let bestWin: GameData | undefined = undefined;
+        let worstLoss: GameData | undefined = undefined;
+
         for (const url of position.games) {
             const game = this.getGame(url);
             if (
-                game &&
-                (this.mostRecentGames?.has(url) ||
-                    (!this.mostRecentGames && matchesFilter(game, this.filters)))
+                !game ||
+                (!this.mostRecentGames?.has(url) &&
+                    (this.mostRecentGames || !matchesFilter(game, this.filters)))
             ) {
-                if (game.result === GameResult.White) white++;
-                else if (game.result === GameResult.Black) black++;
-                else draws++;
+                continue;
+            }
+
+            if (game.headers.Date > (lastPlayed?.headers.Date ?? '')) {
+                lastPlayed = game;
+            }
+
+            if (game.result === GameResult.White) {
+                white++;
+                if (game.playerColor === Color.White) {
+                    playerWins++;
+                    if (game.normalizedBlackElo > (bestWin?.normalizedBlackElo ?? 0)) {
+                        bestWin = game;
+                    }
+                } else if (game.normalizedWhiteElo < (worstLoss?.normalizedWhiteElo ?? Infinity)) {
+                    worstLoss = game;
+                }
+            } else if (game.result === GameResult.Black) {
+                black++;
+                if (game.playerColor === Color.Black) {
+                    playerWins++;
+                    if (game.normalizedWhiteElo > (bestWin?.normalizedWhiteElo ?? 0)) {
+                        bestWin = game;
+                    }
+                } else if (game.normalizedBlackElo < (worstLoss?.normalizedBlackElo ?? Infinity)) {
+                    worstLoss = game;
+                }
+            } else {
+                draws++;
+            }
+
+            if (game.playerColor === Color.White) {
+                totalOpponentRating += game.normalizedBlackElo;
+            } else {
+                totalOpponentRating += game.normalizedWhiteElo;
             }
         }
 
@@ -223,19 +235,82 @@ export class OpeningTree {
                 let white = 0;
                 let black = 0;
                 let draws = 0;
+                let playerWins = 0;
+                let totalOpponentRating = 0;
+
+                let lastPlayed: GameData | undefined = undefined;
+                let bestWin: GameData | undefined = undefined;
+                let worstLoss: GameData | undefined = undefined;
+
                 for (const url of move.games) {
                     const game = this.getGame(url);
                     if (
-                        game &&
-                        (this.mostRecentGames?.has(url) ||
-                            (!this.mostRecentGames && matchesFilter(game, this.filters)))
+                        !game ||
+                        (!this.mostRecentGames?.has(url) &&
+                            (this.mostRecentGames || !matchesFilter(game, this.filters)))
                     ) {
-                        if (game?.result === GameResult.White) white++;
-                        else if (game?.result === GameResult.Black) black++;
-                        else draws++;
+                        continue;
+                    }
+
+                    if (game.headers.Date > (lastPlayed?.headers.Date ?? '')) {
+                        lastPlayed = game;
+                    }
+
+                    if (game.result === GameResult.White) {
+                        white++;
+                        if (game.playerColor === Color.White) {
+                            playerWins++;
+                            if (game.normalizedBlackElo > (bestWin?.normalizedBlackElo ?? 0)) {
+                                bestWin = game;
+                            }
+                        } else if (
+                            game.normalizedWhiteElo < (worstLoss?.normalizedWhiteElo ?? Infinity)
+                        ) {
+                            worstLoss = game;
+                        }
+                    } else if (game.result === GameResult.Black) {
+                        black++;
+                        if (game.playerColor === Color.Black) {
+                            playerWins++;
+                            if (game.normalizedWhiteElo > (bestWin?.normalizedWhiteElo ?? 0)) {
+                                bestWin = game;
+                            }
+                        } else if (
+                            game.normalizedBlackElo < (worstLoss?.normalizedBlackElo ?? Infinity)
+                        ) {
+                            worstLoss = game;
+                        }
+                    } else {
+                        draws++;
+                    }
+
+                    if (game.playerColor === Color.White) {
+                        totalOpponentRating += game.normalizedBlackElo;
+                    } else {
+                        totalOpponentRating += game.normalizedWhiteElo;
                     }
                 }
-                return { ...move, white, black, draws };
+                const result = { ...move, white, black, draws };
+                const totalGames = white + black + draws;
+                if (lastPlayed && totalGames > 0) {
+                    const score = playerWins + draws / 2;
+                    const percentage = (score / totalGames) * 100;
+                    const ratingDiff = fideDpTable[Math.round(percentage)];
+                    const averageOpponentRating = Math.round(totalOpponentRating / totalGames);
+                    const performanceRating = averageOpponentRating + ratingDiff;
+
+                    result.performanceData = {
+                        playerWins,
+                        playerDraws: draws,
+                        playerLosses: totalGames - playerWins - draws,
+                        performanceRating,
+                        averageOpponentRating,
+                        lastPlayed,
+                        bestWin,
+                        worstLoss,
+                    };
+                }
+                return result;
             })
             .filter((m) => m.white || m.black || m.draws)
             .sort(
@@ -243,7 +318,29 @@ export class OpeningTree {
                     rhs.white + rhs.black + rhs.draws - (lhs.white + lhs.black + lhs.draws),
             );
 
-        return { ...position, white, black, draws, moves };
+        const result = { ...position, white, black, draws, moves };
+
+        const totalGames = white + black + draws;
+        if (lastPlayed && totalGames > 0) {
+            const score = playerWins + draws / 2;
+            const percentage = (score / totalGames) * 100;
+            const ratingDiff = fideDpTable[Math.round(percentage)];
+            const averageOpponentRating = Math.round(totalOpponentRating / totalGames);
+            const performanceRating = averageOpponentRating + ratingDiff;
+
+            result.performanceData = {
+                playerWins,
+                playerDraws: draws,
+                playerLosses: totalGames - playerWins - draws,
+                performanceRating,
+                averageOpponentRating,
+                lastPlayed,
+                bestWin,
+                worstLoss,
+            };
+        }
+
+        return result;
     }
 
     /**

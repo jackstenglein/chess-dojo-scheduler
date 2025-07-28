@@ -1,5 +1,5 @@
+import { BreadcrumbItem } from '@/components/profile/directories/DirectoryCache';
 import { getConfig } from '@/config';
-import { BreadcrumbItem } from '@/profile/directories/DirectoryCache';
 import {
     AddDirectoryItemsRequestV2,
     CreateDirectoryRequestV2Client,

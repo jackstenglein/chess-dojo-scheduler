@@ -1,9 +1,6 @@
 'use strict';
 
-import {
-    ConditionalCheckFailedException,
-    PutItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import { ConditionalCheckFailedException, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
     compareRoles,
@@ -15,30 +12,21 @@ import {
     DirectoryItemTypes,
     DirectoryVisibility,
     HOME_DIRECTORY_ID,
+    MY_GAMES_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { NIL as uuidNil } from 'uuid';
 import { getAccessRole } from './access';
-import {
-    ApiError,
-    errToApiGatewayProxyResultV2,
-    getUserInfo,
-    parseEvent,
-    success,
-} from './api';
-import {
-    attributeNotExists,
-    directoryTable,
-    dynamo,
-    UpdateItemBuilder,
-} from './database';
-import { fetchDirectory } from './get';
+import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, parseEvent, success } from './api';
+import { attributeNotExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
+import { addAllUploads, fetchDirectory } from './get';
 
 export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
         const request = parseEvent(event, CreateDirectorySchemaV2);
         const result = await handleCreateDirectory(event, request);
+        addAllUploads(result.parent);
         return success(result);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -82,8 +70,7 @@ async function handleCreateDirectory(
     if (
         Object.values(parent?.items || {}).some(
             (item) =>
-                item.type === DirectoryItemTypes.DIRECTORY &&
-                item.metadata.name === request.name,
+                item.type === DirectoryItemTypes.DIRECTORY && item.metadata.name === request.name,
         )
     ) {
         throw new ApiError({
@@ -142,8 +129,20 @@ export async function createHomeDirectory(
         visibility: DirectoryVisibility.PUBLIC,
         createdAt,
         updatedAt: createdAt,
-        items: {},
-        itemIds: [],
+        items: {
+            [MY_GAMES_DIRECTORY_ID]: {
+                type: DirectoryItemTypes.DIRECTORY,
+                id: MY_GAMES_DIRECTORY_ID,
+                metadata: {
+                    createdAt,
+                    updatedAt: createdAt,
+                    visibility: DirectoryVisibility.PUBLIC,
+                    name: 'My Games',
+                    description: 'Serious classical games I have played',
+                },
+            },
+        },
+        itemIds: [MY_GAMES_DIRECTORY_ID],
     };
     if (request) {
         directory.items[request.id] = {
@@ -156,10 +155,24 @@ export async function createHomeDirectory(
                 name: request.name,
             },
         };
-        directory.itemIds = [request.id];
+        directory.itemIds.push(request.id);
     }
 
+    const myGamesDirectory: Directory = {
+        owner,
+        id: MY_GAMES_DIRECTORY_ID,
+        parent: HOME_DIRECTORY_ID,
+        name: 'My Games',
+        description: 'Serious classical games I have played',
+        visibility: DirectoryVisibility.PUBLIC,
+        createdAt,
+        updatedAt: createdAt,
+        items: {},
+        itemIds: [],
+    };
+
     await createDirectory(directory);
+    await createDirectory(myGamesDirectory);
     return directory;
 }
 

@@ -12,6 +12,7 @@ const testUrls = {
 
     chesscomAnalysisGame: 'https://www.chess.com/analysis/game/live/108036079387?tab=review',
     chesscomGame: 'https://www.chess.com/game/live/107855985867',
+    chesscomGameAlt: 'https://www.chess.com/live/game/107855985867',
 };
 
 function importUrl(url: string) {
@@ -28,7 +29,6 @@ describe('Import Games Page - Import Online Games', () => {
             cy.dojo.env('cognito_password'),
         );
         cy.visit('/games/import');
-        cy.clock(new Date('2024-05-26'));
         cy.getBySel('import-online-game').click();
     });
 
@@ -78,8 +78,6 @@ describe('Import Games Page - Import Online Games', () => {
 
     it('submits from a Lichess chapter URL with missing headers successfully', () => {
         importUrl(testUrls.lichessChapterMissingData);
-        cy.tick(1000); // Necessary when using cy.clock with modals: https://stackoverflow.com/a/71974637
-
         verifyGame({
             lastMove: 'd4',
             lastMoveEmt: '0',
@@ -100,12 +98,22 @@ describe('Import Games Page - Import Online Games', () => {
         });
     });
 
+    it('submits from Chess.com game alternate URL', () => {
+        importUrl(testUrls.chesscomGameAlt);
+        verifyGame({
+            white: 'bestieboots',
+            black: 'NVWV1',
+            lastMove: 'Kxh4',
+            lastMoveClock: {
+                white: '0:04:14',
+                black: '0:02:54',
+            },
+            lastMoveEmt: '00:00',
+        });
+    });
+
     it('submits from Chess.com annotations URL (type A)', () => {
         importUrl(testUrls.chesscomAnalysisA);
-
-        // This particular analysis is missing headers
-        cy.tick(1000); // Necessary when using cy.clock with modals: https://stackoverflow.com/a/71974637
-
         verifyGame({
             lastMove: 'Nxb6',
             lastMoveEmt: '0',
@@ -136,26 +144,10 @@ describe('Import Games Page - Import Online Games', () => {
         });
     });
 
-    if (cy.dojo.env('cognito_username') === 'jackstenglein+test@gmail.com') {
-        it('submits from Chess.com recent game', () => {
-            cy.contains('othaluran').click();
-            verifyGame({
-                white: 'JackStenglein',
-                black: 'othaluran',
-                lastMove: 'Kxh8',
-                lastMoveClock: {
-                    white: '0:00:23',
-                    black: '0:02:26',
-                },
-                lastMoveEmt: '00:01',
-            });
-        });
-    } else {
-        it('submits from Chess.com recent game', () => {
-            cy.getBySel('recent-game-chesscomGame').should('exist').click();
-            verifyGame({});
-        });
-    }
+    it('submits from Chess.com recent game', () => {
+        cy.getBySel('recent-game-chesscomGame').first().click();
+        verifyGame({});
+    });
 
     it('submits Lichess game from position', () => {
         importUrl(testUrls.lichessGameFromPosition);

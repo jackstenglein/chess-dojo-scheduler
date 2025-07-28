@@ -11,17 +11,11 @@ export const RoundRobinRegisterSchema = z.object({
     /** The cohort of the tournament. */
     cohort: z.string(),
 
-    /** The display name of the player registering. */
-    displayName: z.string(),
-
     /** The Lichess username of the player registering. */
     lichessUsername: z.string(),
 
     /** The Chess.com username of the player registering. */
     chesscomUsername: z.string(),
-
-    /** The discord username of the player registering. */
-    discordUsername: z.string().optional(),
 });
 
 /** A request to register for a round robin. */
@@ -79,7 +73,7 @@ export type RoundRobinListRequest = z.infer<typeof RoundRobinListSchema>;
 
 export type RoundRobinWaitlist = Pick<
     RoundRobin,
-    'type' | 'startsAt' | 'updatedAt' | 'cohort' | 'players' | 'name'
+    'type' | 'startsAt' | 'updatedAt' | 'cohort' | 'players' | 'name' | 'startEligibleAt'
 >;
 
 const RoundRobinPairingSchema = z.object({
@@ -106,7 +100,7 @@ export type RoundRobinPlayerStatus = z.infer<typeof roundRobinPlayerStatus>;
 
 export const RoundRobinPlayerStatuses = roundRobinPlayerStatus.enum;
 
-const RoundRobinPlayerSchema = z.object({
+export const RoundRobinPlayerSchema = z.object({
     /** The username of the player. */
     username: z.string(),
     /** The Dojo display name of the player. */
@@ -116,7 +110,9 @@ const RoundRobinPlayerSchema = z.object({
     /** The Chess.com username of the player. */
     chesscomUsername: z.string(),
     /** The Discord username of the player registering. */
-    discordUsername: z.string().optional(),
+    discordUsername: z.string(),
+    /** The Discord id of the player registering. */
+    discordId: z.string(),
     /** The status of the player. */
     status: roundRobinPlayerStatus,
     /** The Stripe checkout session for players who paid to enter. */
@@ -128,6 +124,8 @@ const RoundRobinPlayerSchema = z.object({
             customer: z.string().nullish(),
         })
         .optional(),
+    /** The price the user must pay when the tournament starts. */
+    price: z.string().optional(),
 });
 
 export type RoundRobinPlayer = z.infer<typeof RoundRobinPlayerSchema>;
@@ -172,6 +170,12 @@ export const RoundRobinSchema = z.object({
     winners: z.string().array().optional(),
     /** The time the tournament was last updated. */
     updatedAt: z.string(),
+    /** The time the tournament reached enough registrations to be eligible to start. */
+    startEligibleAt: z.string().optional(),
+    /** Whether reminders were sent to players who did not submit games. */
+    reminderSent: z.boolean().optional(),
+    /** The ID of the scheduling thread on Discord. */
+    discordThreadId: z.string().optional(),
 });
 
 export type RoundRobin = z.infer<typeof RoundRobinSchema>;

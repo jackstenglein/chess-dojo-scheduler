@@ -1,6 +1,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';
+import { Link } from '@/components/navigation/Link';
 import { User } from '@/database/user';
 import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { LoadingButton } from '@mui/lab';
@@ -18,7 +19,7 @@ import {
     TextField,
 } from '@mui/material';
 import { useState } from 'react';
-import { SiChessdotcom, SiDiscord, SiLichess } from 'react-icons/si';
+import { SiChessdotcom, SiLichess } from 'react-icons/si';
 
 interface RegisterModalProps {
     cohort: string;
@@ -40,11 +41,12 @@ export function RegisterModal({
     const [chesscomUsername, setChesscomUsername] = useState(
         user?.ratings.CHESSCOM?.username || '',
     );
-    const [discordUsername, setDiscordUsername] = useState(user?.discordUsername || '');
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [hasReadRules, setHasReadRules] = useState(false);
     const [hasAgreedToScheduling, setHasAgreedToScheduling] = useState(false);
     const [hasAgreedNotToCheat, setHasAgreedNotToCheat] = useState(false);
+
+    const [unbanUrl, setUnbanUrl] = useState('');
 
     const request = useRequest<string>();
     const api = useApi();
@@ -73,14 +75,14 @@ export function RegisterModal({
         try {
             const resp = await api.registerForRoundRobin({
                 cohort,
-                displayName: user.displayName,
                 lichessUsername,
                 chesscomUsername,
-                discordUsername,
             });
             console.log('registerForRoundRobin: ', resp);
 
-            if ('url' in resp.data) {
+            if ('banned' in resp.data && resp.data.banned) {
+                setUnbanUrl(resp.data.url);
+            } else if ('url' in resp.data) {
                 window.location.href = resp.data.url;
             } else {
                 request.onSuccess('Successfully registered for the tournament');
@@ -96,6 +98,25 @@ export function RegisterModal({
         }
     };
 
+    if (unbanUrl) {
+        return (
+            <Dialog open={open} onClose={onClose}>
+                <DialogTitle>Register for the Round Robin?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Your account is not in good standing, due to not submitting any games in a
+                        prior round robin tournament. To register for this tournament, you must pay
+                        a fee of $15, in accordance with the terms on the info page.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={onClose}>Cancel</Button>
+                    <Button href={unbanUrl}>Continue</Button>
+                </DialogActions>
+            </Dialog>
+        );
+    }
+
     return (
         <>
             <Dialog open={open} onClose={request.isLoading() ? undefined : onClose}>
@@ -108,117 +129,120 @@ export function RegisterModal({
                         </DialogContentText>
                     )}
 
-                    <DialogContentText sx={{ mb: 2 }}>
-                        To prevent cheating, all games in the tournament must be played using either
-                        the Lichess or Chess.com accounts entered here.
-                    </DialogContentText>
+                    {user.discordId ? (
+                        <>
+                            <DialogContentText sx={{ mb: 2 }}>
+                                To prevent cheating, all games in the tournament must be played
+                                using either the Lichess or Chess.com accounts entered here.
+                            </DialogContentText>
 
-                    <TextField
-                        fullWidth
-                        margin='normal'
-                        label='Lichess Username'
-                        disabled={!!user.ratings.LICHESS?.username}
-                        value={lichessUsername}
-                        onChange={(e) => setLichessUsername(e.target.value)}
-                        slotProps={{
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position='start'>
-                                        <SiLichess fontSize={25} />
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                        error={!!errors.lichessUsername}
-                        helperText={errors.lichessUsername}
-                    />
-
-                    <TextField
-                        fullWidth
-                        margin='normal'
-                        label='Chess.com Username'
-                        disabled={!!user.ratings.CHESSCOM?.username}
-                        value={chesscomUsername}
-                        onChange={(e) => setChesscomUsername(e.target.value)}
-                        slotProps={{
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position='start'>
-                                        <SiChessdotcom fontSize={25} style={{ color: '#81b64c' }} />
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                        error={!!errors.chesscomUsername}
-                        helperText={errors.chesscomUsername}
-                    />
-
-                    <TextField
-                        fullWidth
-                        margin='normal'
-                        label='Discord Name'
-                        value={discordUsername}
-                        onChange={(e) => setDiscordUsername(e.target.value)}
-                        slotProps={{
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position='start'>
-                                        <SiDiscord fontSize={25} style={{ color: '#5865f2' }} />
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                    />
-
-                    <FormControlLabel
-                        sx={{ mt: 1 }}
-                        control={
-                            <Checkbox
-                                checked={hasReadRules}
-                                onChange={(e) => {
-                                    setHasReadRules(e.target.checked);
+                            <TextField
+                                fullWidth
+                                margin='normal'
+                                label='Lichess Username'
+                                value={lichessUsername}
+                                onChange={(e) => setLichessUsername(e.target.value)}
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <SiLichess fontSize={25} />
+                                            </InputAdornment>
+                                        ),
+                                    },
                                 }}
+                                error={!!errors.lichessUsername}
+                                helperText={errors.lichessUsername}
                             />
-                        }
-                        label='I have read all the rules on the info tab'
-                    />
 
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={hasAgreedToScheduling}
-                                onChange={(e) => {
-                                    setHasAgreedToScheduling(e.target.checked);
+                            <TextField
+                                fullWidth
+                                margin='normal'
+                                label='Chess.com Username'
+                                value={chesscomUsername}
+                                onChange={(e) => setChesscomUsername(e.target.value)}
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position='start'>
+                                                <SiChessdotcom
+                                                    fontSize={25}
+                                                    style={{ color: '#81b64c' }}
+                                                />
+                                            </InputAdornment>
+                                        ),
+                                    },
                                 }}
+                                error={!!errors.chesscomUsername}
+                                helperText={errors.chesscomUsername}
                             />
-                        }
-                        label='I understand that scheduling games is my responsibility and I will withdraw if I no longer have time to play'
-                    />
 
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={hasAgreedNotToCheat}
-                                onChange={(e) => {
-                                    setHasAgreedNotToCheat(e.target.checked);
-                                }}
+                            <FormControlLabel
+                                sx={{ mt: 1 }}
+                                control={
+                                    <Checkbox
+                                        checked={hasReadRules}
+                                        onChange={(e) => {
+                                            setHasReadRules(e.target.checked);
+                                        }}
+                                    />
+                                }
+                                label='I have read all the rules on the info tab'
                             />
-                        }
-                        label='I agree not to cheat'
-                    />
-                    {errors.rules && <FormHelperText error>{errors.rules}</FormHelperText>}
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={hasAgreedToScheduling}
+                                        onChange={(e) => {
+                                            setHasAgreedToScheduling(e.target.checked);
+                                        }}
+                                    />
+                                }
+                                label='I understand that scheduling games is my responsibility and I will withdraw if I no longer have time to play'
+                            />
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={hasAgreedNotToCheat}
+                                        onChange={(e) => {
+                                            setHasAgreedNotToCheat(e.target.checked);
+                                        }}
+                                    />
+                                }
+                                label='I agree not to cheat'
+                            />
+                            {errors.rules && <FormHelperText error>{errors.rules}</FormHelperText>}
+                        </>
+                    ) : (
+                        <>
+                            <DialogContentText sx={{ mb: 2 }}>
+                                Playing in the Round Robin requires a Discord account linked to your
+                                Dojo profile, in order to facilitate communication and game
+                                scheduling between players. Link your Discord account in your{' '}
+                                <Link href='/profile/edit'>settings</Link>, then come back to
+                                register.
+                            </DialogContentText>
+                        </>
+                    )}
                 </DialogContent>
 
                 <DialogActions>
                     <Button disabled={request.isLoading()} onClick={onClose}>
                         Cancel
                     </Button>
-                    <LoadingButton loading={request.isLoading()} onClick={handleSubmit}>
+                    <LoadingButton
+                        loading={request.isLoading()}
+                        onClick={handleSubmit}
+                        disabled={!user.discordId}
+                    >
                         Register
                     </LoadingButton>
                 </DialogActions>
+
+                <RequestSnackbar request={request} showSuccess />
             </Dialog>
-            <RequestSnackbar request={request} showSuccess />
         </>
     );
 }

@@ -23,8 +23,8 @@ import {
     DISCORD_BOT_TOKEN,
     DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET,
+    DISCORD_DEFAULT_REDIRECT_URI,
     DISCORD_GUILD_ID,
-    DISCORD_REDIRECT_URI,
     DISCORD_TOKEN_URL,
     DISCORD_USER_URL,
     DiscordTokenResponse,
@@ -87,7 +87,7 @@ async function handleConnectRequest(
         client_secret: DISCORD_CLIENT_SECRET,
         grant_type: 'authorization_code',
         code: request.code,
-        redirect_uri: DISCORD_REDIRECT_URI,
+        redirect_uri: request.redirectUri || DISCORD_DEFAULT_REDIRECT_URI,
     });
 
     const tokenResponse = await axios.post<DiscordTokenResponse>(DISCORD_TOKEN_URL, params, {
@@ -109,6 +109,7 @@ async function handleConnectRequest(
         });
     }
 
+    console.log(`Adding user ${user.username} to guild`);
     const addResponse = await axios.put(
         `https://discord.com/api/guilds/${DISCORD_GUILD_ID}/members/${userResponse.data.id}`,
         { access_token: tokenResponse.data.access_token, roles },
@@ -119,23 +120,19 @@ async function handleConnectRequest(
             },
         },
     );
+
     if (addResponse.status === 204) {
-        // Discord API won't add the roles if the user was already in the guild, so we must
-        // send a PATCH request now
-        const patchResponse = await axios.patch(
-            `https://discord.com/api/guilds/${DISCORD_GUILD_ID}/members/${userResponse.data.id}`,
-            { roles },
-            {
-                headers: {
-                    Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-            },
-        );
-        console.log(
-            `User ${user.username} already in guild. Successfully set roles: `,
-            patchResponse,
-        );
+        const patchResponse = await addRoles(userResponse.data.id, roles);
+        if (patchResponse) {
+            console.log(
+                `User ${user.username} already in guild. Successfully set roles: `,
+                patchResponse,
+            );
+        } else {
+            console.log(
+                `User ${user.username} already in guild and has correct roles. No change made.`,
+            );
+        }
     } else {
         console.log(`User ${user.username} successfully added to guild: `, addResponse);
     }
@@ -155,6 +152,35 @@ async function handleConnectRequest(
         discordUsername: userResponse.data.username,
         discordId: userResponse.data.id,
     });
+}
+
+/**
+ * Adds the provided roles to the given discord ID. If the given ID already
+ * has all these roles, no change is made.
+ * @param discordId The Discord ID to add the roles to.
+ * @param roles The roles to set on the user.
+ */
+async function addRoles(discordId: string, roles: string[]) {
+    const getResponse = await axios.get<{ roles?: string[] }>(
+        `https://discord.com/api/guilds/${DISCORD_GUILD_ID}/members/${discordId}`,
+        { headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` } },
+    );
+    const newRoles = roles.filter((r) => !getResponse.data.roles?.includes(r));
+    if (newRoles.length === 0) {
+        return;
+    }
+
+    roles = [...(getResponse.data.roles ?? []), ...newRoles];
+    return await axios.patch(
+        `https://discord.com/api/guilds/${DISCORD_GUILD_ID}/members/${discordId}`,
+        { roles },
+        {
+            headers: {
+                Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+        },
+    );
 }
 
 /**

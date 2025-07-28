@@ -1,6 +1,6 @@
 import { useAuth } from '@/auth/Auth';
-import { DirectoriesSection } from '@/profile/directories/DirectoriesSection';
-import { DirectoryCacheProvider } from '@/profile/directories/DirectoryCache';
+import { DirectoriesSection } from '@/components/profile/directories/DirectoriesSection';
+import { DirectoryCacheProvider } from '@/components/profile/directories/DirectoryCache';
 import { CardContent } from '@mui/material';
 
 export const Directories = () => {

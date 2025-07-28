@@ -679,6 +679,10 @@ export const isChesscomGameURL = (url: string) =>
     urlMatches(url, {
         hostname: 'www.chess.com',
         pathParts: [/^game$/, /^(live|daily)$/, matchChesscomId],
+    }) ||
+    urlMatches(url, {
+        hostname: 'www.chess.com',
+        pathParts: [/^(live|daily)$/, /^game$/, matchChesscomId],
     });
 
 export function isChesscomEventsUrl(url: string) {

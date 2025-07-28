@@ -13,7 +13,7 @@ import {
     Tooltip,
 } from '@mui/material';
 import { useState } from 'react';
-import { EventType, setUserCohort, trackEvent } from '../analytics/events';
+import { EventType, setUserProperties, trackEvent } from '../analytics/events';
 import { useApi } from '../api/Api';
 import { RequestSnackbar, useRequest } from '../api/Request';
 import { useAuth, useFreeTier } from '../auth/Auth';
@@ -44,6 +44,9 @@ const GraduationDialog = () => {
     };
 
     const onGraduate = () => {
+        if (!user) {
+            return;
+        }
         request.onStart();
         api.graduate(comments)
             .then((response) => {
@@ -54,7 +57,7 @@ const GraduationDialog = () => {
                     new_cohort: response.data.graduation.newCohort,
                     dojo_score: response.data.graduation.score,
                 });
-                setUserCohort(response.data.userUpdate.dojoCohort);
+                setUserProperties({ ...user, ...response.data.userUpdate });
                 setShowGraduationDialog(false);
                 setShareDialog(!user?.enableZenMode);
             })

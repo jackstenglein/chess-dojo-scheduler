@@ -1,11 +1,18 @@
 import { parsePgnDate, stripTagValue } from '@/api/gameApi';
-import { useFreeTier } from '@/auth/Auth';
+import { useAuth, useFreeTier } from '@/auth/Auth';
 import { useChess } from '@/board/pgn/PgnBoard';
+import { DirectorySelectButton } from '@/components/directories/select/DirectorySelectButton';
+import { DirectoryCacheProvider } from '@/components/profile/directories/DirectoryCache';
 import { GameResult, isGameResult } from '@/database/game';
-import { GameOrientations } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { MY_GAMES_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import {
+    CreateGameRequest,
+    GameOrientations,
+} from '@jackstenglein/chess-dojo-common/src/database/game';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Checkbox,
     Dialog,
     DialogActions,
     DialogContent,
@@ -40,6 +47,7 @@ export interface SaveGameForm {
     result: string;
     orientation: 'white' | 'black';
     publish?: boolean;
+    skipFolder?: boolean;
 }
 
 export enum SaveGameDialogType {
@@ -53,6 +61,8 @@ interface SaveGameDialogProps {
     loading?: boolean;
     open: boolean;
     title: string;
+    createGameRequest?: CreateGameRequest | null;
+    setCreateGameRequest?: (v: CreateGameRequest) => void;
     onClose: () => void;
     onSubmit: (details: SaveGameForm) => Promise<void>;
 }
@@ -63,6 +73,8 @@ export default function SaveGameDialog({
     loading,
     open,
     title,
+    createGameRequest,
+    setCreateGameRequest,
     onClose,
     onSubmit,
 }: SaveGameDialogProps) {
@@ -78,6 +90,8 @@ export default function SaveGameDialog({
         date: parsePgnDate(initialTags?.Date?.value),
         orientation: initialOrientation ?? GameOrientations.white,
     });
+    const [addToFolder, setAddToFolder] = useState(!!createGameRequest?.directory);
+
     const [errors, setErrors] = useState<Partial<FormError>>({});
 
     function onChangeField(key: keyof SaveGameForm, value: string | DateTime | null): void {
@@ -110,7 +124,9 @@ export default function SaveGameDialog({
         }
 
         setSelectedButton(publish ? 'publish' : 'save');
-        void onSubmit({ ...form, publish }).then(() => setSelectedButton(''));
+        void onSubmit({ ...form, skipFolder: !addToFolder, publish }).then(() =>
+            setSelectedButton(''),
+        );
     };
 
     return (
@@ -120,6 +136,10 @@ export default function SaveGameDialog({
                 form={form}
                 onChangeField={onChangeField}
                 errors={errors}
+                createGameRequest={createGameRequest}
+                setCreateGameRequest={setCreateGameRequest}
+                addToFolder={addToFolder}
+                setAddToFolder={setAddToFolder}
             >
                 {children}
             </SaveGameDialogBody>
@@ -166,13 +186,30 @@ function SaveGameDialogBody({
     form,
     onChangeField,
     errors,
+    createGameRequest,
+    setCreateGameRequest,
+    addToFolder,
+    setAddToFolder,
 }: {
     title: string;
     children?: ReactNode;
     form: SaveGameForm;
     onChangeField: (key: keyof SaveGameForm, value: string | DateTime | null) => void;
     errors: Partial<FormError>;
+    createGameRequest?: CreateGameRequest | null;
+    setCreateGameRequest?: (v: CreateGameRequest) => void;
+    addToFolder: boolean;
+    setAddToFolder: (v: boolean) => void;
 }) {
+    const { user } = useAuth();
+
+    const onChangeDirectory = (directory: { owner: string; id: string }) => {
+        if (createGameRequest && setCreateGameRequest) {
+            setCreateGameRequest?.({ ...createGameRequest, directory });
+        }
+        return Promise.resolve(true);
+    };
+
     return (
         <>
             <DialogTitle>{title}</DialogTitle>
@@ -296,6 +333,42 @@ function SaveGameDialogBody({
                                 </RadioGroup>
                             </FormControl>
                         </Grid>
+
+                        {createGameRequest && setCreateGameRequest && (
+                            <Grid size={12}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={addToFolder}
+                                            onChange={(e) => setAddToFolder(e.target.checked)}
+                                        />
+                                    }
+                                    label='Add to Folder'
+                                />
+                                <DirectoryCacheProvider>
+                                    <DirectorySelectButton
+                                        initialDirectory={
+                                            createGameRequest?.directory || {
+                                                owner: user?.username || '',
+                                                id: MY_GAMES_DIRECTORY_ID,
+                                            }
+                                        }
+                                        showDirectoryName
+                                        onSelect={onChangeDirectory}
+                                        slotProps={{
+                                            button: {
+                                                disabled: !addToFolder,
+                                            },
+                                            dialog: {
+                                                confirmButton: {
+                                                    children: 'Select',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </DirectoryCacheProvider>
+                            </Grid>
+                        )}
                     </Grid>
                 </Stack>
             </DialogContent>

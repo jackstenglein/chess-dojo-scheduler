@@ -2,6 +2,7 @@ import {
     BatchExecuteStatementCommand,
     BatchStatementRequest,
     ConditionalCheckFailedException,
+    UpdateItemCommandOutput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
@@ -29,8 +30,11 @@ import {
     gameTable,
     UpdateItemBuilder,
 } from './database';
-import { fetchDirectory } from './get';
+import { addAllUploads, fetchDirectory } from './get';
 import { getItemIndexMap } from './moveItems';
+
+const REMOVE_ITEMS_BATCH_SIZE = 100;
+const MAX_BATCHES = 10;
 
 /**
  * Handles requests to the remove directory item API. Returns the updated
@@ -44,6 +48,19 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
         const userInfo = requireUserInfo(event);
         const request = parseEvent(event, RemoveDirectoryItemsSchemaV2);
+
+        if (request.itemIds.length === 0) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: 'Invalid request: at least one item is required',
+            });
+        }
+        if (request.itemIds.length > REMOVE_ITEMS_BATCH_SIZE * MAX_BATCHES) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `Invalid request: number of items (${request.itemIds.length}) is greater than max size ${REMOVE_ITEMS_BATCH_SIZE * MAX_BATCHES}`,
+            });
+        }
 
         const accessRole = await getAccessRole({
             owner: request.owner,
@@ -65,6 +82,7 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
             undefined,
             accessRole === DirectoryAccessRole.Editor ? userInfo.username : undefined,
         );
+        addAllUploads(directory);
         return success({ directory });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -89,7 +107,7 @@ export async function removeDirectoryItems(
     caller?: string,
 ): Promise<Directory> {
     try {
-        const directory = await fetchDirectory(owner, directoryId);
+        let directory = await fetchDirectory(owner, directoryId);
         if (!directory) {
             throw new ApiError({
                 statusCode: 400,
@@ -97,47 +115,53 @@ export async function removeDirectoryItems(
                 privateMessage: `Directory ${owner}/${directoryId} does not exist`,
             });
         }
-        const itemIndices = getItemIndexMap(directory.itemIds);
 
-        const conditions = [attributeExists('id')];
-        const builder = new UpdateItemBuilder()
-            .key('owner', owner)
-            .key('id', directoryId)
-            .set('updatedAt', new Date().toISOString())
-            .table(directoryTable)
-            .return('ALL_NEW');
+        let result: UpdateItemCommandOutput | undefined = undefined;
+        for (let i = 0; i < items.length; i += REMOVE_ITEMS_BATCH_SIZE) {
+            const itemIndices = getItemIndexMap(directory.itemIds);
+            const conditions = [attributeExists('id')];
+            const builder = new UpdateItemBuilder()
+                .key('owner', owner)
+                .key('id', directoryId)
+                .set('updatedAt', new Date().toISOString())
+                .table(directoryTable)
+                .return('ALL_NEW');
 
-        for (const id of items) {
-            builder.remove(['items', id]);
-            builder.remove(['itemIds', itemIndices[id]]);
-            conditions.push(equal(['itemIds', itemIndices[id]], id));
+            const currentItems = items.slice(i, i + REMOVE_ITEMS_BATCH_SIZE);
 
-            if (
-                !allowSubdirectory &&
-                directory.items[id].type === DirectoryItemTypes.DIRECTORY
-            ) {
-                throw new ApiError({
-                    statusCode: 400,
-                    publicMessage: `Invalid request: item ${id} is a directory and must be removed through the delete API.`,
-                    privateMessage: `Directory ${owner}/${directoryId}`,
-                });
+            for (const id of currentItems) {
+                builder.remove(['items', id]);
+                builder.remove(['itemIds', itemIndices[id]]);
+                conditions.push(equal(['itemIds', itemIndices[id]], id));
+
+                if (
+                    !allowSubdirectory &&
+                    directory.items[id].type === DirectoryItemTypes.DIRECTORY
+                ) {
+                    throw new ApiError({
+                        statusCode: 400,
+                        publicMessage: `Invalid request: item ${id} is a directory and must be removed through the delete API.`,
+                        privateMessage: `Directory ${owner}/${directoryId}`,
+                    });
+                }
+
+                if (caller && directory.items[id].addedBy !== caller) {
+                    throw new ApiError({
+                        statusCode: 400,
+                        publicMessage: `Invalid request: item ${id} was added by someone else. You need admin permissions to remove it.`,
+                        privateMessage: `Directory ${owner}/${directoryId}. Added by: ${directory.items[id].addedBy}`,
+                    });
+                }
             }
+            builder.condition(allowSubdirectory ? conditions[0] : and(...conditions));
 
-            if (caller && directory.items[id].addedBy !== caller) {
-                throw new ApiError({
-                    statusCode: 400,
-                    publicMessage: `Invalid request: item ${id} was added by someone else. You need admin permissions to remove it.`,
-                    privateMessage: `Directory ${owner}/${directoryId}. Added by: ${directory.items[id].addedBy}`,
-                });
-            }
+            const input = builder.build();
+            console.log('Input: %j', input);
+            result = await dynamo.send(input);
+            directory = unmarshall(result.Attributes!) as Directory;
         }
-        builder.condition(allowSubdirectory ? conditions[0] : and(...conditions));
-
-        const input = builder.build();
-        console.log('Input: %j', input);
-        const result = await dynamo.send(input);
         await removeDirectoryFromGames(owner, directoryId, items);
-        return unmarshall(result.Attributes!) as Directory;
+        return directory;
     } catch (err) {
         if (err instanceof ApiError) {
             throw err;
@@ -167,11 +191,7 @@ export async function removeDirectoryItems(
  * @param id The id of the directory.
  * @param items The items to remove the directory from.
  */
-export async function removeDirectoryFromGames(
-    owner: string,
-    id: string,
-    items: string[],
-) {
+export async function removeDirectoryFromGames(owner: string, id: string, items: string[]) {
     const gameItems = items.filter((item) => item.includes('/'));
 
     for (let i = 0; i < gameItems.length; i += 25) {

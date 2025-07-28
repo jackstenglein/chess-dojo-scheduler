@@ -36,6 +36,7 @@ functions:
       frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
       discordAuth: ${file(../discord.yml):discordAuth}
       discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordRoundRobinChannelId: ${file(../config-${sls:stage}.yml):discordRoundRobinChannelId}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -48,7 +49,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: ${param:NotificationsTableArn}
+        Resource:
+          - ${param:NotificationsTableArn}
+          - ${param:TournamentsTableArn}
       - Effect: Allow
         Action:
           - sqs:ReceiveMessage

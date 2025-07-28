@@ -1,32 +1,57 @@
 import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { useDirectory } from '@/profile/directories/DirectoryCache';
-import { HOME_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
+import { useDirectory } from '@/components/profile/directories/DirectoryCache';
+import {
+    HOME_DIRECTORY_ID,
+    isManagedDirectory,
+} from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { FolderOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { Button } from '@mui/material';
+import { Button, ButtonProps } from '@mui/material';
 import { useState } from 'react';
 import { DirectorySelectDialog } from './DirectorySelectDialog';
 
 export function DirectorySelectButton<T>({
     request,
+    initialDirectory,
+    showDirectoryName,
     onSelect,
+    slotProps,
 }: {
     /** The API request, if any associated with this directory select. */
     request?: Request<T>;
+
+    /** The initial directory to have selected. */
+    initialDirectory?: { owner: string; id: string };
+
+    /** Show the selected directory name in the button instead of the default Add to Folder title. */
+    showDirectoryName?: boolean;
 
     /**
      * Callback invoked when the user clicks the confirm button in the dialog.
      * Returns true if the dialog should close.
      */
     onSelect: (directory: { owner: string; id: string }) => Promise<boolean>;
+
+    /** Props for slots in the component. */
+    slotProps?: {
+        /** Props for the button that opens the dialog. */
+        button?: ButtonProps;
+        /** Props for slots in the dialog. */
+        dialog?: {
+            /** Props for the dialog confirm button. */
+            confirmButton?: ButtonProps;
+        };
+    };
 }) {
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
-    const [directoryInfo, setDirectoryInfo] = useState({
-        owner: user?.username || '',
-        id: HOME_DIRECTORY_ID,
-    });
+    const [directoryInfo, setDirectoryInfo] = useState(
+        initialDirectory || {
+            owner: user?.username || '',
+            id: HOME_DIRECTORY_ID,
+        },
+    );
     const { directory } = useDirectory(directoryInfo.owner, directoryInfo.id);
 
     const onChange = (value: { owner: string; id: string }) => {
@@ -38,8 +63,11 @@ export function DirectorySelectButton<T>({
         request?.reset();
     };
 
-    const onClose = () => {
+    const onCancel = () => {
         setOpen(false);
+        setDirectoryInfo(
+            initialDirectory || { owner: user?.username || '', id: HOME_DIRECTORY_ID },
+        );
         request?.reset();
     };
 
@@ -57,16 +85,19 @@ export function DirectorySelectButton<T>({
             <Button
                 variant='contained'
                 startIcon={<FolderOutlined />}
+                {...slotProps?.button}
                 onClick={() => setOpen(true)}
             >
-                Add to Folder
+                {slotProps?.button?.children ||
+                    (showDirectoryName && directory?.name) ||
+                    'Add to Folder'}
             </Button>
 
             <DirectorySelectDialog
                 slotProps={{
                     dialog: {
                         open,
-                        onClose: request?.isLoading() ? undefined : onClose,
+                        onClose: request?.isLoading() ? undefined : onCancel,
                         fullWidth: true,
                     },
                     dialogTitle: {
@@ -75,11 +106,16 @@ export function DirectorySelectButton<T>({
                     dialogActions: {
                         children: (
                             <>
-                                <Button onClick={request?.isLoading() ? undefined : onClose}>
+                                <Button onClick={request?.isLoading() ? undefined : onCancel}>
                                     Cancel
                                 </Button>
-                                <LoadingButton loading={request?.isLoading()} onClick={onConfirm}>
-                                    Add
+                                <LoadingButton
+                                    loading={request?.isLoading()}
+                                    onClick={onConfirm}
+                                    disabled={isManagedDirectory(directoryInfo.id)}
+                                    {...slotProps?.dialog?.confirmButton}
+                                >
+                                    {slotProps?.dialog?.confirmButton?.children || 'Add'}
                                 </LoadingButton>
                             </>
                         ),

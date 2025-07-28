@@ -1,7 +1,4 @@
-import {
-    BatchExecuteStatementCommand,
-    BatchStatementRequest,
-} from '@aws-sdk/client-dynamodb';
+import { BatchExecuteStatementCommand, BatchStatementRequest } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import {
     compareRoles,
@@ -16,15 +13,9 @@ import {
 import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { checkAccess, getAccessRole } from './access';
 import { addDirectoryItems } from './addItems';
-import {
-    ApiError,
-    errToApiGatewayProxyResultV2,
-    parseBody,
-    requireUserInfo,
-    success,
-} from './api';
+import { ApiError, errToApiGatewayProxyResultV2, parseBody, requireUserInfo, success } from './api';
 import { directoryTable, dynamo } from './database';
-import { fetchDirectory } from './get';
+import { addAllUploads, fetchDirectory } from './get';
 import { removeDirectoryItems } from './removeItems';
 
 /**
@@ -38,6 +29,8 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
         const request = parseBody(event, MoveDirectoryItemsSchemaV2);
         const resp = await moveItems(event, request);
+        addAllUploads(resp.source);
+        addAllUploads(resp.target);
         return success(resp);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -114,11 +107,7 @@ async function moveItems(
     });
     items.sort((lhs, rhs) => (itemOrderMap[lhs.id] ?? 0) - (itemOrderMap[rhs.id] ?? 0));
 
-    const target = await addDirectoryItems(
-        request.target.owner,
-        request.target.id,
-        items,
-    );
+    const target = await addDirectoryItems(request.target.owner, request.target.id, items);
     await updateParent(
         target.owner,
         target.id,
@@ -147,11 +136,7 @@ export function getItemIndexMap(itemIds: string[]) {
  * @param parent The new parent id to set on the directories.
  * @param items The subdirectory items corresponding to the directories to update.
  */
-async function updateParent(
-    owner: string,
-    parent: string,
-    items: DirectoryItemSubdirectory[],
-) {
+async function updateParent(owner: string, parent: string, items: DirectoryItemSubdirectory[]) {
     for (let i = 0; i < items.length; i += 25) {
         const statements: BatchStatementRequest[] = [];
 

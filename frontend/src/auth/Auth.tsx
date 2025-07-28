@@ -21,7 +21,7 @@ import {
 import { AxiosResponse } from 'axios';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { EventType, setUser as setAnalyticsUser, trackEvent } from '../analytics/events';
+import { EventType, setUserProperties as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { syncPurchases } from '../api/paymentApi';
 import { getUser } from '../api/userApi';
 import {

@@ -1,17 +1,11 @@
 describe('Submit Results Page', () => {
     beforeEach(() => {
-        cy.visit('/tournaments/open-classical/submit-results');
-    });
-
-    it('hides email for logged in users', () => {
         cy.loginByCognitoApi(
             'test',
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
         cy.visit('/tournaments/open-classical/submit-results');
-
-        cy.getBySel('email').should('not.exist');
     });
 
     it('fetches game results from Lichess', () => {
@@ -23,28 +17,7 @@ describe('Submit Results Page', () => {
         cy.contains('Black Wins (0-1)');
     });
 
-    it('requires email to submit', () => {
-        cy.getBySel('region').click();
-        cy.contains('Region A').click();
-
-        cy.getBySel('section').click();
-        cy.contains('U1900').click();
-
-        cy.getBySel('game-url').type('https://test.com');
-        cy.getBySel('white').type('shatterednirvana');
-        cy.getBySel('black').type('jackstenglein');
-
-        cy.getBySel('result').click();
-        cy.contains('Black Wins (0-1)').click();
-
-        cy.getBySel('submit-button').click();
-
-        cy.getBySel('email').contains('This field is required');
-    });
-
     it('requires region to submit', () => {
-        cy.getBySel('email').type('test@example.com');
-
         cy.getBySel('section').click();
         cy.contains('U1900').click();
 
@@ -61,8 +34,6 @@ describe('Submit Results Page', () => {
     });
 
     it('requires section to submit', () => {
-        cy.getBySel('email').type('test@example.com');
-
         cy.getBySel('region').click();
         cy.contains('Region A').click();
 
@@ -80,8 +51,6 @@ describe('Submit Results Page', () => {
     });
 
     it('requires game url to submit', () => {
-        cy.getBySel('email').type('test@example.com');
-
         cy.getBySel('region').click();
         cy.contains('Region A').click();
 
@@ -100,8 +69,6 @@ describe('Submit Results Page', () => {
     });
 
     it('requires white to submit', () => {
-        cy.getBySel('email').type('test@example.com');
-
         cy.getBySel('region').click();
         cy.contains('Region A').click();
 
@@ -120,8 +87,6 @@ describe('Submit Results Page', () => {
     });
 
     it('requires black to submit', () => {
-        cy.getBySel('email').type('test@example.com');
-
         cy.getBySel('region').click();
         cy.contains('Region A').click();
 
@@ -140,8 +105,6 @@ describe('Submit Results Page', () => {
     });
 
     it('requires result to submit', () => {
-        cy.getBySel('email').type('test@example.com');
-
         cy.getBySel('region').click();
         cy.contains('Region A').click();
 
@@ -187,7 +150,7 @@ describe('Submit Results Page', () => {
     });
 
     it('redirects to details page on submit', () => {
-        cy.interceptApi('POST', '/public/tournaments/open-classical/results', {
+        cy.interceptApi('POST', '/tournaments/open-classical/results', {
             body: {
                 sections: {
                     A_U1900: {
@@ -196,8 +159,6 @@ describe('Submit Results Page', () => {
                 },
             },
         });
-
-        cy.getBySel('email').type('test@example.com');
         cy.getBySel('region').click();
         cy.contains('Region A').click();
         cy.getBySel('section').click();

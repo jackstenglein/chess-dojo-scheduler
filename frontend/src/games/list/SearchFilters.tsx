@@ -489,7 +489,7 @@ const SearchByPosition: React.FC<SearchByPositionProps> = ({
 const SearchFiles = () => {
     return (
         <Stack data-cy='search-files' spacing={2}>
-            <Button href='/profile?view=files' variant='outlined'>
+            <Button href='/profile?view=games' variant='outlined'>
                 Go to My Files
             </Button>
         </Stack>

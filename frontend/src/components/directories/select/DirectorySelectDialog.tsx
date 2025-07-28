@@ -1,6 +1,7 @@
+import { DirectoryBreadcrumbs } from '@/components/profile/directories/DirectoryBreadcrumbs';
+import { useDirectory } from '@/components/profile/directories/DirectoryCache';
 import LoadingPage from '@/loading/LoadingPage';
-import { DirectoryBreadcrumbs } from '@/profile/directories/DirectoryBreadcrumbs';
-import { useDirectory } from '@/profile/directories/DirectoryCache';
+import { isSelectableDirectory } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import {
     Box,
     Dialog,
@@ -47,6 +48,7 @@ export function DirectorySelectDialog({ value, onChange, slotProps }: DirectoryS
                         defaultValue={false}
                         enabled
                         horizontal
+                        hideAllUploads
                         onClick={onChange}
                     />
                 </Box>
@@ -62,6 +64,7 @@ export function DirectorySelectDialog({ value, onChange, slotProps }: DirectoryS
 
                         <List>
                             {Object.values(directory.items)
+                                .filter((item) => isSelectableDirectory(item.id))
                                 .sort((lhs, rhs) => lhs.type.localeCompare(rhs.type))
                                 .map((item) => (
                                     <DirectorySelectListItem

@@ -4,6 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth, useFreeTier } from '@/auth/Auth';
 import GameTable from '@/components/games/list/GameTable';
+import { ListItemContextMenu } from '@/components/games/list/ListItemContextMenu';
 import { Link } from '@/components/navigation/Link';
 import ListGamesTutorial from '@/components/tutorial/ListGamesTutorial';
 import { GameInfo } from '@/database/game';
@@ -20,7 +21,6 @@ import UpsellPage from '@/upsell/UpsellPage';
 import { Badge, Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { GridPaginationModel } from '@mui/x-data-grid-pro';
 import { useEffect, useState } from 'react';
-import { ListItemContextMenu } from '../../components/games/list/ListItemContextMenu';
 import SearchFilters from './SearchFilters';
 
 const ListGamesPage = () => {

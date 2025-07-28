@@ -17,7 +17,6 @@ import (
 var repository = database.DynamoDB
 
 type SubmitResultsRequest struct {
-	Email           string `json:"email"`
 	Region          string `json:"region"`
 	Section         string `json:"section"`
 	Round           int    `json:"-"`
@@ -62,14 +61,14 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.Infof("Event: %#v", event)
 
 	info := api.GetUserInfo(event)
+	if info.Username == "" {
+		return api.Failure(errors.New(403, "Invalid request: not signed in", "")), nil
+	}
 
 	request := &SubmitResultsRequest{Verified: false}
 	if err := json.Unmarshal([]byte(event.Body), request); err != nil {
 		err = errors.Wrap(400, "Invalid request: unable to unmarshal request body", "", err)
 		return api.Failure(err), nil
-	}
-	if info.Email != "" {
-		request.Email = info.Email
 	}
 
 	if err := getGameUrl(request); err != nil {
@@ -99,9 +98,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 }
 
 func checkRequest(request *SubmitResultsRequest) error {
-	if strings.TrimSpace(request.Email) == "" {
-		return errors.New(400, "Invalid request: email is required", "")
-	}
 	if strings.TrimSpace(request.Region) == "" {
 		return errors.New(400, "Invalid request: region is required", "")
 	}

@@ -6,6 +6,7 @@ import { ZoomOutMap } from '@mui/icons-material';
 import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
+import { useTimelineContext } from '../activity/useTimeline';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
 import { BadgCabinetDialog } from './BadgeCabinetDialog';
@@ -17,13 +18,14 @@ export const BadgeCard = ({ user }: { user: User }) => {
     const [selectedBadge, setSelectedBadge] = useState<Badge>();
     const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
     const { requirements } = useRequirements(ALL_COHORTS, true);
+    const { entries: timeline } = useTimelineContext();
 
     const [allBadges, earnedBadges] = useMemo(() => {
         const tacticsRating = calculateTacticsRating(user, requirements);
-        const allBadges = getBadges(user, tacticsRating);
+        const allBadges = getBadges(user, tacticsRating, timeline);
         const earnedBadges = allBadges.filter((badge) => badge.isEarned && !badge.isPreviousLevel);
         return [allBadges, earnedBadges];
-    }, [user, requirements]);
+    }, [user, requirements, timeline]);
 
     const [previousEarnedBadges, setPreviousEarnedBadges] = useState<Badge[]>();
     const badges: JSX.Element[] = [];
@@ -38,7 +40,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
 
     useEffect(() => {
         if (!previousEarnedBadges) {
-            if (requirements.length) {
+            if (requirements.length && timeline.length) {
                 setPreviousEarnedBadges(earnedBadges);
             }
             return;
@@ -57,6 +59,7 @@ export const BadgeCard = ({ user }: { user: User }) => {
         setSelectedBadge,
         setPreviousEarnedBadges,
         requirements,
+        timeline,
     ]);
 
     if (!user.createdAt || user.createdAt < '2023-12') {

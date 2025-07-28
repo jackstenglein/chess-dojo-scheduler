@@ -75,21 +75,11 @@ export interface UserApiContextType {
 
     /**
      * updateUserProgress updates the current user's progress on the provided requirement.
-     * @param cohort The cohort the user is making progress in.
-     * @param requirementId The id of the requirement to update.
-     * @param incrementalCount The amount by which the user is increasing their count.
-     * @param incrementalMinutesSpent The amount by which the user is increasing their time spent.
-     * @param date The optional date for which the update should apply.
-     * @param notes The user's optional comments for the progress update.
+     * @param request The request to update the progress.
      * @returns An AxiosResponse containing the updated user and timeline entry in the data field.
      */
     updateUserProgress: (
-        cohort: string,
-        requirementId: string,
-        incrementalCount: number,
-        incrementalMinutesSpent: number,
-        date: DateTime | null,
-        notes: string,
+        request: UpdateUserProgressRequest,
     ) => Promise<AxiosResponse<{ user: User; timelineEntry: TimelineEntry }>>;
 
     /**
@@ -316,37 +306,40 @@ export async function updateUser(
     return result;
 }
 
+export interface UpdateUserProgressRequest {
+    /** The cohort the user is making progress in. */
+    cohort: string;
+    /** The id of the requirement to update. */
+    requirementId: string;
+    /** The count of the requirement before the update. */
+    previousCount: number;
+    /** The count of the requirement after the update. */
+    newCount: number;
+    /** The amount by which the user is increasing their time spent. */
+    incrementalMinutesSpent: number;
+    /** The optional date for which the update should apply. */
+    date: DateTime | null;
+    /** The user's optional comments for the progress update. */
+    notes: string;
+}
+
 /**
  * updateUserProgress updates the current user's progress on the provided requirement.
  * @param idToken The id token of the current signed-in user.
- * @param cohort The cohort the user is making progress in.
- * @param requirementId The id of the requirement to update.
- * @param incrementalCount The amount by which the user is increasing their count.
- * @param incrementalMinutesSpent The amount by which the user is increasing their time spent.
- * @param date The optional date for which the update should apply.
- * @param notes The user's optional comments for the progress update.
+ * @param request The request to update the progress.
  * @param callback A callback function to invoke with the update after it has succeeded on the backend.
  * @returns An AxiosResponse containing the updated user in the data field.
  */
 export async function updateUserProgress(
     idToken: string,
-    cohort: string,
-    requirementId: string,
-    incrementalCount: number,
-    incrementalMinutesSpent: number,
-    date: DateTime | null,
-    notes: string,
+    request: UpdateUserProgressRequest,
     callback: (update: Partial<User>) => void,
 ) {
     const result = await axios.post<{ user: User; timelineEntry: TimelineEntry }>(
-        BASE_URL + '/user/progress/v2',
+        BASE_URL + '/user/progress/v3',
         {
-            cohort,
-            requirementId,
-            incrementalCount,
-            incrementalMinutesSpent,
-            date: date?.toUTC().toISO(),
-            notes,
+            ...request,
+            date: request.date?.toUTC().toISO(),
         },
         {
             headers: {

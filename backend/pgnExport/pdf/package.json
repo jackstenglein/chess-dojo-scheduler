@@ -5,7 +5,7 @@
         "test": "vitest"
     },
     "dependencies": {
-        "@jackstenglein/chess": "^2.2.9",
+        "@jackstenglein/chess": "^2.2.13",
         "@jackstenglein/chess-dojo-common": "file:../../../common",
         "chess-dojo-directory-service": "file:../../directoryService",
         "qrcode": "^1.5.3",

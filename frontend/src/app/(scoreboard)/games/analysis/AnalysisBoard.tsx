@@ -118,6 +118,7 @@ export default function AnalysisBoard() {
                     loading={request.isLoading()}
                     onSubmit={onSubmit}
                     onClose={() => setShowSaveDialog(false)}
+                    createGameRequest={stagedGame}
                 />
             )}
         </PgnErrorBoundary>

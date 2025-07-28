@@ -20,6 +20,7 @@ services:
       AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
       NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
       NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
+      DirectoriesTableArn: ${directoryService.DirectoriesTableArn}
   
   discordAuthService:
     path: discordAuthService
@@ -204,6 +205,7 @@ services:
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
       TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
       EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
 
   roundRobinService:
     path: roundRobinService

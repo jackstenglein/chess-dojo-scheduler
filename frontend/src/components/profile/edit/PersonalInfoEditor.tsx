@@ -135,7 +135,7 @@ export function PersonalInfoEditor({
                 helperText={errors.displayName || 'This is how other users will identify you'}
             />
 
-            <DiscordOAuthButton user={user} />
+            <DiscordOAuthButton />
 
             <TextField
                 label='Bio'
