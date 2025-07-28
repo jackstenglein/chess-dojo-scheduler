@@ -42,8 +42,7 @@ export function getCohortRangeInt(range?: string): [number, number] {
         return [-1, -1];
     }
 
-    let maxCohort =
-        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
+    let maxCohort = range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
     if (isNaN(maxCohort)) {
         maxCohort = Infinity;
     }
