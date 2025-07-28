@@ -25,6 +25,7 @@ export function AllUploadsSection({
     username,
     enableNavigationMenu,
     defaultNavigationMenuOpen,
+    isMobile,
     namespace,
 }: {
     /** The username to get uploaded games for. */
@@ -33,6 +34,8 @@ export function AllUploadsSection({
     enableNavigationMenu: boolean;
     /** Whether to default the navigation menu to open. */
     defaultNavigationMenuOpen?: boolean;
+    /** Whether the current render should use the mobile layout */
+    isMobile: boolean;
     /** The namespace for the local storage data. */
     namespace: string;
 }) {
@@ -78,7 +81,7 @@ export function AllUploadsSection({
     };
 
     return (
-        <Stack direction='row' columnGap={2}>
+        <Stack direction={isMobile ? 'column' : 'row'} columnGap={2}>
             <RequestSnackbar request={request} />
 
             <NavigationMenu
@@ -87,9 +90,10 @@ export function AllUploadsSection({
                 owner={username}
                 enabled={enableNavigationMenu}
                 defaultValue={defaultNavigationMenuOpen}
+                horizontal={isMobile}
             />
 
-            <Stack spacing={2} alignItems='start' flexGrow={1} minWidth='0'>
+            <Stack spacing={2} alignItems='start' flexGrow={1} minWidth='0' mt={isMobile ? 2 : 0}>
                 <DirectoryBreadcrumbs
                     owner={username}
                     id={ALL_MY_UPLOADS_DIRECTORY_ID}
