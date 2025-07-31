@@ -1,24 +1,29 @@
 'use strict';
 
+import { ratingToCohort } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import {
+    CohortPerformanceRatingMetric,
     compareRoles,
     Directory,
     DirectoryAccessRole,
     DirectoryItemTypes,
     DirectoryVisibility,
+    GetDirectoryStatsRequestSchema,
+    PerformanceRatingMetric,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-
-import { RatingSystem, getCohortForGivenRating, getNormalizedRating } from './ratingtypes';
+import { RatingSystem } from '@jackstenglein/chess-dojo-common/src/database/user';
+import { fideDpTable } from '@jackstenglein/chess-dojo-common/src/ratings/performanceRating';
+import { getNormalizedRating } from '@jackstenglein/chess-dojo-common/src/ratings/ratings';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { getAccessRole } from './access';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
-    parsePathParameters,
+    parseEvent,
     requireUserInfo,
     success,
 } from './api';
-import { fetchDirectory, getDirectorySchema } from './get';
+import { fetchDirectory } from './get';
 
 /**
  * Handles requests to the get directory API. Returns an error if the directory does
@@ -32,9 +37,10 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
 
         const userInfo = requireUserInfo(event);
-        const request = parsePathParameters(event, getDirectorySchema);
-        let directory = await fetchDirectory(request.owner, request.id);
+        const request = parseEvent(event, GetDirectoryStatsRequestSchema);
+        const ratingSystem = toRatingSystem(request.ratingSystem);
 
+        const directory = await fetchDirectory(request.owner, request.id);
         if (!directory) {
             throw new ApiError({
                 statusCode: 404,
@@ -42,389 +48,161 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
             });
         }
 
-        const accessRole = await getAccessRole({
-            owner: directory.owner,
-            id: directory.id,
-            username: userInfo.username,
-            directory,
-        });
-        const isViewer = compareRoles(DirectoryAccessRole.Viewer, accessRole);
-
-        if (directory.visibility === DirectoryVisibility.PRIVATE && !isViewer) {
-            throw new ApiError({
-                statusCode: 403,
-                publicMessage:
-                    'This directory is private. Performance rating cannot be generated.',
+        if (directory.visibility !== DirectoryVisibility.PUBLIC) {
+            const accessRole = await getAccessRole({
+                owner: directory.owner,
+                id: directory.id,
+                username: userInfo.username,
+                directory,
             });
+            const isViewer = compareRoles(DirectoryAccessRole.Viewer, accessRole);
+            if (!isViewer) {
+                throw new ApiError({
+                    statusCode: 403,
+                    publicMessage:
+                        'Missing required viewer permission to generate performance rating for this directory.',
+                });
+            }
         }
 
-        const queryParams = event.queryStringParameters || {};
-        const username = queryParams.username;
-        const ratingSystemQuery = queryParams.ratingsystem;
-        
-        
-
-        if (!username || !ratingSystemQuery ) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: 'Missing required query parameters: username and ratingsystem',
-            });
-        }
-
-        const ratingSystem = convertQueryParamToRatingSystem(ratingSystemQuery);
-        
-
-        const performanceRating = getPerformanceRating(username, directory, ratingSystem);
-
+        const performanceRating = getPerformanceRating(request.username, directory, ratingSystem);
         return success({ performanceRating });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
     }
 };
 
-
-function convertQueryParamToRatingSystem(query: string): RatingSystem {
-    switch (query.toLowerCase()) {
-        case "chesscom":
-            return RatingSystem.Chesscom;
-        case "lichess":
-            return RatingSystem.Lichess;
-        case "fide":
-            return RatingSystem.Fide;
-        case "uscf":
-            return RatingSystem.Uscf;
-        case "ecf":
-            return RatingSystem.Ecf;
-        case "cfc":
-            return RatingSystem.Cfc;
-        case "dwz":
-            return RatingSystem.Dwz;
-        case "acf":
-            return RatingSystem.Acf;
-        case "knsb":
-            return RatingSystem.Knsb;
-        case "custom":
-            return RatingSystem.Custom;
-        case "custom_2":
-            return RatingSystem.Custom2;
-        case "custom_3":
-            return RatingSystem.Custom3;
-        default:
-            throw new Error(`Unknown rating system: ${query}`);
+/**
+ * Converts the given string into a RatingSystem enum.
+ * @param query The string to convert.
+ * @returns The RatingSystem that corresponds to the string.
+ */
+function toRatingSystem(query: string): RatingSystem {
+    for (const rs of Object.values(RatingSystem)) {
+        if (query === rs) {
+            return rs;
+        }
     }
+    throw new ApiError({ statusCode: 400, publicMessage: `Unknown rating system ${query}` });
 }
 
-interface PerformanceRatingMetric {
-    combinedRating: number,
-    normalizedCombinedRating: number,
-    avgOppRating: number,
-    normalizedAvgOppRating: number,
-    whiteRating: number,
-    normalizedWhiteRating: number,
-    avgOppWhiteRating: number,
-    normalizedAvgWhiteOppRating: number
-    blackRating: number,
-    normalizedBlackRating: number,
-    avgOppBlackRating: number,
-    normalizedAvgBlackOppRating: number,
-    winRatio: number,
-    drawRatio: number, 
-    lossRatio: number,
-    cohortRatings: Record<string, CohortRatingMetric>;
-}
-
-interface CohortRatingMetric {
-    rating: number;
-    avgOppRating: number;
-    winRate: number;
-    drawRate: number;
-    lossRate: number;
-    oppRatings: number[];
-    gamesCount: number;
-    ratios: number[];
-}
-
-const fideDpTable: Record<number, number> = {
-    1.00: 800,
-    0.99: 677,
-    0.98: 589,
-    0.97: 538,
-    0.96: 501,
-    0.95: 470,
-    0.94: 444,
-    0.93: 422,
-    0.92: 401,
-    0.91: 383,
-    0.90: 366,
-    0.89: 351,
-    0.88: 336,
-    0.87: 322,
-    0.86: 309,
-    0.85: 296,
-    0.84: 284,
-    0.83: 273,
-    0.82: 262,
-    0.81: 251,
-    0.80: 240,
-    0.79: 230,
-    0.78: 220,
-    0.77: 211,
-    0.76: 202,
-    0.75: 193,
-    0.74: 184,
-    0.73: 175,
-    0.72: 166,
-    0.71: 158,
-    0.70: 149,
-    0.69: 141,
-    0.68: 133,
-    0.67: 125,
-    0.66: 117,
-    0.65: 110,
-    0.64: 102,
-    0.63: 95,
-    0.62: 87,
-    0.61: 80,
-    0.60: 72,
-    0.59: 65,
-    0.58: 57,
-    0.57: 50,
-    0.56: 43,
-    0.55: 36,
-    0.54: 29,
-    0.53: 21,
-    0.52: 14,
-    0.51: 7,
-    0.50: 0,
-    0.49: -7,
-    0.48: -14,
-    0.47: -21,
-    0.46: -29,
-    0.45: -36,
-    0.44: -43,
-    0.43: -50,
-    0.42: -57,
-    0.41: -65,
-    0.40: -72,
-    0.39: -80,
-    0.38: -87,
-    0.37: -95,
-    0.36: -102,
-    0.35: -110,
-    0.34: -117,
-    0.33: -125,
-    0.32: -133,
-    0.31: -141,
-    0.30: -149,
-    0.29: -158,
-    0.28: -166,
-    0.27: -175,
-    0.26: -184,
-    0.25: -193,
-    0.24: -202,
-    0.23: -211,
-    0.22: -220,
-    0.21: -230,
-    0.20: -240,
-    0.19: -251,
-    0.18: -262,
-    0.17: -273,
-    0.16: -284,
-    0.15: -296,
-    0.14: -309,
-    0.13: -322,
-    0.12: -336,
-    0.11: -351,
-    0.10: -366,
-    0.09: -383,
-    0.08: -401,
-    0.07: -422,
-    0.06: -444,
-    0.05: -470,
-    0.04: -501,
-    0.03: -538,
-    0.02: -589,
-    0.01: -677,
-    0.00: -800
-  };
-  
-
-
-
+/**
+ * Returns the performance rating for the given username, directory and rating system.
+ * @param username The username to calculate the performance rating for, as recorded in the PGN.
+ * @param directory The directory to calculate the performance rating for.
+ * @param ratingSystem The rating system to calculate the performance rating for.
+ * @returns The performance rating.
+ */
 export function getPerformanceRating(
-    playername: string,
-    userDirectory: Directory,
+    username: string,
+    directory: Directory,
     ratingSystem: RatingSystem,
 ): PerformanceRatingMetric {
-    const defaultRating = 1500;
-    let wins = 0, whiteWins = 0, blackWins = 0;
-    let draws = 0, whiteDraws = 0, blackDraws = 0;
-    let losses = 0, whiteLoss = 0, blackLoss = 0;
-    let total = 0;
+    const stats: PerformanceRatingMetric = {
+        wins: { total: 0, white: 0, black: 0 },
+        draws: { total: 0, white: 0, black: 0 },
+        losses: { total: 0, white: 0, black: 0 },
+        rating: { total: 0, white: 0, black: 0 },
+        normalizedRating: { total: 0, white: 0, black: 0 },
+        avgOppRating: { total: 0, white: 0, black: 0 },
+        normalizedAvgOppRating: { total: 0, white: 0, black: 0 },
+        cohortRatings: {},
+    };
 
-    const cohortRatings: Map<string,CohortRatingMetric> = new Map();
+    const playerName = username.toLowerCase();
 
-   
-    const oppBlackAvgRating: number[] = [];
-    const oppWhiteAvgRating: number[] = [];
-
-    const checkPlayerName = playername.toLowerCase();
-
-    userDirectory.itemIds.forEach((currentId) => {
-        const currentItem = userDirectory.items[currentId];
-        if (currentItem.type !== DirectoryItemTypes.OWNED_GAME || !currentItem.metadata.result) {
-            return;
+    for (const currentId of directory.itemIds) {
+        const currentItem = directory.items[currentId];
+        if (
+            currentItem.type !== DirectoryItemTypes.OWNED_GAME ||
+            !currentItem.metadata.result ||
+            currentItem.metadata.result === '*'
+        ) {
+            continue;
         }
 
-        total++;
         const { white, black, result, whiteElo, blackElo } = currentItem.metadata;
 
-        const updateStats = (isWin: boolean, isDraw: boolean, isWhite: boolean, oppElo: string | undefined) => {
-            const rating = oppElo ? parseInt(oppElo) : defaultRating;
-            const oppCohort = getCohortForGivenRating(rating, ratingSystem);
-            
-            if(oppCohort){
-                if(!cohortRatings.has(oppCohort)){
-                    const ratios: number[] = [0, 0, 0]; 
-                    if(isWin){
-                        ratios[0] = 1
-                    }else if(isDraw){
-                        ratios[1] = 0.5
-                    }
-                    const metric: CohortRatingMetric = {
-                        rating: 0,
-                        oppRatings: [rating],
-                        gamesCount: 1,
-                        ratios: ratios,
-                        winRate: 0,
-                        drawRate: 0,
-                        lossRate: 0,
-                        avgOppRating: 0,
-                    }
-                    cohortRatings.set(oppCohort, metric);
-                }else{
-                    const updatedMetric = cohortRatings.get(oppCohort);
-                    if(updatedMetric){
-                        updatedMetric.oppRatings.push(rating);
-                        updatedMetric.gamesCount = updatedMetric.oppRatings.length;
-                        if(isWin){
-                            updatedMetric.ratios[0] = updatedMetric.ratios[0] + 1;
-                        }else if(isDraw){
-                            updatedMetric.ratios[1] = updatedMetric.ratios[1] + 0.5;
-                        }
-                    }
-                    
-                }
-            }
+        let opponentElo = 0;
+        let resultKey: 'wins' | 'draws' | 'losses' = 'draws';
+        let color: 'white' | 'black';
 
-            (isWhite ? oppBlackAvgRating : oppWhiteAvgRating).push(rating);
-
-            if (isWin) {
-                wins++;
-                isWhite ? whiteWins++ : blackWins++;
-            } else if (isDraw) {
-                draws++;
-                isWhite ? whiteDraws++ : blackDraws++;
-            } else {
-                losses++;
-                isWhite ? whiteLoss++ : blackLoss++;
-            }
-        };
-
-        if (white.toLowerCase().includes(checkPlayerName)) {
-            if (result === "1-0") updateStats(true, false, true, blackElo);
-            else if (result === "0-1") updateStats(false, false, true, blackElo);
-            else if (result === "1/2-1/2") updateStats(false, true, true, blackElo);
-        } else if (black.toLowerCase().includes(checkPlayerName)) {
-            if (result === "0-1") updateStats(true, false, false, whiteElo);
-            else if (result === "1-0") updateStats(false, false, false, whiteElo);
-            else if (result === "1/2-1/2") updateStats(false, true, false, whiteElo);
+        if (white.toLowerCase().includes(playerName)) {
+            opponentElo = blackElo ? parseInt(blackElo) : 0;
+            resultKey = result === '1-0' ? 'wins' : result === '0-1' ? 'losses' : 'draws';
+            color = 'white';
+        } else if (black.toLowerCase().includes(playerName)) {
+            opponentElo = whiteElo ? parseInt(whiteElo) : 0;
+            resultKey = result === '1-0' ? 'losses' : result === '0-1' ? 'wins' : 'draws';
+            color = 'black';
+        } else {
+            continue;
         }
-    });
 
-    if (total === 0) {
-        return {
-            combinedRating: 0,
-            normalizedCombinedRating: 0,
-            whiteRating: 0,
-            normalizedWhiteRating: 0,
-            blackRating: 0,
-            normalizedBlackRating: 0,
-            winRatio: 0,
-            drawRatio: 0,
-            lossRatio: 0,
-            avgOppRating: 0,
-            normalizedAvgOppRating: 0,
-            avgOppWhiteRating: 0,
-            normalizedAvgWhiteOppRating: 0,
-            avgOppBlackRating: 0,
-            normalizedAvgBlackOppRating: 0,
-            cohortRatings: {}
-        };
+        if (opponentElo <= 0 || isNaN(opponentElo)) {
+            continue;
+        }
+
+        const oppCohort = ratingToCohort(opponentElo, ratingSystem);
+        if (!oppCohort) {
+            continue;
+        }
+        if (!stats.cohortRatings[oppCohort]) {
+            stats.cohortRatings[oppCohort] = {
+                wins: { total: 0, white: 0, black: 0 },
+                draws: { total: 0, white: 0, black: 0 },
+                losses: { total: 0, white: 0, black: 0 },
+                rating: { total: 0, white: 0, black: 0 },
+                normalizedRating: { total: 0, white: 0, black: 0 },
+                avgOppRating: { total: 0, white: 0, black: 0 },
+                normalizedAvgOppRating: { total: 0, white: 0, black: 0 },
+            };
+        }
+        updateStats(stats, resultKey, color, opponentElo);
+        updateStats(stats.cohortRatings[oppCohort], resultKey, color, opponentElo);
     }
 
-    const calculateAverage = (ratings: number[]) =>
-        Math.round(ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length);
+    const totalGames = stats.wins.total + stats.draws.total + stats.losses.total;
+    if (totalGames === 0) {
+        return stats;
+    }
 
-    const totalWhiteAvg = calculateAverage(oppBlackAvgRating);
-    const totalBlackAvg = calculateAverage(oppWhiteAvgRating);
-    const totalCombinedAvg = calculateAverage(oppBlackAvgRating.concat(oppWhiteAvgRating));
-    const totalScorePercent = parseFloat((((1) * wins + (0.5) * draws) / total).toFixed(2));
-    const totalWhiteScorePercent = parseFloat((((1) * whiteWins + (0.5) * whiteDraws) / (whiteWins + whiteDraws + whiteLoss)).toFixed(2));
-    const totalBlackScorePercent = parseFloat((((1) * blackWins +(0.5) * blackDraws) / (blackWins + blackDraws + blackLoss)).toFixed(2));
-    
-    const calculateRating = (avg: number, scorePercent: number) =>
-        avg + fideDpTable[scorePercent];
+    calculatePerformanceRatings(stats, ratingSystem);
+    for (const metric of Object.values(stats.cohortRatings)) {
+        calculatePerformanceRatings(metric, ratingSystem);
+    }
 
-    const whiteRating =  Math.round(calculateRating(totalWhiteAvg, totalWhiteScorePercent));
-    const blackRating = Math.round(calculateRating(totalBlackAvg, totalBlackScorePercent));
-    const combinedRating = Math.round(calculateRating(totalCombinedAvg, totalScorePercent));
-    const combinedNormalRating = getNormalizedRating(combinedRating, ratingSystem);
-    const normalizedWhiteRating = getNormalizedRating(whiteRating, ratingSystem);
-    const normalizedBlackRating = getNormalizedRating(blackRating, ratingSystem);
-    const winRatio = Math.round(parseFloat((wins / total).toFixed(2)) * 100);
-    const drawRatio = Math.round(parseFloat((draws / total).toFixed(2)) * 100);
-    const lossRatio = Math.round(parseFloat((losses / total).toFixed(2)) * 100);
-    const normalizedAvgOppRating = getNormalizedRating(totalCombinedAvg, ratingSystem);
-    const normalizedAvgWhiteOppRating = getNormalizedRating(totalWhiteAvg, ratingSystem);
-    const normalizedAvgBlackOppRating = getNormalizedRating(totalBlackAvg, ratingSystem);
+    return stats;
+}
 
-    cohortRatings.forEach((metric) => {
-        const avgOppRating = metric.oppRatings.length > 0
-            ? Math.round(calculateAverage(metric.oppRatings))
-            : 0;
-        const scorePercent = metric.gamesCount > 0
-            ? parseFloat((metric.ratios.reduce((sum, r) => sum + r, 0) / metric.gamesCount).toFixed(2))
-            : 0;
-        const cohortKeyRating = avgOppRating + (fideDpTable[scorePercent] ?? 0);    
-        metric.rating = cohortKeyRating;
-        metric.avgOppRating = avgOppRating;
-        metric.winRate = Math.round((metric.ratios[0] / metric.gamesCount) * 100);
-        metric.drawRate = Math.round((metric.ratios[1] / metric.gamesCount) * 100);
-        metric.lossRate = Math.round(((metric.gamesCount - metric.ratios[0] - metric.ratios[1]) / metric.gamesCount) * 100);
-    });
+function updateStats(
+    stats: PerformanceRatingMetric | CohortPerformanceRatingMetric,
+    resultKey: 'wins' | 'draws' | 'losses',
+    color: 'white' | 'black',
+    opponentElo: number,
+) {
+    stats.avgOppRating.total += opponentElo;
+    stats.avgOppRating[color] += opponentElo;
+    stats[resultKey].total++;
+    stats[resultKey][color]++;
+}
 
-    const cohortRatingsObject: Record<string, CohortRatingMetric> = {};
-    cohortRatings.forEach((value, key) => {
-        cohortRatingsObject[key] = value;
-    });
-
-    return {
-        combinedRating: combinedRating,
-        normalizedCombinedRating: combinedNormalRating,
-        whiteRating: whiteRating,
-        normalizedWhiteRating: normalizedWhiteRating,
-        blackRating: blackRating,
-        normalizedBlackRating: normalizedBlackRating,
-        winRatio: winRatio,
-        avgOppRating: totalCombinedAvg,
-        normalizedAvgOppRating: normalizedAvgOppRating,
-        avgOppWhiteRating: totalWhiteAvg,
-        normalizedAvgWhiteOppRating: normalizedAvgWhiteOppRating,
-        avgOppBlackRating: totalBlackAvg,
-        normalizedAvgBlackOppRating: normalizedAvgBlackOppRating,
-        drawRatio: drawRatio,
-        lossRatio: lossRatio,
-        cohortRatings: cohortRatingsObject
-    };
+function calculatePerformanceRatings(
+    stats: PerformanceRatingMetric | CohortPerformanceRatingMetric,
+    ratingSystem: RatingSystem,
+) {
+    for (const color of ['total', 'white', 'black'] as const) {
+        const numGames = stats.wins[color] + stats.draws[color] + stats.losses[color];
+        if (numGames === 0) {
+            continue;
+        }
+        const score = Math.round((100 * (stats.wins[color] + 0.5 * stats.draws[color])) / numGames);
+        stats.avgOppRating[color] = Math.round(stats.avgOppRating[color] / numGames);
+        stats.normalizedAvgOppRating[color] = getNormalizedRating(
+            stats.avgOppRating[color],
+            ratingSystem,
+        );
+        stats.rating[color] = stats.avgOppRating[color] + fideDpTable[score];
+        stats.normalizedRating[color] = getNormalizedRating(stats.rating[color], ratingSystem);
+    }
 }

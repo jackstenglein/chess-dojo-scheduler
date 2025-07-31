@@ -1,47 +1,95 @@
+import { dojoCohorts, getCohortRangeInt } from '../database/cohort';
+import { RatingSystem } from '../database/user';
 
-export const dojoCohorts = [
-    '0-300',
-    '300-400',
-    '400-500',
-    '500-600',
-    '600-700',
-    '700-800',
-    '800-900',
-    '900-1000',
-    '1000-1100',
-    '1100-1200',
-    '1200-1300',
-    '1300-1400',
-    '1400-1500',
-    '1500-1600',
-    '1600-1700',
-    '1700-1800',
-    '1800-1900',
-    '1900-2000',
-    '2000-2100',
-    '2100-2200',
-    '2200-2300',
-    '2300-2400',
-    '2400+',
-];
-
-export enum RatingSystem {
-    Chesscom = 'CHESSCOM',
-    Lichess = 'LICHESS',
-    Fide = 'FIDE',
-    Uscf = 'USCF',
-    Ecf = 'ECF',
-    Cfc = 'CFC',
-    Dwz = 'DWZ',
-    Acf = 'ACF',
-    Knsb = 'KNSB',
-    Custom = 'CUSTOM',
-    Custom2 = 'CUSTOM_2',
-    Custom3 = 'CUSTOM_3',
+/**
+ * Returns true if the given rating system is a custom system.
+ * @param ratingSystem The rating system to check.
+ */
+export function isCustom(ratingSystem: RatingSystem | string | undefined): boolean {
+    return (
+        ratingSystem === RatingSystem.Custom ||
+        ratingSystem === RatingSystem.Custom2 ||
+        ratingSystem === RatingSystem.Custom3
+    );
 }
 
+export function getRatingBoundary(
+    cohort: string,
+    ratingSystem: RatingSystem,
+    boundaries: Record<string, Record<RatingSystem, number>> = ratingBoundaries,
+): number | undefined {
+    const cohortBoundaries = boundaries[cohort];
+    if (!cohortBoundaries) {
+        return undefined;
+    }
 
-const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
+    const boundary = cohortBoundaries[ratingSystem];
+    if (boundary <= 0) {
+        return undefined;
+    }
+    return boundary;
+}
+
+/**
+ * Returns the minimum rating for the given cohort and rating system.
+ * @param cohort The cohort to get the minimum rating for.
+ * @param ratingSystem The rating system to get the minimum rating for.
+ * @returns The minimum rating for the given cohort and rating system.
+ */
+export function getMinRatingBoundary(
+    cohort: string,
+    ratingSystem: RatingSystem,
+    boundaries: Record<string, Record<RatingSystem, number>> = ratingBoundaries,
+): number {
+    const cohortIdx = dojoCohorts.findIndex((c) => c === cohort);
+    if (cohortIdx <= 0) {
+        return 0;
+    }
+    return getRatingBoundary(dojoCohorts[cohortIdx - 1], ratingSystem, boundaries) || 0;
+}
+
+export function getNormalizedRating(
+    rating: number,
+    ratingSystem: RatingSystem,
+    boundaries: Record<string, Record<RatingSystem, number>> = ratingBoundaries,
+): number {
+    if (isCustom(ratingSystem)) {
+        return -1;
+    }
+
+    for (const cohort of dojoCohorts) {
+        const x2 = getRatingBoundary(cohort, ratingSystem, boundaries);
+        if (!x2) {
+            continue;
+        }
+
+        if (x2 >= rating) {
+            const x1 = getMinRatingBoundary(cohort, ratingSystem, boundaries);
+
+            let [y1, y2] = getCohortRangeInt(cohort);
+
+            if (y1 === -1) {
+                y1 = 0;
+            }
+            if (y2 === -1) {
+                y2 = 0;
+            }
+
+            const result = ((y2 - y1) / (x2 - x1)) * (rating - x1) + y1;
+            return Math.round(result * 10) / 10;
+        }
+    }
+
+    // We are in the 2400+ cohort if we make it here, so we just extrapolate from the 2300-2400 line
+    const x1 = getMinRatingBoundary('2300-2400', ratingSystem, boundaries);
+    const x2 = getRatingBoundary('2300-2400', ratingSystem, boundaries) || 0;
+    const y1 = 2300;
+    const y2 = 2400;
+    const result = ((y2 - y1) / (x2 - x1)) * (rating - x1) + y1;
+    return Math.round(result * 10) / 10;
+}
+
+export const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
     '0-300': {
         [RatingSystem.Chesscom]: 550,
         [RatingSystem.Lichess]: 1250,
@@ -351,138 +399,3 @@ const ratingBoundaries: Record<string, Record<RatingSystem, number>> = {
         [RatingSystem.Custom3]: -1,
     },
 };
-
-export function getRatingBoundary(
-    cohort: string,
-    ratingSystem: RatingSystem,
-    boundaries: Record<string, Record<RatingSystem, number>> = ratingBoundaries,
-): number | undefined {
-    const cohortBoundaries = boundaries[cohort];
-    if (!cohortBoundaries) {
-        return undefined;
-    }
-
-    const boundary = cohortBoundaries[ratingSystem];
-    if (boundary <= 0) {
-        return undefined;
-    }
-    return boundary;
-}
-
-/**
- * Returns true if the given rating system is a custom system.
- * @param ratingSystem The rating system to check.
- */
-export function isCustom(ratingSystem: RatingSystem | string | undefined): boolean {
-    return (
-        ratingSystem === RatingSystem.Custom ||
-        ratingSystem === RatingSystem.Custom2 ||
-        ratingSystem === RatingSystem.Custom3
-    );
-}
-
-/**
- * Returns the minimum rating for the given cohort and rating system.
- * @param cohort The cohort to get the minimum rating for.
- * @param ratingSystem The rating system to get the minimum rating for.
- * @returns The minimum rating for the given cohort and rating system.
- */
-export function getMinRatingBoundary(
-    cohort: string,
-    ratingSystem: RatingSystem,
-    boundaries: Record<string, Record<RatingSystem, number>> = ratingBoundaries,
-): number {
-    const cohortIdx = dojoCohorts.findIndex((c) => c === cohort);
-    if (cohortIdx <= 0) {
-        return 0;
-    }
-    return getRatingBoundary(dojoCohorts[cohortIdx - 1], ratingSystem, boundaries) || 0;
-}
-
-/**
- * Returns the given cohort range as an array of 2 numbers. Ex: 0-1500
- * would return [0, 1500]. For ranges like 2000+, the max cohort is set to Infinity
- * (IE: [2000, Infinity]). If range is not provided or the min cohort is NaN, [-1, -1]
- * is returned.
- * @param range The cohort range to convert.
- * @returns The min and max cohort as numbers.
- */
-export function getCohortRangeInt(range?: string): [number, number] {
-    if (!range) {
-        return [-1, -1];
-    }
-
-    const minCohort = parseInt(range);
-    if (isNaN(minCohort)) {
-        return [-1, -1];
-    }
-
-    let maxCohort =
-        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
-    if (isNaN(maxCohort)) {
-        maxCohort = Infinity;
-    }
-
-    return [minCohort, maxCohort];
-}
-
-export function getCohortForGivenRating(targetRating: number, ratingSystem: RatingSystem): string | undefined {
-
-    if(targetRating > ratingBoundaries['2300-2400'][ratingSystem]){
-        return `2300-2400`;
-    }
-
-    for (const cohort of dojoCohorts) {
-        console.log(`Checking cohort: ${cohort}`);
-        console.log(`Rating boundary for ${cohort}:`, ratingBoundaries[cohort]?.[ratingSystem]);
-
-        if (ratingBoundaries[cohort] && ratingBoundaries[cohort][ratingSystem] >= targetRating) {
-            console.log(`Found cohort: ${cohort}`);
-            return cohort;
-        }
-    }
-
-    console.log(`No cohort found for targetRating: ${targetRating}`);
-    return undefined;
-}
-
-export function getNormalizedRating(
-    rating: number,
-    ratingSystem: RatingSystem,
-    boundaries: Record<string, Record<RatingSystem, number>> = ratingBoundaries,
-): number {
-    if (isCustom(ratingSystem)) {
-        return -1;
-    }
-
-    for (const cohort of dojoCohorts) {
-        const x2 = getRatingBoundary(cohort, ratingSystem, boundaries);
-        if (!x2) {
-            continue;
-        }
-
-        if (x2 >= rating) {
-            const x1 = getMinRatingBoundary(cohort, ratingSystem, boundaries);
-
-            let [y1, y2] = getCohortRangeInt(cohort);
-
-            if (y1 === -1) {
-                y1 = 0;
-            }
-            if (y2 === -1) {
-                y2 = 0;
-            }
-
-            const result = ((y2 - y1) / (x2 - x1)) * (rating - x1) + y1;
-            return Math.round(result * 10) / 10;
-        }
-    }
-
-    // We are in the 2400+ cohort if we make it here, so we just extrapolate from the 2300-2400 line
-    const x1 = getMinRatingBoundary('2300-2400', ratingSystem, boundaries);
-    const x2 = getRatingBoundary('2300-2400', ratingSystem, boundaries) || 0;
-    const y1 = 2300;
-    const y2 = 2400;
-    const result = ((y2 - y1) / (x2 - x1)) * (rating - x1) + y1;
-    return Math.round(result * 10) / 10;
-}
