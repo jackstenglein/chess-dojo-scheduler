@@ -44,6 +44,7 @@ import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { adminColumns, DirectoryCreatedAt, publicColumns } from './DirectoryGridColumns';
 import { ShareButton } from './share/ShareButton';
+import { StatsButton } from './stats/StatsButton';
 
 const pageSizeOptions = [10, 25, 50, 100] as const;
 
@@ -59,6 +60,8 @@ interface DirectoriesSectionProps {
 
     /** Whether to default the navigation menu to open. */
     defaultNavigationMenuOpen?: boolean;
+
+    userCohort: string;
 
     /** The default column visibility, if the user has not changed any settings. */
     defaultColumnVisibility?: Record<string, boolean>;
@@ -96,6 +99,7 @@ const DirectorySection = ({
     enableNavigationMenu,
     defaultNavigationMenuOpen,
     defaultColumnVisibility,
+    userCohort,
     isMobile,
     sx,
 }: DirectoriesSectionProps) => {
@@ -237,6 +241,12 @@ const DirectorySection = ({
                     <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
                         <AddButton directory={directory} accessRole={accessRole} />
                         <ShareButton directory={directory} accessRole={accessRole} />
+                        <StatsButton
+                            directoryId={directoryId}
+                            directoryOwner={directoryOwner}
+                            usercohort={userCohort}
+                            directory={directory}
+                        />
 
                         <BulkItemEditor
                             directory={directory}

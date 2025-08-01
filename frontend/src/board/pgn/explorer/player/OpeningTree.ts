@@ -2,6 +2,7 @@ import { OnlineGameTimeClass } from '@/api/external/onlineGame';
 import { GameData, LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
 import { GameResult } from '@/database/game';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
+import { fideDpTable } from '@jackstenglein/chess-dojo-common/src/ratings/performanceRating';
 import deepEqual from 'deep-equal';
 import {
     Color,
@@ -10,7 +11,6 @@ import {
     MAX_PLY_COUNT,
     MIN_PLY_COUNT,
 } from './PlayerSource';
-import { fideDpTable } from './performanceRating';
 
 interface PositionDataMove extends LichessExplorerMove {
     /**

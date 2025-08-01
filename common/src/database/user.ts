@@ -148,6 +148,8 @@ export enum RatingSystem {
     Acf = 'ACF',
     Knsb = 'KNSB',
     Custom = 'CUSTOM',
+    Custom2 = 'CUSTOM_2',
+    Custom3 = 'CUSTOM_3',
 }
 
 export interface Rating {

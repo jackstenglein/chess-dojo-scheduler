@@ -509,6 +509,52 @@ export const exportDirectoryRunSchema = z.object({
 /** A run to export a directory. */
 export type ExportDirectoryRun = z.infer<typeof exportDirectoryRunSchema>;
 
+/** Verifies a request to get directory stats. */
+export const GetDirectoryStatsRequestSchema = DirectorySchema.pick({
+    owner: true,
+    id: true,
+}).extend({
+    /** The username of the player to fetch ratings for, as recorded in the PGN. */
+    username: z.string().min(1),
+    /** The rating system to fetch ratings for. */
+    ratingSystem: z.string().min(1),
+});
+
+/** A request to get directory stats. */
+export type GetDirectoryStatsRequest = z.infer<typeof GetDirectoryStatsRequestSchema>;
+
+interface ColorPerformanceMetric {
+    /** The metric overall. */
+    total: number;
+        /** The metric as white. */
+        white: number;
+        /** The metric as black. */
+        black: number;
+}
+
+
+export interface PerformanceRatingMetric {
+    /** The number of games the user won. */
+    wins: ColorPerformanceMetric;
+    /* The number of games the user drew. */
+    draws: ColorPerformanceMetric;
+    /** The number of games the user lost. */
+    losses: ColorPerformanceMetric;
+    /** The user's combined performance rating in the original rating system. */
+    rating: ColorPerformanceMetric;
+    /** The user's combined performance rating normalized to the Dojo system. */
+    normalizedRating: ColorPerformanceMetric;
+    /** The average rating of the opponents in the original rating system. */
+    avgOppRating: ColorPerformanceMetric;
+    /** The average rating of the opponents normalized to the Dojo system. */
+    normalizedAvgOppRating: ColorPerformanceMetric;
+    /** The stats for the rating broken down by cohort. */
+    cohortRatings: Record<string, CohortPerformanceRatingMetric>;
+}
+
+export type CohortPerformanceRatingMetric = Omit<PerformanceRatingMetric, 'cohortRatings'>;
+
+
 /**
  * Returns true if currRole has permissions greater than or equal to minRole.
  * @param minRole The minimum required role.
