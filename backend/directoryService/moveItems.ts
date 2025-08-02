@@ -15,7 +15,7 @@ import { checkAccess, getAccessRole } from './access';
 import { addDirectoryItems } from './addItems';
 import { ApiError, errToApiGatewayProxyResultV2, parseBody, requireUserInfo, success } from './api';
 import { directoryTable, dynamo } from './database';
-import { addAllUploads, fetchDirectory } from './get';
+import { fetchDirectory } from './get';
 import { removeDirectoryItems } from './removeItems';
 
 /**
@@ -29,8 +29,6 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
         const request = parseBody(event, MoveDirectoryItemsSchemaV2);
         const resp = await moveItems(event, request);
-        addAllUploads(resp.source);
-        addAllUploads(resp.target);
         return success(resp);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
