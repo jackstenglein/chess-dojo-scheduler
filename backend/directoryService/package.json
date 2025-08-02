@@ -18,7 +18,7 @@
     },
     "devDependencies": {
         "@types/adm-zip": "^0.5.7",
-        "@types/aws-lambda": "^8.10.125",
+        "@types/aws-lambda": "^8.10.152",
         "@types/deep-equal": "^1.0.4",
         "@types/node": "^18.18.7",
         "@types/uuid": "^10.0.0",
