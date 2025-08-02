@@ -6,7 +6,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.637.0",
-        "@aws-sdk/client-sesv2": "^3.772.0",
+        "@aws-sdk/client-sesv2": "^3.859.0",
         "@aws-sdk/util-dynamodb": "^3.637.0",
         "@jackstenglein/chess-dojo-common": "file:../../common",
         "@types/aws-lambda": "^8.10.147",
