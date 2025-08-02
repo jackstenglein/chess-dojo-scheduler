@@ -3,7 +3,7 @@
     "main": "handler.js",
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.637.0",
-        "@aws-sdk/client-secrets-manager": "^3.723.0",
+        "@aws-sdk/client-secrets-manager": "^3.859.0",
         "@aws-sdk/client-sqs": "^3.772.0",
         "@aws-sdk/util-dynamodb": "^3.614.0",
         "@jackstenglein/chess": "^2.2.13",
