@@ -133,7 +133,7 @@
         "eslint-plugin-cypress": "^3.5.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "eslint-plugin-react": "^7.37.1",
-        "eslint-plugin-react-hooks": "^4.6.2",
+        "eslint-plugin-react-hooks": "^5.2.0",
         "happy-dom": "^17.4.1",
         "json-2-csv": "^5.5.9",
         "nyc": "^17.1.0",
