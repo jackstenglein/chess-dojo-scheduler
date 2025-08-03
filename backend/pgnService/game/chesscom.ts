@@ -1,9 +1,9 @@
 import { CandidateMove, Chess } from '@jackstenglein/chess';
 import tcn from '@savi2w/chess-tcn';
 import axios from 'axios';
-import { ApiError } from 'chess-dojo-directory-service/api';
 import { Browser, BrowserErrorCaptureEnum } from 'happy-dom';
 import moment from 'moment';
+import { ApiError } from '../../directoryService/api';
 /**
  * Converts the given epoch milliseconds to the H:mm:ss format.
  * @param ms The epoch time in milliseconds.

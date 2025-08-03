@@ -19,13 +19,9 @@ import {
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
-import {
-    ApiError,
-    errToApiGatewayProxyResultV2,
-    parseEvent,
-} from 'chess-dojo-directory-service/api';
-import { directoryTable } from 'chess-dojo-directory-service/database';
 import { v4 as uuidv4 } from 'uuid';
+import { ApiError, errToApiGatewayProxyResultV2, parseEvent } from '../../directoryService/api';
+import { directoryTable } from '../../directoryService/database';
 import {
     createTimelineEntry,
     dynamo,

@@ -9,8 +9,6 @@ updates:
     directories:
       - '/frontend'
       - '/backend'
-      - '/backend/pgnExport/pdf'
-      - '/backend/pgnService'
       - '/common'
       - '/eslint-config-dojo'
     schedule:
