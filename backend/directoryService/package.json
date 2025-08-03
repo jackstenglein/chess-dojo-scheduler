@@ -9,7 +9,7 @@
         "@aws-sdk/client-lambda": "^3.782.0",
         "@aws-sdk/client-s3": "^3.782.0",
         "@aws-sdk/s3-request-presigner": "^3.782.0",
-        "@aws-sdk/util-dynamodb": "^3.436.0",
+        "@aws-sdk/util-dynamodb": "^3.859.0",
         "@jackstenglein/chess": "^2.2.13",
         "@jackstenglein/chess-dojo-common": "file:../../common",
         "adm-zip": "^0.5.16",
