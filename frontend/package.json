@@ -130,7 +130,7 @@
         "dotenv": "^17.2.1",
         "eslint": "^8.57.0",
         "eslint-config-next": "^15.4.5",
-        "eslint-plugin-cypress": "^3.5.0",
+        "eslint-plugin-cypress": "^5.1.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^5.2.0",
