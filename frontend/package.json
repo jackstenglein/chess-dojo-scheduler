@@ -19,7 +19,7 @@
         "@mui/material": "^7.0.2",
         "@mui/material-nextjs": "^7.2.0",
         "@mui/x-charts": "^8.9.2",
-        "@mui/x-data-grid-pro": "^8.8.0",
+        "@mui/x-data-grid-pro": "^8.9.2",
         "@mui/x-date-pickers-pro": "^8.8.0",
         "@savi2w/chess-tcn": "^1.0.0",
         "@types/node": "^24.1.0",
