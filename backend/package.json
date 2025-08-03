@@ -29,7 +29,9 @@
         "serverless": "^3.38.0",
         "stripe": "^17.5.0",
         "uuid": "^11.0.3",
-        "zod": "^4.0.14"
+        "zod": "^4.0.14",
+        "axios": "^1.11.0",
+        "bad-words": "^4.0.0"
     },
     "scripts": {
         "setup": "scripts/setup.sh",
