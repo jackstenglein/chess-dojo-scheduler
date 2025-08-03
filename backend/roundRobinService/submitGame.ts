@@ -15,10 +15,10 @@ import {
     parseEvent,
     requireUserInfo,
     success,
-} from 'chess-dojo-directory-service/api';
-import { attributeExists, dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
-import { getChesscomGame } from 'chess-dojo-pgn-service/game/chesscom';
-import { getLichessGame } from 'chess-dojo-pgn-service/game/lichess';
+} from '../directoryService/api';
+import { attributeExists, dynamo, UpdateItemBuilder } from '../directoryService/database';
+import { getChesscomGame } from '../pgnService/game/chesscom';
+import { getLichessGame } from '../pgnService/game/lichess';
 import { tournamentsTable } from './register';
 
 /**
@@ -157,7 +157,7 @@ async function findPairingPath({
                 startsAt: { S: request.startsAt },
             },
             TableName: tournamentsTable,
-        })
+        }),
     );
 
     if (!output.Item) {

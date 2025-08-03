@@ -4,8 +4,8 @@ import {
     RoundRobinRegisterSchema,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { ApiError, errToApiGatewayProxyResultV2, success } from 'chess-dojo-directory-service/api';
 import Stripe from 'stripe';
+import { ApiError, errToApiGatewayProxyResultV2, success } from '../directoryService/api';
 import { register } from './register';
 import { getSecret } from './secret';
 
@@ -23,12 +23,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         if (!stripe) {
             stripe = new Stripe(
-                (await getSecret(`chess-dojo-${process.env.stage}-stripeKey`)) || ''
+                (await getSecret(`chess-dojo-${process.env.stage}-stripeKey`)) || '',
             );
         }
         if (!endpointSecret) {
             endpointSecret = await getSecret(
-                `chess-dojo-${process.env.stage}-stripeRoundRobinEndpoint`
+                `chess-dojo-${process.env.stage}-stripeRoundRobinEndpoint`,
             );
         }
 
@@ -36,7 +36,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const stripeEvent = stripe.webhooks.constructEvent(
             event.body || '',
             signature || '',
-            endpointSecret || ''
+            endpointSecret || '',
         );
 
         switch (stripeEvent.type) {
@@ -51,7 +51,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 };
 
 async function handleCheckoutSessionCompleted(
-    event: Stripe.CheckoutSessionCompletedEvent
+    event: Stripe.CheckoutSessionCompletedEvent,
 ): Promise<APIGatewayProxyResultV2> {
     const checkoutSession = event.data.object;
     const checkoutType = checkoutSession.metadata?.type;
@@ -65,7 +65,7 @@ async function handleCheckoutSessionCompleted(
 }
 
 async function handleRoundRobinPurchase(
-    session: Stripe.Checkout.Session
+    session: Stripe.Checkout.Session,
 ): Promise<APIGatewayProxyResultV2> {
     const user = RoundRobinPlayerSchema.omit({ status: true }).parse(session.metadata);
     const request = RoundRobinRegisterSchema.parse(session.metadata);
