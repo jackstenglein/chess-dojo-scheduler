@@ -22,7 +22,7 @@
         "@types/deep-equal": "^1.0.4",
         "@types/node": "^24.1.0",
         "@types/uuid": "^10.0.0",
-        "esbuild": "^0.25.1",
+        "esbuild": "^0.25.8",
         "prettier-plugin-organize-imports": "^3.2.4",
         "serverless": "^3.22.0",
         "serverless-esbuild": "^1.55.1",
