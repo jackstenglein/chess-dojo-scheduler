@@ -24,7 +24,6 @@ import {
 import axios from 'axios';
 import copy from 'copy-to-clipboard';
 import { useRef, useState } from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import { SiChessdotcom } from 'react-icons/si';
 
 export function turnColor(fen: string): 'white' | 'black' {
@@ -53,7 +52,8 @@ const Position = ({ position, orientation }: PositionProps) => {
         }, 3000);
     };
 
-    const onCopyFen = () => {
+    const onCopyFen = (fen: string) => {
+        copy(fen.trim());
         trackEvent(EventType.CopyFen, {
             position_fen: position.fen.trim(),
             position_name: position.title,
@@ -137,25 +137,21 @@ const Position = ({ position, orientation }: PositionProps) => {
                 </Box>
             </CardContent>
             <CardActions disableSpacing sx={{ flexWrap: 'wrap', columnGap: 1 }}>
-                <CopyToClipboard
-                    data-cy='position-fen-copy'
-                    text={position.fen.trim()}
-                    onCopy={onCopyFen}
-                >
-                    <Tooltip title='Copy position FEN to clipboard'>
-                        <Button
-                            startIcon={
-                                copied === 'fen' ? (
-                                    <CheckIcon color='success' />
-                                ) : (
-                                    <ContentPasteIcon color='dojoOrange' />
-                                )
-                            }
-                        >
-                            FEN
-                        </Button>
-                    </Tooltip>
-                </CopyToClipboard>
+                <Tooltip title='Copy position FEN to clipboard'>
+                    <Button
+                        data-cy='position-fen-copy'
+                        startIcon={
+                            copied === 'fen' ? (
+                                <CheckIcon color='success' />
+                            ) : (
+                                <ContentPasteIcon color='dojoOrange' />
+                            )
+                        }
+                        onClick={() => onCopyFen(position.fen)}
+                    >
+                        FEN
+                    </Button>
+                </Tooltip>
 
                 <Tooltip title='Open in analysis board'>
                     <Button

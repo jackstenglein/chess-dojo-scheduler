@@ -5,7 +5,13 @@ export function generateStaticParams() {
     return [];
 }
 
-export default function Page({ params: { username } }: { params: { username: string } }) {
+export default async function Page(props: { params: Promise<{ username: string }> }) {
+    const params = await props.params;
+
+    const {
+        username
+    } = params;
+
     return (
         <Suspense>
             <ProfilePage username={username} />

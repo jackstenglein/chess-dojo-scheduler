@@ -14,6 +14,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import { Fragment } from 'react';
 import HelpItem from './HelpItem';
 import { faq } from './UnauthenticatedHelp';
 
@@ -368,7 +369,7 @@ const AuthenticatedHelp = () => {
                         <CardContent>
                             <Stack>
                                 {helpSections.map((section) => (
-                                    <>
+                                    <Fragment key={section.title}>
                                         <Link
                                             key={section.title}
                                             href={`#${section.title}`}
@@ -388,7 +389,7 @@ const AuthenticatedHelp = () => {
                                                 </li>
                                             ))}
                                         </ul>
-                                    </>
+                                    </Fragment>
                                 ))}
                                 <Link
                                     href='#support-ticket'

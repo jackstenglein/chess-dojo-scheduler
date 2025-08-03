@@ -7,6 +7,12 @@ export function generateStaticParams() {
         .concat({ type: 'dojo' }, { type: 'following' });
 }
 
-export default function Page({ params: { type } }: { params: { type: string } }) {
+export default async function Page(props: { params: Promise<{ type: string }> }) {
+    const params = await props.params;
+
+    const {
+        type
+    } = params;
+
     return <ScoreboardPage type={type} />;
 }

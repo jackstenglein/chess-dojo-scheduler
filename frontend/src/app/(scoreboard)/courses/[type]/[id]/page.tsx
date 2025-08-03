@@ -13,7 +13,8 @@ export function generateStaticParams() {
     ];
 }
 
-export default function Page({ params }: { params: { type: string; id: string } }) {
+export default async function Page(props: { params: Promise<{ type: string; id: string }> }) {
+    const params = await props.params;
     return (
         <Suspense>
             <CoursePage params={params} />
