@@ -5,12 +5,12 @@ describe('Directories', () => {
             cy.dojo.env('cognito_username'),
             cy.dojo.env('cognito_password'),
         );
-        cy.visit('/profile?view=files');
+        cy.visit('/profile?view=games');
     });
 
     it('displays empty home directory', () => {
         cy.contains('Home');
-        cy.contains('All Uploads');
+        cy.contains('No rows');
     });
 
     it('links to game import page', () => {
