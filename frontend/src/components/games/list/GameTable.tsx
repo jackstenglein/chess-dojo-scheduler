@@ -14,6 +14,7 @@ import {
     GridListViewColDef,
     GridRenderCellParams,
     GridRowParams,
+    GridSortModel,
     GridToolbarColumnsButton,
     GridToolbarContainer,
     GridToolbarDensitySelector,
@@ -246,6 +247,16 @@ export default function GameTable({
                 return 65;
         }
     }, [isListView, density]);
+   
+    const [sortModel, setSortModel] = useLocalStorage<GridSortModel>(
+      'gridSortModelKey',
+      [
+        {
+          field: 'createdAt',
+          sort: 'desc',
+        }
+      ]
+    );
 
     return (
         <DataGridPro
@@ -270,14 +281,11 @@ export default function GameTable({
             onRowClick={onRowClick}
             initialState={{
                 density: 'standard',
-                sorting: {
-                    sortModel: [
-                        {
-                            field: 'publishedAt',
-                            sort: 'desc',
-                        },
-                    ],
-                },
+            }}
+            sortModel={sortModel}
+            onSortModelChange={(newSortModel) => {
+              console.log('NEW SORT MODEL', newSortModel);
+              setSortModel(newSortModel);
             }}
             slots={{
                 basePagination: (props: PaginationPropsOverrides) => (
