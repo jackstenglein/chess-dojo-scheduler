@@ -14,7 +14,7 @@
         "ml-regression-simple-linear": "^3.0.1",
         "stripe": "^17.5.0",
         "uuid": "^11.1.0",
-        "zod": "^3.23.8"
+        "zod": "^4.0.14"
     },
     "devDependencies": {
         "@jackstenglein/eslint-config-dojo": "file:../eslint-config-dojo",
