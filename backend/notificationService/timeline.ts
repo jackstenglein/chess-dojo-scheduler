@@ -6,8 +6,8 @@ import {
     TimelineReactionEvent,
 } from '@jackstenglein/chess-dojo-common/src/database/notification';
 import { TimelineEntry } from '@jackstenglein/chess-dojo-common/src/database/timeline';
-import { ApiError } from 'chess-dojo-directory-service/api';
-import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
+import { ApiError } from '../directoryService/api';
+import { dynamo, UpdateItemBuilder } from '../directoryService/database';
 import { getNotificationSettings } from './user';
 
 const timelineTable = `${process.env.stage}-timeline`;

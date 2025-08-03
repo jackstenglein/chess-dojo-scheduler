@@ -1,8 +1,8 @@
 import { Chess, Color, Move, nullMoveNotation } from '@jackstenglein/chess';
 import { PdfExportRequest } from '@jackstenglein/chess-dojo-common/src/pgn/export';
 import { compareNags, nags } from '@jackstenglein/chess-dojo-common/src/pgn/nag';
-import { ApiError } from 'chess-dojo-directory-service/api';
 import qrcode from 'qrcode';
+import { ApiError } from '../../directoryService/api';
 
 interface TexGeneratorOptions extends PdfExportRequest {
     qrcodeFilename: string;
@@ -215,9 +215,7 @@ export class TexGenerator {
             }
 
             if (!this.options.skipVariations) {
-                move.variations.forEach((variation) =>
-                    this.makeVariation(variation, depth + 1),
-                );
+                move.variations.forEach((variation) => this.makeVariation(variation, depth + 1));
             }
 
             if (forceMoveNumber) {
@@ -290,9 +288,7 @@ export class TexGenerator {
                 ?.sort(compareNags)
                 .map((n) => nags[n])
                 .filter((n) => n) ?? [];
-        const nagLabel = this.options.skipNags
-            ? ''
-            : nagDetails.map((n) => n.label).join('');
+        const nagLabel = this.options.skipNags ? '' : nagDetails.map((n) => n.label).join('');
 
         if (!depth) {
             this.tex += `\\textbf{${moveTex}${nagLabel}}`;

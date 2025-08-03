@@ -15,8 +15,8 @@ import {
     RoundRobinPlayerStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { ScheduledEvent } from 'aws-lambda';
-import { attributeExists, dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
-import { sendChannelMessage } from 'chess-dojo-notification-service/discord';
+import { attributeExists, dynamo, UpdateItemBuilder } from '../directoryService/database';
+import { sendChannelMessage } from '../notificationService/discord';
 import { tournamentsTable } from './register';
 
 const usersTable = `${process.env.stage}-users`;
@@ -97,7 +97,7 @@ async function markComplete(tournament: RoundRobin) {
         new PutItemCommand({
             Item: marshall(completedTournament, { removeUndefinedValues: true }),
             TableName: tournamentsTable,
-        })
+        }),
     );
 
     await dynamo.send(
@@ -107,7 +107,7 @@ async function markComplete(tournament: RoundRobin) {
                 startsAt: { S: tournament.startsAt },
             },
             TableName: tournamentsTable,
-        })
+        }),
     );
 
     const tournamentName = new Set([`${tournament.cohort} ${tournament.name}`]);
@@ -147,7 +147,7 @@ async function setWinners(tournament: RoundRobin) {
         .filter(
             (val, _, array) =>
                 val[1].score === array[0][1].score &&
-                val[1].tiebreakScore === array[0][1].tiebreakScore
+                val[1].tiebreakScore === array[0][1].tiebreakScore,
         );
 
     if (!topPlayers[0]?.[1].score) {

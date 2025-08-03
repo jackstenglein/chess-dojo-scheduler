@@ -3,22 +3,18 @@
 import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { Chess } from '@jackstenglein/chess';
+import { ExplorerPositionFollower } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import {
     LichessTablebasePosition,
     isInTablebase,
 } from '@jackstenglein/chess-dojo-common/src/explorer/types';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import axios from 'axios';
-import {
-    ExplorerPosition,
-    ExplorerPositionFollower,
-    LichessExplorerPosition,
-} from './types';
+import { ExplorerPosition, LichessExplorerPosition } from './types';
 
 const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 const explorerTable = `${process.env.stage}-explorer`;
-const mastersTable =
-    process.env.stage === 'prod' ? 'prod-masters-explorer' : explorerTable;
+const mastersTable = process.env.stage === 'prod' ? 'prod-masters-explorer' : explorerTable;
 
 /**
  * Gets an ExplorerPosition for the provided FEN.
@@ -155,10 +151,7 @@ async function fetchFromTablebase(fen: string): Promise<LichessTablebasePosition
  * @param fen The FEN of the position to fetch.
  * @param event The Lambda HTTP event containing the caller's username.
  */
-async function fetchFollower(
-    fen: string,
-    event: any,
-): Promise<ExplorerPositionFollower | null> {
+async function fetchFollower(fen: string, event: any): Promise<ExplorerPositionFollower | null> {
     const claims = event.requestContext?.authorizer?.jwt?.claims;
     if (!claims || !claims['cognito:username']) {
         return null;

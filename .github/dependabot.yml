@@ -8,20 +8,14 @@ updates:
   - package-ecosystem: 'npm' # See documentation for possible values
     directories:
       - '/frontend'
-      - '/backend/chatBotService'
-      - '/backend/directoryService'
-      - '/backend/discordAuthService'
-      - '/backend/notificationService'
-      - '/backend/pgnExport/pdf'
-      - '/backend/pgnService'
-      - '/backend/roundRobinService'
+      - '/backend'
       - '/common'
       - '/eslint-config-dojo'
     schedule:
       interval: 'monthly'
     open-pull-requests-limit: 50
     target-branch: dev
-  - package-ecosystem: 'npm' # See documentation for possible values
+  - package-ecosystem: 'gomod' # See documentation for possible values
     directory: '/backend' # Location of package manifests
     schedule:
       interval: 'weekly'

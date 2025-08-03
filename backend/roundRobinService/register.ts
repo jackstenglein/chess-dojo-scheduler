@@ -22,13 +22,14 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import axios from 'axios';
+import Stripe from 'stripe';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
     parseEvent,
     requireUserInfo,
     success,
-} from 'chess-dojo-directory-service/api';
+} from '../directoryService/api';
 import {
     and,
     attributeExists,
@@ -36,8 +37,7 @@ import {
     dynamo,
     sizeLessThan,
     UpdateItemBuilder,
-} from 'chess-dojo-directory-service/database';
-import Stripe from 'stripe';
+} from '../directoryService/database';
 import { getSecret } from './secret';
 
 const sqs = new SQSClient({ region: 'us-east-1' });
@@ -96,7 +96,7 @@ async function fetchUser(username: string): Promise<User> {
                 username: { S: username },
             },
             TableName: usersTable,
-        })
+        }),
     );
     if (!result.Item) {
         throw new ApiError({
@@ -126,7 +126,7 @@ async function validateRequest(request: RoundRobinRegisterRequest) {
     let lichessResponse;
     try {
         lichessResponse = await axios.get<{ disabled?: boolean; tosViolation?: boolean }>(
-            `https://lichess.org/api/user/${request.lichessUsername}`
+            `https://lichess.org/api/user/${request.lichessUsername}`,
         );
     } catch (err) {
         throw new ApiError({
@@ -162,14 +162,14 @@ async function addRoundRobinRole(user: User) {
                 Authorization: `Bot ${process.env.discordBotToken}`,
                 'Content-Type': 'application/json',
             },
-        }
+        },
     );
     if (guildMemberResp.data.roles?.includes(process.env.discordRoundRobinRole || '')) {
         return;
     }
 
     const roles = (guildMemberResp.data.roles ?? []).concat(
-        process.env.discordRoundRobinRole || ''
+        process.env.discordRoundRobinRole || '',
     );
     await axios.patch(
         `https://discord.com/api/guilds/${process.env.discordGuildId}/members/${user.discordId}`,
@@ -179,7 +179,7 @@ async function addRoundRobinRole(user: User) {
                 Authorization: `Bot ${process.env.discordBotToken}`,
                 'Content-Type': 'application/json',
             },
-        }
+        },
     );
 }
 
@@ -201,7 +201,7 @@ async function isBanned(username: string): Promise<boolean> {
                 startsAt: { S: 'BANNED_PLAYERS' },
             },
             TableName: tournamentsTable,
-        })
+        }),
     );
     if (!output.Item) {
         return false;
@@ -324,8 +324,8 @@ export async function register({
                     and(
                         attributeExists('players'),
                         attributeNotExists(['players', user.username]),
-                        sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS)
-                    )
+                        sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS),
+                    ),
                 )
                 .table(tournamentsTable)
                 .return('ALL_NEW')
@@ -368,7 +368,7 @@ export async function register({
  * @returns The updated waitlist.
  */
 async function setStartEligibleAt(
-    waitlist: RoundRobinWaitlist
+    waitlist: RoundRobinWaitlist,
 ): Promise<{ waitlist: RoundRobinWaitlist }> {
     if (waitlist.startEligibleAt) {
         return { waitlist };
@@ -379,7 +379,7 @@ async function setStartEligibleAt(
         .key('startsAt', 'WAITING')
         .set('startEligibleAt', new Date().toISOString())
         .condition(
-            and(attributeExists('players'), sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS))
+            and(attributeExists('players'), sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS)),
         )
         .table(tournamentsTable)
         .return('ALL_NEW')
@@ -398,7 +398,7 @@ async function setStartEligibleAt(
  * @returns The new tournament as well as the waitlist.
  */
 export async function startTournament(
-    waitlist: RoundRobinWaitlist
+    waitlist: RoundRobinWaitlist,
 ): Promise<{ waitlist: RoundRobinWaitlist; tournament: RoundRobin }> {
     const numPlayers = Object.keys(waitlist.players).length;
     if (numPlayers < MIN_ROUND_ROBIN_PLAYERS) {
@@ -428,7 +428,7 @@ export async function startTournament(
         new PutItemCommand({
             Item: marshall(tournament, { removeUndefinedValues: true }),
             TableName: tournamentsTable,
-        })
+        }),
     );
 
     waitlist.players = {};
@@ -439,7 +439,7 @@ export async function startTournament(
         new PutItemCommand({
             Item: marshall(waitlist, { removeUndefinedValues: true }),
             TableName: tournamentsTable,
-        })
+        }),
     );
 
     await chargeFreeUsers(tournament);
@@ -470,7 +470,7 @@ async function chargeFreeUsers(tournament: RoundRobin) {
                 stripe = await initStripe();
             }
             const setupIntent = await stripe.setupIntents.retrieve(
-                player.checkoutSession.setup_intent
+                player.checkoutSession.setup_intent,
             );
             await stripe.paymentIntents.create({
                 amount: parseInt(player.price || '200'),
@@ -507,7 +507,7 @@ async function sendRoundRobinStartEvent(tournament: RoundRobin) {
                 type: NotificationEventTypes.ROUND_ROBIN_START,
                 tournament,
             }),
-        })
+        }),
     );
 }
 

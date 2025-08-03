@@ -27,14 +27,10 @@ import {
     APIGatewayProxyHandlerV2,
     APIGatewayProxyResultV2,
 } from 'aws-lambda';
-import { checkAccess } from 'chess-dojo-directory-service/access';
-import { addDirectoryItems } from 'chess-dojo-directory-service/addItems';
-import {
-    ApiError,
-    errToApiGatewayProxyResultV2,
-    parseBody,
-} from 'chess-dojo-directory-service/api';
 import { v4 as uuidv4 } from 'uuid';
+import { checkAccess } from '../../directoryService/access';
+import { addDirectoryItems } from '../../directoryService/addItems';
+import { ApiError, errToApiGatewayProxyResultV2, parseBody } from '../../directoryService/api';
 import { getChesscomAnalysis, getChesscomGame } from './chesscom';
 import { getLichessChapter, getLichessGame, getLichessStudy } from './lichess';
 import { Game, GameImportHeaders, isMissingData, isValidDate, isValidResult } from './types';

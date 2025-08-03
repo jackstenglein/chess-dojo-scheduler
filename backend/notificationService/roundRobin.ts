@@ -3,7 +3,7 @@ import {
     RoundRobinStartEvent,
 } from '@jackstenglein/chess-dojo-common/src/database/notification';
 import { RoundRobin } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
+import { dynamo, UpdateItemBuilder } from '../directoryService/database';
 import { addMembersToThread, createPrivateThread, sendChannelMessage } from './discord';
 import { sendEmailTemplate } from './email';
 import { getNotificationSettings, PartialUser } from './user';

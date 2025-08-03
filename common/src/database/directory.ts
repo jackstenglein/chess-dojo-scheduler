@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
+import * as z from 'zod';
 import { PdfExportSchema } from '../pgn/export';
 
 const gameMetadataSchema = z.object({
@@ -75,7 +75,7 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /**
          * The id of the directory item. For a subdirectory, this is the id of the directory. */
         id: z.union([
-            z.string().uuid(),
+            z.uuid(),
             z.literal(MY_GAMES_DIRECTORY_ID),
             z.literal(ALL_MY_UPLOADS_DIRECTORY_ID),
         ]),
@@ -89,10 +89,10 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
         /** The metadata of the directory item. */
         metadata: z.object({
             /** The datetime the directory was created, in ISO format. */
-            createdAt: z.string().datetime(),
+            createdAt: z.iso.datetime(),
 
             /** The datetime the directory was updated, in ISO format. */
-            updatedAt: z.string().datetime(),
+            updatedAt: z.iso.datetime(),
 
             /** The visibility of the directory. */
             visibility: directoryVisibility,
@@ -217,7 +217,7 @@ export const DirectorySchema = z.object({
      *   - The all uploads directory is `uploads`.
      */
     id: z.union([
-        z.string().uuid(),
+        z.uuid(),
         z.literal(HOME_DIRECTORY_ID),
         z.literal(SHARED_DIRECTORY_ID),
         z.literal(ALL_MY_UPLOADS_DIRECTORY_ID),
@@ -225,7 +225,7 @@ export const DirectorySchema = z.object({
     ]),
 
     /** The id of the parent directory. Top-level directories use uuid.NIL. */
-    parent: z.union([z.string().uuid(), z.literal(HOME_DIRECTORY_ID), z.literal(MY_GAMES_DIRECTORY_ID)]),
+    parent: z.union([z.uuid(), z.literal(HOME_DIRECTORY_ID), z.literal(MY_GAMES_DIRECTORY_ID)]),
 
     /** The name of the directory. */
     name: z.string().trim().max(100),
@@ -243,10 +243,10 @@ export const DirectorySchema = z.object({
     itemIds: z.string().array(),
 
     /** The datetime the directory was created, in ISO format. */
-    createdAt: z.string().datetime(),
+    createdAt: z.iso.datetime(),
 
     /** The datetime the directory was updated, in ISO format. */
-    updatedAt: z.string().datetime(),
+    updatedAt: z.iso.datetime(),
 
     /** A map from username to the user's access role in the directory. */
     access: z.record(z.string(), z.nativeEnum(DirectoryAccessRole)).optional(),
@@ -336,12 +336,10 @@ export const AddDirectoryItemsSchemaV2 = DirectorySchema.pick({
 
     /** The id of the directory to add items to. */
     id: true,
-}).merge(
-    z.object({
-        /** The games to add to the directory. */
-        games: gameMetadataSchema.array(),
-    }),
-);
+}).extend({
+    /** The games to add to the directory. */
+    games: gameMetadataSchema.array(),
+});
 
 /** A request to add items to a directory. */
 export type AddDirectoryItemsRequestV2 = z.infer<typeof AddDirectoryItemsSchemaV2>;
@@ -413,12 +411,10 @@ export const ListBreadcrumbsSchema = DirectorySchema.pick({
     /** The id of the directory. */
     id: true,
 })
-    .merge(
-        z.object({
-            /** Whether the viewer is looking at a shared directory. */
-            shared: z.string().optional(),
-        }),
-    )
+    .extend({
+        /** Whether the viewer is looking at a shared directory. */
+        shared: z.string().optional(),
+    })
     .transform((val) => ({ ...val, shared: val.shared === 'true' }));
 
 /** A request to list the breadcrumbs of a directory. */
