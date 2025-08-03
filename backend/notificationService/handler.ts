@@ -10,8 +10,8 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/notification';
 import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { SQSEvent, SQSHandler } from 'aws-lambda';
-import { ApiError } from 'chess-dojo-directory-service/api';
-import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
+import { ApiError } from '../directoryService/api';
+import { dynamo, UpdateItemBuilder } from '../directoryService/database';
 import { handleClubJoinRequest, handleClubJoinRequestApproved } from './club';
 import { handleCalendarInvite, handleEventBooked } from './events';
 import { handleGameComment, handleGameReview } from './game';

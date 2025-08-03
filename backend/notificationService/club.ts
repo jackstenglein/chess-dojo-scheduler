@@ -3,7 +3,7 @@ import {
     ClubJoinRequestEvent,
     NotificationTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/notification';
-import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
+import { dynamo, UpdateItemBuilder } from '../directoryService/database';
 import { getNotificationSettings } from './user';
 
 const notificationTable = `${process.env.stage}-notifications`;

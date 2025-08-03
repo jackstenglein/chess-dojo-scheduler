@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { ApiError } from 'chess-dojo-directory-service/api';
 import {
     ChannelType,
     Client,
@@ -8,6 +7,7 @@ import {
     GuildMember,
     TextChannel,
 } from 'discord.js';
+import { ApiError } from '../directoryService/api';
 
 const privateGuildId = process.env.discordPrivateGuildId || '';
 
