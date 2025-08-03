@@ -3,7 +3,7 @@
     "main": "handler.js",
     "dependencies": {
         "@jackstenglein/chess-dojo-common": "file:../../common",
-        "axios": "^1.8.4",
+        "axios": "^1.11.0",
         "bad-words": "^4.0.0",
         "chess-dojo-directory-service": "file:../directoryService"
     },
