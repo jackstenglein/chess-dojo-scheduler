@@ -8,6 +8,7 @@ import {
     DirectoryItemTypes,
     DirectoryVisibility,
     HOME_DIRECTORY_ID,
+    MY_GAMES_DIRECTORY_ID,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { AxiosError } from 'axios';
@@ -147,19 +148,19 @@ const defaultHomeDirectory: Omit<Directory, 'owner'> = {
     createdAt: '',
     updatedAt: '',
     items: {
-        [ALL_MY_UPLOADS_DIRECTORY_ID]: {
-            id: ALL_MY_UPLOADS_DIRECTORY_ID,
+        [MY_GAMES_DIRECTORY_ID]: {
+            id: MY_GAMES_DIRECTORY_ID,
             type: DirectoryItemTypes.DIRECTORY,
             metadata: {
-                name: 'All Uploads',
-                description: 'Everything I have ever uploaded to the Dojo',
+                name: 'My Games',
+                description: 'Serious classical games I have played',
                 visibility: DirectoryVisibility.PUBLIC,
                 createdAt: '',
                 updatedAt: '',
             },
         },
     },
-    itemIds: [ALL_MY_UPLOADS_DIRECTORY_ID],
+    itemIds: [MY_GAMES_DIRECTORY_ID],
 };
 
 const defaultSharedDirectory: Omit<Directory, 'owner'> = {
@@ -254,20 +255,12 @@ export function useBreadcrumbs(owner: string, id: string, sharedOwner?: string) 
     }
 
     if (id === ALL_MY_UPLOADS_DIRECTORY_ID && !result.length) {
-        result.push(
-            {
-                name: 'All Uploads',
-                owner,
-                id: ALL_MY_UPLOADS_DIRECTORY_ID,
-                parent: HOME_DIRECTORY_ID,
-            },
-            {
-                name: 'Home',
-                owner,
-                id: HOME_DIRECTORY_ID,
-                parent: uuidNil,
-            },
-        );
+        result.push({
+            name: 'All Uploads',
+            owner,
+            id: ALL_MY_UPLOADS_DIRECTORY_ID,
+            parent: uuidNil,
+        });
     }
 
     const setBreadcrumbs = cache.setBreadcrumbs;
