@@ -1,8 +1,9 @@
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { fontFamily } from '@/style/font';
-import { Grid, Stack, Typography, useMediaQuery } from '@mui/material';
+import { ChevronLeft, ChevronRight, Circle } from '@mui/icons-material';
+import { Grid, IconButton, Stack, Typography, useMediaQuery } from '@mui/material';
 import Image from 'next/image';
-import Carousel from 'react-material-ui-carousel';
+import { Children, ReactNode, useCallback, useEffect, useState } from 'react';
 import { BackgroundImageContainer } from './BackgroundImage';
 import { anton, barlow, barlowCondensed } from './fonts';
 import { JoinDojoButton } from './JoinDojoButton';
@@ -45,28 +46,7 @@ export function TestimonialSection() {
 
             <Stack direction='row' mt='3.125rem'>
                 {isSm ? (
-                    <Carousel
-                        sx={{ width: 1, mt: 1 }}
-                        animation='slide'
-                        duration={700}
-                        interval={10 * 1000}
-                        navButtonsAlwaysVisible={true}
-                        navButtonsWrapperProps={{
-                            style: {
-                                bottom: '0',
-                                top: 'unset',
-                                height: 'fit-content',
-                            },
-                        }}
-                        indicatorContainerProps={{
-                            style: {
-                                height: '40px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            },
-                        }}
-                    >
+                    <Carousel>
                         {testimonials.map((t) => (
                             <Testimonial key={t.name} {...t} />
                         ))}
@@ -140,6 +120,54 @@ function Testimonial({ quote, name, rating, cohort }: TestimonialProps) {
                         {rating}
                     </Typography>
                 </Stack>
+            </Stack>
+        </Stack>
+    );
+}
+
+function Carousel({ children }: { children: ReactNode }) {
+    const [index, setIndex] = useState(0);
+    const count = Children.count(children);
+
+    const onNext = useCallback(() => {
+        setIndex(index + 1 === count ? 0 : index + 1);
+    }, [setIndex, count, index]);
+
+    const onPrev = () => {
+        setIndex((i) => (i === 0 ? count - 1 : i - 1));
+    };
+
+    useEffect(() => {
+        const id = setInterval(onNext, 10 * 1000);
+        return () => clearInterval(id);
+    }, [onNext]);
+
+    return (
+        <Stack>
+            {Children.toArray(children)[index]}
+            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                <IconButton size='large' onClick={onPrev}>
+                    <ChevronLeft fontSize='large' />
+                </IconButton>
+
+                <Stack direction='row' gap={0.5}>
+                    {Array.from({ length: count }).map((_, i) => (
+                        <Circle
+                            onClick={() => setIndex(i)}
+                            key={i}
+                            sx={{
+                                width: '10px',
+                                height: '10px',
+                                color: i === index ? 'rgb(73, 73, 73)' : 'rgb(175, 175, 175)',
+                                cursor: 'pointer',
+                            }}
+                        />
+                    ))}
+                </Stack>
+
+                <IconButton size='large' onClick={onNext}>
+                    <ChevronRight fontSize='large' />
+                </IconButton>
             </Stack>
         </Stack>
     );

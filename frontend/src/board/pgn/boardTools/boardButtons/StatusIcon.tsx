@@ -15,7 +15,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useChess } from '../../PgnBoard';
 
 export function useDebounce(callback: (...args: any[]) => void, delay = 6000) {
-    const ref = useRef<(...args: any[]) => void>();
+    const ref = useRef<(...args: any[]) => void>(undefined);
 
     useEffect(() => {
         ref.current = callback;

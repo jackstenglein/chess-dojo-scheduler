@@ -5,7 +5,7 @@ import { calculateTacticsRating } from '@/exams/view/exam';
 import { ZoomOutMap } from '@mui/icons-material';
 import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip } from '@mui/material';
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type JSX } from 'react';
 import { useTimelineContext } from '../activity/useTimeline';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';

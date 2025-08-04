@@ -3,6 +3,8 @@ import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import { Link } from '../navigation/Link';
 
+import type { JSX } from 'react';
+
 export function Footer() {
     return (
         <Box

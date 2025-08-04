@@ -17,7 +17,7 @@ import {
     Typography,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import BoardIcon from '../../style/BoardIcon';
 import KingRookIcon from '../../style/KingRookIcon';
 import { OnlineGameForm } from './OnlineGameForm';

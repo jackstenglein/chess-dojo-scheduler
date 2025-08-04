@@ -64,7 +64,7 @@ import {
     Typography,
     useMediaQuery,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, type JSX } from 'react';
 import DarkModeToggle from './DarkModeToggle';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, { ExtraSmallMenuUnauthenticated } from './UnauthenticatedMenu';

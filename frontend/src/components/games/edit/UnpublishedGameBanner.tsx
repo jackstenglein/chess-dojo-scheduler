@@ -123,7 +123,7 @@ export function UnpublishedGameBanner({ dismissable }: UnpublishedGameBannerProp
 export function VisibilityIcon({
     underboardRef,
 }: {
-    underboardRef?: React.RefObject<UnderboardApi>;
+    underboardRef?: React.RefObject<UnderboardApi | null>;
 }) {
     const { showDialog, setShowDialog, request, onSubmit } = useUnpublishedGame();
     const { game } = useGame();

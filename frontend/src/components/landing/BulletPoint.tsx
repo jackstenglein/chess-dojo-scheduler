@@ -4,6 +4,8 @@ import { Stack, StackProps, Typography, TypographyProps } from '@mui/material';
 import { BulletPointData } from './bulletPoints';
 import { barlow, barlowCondensed } from './fonts';
 
+import type { JSX } from 'react';
+
 function DefaultIcon() {
     return <ArrowForward color='darkBlue' />;
 }

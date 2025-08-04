@@ -2,7 +2,7 @@ import { useApi } from '@/api/Api';
 import { useAuth } from '@/auth/Auth';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useCallback, useMemo } from 'react';
-import ReactJoyride, { CallBackProps, Step } from 'react-joyride';
+import ReactJoyride, { CallBackProps, Step } from 'react-joyride-react19-compat';
 import { TutorialName } from './tutorialNames';
 import TutorialTooltip from './TutorialTooltip';
 

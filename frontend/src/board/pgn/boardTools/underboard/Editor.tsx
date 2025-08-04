@@ -83,7 +83,7 @@ const Editor: React.FC<EditorProps> = ({ focusEditor, setFocusEditor }) => {
     const { chess, config } = useChess();
     const reconcile = useReconcile();
     const [, setForceRender] = useState(0);
-    const textFieldRef = useRef<HTMLTextAreaElement>();
+    const textFieldRef = useRef<HTMLTextAreaElement>(undefined);
     const [showTimeControlEditor, setShowTimeControlEditor] = useState(false);
     const [commentType, setCommentType] = useState(CommentType.After);
     const { onDelete, deleteAction, onClose: onCloseDelete } = useDeletePrompt(chess);
