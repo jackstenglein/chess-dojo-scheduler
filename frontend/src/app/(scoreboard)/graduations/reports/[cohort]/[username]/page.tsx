@@ -4,13 +4,14 @@ import { Box, Container } from '@mui/material';
 import { notFound } from 'next/navigation';
 
 interface PageProps {
-    params: {
+    params: Promise<{
         cohort: string;
         username: string;
-    };
+    }>;
 }
 
-export default async function Page({ params }: PageProps) {
+export default async function Page(props: PageProps) {
+    const params = await props.params;
     const { username, cohort } = params;
 
     let graduations = await listGraduationsByOwner(username);

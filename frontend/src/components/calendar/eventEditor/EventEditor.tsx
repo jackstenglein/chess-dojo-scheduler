@@ -31,7 +31,7 @@ import useEventEditor from './useEventEditor';
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
-        children: React.ReactElement;
+        children: React.ReactElement<any>;
     },
     ref: React.Ref<unknown>,
 ) {

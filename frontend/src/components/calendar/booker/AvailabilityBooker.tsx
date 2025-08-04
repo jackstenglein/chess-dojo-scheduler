@@ -41,7 +41,7 @@ import OwnerField from '../eventViewer/OwnerField';
 
 export const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
-        children: React.ReactElement;
+        children: React.ReactElement<any>;
     },
     ref: React.Ref<unknown>,
 ) {

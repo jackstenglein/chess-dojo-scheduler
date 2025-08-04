@@ -1,7 +1,7 @@
 import { useAuth } from '@/auth/Auth';
 import { CommentType, Event, EventType, Move } from '@jackstenglein/chess';
 import { Box, Collapse, Divider, Stack, Tooltip, Typography } from '@mui/material';
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import {
     isSuggestedVariation,

@@ -3,6 +3,8 @@ import Image from 'next/image';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { SlGraph } from 'react-icons/sl';
 
+import type { JSX } from "react";
+
 export const AcfIcon = ({ size = 'medium' }: { size?: 'small' | 'medium' }) => (
     <Image
         src='https://raw.githubusercontent.com/jalpp/DojoIcons/c9970eecc0bb27b7a85182d73fbd322787920e79/newIcons/Screen%20Shot%202024-07-18%20at%209.37.44%20PM.png'

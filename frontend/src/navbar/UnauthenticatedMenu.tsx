@@ -30,7 +30,7 @@ import {
     Typography,
     useMediaQuery,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, type JSX } from 'react';
 import { Logo, NavMenuItem, NavbarItem, StartItem } from './NavbarMenu';
 
 const UnauthenticatedMenu = () => {

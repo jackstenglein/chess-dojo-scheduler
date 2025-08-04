@@ -12,7 +12,7 @@ import {
 import UnauthenticatedMenu from './UnauthenticatedMenu';
 
 interface HideOnScrollProps {
-    children: React.ReactElement;
+    children: React.ReactElement<any>;
 }
 
 function HideOnScroll(props: HideOnScrollProps) {

@@ -1,5 +1,7 @@
 import { ShortcutAction } from './settings/ShortcutAction';
 
+import type { JSX } from "react";
+
 export enum DefaultUnderboardTab {
     Directories = 'directories',
     Tags = 'tags',
