@@ -1,10 +1,10 @@
-'use client';;
+'use client';
+
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import NotFoundPage from '@/NotFoundPage';
-
-import type { JSX } from "react";
+import type { JSX } from 'react';
 
 export function NextRequireAuth({
     Component,

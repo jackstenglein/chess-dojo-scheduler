@@ -102,7 +102,7 @@ export default function GraduationShareDialog({
                     >
                         {imageData ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            (<img
+                            <img
                                 style={{
                                     height: 'auto',
                                     maxWidth: '100%',
@@ -110,7 +110,7 @@ export default function GraduationShareDialog({
                                 }}
                                 alt='dojo graduation badge'
                                 src={imageData}
-                            />)
+                            />
                         ) : (
                             <ReportCanvas reportRef={setReportRef}>
                                 <GraduationCard graduation={graduation} />
@@ -133,7 +133,7 @@ interface ReportCanvasProps {
     width?: number | string;
     height?: number | string;
     reportRef: React.Dispatch<React.SetStateAction<HTMLDivElement | undefined>>;
-    children: React.ReactElement<any>;
+    children: React.ReactElement;
 }
 
 const ReportCanvas = ({ reportRef, children }: ReportCanvasProps) => {

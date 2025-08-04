@@ -15,7 +15,7 @@ import { Event, EventStatus } from '../database/event';
 import NavbarMenu from './NavbarMenu';
 
 interface HideOnScrollProps {
-    children: React.ReactElement<any>;
+    children: React.ReactElement;
 }
 
 function HideOnScroll(props: HideOnScrollProps) {
