@@ -22,8 +22,8 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import copy from 'copy-to-clipboard';
 import { useEffect, useState } from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
 
 export function ListFollowedPositionsPage() {
     const api = useApi();
@@ -55,7 +55,8 @@ export function ListFollowedPositionsPage() {
         return <RequestSnackbar request={request} />;
     }
 
-    const onCopy = (name: string) => {
+    const onCopy = (name: string, value: string) => {
+        copy(value);
         setCopied(name);
         setTimeout(() => {
             setCopied('');
@@ -130,25 +131,21 @@ export function ListFollowedPositionsPage() {
                                     </Button>
                                 </Tooltip>
 
-                                <CopyToClipboard
-                                    data-cy='position-fen-copy'
-                                    text={position.normalizedFen}
-                                    onCopy={() => onCopy('fen')}
-                                >
-                                    <Tooltip title='Copy position FEN to clipboard'>
-                                        <Button
-                                            startIcon={
-                                                copied === 'fen' ? (
-                                                    <Check color='success' />
-                                                ) : (
-                                                    <ContentPaste color='dojoOrange' />
-                                                )
-                                            }
-                                        >
-                                            FEN
-                                        </Button>
-                                    </Tooltip>
-                                </CopyToClipboard>
+                                <Tooltip title='Copy position FEN to clipboard'>
+                                    <Button
+                                        data-cy='position-fen-copy'
+                                        startIcon={
+                                            copied === 'fen' ? (
+                                                <Check color='success' />
+                                            ) : (
+                                                <ContentPaste color='dojoOrange' />
+                                            )
+                                        }
+                                        onClick={() => onCopy('fen', position.normalizedFen)}
+                                    >
+                                        FEN
+                                    </Button>
+                                </Tooltip>
 
                                 <Tooltip title='Open in position explorer'>
                                     <Button
