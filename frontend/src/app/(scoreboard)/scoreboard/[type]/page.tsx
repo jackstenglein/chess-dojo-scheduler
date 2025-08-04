@@ -10,9 +10,7 @@ export function generateStaticParams() {
 export default async function Page(props: { params: Promise<{ type: string }> }) {
     const params = await props.params;
 
-    const {
-        type
-    } = params;
+    const { type } = params;
 
     return <ScoreboardPage type={type} />;
 }

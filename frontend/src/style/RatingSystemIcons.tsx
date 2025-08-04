@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { SlGraph } from 'react-icons/sl';
 
-import type { JSX } from "react";
+import type { JSX } from 'react';
 
 export const AcfIcon = ({ size = 'medium' }: { size?: 'small' | 'medium' }) => (
     <Image

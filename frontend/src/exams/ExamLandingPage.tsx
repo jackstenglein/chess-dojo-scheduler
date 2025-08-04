@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 
-import type { JSX } from "react";
+import type { JSX } from 'react';
 
 /**
  * Renders a simple landing page that directs users to the different types of exams

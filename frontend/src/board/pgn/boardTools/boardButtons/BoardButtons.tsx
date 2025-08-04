@@ -9,7 +9,11 @@ import ControlButtons from './ControlButtons';
 import StartButtons from './StartButtons';
 import StatusIcon from './StatusIcon';
 
-const BoardButtons = ({ underboardRef }: { underboardRef?: React.RefObject<UnderboardApi | null> }) => {
+const BoardButtons = ({
+    underboardRef,
+}: {
+    underboardRef?: React.RefObject<UnderboardApi | null>;
+}) => {
     const light = useLightMode();
     const { game, isOwner: isGameOwner, unsaved } = useGame();
     const { chess } = useChess();

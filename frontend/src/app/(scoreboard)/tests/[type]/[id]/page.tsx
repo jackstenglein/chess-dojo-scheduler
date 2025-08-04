@@ -8,10 +8,7 @@ export function generateStaticParams() {
 export default async function Page(props: { params: Promise<{ type: ExamType; id: string }> }) {
     const params = await props.params;
 
-    const {
-        type,
-        id
-    } = params;
+    const { type, id } = params;
 
     return <ExamInstructionsPage type={type} id={id} />;
 }

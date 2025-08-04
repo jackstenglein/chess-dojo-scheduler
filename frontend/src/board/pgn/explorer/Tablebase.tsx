@@ -11,7 +11,7 @@ import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
 import { getBackgroundColor } from './Database';
 
-import type { JSX } from "react";
+import type { JSX } from 'react';
 
 const TablebaseHeader = styled(Stack)(({ theme }) => ({
     backgroundColor: getBackgroundColor(theme.palette.info.main, theme.palette.mode),

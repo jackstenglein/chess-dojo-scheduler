@@ -3,7 +3,7 @@ import { faBookSkull } from '@fortawesome/free-solid-svg-icons';
 import { PhoneInTalk, PictureAsPdf, Visibility, VisibilityOff } from '@mui/icons-material';
 import { SvgIcon } from '@mui/material';
 
-import type { JSX } from "react";
+import type { JSX } from 'react';
 
 export const nagIcons: Record<string, JSX.Element> = {
     $1300: <Visibility fontSize='inherit' sx={{ verticalAlign: 'middle' }} />,

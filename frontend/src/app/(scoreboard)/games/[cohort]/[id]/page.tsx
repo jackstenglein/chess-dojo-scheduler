@@ -81,17 +81,10 @@ function getPlayer(chess: Chess, key: 'White' | 'Black', eloKey: 'WhiteElo' | 'B
     return 'NN';
 }
 
-export default async function Page(
-    props: {
-        params: Promise<{ cohort: string; id: string }>;
-    }
-) {
+export default async function Page(props: { params: Promise<{ cohort: string; id: string }> }) {
     const params = await props.params;
 
-    const {
-        cohort,
-        id
-    } = params;
+    const { cohort, id } = params;
 
     return (
         <Suspense>
