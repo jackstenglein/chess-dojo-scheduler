@@ -4,7 +4,7 @@
         "@types/adm-zip": "^0.5.7",
         "@types/aws-lambda": "^8.10.152",
         "@types/deep-equal": "^1.0.4",
-        "@types/node": "^24.1.0",
+        "@types/node": "^24.2.0",
         "@types/uuid": "^10.0.0",
         "esbuild": "^0.25.1",
         "prettier-plugin-organize-imports": "^3.2.4",
