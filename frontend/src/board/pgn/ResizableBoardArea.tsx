@@ -17,7 +17,7 @@ interface ResizableBoardAreaProps {
     showPlayerHeaders?: boolean;
     startOrientation?: Color;
     onInitialize: onInitializeFunc;
-    underboardRef: React.RefObject<UnderboardApi>;
+    underboardRef: React.RefObject<UnderboardApi | null>;
 }
 
 const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({

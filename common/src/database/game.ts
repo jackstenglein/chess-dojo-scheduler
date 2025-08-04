@@ -93,70 +93,70 @@ export const CreateGameSchema = z.discriminatedUnion('type', [
             /** The import type of the game. */
             type: z.literal(GameImportTypes.lichessChapter),
         })
-        .merge(onlineGameSchema),
+        .extend(onlineGameSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.lichessStudy),
         })
-        .merge(onlineGameSchema),
+        .extend(onlineGameSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.lichessGame),
         })
-        .merge(onlineGameSchema),
+        .extend(onlineGameSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.chesscomGame),
         })
-        .merge(onlineGameSchema),
+        .extend(onlineGameSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.chesscomAnalysis),
         })
-        .merge(onlineGameSchema),
+        .extend(onlineGameSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.editor),
         })
-        .merge(pgnTextSchema),
+        .extend(pgnTextSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.manual),
         })
-        .merge(pgnTextSchema),
+        .extend(pgnTextSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.startingPosition),
         })
-        .merge(pgnTextSchema),
+        .extend(pgnTextSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.fen),
         })
-        .merge(pgnTextSchema),
+        .extend(pgnTextSchema.shape),
 
     z
         .object({
             /** The import type of the game. */
             type: z.literal(GameImportTypes.clone),
         })
-        .merge(pgnTextSchema),
+        .extend(pgnTextSchema.shape),
 ]);
 
 /** A request to create a game. */
@@ -204,21 +204,21 @@ const updateGame = z.object({
 /** Verifies a request to update a game. */
 export const UpdateGameSchema = z
     .discriminatedUnion('type', [
-        CreateGameSchema.options[0].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[1].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[2].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[3].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[4].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[5].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[6].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[7].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[8].omit({ directory: true }).merge(updateGame),
-        CreateGameSchema.options[9].omit({ directory: true }).merge(updateGame),
+        CreateGameSchema.options[0].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[1].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[2].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[3].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[4].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[5].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[6].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[7].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[8].omit({ directory: true }).extend(updateGame.shape),
+        CreateGameSchema.options[9].omit({ directory: true }).extend(updateGame.shape),
         z
             .object({
                 type: z.undefined(),
             })
-            .merge(updateGame),
+            .extend(updateGame.shape),
     ])
     .refine((val) => val.type || val.orientation || val.unlisted !== undefined, {
         message: 'At least one of type, orientation or unlisted is required',

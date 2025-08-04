@@ -374,8 +374,28 @@ export function CategoryLegend() {
                                         backgroundColor: color,
                                     }}
                                 />
+                                {category === RequirementCategory.NonDojo && (
+                                    <svg
+                                        style={{
+                                            width: '12px',
+                                            height: '12px',
+                                            position: 'absolute',
+                                        }}
+                                    >
+                                        <StripePattern />
+                                        <rect
+                                            x={0}
+                                            y={0}
+                                            width={12}
+                                            height={12}
+                                            fill='url(#diagonalHatch)'
+                                        />
+                                    </svg>
+                                )}
                                 <Typography variant='caption' pt='2px'>
-                                    {category}
+                                    {category === RequirementCategory.NonDojo
+                                        ? 'Custom Task'
+                                        : category}
                                 </Typography>
                             </Stack>
                         );

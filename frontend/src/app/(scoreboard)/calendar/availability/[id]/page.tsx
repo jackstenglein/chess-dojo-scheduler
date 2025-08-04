@@ -4,6 +4,10 @@ export function generateStaticParams() {
     return [];
 }
 
-export default function Page({ params: { id } }: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
+
+    const { id } = params;
+
     return <EventBooker id={id} />;
 }

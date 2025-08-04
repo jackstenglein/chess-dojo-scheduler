@@ -10,7 +10,7 @@ import {
     VisibilityOff,
 } from '@mui/icons-material';
 import { Alert, IconButton, Paper, Snackbar, Stack, Tooltip, Typography } from '@mui/material';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState, type JSX } from 'react';
 import { AddToDirectoryDialog } from '../../../games/list/AddToDirectoryDialog';
 import { DeleteGamesDialog } from '../../../games/view/DeleteGameButton';
 import { ChangeVisibilityDialog } from './ChangeVisibilityDialog';

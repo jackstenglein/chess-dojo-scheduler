@@ -16,7 +16,7 @@ import {
     Typography,
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, type JSX } from 'react';
 import { Link } from '../navigation/Link';
 
 export function TrainingTipsButton() {

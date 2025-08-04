@@ -17,14 +17,14 @@ import {
     parseEvent,
     requireUserInfo,
     success,
-} from 'chess-dojo-directory-service/api';
+} from '../directoryService/api';
 import {
     and,
     attributeExists,
     dynamo,
     sizeLessThan,
     UpdateItemBuilder,
-} from 'chess-dojo-directory-service/database';
+} from '../directoryService/database';
 import { tournamentsTable } from './register';
 
 /**
@@ -73,8 +73,8 @@ async function withdraw({
         builder.condition(
             and(
                 attributeExists(['players', username]),
-                sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS)
-            )
+                sizeLessThan('players', MAX_ROUND_ROBIN_PLAYERS),
+            ),
         );
     } else {
         builder.set(['players', username, 'status'], RoundRobinPlayerStatuses.WITHDRAWN);

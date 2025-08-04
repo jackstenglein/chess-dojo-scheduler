@@ -1,6 +1,6 @@
 import { Box, Container, SxProps } from '@mui/material';
 import Image from 'next/image';
-import { CSSProperties } from 'react';
+import { CSSProperties, type JSX } from 'react';
 
 export function BackgroundImageContainer({
     src,

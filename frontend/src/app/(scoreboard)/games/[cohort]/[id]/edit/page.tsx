@@ -1,9 +1,9 @@
 import EditGamePage from '@/games/edit/EditGamePage';
 
-export default function Page({
-    params: { cohort, id },
-}: {
-    params: { cohort: string; id: string };
-}) {
+export default async function Page(props: { params: Promise<{ cohort: string; id: string }> }) {
+    const params = await props.params;
+
+    const { cohort, id } = params;
+
     return <EditGamePage cohort={cohort} id={id} />;
 }

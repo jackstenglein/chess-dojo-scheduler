@@ -54,7 +54,7 @@ import {
     Tooltip,
     useMediaQuery,
 } from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, type JSX } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
     const { user, status } = useAuth();

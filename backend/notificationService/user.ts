@@ -1,7 +1,7 @@
 import { GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
-import { dynamo } from 'chess-dojo-directory-service/database';
+import { dynamo } from '../directoryService/database';
 
 const userTable = `${process.env.stage}-users`;
 

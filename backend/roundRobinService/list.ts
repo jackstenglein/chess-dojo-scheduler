@@ -7,12 +7,8 @@ import {
     RoundRobinListSchema,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import {
-    errToApiGatewayProxyResultV2,
-    parseEvent,
-    success,
-} from 'chess-dojo-directory-service/api';
-import { dynamo } from 'chess-dojo-directory-service/database';
+import { errToApiGatewayProxyResultV2, parseEvent, success } from '../directoryService/api';
+import { dynamo } from '../directoryService/database';
 import { tournamentsTable } from './register';
 
 /**

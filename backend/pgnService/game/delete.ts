@@ -11,8 +11,8 @@ import {
     parseBody,
     requireUserInfo,
     success,
-} from 'chess-dojo-directory-service/api';
-import { dynamo } from 'chess-dojo-directory-service/database';
+} from '../../directoryService/api';
+import { dynamo } from '../../directoryService/database';
 import { gamesTable } from './create';
 
 /**
