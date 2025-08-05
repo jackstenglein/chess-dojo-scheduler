@@ -18,7 +18,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { green, lime, orange, pink } from '@mui/material/colors';
+import { green, grey, lime, orange, pink } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
 import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
 import { useLocalStorage } from 'usehooks-ts';
@@ -68,9 +68,9 @@ function getEvalValue(nags?: string[]): number | undefined {
     return undefined;
 }
 
-const plyToMoveNumber = (ply: number): number | null => {
+const plyToMoveNumber = (ply: number): number => {
     if (ply < 1) {
-        return null;
+        return 0;
     }
     return Math.ceil(ply / 2);
 };
@@ -244,7 +244,10 @@ function shouldRerender(chess: Chess, event: Event): boolean {
 
 function getSeriesStyle(series: Series<Datum>, light: boolean) {
     if (series.label === CURRENT_MOVE_SERIES_LABEL) {
-        return { fill: lime[100], stroke: lime[100], strokeDasharray: '1 8' };
+        if (light) {
+            return { fill: grey[600], stroke: grey[600], strokeDasharray: '3 10' };
+        }
+        return { fill: lime[100], stroke: lime[100], strokeDasharray: '3 10' };
     }
     if (series.label === IDEAL_CLOCK_SERIES_LABEL) {
         return { fill: green[500], stroke: green[500] };
@@ -371,13 +374,15 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             },
         ];
 
-        const currentLineMoveNumber = plyToMoveNumber(
-            chess.currentMove() ? chess.currentMove().ply : 0,
-        );
+        const currentLineMoveNumber = plyToMoveNumber(chess.currentMove()?.ply ?? 0);
         const currentLine = timeControl
             ? [
-                  { moveNumber: currentLineMoveNumber, seconds: 0 },
-                  { moveNumber: currentLineMoveNumber, seconds: timeControl.seconds },
+                  { moveNumber: currentLineMoveNumber, seconds: 0, move: chess.currentMove() },
+                  {
+                      moveNumber: currentLineMoveNumber,
+                      seconds: timeControl.seconds ?? 0,
+                      move: chess.currentMove(),
+                  },
               ]
             : [];
         const whiteTimePerMove: Datum[] = [];
@@ -543,7 +548,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
 
     const onClickDatum = (datum: ChartDatum<Datum> | null) => {
         if (datum) {
-            chess.seek(datum.originalDatum.move);
+            chess.seek(datum.originalDatum.move ?? null);
             reconcile();
         }
     };
