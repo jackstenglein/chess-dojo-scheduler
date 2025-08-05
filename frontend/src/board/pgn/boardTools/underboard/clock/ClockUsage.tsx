@@ -18,7 +18,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { green, orange, pink } from '@mui/material/colors';
+import { green, orange, pink, lime } from '@mui/material/colors';
 import { useEffect, useMemo, useState } from 'react';
 import { AxisOptions, Chart, Datum as ChartDatum, Series } from 'react-charts';
 import { useLocalStorage } from 'usehooks-ts';
@@ -35,6 +35,7 @@ import {
 
 const IDEAL_CLOCK_SERIES_LABEL = 'Ideal';
 const EVAL_SERIES_LABEL = 'Eval';
+const CURRENT_MOVE_SERIES_LABEL = 'Current Move';
 
 const showEvalInClockGraph = {
     key: 'showEvalInClockGraph',
@@ -65,6 +66,13 @@ function getEvalValue(nags?: string[]): number | undefined {
         }
     }
     return undefined;
+}
+
+const plyToMoveNumber = (ply: number) : number | null => {
+    if(ply < 1 ){
+        return null
+    }
+    return Math.ceil(ply / 2);
 }
 
 export interface Datum {
@@ -220,7 +228,7 @@ function shouldRerender(chess: Chess, event: Event): boolean {
         return event.headerName === 'TimeControl';
     }
     if (event.type === EventType.LegalMove) {
-        return chess.lastMove() === event.move;
+        return true;
     }
     if (event.type === EventType.DeleteMove) {
         return !event.mainlineMove;
@@ -235,6 +243,9 @@ function shouldRerender(chess: Chess, event: Event): boolean {
 }
 
 function getSeriesStyle(series: Series<Datum>, light: boolean) {
+    if (series.label === CURRENT_MOVE_SERIES_LABEL) {
+        return { fill: lime[100], stroke: lime[100], strokeDasharray: "1 8" };
+    }
     if (series.label === IDEAL_CLOCK_SERIES_LABEL) {
         return { fill: green[500], stroke: green[500] };
     }
@@ -360,6 +371,11 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
             },
         ];
 
+        const currentLineMoveNumber = plyToMoveNumber( chess.currentMove() ? chess.currentMove().ply : 0 )
+        const currentLine = timeControl ? [
+            {moveNumber: currentLineMoveNumber, seconds: 0},
+            {moveNumber: currentLineMoveNumber, seconds: timeControl.seconds},
+        ] : [];
         const whiteTimePerMove: Datum[] = [];
         const blackTimePerMove: Datum[] = [];
 
@@ -508,6 +524,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                 { label: 'Black', data: blackClockDisplay },
                 { label: IDEAL_CLOCK_SERIES_LABEL, data: perfectLine },
                 { label: EVAL_SERIES_LABEL, data: evalData, secondaryAxisId: 'eval' },
+                { label: CURRENT_MOVE_SERIES_LABEL, data: chess.isInMainline() ? currentLine : []},
             ],
             usedPerMove: [
                 { label: 'White', data: whiteTimePerMove.reverse() },
@@ -609,8 +626,7 @@ const ClockUsage: React.FC<ClockUsageProps> = ({ showEditor }) => {
                                 onClickDatum,
                                 getSeriesStyle: (series) => getSeriesStyle(series, light),
                                 tooltip: {
-                                    showDatumInTooltip: (datum) =>
-                                        showEval || datum.secondaryAxisId !== 'eval',
+                                    showDatumInTooltip: (datum) => (showEval || datum.secondaryAxisId !== 'eval') && (datum.seriesLabel !== CURRENT_MOVE_SERIES_LABEL),
                                 },
                             }}
                         />
