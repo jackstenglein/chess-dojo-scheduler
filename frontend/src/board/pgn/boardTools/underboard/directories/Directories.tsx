@@ -17,6 +17,7 @@ export const Directories = () => {
                     defaultDirectoryOwner={user.username}
                     enableNavigationMenu
                     defaultNavigationMenuOpen={false}
+                    userCohort={user.dojoCohort}
                     defaultColumnVisibility={{
                         type: true,
                         name: true,
