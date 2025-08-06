@@ -32,7 +32,7 @@ export function getPerfectLineSeconds(timeControls: TimeControl[], move: number)
         expectedTime += timeControls[1]?.seconds ?? 0;
     }
 
-    return Math.floor(expectedTime);
+    return Math.round(expectedTime);
 }
 
 /**
