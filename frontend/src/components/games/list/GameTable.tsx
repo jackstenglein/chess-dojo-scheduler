@@ -22,7 +22,7 @@ import {
     PaginationPropsOverrides,
     useGridApiRef,
 } from '@mui/x-data-grid-pro';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import {
     formatMoves,
@@ -248,15 +248,23 @@ export default function GameTable({
         }
     }, [isListView, density]);
    
-    const [sortModel, setSortModel] = useLocalStorage<GridSortModel>(
-      'gridSortModelKey',
+    const [internalSortModel, setInternalSortModel] = useState<GridSortModel>(
       [
         {
-          field: 'createdAt',
+          field: 'date',
           sort: 'desc',
         }
       ]
     );
+
+    const [, persistSortModel] = useLocalStorage<GridSortModel>(
+      `/GameTable/${namespace}/sortModel`,
+      []
+    );
+
+    useEffect(() => {
+      persistSortModel(internalSortModel);
+    }, [internalSortModel, persistSortModel]);
 
     return (
         <DataGridPro
@@ -282,10 +290,10 @@ export default function GameTable({
             initialState={{
                 density: 'standard',
             }}
-            sortModel={sortModel}
+            sortModel={internalSortModel}
             onSortModelChange={(newSortModel) => {
               console.log('NEW SORT MODEL', newSortModel);
-              setSortModel(newSortModel);
+              setInternalSortModel(newSortModel);
             }}
             slots={{
                 basePagination: (props: PaginationPropsOverrides) => (
