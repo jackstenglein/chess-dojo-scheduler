@@ -299,7 +299,6 @@ const DirectorySection = ({
                     }}
                     sortModel={internalSortModel}
                     onSortModelChange={(newSortModel) => {
-                      console.log('NEW SORT MODEL', newSortModel);
                       setInternalSortModel(newSortModel);
                     }}
                     getRowHeight={isMobile ? getRowHeightMobile : getRowHeight}

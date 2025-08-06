@@ -292,7 +292,6 @@ export default function GameTable({
             }}
             sortModel={internalSortModel}
             onSortModelChange={(newSortModel) => {
-              console.log('NEW SORT MODEL', newSortModel);
               setInternalSortModel(newSortModel);
             }}
             slots={{
