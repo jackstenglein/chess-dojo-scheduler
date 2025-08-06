@@ -7,10 +7,10 @@ import {
     RoundRobinPlayerStatuses,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { ScheduledEvent } from 'aws-lambda';
-import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
-import { sendDirectMessage } from 'chess-dojo-notification-service/discord';
-import { sendEmailTemplate } from 'chess-dojo-notification-service/email';
-import { getNotificationSettings } from 'chess-dojo-notification-service/user';
+import { dynamo, UpdateItemBuilder } from '../directoryService/database';
+import { sendDirectMessage } from '../notificationService/discord';
+import { sendEmailTemplate } from '../notificationService/email';
+import { getNotificationSettings } from '../notificationService/user';
 import { tournamentsTable } from './register';
 
 const frontendHost = process.env.frontendHost;
@@ -64,7 +64,7 @@ async function processCohort(cohort: string) {
                 },
                 ExclusiveStartKey: lastEvaluatedKey,
                 TableName: tournamentsTable,
-            })
+            }),
         );
 
         for (const item of output.Items ?? []) {
@@ -124,7 +124,7 @@ async function sendReminder(tournament: RoundRobin, username: string) {
         const message = `Your round robin tournament ${tournament.cohort} ${tournament.name} has been running for 2 weeks, and you haven't submitted any games! Click [**here**](${frontendHost}/tournaments/round-robin?cohort=${tournament.cohort}) to view your pairings and submit games. Not playing your games creates a poor experience for the other players, and failure to submit any games will result in a $15 fee the next time you register for a round robin.`;
         await sendDirectMessage(discordId, message);
         console.log(
-            `Successfully sent Discord message to ${user.username} for round robin reminder`
+            `Successfully sent Discord message to ${user.username} for round robin reminder`,
         );
     }
 
@@ -136,7 +136,7 @@ async function sendReminder(tournament: RoundRobin, username: string) {
         'roundRobin/tournamentReminder',
         templateData,
         [user.email],
-        'ChessDojo Round Robin <roundrobin@mail.chessdojo.club>'
+        'ChessDojo Round Robin <roundrobin@mail.chessdojo.club>',
     );
     console.log(`Successfully sent email to ${user.username} for round robin reminder`);
 }

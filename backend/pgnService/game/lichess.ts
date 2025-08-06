@@ -1,6 +1,6 @@
 import { splitPgns } from '@jackstenglein/chess-dojo-common/src/pgn/pgn';
 import axios from 'axios';
-import { ApiError } from 'chess-dojo-directory-service/api';
+import { ApiError } from '../../directoryService/api';
 import { getPathSegment } from './helpers';
 
 /**

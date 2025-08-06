@@ -30,7 +30,7 @@ import {
     gameTable,
     UpdateItemBuilder,
 } from './database';
-import { addAllUploads, fetchDirectory } from './get';
+import { fetchDirectory } from './get';
 import { getItemIndexMap } from './moveItems';
 
 const REMOVE_ITEMS_BATCH_SIZE = 100;
@@ -82,7 +82,6 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
             undefined,
             accessRole === DirectoryAccessRole.Editor ? userInfo.username : undefined,
         );
-        addAllUploads(directory);
         return success({ directory });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);

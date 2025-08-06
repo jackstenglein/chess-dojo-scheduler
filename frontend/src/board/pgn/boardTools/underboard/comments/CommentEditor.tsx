@@ -21,7 +21,7 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEdit
     const request = useRequest();
     const { chess } = useChess();
     const { game, onUpdateGame } = useGame();
-    const textFieldRef = useRef<HTMLTextAreaElement>();
+    const textFieldRef = useRef<HTMLTextAreaElement>(undefined);
 
     useEffect(() => {
         if (focusEditor && textFieldRef.current) {

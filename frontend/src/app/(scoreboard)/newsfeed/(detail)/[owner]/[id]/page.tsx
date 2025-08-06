@@ -4,6 +4,10 @@ export function generateStaticParams() {
     return [];
 }
 
-export default function Page({ params: { owner, id } }: { params: { owner: string; id: string } }) {
+export default async function Page(props: { params: Promise<{ owner: string; id: string }> }) {
+    const params = await props.params;
+
+    const { owner, id } = params;
+
     return <NewsfeedDetail owner={owner} id={id} />;
 }

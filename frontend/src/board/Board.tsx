@@ -225,7 +225,7 @@ export type onMoveFunc = (board: BoardApi, chess: Chess, move: PrimitiveMove) =>
 export type onInitializeFunc = (
     board: BoardApi,
     chess: Chess,
-    boardRef: RefObject<HTMLDivElement>,
+    boardRef: RefObject<HTMLDivElement | null>,
 ) => void;
 
 interface BoardProps {

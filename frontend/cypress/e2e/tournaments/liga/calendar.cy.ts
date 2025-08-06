@@ -23,6 +23,10 @@ describe('Calendar Tab', () => {
         );
 
         cy.visit('/tournaments/liga?type=calendar');
+        // Fixes flakiness where the browser's timezone doesn't match the test
+        // user's saved timezone and the first render selects the wrong day.
+        cy.contains('UTC+0').should('exist');
+        cy.contains('Today').click();
     });
 
     it('has tab selector', () => {

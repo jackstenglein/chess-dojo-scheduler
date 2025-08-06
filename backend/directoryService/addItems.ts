@@ -31,7 +31,6 @@ import {
     gameTable,
     UpdateItemBuilder,
 } from './database';
-import { addAllUploads } from './get';
 
 const ADD_ITEMS_BATCH_SIZE = 200;
 const MAX_BATCHES = 5;
@@ -75,7 +74,6 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
         }
 
         const directory = await addDirectoryItems(request.owner, request.id, items);
-        addAllUploads(directory);
         return success({ directory });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);

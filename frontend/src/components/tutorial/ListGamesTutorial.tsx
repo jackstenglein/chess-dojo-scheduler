@@ -1,4 +1,4 @@
-import { Step } from 'react-joyride';
+import { Step } from 'react-joyride-react19-compat';
 import Tutorial from './Tutorial';
 import { TutorialName } from './tutorialNames';
 

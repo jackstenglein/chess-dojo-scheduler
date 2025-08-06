@@ -9,6 +9,11 @@ describe('Graduations', () => {
         );
 
         cy.clock(now);
+        Cypress.on('uncaught:exception', () => {
+            // Prevents Cypress from failing the test when MUI X data grid throws
+            // "ResizeObserver loop completed with undelivered notifications."
+            return false;
+        });
     });
 
     it('displays correct message when no graduations', () => {
@@ -16,7 +21,6 @@ describe('Graduations', () => {
             fixture: 'recent/noGraduations.json',
         });
         cy.visit('/recent');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
         cy.contains('No graduations in the selected timeframe');
     });
 
@@ -25,7 +29,6 @@ describe('Graduations', () => {
             fixture: 'recent/graduations.json',
         });
         cy.visit('/recent');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         const columns = ['Name', 'Graduated', 'Old Cohort', 'New Cohort', 'Dojo Score', 'Date'];
 
@@ -39,7 +42,6 @@ describe('Graduations', () => {
             fixture: 'recent/graduations.json',
         });
         cy.visit('/recent');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('recent-graduates-table').contains('1–11 of 11');
         cy.getBySel('recent-graduates-table')
@@ -52,7 +54,6 @@ describe('Graduations', () => {
             fixture: 'recent/graduations.json',
         });
         cy.visit('/recent');
-        cy.tick(1000); // Necessary when using cy.clock: https://stackoverflow.com/a/71974637
 
         cy.getBySel('graduates-timeframe-select').click();
         cy.getBySel('Graduation of 8/30/2023').click();

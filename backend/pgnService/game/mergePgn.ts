@@ -14,7 +14,7 @@ import {
     getUserInfo,
     parseBody,
     success,
-} from 'chess-dojo-directory-service/api';
+} from '../../directoryService/api';
 import { dynamo, gamesTable } from './create';
 import { Game } from './types';
 
@@ -125,8 +125,7 @@ function mergePgn(source: Chess, target: Chess, request: PgnMergeRequest): strin
     if (source.normalizedFen() !== target.normalizedFen()) {
         throw new ApiError({
             statusCode: 400,
-            publicMessage:
-                'Unable to merge: the games do not start from the same position',
+            publicMessage: 'Unable to merge: the games do not start from the same position',
         });
     }
 
@@ -172,20 +171,9 @@ function recursiveMergeLine(
         currentTargetMove = newTargetMove;
     }
 
-    if (
-        request.citeSource &&
-        request.sourceCohort &&
-        request.sourceId &&
-        currentTargetMove
-    ) {
-        const white = getPlayer(
-            source.header().tags.White,
-            source.header().tags.WhiteElo?.value,
-        );
-        const black = getPlayer(
-            source.header().tags.Black,
-            source.header().tags.BlackElo?.value,
-        );
+    if (request.citeSource && request.sourceCohort && request.sourceId && currentTargetMove) {
+        const white = getPlayer(source.header().tags.White, source.header().tags.WhiteElo?.value);
+        const black = getPlayer(source.header().tags.Black, source.header().tags.BlackElo?.value);
         const date = source.header().getRawValue('Date');
         const comment = `[${white} - ${black}${date ? ` ${date}` : ''}](${frontendHost}/games/${request.sourceCohort}/${request.sourceId})`;
 
@@ -248,9 +236,7 @@ function mergeNags(source: Move, target: Move, mergeType: PgnMergeType) {
             target.nags = source.nags;
         } else {
             target.nags.push(...source.nags);
-            target.nags = target.nags.filter(
-                (nag, index) => target.nags?.indexOf(nag) === index,
-            );
+            target.nags = target.nags.filter((nag, index) => target.nags?.indexOf(nag) === index);
         }
     }
 }
@@ -272,8 +258,7 @@ function mergeDrawables(source: Move, target: Move, mergeType: PgnMergeType) {
         } else {
             target.commentDiag.colorArrows.push(...source.commentDiag.colorArrows);
             target.commentDiag.colorArrows = target.commentDiag.colorArrows.filter(
-                (arrow, index) =>
-                    target.commentDiag?.colorArrows?.indexOf(arrow) === index,
+                (arrow, index) => target.commentDiag?.colorArrows?.indexOf(arrow) === index,
             );
         }
     }
@@ -287,8 +272,7 @@ function mergeDrawables(source: Move, target: Move, mergeType: PgnMergeType) {
         } else {
             target.commentDiag.colorFields.push(...source.commentDiag.colorFields);
             target.commentDiag.colorFields = target.commentDiag.colorFields.filter(
-                (arrow, index) =>
-                    target.commentDiag?.colorFields?.indexOf(arrow) === index,
+                (arrow, index) => target.commentDiag?.colorFields?.indexOf(arrow) === index,
             );
         }
     }

@@ -23,7 +23,7 @@ export interface PlayerOpeningTreeContextType {
     onLoad: () => Promise<void>;
     onClear: () => void;
     indexedCount: number;
-    openingTree: RefObject<OpeningTree | undefined>;
+    openingTree: RefObject<OpeningTree | undefined | null>;
     filters: EditableGameFilters;
     readonlyFilters: GameFilters;
 }
@@ -42,8 +42,8 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     const [sources, setSources] = useState([DEFAULT_PLAYER_SOURCE]);
     const [isLoading, setIsLoading] = useState(false);
     const [indexedCount, setIndexedCount] = useState(-1);
-    const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>();
-    const openingTree = useRef<OpeningTree>();
+    const workerRef = useRef<Remote<OpeningTreeLoaderFactory>>(undefined);
+    const openingTree = useRef<OpeningTree>(undefined);
     const loadComplete = useRef(false);
     const [filters, readonlyFilters] = useGameFilters(sources);
 

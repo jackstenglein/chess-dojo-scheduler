@@ -19,14 +19,13 @@ import { NIL as uuidNil } from 'uuid';
 import { getAccessRole } from './access';
 import { ApiError, errToApiGatewayProxyResultV2, getUserInfo, parseEvent, success } from './api';
 import { attributeNotExists, directoryTable, dynamo, UpdateItemBuilder } from './database';
-import { addAllUploads, fetchDirectory } from './get';
+import { fetchDirectory } from './get';
 
 export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
     try {
         console.log('Event: %j', event);
         const request = parseEvent(event, CreateDirectorySchemaV2);
         const result = await handleCreateDirectory(event, request);
-        addAllUploads(result.parent);
         return success(result);
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);

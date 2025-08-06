@@ -28,7 +28,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, type JSX } from 'react';
 import Replies from './Replies';
 import ReplyEditor from './ReplyEditor';
 import { isVariationInComment, isVariationSuggestor } from './suggestVariation';

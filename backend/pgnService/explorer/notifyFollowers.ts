@@ -1,12 +1,8 @@
-import {
-    AttributeValue,
-    QueryCommand,
-    QueryCommandOutput,
-} from '@aws-sdk/client-dynamodb';
+import { AttributeValue, QueryCommand, QueryCommandOutput } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { ExplorerPositionFollower } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import { DynamoDBRecord, DynamoDBStreamHandler } from 'aws-lambda';
-import { UpdateItemBuilder, dynamo } from 'chess-dojo-directory-service/database';
+import { UpdateItemBuilder, dynamo } from '../../directoryService/database';
 import { explorerTable } from './listGames';
 import { ExplorerGame, dojoCohorts } from './types';
 
@@ -73,9 +69,7 @@ async function processRecord(record: DynamoDBRecord) {
  * @param normalizedFen The FEN to fetch followers for.
  * @returns A list of the followers.
  */
-async function fetchFollowers(
-    normalizedFen: string,
-): Promise<ExplorerPositionFollower[]> {
+async function fetchFollowers(normalizedFen: string): Promise<ExplorerPositionFollower[]> {
     let startKey: Record<string, AttributeValue> | undefined = undefined;
     const result: ExplorerPositionFollower[] = [];
 

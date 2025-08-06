@@ -20,7 +20,7 @@ import {
 const SCROLL_THROTTLE_DELAY = 250; // milliseconds
 
 interface KeyboardHandlerProps {
-    underboardRef: React.RefObject<UnderboardApi>;
+    underboardRef: React.RefObject<UnderboardApi | null>;
 }
 
 const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {

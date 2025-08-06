@@ -17,7 +17,7 @@ import {
     FolderOff,
 } from '@mui/icons-material';
 import { IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type JSX } from 'react';
 import { DeleteDialog, DeleteDialogType } from './DeleteDialog';
 import { useDirectoryCache } from './DirectoryCache';
 import { MoveDialog } from './MoveDialog';

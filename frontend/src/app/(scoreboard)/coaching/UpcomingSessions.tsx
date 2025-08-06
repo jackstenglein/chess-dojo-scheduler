@@ -6,7 +6,7 @@ import { Event } from '@/database/event';
 import { User } from '@/database/user';
 import { CalendarToday, FormatListBulleted } from '@mui/icons-material';
 import { Stack, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type JSX } from 'react';
 import CoachingCalendar from './CoachingCalendar';
 import CoachingList, { displayEvent } from './CoachingList';
 

@@ -43,7 +43,9 @@ const CoachesTab = () => {
         <Stack spacing={3}>
             <RequestSnackbar request={request} />
 
-            {request.data?.map((coach) => <CoachListItem key={coach.username} coach={coach} />)}
+            {request.data?.map((coach) => (
+                <CoachListItem key={coach.username} coach={coach} />
+            ))}
         </Stack>
     );
 };

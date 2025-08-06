@@ -2,11 +2,7 @@ import { ChatRequestSchema, ChatResponse } from '@jackstenglein/chess-dojo-commo
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import axios from 'axios';
 import { Filter } from 'bad-words';
-import {
-    errToApiGatewayProxyResultV2,
-    parseEvent,
-    success,
-} from 'chess-dojo-directory-service/api';
+import { errToApiGatewayProxyResultV2, parseEvent, success } from '../directoryService/api';
 
 /**
  * Handles requests to send a message to agent.
@@ -19,7 +15,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const agentResponse = await sendMessage(
             request.message,
             request.threadId,
-            request.resourceId
+            request.resourceId,
         );
         return success(agentResponse);
     } catch (err) {
@@ -37,7 +33,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 async function sendMessage(
     message: string,
     threadId: string,
-    resourceId: string
+    resourceId: string,
 ): Promise<ChatResponse> {
     const chatEndpoint = `${process.env.endpoint}/api/agents/${process.env.agent}/generate`;
     const cleaned = cleanedMessage(message);
