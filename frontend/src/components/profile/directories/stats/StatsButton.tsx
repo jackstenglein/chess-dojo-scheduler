@@ -57,7 +57,7 @@ export function StatsButton({ directory }: StatsButtonProps) {
     const request = useRequest<GetDirectoryStatsResponse>();
 
     const playerGameCounts = useMemo(() => {
-        const map: Map<string, number> = new Map();
+        const map = new Map<string, number>();
 
         for (const id of directory.itemIds) {
             const currentItem = directory.items[id];
@@ -640,7 +640,7 @@ function CohortStatsTableRow({
     );
 }
 
-function round(num: number, decimals: number = 1): number {
+function round(num: number, decimals = 1): number {
     const multiple = 10 * decimals;
     return Math.round(num * multiple) / multiple;
 }
