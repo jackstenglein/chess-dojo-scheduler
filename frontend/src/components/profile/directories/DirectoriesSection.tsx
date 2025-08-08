@@ -35,7 +35,7 @@ import {
     GridToolbarDensitySelector,
     GridToolbarFilterButton,
 } from '@mui/x-data-grid-pro';
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { AddButton } from './AddButton';
 import { AllUploadsSection } from './AllUploadsSection';
@@ -120,23 +120,15 @@ const DirectorySection = ({
         'standard',
     );
 
-    const [internalSortModel, setInternalSortModel] = useState<GridSortModel>(
-      [
-        {
-          field: 'createdAt',
-          sort: 'desc',
-        }
-      ]
+    const [sortModel, setSortModel] = useLocalStorage<GridSortModel>(
+        `/DirectoriesSection/${namespace}/sortModel`,
+        [
+            {
+                field: 'createdAt',
+                sort: 'desc',
+            },
+        ],
     );
-
-    const [, persistSortModel] = useLocalStorage<GridSortModel>(
-      `/DirectoriesSection/${namespace}/sortModel`,
-      []
-    );
-
-    useEffect(() => {
-      persistSortModel(internalSortModel);
-    }, [internalSortModel, persistSortModel]);
 
     const directoryId = searchParams.get('directory') || 'home';
     const directoryOwner = searchParams.get('directoryOwner') || defaultDirectoryOwner;
@@ -297,9 +289,9 @@ const DirectorySection = ({
                             paginationModel: { pageSize: 10 },
                         },
                     }}
-                    sortModel={internalSortModel}
+                    sortModel={sortModel}
                     onSortModelChange={(newSortModel) => {
-                      setInternalSortModel(newSortModel);
+                        setSortModel(newSortModel);
                     }}
                     getRowHeight={isMobile ? getRowHeightMobile : getRowHeight}
                     checkboxSelection={isEditor}
