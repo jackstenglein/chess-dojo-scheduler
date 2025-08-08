@@ -120,7 +120,7 @@ export function StatsButton({ directory }: StatsButtonProps) {
 
     return (
         <>
-            <Button variant='contained' startIcon={<Assessment />} onClick={handleOpen}>
+            <Button startIcon={<Assessment />} onClick={handleOpen}>
                 Stats
             </Button>
 

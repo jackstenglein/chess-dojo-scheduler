@@ -306,7 +306,6 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                                             defaultDirectoryOwner={user.username}
                                             enableNavigationMenu={currentUserProfile}
                                             defaultNavigationMenuOpen={true}
-                                            userCohort={user.dojoCohort}
                                             defaultColumnVisibility={{
                                                 type: true,
                                                 name: true,
