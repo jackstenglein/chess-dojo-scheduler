@@ -7,8 +7,10 @@ import {
     DirectoryAccessRole,
     ExportDirectoryRequest,
     ExportDirectoryRun,
+    GetDirectoryStatsRequest,
     ListBreadcrumbsRequest,
     MoveDirectoryItemsRequestV2,
+    PerformanceStats,
     RemoveDirectoryItemsRequestV2,
     ShareDirectoryRequest,
     UpdateDirectoryRequestV2,
@@ -25,13 +27,15 @@ export interface DirectoryApiContextType {
      * @returns The requested directory and the caller's access role for that directory.
      */
     getDirectory: (owner: string, id: string) => Promise<AxiosResponse<GetDirectoryResponse>>;
+
+    /**
+     * Sends an API request to get the stats of a directory.
+     * @param request The request to send.
+     * @returns The stats of the requested directory.
+     */
     getDirectoryStats: (
-        owner: string,
-        id: string,
-        username: string,
-        ratingSystem: string,
-        cohort: string,
-    ) => Promise<AxiosResponse<StatsApiResponse>>;
+        request: GetDirectoryStatsRequest,
+    ) => Promise<AxiosResponse<GetDirectoryStatsResponse>>;
 
     /**
      * Sends an API request to list the breadcrumbs for a directory.
@@ -124,39 +128,11 @@ export interface GetDirectoryResponse {
     accessRole?: DirectoryAccessRole;
 }
 
-export interface StatsApiResponse {
-    performanceRating: PerformanceRatingMetric;
+export interface GetDirectoryStatsResponse {
+    /** The performance stats for the requested user. */
+    stats: PerformanceStats;
 }
 
-interface PerformanceRatingMetric {
-    combinedRating: number,
-    normalizedCombinedRating: number,
-    avgOppRating: number,
-    normalizedAvgOppRating: number,
-    whiteRating: number,
-    normalizedWhiteRating: number,
-    avgOppWhiteRating: number,
-    normalizedAvgWhiteOppRating: number
-    blackRating: number,
-    normalizedBlackRating: number,
-    avgOppBlackRating: number,
-    normalizedAvgBlackOppRating: number,
-    winRatio: number,
-    drawRatio: number, 
-    lossRatio: number,
-    cohortRatings: Record<string, CohortRatingMetric>;
-}
-
-interface CohortRatingMetric {
-    rating: number;
-    avgOppRating: number;
-    winRate: number;
-    drawRate: number;
-    lossRate: number;
-    oppRatings: number[];
-    gamesCount: number;
-    ratios: number[];
-}
 /**
  * Sends an API request to get a directory.
  * @param idToken The id token of the current signed-in user.
@@ -173,29 +149,17 @@ export function getDirectory(idToken: string, owner: string, id: string) {
 }
 
 /**
- * Sends an API request to get a directory.
+ * Sends an API request to get the stats of a directory.
  * @param idToken The id token of the current signed-in user.
- * @param owner The owner of the directory to get.
- * @param id The id of the directory to get.
- * @returns The requested directory and the caller's access role for that directory.
+ * @param request The request to send.
+ * @returns The stats for the requested directory.
  */
-export function getDirectoryStats(
-    idToken: string,
-    owner: string,
-    id: string,
-    username: string,
-    ratingSystem: string,
-    cohort: string,
-) {
-    return axios.get<StatsApiResponse>(`${BASE_URL}/directory/${owner}/${id}/stats`, {
-        params: {
-            username: username,
-            ratingsystem: ratingSystem,
-            playerCohort: cohort,
-        },
+export function getDirectoryStats(idToken: string, request: GetDirectoryStatsRequest) {
+    const { owner, id, ...rest } = request;
+    return axios.get<GetDirectoryStatsResponse>(`${BASE_URL}/directory/${owner}/${id}/stats`, {
+        params: rest,
         headers: {
             Authorization: `Bearer ${idToken}`,
-            
         },
     });
 }

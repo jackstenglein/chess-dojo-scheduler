@@ -2,14 +2,14 @@
 
 import { ratingToCohort } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import {
-    CohortPerformanceRatingMetric,
+    CohortPerformanceStats,
     compareRoles,
     Directory,
     DirectoryAccessRole,
     DirectoryItemTypes,
     DirectoryVisibility,
     GetDirectoryStatsRequestSchema,
-    PerformanceRatingMetric,
+    PerformanceStats,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { RatingSystem } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { fideDpTable } from '@jackstenglein/chess-dojo-common/src/ratings/performanceRating';
@@ -65,8 +65,8 @@ export const handlerV2: APIGatewayProxyHandlerV2 = async (event) => {
             }
         }
 
-        const performanceRating = getPerformanceRating(request.username, directory, ratingSystem);
-        return success({ performanceRating });
+        const stats = getPerformanceStats(request.username, directory, ratingSystem);
+        return success({ stats });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
     }
@@ -87,18 +87,18 @@ function toRatingSystem(query: string): RatingSystem {
 }
 
 /**
- * Returns the performance rating for the given username, directory and rating system.
+ * Returns the performance stats for the given username, directory and rating system.
  * @param username The username to calculate the performance rating for, as recorded in the PGN.
  * @param directory The directory to calculate the performance rating for.
  * @param ratingSystem The rating system to calculate the performance rating for.
- * @returns The performance rating.
+ * @returns The performance stats.
  */
-export function getPerformanceRating(
+export function getPerformanceStats(
     username: string,
     directory: Directory,
     ratingSystem: RatingSystem,
-): PerformanceRatingMetric {
-    const stats: PerformanceRatingMetric = {
+): PerformanceStats {
+    const stats: PerformanceStats = {
         wins: { total: 0, white: 0, black: 0 },
         draws: { total: 0, white: 0, black: 0 },
         losses: { total: 0, white: 0, black: 0 },
@@ -176,7 +176,7 @@ export function getPerformanceRating(
 }
 
 function updateStats(
-    stats: PerformanceRatingMetric | CohortPerformanceRatingMetric,
+    stats: PerformanceStats | CohortPerformanceStats,
     resultKey: 'wins' | 'draws' | 'losses',
     color: 'white' | 'black',
     opponentElo: number,
@@ -188,7 +188,7 @@ function updateStats(
 }
 
 function calculatePerformanceRatings(
-    stats: PerformanceRatingMetric | CohortPerformanceRatingMetric,
+    stats: PerformanceStats | CohortPerformanceStats,
     ratingSystem: RatingSystem,
 ) {
     for (const color of ['total', 'white', 'black'] as const) {

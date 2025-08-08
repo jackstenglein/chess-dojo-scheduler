@@ -519,36 +519,35 @@ export const GetDirectoryStatsRequestSchema = DirectorySchema.pick({
 /** A request to get directory stats. */
 export type GetDirectoryStatsRequest = z.infer<typeof GetDirectoryStatsRequestSchema>;
 
-interface ColorPerformanceMetric {
+interface ColorPerformanceStats {
     /** The metric overall. */
     total: number;
-        /** The metric as white. */
-        white: number;
-        /** The metric as black. */
-        black: number;
+    /** The metric as white. */
+    white: number;
+    /** The metric as black. */
+    black: number;
 }
 
-
-export interface PerformanceRatingMetric {
+export interface PerformanceStats {
     /** The number of games the user won. */
-    wins: ColorPerformanceMetric;
+    wins: ColorPerformanceStats;
     /* The number of games the user drew. */
-    draws: ColorPerformanceMetric;
+    draws: ColorPerformanceStats;
     /** The number of games the user lost. */
-    losses: ColorPerformanceMetric;
+    losses: ColorPerformanceStats;
     /** The user's combined performance rating in the original rating system. */
-    rating: ColorPerformanceMetric;
+    rating: ColorPerformanceStats;
     /** The user's combined performance rating normalized to the Dojo system. */
-    normalizedRating: ColorPerformanceMetric;
+    normalizedRating: ColorPerformanceStats;
     /** The average rating of the opponents in the original rating system. */
-    avgOppRating: ColorPerformanceMetric;
+    avgOppRating: ColorPerformanceStats;
     /** The average rating of the opponents normalized to the Dojo system. */
-    normalizedAvgOppRating: ColorPerformanceMetric;
+    normalizedAvgOppRating: ColorPerformanceStats;
     /** The stats for the rating broken down by cohort. */
-    cohortRatings: Record<string, CohortPerformanceRatingMetric>;
+    cohortRatings: Record<string, CohortPerformanceStats>;
 }
 
-export type CohortPerformanceRatingMetric = Omit<PerformanceRatingMetric, 'cohortRatings'>;
+export type CohortPerformanceStats = Omit<PerformanceStats, 'cohortRatings'>;
 
 
 /**

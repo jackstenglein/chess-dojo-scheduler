@@ -55,7 +55,7 @@ functions:
         Resource: !GetAtt DirectoriesTable.Arn
 
   getStats:
-    handler: rating.handlerV2
+    handler: stats.handlerV2
     events:
       - httpApi:
           path: /directory/{owner}/{id}/stats
@@ -67,7 +67,6 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-          - dynamodb:PutItem
         Resource: !GetAtt DirectoriesTable.Arn
 
   listBreadcrumbs:

@@ -17,8 +17,14 @@ import { CustomTask, RequirementProgress } from './requirement';
 import { ScoreboardSummary } from './scoreboard';
 
 // TODO: migrate re-exports.
-export { dojoCohorts, getMinRatingBoundary, getNormalizedRating, getRatingBoundary };
-export type { RatingSystem };
+export {
+    dojoCohorts,
+    getMinRatingBoundary,
+    getNormalizedRating,
+    getRatingBoundary,
+    isCustom,
+    RatingSystem,
+};
 
 /** The user as returned by Cognito. */
 export interface CognitoUser {
