@@ -7,7 +7,7 @@ toolchain go1.24.1
 require (
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/stripe/stripe-go/v81 v81.2.0
+	github.com/stripe/stripe-go/v81 v81.4.0
 )
 
 require (
