@@ -1,8 +1,8 @@
 import { Chess, Color, Move, nullMoveNotation, Square } from '@jackstenglein/chess';
 import { PdfExportRequest } from '@jackstenglein/chess-dojo-common/src/pgn/export';
 import { compareNags, nags } from '@jackstenglein/chess-dojo-common/src/pgn/nag';
-import { ApiError } from 'chess-dojo-directory-service/api';
 import qrcode from 'qrcode';
+import { ApiError } from '../../directoryService/api';
 
 const SHOW_DIAGRAM_NAG = '$1304';
 
@@ -206,9 +206,7 @@ export class TypstGenerator {
             }
 
             if (!this.options.skipVariations) {
-                move.variations.forEach((variation) =>
-                    this.makeVariation(variation, depth + 1),
-                );
+                move.variations.forEach((variation) => this.makeVariation(variation, depth + 1));
             }
 
             if (forceMoveNumber) {
@@ -275,9 +273,7 @@ export class TypstGenerator {
                 ?.sort(compareNags)
                 .map((n) => nags[n])
                 .filter((n) => n) ?? [];
-        const nagLabel = this.options.skipNags
-            ? ''
-            : nagDetails.map((n) => n.label).join('');
+        const nagLabel = this.options.skipNags ? '' : nagDetails.map((n) => n.label).join('');
 
         if (!depth) {
             this.result += `*${moveTex}${nagLabel}*`;

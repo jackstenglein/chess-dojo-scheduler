@@ -4,11 +4,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/chatBot/api';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import axios from 'axios';
-import {
-    errToApiGatewayProxyResultV2,
-    parseEvent,
-    success,
-} from 'chess-dojo-directory-service/api';
+import { errToApiGatewayProxyResultV2, parseEvent, success } from '../directoryService/api';
 
 /**
  * Handles requests to get the message history.

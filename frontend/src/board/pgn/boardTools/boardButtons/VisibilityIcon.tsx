@@ -9,7 +9,7 @@ export const VisibilityIcon = ({
     underboardRef,
 }: {
     game: Game;
-    underboardRef: React.RefObject<UnderboardApi>;
+    underboardRef: React.RefObject<UnderboardApi | null>;
 }) => {
     return (
         <Tooltip

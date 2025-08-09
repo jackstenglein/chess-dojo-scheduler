@@ -16,11 +16,10 @@ export function generateStaticParams() {
     return params;
 }
 
-export default function Page({
-    params,
-}: {
-    params: { type: string; id: string; chapter: string; module: string };
+export default async function Page(props: {
+    params: Promise<{ type: string; id: string; chapter: string; module: string }>;
 }) {
+    const params = await props.params;
     return (
         <Suspense>
             <CoursePage params={params} />

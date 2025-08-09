@@ -6,34 +6,16 @@
 version: 2
 updates:
   - package-ecosystem: 'npm' # See documentation for possible values
-    directory: '/frontend' # Location of package manifests
+    directories:
+      - '/frontend'
+      - '/backend'
+      - '/common'
+      - '/eslint-config-dojo'
     schedule:
       interval: 'monthly'
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 50
     target-branch: dev
-    groups:
-      amplify:
-        applies-to: version-updates
-        patterns:
-          - '@aws-amplify/*'
-          - aws-amplify
-      mui:
-        applies-to: version-updates
-        patterns:
-          - '@mui/*'
-      fortawesome:
-        applies-to: version-updates
-        patterns:
-          - '@fortawesome/*'
-      dev-dependencies:
-        applies-to: version-updates
-        patterns:
-          - eslint-plugin*
-          - typescript-eslint
-          - '@typescript-eslint/*'
-          - happy-dom
-          - nodemon
-  - package-ecosystem: 'npm' # See documentation for possible values
+  - package-ecosystem: 'gomod' # See documentation for possible values
     directory: '/backend' # Location of package manifests
     schedule:
       interval: 'weekly'

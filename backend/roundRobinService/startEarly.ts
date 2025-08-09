@@ -6,8 +6,8 @@ import {
     RoundRobinWaitlist,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
 import { ScheduledEvent } from 'aws-lambda';
-import { ApiError } from 'chess-dojo-directory-service/api';
-import { dynamo } from 'chess-dojo-directory-service/database';
+import { ApiError } from '../directoryService/api';
+import { dynamo } from '../directoryService/database';
 import { startTournament, tournamentsTable } from './register';
 
 /**
@@ -39,7 +39,7 @@ async function processCohort(cohort: string) {
                 startsAt: { S: 'WAITING' },
             },
             TableName: tournamentsTable,
-        })
+        }),
     );
     if (!output.Item) {
         throw new ApiError({ statusCode: 404, publicMessage: `Cohort ${cohort} not found` });

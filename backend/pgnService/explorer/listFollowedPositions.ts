@@ -1,12 +1,8 @@
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import {
-    errToApiGatewayProxyResultV2,
-    requireUserInfo,
-    success,
-} from 'chess-dojo-directory-service/api';
-import { dynamo } from 'chess-dojo-directory-service/database';
+import { errToApiGatewayProxyResultV2, requireUserInfo, success } from '../../directoryService/api';
+import { dynamo } from '../../directoryService/database';
 import { explorerTable } from './listGames';
 
 const followerIndex = 'FollowerIdx';

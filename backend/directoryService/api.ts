@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { ZodEffects, ZodSchema, ZodTypeAny, ZodTypeDef } from 'zod';
+import { ZodType, } from 'zod';
 
 export class ApiError extends Error {
     statusCode: number;
@@ -143,10 +143,10 @@ export function requireUserInfo(event: any): UserInfo {
  * @param schema The Zod schema to parse.
  * @returns The parsed event.
  */
-export function parseEvent<T>(
+export function parseEvent<Output>(
     event: APIGatewayProxyEventV2,
-    schema: ZodSchema<T> | ZodEffects<ZodTypeAny, T>,
-): T {
+    schema: ZodType<Output>,
+): Output {
     try {
         const body = JSON.parse(event.body || '{}');
         const request = {
@@ -171,9 +171,9 @@ export function parseEvent<T>(
  * @param schema The Zod schema to parse.
  * @returns The parsed request body.
  */
-export function parseBody<Output, Def extends ZodTypeDef, Input>(
+export function parseBody<Output>(
     event: APIGatewayProxyEventV2,
-    schema: ZodSchema<Output, Def, Input>,
+    schema: ZodType<Output>,
 ): Output {
     try {
         const body = JSON.parse(event.body || '{}');
@@ -194,7 +194,7 @@ export function parseBody<Output, Def extends ZodTypeDef, Input>(
  * @param schema The Zod schema to parse.
  * @returns The parsed parameters.
  */
-export function parsePathParameters<T>(event: APIGatewayProxyEventV2, schema: ZodSchema<T>): T {
+export function parsePathParameters<Output>(event: APIGatewayProxyEventV2, schema: ZodType<Output>): Output {
     try {
         return schema.parse(event.pathParameters);
     } catch (err) {

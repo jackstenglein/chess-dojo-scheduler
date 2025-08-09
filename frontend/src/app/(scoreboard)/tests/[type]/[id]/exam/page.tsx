@@ -1,6 +1,10 @@
 import { ExamType } from '@/database/exam';
 import { ExamPage } from './ExamPage';
 
-export default function Page({ params: { type, id } }: { params: { type: ExamType; id: string } }) {
+export default async function Page(props: { params: Promise<{ type: ExamType; id: string }> }) {
+    const params = await props.params;
+
+    const { type, id } = params;
+
     return <ExamPage type={type} id={id} />;
 }

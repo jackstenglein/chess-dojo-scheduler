@@ -8,8 +8,8 @@ import {
     GameReviewEvent,
     NotificationTypes,
 } from '@jackstenglein/chess-dojo-common/src/database/notification';
-import { ApiError } from 'chess-dojo-directory-service/api';
-import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
+import { ApiError } from '../directoryService/api';
+import { dynamo, UpdateItemBuilder } from '../directoryService/database';
 import { getNotificationSettings } from './user';
 
 const gameTable = `${process.env.stage}-games`;

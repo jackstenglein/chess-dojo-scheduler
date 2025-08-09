@@ -8,6 +8,8 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { SxProps, Theme, useTheme } from '@mui/material/styles';
 
+import type { JSX } from 'react';
+
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {

@@ -2,6 +2,8 @@ import NotFoundPage from '@/NotFoundPage';
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { NavigationMenu } from '@/components/directories/navigation/NavigationMenu';
+import { GameCell } from '@/components/games/list/GameListItem';
+import { GameResult } from '@/database/game.ts';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
@@ -12,17 +14,22 @@ import {
     DirectoryAccessRole,
     DirectoryItem,
     DirectoryItemTypes,
+    DirectoryVisibility,
     SHARED_DIRECTORY_ID,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import { Stack, SxProps } from '@mui/material';
+import { Folder, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Grid, Stack, SxProps, Typography, useMediaQuery } from '@mui/material';
 import {
     DataGridPro,
     GridColumnVisibilityModel,
     GridDensity,
+    GridListViewColDef,
+    GridRenderCellParams,
     GridRowHeightParams,
     GridRowOrderChangeParams,
     GridRowParams,
     GridRowSelectionModel,
+    GridSortModel,
     GridToolbarColumnsButton,
     GridToolbarContainer,
     GridToolbarDensitySelector,
@@ -36,7 +43,7 @@ import { BulkItemEditor } from './BulkItemEditor';
 import { ContextMenu } from './ContextMenu';
 import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
-import { adminColumns, publicColumns } from './DirectoryGridColumns';
+import { adminColumns, DirectoryCreatedAt, publicColumns } from './DirectoryGridColumns';
 import { ShareButton } from './share/ShareButton';
 
 const pageSizeOptions = [10, 25, 50, 100] as const;
@@ -57,6 +64,8 @@ interface DirectoriesSectionProps {
     /** The default column visibility, if the user has not changed any settings. */
     defaultColumnVisibility?: Record<string, boolean>;
 
+    isMobile?: boolean;
+
     /** The sx prop passed to the DataGrid component. */
     sx?: SxProps;
 }
@@ -65,6 +74,7 @@ export const DirectoriesSection = (props: DirectoriesSectionProps) => {
     const { searchParams } = useNextSearchParams({ directory: 'home' });
     const directoryId = searchParams.get('directory') || 'home';
     const directoryOwner = searchParams.get('directoryOwner') || props.defaultDirectoryOwner;
+    const isMobile = useMediaQuery('(max-width:800px)');
 
     if (directoryId === ALL_MY_UPLOADS_DIRECTORY_ID) {
         return (
@@ -73,11 +83,12 @@ export const DirectoriesSection = (props: DirectoriesSectionProps) => {
                 username={directoryOwner}
                 enableNavigationMenu={props.enableNavigationMenu}
                 defaultNavigationMenuOpen={props.defaultNavigationMenuOpen}
+                isMobile={isMobile}
             />
         );
     }
 
-    return <DirectorySection {...props} />;
+    return <DirectorySection isMobile={isMobile} {...props} />;
 };
 
 const DirectorySection = ({
@@ -86,6 +97,7 @@ const DirectorySection = ({
     enableNavigationMenu,
     defaultNavigationMenuOpen,
     defaultColumnVisibility,
+    isMobile,
     sx,
 }: DirectoriesSectionProps) => {
     const api = useApi();
@@ -106,6 +118,16 @@ const DirectorySection = ({
     const [density, setDensity] = useLocalStorage<GridDensity>(
         `/DirectoryTable/density`,
         'standard',
+    );
+
+    const [sortModel, setSortModel] = useLocalStorage<GridSortModel>(
+        `/DirectoriesSection/${namespace}/sortModel`,
+        [
+            {
+                field: 'createdAt',
+                sort: 'desc',
+            },
+        ],
     );
 
     const directoryId = searchParams.get('directory') || 'home';
@@ -205,16 +227,17 @@ const DirectorySection = ({
     const isAdmin = compareRoles(DirectoryAccessRole.Admin, accessRole);
 
     return (
-        <Stack direction='row' columnGap={2}>
+        <Stack direction={isMobile ? 'column' : 'row'} columnGap={2}>
             <NavigationMenu
                 namespace={namespace}
                 id={directoryId}
                 owner={directoryOwner}
                 enabled={enableNavigationMenu}
                 defaultValue={defaultNavigationMenuOpen}
+                horizontal={isMobile}
             />
 
-            <Stack spacing={2} alignItems='start' flexGrow={1}>
+            <Stack spacing={2} alignItems='start' flexGrow={1} mt={isMobile ? 2 : 0}>
                 <DirectoryBreadcrumbs
                     owner={directoryOwner}
                     id={directoryId}
@@ -239,6 +262,8 @@ const DirectorySection = ({
 
                 <DataGridPro
                     autoHeight
+                    listViewColumn={listViewColDef}
+                    listView={isMobile}
                     rows={rows}
                     columns={isAdmin ? adminColumns : publicColumns}
                     columnVisibilityModel={columnVisibility}
@@ -259,22 +284,27 @@ const DirectorySection = ({
                             : undefined,
                     }}
                     initialState={{
+                        density: 'standard',
                         pagination: {
                             paginationModel: { pageSize: 10 },
                         },
                     }}
-                    getRowHeight={getRowHeight}
+                    sortModel={sortModel}
+                    onSortModelChange={(newSortModel) => {
+                        setSortModel(newSortModel);
+                    }}
+                    getRowHeight={isMobile ? getRowHeightMobile : getRowHeight}
                     checkboxSelection={isEditor}
                     checkboxSelectionVisibleOnly
                     disableRowSelectionOnClick
                     onRowSelectionModelChange={setRowSelectionModel}
                     rowSelectionModel={rowSelectionModel}
-                    rowReordering={isAdmin}
+                    rowReordering={isAdmin && !isMobile}
                     onRowOrderChange={handleRowOrderChange}
                     pagination
                     pageSizeOptions={pageSizeOptions}
-                    sx={{ width: 1, ...sx }}
-                    showToolbar
+                    sx={{ width: 1, display: 'grid', ...sx }}
+                    showToolbar={!isMobile}
                 />
 
                 <ContextMenu
@@ -287,6 +317,70 @@ const DirectorySection = ({
             </Stack>
         </Stack>
     );
+};
+
+function ListViewCell(params: GridRenderCellParams<DirectoryItem>) {
+    if (params.row.type !== DirectoryItemTypes.DIRECTORY) {
+        return (
+            <GameCell
+                {...params.row.metadata}
+                date={params.row.metadata.createdAt}
+                headers={{
+                    White: params.row.metadata.white,
+                    Black: params.row.metadata.black,
+                    WhiteElo: params.row.metadata.whiteElo ?? '',
+                    BlackElo: params.row.metadata.blackElo ?? '',
+                    Result: params.row.metadata.result as GameResult,
+                }}
+                showVisibility
+            />
+        );
+    }
+
+    return (
+        <Stack height={1} justifyContent='center' py={1}>
+            <Grid container>
+                <Grid size={1} display='flex' justifyContent='center'>
+                    <Folder />
+                </Grid>
+                <Grid size={11}>
+                    <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        justifyContent='space-between'
+                        alignItems='center'
+                    >
+                        <Stack gap={0.25}>
+                            <Typography variant='body2'>{params.row.metadata.name}</Typography>
+                            {params.row.metadata.description && (
+                                <Typography variant='body2' color='text.secondary'>
+                                    {params.row.metadata.description}
+                                </Typography>
+                            )}
+                        </Stack>
+
+                        {params.row.metadata.visibility === DirectoryVisibility.PUBLIC ? (
+                            <Visibility sx={{ color: 'text.secondary' }} />
+                        ) : (
+                            <VisibilityOff sx={{ color: 'text.secondary' }} />
+                        )}
+                    </Stack>
+                </Grid>
+
+                <Grid size={1} />
+                <Grid size={11} mt={0.25}>
+                    <Typography variant='body2' color='text.secondary'>
+                        Created <DirectoryCreatedAt createdAt={params.row.metadata.createdAt} />
+                    </Typography>
+                </Grid>
+            </Grid>
+        </Stack>
+    );
+}
+
+const listViewColDef: GridListViewColDef = {
+    field: 'listColumn',
+    renderCell: ListViewCell,
 };
 
 function CustomGridToolbar() {
@@ -303,4 +397,8 @@ function getRowHeight(params: GridRowHeightParams) {
     if (typeof params.id === 'string' && params.id.includes('/')) {
         return 70;
     }
+}
+
+function getRowHeightMobile(): number | 'auto' {
+    return 'auto';
 }

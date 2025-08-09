@@ -2,12 +2,9 @@
 
 import { PdfExportSchema } from '@jackstenglein/chess-dojo-common/src/pgn/export';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import {
-    errToApiGatewayProxyResultV2,
-    parseBody,
-} from 'chess-dojo-directory-service/api';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
+import { errToApiGatewayProxyResultV2, parseBody } from '../../directoryService/api';
 import { TypstGenerator } from './TypstGenerator';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -19,10 +16,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             ...request,
             qrcodeFilename: `/tmp/${event.requestContext.requestId}-qrcode.png`,
         });
-        fs.writeFileSync(
-            `/tmp/${event.requestContext.requestId}.typ`,
-            await generator.toTypst(),
-        );
+        fs.writeFileSync(`/tmp/${event.requestContext.requestId}.typ`, await generator.toTypst());
         console.log('Generated typ file');
 
         execSync(`typst compile ${event.requestContext.requestId}.typ`, {

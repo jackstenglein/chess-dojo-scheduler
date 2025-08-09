@@ -17,8 +17,8 @@ import {
     parseEvent,
     requireUserInfo,
     success,
-} from 'chess-dojo-directory-service/api';
-import { dynamo, UpdateItemBuilder } from 'chess-dojo-directory-service/database';
+} from '../directoryService/api';
+import { dynamo, UpdateItemBuilder } from '../directoryService/database';
 import {
     DISCORD_BOT_TOKEN,
     DISCORD_CLIENT_ID,
