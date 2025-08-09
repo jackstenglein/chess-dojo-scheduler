@@ -175,6 +175,15 @@ export function getPerformanceStats(
     return stats;
 }
 
+/**
+ * Updates the given stats object for the given result key and color.
+ * The average opponent's elo is added to the total/color and the result's
+ * total/color is incremented.
+ * @param stats The stats to update.
+ * @param resultKey The result to update.
+ * @param color The color to update.
+ * @param opponentElo The ELO of the opponent.
+ */
 function updateStats(
     stats: PerformanceStats | CohortPerformanceStats,
     resultKey: 'wins' | 'draws' | 'losses',
@@ -187,6 +196,11 @@ function updateStats(
     stats[resultKey][color]++;
 }
 
+/**
+ * Calculates and saves the performance ratings on the given stats object.
+ * @param stats The stats object to use and update when calculating.
+ * @param ratingSystem The rating system to use when normalizing ratings.
+ */
 function calculatePerformanceRatings(
     stats: PerformanceStats | CohortPerformanceStats,
     ratingSystem: RatingSystem,
