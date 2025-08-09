@@ -29,6 +29,7 @@ import {
     GridRowOrderChangeParams,
     GridRowParams,
     GridRowSelectionModel,
+    GridSortModel,
     GridToolbarColumnsButton,
     GridToolbarContainer,
     GridToolbarDensitySelector,
@@ -118,6 +119,16 @@ const DirectorySection = ({
     const [density, setDensity] = useLocalStorage<GridDensity>(
         `/DirectoryTable/density`,
         'standard',
+    );
+
+    const [sortModel, setSortModel] = useLocalStorage<GridSortModel>(
+        `/DirectoriesSection/${namespace}/sortModel`,
+        [
+            {
+                field: 'createdAt',
+                sort: 'desc',
+            },
+        ],
     );
 
     const directoryId = searchParams.get('directory') || 'home';
@@ -279,6 +290,10 @@ const DirectorySection = ({
                         pagination: {
                             paginationModel: { pageSize: 10 },
                         },
+                    }}
+                    sortModel={sortModel}
+                    onSortModelChange={(newSortModel) => {
+                        setSortModel(newSortModel);
                     }}
                     getRowHeight={isMobile ? getRowHeightMobile : getRowHeight}
                     checkboxSelection={isEditor}
