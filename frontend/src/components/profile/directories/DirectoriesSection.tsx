@@ -45,6 +45,7 @@ import { DirectoryBreadcrumbs } from './DirectoryBreadcrumbs';
 import { useDirectory } from './DirectoryCache';
 import { adminColumns, DirectoryCreatedAt, publicColumns } from './DirectoryGridColumns';
 import { ShareButton } from './share/ShareButton';
+import { StatsButton } from './stats/StatsButton';
 
 const pageSizeOptions = [10, 25, 50, 100] as const;
 
@@ -248,6 +249,7 @@ const DirectorySection = ({
                     <Stack direction='row' alignItems='center' gap={2} width={1} flexWrap='wrap'>
                         <AddButton directory={directory} accessRole={accessRole} />
                         <ShareButton directory={directory} accessRole={accessRole} />
+                        <StatsButton directory={directory} />
 
                         <BulkItemEditor
                             directory={directory}

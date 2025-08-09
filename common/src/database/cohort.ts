@@ -1,3 +1,6 @@
+import { isCustom, ratingBoundaries } from '../ratings/ratings';
+import { RatingSystem } from './user';
+
 /** The cohorts users can be members of in the Dojo. */
 export const dojoCohorts = [
     '0-300',
@@ -21,6 +24,7 @@ export const dojoCohorts = [
     '2000-2100',
     '2100-2200',
     '2200-2300',
+    '2300-2400',
     '2400+',
 ];
 
@@ -42,8 +46,7 @@ export function getCohortRangeInt(range?: string): [number, number] {
         return [-1, -1];
     }
 
-    let maxCohort =
-        range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
+    let maxCohort = range.split('-').length > 1 ? parseInt(range.split('-')[1]) : Infinity;
     if (isNaN(maxCohort)) {
         maxCohort = Infinity;
     }
@@ -64,4 +67,22 @@ export function isCohortInRange(cohort: string | undefined, range: string): bool
     const [minCohort, maxCohort] = getCohortRangeInt(range);
     const compareCohort = parseInt(cohort);
     return compareCohort >= minCohort && compareCohort < maxCohort;
+}
+
+/**
+ * Converts the rating in the given rating system to a Dojo cohort.
+ * @param rating The rating to convert.
+ * @param ratingSystem The rating system to convert from.
+ * @returns The cohort or undefined if the rating system is custom.
+ */
+export function ratingToCohort(rating: number, ratingSystem: RatingSystem): string | undefined {
+    if (isCustom(ratingSystem)) {
+        return;
+    }
+    for (const cohort of dojoCohorts) {
+        if (ratingBoundaries[cohort] && ratingBoundaries[cohort][ratingSystem] >= rating) {
+            return cohort;
+        }
+    }
+    return '2400+';
 }

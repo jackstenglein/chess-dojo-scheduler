@@ -5,6 +5,7 @@ import {
     AddDirectoryItemsRequestV2,
     CreateDirectoryRequestV2Client,
     ExportDirectoryRequest,
+    GetDirectoryStatsRequest,
     ListBreadcrumbsRequest,
     MoveDirectoryItemsRequestV2,
     RemoveDirectoryItemsRequestV2,
@@ -62,6 +63,7 @@ import {
     deleteDirectories,
     exportDirectory,
     getDirectory,
+    getDirectoryStats,
     listBreadcrumbs,
     moveDirectoryItems,
     removeDirectoryItem,
@@ -436,6 +438,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 createSupportTicket(idToken, request),
 
             getDirectory: (owner: string, id: string) => getDirectory(idToken, owner, id),
+            getDirectoryStats: (request: GetDirectoryStatsRequest) =>
+                getDirectoryStats(idToken, request),
             listBreadcrumbs: (request: ListBreadcrumbsRequest) => listBreadcrumbs(idToken, request),
             createDirectory: (request: CreateDirectoryRequestV2Client) =>
                 createDirectory(idToken, request),
