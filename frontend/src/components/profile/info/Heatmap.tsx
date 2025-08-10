@@ -6,6 +6,7 @@ import { User, WorkGoalHistory, WorkGoalSettings } from '@/database/user';
 import CohortIcon, { cohortIcons } from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
+import { displayRequirementCategory } from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { CheckCircle, Close, HourglassBottom } from '@mui/icons-material';
 import {
     Box,
@@ -395,7 +396,7 @@ export function CategoryLegend() {
                                 <Typography variant='caption' pt='2px'>
                                     {category === RequirementCategory.NonDojo
                                         ? 'Custom Task'
-                                        : category}
+                                        : displayRequirementCategory(category)}
                                 </Typography>
                             </Stack>
                         );
@@ -1102,7 +1103,7 @@ function TooltipRow({
                 </svg>
 
                 <Typography variant='caption' pt='2px'>
-                    {category}
+                    {displayRequirementCategory(category as RequirementCategory)}
                 </Typography>
             </Stack>
 

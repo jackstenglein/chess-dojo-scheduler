@@ -99,3 +99,20 @@ export function displayRequirementCategory(category: RequirementCategory): strin
             return category;
     }
 }
+
+/** 
+ * Converts a requirement category into a short user-facing display string. 
+ * @param category The category to convert.
+ */
+export function displayRequirementCategoryShort(category: RequirementCategory): string {
+    switch(category) {
+        case RequirementCategory.Welcome:
+            return 'Welcome';
+        case RequirementCategory.Games:
+            return 'Games';
+        case RequirementCategory.Middlegames:
+            return 'Middlegame';
+        default:
+            return category;
+    }
+}
