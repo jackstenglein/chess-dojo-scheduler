@@ -82,6 +82,8 @@ const columns: GridColDef<TagRow>[] = [
 
 const dateTags = ['Date', 'EventDate', 'UTCDate', 'EndDate'];
 
+const CHESS_TITLES = ['', 'GM', 'WGM', 'IM', 'WIM', 'FM', 'WFM', 'CM', 'WCM', 'NM', 'WNM'];
+
 function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
     if (props.row.name === 'Result') {
         return (
@@ -106,6 +108,28 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
             />
         );
     }
+    if (props.row.name === 'WhiteTitle' || props.row.name === 'BlackTitle') {
+        return (
+            <GridEditSingleSelectCell
+                {...props}
+                variant='outlined'
+                colDef={{
+                    ...props.colDef,
+                    type: 'singleSelect',
+                    valueOptions: CHESS_TITLES,
+                    getOptionValue(value) {
+                        return value;
+                    },
+                    getOptionLabel(value) {
+                        if (typeof value === 'string') {
+                            return value || 'None';
+                        }
+                        return '';
+                    },
+                }}
+            />
+        );
+    }
     if (props.row.name === 'TimeControl') {
         return <TimeControlGridEditor {...props} />;
     }
@@ -118,8 +142,10 @@ function CustomEditComponent(props: GridRenderEditCellParams<TagRow>) {
 const defaultTags = [
     'White',
     'WhiteElo',
+    'WhiteTitle',
     'Black',
     'BlackElo',
+    'BlackTitle',
     'Result',
     'Date',
     'Event',
@@ -243,7 +269,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                         return oldRow;
                     }
 
-                    if (!value) {
+                    if (!value && !['WhiteTitle', 'BlackTitle'].includes(name)) {
                         return oldRow;
                     }
 
