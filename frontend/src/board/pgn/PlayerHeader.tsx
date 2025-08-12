@@ -1,5 +1,7 @@
 import { useLightMode } from '@/style/useLightMode';
 import { Chess, Event, EventType, Move, Pgn } from '@jackstenglein/chess';
+
+import { PlayerNameWithTitle } from '@/components/ui/PlayerNameWithTitle';
 import { Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -89,7 +91,16 @@ function getCapturedPieceCounts(fen: string) {
     return capturedPieces;
 }
 
-const rerenderHeaders = ['White', 'WhiteElo', 'Black', 'BlackElo', 'Result', 'TimeControl'];
+const rerenderHeaders = [
+    'White',
+    'WhiteElo',
+    'Black',
+    'BlackElo',
+    'Result',
+    'TimeControl',
+    'WhiteTitle',
+    'BlackTitle',
+];
 
 const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
     const { chess, board } = useChess();
@@ -201,14 +212,20 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                         </>
                     )}
 
-                    <Typography
-                        variant='subtitle2'
-                        color='text.secondary'
-                        fontWeight='bold'
-                        whiteSpace='nowrap'
-                    >
-                        {playerName}
-                    </Typography>
+                    <PlayerNameWithTitle
+                        name={playerName}
+                        title={
+                            type === 'header' && board.state.orientation === 'white'
+                                ? pgn.header.tags.BlackTitle
+                                : pgn.header.tags.WhiteTitle
+                        }
+                        variant='body2'
+                        sx={{
+                            color: 'text.secondary',
+                            fontWeight: 'bold',
+                            whiteSpace: 'nowrap',
+                        }}
+                    />
 
                     {playerElo && (
                         <Typography variant='subtitle2' color='text.secondary' whiteSpace='nowrap'>
