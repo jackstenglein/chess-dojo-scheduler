@@ -90,7 +90,7 @@ export default function SaveGameDialog({
         date: parsePgnDate(initialTags?.Date?.value),
         orientation: initialOrientation ?? GameOrientations.white,
     });
-    const [addToFolder, setAddToFolder] = useState(!!createGameRequest?.directory);
+    const [addToFolder, setAddToFolder] = useState(true);
 
     const [errors, setErrors] = useState<Partial<FormError>>({});
 
