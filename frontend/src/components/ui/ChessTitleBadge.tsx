@@ -47,9 +47,12 @@ export function ChessTitleBadge({ title, sx, size = 'small' }: ChessTitleBadgePr
                 sx={{
                     fontSize: '0.75rem',
                     height: size === 'small' ? '20px' : '24px',
+                    display: 'flex',
+                    flexDirection: 'column',
                     '& .MuiChip-label': {
                         px: 0.5,
                         fontWeight: 'bold',
+                        lineHeight: size === 'small' ? '20px' : '24px',
                     },
                     ...sx,
                 }}
