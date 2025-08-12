@@ -199,18 +199,15 @@ const defaultPalette = {
         },
         name: 'darkBlue',
     }),
-    ...Object.values(RequirementCategory).reduce(
-        (acc, category) => {
-            acc[themeRequirementCategory(category)] = defaultTheme.palette.augmentColor({
-                color: {
-                    main: CategoryColors[category],
-                },
-                name: themeRequirementCategory(category),
-            });
-            return acc;
-        },
-        {} as Record<string, PaletteColor>,
-    ),
+    ...Object.values(RequirementCategory).reduce<Record<string, PaletteColor>>((acc, category) => {
+        acc[themeRequirementCategory(category)] = defaultTheme.palette.augmentColor({
+            color: {
+                main: CategoryColors[category],
+            },
+            name: themeRequirementCategory(category),
+        });
+        return acc;
+    }, {}),
 };
 
 const theme = createTheme({
