@@ -66,7 +66,7 @@ interface TrainingPlanSectionProps {
     setShowCompleted: (v: boolean) => void;
 }
 
-export function TrainingPlanSection({
+export function FullTrainingPlanSection({
     section,
     expanded,
     toggleExpand,

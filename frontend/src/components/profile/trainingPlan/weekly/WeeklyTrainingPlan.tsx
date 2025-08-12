@@ -15,7 +15,7 @@ import { WorkGoalSettingsEditor } from '../WorkGoalSettingsEditor';
 
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
 
-export function WeeklyTrainingPlanSection() {
+export function WeeklyTrainingPlan() {
     const { startDate, endDate, weekSuggestions, timeline, isCurrentUser, isLoading, user } =
         use(TrainingPlanContext);
 
@@ -167,7 +167,8 @@ function WeeklyTrainingPlanItem({
                 onClick={() => onOpenTask(task, TaskDialogView.Details)}
                 sx={{
                     flexGrow: 1,
-                    px: 0.5,
+                    pl: 0.75,
+                    pr: 0.5,
                     py: 1,
                     textAlign: 'start',
                     backgroundColor: alpha(CategoryColors[task.category], 0.2),

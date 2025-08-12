@@ -1,4 +1,3 @@
-import { RequestSnackbar } from '@/api/Request';
 import {
     CustomTask,
     getCategoryScore,
@@ -7,7 +6,7 @@ import {
     Requirement,
     RequirementCategory,
 } from '@/database/requirement';
-import { dojoCohorts, User } from '@/database/user';
+import { dojoCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
@@ -26,26 +25,28 @@ import {
     Stack,
     TextField,
     Tooltip,
+    Typography,
     useMediaQuery,
 } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { useTimelineContext } from '../../activity/useTimeline';
 import { getUpcomingGameSchedule, SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
-import { useTrainingPlan } from '../useTrainingPlan';
-import { Section, TrainingPlanSection } from './TrainingPlanSection';
+import { TrainingPlanContext } from '../TrainingPlanTab';
+import { FullTrainingPlanSection, Section } from './FullTrainingPlanSection';
 
 /** Renders the full training plan view of the training plan tab. */
-export function FullTrainingPlan({ user }: { user: User }) {
-    const { entries: timeline } = useTimelineContext();
-    const [cohort, setCohort] = useState(user.dojoCohort);
+export function FullTrainingPlan() {
     const {
+        user,
+        timeline,
         request: requirementRequest,
-        requirements,
+        allRequirements,
         pinnedTasks,
         togglePin,
         isCurrentUser,
-    } = useTrainingPlan(user, cohort);
+    } = use(TrainingPlanContext);
+
+    const [cohort, setCohort] = useState(user.dojoCohort);
     const [showCompleted, setShowCompleted] = useShowCompleted(isCurrentUser);
     const isSmall = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
@@ -86,6 +87,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
         //     });
         // }
 
+        const requirements = allRequirements.filter((r) => r.counts[cohort]);
         const tasks = (requirements as (Requirement | CustomTask)[]).concat(user.customTasks ?? []);
         for (const task of tasks) {
             if (task.counts[cohort] === undefined) {
@@ -118,7 +120,7 @@ export function FullTrainingPlan({ user }: { user: User }) {
         }
 
         return sections;
-    }, [requirements, user, cohort, pinnedTasks, timeline]);
+    }, [allRequirements, user, cohort, timeline]);
 
     if (requirementRequest.isLoading() || sections.length === 0) {
         return <LoadingPage />;
@@ -154,100 +156,114 @@ export function FullTrainingPlan({ user }: { user: User }) {
     };
 
     return (
-        <Stack alignItems='start' width={1}>
-            <RequestSnackbar request={requirementRequest} />
+        <Stack spacing={2} width={1}>
+            <Typography variant='h5' fontWeight='bold'>
+                Full Training Plan
+            </Typography>
 
-            <Stack
-                direction='row'
-                justifyContent='space-between'
-                width={1}
-                flexWrap='wrap'
-                alignItems='end'
-                mt={3}
-                mb={expanded[sections[0].category] ? -2 : 0}
-            >
-                <TextField
-                    id='training-plan-cohort-select'
-                    select
-                    label='Cohort'
-                    value={cohort}
-                    onChange={(event) => onChangeCohort(event.target.value)}
-                    size='small'
-                    sx={{ borderBottom: 0 }}
+            <Stack alignItems='start' width={1}>
+                <Stack
+                    direction='row'
+                    justifyContent='space-between'
+                    width={1}
+                    flexWrap='wrap'
+                    alignItems='end'
+                    mt={3}
+                    mb={expanded[sections[0].category] ? -2 : 0}
                 >
-                    {dojoCohorts.map((option) => (
-                        <MenuItem key={option} value={option}>
-                            <CohortIcon
-                                cohort={option}
-                                sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
-                                tooltip=''
-                                size={30}
-                            />{' '}
-                            {option}
-                        </MenuItem>
-                    ))}
-                </TextField>
+                    <TextField
+                        id='training-plan-cohort-select'
+                        select
+                        label='Cohort'
+                        value={cohort}
+                        onChange={(event) => onChangeCohort(event.target.value)}
+                        size='small'
+                        sx={{ borderBottom: 0 }}
+                    >
+                        {dojoCohorts.map((option) => (
+                            <MenuItem key={option} value={option}>
+                                <CohortIcon
+                                    cohort={option}
+                                    sx={{ marginRight: '0.6rem', verticalAlign: 'middle' }}
+                                    tooltip=''
+                                    size={30}
+                                />{' '}
+                                {option}
+                            </MenuItem>
+                        ))}
+                    </TextField>
 
-                <Stack direction='row' spacing={1} justifyContent='end' alignItems='center'>
-                    {isSmall ? (
-                        <>
-                            <Tooltip
-                                title={
-                                    showCompleted ? 'Hide Completed Tasks' : 'Show Completed Tasks'
-                                }
-                            >
-                                <IconButton
-                                    onClick={() => setShowCompleted(!showCompleted)}
-                                    color='primary'
+                    <Stack direction='row' spacing={1} justifyContent='end' alignItems='center'>
+                        {isSmall ? (
+                            <>
+                                <Tooltip
+                                    title={
+                                        showCompleted
+                                            ? 'Hide Completed Tasks'
+                                            : 'Show Completed Tasks'
+                                    }
                                 >
-                                    {showCompleted ? <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title='Expand All'>
-                                <IconButton onClick={onExpandAll} color='primary'>
-                                    <KeyboardDoubleArrowDown />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title='Collapse All'>
-                                <IconButton onClick={onCollapseAll} color='primary'>
-                                    <KeyboardDoubleArrowUp />
-                                </IconButton>
-                            </Tooltip>
-                        </>
-                    ) : (
-                        <>
-                            <Button
-                                onClick={() => setShowCompleted(!showCompleted)}
-                                startIcon={showCompleted ? <CheckBox /> : <CheckBoxOutlineBlank />}
-                            >
-                                Show Completed Tasks
-                            </Button>
-                            <Button onClick={onExpandAll} startIcon={<KeyboardDoubleArrowDown />}>
-                                Expand All
-                            </Button>
-                            <Button onClick={onCollapseAll} startIcon={<KeyboardDoubleArrowUp />}>
-                                Collapse All
-                            </Button>
-                        </>
-                    )}
+                                    <IconButton
+                                        onClick={() => setShowCompleted(!showCompleted)}
+                                        color='primary'
+                                    >
+                                        {showCompleted ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title='Expand All'>
+                                    <IconButton onClick={onExpandAll} color='primary'>
+                                        <KeyboardDoubleArrowDown />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title='Collapse All'>
+                                    <IconButton onClick={onCollapseAll} color='primary'>
+                                        <KeyboardDoubleArrowUp />
+                                    </IconButton>
+                                </Tooltip>
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    onClick={() => setShowCompleted(!showCompleted)}
+                                    startIcon={
+                                        showCompleted ? <CheckBox /> : <CheckBoxOutlineBlank />
+                                    }
+                                >
+                                    Show Completed Tasks
+                                </Button>
+                                <Button
+                                    onClick={onExpandAll}
+                                    startIcon={<KeyboardDoubleArrowDown />}
+                                >
+                                    Expand All
+                                </Button>
+                                <Button
+                                    onClick={onCollapseAll}
+                                    startIcon={<KeyboardDoubleArrowUp />}
+                                >
+                                    Collapse All
+                                </Button>
+                            </>
+                        )}
+                    </Stack>
                 </Stack>
-            </Stack>
 
-            {sections.map((section) => (
-                <TrainingPlanSection
-                    key={section.category}
-                    section={section}
-                    expanded={expanded[section.category]}
-                    toggleExpand={toggleExpand}
-                    user={user}
-                    isCurrentUser={isCurrentUser}
-                    cohort={cohort}
-                    togglePin={togglePin}
-                    pinnedTasks={pinnedTasks}
-                    showCompleted={showCompleted}
-                    setShowCompleted={setShowCompleted}
-                />
-            ))}
+                {sections.map((section) => (
+                    <FullTrainingPlanSection
+                        key={section.category}
+                        section={section}
+                        expanded={expanded[section.category]}
+                        toggleExpand={toggleExpand}
+                        user={user}
+                        isCurrentUser={isCurrentUser}
+                        cohort={cohort}
+                        togglePin={togglePin}
+                        pinnedTasks={pinnedTasks}
+                        showCompleted={showCompleted}
+                        setShowCompleted={setShowCompleted}
+                    />
+                ))}
+            </Stack>
         </Stack>
     );
 }

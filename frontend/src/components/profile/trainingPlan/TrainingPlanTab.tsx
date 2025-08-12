@@ -1,11 +1,11 @@
 import { RequestSnackbar } from '@/api/Request';
 import { User } from '@/database/user';
-import { Stack, Typography, useMediaQuery } from '@mui/material';
+import { Stack, useMediaQuery } from '@mui/material';
 import { createContext } from 'react';
-import { DailyTrainingPlanSection } from './daily/DailyTrainingPlan';
+import { DailyTrainingPlan } from './daily/DailyTrainingPlan';
 import { FullTrainingPlan } from './full/FullTrainingPlan';
 import { useWeeklyTrainingPlan, UseWeeklyTrainingPlanResponse } from './useTrainingPlan';
-import { WeeklyTrainingPlanSection } from './weekly/WeeklyTrainingPlanSection';
+import { WeeklyTrainingPlan } from './weekly/WeeklyTrainingPlan';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 export const TrainingPlanContext = createContext<UseWeeklyTrainingPlanResponse>(null!);
@@ -19,17 +19,9 @@ export function TrainingPlanTab({ user }: { user: User }) {
             <RequestSnackbar request={trainingPlan.request} />
 
             <TrainingPlanContext value={trainingPlan}>
-                <DailyTrainingPlanSection />
-
-                {!hideWeekly && <WeeklyTrainingPlanSection />}
-
-                <Stack spacing={2} width={1}>
-                    <Typography variant='h5' fontWeight='bold'>
-                        Full Training Plan
-                    </Typography>
-
-                    <FullTrainingPlan user={user} />
-                </Stack>
+                <DailyTrainingPlan />
+                {!hideWeekly && <WeeklyTrainingPlan />}
+                <FullTrainingPlan />
             </TrainingPlanContext>
         </Stack>
     );

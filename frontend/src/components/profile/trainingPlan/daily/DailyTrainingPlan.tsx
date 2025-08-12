@@ -28,7 +28,7 @@ import { TrainingPlanContext } from '../TrainingPlanTab';
 import { useTrainingPlanProgress } from '../useTrainingPlan';
 import { WorkGoalSettingsEditor } from '../WorkGoalSettingsEditor';
 
-export function DailyTrainingPlanSection() {
+export function DailyTrainingPlan() {
     const [startDate, endDate] = useMemo(() => {
         const startDate = new Date();
         startDate.setHours(0, 0, 0, 0);
@@ -67,13 +67,13 @@ export function DailyTrainingPlanSection() {
             {isLoading ? (
                 <LoadingPage />
             ) : (
-                <DailyTrainingPlan startDate={startDate} endDate={endDate} />
+                <DailyTrainingPlanInternal startDate={startDate} endDate={endDate} />
             )}
         </Stack>
     );
 }
 
-function DailyTrainingPlan({ startDate, endDate }: { startDate: string; endDate: string }) {
+function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; endDate: string }) {
     const { suggestionsByDay, user } = use(TrainingPlanContext);
     const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
     const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
@@ -200,7 +200,7 @@ function DailyTrainingPlanItem({
 
                     {isCurrentUser && (
                         <>
-                            <Tooltip title='Skip task for now'>
+                            <Tooltip title='Skip for the next week (not implemented)'>
                                 <IconButton
                                     sx={{
                                         color: 'text.secondary',
