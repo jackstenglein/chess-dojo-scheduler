@@ -1,59 +1,36 @@
-import { TrainingPlanView } from '@/components/profile/trainingPlan/TrainingPlanViewSelect';
+import { RequestSnackbar } from '@/api/Request';
 import { User } from '@/database/user';
-import { Stack, Typography } from '@mui/material';
-import { useLocalStorage } from 'usehooks-ts';
-import { DailyTrainingPlan } from './daily/DailyTrainingPlan';
+import { Stack, Typography, useMediaQuery } from '@mui/material';
+import { createContext } from 'react';
+import { DailyTrainingPlanSection } from './daily/DailyTrainingPlan';
 import { FullTrainingPlan } from './full/FullTrainingPlan';
+import { useWeeklyTrainingPlan, UseWeeklyTrainingPlanResponse } from './useTrainingPlan';
 import { WeeklyTrainingPlanSection } from './weekly/WeeklyTrainingPlanSection';
 
-const TRAINING_PLAN_VIEW = {
-    Key: 'trainingPlanView',
-    Default: TrainingPlanView.Weekly,
-};
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const TrainingPlanContext = createContext<UseWeeklyTrainingPlanResponse>(null!);
 
-export function TrainingPlanTab({ user, isCurrentUser }: { user: User; isCurrentUser: boolean }) {
-    const [trainingPlanView, setTrainingPlanView] = useLocalStorage(
-        TRAINING_PLAN_VIEW.Key,
-        TRAINING_PLAN_VIEW.Default,
-    );
+export function TrainingPlanTab({ user }: { user: User }) {
+    const hideWeekly = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+    const trainingPlan = useWeeklyTrainingPlan(user);
 
     return (
         <Stack alignItems='start' mb={6} spacing={6}>
-            {/* <Box sx={{ mb: 2 }}>
-                <TrainingPlanViewSelect value={trainingPlanView} onChange={setTrainingPlanView} />
-            </Box>
+            <RequestSnackbar request={trainingPlan.request} />
 
-            {trainingPlanView !== TrainingPlanView.Full && (
-                <WorkGoalSettingsEditor
-                    initialWeekStart={user.weekStart}
-                    workGoal={user.workGoal}
-                    disabled={!isCurrentUser}
-                    view={trainingPlanView}
-                />
-            )} */}
+            <TrainingPlanContext value={trainingPlan}>
+                <DailyTrainingPlanSection />
 
-            <Stack spacing={2} width={1}>
-                <Typography variant='h5' fontWeight='bold'>
-                    Today
-                </Typography>
-                <DailyTrainingPlan user={user} />
-            </Stack>
+                {!hideWeekly && <WeeklyTrainingPlanSection />}
 
-            <WeeklyTrainingPlanSection />
+                <Stack spacing={2} width={1}>
+                    <Typography variant='h5' fontWeight='bold'>
+                        Full Training Plan
+                    </Typography>
 
-            <Stack spacing={2} width={1}>
-                <Typography variant='h5' fontWeight='bold'>
-                    Full Training Plan
-                </Typography>
-
-                <FullTrainingPlan user={user} />
-            </Stack>
-
-            {/* {trainingPlanView === TrainingPlanView.Daily && <DailyTrainingPlan user={user} />}
-
-            {trainingPlanView === TrainingPlanView.Weekly && <WeeklyTrainingPlan user={user} />}
-
-            {trainingPlanView === TrainingPlanView.Full && <FullTrainingPlan user={user} />} */}
+                    <FullTrainingPlan user={user} />
+                </Stack>
+            </TrainingPlanContext>
         </Stack>
     );
 }

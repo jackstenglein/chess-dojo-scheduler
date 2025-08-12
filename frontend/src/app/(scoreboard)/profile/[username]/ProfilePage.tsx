@@ -170,19 +170,19 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                                 />
                             </Tabs>
                         </Box>
-                        <TabPanel value='stats' sx={{ px: { xs: 0, sm: 3 } }}>
+                        <TabPanel value='stats' sx={{ px: 0, pl: { lg: 1 } }}>
                             <StatsTab user={user} />
                         </TabPanel>
-                        <TabPanel value='coaching' sx={{ px: { xs: 0, sm: 3 } }}>
+                        <TabPanel value='coaching' sx={{ px: 0, pl: { lg: 1 } }}>
                             <CoachTab user={user} />
                         </TabPanel>
-                        <TabPanel value='progress' sx={{ px: { xs: 0, sm: 3 } }}>
+                        <TabPanel value='progress' sx={{ px: { xs: 0 }, pl: { lg: 1 } }}>
                             <TrainingPlanTab user={user} isCurrentUser={currentUserProfile} />
                         </TabPanel>
-                        <TabPanel value='activity' sx={{ px: { xs: 0, sm: 3 } }}>
+                        <TabPanel value='activity' sx={{ px: 0, pl: { lg: 1 } }}>
                             <ActivityTab user={user} />
                         </TabPanel>
-                        <TabPanel value='games' sx={{ px: { xs: 0 } }}>
+                        <TabPanel value='games' sx={{ px: 0 }}>
                             <DirectoryCacheProvider>
                                 <DirectoriesSection
                                     namespace={currentUserProfile ? 'own-profile' : 'other-profile'}
@@ -199,7 +199,7 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                                 />
                             </DirectoryCacheProvider>
                         </TabPanel>
-                        <TabPanel value='clubs' sx={{ px: { xs: 0, sm: 3 } }}>
+                        <TabPanel value='clubs' sx={{ px: 0, pl: { lg: 1 } }}>
                             <ClubsTab user={user} />
                         </TabPanel>
                     </TabContext>

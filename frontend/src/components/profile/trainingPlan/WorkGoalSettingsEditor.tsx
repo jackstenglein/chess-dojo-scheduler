@@ -6,43 +6,45 @@ import { Settings } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
-    ButtonBase,
     Dialog,
     DialogActions,
     DialogContent,
     FormLabel,
     Grid,
-    InputAdornment,
     MenuItem,
     Stack,
     TextField,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import { Fragment, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { TrainingPlanView } from './TrainingPlanViewSelect';
+import { TimeProgressChip } from './TimeProgressChip';
 import { DAY_NAMES, DEFAULT_WORK_GOAL } from './workGoal';
 
 const NUMBER_REGEX = /^[0-9]*$/;
 
 /** Renders an editor that allows the user to update their work goal settings. */
 export function WorkGoalSettingsEditor({
+    currentGoal,
+    currentValue,
     initialWeekStart = 0,
     workGoal = DEFAULT_WORK_GOAL,
     workGoalHistory = [],
     disabled,
-    view,
 }: {
+    /** The current goal to display in the chip that opens the editor. */
+    currentGoal: number;
+    /** The current value to display in the chip that opens the editor. */
+    currentValue: number;
     /** The initial day the week starts on. */
     initialWeekStart?: WeekDays;
     /** The initial work goal settings. If undefined, the default settings will be used. */
     workGoal?: WorkGoalSettings;
     /** The user's history of the work goal. */
     workGoalHistory?: WorkGoalHistory[];
-    /** Whether the editor is disabled. */
+    // /** Whether the editor is disabled. */
     disabled: boolean;
-    /** Whether to display the goal on the dialog trigger in daily or weekly terms. */
-    view: TrainingPlanView.Daily | TrainingPlanView.Weekly;
 }) {
     const [open, setOpen] = useState(false);
     const api = useApi();
@@ -53,6 +55,8 @@ export function WorkGoalSettingsEditor({
     const [weekStart, setWeekStart] = useState(initialWeekStart ?? originalWeekStart);
     const timePerDay = useTimePerDay(workGoal);
     const minutesPerWeek = timePerDay.reduce((sum, t) => sum + t.total, 0);
+
+    const onClose = () => setOpen(false);
 
     const onSave = async () => {
         let error = false;
@@ -96,7 +100,7 @@ export function WorkGoalSettingsEditor({
                 workGoalHistory: newWorkGoalHistory,
             });
             request.onSuccess();
-            setOpen(false);
+            onClose();
         } catch (err) {
             request.onFailure(err);
         }
@@ -104,56 +108,20 @@ export function WorkGoalSettingsEditor({
 
     return (
         <>
-            <ButtonBase
-                focusRipple
-                component='div'
-                onClick={() => setOpen(true)}
-                sx={{ width: 1 }}
-                disabled={disabled}
-                id='work-goal-editor'
-            >
-                <TextField
-                    disabled={disabled}
-                    select
-                    label='Work Goal'
-                    value='placeholder'
-                    fullWidth
+            <Tooltip title={disabled ? undefined : 'Edit work goal'}>
+                <TimeProgressChip
+                    goal={currentGoal}
+                    value={currentValue}
                     slotProps={{
-                        select: {
-                            open: false,
-                            renderValue: () => getLabel(view, workGoal),
-                        },
-                        input: {
-                            readOnly: true,
-                            endAdornment: disabled ? undefined : (
-                                <InputAdornment position='end'>
-                                    <Settings color='primary' onClick={() => setOpen(true)} />
-                                </InputAdornment>
-                            ),
-                            sx: { cursor: 'pointer !important' },
+                        chip: {
+                            deleteIcon: <Settings />,
+                            onDelete: disabled ? undefined : () => setOpen(true),
+                            onClick: disabled ? undefined : () => setOpen(true),
                         },
                     }}
-                    sx={{
-                        cursor: 'pointer !important',
-                        '& .MuiSelect-icon': { display: 'none' },
-                        '& .MuiInputBase-root::before': { display: 'none' },
-                        '& .MuiInputBase-root::after': { display: 'none' },
-                        '& .MuiInputBase-root': {
-                            borderBottomLeftRadius: 'var(--mui-shape-borderRadius)',
-                            borderBottomRightRadius: 'var(--mui-shape-borderRadius)',
-                        },
-                    }}
-                    variant='filled'
-                >
-                    <MenuItem value='placeholder'>Placeholder</MenuItem>
-                </TextField>
-            </ButtonBase>
-
-            <Dialog
-                open={open}
-                onClose={request.isLoading() ? undefined : () => setOpen(false)}
-                fullWidth
-            >
+                />
+            </Tooltip>
+            <Dialog open={open} onClose={request.isLoading() ? undefined : onClose} fullWidth>
                 <RequestSnackbar request={request} />
 
                 <DialogContent>
@@ -217,7 +185,7 @@ export function WorkGoalSettingsEditor({
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button disabled={request.isLoading()} onClick={() => setOpen(false)}>
+                    <Button disabled={request.isLoading()} onClick={onClose}>
                         Cancel
                     </Button>
                     <LoadingButton loading={request.isLoading()} onClick={onSave}>
@@ -259,20 +227,6 @@ function useTimePerDay(workGoal: WorkGoalSettings) {
         useTimeEditor(workGoal.minutesPerDay[5]),
         useTimeEditor(workGoal.minutesPerDay[6]),
     ];
-}
-
-function getLabel(
-    view: TrainingPlanView.Daily | TrainingPlanView.Weekly,
-    workGoal: WorkGoalSettings,
-): string {
-    if (view === TrainingPlanView.Daily) {
-        const dayIndex = new Date().getDay();
-        const time = formatTime(workGoal.minutesPerDay[dayIndex]);
-        return `${DAY_NAMES[dayIndex]}: ${time}`;
-    }
-
-    const total = workGoal.minutesPerDay.reduce((sum, t) => sum + t, 0);
-    return `${formatTime(total)} / week`;
 }
 
 function formatTime(timeMinutes: number): string {

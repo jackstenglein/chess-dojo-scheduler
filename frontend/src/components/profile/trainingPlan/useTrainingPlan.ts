@@ -1,18 +1,37 @@
 import { useApi } from '@/api/Api';
 import { useRequirements } from '@/api/cache/requirements';
+import { Request } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { CustomTask, Requirement } from '@/database/requirement';
+import { TimelineEntry } from '@/database/timeline';
 import { ALL_COHORTS, User, WeeklyPlan, WorkGoalSettings } from '@/database/user';
 import { useEffect, useMemo } from 'react';
 import { useTimelineContext } from '../activity/useTimeline';
 import { SuggestedTask, TaskSuggestionAlgorithm } from './suggestedTasks';
+
+export interface UseTrainingPlanResponse {
+    /** The request for fetching requirements. */
+    request: Request<never>;
+    /** The requirements in the given cohort. */
+    requirements: Requirement[];
+    /** All the requirements in the training plan, across all cohorts. */
+    allRequirements: Requirement[];
+    /** The tasks the user has pinned. */
+    pinnedTasks: (Requirement | CustomTask)[];
+    /** A callback function to toggle whether a task is pinned. */
+    togglePin: (task: Requirement | CustomTask) => void;
+    /** The user passed as a parameter, unchanged. */
+    user: User;
+    /** Whether the provided user is the current logged in user. */
+    isCurrentUser: boolean;
+}
 
 /**
  * Returns common data and functions used across all Training Plan tabs.
  * @param user The user to display the training plan for.
  * @param cohort The cohort to display the training plan for.
  */
-export function useTrainingPlan(user: User, cohort?: string) {
+export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanResponse {
     const { user: currentUser, updateUser } = useAuth();
     const api = useApi();
     const { request, requirements: allRequirements } = useRequirements(ALL_COHORTS, false);
@@ -41,6 +60,7 @@ export function useTrainingPlan(user: User, cohort?: string) {
     };
 
     return {
+        user,
         request,
         requirements,
         allRequirements,
@@ -50,7 +70,22 @@ export function useTrainingPlan(user: User, cohort?: string) {
     };
 }
 
-export function useWeeklyTrainingPlan(user: User) {
+export interface UseWeeklyTrainingPlanResponse extends UseTrainingPlanResponse {
+    /** The list of suggestions, indexed by the day of the week. */
+    suggestionsByDay: SuggestedTask[][];
+    /** The suggestions for the entire week, combined into a single flat list. */
+    weekSuggestions: SuggestedTask[];
+    /** The start date of the week. */
+    startDate: string;
+    /** The end date of the week. */
+    endDate: string;
+    /** Whether the weekly training plan is still loading. */
+    isLoading: boolean;
+    /** The user's timeline. */
+    timeline: TimelineEntry[];
+}
+
+export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse {
     const api = useApi();
     const trainingPlan = useTrainingPlan(user);
     const { pinnedTasks, requirements, allRequirements, isCurrentUser } = trainingPlan;
@@ -134,6 +169,7 @@ export function useWeeklyTrainingPlan(user: User) {
         endDate,
         startDate: startDate.toISOString(),
         isLoading,
+        timeline,
     };
 }
 
@@ -198,4 +234,45 @@ function equalPlans(
 
 function isEmpty(suggestionsByDay: SuggestedTask[][]) {
     return suggestionsByDay.every((day) => day.length === 0);
+}
+
+/**
+ * Returns the progress on the training plan based on the given parameters.
+ * @param startDate The start date of the timeframe to calculate progress for.
+ * @param endDate The end date of the timeframe to calculate progress for.
+ * @param tasks The suggested tasks for the given timeframe.
+ * @param timeline The user's timeline to use when calculating progress.
+ * @returns The goal, time worked, and the ids of any extra tasks worked on.
+ */
+export function useTrainingPlanProgress({
+    startDate,
+    endDate,
+    tasks,
+    timeline,
+}: {
+    startDate: string;
+    endDate: string;
+    tasks: SuggestedTask[];
+    timeline: TimelineEntry[];
+}): [number, number, Set<string>] {
+    return useMemo(() => {
+        const goalMinutes = tasks.reduce((sum, { goalMinutes }) => sum + goalMinutes, 0);
+        const extraTaskIds = new Set<string>();
+
+        let timeWorked = 0;
+        for (const entry of timeline) {
+            const date = entry.date || entry.createdAt;
+            const isSuggestedTask = tasks.some(
+                ({ task, goalMinutes }) => goalMinutes > 0 && task.id === entry.requirementId,
+            );
+            if (date >= startDate && date < endDate) {
+                timeWorked += entry.minutesSpent;
+                if (!isSuggestedTask) {
+                    extraTaskIds.add(entry.requirementId);
+                }
+            }
+        }
+
+        return [goalMinutes, timeWorked, extraTaskIds];
+    }, [tasks, startDate, endDate, timeline]);
 }

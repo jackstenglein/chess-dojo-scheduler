@@ -1,50 +1,107 @@
-import { useAuth } from '@/auth/Auth';
+import { CustomTask, Requirement } from '@/database/requirement';
+import LoadingPage from '@/loading/LoadingPage';
 import { CategoryColors, themeRequirementCategory } from '@/style/ThemeProvider';
 import { displayRequirementCategoryShort } from '@jackstenglein/chess-dojo-common/src/database/requirement';
-import { alpha, Box, Card, Chip, Grid, Stack, Typography } from '@mui/material';
-import { useMemo } from 'react';
+import { Check } from '@mui/icons-material';
+import { alpha, Box, ButtonBase, Card, Chip, Grid, Stack, Typography } from '@mui/material';
+import { use, useState } from 'react';
+import { taskTitle } from '../daily/DailyTrainingPlan';
 import { SuggestedTask } from '../suggestedTasks';
-import { useWeeklyTrainingPlan } from '../useTrainingPlan';
+import { TaskDialog, TaskDialogView } from '../TaskDialog';
+import { TimeProgressChip } from '../TimeProgressChip';
+import { TrainingPlanContext } from '../TrainingPlanTab';
+import { useTrainingPlanProgress } from '../useTrainingPlan';
+import { WorkGoalSettingsEditor } from '../WorkGoalSettingsEditor';
 
-const days = ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
+const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
 
 export function WeeklyTrainingPlanSection() {
-    const { user } = useAuth();
+    const { startDate, endDate, weekSuggestions, timeline, isCurrentUser, isLoading, user } =
+        use(TrainingPlanContext);
 
-    const { request, pinnedTasks, togglePin, isCurrentUser, suggestionsByDay, isLoading } =
-        useWeeklyTrainingPlan(user!);
+    const [goalTime, workedTime] = useTrainingPlanProgress({
+        startDate,
+        endDate,
+        tasks: weekSuggestions,
+        timeline,
+    });
 
-    const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
+    const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
+    const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
+
+    const onOpenTask = (task: Requirement | CustomTask, view: TaskDialogView) => {
+        setSelectedTask(task);
+        setTaskDialogView(view);
+    };
+
+    const onCloseTask = () => {
+        setSelectedTask(undefined);
+        setTaskDialogView(undefined);
+    };
 
     return (
         <Stack spacing={2} width={1}>
-            <Typography variant='h5' fontWeight='bold'>
-                This Week
-            </Typography>
+            <Stack direction='row' alignItems='center' spacing={2}>
+                <Typography variant='h5' fontWeight='bold'>
+                    This Week
+                </Typography>
 
-            <Grid container columns={7}>
-                {days.map((d, i) => (
-                    <Grid key={i} size={1}>
-                        <WeeklyTrainingPlanDay dayIndex={i} suggestionsByDay={suggestionsByDay} />
-                    </Grid>
-                ))}
-            </Grid>
+                <WorkGoalSettingsEditor
+                    currentGoal={goalTime}
+                    currentValue={workedTime}
+                    disabled={!isCurrentUser}
+                    initialWeekStart={user.weekStart}
+                    workGoal={user.workGoal}
+                />
+            </Stack>
+
+            {isLoading ? (
+                <LoadingPage />
+            ) : (
+                <Grid container columns={7}>
+                    {days.map((_, i) => (
+                        <Grid key={i} size={1}>
+                            <WeeklyTrainingPlanDay
+                                dayIndex={(i + user.weekStart) % 7}
+                                onOpenTask={onOpenTask}
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
+            )}
+
+            {taskDialogView && selectedTask && (
+                <TaskDialog
+                    open
+                    onClose={onCloseTask}
+                    task={selectedTask}
+                    initialView={taskDialogView}
+                    progress={user.progress[selectedTask.id]}
+                    cohort={user.dojoCohort}
+                />
+            )}
         </Stack>
     );
 }
 
 function WeeklyTrainingPlanDay({
-    suggestionsByDay,
     dayIndex,
+    onOpenTask,
 }: {
-    suggestionsByDay: SuggestedTask[][];
     dayIndex: number;
+    onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
 }) {
+    const { suggestionsByDay } = use(TrainingPlanContext);
     const suggestedTasks = suggestionsByDay[dayIndex];
+    const todayIndex = new Date().getDay();
 
     return (
         <Stack height={1}>
-            <Typography variant='subtitle1' fontWeight='bold' color='text.secondary'>
+            <Typography
+                variant='subtitle1'
+                fontWeight='bold'
+                color={todayIndex === dayIndex ? 'primary' : 'text.secondary'}
+            >
                 {days[dayIndex]}
             </Typography>
 
@@ -58,72 +115,11 @@ function WeeklyTrainingPlanDay({
             >
                 <Stack spacing={1} py={1} px={0.5}>
                     {suggestedTasks.map((t) => (
-                        <WeeklyTrainingPlanItem key={t.task.id} suggestion={t} />
-
-                        // <Fragment key={t.task.id}>
-                        // <Card key={t.task.id} variant='outlined'>
-                        //     <CardContent sx={{ flexGrow: 1 }}>
-                        //         <Stack spacing={1}>
-                        //             <Chip
-                        //                 label={t.task.category}
-                        //                 variant='outlined'
-                        //                 sx={{
-                        //                     color: CategoryColors[t.task.category],
-                        //                     borderColor: CategoryColors[t.task.category],
-                        //                     alignSelf: 'start',
-                        //                 }}
-                        //                 size='small'
-                        //             />
-
-                        //             <Typography variant='h6' fontWeight='bold'>
-                        //                 {(t.task.dailyName || t.task.name).replaceAll(
-                        //                     '{{time}}',
-                        //                     formatTime(t.goalMinutes),
-                        //                 )}
-                        //             </Typography>
-                        //         </Stack>
-
-                        //         <Typography color='textSecondary' sx={{ mt: 1 }}>
-                        //             {t.task.description.slice(0, 150)}...
-                        //         </Typography>
-                        //     </CardContent>
-                        //     <CardActions disableSpacing>
-                        //         <Tooltip title='View task details'>
-                        //             <IconButton sx={{ color: 'text.secondary' }}>
-                        //                 <Help />
-                        //             </IconButton>
-                        //         </Tooltip>
-
-                        //         <Tooltip title='Skip task for now'>
-                        //             <IconButton
-                        //                 sx={{
-                        //                     color: 'text.secondary',
-                        //                     marginLeft: 'auto',
-                        //                 }}
-                        //             >
-                        //                 <NotInterested />
-                        //             </IconButton>
-                        //         </Tooltip>
-
-                        //         <Tooltip title={'Unpin from Daily Tasks'}>
-                        //             <IconButton>
-                        //                 <PushPin color='dojoOrange' />
-                        //             </IconButton>
-                        //         </Tooltip>
-
-                        //         <Tooltip title='Update Progress'>
-                        //             <span style={{ marginRight: '4px' }}>
-                        //                 <CircularTimeProgress
-                        //                     data-cy='update-task-button'
-                        //                     value={0}
-                        //                     max={t.goalMinutes}
-                        //                     onClick={() => null}
-                        //                 />
-                        //             </span>
-                        //         </Tooltip>
-                        //     </CardActions>
-                        // </Card>
-                        // </Fragment>
+                        <WeeklyTrainingPlanItem
+                            key={t.task.id}
+                            suggestion={t}
+                            onOpenTask={onOpenTask}
+                        />
                     ))}
                 </Stack>
             </Card>
@@ -131,48 +127,101 @@ function WeeklyTrainingPlanDay({
     );
 }
 
-function WeeklyTrainingPlanItem({ suggestion }: { suggestion: SuggestedTask }) {
-    const { task } = suggestion;
+function WeeklyTrainingPlanItem({
+    suggestion,
+    onOpenTask,
+}: {
+    suggestion: SuggestedTask;
+    onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
+}) {
+    const { task, goalMinutes } = suggestion;
+    if (goalMinutes === 0) {
+        return null;
+    }
+
+    const { isCurrentUser, user } = use(TrainingPlanContext);
+
+    const onOpenProgress = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onOpenTask(task, TaskDialogView.Progress);
+    };
 
     return (
-        <Box
+        <Stack
+            direction='row'
             sx={{
                 borderRadius: 1.5,
                 position: 'relative',
-                backgroundColor: alpha(CategoryColors[task.category], 0.2),
                 overflow: 'hidden',
-                py: 1,
             }}
         >
             <Box
                 sx={{
-                    position: 'absolute',
-                    width: '4px',
-                    top: 0,
-                    bottom: 0,
+                    minWidth: '4px',
+                    minHeight: 1,
                     backgroundColor: CategoryColors[task.category],
                 }}
             />
-            <Stack sx={{ pl: '8px', pr: '4px' }} spacing={3}>
-                <Typography variant='body2' fontWeight='bold'>
-                    {task.name}
-                </Typography>
+            <ButtonBase
+                onClick={() => onOpenTask(task, TaskDialogView.Details)}
+                sx={{
+                    flexGrow: 1,
+                    px: 0.5,
+                    py: 1,
+                    textAlign: 'start',
+                    backgroundColor: alpha(CategoryColors[task.category], 0.2),
+                    '&:hover:not(:has(#time-progress-chip:hover))': {
+                        backgroundColor: alpha(CategoryColors[task.category], 0.13),
+                    },
+                }}
+            >
+                <Stack spacing={3} width={1}>
+                    <Typography variant='body2' fontWeight='bold'>
+                        {taskTitle({ task, cohort: user.dojoCohort, goalMinutes })}
+                    </Typography>
 
-                <Stack direction='row'>
-                    <Chip
-                        label={displayRequirementCategoryShort(task.category)}
-                        color={themeRequirementCategory(task.category)}
-                        size='small'
-                        sx={{
-                            fontSize: '0.75rem',
-                            height: 'auto',
-                            '& .MuiChip-label': {
-                                px: 0.5,
-                            },
-                        }}
-                    />
+                    <Stack direction='row' flexWrap='wrap' gap={1}>
+                        <Chip
+                            label={displayRequirementCategoryShort(task.category)}
+                            color={themeRequirementCategory(task.category)}
+                            size='small'
+                            sx={{
+                                fontSize: '0.75rem',
+                                height: 'auto',
+                                '& .MuiChip-label': {
+                                    px: 0.5,
+                                },
+                            }}
+                        />
+
+                        <TimeProgressChip
+                            goal={goalMinutes}
+                            value={0}
+                            slotProps={{
+                                container: {
+                                    id: 'time-progress-chip',
+                                },
+                                chip: {
+                                    size: 'small',
+                                    icon:
+                                        0 >= goalMinutes ? (
+                                            <Check fontSize='inherit' color='success' />
+                                        ) : undefined,
+                                    onClick: isCurrentUser ? onOpenProgress : undefined,
+                                    sx: {
+                                        fontSize: '0.75rem',
+                                        height: 'auto',
+                                        '& .MuiChip-label': {
+                                            px: 0.5,
+                                        },
+                                    },
+                                },
+                            }}
+                        />
+                    </Stack>
                 </Stack>
-            </Stack>
-        </Box>
+            </ButtonBase>
+        </Stack>
     );
 }
