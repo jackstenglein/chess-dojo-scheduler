@@ -4,6 +4,7 @@ import { useAuth } from '@/auth/Auth';
 import { useReconcile } from '@/board/Board';
 import useGame from '@/context/useGame';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
+import { StockfishIcon } from '@/style/ChessIcons';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Backspace, Chat, Help, KeyboardReturn, Merge } from '@mui/icons-material';
@@ -223,6 +224,19 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
         onClose();
     };
 
+    const isEngineLine = move.commentDiag?.dojoEngine;
+
+    const onToggleEngineLine = () => {
+        if (isEngineLine) {
+            // * Remove engine line marking
+            chess.setCommand('dojoEngine', '', move);
+        } else {
+            // * Mark as engine line
+            chess.setCommand('dojoEngine', 'true', move);
+        }
+        onClose();
+    };
+
     const onSaveVariationAsComment = async () => {
         try {
             saveVariationRequest.onStart();
@@ -282,6 +296,15 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                                     <Backspace />
                                 </ListItemIcon>
                                 <ListItemText>Delete before here</ListItemText>
+                            </MenuItem>
+
+                            <MenuItem onClick={onToggleEngineLine}>
+                                <ListItemIcon>
+                                    <StockfishIcon />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {isEngineLine ? 'Remove engine line' : 'Mark as engine line'}
+                                </ListItemText>
                             </MenuItem>
                         </>
                     )}
