@@ -27,10 +27,12 @@ export function RenderPlayersCell(params: GridRenderCellParams<GameInfo>) {
     return (
         <RenderPlayers
             fullHeight
-            whiteElo={headers.WhiteElo}
             white={headers.White}
+            whiteElo={headers.WhiteElo}
+            whiteProvisional={headers.WhiteProvisional}
             black={headers.Black}
             blackElo={headers.BlackElo}
+            blackProvisional={headers.BlackProvisional}
             result={headers.Result}
         />
     );
