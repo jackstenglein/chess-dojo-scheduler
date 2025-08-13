@@ -10,6 +10,7 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
 import {
     Divider,
+    Link,
     List,
     ListItem,
     ListItemIcon,
@@ -209,6 +210,32 @@ export const InfoPage = () => {
                     <ListItemText primary="When a player withdraws from a tournament, everyone else in the tournament receives 1 point, and the withdrawing player's scores are not counted" />
                 </ListItem>
             </List>
+
+            <Divider sx={{ my: 4 }} />
+
+            <Typography variant='h6' color='text.secondary'>
+                <LeaderboardIcon sx={{ verticalAlign: 'middle', mr: 1 }} color='dojoOrange' />
+                Tiebreaks
+            </Typography>
+
+            <Typography sx={{ mt: 2, mb: 1 }}>
+                Ties are broken using the{' '}
+                <Link
+                    href='https://en.wikipedia.org/wiki/Sonneborn%E2%80%93Berger_score'
+                    target='_blank'
+                    rel='noopener'
+                >
+                    Sonneborn-Berger score
+                </Link>
+                . This is calculated by summing the conventional score for each opponent you defeat
+                and half the conventional score for each opponent you draw. For example, if you beat
+                a player who had a score of 5/7 and draw a player with a score of 3/7, your
+                Sonnenborn-Berger score would be 6.5. If multiple players have the same conventional
+                score and the same Sonneborn-Berger score, then those players are all declared as
+                winners of the tournament. Note that matches against players who withdrew, even if
+                played before the withdrawal occurred, are not counted in either the conventional
+                score or the Sonneborn-Berger score.
+            </Typography>
 
             <Divider sx={{ my: 4 }} />
 
