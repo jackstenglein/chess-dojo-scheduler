@@ -201,6 +201,7 @@ export function ReviewQueuePage() {
                             hasMore={hasMore}
                             onPrevPage={() => setPage(page - 1)}
                             onNextPage={() => setPage(page + 1)}
+                            limitFreeTier={false}
                         />
                     ),
                 }}

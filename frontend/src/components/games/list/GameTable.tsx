@@ -290,6 +290,7 @@ export default function GameTable({
                         hasMore={hasMore}
                         onPrevPage={() => setPage(page - 1)}
                         onNextPage={() => setPage(page + 1)}
+                        limitFreeTier={limitFreeTier}
                     />
                 ),
                 toolbar: isListView ? ListViewToolbar : CustomGridToolbar,
