@@ -9,12 +9,12 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/analytics"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/discord"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/meta"
 	payment "github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/paymentService/secrets"
 	stripe "github.com/stripe/stripe-go/v81"
@@ -158,10 +158,7 @@ func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Res
 		log.Errorf("Failed to set Discord roles: %v", err)
 	}
 
-	if err := meta.PurchaseEvent(checkoutSession); err != nil {
-		log.Errorf("Failed to log Meta event: %v", err)
-	}
-
+	analytics.PurchaseEvent(user, checkoutSession)
 	return api.Success(nil)
 }
 

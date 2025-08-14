@@ -30,8 +30,10 @@ functions:
   webhook:
     handler: webhook/main.go
     environment:
-      metaPixelId: ${file(../meta-${sls:stage}.yml):pixelId}
-      metaAccessToken: ${file(../meta-${sls:stage}.yml):accessToken}
+      metaPixelId: ${file(../analytics-${sls:stage}.yml):metaPixelId}
+      metaAccessToken: ${file(../analytics-${sls:stage}.yml):metaAccessToken}
+      gaMeasurementId: ${file(../analytics-${sls:stage}.yml):gaMeasurementId}
+      gaMeasurementApiKey: ${file(../analytics-${sls:stage}.yml):gaMeasurementApiKey}
       frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
       discordAuth: ${file(../discord.yml):discordAuth}
       discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
@@ -51,7 +53,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: 
+        Resource:
           - ${param:EventsTableArn}
           - ${param:GamesTableArn}
       - Effect: Allow
