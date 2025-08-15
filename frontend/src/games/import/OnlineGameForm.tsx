@@ -1,4 +1,4 @@
-import { OnlineGame, OnlineGameTimeControl, useOnlineGames } from '@/api/external/onlineGame';
+import { OnlineGame, OnlineGamePlayer, useOnlineGames } from '@/api/external/onlineGame';
 import {
     isChesscomAnalysisURL,
     isChesscomEventsUrl,
@@ -20,10 +20,11 @@ import { useAuth } from '@/auth/Auth';
 import { toDojoDateString } from '@/components/calendar/displayDate';
 import GameTable, { gameTableColumns } from '@/components/games/list/GameTable';
 import { Link } from '@/components/navigation/Link';
-import { isCohortInRange, RatingSystem } from '@/database/user';
+import { RatingSystem } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import {
     GameImportTypes,
+    GameInfo,
     OnlineGameImportType,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import {
@@ -40,33 +41,11 @@ import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 import { OrDivider } from './OrDivider';
 
-function timeControlMatches(
-    cohort: string | undefined,
-    timeControl: OnlineGameTimeControl,
-): boolean {
-    if (!cohort) {
-        return false;
+function makeRatingString(p: OnlineGamePlayer): string {
+    if (typeof p.rating === 'number') {
+        return String(p.rating) + (p.provisional ? '?' : '');
     }
-
-    const initialMinutes = timeControl.initialSeconds / 60;
-    if (initialMinutes < 30) {
-        return false;
-    }
-    const totalTime = initialMinutes + timeControl.incrementSeconds;
-
-    if (isCohortInRange(cohort, '0-800')) {
-        return totalTime >= 30;
-    }
-    if (isCohortInRange(cohort, '800-1200')) {
-        return totalTime >= 60;
-    }
-    if (isCohortInRange(cohort, '1200-1600')) {
-        return totalTime >= 75;
-    }
-    if (isCohortInRange(cohort, '1600-2000')) {
-        return totalTime >= 90;
-    }
-    return totalTime >= 120;
+    return '';
 }
 
 // converting for consumption by GameTable
@@ -75,22 +54,19 @@ function timeControlMatches(
 function onlineGameToGameInfo(og: OnlineGame): GameInfo {
     return {
         id: og.id,
-        date: toDojoDateString(new Date(og.endTime)),
+        date: toDojoDateString(new Date(og.endTime), undefined),
         owner: '',
         ownerDisplayName: '',
         ownerPreviousCohort: '',
         headers: {
             White: og.white.username,
-            WhiteElo: og.white.rating ?? null,
-            WhiteProvisional: og.white.provisional ?? null,
+            WhiteElo: makeRatingString(og.white),
             Black: og.black.username,
-            BlackElo: og.black.rating ?? null,
-            BlackProvisional: og.black.provisional ?? null,
+            BlackElo: makeRatingString(og.black),
             Date: '',
             Site: '',
             Result: og.result,
             TimeControl: `${og.timeControl.initialSeconds} + ${og.timeControl.incrementSeconds}`,
-            key: [],
         },
         createdAt: '',
         pgn: og.pgn,
@@ -108,8 +84,8 @@ const RecentGameGrid = ({
     Request;
     onClickGame: (game: OnlineGame) => void;
 }) => {
-    let [page, setPage] = useState(0);
-    let [pageSize, setPageSize] = useState(10);
+    const [page, setPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
     const pagination = {
         page: page,
         setPage: setPage,
