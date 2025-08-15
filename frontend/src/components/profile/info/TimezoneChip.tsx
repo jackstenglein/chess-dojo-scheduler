@@ -48,6 +48,7 @@ const TimezoneChip: React.FC<TimezoneChipProps> = ({ timezone }) => {
                 label={timezoneDisplayLabels[timezone]}
                 variant='outlined'
                 color='secondary'
+                size='small'
             />
         </Tooltip>
     );

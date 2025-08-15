@@ -29,7 +29,6 @@ import {
 import { useMemo, useState } from 'react';
 import { useTimelineContext } from '../../activity/useTimeline';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
-import { displayProgress } from '../daily/TimeframeTrainingPlanItem';
 
 interface FullTrainingPlanItemProps {
     user: User;
@@ -257,3 +256,18 @@ export const FullTrainingPlanItem = ({
         </Tooltip>
     );
 };
+
+/**
+ * Returns true if the task should display a progress bar.
+ * @param task The task to check.
+ */
+function displayProgress(task: Requirement | CustomTask): boolean {
+    switch (task.scoreboardDisplay) {
+        case ScoreboardDisplay.Unspecified:
+        case ScoreboardDisplay.ProgressBar:
+        case ScoreboardDisplay.Minutes:
+        case ScoreboardDisplay.Yearly:
+            return true;
+    }
+    return false;
+}
