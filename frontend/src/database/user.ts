@@ -495,7 +495,8 @@ const THREE_MONTHS = 1000 * 60 * 60 * 24 * 90;
 
 /**
  * Returns whether the user should be prompted to demote themselves. Demotion is currently prompted when
- * they are 25 points or more below their current cohort for 90 days.
+ * they are 25 points or more below their current cohort for 90 days. If the user has already graduated
+ * from their previous cohort, they will not be prompted to demote.
  * @param user The user to potentially prompt for demotion.
  * @returns True if the user should be prompted to demote.
  */
@@ -504,6 +505,10 @@ export function shouldPromptDemotion(user?: User): boolean {
         return false;
     }
     if (isCustom(user.ratingSystem)) {
+        return false;
+    }
+    const cohortBefore = dojoCohorts[dojoCohorts.indexOf(user.dojoCohort) - 1];
+    if (cohortBefore && user.graduationCohorts?.includes(cohortBefore)) {
         return false;
     }
 
