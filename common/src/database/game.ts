@@ -268,10 +268,8 @@ export enum GameResult {
 export interface PgnHeaders {
     White: string;
     WhiteElo?: string;
-    WhiteProvisional?: boolean;
     Black: string;
     BlackElo?: string;
-    BlackProvisional?: boolean;
     Date: string;
     Site: string;
     Result: GameResult;
