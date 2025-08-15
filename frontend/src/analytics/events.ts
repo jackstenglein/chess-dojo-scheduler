@@ -53,6 +53,9 @@ export enum EventType {
     AddDirectoryItems = 'add_directory_items',
     RemoveDirectoryItems = 'remove_directory_items',
     MoveDirectoryItems = 'move_directory_items',
+
+    /** Signifies a user has begun a checkout. */
+    BeginCheckout = 'begin_checkout',
 }
 
 export function trackEvent(type: EventType, params?: unknown) {
