@@ -242,7 +242,8 @@ function isEmpty(suggestionsByDay: SuggestedTask[][]) {
  * @param endDate The end date of the timeframe to calculate progress for.
  * @param tasks The suggested tasks for the given timeframe.
  * @param timeline The user's timeline to use when calculating progress.
- * @returns The goal, time worked, and the ids of any extra tasks worked on.
+ * @returns The goal, the time worked on the suggested tasks, the total time worked
+ * including extra tasks, and the ids of any extra tasks worked on.
  */
 export function useTrainingPlanProgress({
     startDate,
@@ -254,25 +255,28 @@ export function useTrainingPlanProgress({
     endDate: string;
     tasks: SuggestedTask[];
     timeline: TimelineEntry[];
-}): [number, number, Set<string>] {
+}): [number, number, number, Set<string>] {
     return useMemo(() => {
         const goalMinutes = tasks.reduce((sum, { goalMinutes }) => sum + goalMinutes, 0);
         const extraTaskIds = new Set<string>();
 
-        let timeWorked = 0;
+        let suggestedTimeWorked = 0;
+        let totalTimeWorked = 0;
         for (const entry of timeline) {
             const date = entry.date || entry.createdAt;
             const isSuggestedTask = tasks.some(
                 ({ task, goalMinutes }) => goalMinutes > 0 && task.id === entry.requirementId,
             );
             if (date >= startDate && date < endDate) {
-                timeWorked += entry.minutesSpent;
+                totalTimeWorked += entry.minutesSpent;
                 if (!isSuggestedTask) {
                     extraTaskIds.add(entry.requirementId);
+                } else {
+                    suggestedTimeWorked += entry.minutesSpent;
                 }
             }
         }
 
-        return [goalMinutes, timeWorked, extraTaskIds];
+        return [goalMinutes, suggestedTimeWorked, totalTimeWorked, extraTaskIds];
     }, [tasks, startDate, endDate, timeline]);
 }

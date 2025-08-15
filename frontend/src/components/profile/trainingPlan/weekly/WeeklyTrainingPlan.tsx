@@ -4,7 +4,7 @@ import { CategoryColors, themeRequirementCategory } from '@/style/ThemeProvider'
 import { displayRequirementCategoryShort } from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { Check } from '@mui/icons-material';
 import { alpha, Box, ButtonBase, Card, Chip, Grid, Stack, Typography } from '@mui/material';
-import { use, useState } from 'react';
+import { use, useMemo, useState } from 'react';
 import { taskTitle } from '../daily/DailyTrainingPlan';
 import { SuggestedTask } from '../suggestedTasks';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
@@ -19,7 +19,7 @@ export function WeeklyTrainingPlan() {
     const { startDate, endDate, weekSuggestions, timeline, isCurrentUser, isLoading, user } =
         use(TrainingPlanContext);
 
-    const [goalTime, workedTime] = useTrainingPlanProgress({
+    const [goalTime, _, workedTime] = useTrainingPlanProgress({
         startDate,
         endDate,
         tasks: weekSuggestions,
@@ -91,9 +91,14 @@ function WeeklyTrainingPlanDay({
     dayIndex: number;
     onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
 }) {
-    const { suggestionsByDay } = use(TrainingPlanContext);
+    const { suggestionsByDay, startDate } = use(TrainingPlanContext);
     const suggestedTasks = suggestionsByDay[dayIndex];
     const todayIndex = new Date().getDay();
+
+    const dayStart = getDayOfWeekAfterDate(new Date(startDate), dayIndex);
+    const end = new Date(dayStart);
+    end.setDate(end.getDate() + 1);
+    const dayEnd = end.toISOString();
 
     return (
         <Stack height={1}>
@@ -101,6 +106,7 @@ function WeeklyTrainingPlanDay({
                 variant='subtitle1'
                 fontWeight='bold'
                 color={todayIndex === dayIndex ? 'primary' : 'text.secondary'}
+                sx={{ ml: 0.25 }}
             >
                 {days[dayIndex]}
             </Typography>
@@ -119,6 +125,8 @@ function WeeklyTrainingPlanDay({
                             key={t.task.id}
                             suggestion={t}
                             onOpenTask={onOpenTask}
+                            startDate={dayStart}
+                            endDate={dayEnd}
                         />
                     ))}
                 </Stack>
@@ -130,16 +138,27 @@ function WeeklyTrainingPlanDay({
 function WeeklyTrainingPlanItem({
     suggestion,
     onOpenTask,
+    startDate,
+    endDate,
 }: {
     suggestion: SuggestedTask;
     onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
+    startDate: string;
+    endDate: string;
 }) {
-    const { task, goalMinutes } = suggestion;
+    const { task } = suggestion;
+    const { isCurrentUser, user, timeline } = use(TrainingPlanContext);
+    const tasks = useMemo(() => [suggestion], [suggestion]);
+    const [goalMinutes, timeWorked] = useTrainingPlanProgress({
+        startDate,
+        endDate,
+        tasks,
+        timeline,
+    });
+
     if (goalMinutes === 0) {
         return null;
     }
-
-    const { isCurrentUser, user } = use(TrainingPlanContext);
 
     const onOpenProgress = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -198,7 +217,7 @@ function WeeklyTrainingPlanItem({
 
                         <TimeProgressChip
                             goal={goalMinutes}
-                            value={0}
+                            value={timeWorked}
                             slotProps={{
                                 container: {
                                     id: 'time-progress-chip',
@@ -225,4 +244,14 @@ function WeeklyTrainingPlanItem({
             </ButtonBase>
         </Stack>
     );
+}
+
+function getDayOfWeekAfterDate(reference: Date, day: number): string {
+    reference.setHours(0, 0, 0, 0);
+    if (reference.getDay() < day) {
+        reference.setDate(reference.getDate() + day - reference.getDay());
+    } else if (reference.getDay() > day) {
+        reference.setDate(reference.getDate() + 7 - reference.getDay() + day);
+    }
+    return reference.toISOString();
 }

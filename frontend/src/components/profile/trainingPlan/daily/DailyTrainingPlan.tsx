@@ -22,6 +22,7 @@ import {
     Typography,
 } from '@mui/material';
 import { use, useMemo, useState } from 'react';
+import { SuggestedTask } from '../suggestedTasks';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
 import { TimeProgressChip } from '../TimeProgressChip';
 import { TrainingPlanContext } from '../TrainingPlanTab';
@@ -41,7 +42,7 @@ export function DailyTrainingPlan() {
 
     const { suggestionsByDay, isCurrentUser, timeline, isLoading, user } = use(TrainingPlanContext);
 
-    const [goalTime, workedTime] = useTrainingPlanProgress({
+    const [goalTime, _, workedTime] = useTrainingPlanProgress({
         startDate,
         endDate,
         tasks: suggestionsByDay[new Date().getDay()],
@@ -106,8 +107,7 @@ function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; 
                 {suggestedTasks.map((t) => (
                     <DailyTrainingPlanItem
                         key={t.task.id}
-                        task={t.task}
-                        goalMinutes={t.goalMinutes}
+                        suggestion={t}
                         onOpenTask={onOpenTask}
                         startDate={startDate}
                         endDate={endDate}
@@ -119,31 +119,27 @@ function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; 
 }
 
 function DailyTrainingPlanItem({
-    task,
-    goalMinutes,
+    suggestion,
     startDate,
     endDate,
     onOpenTask,
 }: {
-    task: Requirement | CustomTask;
-    goalMinutes: number;
+    suggestion: SuggestedTask;
     startDate: string;
     endDate: string;
     onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
 }) {
+    const { task } = suggestion;
     const { isCurrentUser, pinnedTasks, togglePin, timeline, user } = use(TrainingPlanContext);
     const isPinned = pinnedTasks.some((t) => t.id === task.id);
 
-    const timeWorkedMinutes = useMemo(() => {
-        let timeWorked = 0;
-        for (const entry of timeline) {
-            const date = entry.date || entry.createdAt;
-            if (entry.requirementId === task.id && date >= startDate && date < endDate) {
-                timeWorked += entry.minutesSpent;
-            }
-        }
-        return timeWorked;
-    }, [timeline, startDate, endDate, task.id]);
+    const tasks = useMemo(() => [suggestion], [suggestion]);
+    const [goalMinutes, timeWorkedMinutes] = useTrainingPlanProgress({
+        startDate,
+        endDate,
+        tasks,
+        timeline,
+    });
 
     if (goalMinutes === 0) {
         return null;
