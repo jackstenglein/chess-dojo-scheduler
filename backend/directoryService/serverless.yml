@@ -54,6 +54,21 @@ functions:
           - dynamodb:PutItem
         Resource: !GetAtt DirectoriesTable.Arn
 
+  getStats:
+    handler: stats.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/stats
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
   listBreadcrumbs:
     handler: listBreadcrumbs.handler
     events:

@@ -1,8 +1,10 @@
 'use client';
 
 import { RequestSnackbar } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
 import useSaveGame from '@/hooks/useSaveGame';
 import { Chess } from '@jackstenglein/chess';
+import { MY_GAMES_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { cleanupPgn, splitPgns } from '@jackstenglein/chess-dojo-common/src/pgn/pgn';
 import { Container } from '@mui/material';
@@ -13,6 +15,7 @@ const ImportGamePage = () => {
     const searchParams = useSearchParams();
     const { setStagedGame, createGame, request } = useSaveGame();
     const router = useRouter();
+    const { user } = useAuth();
 
     const onCreate = async (req: CreateGameRequest) => {
         if (searchParams.has('directory') && searchParams.has('directoryOwner')) {
@@ -27,6 +30,12 @@ const ImportGamePage = () => {
             (req.pgnText && splitPgns(req.pgnText).length === 1)
         ) {
             try {
+                if (!req.directory) {
+                    req.directory = {
+                        owner: user?.username || '',
+                        id: MY_GAMES_DIRECTORY_ID,
+                    };
+                }
                 req.pgnText = cleanupPgn(req.pgnText ?? '');
                 new Chess({ pgn: req.pgnText });
                 setStagedGame(req);

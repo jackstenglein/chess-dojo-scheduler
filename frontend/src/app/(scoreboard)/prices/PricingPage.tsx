@@ -1,5 +1,6 @@
 'use client';
 
+import { EventType, trackEvent } from '@/analytics/events';
 import { metaInitiateCheckout } from '@/analytics/meta';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
@@ -45,11 +46,15 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         setInterval(interval);
 
         request.onStart();
-        metaInitiateCheckout(
-            interval === 'month' ? [config.stripe.monthlyPriceId] : [config.stripe.yearlyPriceId],
-            'USD',
-            interval === 'month' ? 15 : 100,
-        );
+        const itemId =
+            interval === 'month' ? config.stripe.monthlyPriceId : config.stripe.yearlyPriceId;
+        const price = interval === 'month' ? 15 : 100;
+        metaInitiateCheckout([itemId], 'USD', price);
+        trackEvent(EventType.BeginCheckout, {
+            currency: 'USD',
+            value: price,
+            items: [{ item_id: itemId, item_name: 'Training Plan Subscription' }],
+        });
         api.subscriptionCheckout({ interval, successUrl: redirect, cancelUrl: redirect })
             .then((resp) => {
                 window.location.href = resp.data.url;

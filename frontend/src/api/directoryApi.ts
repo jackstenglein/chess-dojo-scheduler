@@ -7,8 +7,10 @@ import {
     DirectoryAccessRole,
     ExportDirectoryRequest,
     ExportDirectoryRun,
+    GetDirectoryStatsRequest,
     ListBreadcrumbsRequest,
     MoveDirectoryItemsRequestV2,
+    PerformanceStats,
     RemoveDirectoryItemsRequestV2,
     ShareDirectoryRequest,
     UpdateDirectoryRequestV2,
@@ -25,6 +27,15 @@ export interface DirectoryApiContextType {
      * @returns The requested directory and the caller's access role for that directory.
      */
     getDirectory: (owner: string, id: string) => Promise<AxiosResponse<GetDirectoryResponse>>;
+
+    /**
+     * Sends an API request to get the stats of a directory.
+     * @param request The request to send.
+     * @returns The stats of the requested directory.
+     */
+    getDirectoryStats: (
+        request: GetDirectoryStatsRequest,
+    ) => Promise<AxiosResponse<GetDirectoryStatsResponse>>;
 
     /**
      * Sends an API request to list the breadcrumbs for a directory.
@@ -117,6 +128,11 @@ export interface GetDirectoryResponse {
     accessRole?: DirectoryAccessRole;
 }
 
+export interface GetDirectoryStatsResponse {
+    /** The performance stats for the requested user. */
+    stats: PerformanceStats;
+}
+
 /**
  * Sends an API request to get a directory.
  * @param idToken The id token of the current signed-in user.
@@ -126,6 +142,22 @@ export interface GetDirectoryResponse {
  */
 export function getDirectory(idToken: string, owner: string, id: string) {
     return axios.get<GetDirectoryResponse>(`${BASE_URL}/directory/${owner}/${id}/v2`, {
+        headers: {
+            Authorization: `Bearer ${idToken}`,
+        },
+    });
+}
+
+/**
+ * Sends an API request to get the stats of a directory.
+ * @param idToken The id token of the current signed-in user.
+ * @param request The request to send.
+ * @returns The stats for the requested directory.
+ */
+export function getDirectoryStats(idToken: string, request: GetDirectoryStatsRequest) {
+    const { owner, id, ...rest } = request;
+    return axios.get<GetDirectoryStatsResponse>(`${BASE_URL}/directory/${owner}/${id}/stats`, {
+        params: rest,
         headers: {
             Authorization: `Bearer ${idToken}`,
         },

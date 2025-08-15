@@ -4,6 +4,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { Link } from '@/components/navigation/Link';
 import { Graduation } from '@/database/graduation';
+import { compareCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
@@ -88,20 +89,17 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
             return row.previousCohort;
         },
         renderCell: (params: GridRenderCellParams<Graduation>) => {
-            let graduationCohorts = params.row.graduationCohorts;
-            if (graduationCohorts && graduationCohorts.length > 0) {
-                if (graduationCohorts.length > 3) {
-                    graduationCohorts = graduationCohorts.slice(graduationCohorts.length - 3);
-                }
-                return (
-                    <Stack direction='row' justifyContent='center'>
-                        {graduationCohorts.map((c) => (
-                            <CohortIcon key={c} cohort={c} size={32} />
-                        ))}
-                    </Stack>
-                );
-            }
-            return <CohortIcon cohort={params.row.previousCohort} size={32} />;
+            const graduationCohorts = [...params.row.graduationCohorts]
+                .sort(compareCohorts)
+                .filter((cohort, i, array) => i === array.indexOf(cohort))
+                .slice(-3);
+            return (
+                <Stack direction='row' justifyContent='center'>
+                    {graduationCohorts.map((c) => (
+                        <CohortIcon key={c} cohort={c} size={32} />
+                    ))}
+                </Stack>
+            );
         },
     },
     {

@@ -4,6 +4,7 @@ import { useAuth } from '@/auth/Auth';
 import { useReconcile } from '@/board/Board';
 import useGame from '@/context/useGame';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
+import { StockfishIcon } from '@/style/ChessIcons';
 import { Chess, Event, EventType, Move, TimeControl } from '@jackstenglein/chess';
 import { clockToSeconds } from '@jackstenglein/chess-dojo-common/src/pgn/clock';
 import { Backspace, Chat, Help, KeyboardReturn, Merge } from '@mui/icons-material';
@@ -223,6 +224,17 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
         onClose();
     };
 
+    const isEngineLine = move.commentDiag?.dojoEngine;
+    const onToggleEngineLine = () => {
+        const newValue = isEngineLine ? '' : 'true';
+        let m: Move | null = move;
+        while (m) {
+            chess.setCommand('dojoEngine', newValue, m);
+            m = m.next;
+        }
+        onClose();
+    };
+
     const onSaveVariationAsComment = async () => {
         try {
             saveVariationRequest.onStart();
@@ -244,47 +256,59 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
                 <RequestSnackbar request={saveVariationRequest} />
 
                 <MenuList>
-                    {config?.allowMoveDeletion && (
-                        <>
-                            <MenuItem disabled={isInMainline} onClick={onMakeMainline}>
-                                <ListItemIcon>
-                                    <CheckIcon />
-                                </ListItemIcon>
-                                <ListItemText>Make main line</ListItemText>
-                            </MenuItem>
+                    {config?.allowMoveDeletion && [
+                        <MenuItem key='mainline' disabled={isInMainline} onClick={onMakeMainline}>
+                            <ListItemIcon>
+                                <CheckIcon />
+                            </ListItemIcon>
+                            <ListItemText>Make main line</ListItemText>
+                        </MenuItem>,
 
-                            <MenuItem disabled={!isInMainline} onClick={onForceVariation}>
-                                <ListItemIcon>
-                                    <KeyboardReturn sx={{ transform: 'scale(-1, 1)' }} />
-                                </ListItemIcon>
-                                <ListItemText>Force Variation</ListItemText>
-                            </MenuItem>
+                        <MenuItem
+                            key='force-variation'
+                            disabled={!isInMainline}
+                            onClick={onForceVariation}
+                        >
+                            <ListItemIcon>
+                                <KeyboardReturn sx={{ transform: 'scale(-1, 1)' }} />
+                            </ListItemIcon>
+                            <ListItemText>Force Variation</ListItemText>
+                        </MenuItem>,
 
-                            <MenuItem disabled={!canPromote} onClick={onPromote}>
-                                <ListItemIcon>
-                                    <ArrowUpwardIcon />
-                                </ListItemIcon>
-                                <ListItemText>Move variation up</ListItemText>
-                            </MenuItem>
+                        <MenuItem key='move-up' disabled={!canPromote} onClick={onPromote}>
+                            <ListItemIcon>
+                                <ArrowUpwardIcon />
+                            </ListItemIcon>
+                            <ListItemText>Move variation up</ListItemText>
+                        </MenuItem>,
 
-                            <MenuItem onClick={() => onDelete(move, 'after')}>
-                                <ListItemIcon>
-                                    <Backspace sx={{ transform: 'rotateY(180deg)' }} />
-                                </ListItemIcon>
-                                <ListItemText>Delete from here</ListItemText>
-                            </MenuItem>
+                        <MenuItem key='delete-from-here' onClick={() => onDelete(move, 'after')}>
+                            <ListItemIcon>
+                                <Backspace sx={{ transform: 'rotateY(180deg)' }} />
+                            </ListItemIcon>
+                            <ListItemText>Delete from here</ListItemText>
+                        </MenuItem>,
 
-                            <MenuItem
-                                disabled={!canDeleteBefore}
-                                onClick={() => onDelete(move, 'before')}
-                            >
-                                <ListItemIcon>
-                                    <Backspace />
-                                </ListItemIcon>
-                                <ListItemText>Delete before here</ListItemText>
-                            </MenuItem>
-                        </>
-                    )}
+                        <MenuItem
+                            key='delete-before'
+                            disabled={!canDeleteBefore}
+                            onClick={() => onDelete(move, 'before')}
+                        >
+                            <ListItemIcon>
+                                <Backspace />
+                            </ListItemIcon>
+                            <ListItemText>Delete before here</ListItemText>
+                        </MenuItem>,
+
+                        <MenuItem key='toggle-engine' onClick={onToggleEngineLine}>
+                            <ListItemIcon>
+                                <StockfishIcon />
+                            </ListItemIcon>
+                            <ListItemText>
+                                {isEngineLine ? 'Unmark as engine line' : 'Mark as engine line'}
+                            </ListItemText>
+                        </MenuItem>,
+                    ]}
 
                     <MenuItem onClick={() => setShowMerge(true)}>
                         <ListItemIcon>
@@ -378,9 +402,8 @@ const MoveButton: React.FC<MoveButtonProps> = ({
 
                     if (
                         event.type === EventType.UpdateCommand &&
-                        event.commandName === 'clk' &&
-                        event.move === move &&
-                        showMoveTimes
+                        (event.move === move || event.move === move.previous) &&
+                        (event.commandName !== 'clk' || showMoveTimes)
                     ) {
                         setForceRender((v) => v + 1);
                     }
