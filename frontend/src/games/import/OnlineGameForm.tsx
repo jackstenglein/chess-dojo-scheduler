@@ -1,10 +1,4 @@
-import {
-    OnlineGame,
-    OnlineGameResultReason,
-    OnlineGameTimeClass,
-    OnlineGameTimeControl,
-    useOnlineGames,
-} from '@/api/external/onlineGame';
+import { OnlineGame, OnlineGamePlayer, useOnlineGames } from '@/api/external/onlineGame';
 import {
     isChesscomAnalysisURL,
     isChesscomEventsUrl,
@@ -23,162 +17,110 @@ import {
     PgnImportResult,
 } from '@/app/(scoreboard)/games/analysis/server';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
-import { RenderPlayers } from '@/components/games/list/GameListItem';
+import { toDojoDateString } from '@/components/calendar/displayDate';
+import GameTable, { gameTableColumns } from '@/components/games/list/GameTable';
 import { Link } from '@/components/navigation/Link';
-import { isCohortInRange, RatingSystem } from '@/database/user';
+import { RatingSystem } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import {
     GameImportTypes,
+    GameInfo,
     OnlineGameImportType,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import {
     Backdrop,
     Button,
-    Card,
-    CardActionArea,
-    CardContent,
     DialogContent,
     DialogTitle,
-    Grid,
     Stack,
     TextField,
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { SiChessdotcom, SiLichess } from 'react-icons/si';
 import { ImportButton } from './ImportButton';
 import { ImportDialogProps } from './ImportWizard';
 import { OrDivider } from './OrDivider';
 
-function timeControlMatches(
-    cohort: string | undefined,
-    timeControl: OnlineGameTimeControl,
-): boolean {
-    if (!cohort) {
-        return false;
+function makeRatingString(p: OnlineGamePlayer): string {
+    if (typeof p.rating === 'number') {
+        return String(p.rating) + (p.provisional ? '?' : '');
     }
-
-    const initialMinutes = timeControl.initialSeconds / 60;
-    if (initialMinutes < 30) {
-        return false;
-    }
-    const totalTime = initialMinutes + timeControl.incrementSeconds;
-
-    if (isCohortInRange(cohort, '0-800')) {
-        return totalTime >= 30;
-    }
-    if (isCohortInRange(cohort, '800-1200')) {
-        return totalTime >= 60;
-    }
-    if (isCohortInRange(cohort, '1200-1600')) {
-        return totalTime >= 75;
-    }
-    if (isCohortInRange(cohort, '1600-2000')) {
-        return totalTime >= 90;
-    }
-    return totalTime >= 120;
+    return '';
 }
 
-const RecentGameCell = ({
-    game,
-    onClick,
-}: {
-    game: OnlineGame;
-    onClick: (game: OnlineGame) => void;
-}) => {
-    const { user } = useAuth();
-
-    const createdAt = new Date(game.endTime);
-    const dateStr = toDojoDateString(createdAt, user?.timezoneOverride);
-    const timeStr = toDojoTimeString(createdAt, user?.timezoneOverride, user?.timeFormat);
-
-    return (
-        <Card sx={{ height: 1 }}>
-            <CardActionArea
-                data-cy={`recent-game-${game.source}`}
-                onClick={() => {
-                    onClick(game);
-                }}
-                sx={{ height: 1 }}
-            >
-                <CardContent>
-                    <Stack spacing={1.125}>
-                        <Stack
-                            direction='row'
-                            spacing={1}
-                            alignItems='center'
-                            flexWrap='wrap'
-                            justifyContent='space-between'
-                        >
-                            <Stack direction='row' alignItems='center' spacing={1}>
-                                {game.source === GameImportTypes.lichessGame ? (
-                                    <SiLichess />
-                                ) : (
-                                    <SiChessdotcom />
-                                )}
-
-                                <Typography variant='body2'>
-                                    {dateStr} {timeStr}
-                                </Typography>
-                            </Stack>
-
-                            <Typography
-                                variant='body2'
-                                color={
-                                    timeControlMatches(user?.dojoCohort, game.timeControl)
-                                        ? 'success.main'
-                                        : undefined
-                                }
-                            >
-                                {game.timeClass === OnlineGameTimeClass.Daily
-                                    ? 'daily'
-                                    : `${game.timeControl.initialSeconds / 60} | ${game.timeControl.incrementSeconds}`}
-                            </Typography>
-                        </Stack>
-                        <Stack>
-                            <RenderPlayers
-                                white={game.white.username}
-                                whiteElo={game.white.rating}
-                                whiteProvisional={game.white.provisional}
-                                black={game.black.username}
-                                blackElo={game.black.rating}
-                                blackProvisional={game.black.provisional}
-                            />
-                        </Stack>
-                        <Typography variant='body2'>
-                            {game.result}{' '}
-                            {game.resultReason !== OnlineGameResultReason.Unknown &&
-                                `by ${game.resultReason}`}
-                        </Typography>
-                    </Stack>
-                </CardContent>
-            </CardActionArea>
-        </Card>
-    );
-};
+// converting for consumption by GameTable
+// at the moment we don't worry about populating fields in GameInfo that we
+// don't need for this form
+function onlineGameToGameInfo(og: OnlineGame): GameInfo {
+    return {
+        id: og.id,
+        date: toDojoDateString(new Date(og.endTime), undefined),
+        owner: '',
+        ownerDisplayName: '',
+        ownerPreviousCohort: '',
+        headers: {
+            White: og.white.username,
+            WhiteElo: makeRatingString(og.white),
+            Black: og.black.username,
+            BlackElo: makeRatingString(og.black),
+            Date: '',
+            Site: '',
+            Result: og.result,
+            TimeControl: `${og.timeControl.initialSeconds} + ${og.timeControl.incrementSeconds}`,
+        },
+        createdAt: '',
+        pgn: og.pgn,
+        source: og.source,
+        url: og.url,
+    };
+}
 
 const RecentGameGrid = ({
     games,
+    request,
     onClickGame,
 }: {
     games: OnlineGame[];
+    Request;
     onClickGame: (game: OnlineGame) => void;
 }) => {
+    const [page, setPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+    const pagination = {
+        page: page,
+        setPage: setPage,
+        pageSize: pageSize,
+        setPageSize: setPageSize,
+        data: games.map(onlineGameToGameInfo),
+        request: request,
+        rowCount: games.length,
+        hasMore: false,
+        setGames: () => {},
+        onSearch: () => {},
+        onDelete: () => {},
+    };
+    // either unimportant or not meaningful in this context
+    // the pop-up is small so we try to save space
+    const columns = gameTableColumns.filter(
+        (col) =>
+            ![
+                'cohort',
+                'owner',
+                'moves',
+                'whiteRating',
+                'blackRating',
+                'publishedAt',
+                'updatedAt',
+                'unlisted',
+            ].includes(col.field),
+    );
     return (
-        <Grid container spacing={{ xs: 1, sm: 2 }}>
-            {games.map((game) => (
-                <Grid
-                    key={game.id}
-                    size={{
-                        xs: 12,
-                        sm: 6,
-                    }}
-                >
-                    <RecentGameCell onClick={onClickGame} game={game} />
-                </Grid>
-            ))}
-        </Grid>
+        <GameTable
+            namespace='import-form'
+            pagination={pagination}
+            columns={columns}
+            onRowClick={onClickGame}
+        />
     );
 };
 
@@ -252,8 +194,12 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
         setError('The provided URL is unsupported. Please make sure it is correct.');
     };
 
-    const onClickGame = (game: OnlineGame) => {
-        onSubmit({ pgnText: game.pgn, type: game.source, url: game.url });
+    const onClickGame = (params: GridRowParams) => {
+        onSubmit({
+            pgnText: params.row.pgn,
+            type: params.row.source,
+            url: params.row.url,
+        });
     };
 
     return (
@@ -307,7 +253,11 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                                 >
                                     <LoadingPage />
                                 </Backdrop>
-                                <RecentGameGrid games={games} onClickGame={onClickGame} />
+                                <RecentGameGrid
+                                    games={games}
+                                    onClickGame={onClickGame}
+                                    request={request}
+                                />
                             </>
                         )
                     ) : (

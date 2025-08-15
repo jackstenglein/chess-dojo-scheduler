@@ -13,6 +13,7 @@ interface CustomPaginationProps {
     hasMore: boolean;
     onPrevPage: () => void;
     onNextPage: () => void;
+    limitFreeTier?: boolean;
 }
 
 export const CustomPagination: React.FC<CustomPaginationProps & PaginationPropsOverrides> = ({
@@ -23,10 +24,10 @@ export const CustomPagination: React.FC<CustomPaginationProps & PaginationPropsO
     hasMore,
     onPrevPage,
     onNextPage,
+    limitFreeTier,
     ...rest
 }) => {
-    const isFreeTier = useFreeTier();
-
+    const freeTierLimited = useFreeTier() && limitFreeTier;
     return (
         <TablePagination
             {...rest}
@@ -65,7 +66,7 @@ export const CustomPagination: React.FC<CustomPaginationProps & PaginationPropsO
                         return (
                             <Tooltip
                                 title={
-                                    isFreeTier
+                                    freeTierLimited
                                         ? 'Free-tier users can only access the first page of results'
                                         : ''
                                 }
@@ -76,7 +77,7 @@ export const CustomPagination: React.FC<CustomPaginationProps & PaginationPropsO
                                         title='Go to next page'
                                         onClick={onNextPage}
                                         disabled={
-                                            isFreeTier ||
+                                            freeTierLimited ||
                                             ((page + 1) * pageSize >= count && !hasMore)
                                         }
                                     >
