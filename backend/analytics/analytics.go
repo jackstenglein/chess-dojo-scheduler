@@ -137,28 +137,28 @@ func gaPurchaseEvent(user *database.User, checkoutSession *stripe.CheckoutSessio
 	return nil
 }
 
-type baseEvent struct {
+type metaBaseEvent struct {
 	EventName      string `json:"event_name"`
 	EventTime      int    `json:"event_time"`
 	ActionSource   string `json:"action_source"`
 	EventSourceUrl string `json:"event_source_url"`
 }
 
-type userData struct {
+type metaUserData struct {
 	UserAgent string `json:"client_user_agent"`
 	Email     string `json:"em,omitempty"`
 	IpAddress string `json:"client_ip_address,omitempty"`
 }
 
-type purchaseCustomData struct {
+type metaPurchaseCustomData struct {
 	Currency string  `json:"currency"`
 	Value    float32 `json:"value"`
 }
 
-type purchaseEventRequest struct {
-	baseEvent
-	UserData   userData           `json:"user_data"`
-	CustomData purchaseCustomData `json:"custom_data"`
+type metaPurchaseEventRequest struct {
+	metaBaseEvent
+	UserData   metaUserData           `json:"user_data"`
+	CustomData metaPurchaseCustomData `json:"custom_data"`
 }
 
 type metaRequest struct {
@@ -171,19 +171,19 @@ func metaPurchaseEvent(checkoutSession *stripe.CheckoutSession) error {
 	email := fmt.Sprintf("%x", sha256.Sum256([]byte(checkoutSession.CustomerDetails.Email)))
 	request := metaRequest{
 		Data: []any{
-			purchaseEventRequest{
-				baseEvent: baseEvent{
+			metaPurchaseEventRequest{
+				metaBaseEvent: metaBaseEvent{
 					EventName:      "Purchase",
 					EventTime:      int(time.Now().Unix()),
 					ActionSource:   "website",
 					EventSourceUrl: frontendHost,
 				},
-				UserData: userData{
+				UserData: metaUserData{
 					UserAgent: checkoutSession.Metadata["userAgent"],
 					Email:     email,
 					IpAddress: checkoutSession.Metadata["ipAddress"],
 				},
-				CustomData: purchaseCustomData{
+				CustomData: metaPurchaseCustomData{
 					Currency: string(checkoutSession.Currency),
 					Value:    float32(checkoutSession.AmountTotal) / 100,
 				},

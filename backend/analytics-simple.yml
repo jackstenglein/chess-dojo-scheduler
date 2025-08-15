@@ -1,2 +1,4 @@
-pixelId: ''
-accessToken: ''
+metaPixelId: ''
+metaAccessToken: ''
+gaMeasurementId: ''
+gaMeasurementApiKey: ''
