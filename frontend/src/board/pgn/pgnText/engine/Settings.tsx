@@ -1,8 +1,10 @@
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
+    ENGINE_ADD_INFO_ON_SPACEBAR,
     ENGINE_DEPTH,
     ENGINE_HASH,
+    ENGINE_KEEP_INFO_ONLY_ON_LAST_MOVE,
     ENGINE_LINE_COUNT,
     ENGINE_NAME,
     ENGINE_PRIMARY_EVAL_TYPE,
@@ -64,6 +66,14 @@ export default function Settings() {
     const [addEngineInfoOnMove, setAddEngineInfoOnMove] = useLocalStorage<boolean>(
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
+    );
+    const [addEngineInfoOnSpacebar, setAddEngineInfoOnSpacebar] = useLocalStorage<boolean>(
+        ENGINE_ADD_INFO_ON_SPACEBAR.Key,
+        ENGINE_ADD_INFO_ON_SPACEBAR.Default,
+    );
+    const [keepInfoOnlyOnLastMove, setKeepInfoOnlyOnLastMove] = useLocalStorage<boolean>(
+        ENGINE_KEEP_INFO_ONLY_ON_LAST_MOVE.Key,
+        ENGINE_KEEP_INFO_ONLY_ON_LAST_MOVE.Default,
     );
     const [highlightEngineLines, setHighlightEngineLines] = useLocalStorage<boolean>(
         HIGHLIGHT_ENGINE_LINES.Key,
@@ -197,6 +207,30 @@ export default function Settings() {
                             }
                             label='Add engine info as a comment when clicking move'
                         />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={addEngineInfoOnSpacebar}
+                                    onChange={(e) => setAddEngineInfoOnSpacebar(e.target.checked)}
+                                />
+                            }
+                            label='Enable "spacebar analysis"'
+                        />
+
+                        {addEngineInfoOnSpacebar && (
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={keepInfoOnlyOnLastMove}
+                                        onChange={(e) =>
+                                            setKeepInfoOnlyOnLastMove(e.target.checked)
+                                        }
+                                    />
+                                }
+                                label='Keep engine info as a comment only on last move of spacebar analysis'
+                            />
+                        )}
 
                         <FormControlLabel
                             control={

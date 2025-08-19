@@ -2,6 +2,8 @@ import { useReconcile } from '@/board/Board';
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
+    ENGINE_ADD_INFO_ON_SPACEBAR,
+    ENGINE_KEEP_INFO_ONLY_ON_LAST_MOVE,
     ENGINE_PRIMARY_EVAL_TYPE,
     EngineInfo,
     LineEval,
@@ -9,15 +11,17 @@ import {
 } from '@/stockfish/engine/engine';
 import { Chess, Color, Move } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
+import { useEffect } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
 
 interface Props {
     line?: LineEval;
     engineInfo: EngineInfo;
+    isTop?: boolean;
 }
 
-export default function LineEvaluation({ engineInfo, line }: Props) {
+export default function LineEvaluation({ engineInfo, line, isTop }: Props) {
     const { chess } = useChess();
     const reconcile = useReconcile();
     const [primaryEvalType] = useLocalStorage<PrimaryEvalType>(
@@ -32,12 +36,100 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
     );
+    const [addInfoOnSpacebar] = useLocalStorage(
+        ENGINE_ADD_INFO_ON_SPACEBAR.Key,
+        ENGINE_ADD_INFO_ON_SPACEBAR.Default,
+    );
+    const [keepInfoOnlyOnLastMove] = useLocalStorage(
+        ENGINE_KEEP_INFO_ONLY_ON_LAST_MOVE.Key,
+        ENGINE_KEEP_INFO_ONLY_ON_LAST_MOVE.Default,
+    );
+
+    const evaluation = line ? formatLineEval(line) : '?';
+
+    useEffect(() => {
+        if (!isTop) return;
+        const spacebarDown = (addInfo: boolean = addInfoOnSpacebar) => {
+            if (!line || line.pv.length === 0) {
+                console.log('no line or pv');
+                return;
+            }
+
+            if (chess?.fen() !== line.fen) {
+                console.log('fen does not match');
+                return;
+            }
+
+            let move = chess.move(line.pv[0], { existingOnly: true });
+            let engineMove = false;
+            if (!move) {
+                move = chess.move(line.pv[0], { existingOnly: false });
+                if (move) {
+                    engineMove = true;
+                    chess.setCommand('dojoEngine', 'true', move);
+                }
+            }
+
+            if (!move) {
+                console.log('move failed to apply:', line.pv[0]);
+                return;
+            }
+
+            const startTurn = chess.turn();
+            const lastMove = chess.previousMove();
+            const lastMoveHasDojo = lastMove?.commentDiag?.dojoEngine === 'true';
+
+            if (engineMove) {
+                if (addInfo) {
+                    let comment = chess.getComment();
+                    if (comment.trim().length > 0) {
+                        comment += `\n\n`;
+                    }
+                    comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
+                    comment += formatResultPercentages(startTurn, chess.turn(), line);
+                    comment += ')';
+                    chess.setComment(comment);
+                }
+                if (lastMoveHasDojo && keepInfoOnlyOnLastMove) {
+                    const commentBefore = lastMove.commentAfter;
+                    if (commentBefore && commentBefore.length > 0) {
+                        const newComment = commentBefore.replace(/\(\s*[^)]*\d\s*\)/, '');
+                        chess.setComment(newComment, undefined, lastMove);
+                    }
+                    reconcile();
+                    return;
+                }
+                reconcile();
+                return;
+            }
+        };
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                spacebarDown();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [
+        line,
+        chess,
+        engineInfo,
+        reconcile,
+        addInfoOnSpacebar,
+        evaluation,
+        isTop,
+        keepInfoOnlyOnLastMove,
+    ]);
 
     if (!line) {
         return <ListItem disablePadding sx={{ minHeight: '31px' }} />;
     }
 
-    const evaluation = formatLineEval(line);
     const wdl = formatResultPercentages(Color.white, Color.white, line, ' ');
 
     const isBlackCp =
