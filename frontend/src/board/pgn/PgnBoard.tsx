@@ -52,7 +52,7 @@ interface ChessContextType {
     boardRef?: RefObject<HTMLDivElement | null>;
     config?: ChessConfig;
     toggleOrientation?: () => void;
-    keydownMap?: React.MutableRefObject<Record<string, boolean>>;
+    keydownMap?: React.RefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
     slotProps?: PgnBoardSlotProps;
     orientation?: 'white' | 'black';
@@ -61,6 +61,7 @@ interface ChessContextType {
         isComplete: boolean;
         reset: () => void;
     };
+    addEngineMoveRef?: React.RefObject<(() => void) | null>;
 }
 
 export const ChessContext = createContext<ChessContextType>({});
@@ -140,6 +141,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         const [orientation, setOrientation] = useState(game?.orientation || startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
         const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
+        const addEngineMoveRef = useRef<(() => void) | null>(null);
 
         // Solitaire chess
         const solitaireSolution = useRef<Chess>(new Chess({ pgn }));
@@ -249,6 +251,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                         setSolitaireComplete(false);
                     },
                 },
+                addEngineMoveRef,
             }),
             [
                 chess,
@@ -269,6 +272,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 solitaireSolution,
                 solitaireComplete,
                 onSolitaireMove,
+                addEngineMoveRef,
             ],
         );
 

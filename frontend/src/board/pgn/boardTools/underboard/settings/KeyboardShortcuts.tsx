@@ -69,6 +69,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Unfocus Text Fields';
         case ShortcutAction.InsertNullMove:
             return 'Insert Null Move';
+        case ShortcutAction.InsertEngineMove:
+            return 'Insert Top Engine Move';
     }
 }
 
@@ -119,6 +121,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Unfocuses all text fields, allowing the usage of keyboard shortcuts and board controls.';
         case ShortcutAction.InsertNullMove:
             return 'Inserts a null move into the PGN, passing the turn to the other side without changing the position. Null moves cannot be added when in check or immediately after another null move.';
+        case ShortcutAction.InsertEngineMove:
+            return 'Inserts the top engine move into the game or as a comment if a move already exists.';
     }
 }
 
@@ -160,6 +164,11 @@ interface ShortcutHandlerOptions {
      * A function which toggles the orientation of the board.
      */
     toggleOrientation?: () => void;
+
+    /**
+     * Whether to insert the next engine's move when hitting the keybind.
+     */
+    addEngineMove?: () => void;
 }
 
 interface ShortcutHandlerProps {
@@ -341,6 +350,12 @@ function handleInsertNullMove({ chess, reconcile }: ShortcutHandlerProps) {
     reconcile?.();
 }
 
+/** Handles inserting the top engine move.
+ */
+function handleInsertEngineMove({ opts }: ShortcutHandlerProps) {
+    opts?.addEngineMove?.();
+}
+
 /**
  * Maps ShortcutActions to their handler functions. Not all ShortcutActions are included.
  */
@@ -365,6 +380,7 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.FocusCommentTextField]: handleFocusCommentTextField,
     [ShortcutAction.UnfocusTextField]: handleUnfocusTextField,
     [ShortcutAction.InsertNullMove]: handleInsertNullMove,
+    [ShortcutAction.InsertEngineMove]: handleInsertEngineMove,
 };
 
 /**

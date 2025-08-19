@@ -2,6 +2,7 @@ import { useReconcile } from '@/board/Board';
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
+    ENGINE_ADD_INFO_ON_SPACEBAR,
     ENGINE_PRIMARY_EVAL_TYPE,
     EngineInfo,
     LineEval,
@@ -9,16 +10,18 @@ import {
 } from '@/stockfish/engine/engine';
 import { Chess, Color, Move } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
+import { useCallback, useEffect } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
 
 interface Props {
-    line?: LineEval;
+    line: LineEval;
     engineInfo: EngineInfo;
+    isTop?: boolean;
 }
 
-export default function LineEvaluation({ engineInfo, line }: Props) {
-    const { chess } = useChess();
+export default function LineEvaluation({ engineInfo, line, isTop }: Props) {
+    const { chess, addEngineMoveRef } = useChess();
     const reconcile = useReconcile();
     const [primaryEvalType] = useLocalStorage<PrimaryEvalType>(
         ENGINE_PRIMARY_EVAL_TYPE.Key,
@@ -32,12 +35,97 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
     );
+    const [addInfoOnSpacebar] = useLocalStorage(
+        ENGINE_ADD_INFO_ON_SPACEBAR.Key,
+        ENGINE_ADD_INFO_ON_SPACEBAR.Default,
+    );
+
+    const evaluation = line ? formatLineEval(line) : '?';
+    const addEngineComment = useCallback(
+        (addInfo: boolean, startTurn: Color) => {
+            if (!chess) {
+                return;
+            }
+            const lastMove = chess?.previousMove();
+            const lastMoveHasDojo = lastMove?.commentDiag?.dojoEngine === 'true';
+
+            if (addInfo) {
+                let comment = chess.getComment();
+                if (comment.trim().length > 0) {
+                    comment += `\n\n`;
+                }
+                comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
+                comment += formatResultPercentages(startTurn, chess.turn(), line);
+                comment += ')';
+                chess.setComment(comment);
+            }
+            if (lastMoveHasDojo) {
+                const commentBefore = lastMove?.commentAfter;
+                if (commentBefore && commentBefore.length > 0) {
+                    const newComment = commentBefore.replace(/\(SF \d+(\.\d+)? [ \d/.+-]+\)/, '');
+                    chess.setComment(newComment, undefined, lastMove);
+                }
+                reconcile();
+                return;
+            }
+        },
+        [chess, engineInfo, evaluation, line, reconcile],
+    );
+
+    const addEngineMove = useCallback(
+        (addInfo: boolean = addInfoOnSpacebar) => {
+            if (!line || line.pv.length === 0) {
+                console.log('no line or pv');
+                return;
+            }
+
+            if (chess?.fen() !== line.fen) {
+                console.log('fen does not match');
+                return;
+            }
+
+            let move = chess.move(line.pv[0], { existingOnly: true });
+            let engineMove = false;
+            if (!move) {
+                move = chess.move(line.pv[0], { existingOnly: false });
+                if (move) {
+                    engineMove = true;
+                    chess.setCommand('dojoEngine', 'true', move);
+                } else {
+                    console.log('move failed to apply:', line.pv[0]);
+                    return;
+                }
+            }
+
+            const startTurn = chess.turn();
+
+            if (!engineMove) {
+                return;
+            }
+
+            addEngineComment(addInfo, startTurn);
+            reconcile();
+            return;
+        },
+        [addEngineComment, addInfoOnSpacebar, chess, line, reconcile],
+    );
+
+    useEffect(() => {
+        if (!isTop) {
+            if (addEngineMoveRef?.current === addEngineMove) {
+                addEngineMoveRef.current = null;
+            }
+        } else {
+            if (addEngineMoveRef) {
+                addEngineMoveRef.current = addEngineMove;
+            }
+        }
+    }, [isTop, addEngineMoveRef, addEngineMove]);
 
     if (!line) {
         return <ListItem disablePadding sx={{ minHeight: '31px' }} />;
     }
 
-    const evaluation = formatLineEval(line);
     const wdl = formatResultPercentages(Color.white, Color.white, line, ' ');
 
     const isBlackCp =
@@ -62,16 +150,7 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
                 chess.setCommand('dojoEngine', 'true', move);
             }
         }
-        if (addInfo) {
-            let comment = chess.getComment();
-            if (comment.trim().length > 0) {
-                comment += `\n\n`;
-            }
-            comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
-            comment += formatResultPercentages(startTurn, chess.turn(), line);
-            comment += ')';
-            chess.setComment(comment);
-        }
+        addEngineComment(addInfo, startTurn);
         reconcile();
     };
 

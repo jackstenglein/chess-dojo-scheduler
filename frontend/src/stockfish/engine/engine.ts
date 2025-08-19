@@ -169,6 +169,14 @@ export const ENGINE_ADD_INFO_ON_MOVE_CLICK = {
     Default: false,
 } as const;
 
+/** Settings for adding info by typing spacebar while the engine is running. */
+export const ENGINE_ADD_INFO_ON_SPACEBAR = {
+    /** Local storage key for the spacebar behavior. */
+    Key: 'engine-add-info-on-spacebar',
+    /** The default value. */
+    Default: true,
+};
+
 /** Settings for highlighting engine lines. */
 export const HIGHLIGHT_ENGINE_LINES = {
     /** Local storage key for highlighting engine lines. */

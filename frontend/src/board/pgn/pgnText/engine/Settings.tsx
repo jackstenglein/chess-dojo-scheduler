@@ -1,6 +1,7 @@
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
+    ENGINE_ADD_INFO_ON_SPACEBAR,
     ENGINE_DEPTH,
     ENGINE_HASH,
     ENGINE_LINE_COUNT,
@@ -64,6 +65,10 @@ export default function Settings() {
     const [addEngineInfoOnMove, setAddEngineInfoOnMove] = useLocalStorage<boolean>(
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
+    );
+    const [addEngineInfoOnSpacebar, setAddEngineInfoOnSpacebar] = useLocalStorage<boolean>(
+        ENGINE_ADD_INFO_ON_SPACEBAR.Key,
+        ENGINE_ADD_INFO_ON_SPACEBAR.Default,
     );
     const [highlightEngineLines, setHighlightEngineLines] = useLocalStorage<boolean>(
         HIGHLIGHT_ENGINE_LINES.Key,
@@ -196,6 +201,16 @@ export default function Settings() {
                                 />
                             }
                             label='Add engine info as a comment when clicking move'
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={addEngineInfoOnSpacebar}
+                                    onChange={(e) => setAddEngineInfoOnSpacebar(e.target.checked)}
+                                />
+                            }
+                            label='Enable "spacebar analysis"'
                         />
 
                         <FormControlLabel
