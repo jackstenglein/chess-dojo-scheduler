@@ -1,17 +1,18 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
 import { useTimelineContext } from '@/components/profile/activity/useTimeline';
 import {
     CustomTask,
+    getCurrentScore,
+    isRequirement,
     Requirement,
     RequirementProgress,
     ScoreboardDisplay,
-    getCurrentScore,
-    isRequirement,
 } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
-import { ALL_COHORTS, User } from '@/database/user';
+import { ALL_COHORTS, compareCohorts, dojoCohorts, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
@@ -24,6 +25,7 @@ import {
     Divider,
     Grid,
     IconButton,
+    MenuItem,
     Stack,
     TextField,
     Tooltip,
@@ -47,48 +49,42 @@ interface HistoryItem {
     entry: TimelineEntry;
     index: number;
     deleted: boolean;
+    cohort: string;
 }
 
-type ProgressHistoryItemProps = HistoryItem & {
+interface ProgressHistoryItemProps {
+    requirement: Requirement | CustomTask;
+    item: HistoryItem;
     error: HistoryItemError;
     updateItem: (item: HistoryItem) => void;
     deleteItem: () => void;
-};
+}
 
-const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
-    date,
-    count,
-    hours,
-    minutes,
-    notes,
-    entry,
-    index,
-    deleted,
+const ProgressHistoryItem = ({
+    requirement,
+    item,
     error,
     updateItem,
     deleteItem,
-}) => {
-    if (deleted) {
+}: ProgressHistoryItemProps) => {
+    if (item.deleted) {
         return null;
     }
 
+    const cohortOptions = requirement.counts[ALL_COHORTS]
+        ? dojoCohorts
+        : Object.keys(requirement.counts).sort(compareCohorts);
+
     const isTimeOnly =
-        entry.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
-        entry.scoreboardDisplay === ScoreboardDisplay.Minutes;
+        item.entry.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
+        item.entry.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
     const onChange = (
-        key: 'date' | 'count' | 'hours' | 'minutes' | 'notes',
+        key: 'date' | 'count' | 'hours' | 'minutes' | 'notes' | 'cohort',
         value: string | DateTime | null,
     ) => {
         const newItem = {
-            date,
-            count,
-            hours,
-            minutes,
-            notes,
-            entry,
-            index,
-            deleted,
+            ...item,
             [key]: value,
         };
         updateItem(newItem);
@@ -105,10 +101,26 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                 rowGap={2}
             >
                 <Grid container columnGap={2} rowGap={3} alignItems='center'>
+                    <Grid size={{ xs: 12, sm: 'grow' }}>
+                        <TextField
+                            label='Cohort'
+                            select
+                            value={item.cohort}
+                            onChange={(e) => onChange('cohort', e.target.value)}
+                            fullWidth
+                        >
+                            {cohortOptions.map((opt) => (
+                                <MenuItem key={opt} value={opt}>
+                                    {opt}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+
                     <Grid size={{ xs: 12, sm: 'grow' }} sx={{ minWidth: '145px' }}>
                         <DatePicker
                             label='Date'
-                            value={date}
+                            value={item.date}
                             onChange={(v) => onChange('date', v)}
                             slotProps={{
                                 textField: {
@@ -125,7 +137,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                             <TextField
                                 data-cy='task-history-count'
                                 label='Count'
-                                value={count}
+                                value={item.count}
                                 onChange={(event) => onChange('count', event.target.value)}
                                 fullWidth
                                 error={!!error.count}
@@ -137,7 +149,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                     <Grid size={{ xs: 12, sm: 'grow' }}>
                         <TextField
                             label='Hours'
-                            value={hours}
+                            value={item.hours}
                             slotProps={{
                                 htmlInput: {
                                     inputMode: 'numeric',
@@ -154,7 +166,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                     <Grid size={{ xs: 12, sm: 'grow' }}>
                         <TextField
                             label='Minutes'
-                            value={minutes}
+                            value={item.minutes}
                             slotProps={{
                                 htmlInput: {
                                     inputMode: 'numeric',
@@ -174,7 +186,7 @@ const ProgressHistoryItem: React.FC<ProgressHistoryItemProps> = ({
                             placeholder='Optional comments about your progress or the task itself. Visible to others on the newsfeed.'
                             multiline={true}
                             maxRows={3}
-                            value={notes}
+                            value={item.notes}
                             onChange={(e) => onChange('notes', e.target.value)}
                             fullWidth
                         />
@@ -205,19 +217,20 @@ interface HistoryItemError {
 }
 
 function getTimelineUpdate(
-    cohort: string,
     requirement: Requirement | CustomTask,
     items: HistoryItem[],
 ): {
+    progress: RequirementProgress;
     updated: TimelineEntry[];
     deleted: TimelineEntry[];
     errors: Record<number, HistoryItemError>;
 } {
     const errors: Record<number, HistoryItemError> = {};
 
-    items.forEach((item, idx) => {
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         if (item.deleted) {
-            return;
+            continue;
         }
 
         const itemErrors: HistoryItemError = {};
@@ -244,12 +257,17 @@ function getTimelineUpdate(
         }
 
         if (Object.values(itemErrors).length > 0) {
-            errors[idx] = itemErrors;
+            errors[i] = itemErrors;
         }
-    });
+    }
 
     if (Object.values(errors).length > 0) {
         return {
+            progress: {
+                requirementId: requirement.id,
+                minutesSpent: {},
+                updatedAt: '',
+            },
             updated: [],
             deleted: [],
             errors,
@@ -258,36 +276,48 @@ function getTimelineUpdate(
 
     const updated: TimelineEntry[] = [];
     const deleted: TimelineEntry[] = [];
-    let totalMinutesSpent = 0;
+    const progress: RequirementProgress & { counts: Record<string, number> } = {
+        requirementId: requirement.id,
+        minutesSpent: {},
+        counts: {},
+        updatedAt: '',
+    };
 
     for (const item of items) {
         if (item.deleted) {
             deleted.push(item.entry);
             continue;
         }
+        const cohort =
+            requirement.numberOfCohorts === 0 || requirement.numberOfCohorts === 1
+                ? ALL_COHORTS
+                : item.cohort;
 
         const minutesSpent = 60 * parseInt(item.hours || '0') + parseInt(item.minutes || '0');
-        totalMinutesSpent += minutesSpent;
+        progress.minutesSpent[item.cohort] =
+            (progress.minutesSpent[item.cohort] ?? 0) + minutesSpent;
 
-        const previousCount = updated.length === 0 ? 0 : updated[updated.length - 1].newCount;
+        const previousCount = progress.counts[cohort] ?? 0;
         const newCount =
             item.entry.scoreboardDisplay === ScoreboardDisplay.Minutes
                 ? previousCount + minutesSpent
                 : previousCount + parseInt(item.count || '0');
+        progress.counts[cohort] = newCount;
 
         let previousScore = 0;
         let newScore = 0;
         if (isRequirement(requirement)) {
-            previousScore = getCurrentScore(cohort, requirement, {
-                counts: { [ALL_COHORTS]: previousCount, [cohort]: previousCount },
+            previousScore = getCurrentScore(item.cohort, requirement, {
+                counts: { [ALL_COHORTS]: previousCount, [item.cohort]: previousCount },
             } as unknown as RequirementProgress);
-            newScore = getCurrentScore(cohort, requirement, {
-                counts: { [ALL_COHORTS]: newCount, [cohort]: newCount },
+            newScore = getCurrentScore(item.cohort, requirement, {
+                counts: { [ALL_COHORTS]: newCount, [item.cohort]: newCount },
             } as unknown as RequirementProgress);
         }
 
         updated.push({
             ...item.entry,
+            cohort: item.cohort,
             notes: item.notes,
             date: item.date?.toUTC().toISO() || item.entry.createdAt,
             previousCount,
@@ -295,11 +325,12 @@ function getTimelineUpdate(
             dojoPoints: newScore - previousScore,
             totalDojoPoints: newScore,
             minutesSpent,
-            totalMinutesSpent,
+            totalMinutesSpent: progress.minutesSpent[item.cohort],
         });
     }
 
     return {
+        progress,
         updated,
         deleted,
         errors,
@@ -308,19 +339,15 @@ function getTimelineUpdate(
 
 interface ProgressHistoryProps {
     requirement: Requirement | CustomTask;
-    cohort: string;
     onClose: () => void;
     setView?: (view: TaskDialogView) => void;
 }
 
-const ProgressHistory: React.FC<ProgressHistoryProps> = ({
-    requirement,
-    cohort,
-    onClose,
-    setView,
-}) => {
+const ProgressHistory = ({ requirement, onClose, setView }: ProgressHistoryProps) => {
     const api = useApi();
     const request = useRequest<AxiosResponse<User>>();
+    const { user } = useAuth();
+    const cohort = user?.dojoCohort ?? dojoCohorts[0];
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
     const {
@@ -336,7 +363,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
 
     const initialItems: HistoryItem[] = useMemo(() => {
         return entries
-            .filter((t) => t.requirementId === requirement.id && t.cohort === cohort)
+            .filter((t) => t.requirementId === requirement.id)
             .sort((a, b) => (a.date || a.createdAt).localeCompare(b.date || b.createdAt))
             .map((t, idx) => ({
                 date: DateTime.fromISO(t.date || t.createdAt),
@@ -349,7 +376,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                 index: idx,
                 deleted: false,
             }));
-    }, [requirement, entries, cohort]);
+    }, [requirement, entries]);
 
     const [items, setItems] = useState(initialItems);
 
@@ -357,34 +384,20 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
         setItems(initialItems);
     }, [initialItems]);
 
-    const totalCount = useMemo(() => {
-        return items.reduce((sum, item) => {
-            if (item.deleted) {
-                return sum;
-            }
-            if (isNaN(parseInt(item.count))) {
-                return sum;
-            }
-            return sum + parseInt(item.count);
-        }, 0);
-    }, [items]);
+    const update = useMemo(() => getTimelineUpdate(requirement, items), [requirement, items]);
 
-    const totalTime = useMemo(() => {
-        return items.reduce((sum, item) => {
-            if (item.deleted) {
-                return sum;
-            }
-            let newSum = sum;
-            if (NUMBER_REGEX.test(item.hours) && !isNaN(parseInt(item.hours))) {
-                newSum += 60 * parseInt(item.hours);
-            }
+    const cohortCount =
+        update.progress.counts?.ALL_COHORTS ?? update.progress.counts?.[cohort] ?? 0;
+    const totalCount = Object.values(update.progress.counts ?? {}).reduce(
+        (sum, value) => sum + value,
+        0,
+    );
 
-            if (NUMBER_REGEX.test(item.minutes) && !isNaN(parseInt(item.minutes))) {
-                newSum += parseInt(item.minutes);
-            }
-            return newSum;
-        }, 0);
-    }, [items]);
+    const cohortTime = update.progress.minutesSpent[cohort] ?? 0;
+    const totalTime = Object.values(update.progress.minutesSpent).reduce(
+        (sum, value) => sum + value,
+        0,
+    );
 
     const getUpdateItem = useCallback(
         (idx: number) => (item: HistoryItem) =>
@@ -406,29 +419,23 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
     );
 
     const onSubmit = () => {
-        const update = getTimelineUpdate(cohort, requirement, items);
-
         setErrors(update.errors);
         if (Object.values(update.errors).length > 0) {
             return;
         }
 
         request.onStart();
-
-        api.updateUserTimeline(
-            requirement.id,
-            cohort,
-            update.updated,
-            update.deleted,
-            requirement.scoreboardDisplay === ScoreboardDisplay.Minutes ? totalTime : totalCount,
-            totalTime,
-        )
+        api.updateUserTimeline({
+            requirementId: requirement.id,
+            progress: update.progress,
+            updated: update.updated,
+            deleted: update.deleted,
+        })
             .then((response) => {
                 trackEvent(EventType.UpdateTimeline, {
                     requirement_id: requirement.id,
                     requirement_name: requirement.name,
                     is_custom_requirement: !isRequirement(requirement),
-                    dojo_cohort: cohort,
                     total_count:
                         requirement.scoreboardDisplay === ScoreboardDisplay.Minutes
                             ? totalTime
@@ -460,10 +467,7 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
         <>
             <DialogContent>
                 {items.length === 0 ? (
-                    <DialogContentText>
-                        You have no history for this requirement in cohort {cohort}. Please choose a
-                        different cohort to edit your history.
-                    </DialogContentText>
+                    <DialogContentText>You have no history for this requirement.</DialogContentText>
                 ) : (
                     <Stack spacing={3} mt={1} width={1}>
                         {items.map((_, idx, array) => {
@@ -472,28 +476,30 @@ const ProgressHistory: React.FC<ProgressHistoryProps> = ({
                             return (
                                 <ProgressHistoryItem
                                     key={item.entry.id}
-                                    {...item}
+                                    requirement={requirement}
+                                    item={item}
                                     error={errors[reversedIdx] || {}}
                                     updateItem={getUpdateItem(reversedIdx)}
                                     deleteItem={getDeleteItem(reversedIdx)}
                                 />
                             );
                         })}
-
-                        <Stack>
-                            {!isTimeOnly && (
-                                <Typography color='text.secondary'>
-                                    Total Count: {totalCount}
-                                </Typography>
-                            )}
-                            <Typography color='text.secondary'>
-                                Total Time: {`${Math.floor(totalTime / 60)}h ${totalTime % 60}m`}
-                            </Typography>
-                        </Stack>
                     </Stack>
                 )}
             </DialogContent>
             <DialogActions>
+                <Stack sx={{ flexGrow: 1 }}>
+                    {!isTimeOnly && (
+                        <Typography color='text.secondary'>
+                            Total Count: {totalCount}. Current Cohort: {cohortCount}
+                        </Typography>
+                    )}
+                    <Typography color='text.secondary'>
+                        Total Time: {Math.floor(totalTime / 60)}h {totalTime % 60}m. Current Cohort:{' '}
+                        {Math.floor(cohortTime / 60)}h {Math.floor(cohortTime % 60)}m
+                    </Typography>
+                </Stack>
+
                 <Button onClick={onClose} disabled={request.isLoading()}>
                     Cancel
                 </Button>

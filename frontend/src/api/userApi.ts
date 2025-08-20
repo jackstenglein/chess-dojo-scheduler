@@ -1,3 +1,4 @@
+import { RequirementProgress } from '@/database/requirement';
 import { DiscordAuthRequest } from '@jackstenglein/chess-dojo-common/src/auth/discord';
 import axios, { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
@@ -84,22 +85,10 @@ export interface UserApiContextType {
 
     /**
      * updateUserTimeline sets the current user's timeline for the provided requirement.
-     * @param requirementId The id of the requirement being updated.
-     * @param cohort The cohort to update the timeline for.
-     * @param updated The timeline entries to update.
-     * @param deleted The timeline entries to delete.
-     * @param count The cohort count to set on the requirement.
-     * @param minutesSpent The cohort minutes spent to set on the requirement.
+     * @param request The request to update the user's timeline.
      * @returns An AxiosResponse containing the updated user in the data field.
      */
-    updateUserTimeline: (
-        requirementId: string,
-        cohort: string,
-        updated: TimelineEntry[],
-        deleted: TimelineEntry[],
-        count: number,
-        minutesSpent: number,
-    ) => Promise<AxiosResponse<User>>;
+    updateUserTimeline: (request: UpdateUserTimelineRequest) => Promise<AxiosResponse<User>>;
 
     /**
      * graduate creates a new graduation object for the given user and updates them to the next cohort.
@@ -351,44 +340,34 @@ export async function updateUserProgress(
     return result;
 }
 
+export interface UpdateUserTimelineRequest {
+    /** The id of the requirement being updated. */
+    requirementId: string;
+    /** The user's new progress object for the requirement. */
+    progress: RequirementProgress;
+    /** The timeline entries to update. */
+    updated: TimelineEntry[];
+    /** The timeline entries to delete. */
+    deleted: TimelineEntry[];
+}
+
 /**
  * updateUserTimeline sets the current user's timeline for the provided requirement.
  * @param idToken The id token of the current signed-in user.
- * @param requirementId The id of the requirement being updated.
- * @param cohort The cohort to set the requirement for.
- * @param updated The timeline entries to update.
- * @param deleted The timeline entries to delete.
- * @param count The cohort count to set on the requirement.
- * @param minutesSpent The cohort minutes spent to set on the requirement.
+ * @param request The request to update the user timeline.
  * @param callback A callback function to invoke with the update after it has succeeded on the backend.
  * @returns An AxiosResponse containing the updated user in the data field.
  */
 export async function updateUserTimeline(
     idToken: string,
-    requirementId: string,
-    cohort: string,
-    updated: TimelineEntry[],
-    deleted: TimelineEntry[],
-    count: number,
-    minutesSpent: number,
+    request: UpdateUserTimelineRequest,
     callback: (update: Partial<User>) => void,
 ) {
-    const result = await axios.post<User>(
-        BASE_URL + '/user/progress/timeline',
-        {
-            requirementId,
-            cohort,
-            updated,
-            deleted,
-            count,
-            minutesSpent,
+    const result = await axios.post<User>(`${BASE_URL}/user/progress/timeline/v2`, request, {
+        headers: {
+            Authorization: `Bearer ${idToken}`,
         },
-        {
-            headers: {
-                Authorization: 'Bearer ' + idToken,
-            },
-        },
-    );
+    });
     callback(result.data);
     return result;
 }

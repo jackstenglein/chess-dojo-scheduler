@@ -26,9 +26,7 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
-    MenuItem,
     Stack,
-    TextField,
     Tooltip,
     Typography,
 } from '@mui/material';
@@ -81,14 +79,12 @@ function ProgressDialog({ onClose, task, progress, cohort, view, setView }: Prog
         ? dojoCohorts
         : Object.keys(task.counts).sort(compareCohorts);
 
-    let initialCohort = cohortOptions[0];
+    let selectedCohort = cohortOptions[0];
     if (cohort && cohortOptions.includes(cohort)) {
-        initialCohort = cohort;
+        selectedCohort = cohort;
     } else if (user?.dojoCohort && cohortOptions.includes(user.dojoCohort)) {
-        initialCohort = user.dojoCohort;
+        selectedCohort = user.dojoCohort;
     }
-
-    const [selectedCohort, setSelectedCohort] = useState(initialCohort);
 
     const totalCount = task.counts[selectedCohort] || 0;
     const isNonDojo = task.scoreboardDisplay === ScoreboardDisplay.NonDojo;
@@ -112,31 +108,7 @@ function ProgressDialog({ onClose, task, progress, cohort, view, setView }: Prog
             <DialogTitle>{dialogTitle}</DialogTitle>
 
             {view === TaskDialogView.History && (
-                <DialogContent sx={{ overflowY: 'visible' }}>
-                    <TextField
-                        select
-                        label='Cohort'
-                        value={selectedCohort}
-                        onChange={(event) => setSelectedCohort(event.target.value)}
-                        sx={{ mt: 1 }}
-                        fullWidth
-                    >
-                        {cohortOptions.map((option) => (
-                            <MenuItem key={option} value={option}>
-                                {option}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                </DialogContent>
-            )}
-
-            {view === TaskDialogView.History && (
-                <ProgressHistory
-                    requirement={task}
-                    onClose={onClose}
-                    setView={setView}
-                    cohort={selectedCohort}
-                />
+                <ProgressHistory requirement={task} onClose={onClose} setView={setView} />
             )}
             {view === TaskDialogView.Progress && (
                 <ProgressUpdater
