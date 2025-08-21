@@ -60,7 +60,7 @@ interface ProgressHistoryItemProps {
     deleteItem: () => void;
 }
 
-const ProgressHistoryItem = ({
+export const ProgressHistoryItem = ({
     requirement,
     item,
     error,
@@ -217,7 +217,7 @@ interface HistoryItemError {
 }
 
 function getTimelineUpdate(
-    requirement: Requirement | CustomTask,
+    requirement: Requirement | CustomTask | undefined,
     items: HistoryItem[],
 ): {
     progress: RequirementProgress;
@@ -261,10 +261,10 @@ function getTimelineUpdate(
         }
     }
 
-    if (Object.values(errors).length > 0) {
+    if (!requirement || Object.values(errors).length > 0) {
         return {
             progress: {
-                requirementId: requirement.id,
+                requirementId: requirement?.id || '',
                 minutesSpent: {},
                 updatedAt: '',
             },
@@ -337,17 +337,22 @@ function getTimelineUpdate(
     };
 }
 
-interface ProgressHistoryProps {
-    requirement: Requirement | CustomTask;
-    onClose: () => void;
-    setView?: (view: TaskDialogView) => void;
-}
+export function useProgressHistoryEditor({
+    initialCohort,
+    requirement,
+    onSuccess,
+}: {
+    initialCohort?: string;
+    requirement?: Requirement | CustomTask;
+    onSuccess: () => void;
+}) {
+    const cohortOptions = requirement?.counts[ALL_COHORTS]
+        ? dojoCohorts
+        : Object.keys(requirement?.counts || {}).sort(compareCohorts);
+    const cohort = initialCohort ?? cohortOptions[0] ?? dojoCohorts[0];
 
-const ProgressHistory = ({ requirement, onClose, setView }: ProgressHistoryProps) => {
     const api = useApi();
     const request = useRequest<AxiosResponse<User>>();
-    const { user } = useAuth();
-    const cohort = user?.dojoCohort ?? dojoCohorts[0];
 
     const [errors, setErrors] = useState<Record<number, HistoryItemError>>({});
     const {
@@ -358,12 +363,12 @@ const ProgressHistory = ({ requirement, onClose, setView }: ProgressHistoryProps
     } = useTimelineContext();
 
     const isTimeOnly =
-        requirement.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
-        requirement.scoreboardDisplay === ScoreboardDisplay.Minutes;
+        requirement?.scoreboardDisplay === ScoreboardDisplay.NonDojo ||
+        requirement?.scoreboardDisplay === ScoreboardDisplay.Minutes;
 
     const initialItems: HistoryItem[] = useMemo(() => {
         return entries
-            .filter((t) => t.requirementId === requirement.id)
+            .filter((t) => t.requirementId === requirement?.id)
             .sort((a, b) => (a.date || a.createdAt).localeCompare(b.date || b.createdAt))
             .map((t, idx) => ({
                 date: DateTime.fromISO(t.date || t.createdAt),
@@ -426,18 +431,18 @@ const ProgressHistory = ({ requirement, onClose, setView }: ProgressHistoryProps
 
         request.onStart();
         api.updateUserTimeline({
-            requirementId: requirement.id,
+            requirementId: requirement?.id || '',
             progress: update.progress,
             updated: update.updated,
             deleted: update.deleted,
         })
             .then((response) => {
                 trackEvent(EventType.UpdateTimeline, {
-                    requirement_id: requirement.id,
-                    requirement_name: requirement.name,
+                    requirement_id: requirement?.id,
+                    requirement_name: requirement?.name,
                     is_custom_requirement: !isRequirement(requirement),
                     total_count:
-                        requirement.scoreboardDisplay === ScoreboardDisplay.Minutes
+                        requirement?.scoreboardDisplay === ScoreboardDisplay.Minutes
                             ? totalTime
                             : totalCount,
                     total_minutes: totalTime,
@@ -445,13 +450,56 @@ const ProgressHistory = ({ requirement, onClose, setView }: ProgressHistoryProps
                 request.onSuccess(response);
                 onEditEntries(update.updated);
                 onDeleteEntries(update.deleted);
-                onClose();
+                onSuccess();
             })
             .catch((err) => {
                 console.error('updateUserTimeline: ', err);
                 request.onFailure(err);
             });
     };
+
+    return {
+        errors,
+        request,
+        timelineRequest,
+        isTimeOnly,
+        items,
+        cohortCount,
+        cohortTime,
+        totalCount,
+        totalTime,
+        getUpdateItem,
+        getDeleteItem,
+        onSubmit,
+    };
+}
+
+interface ProgressHistoryProps {
+    requirement: Requirement | CustomTask;
+    onClose: () => void;
+    setView?: (view: TaskDialogView) => void;
+}
+
+const ProgressHistory = ({ requirement, onClose, setView }: ProgressHistoryProps) => {
+    const { user } = useAuth();
+    const {
+        errors,
+        request,
+        timelineRequest,
+        isTimeOnly,
+        items,
+        cohortCount,
+        cohortTime,
+        totalCount,
+        totalTime,
+        getUpdateItem,
+        getDeleteItem,
+        onSubmit,
+    } = useProgressHistoryEditor({
+        requirement,
+        initialCohort: user?.dojoCohort,
+        onSuccess: onClose,
+    });
 
     if (timelineRequest.isLoading()) {
         return (
