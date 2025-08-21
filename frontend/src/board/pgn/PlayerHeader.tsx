@@ -215,7 +215,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({ type }) => {
                     <PlayerNameWithTitle
                         name={playerName}
                         title={
-                            type === 'header' && board.state.orientation === 'white'
+                            (type === 'header') === (board.state.orientation === 'white')
                                 ? pgn.header.tags.BlackTitle
                                 : pgn.header.tags.WhiteTitle
                         }

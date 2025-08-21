@@ -32,7 +32,6 @@ import { Course } from '../database/course';
 import { Event } from '../database/event';
 import { GameReviewType, PositionComment } from '../database/game';
 import { Requirement } from '../database/requirement';
-import { TimelineEntry } from '../database/timeline';
 import { LeaderboardSite, TournamentType } from '../database/tournament';
 import { User } from '../database/user';
 import {
@@ -175,6 +174,7 @@ import {
 } from './tournamentApi';
 import {
     UpdateUserProgressRequest,
+    UpdateUserTimelineRequest,
     UserApiContextType,
     checkUserAccess,
     discordAuth,
@@ -251,24 +251,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 updateUser(idToken, update, auth.updateUser, autopickCohort),
             updateUserProgress: (request: UpdateUserProgressRequest) =>
                 updateUserProgress(idToken, request, auth.updateUser),
-            updateUserTimeline: (
-                requirementId: string,
-                cohort: string,
-                updated: TimelineEntry[],
-                deleted: TimelineEntry[],
-                count: number,
-                minutesSpent: number,
-            ) =>
-                updateUserTimeline(
-                    idToken,
-                    requirementId,
-                    cohort,
-                    updated,
-                    deleted,
-                    count,
-                    minutesSpent,
-                    auth.updateUser,
-                ),
+            updateUserTimeline: (request: UpdateUserTimelineRequest) =>
+                updateUserTimeline(idToken, request, auth.updateUser),
             graduate: (comments: string) => graduate(idToken, comments, auth.updateUser),
             getUserStatistics: () => getUserStatistics(),
             getFollower: (poster: string) => getFollower(idToken, poster),
