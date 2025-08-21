@@ -2,12 +2,13 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
+import { getConfig } from '@/config';
 import { FollowerEntry } from '@/database/follower';
 import { User } from '@/database/user';
 import Avatar from '@/profile/Avatar';
 import GraduationDialog from '@/profile/GraduationDialog';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { Settings, ThumbDown, ThumbUp } from '@mui/icons-material';
+import { Check, Link as LinkIcon, Settings, ThumbDown, ThumbUp } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -18,7 +19,8 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import { useEffect } from 'react';
+import copy from 'copy-to-clipboard';
+import { useEffect, useState } from 'react';
 import Bio from './Bio';
 import CoachChip from './CoachChip';
 import CountChip from './CountChip';
@@ -26,6 +28,8 @@ import CreatedAtChip from './CreatedAtChip';
 import DiscordChip from './DiscordChip';
 import InactiveChip from './InactiveChip';
 import TimezoneChip from './TimezoneChip';
+
+const BASE_URL = getConfig().baseUrl;
 
 /**
  * Renders a card with the info for the given user.
@@ -43,6 +47,7 @@ export function UserCard({
     const isOwner = viewer?.username === user.username;
     const followRequest = useRequest<FollowerEntry>();
     const api = useApi();
+    const [copied, setCopied] = useState('');
 
     const username = user.username;
     useEffect(() => {
@@ -82,26 +87,44 @@ export function UserCard({
             });
     };
 
+    const onCopyUrl = () => {
+        copy(`${BASE_URL}/profile/${user.username}`);
+        setCopied('url');
+        setTimeout(() => setCopied(''), 3000);
+    };
+
     return (
         <Card sx={{ position: 'relative', height: { xs: 1, lg: 'unset' } }}>
             <RequestSnackbar request={followRequest} />
 
-            {isOwner && (
-                <Tooltip title='Edit Profile and Settings'>
-                    <IconButton
-                        id='edit-profile-button'
-                        component={Link}
-                        href='/profile/edit'
-                        sx={{
-                            position: 'absolute',
-                            right: 'var(--mui-spacing)',
-                            top: 'calc(0.5 * var(--mui-spacing))',
-                        }}
-                    >
-                        <Settings sx={{ color: 'text.secondary' }} />
+            <Stack
+                direction='row'
+                sx={{
+                    position: 'absolute',
+                    right: 'var(--mui-spacing)',
+                    top: 'calc(0.5 * var(--mui-spacing))',
+                }}
+            >
+                <Tooltip title='Copy Profile URL' onClick={onCopyUrl}>
+                    <IconButton>
+                        {copied === 'url' ? (
+                            <Check sx={{ color: 'text.secondary' }} />
+                        ) : (
+                            <LinkIcon
+                                sx={{ color: 'text.secondary', transform: 'rotate(90deg)' }}
+                            />
+                        )}
                     </IconButton>
                 </Tooltip>
-            )}
+
+                {isOwner && (
+                    <Tooltip title='Edit Profile and Settings'>
+                        <IconButton id='edit-profile-button' component={Link} href='/profile/edit'>
+                            <Settings sx={{ color: 'text.secondary' }} />
+                        </IconButton>
+                    </Tooltip>
+                )}
+            </Stack>
 
             <CardContent>
                 <Stack alignItems='center' mb={-1}>
