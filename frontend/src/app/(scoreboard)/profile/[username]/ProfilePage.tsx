@@ -123,6 +123,16 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                 gridAutoColumns: 0,
                 columnGap: 2,
                 rowGap: 2,
+                '@media (min-width:2250px)': {
+                    gridTemplateAreas: `"userInfo  profile heatmap"
+                                        "userInfo  profile badges"
+                                        "scorecard profile badges"
+                                        ".         profile ."`,
+                    gridTemplateColumns:
+                        'minmax(350px, 400px) minmax(750px, 1500px) minmax(350px, 400px)',
+                    gridTemplateRows: 'auto auto auto 1fr',
+                    columnGap: 4,
+                },
             }}
         >
             <TimelineProvider owner={user.username}>
