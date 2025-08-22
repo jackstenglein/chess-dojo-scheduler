@@ -24,6 +24,8 @@ export interface UseTrainingPlanResponse {
     user: User;
     /** Whether the provided user is the current logged in user. */
     isCurrentUser: boolean;
+    /** A callback function to toggle whether a task is skipped. */
+    toggleSkip: (id: string) => void;
 }
 
 /**
@@ -59,6 +61,18 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         api.updateUser({ pinnedTasks: newIds }).catch(console.error);
     };
 
+    const toggleSkip = (id: string) => {
+        if (!user.weeklyPlan) {
+            return;
+        }
+        const skippedTasks = user.weeklyPlan.skippedTasks?.includes(id)
+            ? user.weeklyPlan.skippedTasks.filter((id2) => id2 !== id)
+            : [...(user.weeklyPlan.skippedTasks ?? []), id];
+        const newPlan = { ...user.weeklyPlan, skippedTasks };
+        updateUser({ weeklyPlan: newPlan });
+        api.updateUser({ weeklyPlan: newPlan }).catch(console.error);
+    };
+
     return {
         user,
         request,
@@ -67,6 +81,7 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         pinnedTasks,
         togglePin,
         isCurrentUser: currentUser?.username === user.username,
+        toggleSkip,
     };
 }
 
@@ -87,6 +102,7 @@ export interface UseWeeklyTrainingPlanResponse extends UseTrainingPlanResponse {
 
 export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse {
     const api = useApi();
+    const { updateUser } = useAuth();
     const trainingPlan = useTrainingPlan(user);
     const { pinnedTasks, requirements, allRequirements, isCurrentUser } = trainingPlan;
     const { entries: timeline } = useTimelineContext();
@@ -133,19 +149,22 @@ export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse
             return;
         }
 
+        const newPlan = {
+            endDate,
+            tasks: suggestionsByDay.map((day) =>
+                day.map((suggestion) => ({
+                    id: suggestion.task.id,
+                    minutes: suggestion.goalMinutes,
+                })),
+            ),
+            progressUpdatedAt,
+            pinnedTasks: pinnedTasks.map((t) => t.id),
+            nextGame,
+            skippedTasks: savedPlan?.skippedTasks,
+        };
+
         api.updateUser({
-            weeklyPlan: {
-                endDate,
-                tasks: suggestionsByDay.map((day) =>
-                    day.map((suggestion) => ({
-                        id: suggestion.task.id,
-                        minutes: suggestion.goalMinutes,
-                    })),
-                ),
-                progressUpdatedAt,
-                pinnedTasks: pinnedTasks.map((t) => t.id),
-                nextGame,
-            },
+            weeklyPlan: newPlan,
         }).catch((err) => console.error('save weekly plan: ', err));
     }, [
         isCurrentUser,
@@ -157,6 +176,7 @@ export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse
         nextGame,
         api,
         isLoading,
+        updateUser,
     ]);
 
     const startDate = new Date(endDate);

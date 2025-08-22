@@ -33,6 +33,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useTimelineContext } from '../activity/useTimeline';
 import CustomTaskEditor from './CustomTaskEditor';
+import { TaskDescription } from './TaskDescription';
 
 export enum TaskDialogView {
     Details = 'DETAILS',
@@ -266,11 +267,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
                         </Stack>
                     )}
 
-                    <Typography
-                        variant='body1'
-                        sx={{ whiteSpace: 'pre-line', mt: 3 }}
-                        dangerouslySetInnerHTML={{ __html: description }}
-                    />
+                    <TaskDescription>{description}</TaskDescription>
 
                     {isRequirement(task) && task.positions && (
                         <Grid container gap={2}>

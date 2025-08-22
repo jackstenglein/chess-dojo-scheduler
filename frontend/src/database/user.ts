@@ -217,6 +217,8 @@ export interface WeeklyPlan {
     pinnedTasks?: string[];
     /** The date (in ISO 8601) of the user's next scheduled game when the weekly plan was last generated. */
     nextGame: string;
+    /** The ids of the user's skipped tasks (in order) when the weekly plan was last generated. */
+    skippedTasks?: string[];
 }
 
 export interface GameScheduleEntry {

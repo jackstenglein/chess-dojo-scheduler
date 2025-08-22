@@ -10,6 +10,7 @@ import { themeRequirementCategory } from '@/style/ThemeProvider';
 import { displayRequirementCategory } from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { Check, Help, NotInterested, PushPin, PushPinOutlined } from '@mui/icons-material';
 import {
+    Box,
     Card,
     CardActionArea,
     CardActions,
@@ -23,6 +24,7 @@ import {
 } from '@mui/material';
 import { use, useMemo, useState } from 'react';
 import { SuggestedTask } from '../suggestedTasks';
+import { TaskDescription } from '../TaskDescription';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
 import { TimeProgressChip } from '../TimeProgressChip';
 import { TrainingPlanContext } from '../TrainingPlanTab';
@@ -130,7 +132,8 @@ function DailyTrainingPlanItem({
     onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
 }) {
     const { task } = suggestion;
-    const { isCurrentUser, pinnedTasks, togglePin, timeline, user } = use(TrainingPlanContext);
+    const { isCurrentUser, pinnedTasks, togglePin, timeline, user, toggleSkip } =
+        use(TrainingPlanContext);
     const isPinned = pinnedTasks.some((t) => t.id === task.id);
 
     const tasks = useMemo(() => [suggestion], [suggestion]);
@@ -167,8 +170,8 @@ function DailyTrainingPlanItem({
                         </Stack>
 
                         {task.description && (
-                            <Typography
-                                color='textSecondary'
+                            <Box
+                                color='text.secondary'
                                 sx={{
                                     mt: 1,
                                     lineClamp: 4,
@@ -179,8 +182,8 @@ function DailyTrainingPlanItem({
                                     textOverflow: 'ellipsis',
                                 }}
                             >
-                                {task.description}
-                            </Typography>
+                                <TaskDescription>{task.description}</TaskDescription>
+                            </Box>
                         )}
                     </CardContent>
                 </CardActionArea>
@@ -196,7 +199,10 @@ function DailyTrainingPlanItem({
 
                     {isCurrentUser && (
                         <>
-                            <Tooltip title='Skip for the next week (not implemented)'>
+                            <Tooltip
+                                title='Skip for the rest of the week'
+                                onClick={() => toggleSkip(task.id)}
+                            >
                                 <IconButton
                                     sx={{
                                         color: 'text.secondary',

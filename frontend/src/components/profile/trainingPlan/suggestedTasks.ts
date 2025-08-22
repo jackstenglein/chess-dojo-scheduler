@@ -141,6 +141,7 @@ enum SuggestedTaskGenerationReason {
     PinnedTaskUpdate,
     WorkGoalUpdate,
     ScheduledGamesUpdate,
+    SkippedTaskUpdate,
 }
 
 export class TaskSuggestionAlgorithm {
@@ -148,6 +149,7 @@ export class TaskSuggestionAlgorithm {
     private readonly customTasks: CustomTask[];
     private readonly pinnedTasks: Task[];
     private readonly timeline: TimelineEntry[];
+    private readonly skippedTaskIds: string[];
 
     private user: User;
     private timePerTask: Record<string, number> = {};
@@ -170,8 +172,12 @@ export class TaskSuggestionAlgorithm {
                         allRequirements.find((task) => task.id === id),
                 )
                 .filter((t) => !!t) ?? [];
+        this.skippedTaskIds = this.user.weeklyPlan?.skippedTasks ?? [];
     }
 
+    /**
+     * @returns The suggested tasks for the current week.
+     */
     getWeeklySuggestions(): WeeklySuggestedTasks {
         const { today, start: current, end } = getDates(this.user.weekStart);
         const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
@@ -183,7 +189,7 @@ export class TaskSuggestionAlgorithm {
             weeklyPlan = undefined;
         }
 
-        const reason = this.getGenerationReason(weeklyPlan);
+        const reason = this.getGenerationReason(today, weeklyPlan);
 
         for (; current.getTime() < end.getTime(); current.setDate(current.getDate() + 1)) {
             const dayIdx = current.getDay();
@@ -264,10 +270,11 @@ export class TaskSuggestionAlgorithm {
     /**
      * Returns the reason for regenerating suggested tasks based on the current
      * existing plan.
+     * @param today The current date.
      * @param existingPlan The existing weekly suggestions, which may be overridden in the regeneration.
      * @returns The reason for regenerating suggested tasks.
      */
-    getGenerationReason(existingPlan?: WeeklyPlan): SuggestedTaskGenerationReason {
+    getGenerationReason(today: Date, existingPlan?: WeeklyPlan): SuggestedTaskGenerationReason {
         if (!existingPlan) {
             return SuggestedTaskGenerationReason.Init;
         }
@@ -289,13 +296,22 @@ export class TaskSuggestionAlgorithm {
             return SuggestedTaskGenerationReason.ScheduledGamesUpdate;
         }
 
+        if (
+            existingPlan.tasks
+                .slice(today.getDay())
+                .some((day) => day.some((t) => this.skippedTaskIds.includes(t.id)))
+        ) {
+            return SuggestedTaskGenerationReason.SkippedTaskUpdate;
+        }
+
         return SuggestedTaskGenerationReason.Init;
     }
 
     shouldRegenerateToday(reason: SuggestedTaskGenerationReason): boolean {
         return (
             reason === SuggestedTaskGenerationReason.PinnedTaskUpdate ||
-            reason === SuggestedTaskGenerationReason.ScheduledGamesUpdate
+            reason === SuggestedTaskGenerationReason.ScheduledGamesUpdate ||
+            reason === SuggestedTaskGenerationReason.SkippedTaskUpdate
         );
     }
 
@@ -407,7 +423,9 @@ export class TaskSuggestionAlgorithm {
         }
 
         const pinnedTasks = this.pinnedTasks.filter(
-            (t) => !isComplete(this.user.dojoCohort, t, this.user.progress[t.id]),
+            (t) =>
+                !isComplete(this.user.dojoCohort, t, this.user.progress[t.id]) &&
+                !this.skippedTaskIds.includes(t.id),
         );
         suggestedTasks.push(...pinnedTasks);
 
@@ -415,12 +433,13 @@ export class TaskSuggestionAlgorithm {
             return suggestedTasks;
         }
 
-        const eligibleRequirements = getEligibleTasks(
+        const eligibleRequirements = getEligibleTasks({
             suggestedTasks,
-            this.requirements,
-            this.user,
-            this.timeline,
-        );
+            requirements: this.requirements,
+            user: this.user,
+            timeline: this.timeline,
+            skippedTaskIds: this.skippedTaskIds,
+        });
         if (eligibleRequirements.length === 0) {
             return suggestedTasks;
         }
@@ -504,14 +523,23 @@ export class TaskSuggestionAlgorithm {
  * @param suggestedTasks The list of already suggested tasks.
  * @param requirements The list of all requirements.
  * @param user The user to suggest tasks for.
+ * @param timeline The user's timeline entries.
+ * @param skippedTaskIds The ids of tasks the user has skipped.
  * @returns A subset of requirements that are eligible to be suggested to the user.
  */
-function getEligibleTasks(
-    suggestedTasks: Task[],
-    requirements: Requirement[],
-    user: User,
-    timeline: TimelineEntry[],
-) {
+function getEligibleTasks({
+    suggestedTasks,
+    requirements,
+    user,
+    timeline,
+    skippedTaskIds,
+}: {
+    suggestedTasks: Task[];
+    requirements: Requirement[];
+    user: User;
+    timeline: TimelineEntry[];
+    skippedTaskIds: string[];
+}) {
     const isFreeUser = isFree(user);
     let eligibleRequirements = requirements.filter(
         (r) =>
@@ -519,7 +547,8 @@ function getEligibleTasks(
             !INELIGIBLE_SUGGESTED_TASKS.includes(r.id) &&
             !suggestedTasks.some((t) => r.id === t.id) &&
             SUGGESTED_TASK_CATEGORIES.includes(r.category) &&
-            !isComplete(user.dojoCohort, r, user.progress[r.id], timeline, false),
+            !isComplete(user.dojoCohort, r, user.progress[r.id], timeline, false) &&
+            !skippedTaskIds.includes(r.id),
     );
 
     const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK_ID);
@@ -614,7 +643,7 @@ function weeklyPlanMatchesWorkGoal(weeklyPlan: WeeklyPlan, workGoal: WorkGoalSet
             1,
             Math.floor(workGoal.minutesPerDay[i] / DEFAULT_MINUTES_PER_TASK),
         );
-        const tasksWithTime = day.slice(0, maxTasks).length;
+        const tasksWithTime = day.slice(0, maxTasks).filter((t) => t.minutes > 0).length;
         const expectedTime = tasksWithTime * Math.floor(workGoal.minutesPerDay[i] / tasksWithTime);
 
         let total = 0;
