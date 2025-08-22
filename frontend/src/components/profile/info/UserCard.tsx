@@ -6,14 +6,12 @@ import { getConfig } from '@/config';
 import { FollowerEntry } from '@/database/follower';
 import { User } from '@/database/user';
 import Avatar from '@/profile/Avatar';
-import GraduationDialog from '@/profile/GraduationDialog';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import { Check, Link as LinkIcon, Settings, ThumbDown, ThumbUp } from '@mui/icons-material';
+import { Check, Favorite, FavoriteBorder, Link as LinkIcon, Settings } from '@mui/icons-material';
 import {
-    Box,
-    Button,
     Card,
     CardContent,
+    CircularProgress,
     IconButton,
     Stack,
     Tooltip,
@@ -94,7 +92,7 @@ export function UserCard({
     };
 
     return (
-        <Card sx={{ position: 'relative', height: { xs: 1, lg: 'unset' } }}>
+        <Card sx={{ position: 'relative', height: 1 }}>
             <RequestSnackbar request={followRequest} />
 
             <Stack
@@ -117,10 +115,22 @@ export function UserCard({
                     </IconButton>
                 </Tooltip>
 
-                {isOwner && (
+                {isOwner ? (
                     <Tooltip title='Edit Profile and Settings'>
                         <IconButton id='edit-profile-button' component={Link} href='/profile/edit'>
                             <Settings sx={{ color: 'text.secondary' }} />
+                        </IconButton>
+                    </Tooltip>
+                ) : (
+                    <Tooltip title={followRequest.data ? 'Unfollow' : 'Follow'}>
+                        <IconButton onClick={onFollow} loading={followRequest.isLoading()}>
+                            {followRequest.isLoading() ? (
+                                <CircularProgress size={24} />
+                            ) : followRequest.data ? (
+                                <Favorite sx={{ color: 'text.secondary' }} />
+                            ) : (
+                                <FavoriteBorder sx={{ color: 'text.secondary' }} />
+                            )}
                         </IconButton>
                     </Tooltip>
                 )}
@@ -170,22 +180,6 @@ export function UserCard({
                             link={`/profile/${user.username}/following`}
                         />
                     </Stack>
-
-                    <Box sx={{ mb: 3 }}>
-                        {isOwner ? (
-                            <GraduationDialog />
-                        ) : (
-                            <Button
-                                data-cy='follow-button'
-                                variant='contained'
-                                onClick={onFollow}
-                                loading={followRequest.isLoading()}
-                                startIcon={followRequest.data ? <ThumbDown /> : <ThumbUp />}
-                            >
-                                {followRequest.data ? 'Unfollow' : 'Follow'}
-                            </Button>
-                        )}
-                    </Box>
 
                     <Bio bio={user.bio} />
                 </Stack>
