@@ -190,6 +190,7 @@ export class TaskSuggestionAlgorithm {
         }
 
         const reason = this.getGenerationReason(today, weeklyPlan);
+        console.debug(`Task regeneration reason: `, reason);
 
         for (; current.getTime() < end.getTime(); current.setDate(current.getDate() + 1)) {
             const dayIdx = current.getDay();
@@ -221,15 +222,17 @@ export class TaskSuggestionAlgorithm {
                 }
             }
 
+            console.debug(`Existing suggestions for ${current.toString()}: `, suggestions);
             if (suggestions.length < MAX_SUGGESTED_TASKS) {
                 const algoSuggestions = this.getSuggestedTasks(current).map((t) => ({
                     task: t,
                     goalMinutes: 0,
                 }));
+                console.debug(`Algo suggestions for ${current.toString()}: `, algoSuggestions);
                 suggestions.push(
-                    ...algoSuggestions
-                        .filter((lhs) => !suggestions.some((rhs) => lhs.task.id === rhs.task.id))
-                        .slice(0, MAX_SUGGESTED_TASKS - suggestions.length),
+                    ...algoSuggestions.filter(
+                        (lhs) => !suggestions.some((rhs) => lhs.task.id === rhs.task.id),
+                    ),
                 );
             }
 
@@ -279,16 +282,20 @@ export class TaskSuggestionAlgorithm {
             return SuggestedTaskGenerationReason.Init;
         }
 
-        if (existingPlan.progressUpdatedAt !== lastProgressUpdate(this.user)) {
-            return SuggestedTaskGenerationReason.ProgressUpdate;
-        }
-
-        if (!weeklyPlanMatchesWorkGoal(existingPlan, this.user.workGoal || DEFAULT_WORK_GOAL)) {
-            return SuggestedTaskGenerationReason.WorkGoalUpdate;
+        if (
+            existingPlan.tasks
+                .slice(today.getDay())
+                .some((day) => day.some((t) => this.skippedTaskIds.includes(t.id)))
+        ) {
+            return SuggestedTaskGenerationReason.SkippedTaskUpdate;
         }
 
         if (!weeklyPlanMatchesPinnedTasks(existingPlan, this.user.pinnedTasks ?? [])) {
             return SuggestedTaskGenerationReason.PinnedTaskUpdate;
+        }
+
+        if (existingPlan.progressUpdatedAt !== lastProgressUpdate(this.user)) {
+            return SuggestedTaskGenerationReason.ProgressUpdate;
         }
 
         const upcomingGames = getUpcomingGameSchedule(this.user.gameSchedule);
@@ -296,12 +303,8 @@ export class TaskSuggestionAlgorithm {
             return SuggestedTaskGenerationReason.ScheduledGamesUpdate;
         }
 
-        if (
-            existingPlan.tasks
-                .slice(today.getDay())
-                .some((day) => day.some((t) => this.skippedTaskIds.includes(t.id)))
-        ) {
-            return SuggestedTaskGenerationReason.SkippedTaskUpdate;
+        if (!weeklyPlanMatchesWorkGoal(existingPlan, this.user.workGoal || DEFAULT_WORK_GOAL)) {
+            return SuggestedTaskGenerationReason.WorkGoalUpdate;
         }
 
         return SuggestedTaskGenerationReason.Init;
@@ -643,14 +646,20 @@ function weeklyPlanMatchesWorkGoal(weeklyPlan: WeeklyPlan, workGoal: WorkGoalSet
             1,
             Math.floor(workGoal.minutesPerDay[i] / DEFAULT_MINUTES_PER_TASK),
         );
-        const tasksWithTime = day.slice(0, maxTasks).filter((t) => t.minutes > 0).length;
-        const expectedTime = tasksWithTime * Math.floor(workGoal.minutesPerDay[i] / tasksWithTime);
+        const expectedTasksWithTime = day
+            .filter(({ id }) => id !== SCHEDULE_CLASSICAL_GAME_TASK_ID)
+            .slice(0, maxTasks).length;
+        console.debug(`Tasks with time ${expectedTasksWithTime} for day ${i}`);
+        const expectedTime =
+            expectedTasksWithTime * Math.floor(workGoal.minutesPerDay[i] / expectedTasksWithTime);
+        console.debug(`Expected time ${expectedTime} for day ${i}`);
 
         let total = 0;
         for (const { minutes } of day) {
             total += minutes;
         }
 
+        console.debug(`Total time ${total} for day ${i}`);
         if (total !== expectedTime) {
             return false;
         }

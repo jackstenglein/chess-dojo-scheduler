@@ -27,7 +27,7 @@ export interface UseTrainingPlanResponse {
     /** The ids of tasks the user has skipped for the current week. */
     skippedTaskIds?: string[];
     /** A callback function to toggle whether a task is skipped. */
-    toggleSkip: (id: string) => void;
+    toggleSkip: (...ids: string[]) => void;
 }
 
 /**
@@ -63,13 +63,11 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         api.updateUser({ pinnedTasks: newIds }).catch(console.error);
     };
 
-    const toggleSkip = (id: string) => {
+    const toggleSkip = (...ids: string[]) => {
         if (!user.weeklyPlan) {
             return;
         }
-        const skippedTasks = user.weeklyPlan.skippedTasks?.includes(id)
-            ? user.weeklyPlan.skippedTasks.filter((id2) => id2 !== id)
-            : [...(user.weeklyPlan.skippedTasks ?? []), id];
+        const skippedTasks = [...(user.weeklyPlan.skippedTasks ?? []), ...ids];
         const newPlan = { ...user.weeklyPlan, skippedTasks };
         updateUser({ weeklyPlan: newPlan });
         api.updateUser({ weeklyPlan: newPlan }).catch(console.error);

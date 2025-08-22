@@ -84,7 +84,7 @@ export function GraduationTask() {
                     sx={{ height: 1, display: 'flex', flexDirection: 'column' }}
                 >
                     <CardActionArea sx={{ flexGrow: 1 }} onClick={onOpen}>
-                        <CardContent>
+                        <CardContent sx={{ height: 1 }}>
                             <Stack spacing={1} alignItems='start'>
                                 <CohortIcon cohort={user.dojoCohort} tooltip='' size={24} />
 

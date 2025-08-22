@@ -24,7 +24,8 @@ import {
     Typography,
 } from '@mui/material';
 import { use, useMemo, useState } from 'react';
-import { SuggestedTask } from '../suggestedTasks';
+import { ScheduleClassicalGameDaily } from '../ScheduleClassicalGame';
+import { SCHEDULE_CLASSICAL_GAME_TASK_ID, SuggestedTask } from '../suggestedTasks';
 import { TaskDescription } from '../TaskDescription';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
 import { TimeProgressChip } from '../TimeProgressChip';
@@ -80,6 +81,7 @@ export function DailyTrainingPlan() {
 
 function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; endDate: string }) {
     const { suggestionsByDay, user, skippedTaskIds } = use(TrainingPlanContext);
+    console.log(`Suggestions by day: `, suggestionsByDay);
     const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
     const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
@@ -112,15 +114,19 @@ function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; 
                     <GraduationTask />
                 )}
 
-                {suggestedTasks.map((t) => (
-                    <DailyTrainingPlanItem
-                        key={t.task.id}
-                        suggestion={t}
-                        onOpenTask={onOpenTask}
-                        startDate={startDate}
-                        endDate={endDate}
-                    />
-                ))}
+                {suggestedTasks.map((t) =>
+                    t.task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID ? (
+                        <ScheduleClassicalGameDaily key={t.task.id} />
+                    ) : (
+                        <DailyTrainingPlanItem
+                            key={t.task.id}
+                            suggestion={t}
+                            onOpenTask={onOpenTask}
+                            startDate={startDate}
+                            endDate={endDate}
+                        />
+                    ),
+                )}
             </Grid>
         </Stack>
     );
@@ -245,7 +251,7 @@ function DailyTrainingPlanItem({
                                         ? () => onOpenTask(task, TaskDialogView.Progress)
                                         : undefined,
                                 },
-                                container: { marginRight: 0.5 },
+                                container: { mx: 0.5 },
                             }}
                         />
                     </Tooltip>
