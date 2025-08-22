@@ -5,6 +5,7 @@ import {
     isRequirement,
     Requirement,
 } from '@/database/requirement';
+import { shouldPromptGraduation } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { themeRequirementCategory } from '@/style/ThemeProvider';
 import { displayRequirementCategory } from '@jackstenglein/chess-dojo-common/src/database/requirement';
@@ -30,6 +31,7 @@ import { TimeProgressChip } from '../TimeProgressChip';
 import { TrainingPlanContext } from '../TrainingPlanTab';
 import { useTrainingPlanProgress } from '../useTrainingPlan';
 import { WorkGoalSettingsEditor } from '../WorkGoalSettingsEditor';
+import { GraduationTask } from './GraduationTask';
 
 export function DailyTrainingPlan() {
     const [startDate, endDate] = useMemo(() => {
@@ -77,7 +79,7 @@ export function DailyTrainingPlan() {
 }
 
 function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; endDate: string }) {
-    const { suggestionsByDay, user } = use(TrainingPlanContext);
+    const { suggestionsByDay, user, skippedTaskIds } = use(TrainingPlanContext);
     const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
     const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
@@ -105,7 +107,11 @@ function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; 
                 />
             )}
 
-            <Grid container sx={{ width: 1 }} columnSpacing={2}>
+            <Grid container sx={{ width: 1 }} columnSpacing={2} rowSpacing={2}>
+                {shouldPromptGraduation(user) && !skippedTaskIds?.includes('graduation') && (
+                    <GraduationTask />
+                )}
+
                 {suggestedTasks.map((t) => (
                     <DailyTrainingPlanItem
                         key={t.task.id}
@@ -199,11 +205,9 @@ function DailyTrainingPlanItem({
 
                     {isCurrentUser && (
                         <>
-                            <Tooltip
-                                title='Skip for the rest of the week'
-                                onClick={() => toggleSkip(task.id)}
-                            >
+                            <Tooltip title='Skip for the rest of the week'>
                                 <IconButton
+                                    onClick={() => toggleSkip(task.id)}
                                     sx={{
                                         color: 'text.secondary',
                                         marginLeft: 'auto',

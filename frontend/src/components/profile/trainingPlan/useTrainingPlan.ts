@@ -24,6 +24,8 @@ export interface UseTrainingPlanResponse {
     user: User;
     /** Whether the provided user is the current logged in user. */
     isCurrentUser: boolean;
+    /** The ids of tasks the user has skipped for the current week. */
+    skippedTaskIds?: string[];
     /** A callback function to toggle whether a task is skipped. */
     toggleSkip: (id: string) => void;
 }
@@ -81,6 +83,7 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         pinnedTasks,
         togglePin,
         isCurrentUser: currentUser?.username === user.username,
+        skippedTaskIds: user.weeklyPlan?.skippedTasks,
         toggleSkip,
     };
 }
@@ -160,7 +163,8 @@ export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse
             progressUpdatedAt,
             pinnedTasks: pinnedTasks.map((t) => t.id),
             nextGame,
-            skippedTasks: savedPlan?.skippedTasks,
+            skippedTasks:
+                (savedPlan?.endDate ?? '') >= endDate ? savedPlan?.skippedTasks : undefined,
         };
 
         api.updateUser({
