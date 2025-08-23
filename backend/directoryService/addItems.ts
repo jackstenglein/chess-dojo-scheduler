@@ -167,7 +167,7 @@ export async function addDirectoryItems(
             throw new ApiError({
                 statusCode: 400,
                 publicMessage:
-                    'Directory does not exist, or you do not have permission to update it',
+                    'Directory does not exist, or it already contains some of these items.',
                 privateMessage: 'DynamoDB conditional check failure',
                 cause: err,
             });
