@@ -82,12 +82,17 @@ async function moveItems(
         }
     }
 
+    let target = await fetchDirectory(request.target.owner, request.target.id);
+    if (!target) {
+        throw new ApiError({ statusCode: 400, publicMessage: 'target directory does not exist' });
+    }
     if (
         !(await checkAccess({
             owner: request.target.owner,
             id: request.target.id,
             username: userInfo.username,
             role: DirectoryAccessRole.Editor,
+            directory: target,
         }))
     ) {
         throw new ApiError({
@@ -97,20 +102,22 @@ async function moveItems(
     }
 
     const itemOrderMap = getItemIndexMap(source.itemIds);
-    const items = request.items
+    const targetNewItems = request.items
         .map((id) => source?.items[id])
-        .filter((item) => Boolean(item)) as DirectoryItem[];
-    items.forEach((item) => {
+        .filter((item) => item && !target?.items[item.id]) as DirectoryItem[];
+    for (const item of targetNewItems) {
         item.addedBy = userInfo.username;
-    });
-    items.sort((lhs, rhs) => (itemOrderMap[lhs.id] ?? 0) - (itemOrderMap[rhs.id] ?? 0));
+    }
+    targetNewItems.sort((lhs, rhs) => (itemOrderMap[lhs.id] ?? 0) - (itemOrderMap[rhs.id] ?? 0));
 
-    const target = await addDirectoryItems(request.target.owner, request.target.id, items);
-    await updateParent(
-        target.owner,
-        target.id,
-        items.filter((i) => i.type === DirectoryItemTypes.DIRECTORY),
-    );
+    if (targetNewItems.length > 0) {
+        target = await addDirectoryItems(request.target.owner, request.target.id, targetNewItems);
+        await updateParent(
+            target.owner,
+            target.id,
+            targetNewItems.filter((i) => i.type === DirectoryItemTypes.DIRECTORY),
+        );
+    }
 
     source = await removeDirectoryItems(source.owner, source.id, request.items, true);
     return { source, target };
