@@ -214,6 +214,9 @@ export interface Requirement {
      * task algorithm skips over it.
      */
     atomic: boolean;
+
+    /** The expected amount of time it takes to complete a task. */
+    expectedMinutes: number;
 }
 
 /** A user's progress on a specific requirement. */
