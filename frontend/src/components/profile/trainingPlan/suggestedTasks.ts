@@ -61,6 +61,9 @@ export const CLASSICAL_GAMES_TASK_ID = '38f46441-7a4e-4506-8632-166bcbe78baf';
 /** The id of the annotate classical games task. */
 const ANNOTATE_GAMES_TASK_ID = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
 
+/** The id of the review games with higher rated players task. */
+const REVIEW_WITH_HIGHER_RATED_TASK_ID = '72241c06-5d06-4245-92da-9b294c6b736a';
+
 /** The id of the schedule your next classical game task. */
 export const SCHEDULE_CLASSICAL_GAME_TASK_ID = 'SCHEDULE_CLASSICAL_GAME';
 
@@ -140,7 +143,8 @@ enum SuggestedTaskGenerationReason {
     ProgressUpdate,
     PinnedTaskUpdate,
     WorkGoalUpdate,
-    ScheduledGamesUpdate,
+    ScheduledGamesUpdateToday,
+    ScheduledGamesUpdateFuture,
     SkippedTaskUpdate,
 }
 
@@ -239,7 +243,13 @@ export class TaskSuggestionAlgorithm {
 
         const upcomingGames = getUpcomingGameSchedule(this.user.gameSchedule);
         if ((upcomingGames[0]?.date ?? '') !== existingPlan.nextGame) {
-            return SuggestedTaskGenerationReason.ScheduledGamesUpdate;
+            if (
+                upcomingGames[0]?.date === today.toISOString() ||
+                existingPlan.nextGame === today.toISOString()
+            ) {
+                return SuggestedTaskGenerationReason.ScheduledGamesUpdateToday;
+            }
+            return SuggestedTaskGenerationReason.ScheduledGamesUpdateFuture;
         }
 
         if (!weeklyPlanMatchesWorkGoal(existingPlan, this.user.workGoal || DEFAULT_WORK_GOAL)) {
@@ -252,7 +262,7 @@ export class TaskSuggestionAlgorithm {
     shouldRegenerateToday(reason: SuggestedTaskGenerationReason): boolean {
         return (
             reason === SuggestedTaskGenerationReason.PinnedTaskUpdate ||
-            reason === SuggestedTaskGenerationReason.ScheduledGamesUpdate ||
+            reason === SuggestedTaskGenerationReason.ScheduledGamesUpdateToday ||
             reason === SuggestedTaskGenerationReason.SkippedTaskUpdate
         );
     }
@@ -507,7 +517,8 @@ export class TaskSuggestionAlgorithm {
                 if (playClassicalGames) {
                     suggestedTasks.push(playClassicalGames);
                 }
-                break;
+                // We don't suggest other tasks if they are playing a classical game.
+                return suggestedTasks;
             }
         }
 
@@ -582,6 +593,9 @@ export class TaskSuggestionAlgorithm {
 
                 if (categoryRequirements[0].id === CLASSICAL_GAMES_TASK_ID) {
                     scheduleGame = true;
+                    if (categoryRequirements[1]) {
+                        suggestedTasks.push(categoryRequirements[1]);
+                    }
                 } else {
                     suggestedTasks.push(categoryRequirements[0]);
                 }
@@ -675,6 +689,7 @@ function getEligibleTasks({
 
     const classicalGamesTask = requirements.find((r) => r.id === CLASSICAL_GAMES_TASK_ID);
     const annotateTask = eligibleRequirements.find((r) => r.id === ANNOTATE_GAMES_TASK_ID);
+    const reviewTask = eligibleRequirements.find((r) => r.id === REVIEW_WITH_HIGHER_RATED_TASK_ID);
 
     if (
         annotateTask &&
@@ -695,6 +710,28 @@ function getEligibleTasks({
         // If the user is already caught up on annotations, then do not suggest that
         // they annotate a game.
         eligibleRequirements = eligibleRequirements.filter((r) => r.id !== ANNOTATE_GAMES_TASK_ID);
+    }
+
+    if (
+        reviewTask &&
+        classicalGamesTask &&
+        getCurrentCount({
+            cohort: user.dojoCohort,
+            requirement: reviewTask,
+            progress: user.progress[REVIEW_WITH_HIGHER_RATED_TASK_ID],
+        }) >=
+            getCurrentCount({
+                cohort: user.dojoCohort,
+                requirement: classicalGamesTask,
+                progress: user.progress[CLASSICAL_GAMES_TASK_ID],
+                timeline,
+            })
+    ) {
+        // If the user is already caught up on reviewing with higher rated players, then do not
+        // suggest that task.
+        eligibleRequirements = eligibleRequirements.filter(
+            (r) => r.id !== REVIEW_WITH_HIGHER_RATED_TASK_ID,
+        );
     }
 
     const upcomingGames = getUpcomingGameSchedule(user.gameSchedule);

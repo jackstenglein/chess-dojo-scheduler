@@ -81,7 +81,6 @@ export function DailyTrainingPlan() {
 
 function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; endDate: string }) {
     const { suggestionsByDay, user, skippedTaskIds } = use(TrainingPlanContext);
-    console.log(`Suggestions by day: `, suggestionsByDay);
     const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
     const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
@@ -161,9 +160,18 @@ function DailyTrainingPlanItem({
         return null;
     }
 
+    const isComplete = timeWorkedMinutes >= goalMinutes;
     return (
         <Grid key={task.id} size={{ xs: 12, md: 4 }}>
-            <Card variant='outlined' sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+            <Card
+                variant='outlined'
+                sx={{
+                    height: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    opacity: isComplete ? 0.6 : undefined,
+                }}
+            >
                 <CardActionArea
                     sx={{ flexGrow: 1 }}
                     onClick={() => onOpenTask(task, TaskDialogView.Details)}
@@ -246,10 +254,9 @@ function DailyTrainingPlanItem({
                             goal={goalMinutes}
                             slotProps={{
                                 chip: {
-                                    icon:
-                                        timeWorkedMinutes >= goalMinutes ? (
-                                            <Check fontSize='inherit' color='success' />
-                                        ) : undefined,
+                                    icon: isComplete ? (
+                                        <Check fontSize='inherit' color='success' />
+                                    ) : undefined,
                                     onClick: isCurrentUser
                                         ? () => onOpenTask(task, TaskDialogView.Progress)
                                         : undefined,

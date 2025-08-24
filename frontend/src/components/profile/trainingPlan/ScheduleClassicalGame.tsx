@@ -49,7 +49,15 @@ export function ScheduleClassicalGameDaily() {
 
     return (
         <Grid size={{ xs: 12, md: 4 }}>
-            <Card variant='outlined' sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+            <Card
+                variant='outlined'
+                sx={{
+                    height: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    opacity: upcomingGames.length ? 0.6 : undefined,
+                }}
+            >
                 <CardActionArea
                     sx={{ flexGrow: 1 }}
                     onClick={() => setTaskDialogView(TaskDialogView.Details)}

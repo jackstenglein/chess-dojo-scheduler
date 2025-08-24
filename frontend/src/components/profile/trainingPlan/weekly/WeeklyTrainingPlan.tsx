@@ -160,6 +160,8 @@ function WeeklyTrainingPlanItem({
         return null;
     }
 
+    const isComplete = timeWorked >= goalMinutes;
+
     const onOpenProgress = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -173,6 +175,7 @@ function WeeklyTrainingPlanItem({
                 borderRadius: 1.5,
                 position: 'relative',
                 overflow: 'hidden',
+                opacity: isComplete ? 0.6 : undefined,
             }}
         >
             <Box
@@ -224,10 +227,9 @@ function WeeklyTrainingPlanItem({
                                 },
                                 chip: {
                                     size: 'small',
-                                    icon:
-                                        0 >= goalMinutes ? (
-                                            <Check fontSize='inherit' color='success' />
-                                        ) : undefined,
+                                    icon: isComplete ? (
+                                        <Check fontSize='inherit' color='success' />
+                                    ) : undefined,
                                     onClick: isCurrentUser ? onOpenProgress : undefined,
                                     sx: {
                                         fontSize: '0.75rem',

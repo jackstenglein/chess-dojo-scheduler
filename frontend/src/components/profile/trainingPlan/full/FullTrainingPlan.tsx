@@ -68,25 +68,6 @@ export function FullTrainingPlan() {
     const sections: Section[] = useMemo(() => {
         const sections: Section[] = [];
 
-        // if (pinnedTasks.length > 0) {
-        //     const uncompletedTasks = [];
-        //     const completedTasks = [];
-
-        //     for (const task of pinnedTasks) {
-        //         if (isComplete(cohort, task, user.progress[task.id], timeline, true)) {
-        //             completedTasks.push(task);
-        //         } else {
-        //             uncompletedTasks.push(task);
-        //         }
-        //     }
-
-        //     sections.push({
-        //         category: RequirementCategory.Pinned,
-        //         uncompletedTasks: uncompletedTasks,
-        //         completedTasks,
-        //     });
-        // }
-
         const requirements = allRequirements.filter((r) => r.counts[cohort]);
         const tasks = (requirements as (Requirement | CustomTask)[]).concat(user.customTasks ?? []);
         for (const task of tasks) {
