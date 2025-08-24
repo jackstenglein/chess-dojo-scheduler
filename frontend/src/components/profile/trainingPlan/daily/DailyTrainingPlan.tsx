@@ -48,7 +48,7 @@ export function DailyTrainingPlan() {
 
     const { suggestionsByDay, isCurrentUser, timeline, isLoading, user } = use(TrainingPlanContext);
 
-    const [goalTime, _, workedTime] = useTrainingPlanProgress({
+    const [goalTime, _, workedTime, extraTaskIds] = useTrainingPlanProgress({
         startDate,
         endDate,
         tasks: suggestionsByDay[new Date().getDay()],
@@ -74,17 +74,42 @@ export function DailyTrainingPlan() {
             {isLoading ? (
                 <LoadingPage />
             ) : (
-                <DailyTrainingPlanInternal startDate={startDate} endDate={endDate} />
+                <DailyTrainingPlanInternal
+                    startDate={startDate}
+                    endDate={endDate}
+                    extraTaskIds={extraTaskIds}
+                />
             )}
         </Stack>
     );
 }
 
-function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; endDate: string }) {
-    const { suggestionsByDay, user, skippedTaskIds } = use(TrainingPlanContext);
+function DailyTrainingPlanInternal({
+    startDate,
+    endDate,
+    extraTaskIds,
+}: {
+    startDate: string;
+    endDate: string;
+    extraTaskIds: Set<string>;
+}) {
+    const { suggestionsByDay, user, skippedTaskIds, allRequirements } = use(TrainingPlanContext);
     const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
     const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
+
+    const extraTasks = useMemo(() => {
+        const tasks = [];
+        for (const id of extraTaskIds) {
+            const task =
+                user.customTasks?.find((t) => t.id === id) ??
+                allRequirements.find((t) => t.id === id);
+            if (task) {
+                tasks.push(task);
+            }
+        }
+        return tasks;
+    }, [user.customTasks, allRequirements, extraTaskIds]);
 
     const onOpenTask = (task: Requirement | CustomTask, view: TaskDialogView) => {
         setSelectedTask(task);
@@ -118,15 +143,27 @@ function DailyTrainingPlanInternal({ startDate, endDate }: { startDate: string; 
                     t.task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID ? (
                         <ScheduleClassicalGameDaily key={t.task.id} />
                     ) : (
-                        <DailyTrainingPlanItem
-                            key={t.task.id}
-                            suggestion={t}
-                            onOpenTask={onOpenTask}
-                            startDate={startDate}
-                            endDate={endDate}
-                        />
+                        t.goalMinutes > 0 && (
+                            <DailyTrainingPlanItem
+                                key={t.task.id}
+                                suggestion={t}
+                                onOpenTask={onOpenTask}
+                                startDate={startDate}
+                                endDate={endDate}
+                            />
+                        )
                     ),
                 )}
+
+                {extraTasks.map((task) => (
+                    <DailyTrainingPlanItem
+                        key={task.id}
+                        suggestion={{ task, goalMinutes: 0 }}
+                        onOpenTask={onOpenTask}
+                        startDate={startDate}
+                        endDate={endDate}
+                    />
+                ))}
             </Grid>
         </Stack>
     );
@@ -156,10 +193,6 @@ function DailyTrainingPlanItem({
         tasks,
         timeline,
     });
-
-    if (goalMinutes === 0) {
-        return null;
-    }
 
     const isComplete = timeWorkedMinutes >= goalMinutes;
     return (

@@ -286,9 +286,7 @@ export function useTrainingPlanProgress({
         let totalTimeWorked = 0;
         for (const entry of timeline) {
             const date = entry.date || entry.createdAt;
-            const isSuggestedTask = tasks.some(
-                ({ task, goalMinutes }) => goalMinutes > 0 && task.id === entry.requirementId,
-            );
+            const isSuggestedTask = tasks.some(({ task }) => task.id === entry.requirementId);
             if (date >= startDate && date < endDate) {
                 totalTimeWorked += entry.minutesSpent;
                 if (!isSuggestedTask) {

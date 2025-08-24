@@ -91,7 +91,8 @@ function WeeklyTrainingPlanDay({
     dayIndex: number;
     onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
 }) {
-    const { suggestionsByDay, startDate } = use(TrainingPlanContext);
+    const { suggestionsByDay, startDate, timeline, user, allRequirements } =
+        use(TrainingPlanContext);
     const suggestedTasks = suggestionsByDay[dayIndex];
     const todayIndex = new Date().getDay();
 
@@ -99,6 +100,26 @@ function WeeklyTrainingPlanDay({
     const end = new Date(dayStart);
     end.setDate(end.getDate() + 1);
     const dayEnd = end.toISOString();
+
+    const [_, __, ___, extraTaskIds] = useTrainingPlanProgress({
+        startDate: dayStart,
+        endDate: dayEnd,
+        tasks: suggestedTasks,
+        timeline,
+    });
+
+    const extraTasks = useMemo(() => {
+        const tasks = [];
+        for (const id of extraTaskIds) {
+            const task =
+                user.customTasks?.find((t) => t.id === id) ??
+                allRequirements.find((t) => t.id === id);
+            if (task) {
+                tasks.push(task);
+            }
+        }
+        return tasks;
+    }, [user.customTasks, allRequirements, extraTaskIds]);
 
     return (
         <Stack height={1}>
@@ -120,10 +141,23 @@ function WeeklyTrainingPlanDay({
                 }}
             >
                 <Stack spacing={1} py={1} px={0.5}>
-                    {suggestedTasks.map((t) => (
+                    {suggestedTasks.map(
+                        (t) =>
+                            t.goalMinutes > 0 && (
+                                <WeeklyTrainingPlanItem
+                                    key={t.task.id}
+                                    suggestion={t}
+                                    onOpenTask={onOpenTask}
+                                    startDate={dayStart}
+                                    endDate={dayEnd}
+                                />
+                            ),
+                    )}
+
+                    {extraTasks.map((task) => (
                         <WeeklyTrainingPlanItem
-                            key={t.task.id}
-                            suggestion={t}
+                            key={task.id}
+                            suggestion={{ task, goalMinutes: 0 }}
                             onOpenTask={onOpenTask}
                             startDate={dayStart}
                             endDate={dayEnd}
@@ -155,10 +189,6 @@ function WeeklyTrainingPlanItem({
         tasks,
         timeline,
     });
-
-    if (goalMinutes === 0) {
-        return null;
-    }
 
     const isComplete = timeWorked >= goalMinutes;
 
