@@ -267,7 +267,9 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
                         </Stack>
                     )}
 
-                    <TaskDescription>{description}</TaskDescription>
+                    <TaskDescription>
+                        {description.replaceAll('{{count}}', `${totalCount}`)}
+                    </TaskDescription>
 
                     {isRequirement(task) && task.positions && (
                         <Grid container gap={2}>

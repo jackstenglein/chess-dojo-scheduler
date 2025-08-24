@@ -148,6 +148,7 @@ function DailyTrainingPlanItem({
         use(TrainingPlanContext);
     const isPinned = pinnedTasks.some((t) => t.id === task.id);
 
+    const totalCount = getTotalCount(user.dojoCohort, task, true);
     const tasks = useMemo(() => [suggestion], [suggestion]);
     const [goalMinutes, timeWorkedMinutes] = useTrainingPlanProgress({
         startDate,
@@ -194,7 +195,9 @@ function DailyTrainingPlanItem({
                                     textOverflow: 'ellipsis',
                                 }}
                             >
-                                <TaskDescription>{task.description}</TaskDescription>
+                                <TaskDescription>
+                                    {task.description.replaceAll('{{count}}', `${totalCount}`)}
+                                </TaskDescription>
                             </Box>
                         )}
                     </CardContent>
