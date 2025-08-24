@@ -2,6 +2,7 @@ import {
     CustomTask,
     formatTime,
     getTotalCount,
+    isPinnable,
     isRequirement,
     Requirement,
 } from '@/database/requirement';
@@ -234,17 +235,21 @@ function DailyTrainingPlanItem({
                                 </IconButton>
                             </Tooltip>
 
-                            <Tooltip
-                                title={isPinned ? 'Unpin from Daily Tasks' : 'Pin to Daily Tasks'}
-                            >
-                                <IconButton onClick={() => togglePin(task)}>
-                                    {isPinned ? (
-                                        <PushPin color='dojoOrange' />
-                                    ) : (
-                                        <PushPinOutlined color='dojoOrange' />
-                                    )}
-                                </IconButton>
-                            </Tooltip>
+                            {isPinnable(task) && (
+                                <Tooltip
+                                    title={
+                                        isPinned ? 'Unpin from Daily Tasks' : 'Pin to Daily Tasks'
+                                    }
+                                >
+                                    <IconButton onClick={() => togglePin(task)}>
+                                        {isPinned ? (
+                                            <PushPin color='dojoOrange' />
+                                        ) : (
+                                            <PushPinOutlined color='dojoOrange' />
+                                        )}
+                                    </IconButton>
+                                </Tooltip>
+                            )}
                         </>
                     )}
 

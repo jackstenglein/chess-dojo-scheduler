@@ -706,3 +706,12 @@ export function isBlocked(
     }
     return { isBlocked: false };
 }
+
+/**
+ * Returns true if the given task can be pinned to the daily suggestions.
+ * @param task The task to check.
+ * @returns True if the task can be pinned.
+ */
+export function isPinnable(task: Requirement | CustomTask): boolean {
+    return task.scoreboardDisplay !== ScoreboardDisplay.Hidden;
+}

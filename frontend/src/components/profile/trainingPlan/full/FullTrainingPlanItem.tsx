@@ -2,7 +2,6 @@ import { useRequirements } from '@/api/cache/requirements';
 import {
     CustomTask,
     Requirement,
-    RequirementCategory,
     RequirementProgress,
     ScoreboardDisplay,
     formatTime,
@@ -11,6 +10,7 @@ import {
     getTotalTime,
     isBlocked,
     isExpired,
+    isPinnable,
 } from '@/database/requirement';
 import { ALL_COHORTS, User } from '@/database/user';
 import ScoreboardProgress, { ProgressText } from '@/scoreboard/ScoreboardProgress';
@@ -218,25 +218,21 @@ export const FullTrainingPlanItem = ({
                             )}
                             {UpdateElement}
 
-                            {isCurrentUser &&
-                                requirement.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
-                                requirement.category !== RequirementCategory.Welcome && (
-                                    <Tooltip
-                                        title={
-                                            isPinned
-                                                ? 'Unpin from Daily Tasks'
-                                                : 'Pin to Daily Tasks'
-                                        }
-                                    >
-                                        <IconButton onClick={() => togglePin(requirement)}>
-                                            {isPinned ? (
-                                                <PushPin color='dojoOrange' />
-                                            ) : (
-                                                <PushPinOutlined color='dojoOrange' />
-                                            )}
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
+                            {isCurrentUser && isPinnable(requirement) && (
+                                <Tooltip
+                                    title={
+                                        isPinned ? 'Unpin from Daily Tasks' : 'Pin to Daily Tasks'
+                                    }
+                                >
+                                    <IconButton onClick={() => togglePin(requirement)}>
+                                        {isPinned ? (
+                                            <PushPin color='dojoOrange' />
+                                        ) : (
+                                            <PushPinOutlined color='dojoOrange' />
+                                        )}
+                                    </IconButton>
+                                </Tooltip>
+                            )}
                         </Stack>
                     </Grid>
                 </Grid>
