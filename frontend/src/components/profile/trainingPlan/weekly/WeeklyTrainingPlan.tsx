@@ -91,7 +91,7 @@ function WeeklyTrainingPlanDay({
     dayIndex: number;
     onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
 }) {
-    const { suggestionsByDay, startDate, timeline, user, allRequirements } =
+    const { suggestionsByDay, startDate, timeline, user, allRequirements, pinnedTasks } =
         use(TrainingPlanContext);
     const suggestedTasks = suggestionsByDay[dayIndex];
     const todayIndex = new Date().getDay();
@@ -143,7 +143,8 @@ function WeeklyTrainingPlanDay({
                 <Stack spacing={1} py={1} px={0.5}>
                     {suggestedTasks.map(
                         (t) =>
-                            t.goalMinutes > 0 && (
+                            (t.goalMinutes > 0 ||
+                                pinnedTasks.some((pin) => pin.id === t.task.id)) && (
                                 <WeeklyTrainingPlanItem
                                     key={t.task.id}
                                     suggestion={t}

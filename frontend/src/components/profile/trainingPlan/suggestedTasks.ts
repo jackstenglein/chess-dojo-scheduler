@@ -386,16 +386,10 @@ export class TaskSuggestionAlgorithm {
             );
         }
 
-        const welcomeTasks = this.getWelcomeTasks(
-            (this.user.workGoal || DEFAULT_WORK_GOAL).minutesPerDay[dayIdx],
+        const welcomeTasks = this.getWelcomeTasks();
+        return welcomeTasks.concat(
+            suggestions.filter((lhs) => !welcomeTasks.some((rhs) => lhs.task.id === rhs.task.id)),
         );
-        suggestions.unshift(
-            ...welcomeTasks.filter(
-                (lhs) => !suggestions.some((rhs) => lhs.task.id === rhs.task.id),
-            ),
-        );
-
-        return suggestions;
     }
 
     /**
@@ -409,12 +403,17 @@ export class TaskSuggestionAlgorithm {
             return;
         }
 
+        const goalMinutes = (this.user.workGoal || DEFAULT_WORK_GOAL).minutesPerDay[day.getDay()];
+
         let tasksMissingTime = 0;
         let welcomeTaskMinutes = 0;
 
         for (const suggestion of suggestions) {
             if (suggestion.task.category === RequirementCategory.Welcome) {
-                welcomeTaskMinutes += suggestion.goalMinutes;
+                if (welcomeTaskMinutes < goalMinutes) {
+                    suggestion.goalMinutes = suggestion.task.expectedMinutes;
+                    welcomeTaskMinutes += suggestion.goalMinutes;
+                }
             } else if (suggestion.task.id !== SCHEDULE_CLASSICAL_GAME_TASK_ID) {
                 tasksMissingTime++;
             }
@@ -423,18 +422,12 @@ export class TaskSuggestionAlgorithm {
             return;
         }
 
-        const otherTaskMinutes =
-            (this.user.workGoal || DEFAULT_WORK_GOAL).minutesPerDay[day.getDay()] -
-            welcomeTaskMinutes;
-        if (otherTaskMinutes <= 0) {
-            return;
-        }
-
+        const otherTaskMinutes = goalMinutes - welcomeTaskMinutes;
         const maxTasksWithTime = Math.min(
             Math.max(1, Math.floor(otherTaskMinutes / DEFAULT_MINUTES_PER_TASK)),
             tasksMissingTime,
         );
-        const minutesPerTask = Math.floor(otherTaskMinutes / maxTasksWithTime);
+        const minutesPerTask = Math.max(0, Math.floor(otherTaskMinutes / maxTasksWithTime));
 
         let tasksWithTime = 0;
         for (const suggestion of suggestions) {
@@ -605,25 +598,14 @@ export class TaskSuggestionAlgorithm {
      * @returns A list of suggested tasks in the Welcome to the Dojo category
      * and the expected time to complete them.
      */
-    getWelcomeTasks(goalMinutes: number): SuggestedTask[] {
+    getWelcomeTasks(): SuggestedTask[] {
         const eligibleRequirements = this.requirements.filter(
             (r) =>
                 r.category === RequirementCategory.Welcome &&
                 !isComplete(this.user.dojoCohort, r, this.user.progress[r.id]) &&
                 !this.skippedTaskIds.includes(r.id),
         );
-
-        const tasks: SuggestedTask[] = [];
-        let minutes = 0;
-        for (const r of eligibleRequirements) {
-            tasks.push({ task: r, goalMinutes: r.expectedMinutes });
-            minutes += r.expectedMinutes;
-            if (minutes >= goalMinutes) {
-                break;
-            }
-        }
-
-        return tasks;
+        return eligibleRequirements.map((t) => ({ task: t, goalMinutes: 0 }));
     }
 }
 
