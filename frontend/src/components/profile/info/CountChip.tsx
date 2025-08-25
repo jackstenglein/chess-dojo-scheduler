@@ -17,6 +17,7 @@ const CountChip: React.FC<CountChipProps> = ({ count, label, singularLabel, link
                 variant='outlined'
                 color='secondary'
                 icon={<PersonIcon fontSize='small' />}
+                size='small'
             />
         </Link>
     );

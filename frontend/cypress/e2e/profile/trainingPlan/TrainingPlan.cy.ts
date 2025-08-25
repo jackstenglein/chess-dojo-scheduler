@@ -9,7 +9,7 @@ describe('Training Plan', () => {
     });
 
     it('displays task history', () => {
-        cy.getBySel('update-task-button').first().click({ force: true });
+        cy.getBySel('update-task-button').first().click();
 
         cy.getBySel('task-updater-show-history-button').click();
 

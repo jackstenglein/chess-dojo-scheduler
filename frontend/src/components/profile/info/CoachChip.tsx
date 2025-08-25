@@ -18,6 +18,7 @@ const CoachChip: React.FC<CoachChipProps> = ({ user }) => {
                 label='Coach'
                 variant='outlined'
                 color='success'
+                size='small'
             />
         </Tooltip>
     );

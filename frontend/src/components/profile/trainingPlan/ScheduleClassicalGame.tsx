@@ -4,10 +4,16 @@ import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import { RequirementCategory } from '@/database/requirement';
 import { dojoCohorts, GameScheduleEntry } from '@/database/user';
-import { CategoryColors } from '@/style/ThemeProvider';
-import { AddCircle, Delete } from '@mui/icons-material';
+import { CategoryColors, themeRequirementCategory } from '@/style/ThemeProvider';
+import { displayRequirementCategory } from '@jackstenglein/chess-dojo-common/src/database/requirement';
+import { AddCircle, Check, Delete, Help, NotInterested } from '@mui/icons-material';
 import {
+    Box,
     Button,
+    Card,
+    CardActionArea,
+    CardActions,
+    CardContent,
     Checkbox,
     Chip,
     Dialog,
@@ -24,9 +30,136 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
-import { useState } from 'react';
+import { use, useState } from 'react';
+import {
+    CLASSICAL_GAMES_TASK_ID,
+    getUpcomingGameSchedule,
+    SCHEDULE_CLASSICAL_GAME_TASK_ID,
+} from './suggestedTasks';
 import { TaskDialogView } from './TaskDialog';
-import { getUpcomingGameSchedule } from './suggestedTasks';
+import { TimeProgressChip } from './TimeProgressChip';
+import { TrainingPlanContext } from './TrainingPlanTab';
+
+export function ScheduleClassicalGameDaily() {
+    const { user, isCurrentUser, toggleSkip } = use(TrainingPlanContext);
+    const [taskDialogView, setTaskDialogView] = useState<
+        TaskDialogView.Details | TaskDialogView.Progress
+    >();
+    const upcomingGames = getUpcomingGameSchedule(user.gameSchedule);
+
+    return (
+        <Grid size={{ xs: 12, md: 4 }}>
+            <Card
+                variant='outlined'
+                sx={{
+                    height: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    opacity: upcomingGames.length ? 0.6 : undefined,
+                }}
+            >
+                <CardActionArea
+                    sx={{ flexGrow: 1 }}
+                    onClick={() => setTaskDialogView(TaskDialogView.Details)}
+                >
+                    <CardContent sx={{ height: 1 }}>
+                        <Stack spacing={1} alignItems='start'>
+                            <Chip
+                                variant='outlined'
+                                label={displayRequirementCategory(RequirementCategory.Games)}
+                                color={themeRequirementCategory(RequirementCategory.Games)}
+                                size='small'
+                            />
+
+                            <Typography variant='h6' fontWeight='bold'>
+                                Schedule Your Next Classical Game
+                            </Typography>
+                        </Stack>
+
+                        <Box
+                            color='text.secondary'
+                            sx={{
+                                mt: 1,
+                                lineClamp: 4,
+                                display: '-webkit-box',
+                                WebkitLineClamp: 4,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                        >
+                            <Typography>
+                                It is essential to play longer games to build your intuition and
+                                calculation skills. You will also need something substantive to
+                                review afterwards. In general, blitz/rapid games are far less useful
+                                for maximizing long-term improvement.
+                            </Typography>
+                        </Box>
+                    </CardContent>
+                </CardActionArea>
+                <CardActions disableSpacing>
+                    <Tooltip title='View task details'>
+                        <IconButton
+                            sx={{ color: 'text.secondary' }}
+                            onClick={() => setTaskDialogView(TaskDialogView.Details)}
+                        >
+                            <Help />
+                        </IconButton>
+                    </Tooltip>
+
+                    {isCurrentUser && (
+                        <>
+                            <Tooltip title='Skip for the rest of the week'>
+                                <IconButton
+                                    onClick={() =>
+                                        toggleSkip(
+                                            CLASSICAL_GAMES_TASK_ID,
+                                            SCHEDULE_CLASSICAL_GAME_TASK_ID,
+                                        )
+                                    }
+                                    sx={{
+                                        color: 'text.secondary',
+                                        marginLeft: 'auto',
+                                    }}
+                                >
+                                    <NotInterested />
+                                </IconButton>
+                            </Tooltip>
+                        </>
+                    )}
+
+                    <Tooltip title={isCurrentUser ? 'Schedule Game' : ''}>
+                        <TimeProgressChip
+                            value={upcomingGames.length}
+                            goal={1}
+                            slotProps={{
+                                chip: {
+                                    label: `${upcomingGames.length} game${upcomingGames.length !== 1 ? 's' : ''}`,
+                                    icon:
+                                        upcomingGames.length > 0 ? (
+                                            <Check fontSize='inherit' color='success' />
+                                        ) : undefined,
+                                    onClick: isCurrentUser
+                                        ? () => setTaskDialogView(TaskDialogView.Progress)
+                                        : undefined,
+                                },
+                                container: { mx: 0.5 },
+                            }}
+                        />
+                    </Tooltip>
+                </CardActions>
+            </Card>
+
+            {taskDialogView && (
+                <ScheduleClassicalGameDialog
+                    open
+                    onClose={() => setTaskDialogView(undefined)}
+                    initialView={taskDialogView}
+                />
+            )}
+        </Grid>
+    );
+}
 
 export const ScheduleClassicalGame = ({ hideChip }: { hideChip?: boolean }) => {
     const { user } = useAuth();

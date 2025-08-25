@@ -47,7 +47,6 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({ owner, child
             request.onStart();
             api.listUserTimeline(owner, startKey)
                 .then((res) => {
-                    console.log('listUserTimeline: ', res);
                     request.onSuccess();
                     setEntries(
                         entries

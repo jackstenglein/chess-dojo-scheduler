@@ -2,7 +2,6 @@ import { useRequirements } from '@/api/cache/requirements';
 import {
     CustomTask,
     Requirement,
-    RequirementCategory,
     RequirementProgress,
     ScoreboardDisplay,
     formatTime,
@@ -11,6 +10,7 @@ import {
     getTotalTime,
     isBlocked,
     isExpired,
+    isPinnable,
 } from '@/database/requirement';
 import { ALL_COHORTS, User } from '@/database/user';
 import ScoreboardProgress, { ProgressText } from '@/scoreboard/ScoreboardProgress';
@@ -29,7 +29,6 @@ import {
 import { useMemo, useState } from 'react';
 import { useTimelineContext } from '../../activity/useTimeline';
 import { TaskDialog, TaskDialogView } from '../TaskDialog';
-import { displayProgress } from '../daily/TimeframeTrainingPlanItem';
 
 interface FullTrainingPlanItemProps {
     user: User;
@@ -219,25 +218,21 @@ export const FullTrainingPlanItem = ({
                             )}
                             {UpdateElement}
 
-                            {isCurrentUser &&
-                                requirement.scoreboardDisplay !== ScoreboardDisplay.Hidden &&
-                                requirement.category !== RequirementCategory.Welcome && (
-                                    <Tooltip
-                                        title={
-                                            isPinned
-                                                ? 'Unpin from Daily Tasks'
-                                                : 'Pin to Daily Tasks'
-                                        }
-                                    >
-                                        <IconButton onClick={() => togglePin(requirement)}>
-                                            {isPinned ? (
-                                                <PushPin color='dojoOrange' />
-                                            ) : (
-                                                <PushPinOutlined color='dojoOrange' />
-                                            )}
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
+                            {isCurrentUser && isPinnable(requirement) && (
+                                <Tooltip
+                                    title={
+                                        isPinned ? 'Unpin from Daily Tasks' : 'Pin to Daily Tasks'
+                                    }
+                                >
+                                    <IconButton onClick={() => togglePin(requirement)}>
+                                        {isPinned ? (
+                                            <PushPin color='dojoOrange' />
+                                        ) : (
+                                            <PushPinOutlined color='dojoOrange' />
+                                        )}
+                                    </IconButton>
+                                </Tooltip>
+                            )}
                         </Stack>
                     </Grid>
                 </Grid>
@@ -257,3 +252,18 @@ export const FullTrainingPlanItem = ({
         </Tooltip>
     );
 };
+
+/**
+ * Returns true if the task should display a progress bar.
+ * @param task The task to check.
+ */
+function displayProgress(task: Requirement | CustomTask): boolean {
+    switch (task.scoreboardDisplay) {
+        case ScoreboardDisplay.Unspecified:
+        case ScoreboardDisplay.ProgressBar:
+        case ScoreboardDisplay.Minutes:
+        case ScoreboardDisplay.Yearly:
+            return true;
+    }
+    return false;
+}

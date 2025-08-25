@@ -5,6 +5,7 @@ import { Box, CssBaseline } from '@mui/material';
 import { blue, deepPurple } from '@mui/material/colors';
 import {
     ThemeProvider as MuiThemeProvider,
+    PaletteColor,
     createTheme,
     useColorScheme,
 } from '@mui/material/styles';
@@ -23,8 +24,38 @@ export const CategoryColors: Record<RequirementCategory, string> = {
     [RequirementCategory.Pinned]: '#c27ba0',
 };
 
+// Extremely degen stuff to force the type system to accept the result
+// of themeRequirementCategory as a valid theme value.
+// TODO: figure out a way to migrate this.
+enum requirementCategoryOverrides {
+    forceOverride = 'forceOverride',
+}
+
+// Extremely degen stuff to force the type system to accept the result
+// of themeRequirementCategory as a valid theme value.
+// TODO: figure out a way to migrate this.
+type RequirementCategoryOverrides = {
+    [key in requirementCategoryOverrides]?: true;
+};
+
+/**
+ * Converts the given requirement category to a value that can be passed to
+ * a MUI theme option.
+ * @param category The category to convert.
+ * @returns A value that can be passed to a MUI theme option.
+ */
+export function themeRequirementCategory(
+    category: RequirementCategory,
+): requirementCategoryOverrides {
+    return category
+        .toLowerCase()
+        .replaceAll(/[^a-z]/g, '') as unknown as requirementCategoryOverrides;
+}
+
+type RequirementCategoryPalette = { [key in requirementCategoryOverrides]?: PaletteColor };
+
 declare module '@mui/material/styles' {
-    interface Palette {
+    interface Palette extends RequirementCategoryPalette {
         opening: Palette['primary'];
         endgame: Palette['primary'];
         dojoOrange: Palette['primary'];
@@ -36,7 +67,7 @@ declare module '@mui/material/styles' {
         explorerTotal: Palette['primary'];
         trainingPlanTaskComplete: Palette['primary'];
     }
-    interface PaletteOptions {
+    interface PaletteOptions extends RequirementCategoryPalette {
         opening?: PaletteOptions['primary'];
         endgame?: Palette['primary'];
         dojoOrange?: PaletteOptions['primary'];
@@ -54,7 +85,7 @@ declare module '@mui/material/styles' {
 }
 
 declare module '@mui/material' {
-    interface ChipPropsColorOverrides {
+    interface ChipPropsColorOverrides extends RequirementCategoryOverrides {
         opening: true;
         endgame: true;
         dojoOrange: true;
@@ -65,7 +96,7 @@ declare module '@mui/material' {
         meet: true;
     }
 
-    interface CheckboxPropsColorOverrides {
+    interface CheckboxPropsColorOverrides extends RequirementCategoryOverrides {
         opening: true;
         endgame: true;
         dojoOrange: true;
@@ -77,7 +108,7 @@ declare module '@mui/material' {
         trainingPlanTaskComplete: true;
     }
 
-    interface ButtonPropsColorOverrides {
+    interface ButtonPropsColorOverrides extends RequirementCategoryOverrides {
         opening: true;
         endgame: true;
         dojoOrange: true;
@@ -89,7 +120,7 @@ declare module '@mui/material' {
         darkBlue: true;
     }
 
-    interface SvgIconPropsColorOverrides {
+    interface SvgIconPropsColorOverrides extends RequirementCategoryOverrides {
         opening: true;
         endgame: true;
         dojoOrange: true;
@@ -144,18 +175,6 @@ const defaultPalette = {
         },
         name: 'dojoOrange',
     }),
-    opening: defaultTheme.palette.augmentColor({
-        color: {
-            main: '#C34A4A',
-        },
-        name: 'opening',
-    }),
-    endgame: defaultTheme.palette.augmentColor({
-        color: {
-            main: '#7B5AD1',
-        },
-        name: 'endgame',
-    }),
     subscribe: defaultTheme.palette.augmentColor({
         color: {
             main: '#1565c0',
@@ -180,6 +199,15 @@ const defaultPalette = {
         },
         name: 'darkBlue',
     }),
+    ...Object.values(RequirementCategory).reduce<Record<string, PaletteColor>>((acc, category) => {
+        acc[themeRequirementCategory(category)] = defaultTheme.palette.augmentColor({
+            color: {
+                main: CategoryColors[category],
+            },
+            name: themeRequirementCategory(category),
+        });
+        return acc;
+    }, {}),
 };
 
 const theme = createTheme({

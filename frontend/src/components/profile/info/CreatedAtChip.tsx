@@ -31,6 +31,7 @@ const CreatedAtChip: React.FC<CreatedAtChipProps> = ({ createdAt }) => {
                 label={date}
                 variant='outlined'
                 color='secondary'
+                size='small'
             />
         </Tooltip>
     );
