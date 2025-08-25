@@ -15,7 +15,6 @@ import { HeatmapCard } from '@/components/profile/info/HeatmapCard';
 import { UserCard } from '@/components/profile/info/UserCard';
 import StatsTab from '@/components/profile/stats/StatsTab';
 import { TrainingPlanTab } from '@/components/profile/trainingPlan/TrainingPlanTab';
-import ProfilePageTutorial from '@/components/tutorial/ProfilePageTutorial';
 import { hasCreatedProfile, User } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
@@ -217,7 +216,6 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
 
                 {currentUserProfile && (
                     <>
-                        <ProfilePageTutorial />
                         <SwitchCohortPrompt />
                     </>
                 )}
