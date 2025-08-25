@@ -8,7 +8,6 @@ function useTruncatedElement<T extends HTMLElement>() {
     const [ref, setRef] = useState<T>();
     const [isTruncated, setIsTruncated] = useState(false);
     const [showMore, setShowMore] = useState(false);
-    // const isXl = useMediaQuery((theme) => theme.breakpoints.up('xl'));
 
     useLayoutEffect(() => {
         const { offsetHeight, scrollHeight } = ref || {};
@@ -45,11 +44,11 @@ const Bio: React.FC<BioProps> = ({ bio }) => {
                     textAlign: 'center',
 
                     ...(!showMore && {
-                        lineClamp: { xs: '3' /*xl: 'unset'*/ },
-                        WebkitLineClamp: { xs: '3' /*xl: 'unset'*/ },
-                        display: { xs: '-webkit-box' /*xl: 'initial'*/ },
-                        WebkitBoxOrient: { xs: 'vertical' /*xl: 'unset'*/ },
-                        overflow: { xs: 'hidden' /*xl: 'unset'*/ },
+                        lineClamp: { xs: '3' },
+                        WebkitLineClamp: { xs: '3' },
+                        display: { xs: '-webkit-box' },
+                        WebkitBoxOrient: { xs: 'vertical' },
+                        overflow: { xs: 'hidden' },
                     }),
                 }}
             >

@@ -171,7 +171,6 @@ export class TaskSuggestionAlgorithm {
         }
 
         const reason = this.getGenerationReason(today, this.weeklyPlan);
-        console.debug(`Task regeneration reason: `, reason);
 
         for (; current.getTime() < end.getTime(); current.setDate(current.getDate() + 1)) {
             const suggestions = this.getTasksForDay(reason, current, today);
@@ -380,7 +379,6 @@ export class TaskSuggestionAlgorithm {
                 task: t,
                 goalMinutes: 0,
             }));
-            console.debug(`Algo suggestions for ${day.toString()}: `, algoSuggestions);
             suggestions.push(
                 ...algoSuggestions.filter(
                     (lhs) => !suggestions.some((rhs) => lhs.task.id === rhs.task.id),
@@ -625,7 +623,6 @@ export class TaskSuggestionAlgorithm {
             }
         }
 
-        console.debug(`Welcome tasks for goal minutes ${goalMinutes}: `, tasks, minutes);
         return tasks;
     }
 }
@@ -781,17 +778,14 @@ function weeklyPlanMatchesWorkGoal(weeklyPlan: WeeklyPlan, workGoal: WorkGoalSet
         const expectedTasksWithTime = day
             .filter(({ id }) => id !== SCHEDULE_CLASSICAL_GAME_TASK_ID)
             .slice(0, maxTasks).length;
-        console.debug(`Tasks with time ${expectedTasksWithTime} for day ${i}`);
         const expectedTime =
             expectedTasksWithTime * Math.floor(workGoal.minutesPerDay[i] / expectedTasksWithTime);
-        console.debug(`Expected time ${expectedTime} for day ${i}`);
 
         let total = 0;
         for (const { minutes } of day) {
             total += minutes;
         }
 
-        console.debug(`Total time ${total} for day ${i}`);
         if (total !== expectedTime) {
             return false;
         }

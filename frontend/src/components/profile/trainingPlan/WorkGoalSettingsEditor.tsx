@@ -43,7 +43,7 @@ export function WorkGoalSettingsEditor({
     workGoal?: WorkGoalSettings;
     /** The user's history of the work goal. */
     workGoalHistory?: WorkGoalHistory[];
-    // /** Whether the editor is disabled. */
+    /** Whether the editor is disabled. */
     disabled: boolean;
 }) {
     const [open, setOpen] = useState(false);

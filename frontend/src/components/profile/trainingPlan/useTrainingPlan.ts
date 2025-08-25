@@ -103,7 +103,6 @@ export interface UseWeeklyTrainingPlanResponse extends UseTrainingPlanResponse {
 
 export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse {
     const api = useApi();
-    const { updateUser } = useAuth();
     const trainingPlan = useTrainingPlan(user);
     const { pinnedTasks, requirements, allRequirements, isCurrentUser } = trainingPlan;
     const { entries: timeline } = useTimelineContext();
@@ -178,7 +177,6 @@ export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse
         nextGame,
         api,
         isLoading,
-        updateUser,
     ]);
 
     const startDate = new Date(endDate);

@@ -214,11 +214,7 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                     </TabContext>
                 </Box>
 
-                {currentUserProfile && (
-                    <>
-                        <SwitchCohortPrompt />
-                    </>
-                )}
+                {currentUserProfile && <SwitchCohortPrompt />}
 
                 <Box sx={{ gridArea: 'userInfo' }}>
                     <UserCard user={user} setFollowerCount={setFollowerCount} />

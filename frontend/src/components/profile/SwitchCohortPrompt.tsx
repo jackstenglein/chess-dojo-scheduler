@@ -62,7 +62,7 @@ export function SwitchCohortPrompt() {
         >
             <Alert
                 variant='filled'
-                severity={'error'}
+                severity='error'
                 action={
                     <Stack direction='row'>
                         <Button color='inherit' size='small' onClick={handleHideCohortPrompt}>
