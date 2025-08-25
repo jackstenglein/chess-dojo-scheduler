@@ -93,7 +93,8 @@ function DailyTrainingPlanInternal({
     endDate: string;
     extraTaskIds: Set<string>;
 }) {
-    const { suggestionsByDay, user, skippedTaskIds, allRequirements } = use(TrainingPlanContext);
+    const { suggestionsByDay, user, skippedTaskIds, allRequirements, pinnedTasks } =
+        use(TrainingPlanContext);
     const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
     const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
@@ -143,7 +144,7 @@ function DailyTrainingPlanInternal({
                     t.task.id === SCHEDULE_CLASSICAL_GAME_TASK_ID ? (
                         <ScheduleClassicalGameDaily key={t.task.id} />
                     ) : (
-                        t.goalMinutes > 0 && (
+                        (t.goalMinutes > 0 || pinnedTasks.some((pin) => pin.id === t.task.id)) && (
                             <DailyTrainingPlanItem
                                 key={t.task.id}
                                 suggestion={t}
