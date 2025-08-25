@@ -301,6 +301,7 @@ function DailyTrainingPlanItem({
                                 },
                                 container: { mx: 0.5 },
                             }}
+                            data-cy='update-task-button'
                         />
                     </Tooltip>
                 </CardActions>
