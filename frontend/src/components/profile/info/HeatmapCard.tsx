@@ -52,7 +52,7 @@ export const HeatmapCard = ({
 
     return (
         <>
-            <Card>
+            <Card sx={{ height: 1 }}>
                 <CardContent sx={{ position: 'relative' }}>
                     <Heatmap
                         entries={entries}

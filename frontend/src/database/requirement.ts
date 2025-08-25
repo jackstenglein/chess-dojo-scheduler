@@ -214,6 +214,9 @@ export interface Requirement {
      * task algorithm skips over it.
      */
     atomic: boolean;
+
+    /** The expected amount of time it takes to complete a task. */
+    expectedMinutes: number;
 }
 
 /** A user's progress on a specific requirement. */
@@ -702,4 +705,13 @@ export function isBlocked(
         }
     }
     return { isBlocked: false };
+}
+
+/**
+ * Returns true if the given task can be pinned to the daily suggestions.
+ * @param task The task to check.
+ * @returns True if the task can be pinned.
+ */
+export function isPinnable(task: Requirement | CustomTask): boolean {
+    return task.scoreboardDisplay !== ScoreboardDisplay.Hidden;
 }

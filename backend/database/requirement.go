@@ -227,6 +227,9 @@ type Requirement struct {
 	// Indicates whether the task must be fully complete before the suggested task
 	// algorithm skips over it.
 	Atomic bool `dynamodbav:"atomic" json:"atomic"`
+
+	// The expected amount of time it takes to complete the task.
+	ExpectedMinutes int `dynamodbav:"expectedMinutes,omitempty" json:"expectedMinutes"`
 }
 
 func (r *Requirement) clampCount(cohort DojoCohort, count int) int {

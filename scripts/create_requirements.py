@@ -166,6 +166,8 @@ def main():
                 'blockers': getBlockers(row),
                 'atomic': row['Atomic'] == 'TRUE',
             }
+            if row['Expected Minutes']:
+                item['expectedMinutes'] = int(row['Expected Minutes'])
 
             items.append(item)
             categories[row['Category']].append(item)

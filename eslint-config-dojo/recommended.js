@@ -19,7 +19,15 @@ module.exports = {
         ],
         '@typescript-eslint/use-unknown-in-catch-callback-variable': 'off',
         '@typescript-eslint/no-unsafe-enum-comparison': 'off',
-        '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: "^_"}],
+        '@typescript-eslint/no-unused-vars': [
+            'error',
+            {
+                ignoreRestSiblings: true,
+                argsIgnorePattern: "^_",
+                destructuredArrayIgnorePattern: "^_",
+                varsIgnorePattern: "^_",
+            }
+        ],
         '@typescript-eslint/no-misused-promises': [
             'error',
             { checksVoidReturn: { attributes: false }}

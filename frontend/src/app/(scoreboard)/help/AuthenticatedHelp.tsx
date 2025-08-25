@@ -438,15 +438,6 @@ const AuthenticatedHelp = () => {
                                 <li>
                                     <Button
                                         component={Link}
-                                        href='/profile?tutorial=true'
-                                        sx={{ textTransform: 'none' }}
-                                    >
-                                        Launch Profile Page Tutorial
-                                    </Button>
-                                </li>
-                                <li>
-                                    <Button
-                                        component={Link}
                                         href='/scoreboard?tutorial=true'
                                         sx={{ textTransform: 'none' }}
                                     >

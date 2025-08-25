@@ -1,39 +1,49 @@
-import { Graduation } from '@/database/graduation';
-import SchoolIcon from '@mui/icons-material/School';
+import { EventType, setUserProperties, trackEvent } from '@/analytics/events';
+import { useApi } from '@/api/Api';
+import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useFreeTier } from '@/auth/Auth';
+import { formatRatingSystem, getCurrentRating, shouldPromptGraduation } from '@/database/user';
+import CohortIcon from '@/scoreboard/CohortIcon';
+import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
+import { Help, NotInterested } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
     Button,
+    Card,
+    CardActionArea,
+    CardActions,
+    CardContent,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Grid,
+    IconButton,
     Stack,
     TextField,
     Tooltip,
+    Typography,
 } from '@mui/material';
-import { useState } from 'react';
-import { EventType, setUserProperties, trackEvent } from '../analytics/events';
-import { useApi } from '../api/Api';
-import { RequestSnackbar, useRequest } from '../api/Request';
-import { useAuth, useFreeTier } from '../auth/Auth';
-import { isCustom, shouldPromptGraduation } from '../database/user';
-import UpsellDialog, { RestrictedAction } from '../upsell/UpsellDialog';
-import GraduationShareDialog from './GraduationShareDialog';
+import { use, useState } from 'react';
+import { TrainingPlanContext } from '../TrainingPlanTab';
 
-const GraduationDialog = () => {
+export function GraduationTask() {
+    const { user, isCurrentUser, skippedTaskIds, toggleSkip } = use(TrainingPlanContext);
+    const shouldGraduate = shouldPromptGraduation(user);
+
     const [comments, setComments] = useState('');
     const request = useRequest<string>();
     const api = useApi();
-    const { user } = useAuth();
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
-    const [showShareDialog, setShareDialog] = useState(false);
-    const [graduation, setGraduation] = useState<Graduation>();
+    // const [showShareDialog, setShareDialog] = useState(false);
+    // const [graduation, setGraduation] = useState<Graduation>();
 
-    const shouldGraduate = shouldPromptGraduation(user);
-    const disableGraduation = !shouldGraduate && !isCustom(user?.ratingSystem);
+    if (!shouldGraduate || skippedTaskIds?.includes('graduation')) {
+        return null;
+    }
 
     const onOpen = () => {
         if (isFreeTier) {
@@ -50,7 +60,7 @@ const GraduationDialog = () => {
         request.onStart();
         api.graduate(comments)
             .then((response) => {
-                setGraduation(response.data.graduation);
+                // setGraduation(response.data.graduation);
                 request.onSuccess('Congratulations! You have successfully graduated!');
                 trackEvent(EventType.Graduate, {
                     previous_cohort: response.data.graduation.previousCohort,
@@ -59,7 +69,7 @@ const GraduationDialog = () => {
                 });
                 setUserProperties({ ...user, ...response.data.userUpdate });
                 setShowGraduationDialog(false);
-                setShareDialog(!user?.enableZenMode);
+                // setShareDialog(!user?.enableZenMode);
             })
             .catch((err) => {
                 request.onFailure(err);
@@ -68,26 +78,52 @@ const GraduationDialog = () => {
 
     return (
         <>
-            <Tooltip
-                title={
-                    disableGraduation
-                        ? 'Your current preferred rating is too low to graduate (note: ratings are updated every 24 hours). If you still want to switch cohorts, you can do so without graduating by editing your profile.'
-                        : ''
-                }
-            >
-                <div>
-                    <Button
-                        id='graduate-button'
-                        variant='contained'
-                        color='success'
-                        onClick={onOpen}
-                        disabled={disableGraduation}
-                        startIcon={<SchoolIcon />}
-                    >
-                        Graduate
-                    </Button>
-                </div>
-            </Tooltip>
+            <Grid size={{ xs: 12, md: 4 }}>
+                <Card
+                    variant='outlined'
+                    sx={{ height: 1, display: 'flex', flexDirection: 'column' }}
+                >
+                    <CardActionArea sx={{ flexGrow: 1 }} onClick={onOpen}>
+                        <CardContent sx={{ height: 1 }}>
+                            <Stack spacing={1} alignItems='start'>
+                                <CohortIcon cohort={user.dojoCohort} tooltip='' size={24} />
+
+                                <Typography variant='h6' fontWeight='bold'>
+                                    Graduate from {user.dojoCohort}
+                                </Typography>
+                            </Stack>
+
+                            <Typography color='textSecondary' sx={{ mt: 1 }}>
+                                Congrats on reaching {getCurrentRating(user)}{' '}
+                                {formatRatingSystem(user.ratingSystem)}! Use this task to move to
+                                the next cohort, add a badge to your profile, and get one of your
+                                annotated games reviewed on stream!
+                            </Typography>
+                        </CardContent>
+                    </CardActionArea>
+                    <CardActions disableSpacing>
+                        <Tooltip title='View task details'>
+                            <IconButton sx={{ color: 'text.secondary' }} onClick={onOpen}>
+                                <Help />
+                            </IconButton>
+                        </Tooltip>
+
+                        {isCurrentUser && (
+                            <Tooltip title='Skip for the rest of the week'>
+                                <IconButton
+                                    sx={{
+                                        color: 'text.secondary',
+                                        marginLeft: 'auto',
+                                    }}
+                                    onClick={() => toggleSkip('graduation')}
+                                >
+                                    <NotInterested />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                    </CardActions>
+                </Card>
+            </Grid>
 
             <RequestSnackbar request={request} showSuccess />
             <Dialog
@@ -108,7 +144,7 @@ const GraduationDialog = () => {
                         <DialogContentText>
                             Optionally add comments on what was most helpful about the program, what
                             could be improved, etc. This will be visible to all other members of the
-                            dojo.
+                            Dojo.
                         </DialogContentText>
                         <TextField
                             label='Comments'
@@ -133,13 +169,13 @@ const GraduationDialog = () => {
                     </LoadingButton>
                 </DialogActions>
             </Dialog>
-            {!!graduation && (
+            {/* {!!graduation && (
                 <GraduationShareDialog
                     open={showShareDialog}
                     graduation={graduation}
                     onClose={() => setShareDialog(false)}
                 />
-            )}
+            )} */}
             <UpsellDialog
                 open={upsellDialogOpen}
                 onClose={setUpsellDialogOpen}
@@ -147,6 +183,4 @@ const GraduationDialog = () => {
             />
         </>
     );
-};
-
-export default GraduationDialog;
+}

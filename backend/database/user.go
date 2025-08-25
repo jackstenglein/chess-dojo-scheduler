@@ -390,6 +390,9 @@ type WeeklyPlan struct {
 
 	// The date (in ISO 8601) of the user's next scheduled game when the weekly plan was last generated.
 	NextGame string `dynamodbav:"nextGame,omitempty" json:"nextGame"`
+
+	// The ids of the user's skipped tasks (in order) when the weekly plan was last generated.
+	SkippedTasks []string `dynamodbav:"skippedTasks,omitempty" json:"skippedTasks,omitempty"`
 }
 
 type GameScheduleEntry struct {

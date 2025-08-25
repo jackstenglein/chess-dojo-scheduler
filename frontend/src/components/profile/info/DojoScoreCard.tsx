@@ -21,6 +21,7 @@ import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { CrossedSwordIcon } from '@/style/CrossedSwordIcon';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
 import { CategoryColors } from '@/style/ThemeProvider';
+import { displayRequirementCategory } from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import React from 'react';
 import { useTimelineContext } from '../activity/useTimeline';
@@ -145,7 +146,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
     const nextCohort = dojoCohorts[dojoCohorts.indexOf(cohort) + 1];
 
     return (
-        <Card id='cohort-score-card'>
+        <Card id='cohort-score-card' sx={{ height: 1 }}>
             <CardContent>
                 <Grid container rowGap={2} columnSpacing={3} alignItems='center'>
                     {showRatingProgress && (
@@ -207,7 +208,7 @@ const DojoScoreCard: React.FC<DojoScoreCardProps> = ({ user, cohort }) => {
                         return (
                             <DojoScoreCardProgressBar
                                 key={idx}
-                                title={c}
+                                title={displayRequirementCategory(c)}
                                 value={percent}
                                 min={0}
                                 max={100}
