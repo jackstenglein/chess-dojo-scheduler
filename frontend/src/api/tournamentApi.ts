@@ -188,6 +188,9 @@ export interface OpenClassicalVerifyResultRequest {
     /** The section of the pairing to update. */
     section: string;
 
+    /** The round of the pairing to update. */
+    round: number;
+
     /** The Lichess username of the player with white. */
     white: string;
 
