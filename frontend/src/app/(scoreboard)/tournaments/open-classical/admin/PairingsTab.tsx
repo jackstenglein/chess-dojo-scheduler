@@ -180,6 +180,7 @@ const AdminPairingsTable: React.FC<AdminPairingsTableProps> = ({
         api.adminVerifyResult({
             region,
             section: ratingRange,
+            round,
             white: updatePairing?.white.lichessUsername || '',
             black: updatePairing?.black.lichessUsername || '',
             result: updateResult,
