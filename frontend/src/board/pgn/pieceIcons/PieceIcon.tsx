@@ -30,7 +30,7 @@ const PieceIcon: React.FC<{ piece: string }> = ({ piece }) => {
     return (
         <Box
             sx={{
-                height: 0.8,
+                height: 1,
                 aspectRatio: 1,
                 marginLeft: margins[piece],
                 backgroundImage: `url(${imageUrls[piece]})`,

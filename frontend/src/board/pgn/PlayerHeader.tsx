@@ -347,7 +347,7 @@ const CapturedMaterial = ({
                 <Typography
                     variant='body2'
                     color='text.secondary'
-                    sx={{ mt: '2px', ml: '2px', whiteSpace: 'nowrap' }}
+                    sx={{ position: 'relative', top: '1px', ml: '2px', whiteSpace: 'nowrap' }}
                 >
                     {displayedMaterialDiff}
                 </Typography>
