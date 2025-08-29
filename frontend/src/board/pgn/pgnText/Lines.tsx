@@ -188,6 +188,10 @@ const Lines: React.FC<LinesProps> = ({
         }
     }, [chess, lines, setExpanded, expandParent]);
 
+    if (lines.length === 0) {
+        return null;
+    }
+
     const onCollapse = () => {
         setExpanded(false);
         if (

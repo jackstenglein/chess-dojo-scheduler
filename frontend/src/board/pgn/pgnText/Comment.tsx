@@ -35,7 +35,7 @@ const Comment: React.FC<CommentProps> = ({ move, type, inline }) => {
         return null;
     }
 
-    return <Markdown text={text} inline={inline} />;
+    return <Markdown text={text} inline={inline} move={move} />;
 };
 
 export default Comment;
