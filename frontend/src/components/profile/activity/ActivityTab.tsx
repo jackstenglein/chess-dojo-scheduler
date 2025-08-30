@@ -39,7 +39,6 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ user }) => {
                             },
                         }}
                         workGoalHistory={user.workGoalHistory ?? []}
-                        defaultWorkGoal={user.workGoal}
                     />
                 </Grid>
             )}

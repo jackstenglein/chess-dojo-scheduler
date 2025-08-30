@@ -222,10 +222,7 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
 
                 {!isSmall && (
                     <Box sx={{ gridArea: 'heatmap', display: { xs: 'none', md: 'initial' } }}>
-                        <HeatmapCard
-                            workGoalHistory={user.workGoalHistory ?? []}
-                            defaultWorkGoal={user.workGoal}
-                        />
+                        <HeatmapCard workGoalHistory={user.workGoalHistory ?? []} />
                     </Box>
                 )}
 

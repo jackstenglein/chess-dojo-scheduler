@@ -158,7 +158,6 @@ export function Heatmap({
     minDate,
     maxDate,
     workGoalHistory,
-    defaultWorkGoal,
     slotProps,
 }: {
     entries: TimelineEntry[];
@@ -168,7 +167,6 @@ export function Heatmap({
     minDate?: string;
     maxDate?: string;
     workGoalHistory: WorkGoalHistory[];
-    defaultWorkGoal?: WorkGoalSettings;
     slotProps?: {
         weekdayLabelPaper?: PaperProps;
     };
@@ -276,7 +274,6 @@ export function Heatmap({
                                 weekEndOn={weekEndOn}
                                 weekSummaries={weekSummaries}
                                 workGoalHistory={workGoalHistory}
-                                defaultWorkGoal={defaultWorkGoal}
                                 monochrome={colorMode === 'monochrome'}
                                 maxDate={maxDate}
                             />
@@ -599,7 +596,6 @@ function mergeActivity(target: WeekSummary, source: Activity) {
  * @param weekEndOn The index of the day the viewer's week ends on.
  * @param weekSummaries A map from date to the week summary for the week ending on that date.
  * @param workGoalHistory A list of the user's work goal history.
- * @param defaultWorkGoal The default work goal to use if not found in the history.
  * @param monochrome Whether to render the block in single-color mode or not.
  * @returns A block representing the given activity.
  */
@@ -612,7 +608,6 @@ function Block({
     weekEndOn,
     weekSummaries,
     workGoalHistory,
-    defaultWorkGoal,
     monochrome,
     maxDate,
 }: {
@@ -624,7 +619,6 @@ function Block({
     weekEndOn: number;
     weekSummaries: Record<string, WeekSummary>;
     workGoalHistory: WorkGoalHistory[];
-    defaultWorkGoal?: WorkGoalSettings;
     monochrome?: boolean;
     maxDate: string;
 }) {
@@ -738,7 +732,6 @@ function Block({
             {(isEndOfWeek || isEnd) && (
                 <WeekSummaryBlock
                     workGoalHistory={workGoalHistory}
-                    defaultWorkGoal={defaultWorkGoal}
                     weekSummary={weekSummary}
                     x={block.props.x as number}
                     y={weekSummaryY}
@@ -754,7 +747,6 @@ function Block({
 /**
  * Renders a block indicating whether the user met their weekly goal or not.
  * @param workGoalHistory The user's work goal history.
- * @param defaultWorkGoal The default work goal to use if not found in the history.
  * @param weekSummary The week summary to render the block for.
  * @param field The timeline field being displayed.
  * @param x The x position of the block.
@@ -765,7 +757,6 @@ function Block({
  */
 function WeekSummaryBlock({
     workGoalHistory,
-    defaultWorkGoal,
     weekSummary,
     field,
     x,
@@ -774,7 +765,6 @@ function WeekSummaryBlock({
     inProgress,
 }: {
     workGoalHistory: WorkGoalHistory[];
-    defaultWorkGoal?: WorkGoalSettings;
     weekSummary: WeekSummary;
     field: TimelineEntryField;
     x: number;
@@ -784,9 +774,7 @@ function WeekSummaryBlock({
 }) {
     const workGoal =
         workGoalHistory.findLast((history) => history.date.split('T')[0] <= weekSummary.date)
-            ?.workGoal ??
-        defaultWorkGoal ??
-        DEFAULT_WORK_GOAL;
+            ?.workGoal ?? DEFAULT_WORK_GOAL;
     const goalMinutes = workGoal.minutesPerDay.reduce((sum, value) => sum + value, 0);
 
     let Icon = inProgress ? HourglassBottom : Close;
