@@ -7,6 +7,7 @@ import CohortIcon from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Box, Stack, Typography } from '@mui/material';
 import { Link } from '../navigation/Link';
+import { dateOlderThanAYear } from '@/components/time/time.ts';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;
@@ -19,6 +20,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
     const timeFormat = user?.timeFormat;
 
     const createdAt = new Date(entry.date || entry.createdAt);
+    const displayYear = dateOlderThanAYear(createdAt) ? createdAt.getFullYear() : ""
     const date = toDojoDateString(createdAt, timezone, 'backward', {
         month: 'long',
         day: 'numeric',
@@ -57,7 +59,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
                     </Typography>
 
                     <Typography variant='body2' color='text.secondary'>
-                        {date} at {time}
+                        {date} {displayYear} at {time}
                     </Typography>
                 </Stack>
             </Stack>
