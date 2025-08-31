@@ -1,6 +1,6 @@
+import { SolitareAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
 import { UnpublishedGameBanner } from '@/components/games/edit/UnpublishedGameBanner';
 import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
-import { AfterPgnText } from '@/components/material/memorizegames/AfterPgnText';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import { Card, Stack } from '@mui/material';
@@ -47,19 +47,19 @@ const PgnText = () => {
                 variant={light ? 'outlined' : 'elevation'}
                 sx={{ display: 'flex', flexDirection: 'column' }}
             >
-                {!config?.disableEngine && !hideEngine && <EngineSection />}
+                {!config?.disableEngine && !hideEngine && !solitaire?.enabled && <EngineSection />}
                 <Stack
                     ref={ref}
                     sx={{ overflowY: 'scroll', overflowX: 'clip', flexGrow: 1, width: 1 }}
                 >
                     <GameComment />
                     <Variation handleScroll={handleScroll} />
-                    {!slotProps?.pgnText?.hideResult && <Result />}
+                    {!slotProps?.pgnText?.hideResult && !solitaire?.enabled && <Result />}
 
                     {slots?.afterPgnText ? (
                         slots.afterPgnText
                     ) : solitaire?.enabled ? (
-                        <AfterPgnText />
+                        <SolitareAfterPgnText />
                     ) : undefined}
                 </Stack>
             </Card>

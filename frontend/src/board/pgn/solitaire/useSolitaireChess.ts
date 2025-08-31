@@ -1,3 +1,5 @@
+import { BoardApi, defaultOnMove, PrimitiveMove, reconcile } from '@/board/Board';
+import { ShowGlyphsKey } from '@/board/pgn/boardTools/underboard/settings/ViewerSettings';
 import {
     correctMoveGlyphHtml,
     incorrectMoveGlyphHtml,
@@ -5,8 +7,6 @@ import {
 import { Chess, Move, Square } from '@jackstenglein/chess';
 import { RefObject, useCallback, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { BoardApi, defaultOnMove, PrimitiveMove, reconcile } from './Board';
-import { ShowGlyphsKey } from './pgn/boardTools/underboard/settings/ViewerSettings';
 
 interface WrongMove {
     from: Square;
@@ -46,9 +46,9 @@ export function useSolitaireChess(
     const [enabled, setEnabled] = useState(false);
     const [playAs, setPlayAs] = useState<PlayAs>('both');
     const [addWrongMoves, setAddWrongMoves] = useState(true);
-    const [complete, setComplete] = useState(false);
     const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
     const [currentMove, setCurrentMove] = useState<Move | null>(null);
+    const lastMove = useRef<Move | null>(null);
     const incorrectMoves = useRef<WrongMove[]>([]);
 
     const start = useCallback(
@@ -57,9 +57,9 @@ export function useSolitaireChess(
             reconcile(chess, board, showGlyphs);
             incorrectMoves.current = [];
             setCurrentMove(move);
-            setComplete(false);
             setEnabled(true);
-            if (playAs !== 'both' && chess.turn(move) !== playAs[0]) {
+            lastMove.current = chess.lastMove();
+            if (playAs !== 'both' && chess.turn(move) !== playAs[0] && chess.nextMove(move)) {
                 waitForOpponentMove({
                     chess,
                     board,
@@ -69,7 +69,7 @@ export function useSolitaireChess(
                 });
             }
         },
-        [setComplete, setEnabled, chess, board, showGlyphs, playAs],
+        [setEnabled, chess, board, showGlyphs, playAs],
     );
 
     const stop = useCallback(() => {
@@ -80,7 +80,7 @@ export function useSolitaireChess(
         (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
             if (
                 currentMove &&
-                (chess.currentMove() !== currentMove || currentMove === chess.history().at(-1))
+                (chess.currentMove() !== currentMove || currentMove === lastMove.current)
             ) {
                 // If the user goes back in the game, we let them analyze freely
                 defaultOnMove(showGlyphs)(board, chess, primMove);
@@ -99,7 +99,6 @@ export function useSolitaireChess(
                     incorrectMoves,
                     currentMove,
                     setCurrentMove,
-                    setComplete,
                 });
                 return;
             }
@@ -129,13 +128,13 @@ export function useSolitaireChess(
             setPlayAs,
             addWrongMoves,
             setAddWrongMoves,
-            complete,
+            complete: currentMove === lastMove.current,
             currentMove,
             start,
             stop,
             onMove,
         }),
-        [addWrongMoves, complete, enabled, onMove, start, stop, currentMove, playAs],
+        [addWrongMoves, enabled, onMove, start, stop, currentMove, playAs],
     );
 }
 
@@ -149,7 +148,6 @@ function handleCorrectMove({
     incorrectMoves,
     currentMove,
     setCurrentMove,
-    setComplete,
 }: {
     chess: Chess;
     board: BoardApi;
@@ -160,7 +158,6 @@ function handleCorrectMove({
     incorrectMoves: RefObject<WrongMove[]>;
     currentMove: Move | null;
     setCurrentMove: (v: Move | null) => void;
-    setComplete: (v: boolean) => void;
 }) {
     const nextMove = chess.move(move);
     if (addWrongMoves) {
@@ -177,7 +174,6 @@ function handleCorrectMove({
         },
     });
     const isComplete = nextMove === chess.history().at(-1);
-    setComplete(isComplete);
     if (!isComplete && playAs !== 'both') {
         waitForOpponentMove({
             chess,

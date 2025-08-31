@@ -17,11 +17,11 @@ import React, {
     type JSX,
 } from 'react';
 import { BoardApi, onMoveFunc } from '../Board';
-import { useSolitaireChess, UseSolitareChessResponse } from '../useSolitaireChess';
 import ResizableContainer from './ResizableContainer';
 import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
+import { useSolitaireChess, UseSolitareChessResponse } from './solitaire/useSolitaireChess';
 
 export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
 

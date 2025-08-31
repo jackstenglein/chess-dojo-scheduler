@@ -1,6 +1,7 @@
 import { useChess } from '@/board/pgn/PgnBoard';
-import { PlayAs } from '@/board/useSolitaireChess';
+import { PlayAs } from '@/board/pgn/solitaire/useSolitaireChess';
 import {
+    Alert,
     Button,
     CardContent,
     Checkbox,
@@ -10,9 +11,11 @@ import {
     FormLabel,
     Radio,
     RadioGroup,
+    Snackbar,
     Stack,
     Typography,
 } from '@mui/material';
+import { useState } from 'react';
 
 /**
  * Renders an underboard tab with miscellaneous tools. Currently, this
@@ -20,9 +23,28 @@ import {
  */
 export function Tools() {
     const { chess, solitaire } = useChess();
+    const [error, setError] = useState('');
+
+    const onStartFromMove = () => {
+        if (chess?.currentMove() === chess?.lastMove()) {
+            setError('Cannot start from the last move');
+            return;
+        }
+        if (!chess?.isInMainline()) {
+            setError('Cannot start from a variation');
+            return;
+        }
+        solitaire?.start(chess.currentMove());
+    };
 
     return (
         <CardContent>
+            <Snackbar open={!!error} onClose={() => setError('')} autoHideDuration={4000}>
+                <Alert severity='error' variant='filled'>
+                    {error}
+                </Alert>
+            </Snackbar>
+
             <Stack>
                 <Typography variant='h6'>Solitaire Chess (Guess the Move)</Typography>
                 <Divider />
@@ -58,9 +80,7 @@ export function Tools() {
                 {!solitaire?.enabled ? (
                     <Stack direction='row' gap={1} flexWrap='wrap' mt={2}>
                         <Button onClick={() => solitaire?.start(null)}>Start from Beginning</Button>
-                        <Button onClick={() => solitaire?.start(chess?.currentMove() ?? null)}>
-                            Start from Current Move
-                        </Button>
+                        <Button onClick={onStartFromMove}>Start from Current Move</Button>
                     </Stack>
                 ) : (
                     <Button onClick={solitaire.stop} sx={{ mt: 2 }}>

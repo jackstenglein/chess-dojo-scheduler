@@ -6,6 +6,7 @@ import PgnSelector from '@/app/(scoreboard)/courses/[type]/[id]/[chapter]/[modul
 import { useFreeTier } from '@/auth/Auth';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard, { PgnBoardApi } from '@/board/pgn/PgnBoard';
+import { AfterPgnText } from '@/components/material/memorizegames/AfterPgnText';
 import { Game, GameInfo } from '@/database/game';
 import { compareCohorts, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
@@ -148,13 +149,14 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                     DefaultUnderboardTab.Settings,
                 ]}
                 initialUnderboardTab='gameList'
-                disableEngine={mode === 'test'}
                 disableNullMoves={mode === 'test'}
-                slotProps={{
-                    pgnText: {
-                        hideResult: mode === 'test',
-                    },
-                }}
+                slots={
+                    mode === 'test'
+                        ? {
+                              afterPgnText: <AfterPgnText />,
+                          }
+                        : undefined
+                }
             />
         </Container>
     );
