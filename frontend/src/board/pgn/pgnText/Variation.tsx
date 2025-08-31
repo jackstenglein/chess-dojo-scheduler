@@ -9,7 +9,7 @@ interface VariationProps {
 }
 
 const Variation: React.FC<VariationProps> = ({ handleScroll }) => {
-    const { chess } = useChess();
+    const { chess, solitaire } = useChess();
     const [, setForceRender] = useState(0);
 
     useEffect(() => {
@@ -34,10 +34,22 @@ const Variation: React.FC<VariationProps> = ({ handleScroll }) => {
         }
     }, [chess, setForceRender]);
 
+    let moves = chess?.history();
+    if (solitaire?.enabled && !solitaire.complete) {
+        if (solitaire.currentMove) {
+            const index = moves?.findIndex((m) => m === solitaire.currentMove);
+            if (index !== undefined) {
+                moves = moves?.slice(0, index + 1);
+            }
+        } else {
+            moves = [];
+        }
+    }
+
     return (
         <Paper sx={{ boxShadow: 'none' }}>
             <Grid container>
-                {chess?.history().map((move) => {
+                {moves?.map((move) => {
                     return <MoveDisplay move={move} handleScroll={handleScroll} key={move.ply} />;
                 })}
             </Grid>

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 export function AfterPgnText() {
     const { solitaire } = useChess();
-    if (solitaire?.isComplete) {
+    if (solitaire?.complete) {
         return <CompletedAfterPgnText />;
     }
     return <InProgressAfterPgnText />;
@@ -26,7 +26,7 @@ function InProgressAfterPgnText() {
     }, [chess, setForceRender]);
 
     const onHint = (type: 'hint' | 'answer') => {
-        const move = solitaire?.solution.current?.nextMove();
+        const move = chess?.nextMove(solitaire?.currentMove);
         if (!move) {
             return;
         }
@@ -46,22 +46,10 @@ function InProgressAfterPgnText() {
         <Stack>
             <Divider sx={{ width: 1 }} />
             <Stack direction='row' sx={{ my: 1, px: 1 }}>
-                <Button
-                    disabled={
-                        Boolean(chess?.history().length) &&
-                        chess?.currentMove() !== chess?.history().at(-1)
-                    }
-                    onClick={() => onHint('hint')}
-                >
+                <Button disabled={solitaire?.complete} onClick={() => onHint('hint')}>
                     Hint
                 </Button>
-                <Button
-                    disabled={
-                        Boolean(chess?.history().length) &&
-                        chess?.currentMove() !== chess?.history().at(-1)
-                    }
-                    onClick={() => onHint('answer')}
-                >
+                <Button disabled={solitaire?.complete} onClick={() => onHint('answer')}>
                     Show Answer
                 </Button>
             </Stack>
@@ -74,9 +62,8 @@ function CompletedAfterPgnText() {
 
     const handleReset = () => {
         chess?.seek(null);
-        chess?.delete(chess.firstMove());
         reconcile(chess, board, false);
-        solitaire?.reset();
+        solitaire?.start(null);
     };
 
     return (

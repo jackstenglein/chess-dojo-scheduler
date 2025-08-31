@@ -5,7 +5,7 @@ import { RequestSnackbar, useRequest } from '@/api/Request';
 import PgnSelector from '@/app/(scoreboard)/courses/[type]/[id]/[chapter]/[module]/PgnSelector';
 import { useFreeTier } from '@/auth/Auth';
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
-import PgnBoard, { PgnBoardMode } from '@/board/pgn/PgnBoard';
+import PgnBoard, { PgnBoardApi } from '@/board/pgn/PgnBoard';
 import { Game, GameInfo } from '@/database/game';
 import { compareCohorts, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
@@ -19,10 +19,11 @@ import {
     RadioGroup,
     Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function MemorizeGamesPage({ user }: { user: User }) {
     const api = useApi();
+    const pgnRef = useRef<PgnBoardApi>(null);
     const listRequest = useRequest<GameInfo[]>();
     const getRequest = useRequest<Game>();
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -76,14 +77,18 @@ export function MemorizeGamesPage({ user }: { user: User }) {
 
     const onSwitchGame = (idx: number) => {
         if (idx !== selectedIndex) {
+            onSwitchMode('study');
             setSelectedIndex(idx);
             getRequest.reset();
         }
     };
 
     const onSwitchMode = (newMode: 'study' | 'test') => {
-        if (mode !== newMode) {
-            setMode(newMode);
+        setMode(newMode);
+        if (newMode === 'test') {
+            pgnRef.current?.solitaire.start(null);
+        } else {
+            pgnRef.current?.solitaire.stop();
         }
     };
 
@@ -95,7 +100,7 @@ export function MemorizeGamesPage({ user }: { user: User }) {
             <RequestSnackbar request={getRequest} />
 
             <PgnBoard
-                mode={mode === 'study' ? undefined : PgnBoardMode.Solitaire}
+                ref={pgnRef}
                 pgn={getRequest.data?.pgn}
                 underboardTabs={[
                     {

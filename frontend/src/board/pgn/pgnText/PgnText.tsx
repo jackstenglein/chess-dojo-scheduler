@@ -7,7 +7,7 @@ import { Card, Stack } from '@mui/material';
 import React, { useMemo, useRef } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
-import { PgnBoardMode, useChess } from '../PgnBoard';
+import { useChess } from '../PgnBoard';
 import ResizeHandle from '../ResizeHandle';
 import { HideEngine } from '../boardTools/underboard/settings/ViewerSettings';
 import { ResizableData } from '../resize';
@@ -19,7 +19,7 @@ import EngineSection from './engine/EngineSection';
 const PgnText = () => {
     const light = useLightMode();
     const ref = useRef<HTMLDivElement>(null);
-    const { mode, config, slots, slotProps } = useChess();
+    const { config, slots, slotProps, solitaire } = useChess();
     const { unsaved, game, isOwner } = useGame();
     const [hideEngine] = useLocalStorage(HideEngine.Key, HideEngine.Default);
 
@@ -58,7 +58,7 @@ const PgnText = () => {
 
                     {slots?.afterPgnText ? (
                         slots.afterPgnText
-                    ) : mode === PgnBoardMode.Solitaire ? (
+                    ) : solitaire?.enabled ? (
                         <AfterPgnText />
                     ) : undefined}
                 </Stack>
