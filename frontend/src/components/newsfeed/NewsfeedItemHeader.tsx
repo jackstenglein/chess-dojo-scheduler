@@ -1,5 +1,6 @@
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
+import { dateOlderThanAYear } from '@/components/time/time.ts';
 import { RequirementCategory } from '@/database/requirement';
 import { TimelineEntry, TimelineSpecialRequirementId } from '@/database/timeline';
 import Avatar from '@/profile/Avatar';
@@ -7,7 +8,6 @@ import CohortIcon from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Box, Stack, Typography } from '@mui/material';
 import { Link } from '../navigation/Link';
-import { dateOlderThanAYear } from '@/components/time/time.ts';
 
 interface NewsfeedItemHeaderProps {
     entry: TimelineEntry;
@@ -20,7 +20,7 @@ const NewsfeedItemHeader: React.FC<NewsfeedItemHeaderProps> = ({ entry }) => {
     const timeFormat = user?.timeFormat;
 
     const createdAt = new Date(entry.date || entry.createdAt);
-    const displayYear = dateOlderThanAYear(createdAt) ? createdAt.getFullYear() : ""
+    const displayYear = dateOlderThanAYear(createdAt) ? createdAt.getFullYear() : '';
     const date = toDojoDateString(createdAt, timezone, 'backward', {
         month: 'long',
         day: 'numeric',
