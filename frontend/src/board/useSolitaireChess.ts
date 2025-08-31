@@ -3,7 +3,7 @@ import {
     incorrectMoveGlyphHtml,
 } from '@/components/material/memorizegames/moveGlyphs';
 import { Chess, Move, Square } from '@jackstenglein/chess';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { RefObject, useCallback, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { BoardApi, defaultOnMove, PrimitiveMove, reconcile } from './Board';
 import { ShowGlyphsKey } from './pgn/boardTools/underboard/settings/ViewerSettings';
@@ -14,9 +14,15 @@ interface WrongMove {
     promotion?: string | undefined;
 }
 
+export type PlayAs = 'both' | 'white' | 'black';
+
 export interface UseSolitareChessResponse {
     /** Whether solitaire mode is enabled. */
     enabled: boolean;
+    /** Which colors to play as. */
+    playAs: PlayAs;
+    /** Sets which colors to play as. */
+    setPlayAs: (v: PlayAs) => void;
     /** Whether to add wrong moves to the PGN after the correct move is played. */
     addWrongMoves: boolean;
     /** Sets whether to add wrong moves to the PGN. */
@@ -38,6 +44,7 @@ export function useSolitaireChess(
     board: BoardApi | undefined,
 ): UseSolitareChessResponse {
     const [enabled, setEnabled] = useState(false);
+    const [playAs, setPlayAs] = useState<PlayAs>('both');
     const [addWrongMoves, setAddWrongMoves] = useState(true);
     const [complete, setComplete] = useState(false);
     const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
@@ -52,8 +59,17 @@ export function useSolitaireChess(
             setCurrentMove(move);
             setComplete(false);
             setEnabled(true);
+            if (playAs !== 'both' && chess.turn(move) !== playAs[0]) {
+                waitForOpponentMove({
+                    chess,
+                    board,
+                    showGlyphs,
+                    move: chess.nextMove(move),
+                    setCurrentMove,
+                });
+            }
         },
-        [setComplete, setEnabled, chess, board, showGlyphs],
+        [setComplete, setEnabled, chess, board, showGlyphs, playAs],
     );
 
     const stop = useCallback(() => {
@@ -73,22 +89,18 @@ export function useSolitaireChess(
 
             const move = { from: primMove.orig, to: primMove.dest, promotion: primMove.promotion };
             if (chess.isMainline(move)) {
-                const nextMove = chess.move(move);
-                if (addWrongMoves) {
-                    for (const m of incorrectMoves.current) {
-                        chess.move(m, { previousMove: currentMove, skipSeek: true });
-                    }
-                }
-
-                setCurrentMove(nextMove);
-                incorrectMoves.current = [];
-                reconcile(chess, board, showGlyphs);
-                board.set({
-                    drawable: {
-                        autoShapes: [{ orig: move.to, customSvg: { html: correctMoveGlyphHtml } }],
-                    },
+                handleCorrectMove({
+                    chess,
+                    board,
+                    showGlyphs,
+                    playAs,
+                    move,
+                    addWrongMoves,
+                    incorrectMoves,
+                    currentMove,
+                    setCurrentMove,
+                    setComplete,
                 });
-                setComplete(nextMove === chess.history().at(-1));
                 return;
             }
 
@@ -107,12 +119,14 @@ export function useSolitaireChess(
                 reconcile(chess, board, showGlyphs);
             }, 500);
         },
-        [showGlyphs, addWrongMoves, currentMove],
+        [showGlyphs, addWrongMoves, currentMove, playAs],
     );
 
     return useMemo(
         () => ({
             enabled,
+            playAs,
+            setPlayAs,
             addWrongMoves,
             setAddWrongMoves,
             complete,
@@ -121,6 +135,82 @@ export function useSolitaireChess(
             stop,
             onMove,
         }),
-        [addWrongMoves, complete, enabled, onMove, start, stop, currentMove],
+        [addWrongMoves, complete, enabled, onMove, start, stop, currentMove, playAs],
     );
+}
+
+function handleCorrectMove({
+    chess,
+    board,
+    showGlyphs,
+    playAs,
+    move,
+    addWrongMoves,
+    incorrectMoves,
+    currentMove,
+    setCurrentMove,
+    setComplete,
+}: {
+    chess: Chess;
+    board: BoardApi;
+    showGlyphs: boolean;
+    playAs: PlayAs;
+    move: WrongMove;
+    addWrongMoves: boolean;
+    incorrectMoves: RefObject<WrongMove[]>;
+    currentMove: Move | null;
+    setCurrentMove: (v: Move | null) => void;
+    setComplete: (v: boolean) => void;
+}) {
+    const nextMove = chess.move(move);
+    if (addWrongMoves) {
+        for (const m of incorrectMoves.current) {
+            chess.move(m, { previousMove: currentMove, skipSeek: true });
+        }
+    }
+
+    incorrectMoves.current = [];
+    reconcile(chess, board, showGlyphs);
+    board.set({
+        drawable: {
+            autoShapes: [{ orig: move.to, customSvg: { html: correctMoveGlyphHtml } }],
+        },
+    });
+    const isComplete = nextMove === chess.history().at(-1);
+    setComplete(isComplete);
+    if (!isComplete && playAs !== 'both') {
+        waitForOpponentMove({
+            chess,
+            board,
+            showGlyphs,
+            move: nextMove?.next ?? null,
+            setCurrentMove,
+        });
+    } else {
+        setCurrentMove(nextMove);
+    }
+}
+
+function waitForOpponentMove({
+    chess,
+    board,
+    showGlyphs,
+    move,
+    setCurrentMove,
+}: {
+    chess: Chess;
+    board: BoardApi | undefined;
+    showGlyphs: boolean;
+    move: Move | null;
+    setCurrentMove: (v: Move | null) => void;
+}) {
+    board?.set({
+        movable: {},
+        premovable: { enabled: false },
+    });
+    setCurrentMove(move);
+    setTimeout(() => {
+        chess.seek(move);
+        reconcile(chess, board, showGlyphs);
+    }, 500);
 }
