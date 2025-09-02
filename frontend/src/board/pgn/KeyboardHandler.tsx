@@ -71,10 +71,19 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             }
 
             const activeElement = document.activeElement;
+
+            let ancestorBlockingKeyboardInput = false;
+            if (event.target instanceof Element) {
+                ancestorBlockingKeyboardInput = !!event.target.closest(
+                    `.${BlockBoardKeyboardShortcuts}`,
+                );
+            }
+
             if (
                 activeElement?.tagName === 'INPUT' ||
                 activeElement?.id === BlockBoardKeyboardShortcuts ||
-                activeElement?.classList.contains(BlockBoardKeyboardShortcuts)
+                activeElement?.classList.contains(BlockBoardKeyboardShortcuts) ||
+                ancestorBlockingKeyboardInput
             ) {
                 if (matchedAction !== ShortcutAction.UnfocusTextField) {
                     return;
