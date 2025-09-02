@@ -50,7 +50,10 @@ export default function EngineSection() {
                     <Tooltip title='Toggle Engine' disableInteractive>
                         <Switch
                             checked={enabled}
-                            onChange={() => setEnabled((prev) => !prev)}
+                            onChange={(e) => {
+                                setEnabled((prev) => !prev);
+                                e.currentTarget.blur();
+                            }}
                             sx={{ mr: 1 }}
                         />
                     </Tooltip>

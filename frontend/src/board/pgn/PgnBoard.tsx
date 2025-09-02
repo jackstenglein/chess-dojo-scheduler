@@ -46,6 +46,7 @@ interface ChessContextType {
     slotProps?: PgnBoardSlotProps;
     orientation?: 'white' | 'black';
     solitaire?: UseSolitareChessResponse;
+    addEngineMoveRef?: React.RefObject<(() => void) | null>;
 }
 
 export const ChessContext = createContext<ChessContextType>({});
@@ -121,6 +122,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         const [orientation, setOrientation] = useState(game?.orientation || startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
         const solitaire = useSolitaireChess(chess, board);
+        const addEngineMoveRef = useRef<(() => void) | null>(null);
 
         const toggleOrientation = useCallback(() => {
             if (board) {
@@ -157,6 +159,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 },
                 orientation,
                 solitaire,
+                addEngineMoveRef,
             }),
             [
                 chess,
@@ -174,6 +177,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 initKey,
                 showElapsedMoveTimes,
                 solitaire,
+                addEngineMoveRef,
             ],
         );
 
