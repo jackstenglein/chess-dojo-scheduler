@@ -14,6 +14,10 @@ import {
 } from '@mui/icons-material';
 import {
     Card,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
     Paper,
     Stack,
     ToggleButton,
@@ -131,6 +135,8 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
         const { game, isOwner } = useGame();
         const [focusEditor, setFocusEditor] = useState(false);
         const [focusCommenter, setFocusCommenter] = useState(false);
+        const [moreAnchor, setMoreAnchor] = useState<HTMLElement>();
+        const [keyBindings] = useLocalStorage(ShortcutBindings.key, ShortcutBindings.default);
 
         const maxTabs = Math.max(2, Math.floor(resizeData.width / MIN_TAB_BUTTON_WIDTH));
         let displayedTabs = tabs;
@@ -255,13 +261,54 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 })}
 
                                 {hiddenTabs.length > 0 && (
-                                    <UnderboardButton tooltip='More' value='more'>
+                                    <UnderboardButton
+                                        tooltip='More'
+                                        value='more'
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setMoreAnchor(e.currentTarget);
+                                        }}
+                                    >
                                         <MoreHoriz />
                                     </UnderboardButton>
                                 )}
                             </ToggleButtonGroup>
                         </Paper>
                     )}
+
+                    <Menu
+                        anchorEl={moreAnchor}
+                        open={!!moreAnchor}
+                        onClose={() => setMoreAnchor(undefined)}
+                    >
+                        {hiddenTabs.map((tab) => {
+                            const info = getTabInfo(tab);
+
+                            if (info.shortcut) {
+                                const binding =
+                                    keyBindings[info.shortcut] ||
+                                    ShortcutBindings.default[info.shortcut];
+                                if (binding.key) {
+                                    info.tooltip += ` (${binding.modifier ? `${binding.modifier}+` : ''}${binding.key})`;
+                                }
+                            }
+
+                            return (
+                                <MenuItem
+                                    key={info.name}
+                                    onClick={() => {
+                                        setUnderboard(info.name);
+                                        setMoreAnchor(undefined);
+                                    }}
+                                    selected={info.name === underboard}
+                                >
+                                    <ListItemIcon>{info.icon}</ListItemIcon>
+                                    <ListItemText>{info.tooltip}</ListItemText>
+                                </MenuItem>
+                            );
+                        })}
+                    </Menu>
 
                     <Stack sx={{ overflowY: 'auto', flexGrow: 1 }}>
                         {underboard === DefaultUnderboardTab.Directories && <Directories />}
