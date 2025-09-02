@@ -50,7 +50,12 @@ export const EvaluationSection = ({
                 onMouseLeave={onMouseLeave}
             >
                 {Array.from({ length: maxLines }).map((_, i) => (
-                    <LineEvaluation engineInfo={engineInfo} key={i} line={allLines[i]} />
+                    <LineEvaluation
+                        engineInfo={engineInfo}
+                        key={i}
+                        line={allLines[i]}
+                        isTop={i === 0}
+                    />
                 ))}
             </List>
             <Popper

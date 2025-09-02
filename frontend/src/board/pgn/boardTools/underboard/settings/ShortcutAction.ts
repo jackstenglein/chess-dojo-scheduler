@@ -61,6 +61,9 @@ export enum ShortcutAction {
 
     /** Inserts a null move. */
     InsertNullMove = 'INSERT_NULL_MOVE',
+
+    /** Inserts the engine's top move. */
+    InsertEngineMove = 'INSERT_ENGINE_MOVE',
 }
 
 export interface KeyBinding {
@@ -95,5 +98,6 @@ export const ShortcutBindings = {
         [ShortcutAction.FocusCommentTextField]: { modifier: '', key: '' },
         [ShortcutAction.UnfocusTextField]: { modifier: '', key: '' },
         [ShortcutAction.InsertNullMove]: { modifier: '', key: '' },
+        [ShortcutAction.InsertEngineMove]: { modifier: '', key: 'Space' },
     },
 } as const;

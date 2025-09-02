@@ -24,7 +24,7 @@ interface KeyboardHandlerProps {
 }
 
 const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
-    const { chess, board, boardRef, keydownMap, toggleOrientation, solitaire } = useChess();
+    const { chess, board, boardRef, keydownMap, toggleOrientation, solitaire, addEngineMoveRef } = useChess();
     const reconcile = useReconcile();
     const [variationBehavior] = useLocalStorage(VariationBehaviorKey, VariationBehavior.Dialog);
     const [variationDialogMove, setVariationDialogMove] = useState<Move | null>(null);
@@ -113,6 +113,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                         variationBehavior === VariationBehavior.Dialog
                             ? setVariationDialogMove
                             : undefined,
+                    addEngineMove: addEngineMoveRef?.current || undefined,
                 },
             });
         },
@@ -126,6 +127,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             setVariationDialogMove,
             underboardRef,
             reconcile,
+            addEngineMoveRef,
             solitaire,
         ],
     );
