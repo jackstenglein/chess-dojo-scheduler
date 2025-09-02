@@ -43,6 +43,7 @@ const ClockTextField: React.FC<ClockTextFieldProps> = ({ move, label, forceSingl
                 }
                 onChange={(value) => onChangeClock(chess, move, value)}
                 fullWidth
+                className={BlockBoardKeyboardShortcuts}
             />
         );
     }
