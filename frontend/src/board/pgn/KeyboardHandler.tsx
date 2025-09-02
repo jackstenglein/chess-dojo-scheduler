@@ -24,7 +24,7 @@ interface KeyboardHandlerProps {
 }
 
 const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
-    const { chess, board, boardRef, keydownMap, toggleOrientation, addEngineMoveRef } = useChess();
+    const { chess, board, boardRef, keydownMap, toggleOrientation, solitaire, addEngineMoveRef } = useChess();
     const reconcile = useReconcile();
     const [variationBehavior] = useLocalStorage(VariationBehaviorKey, VariationBehavior.Dialog);
     const [variationDialogMove, setVariationDialogMove] = useState<Move | null>(null);
@@ -81,6 +81,15 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                 }
             }
 
+            if (
+                matchedAction === ShortcutAction.NextMove &&
+                solitaire?.enabled &&
+                !solitaire.complete &&
+                chess.currentMove() === solitaire.currentMove
+            ) {
+                return;
+            }
+
             event.preventDefault();
             event.stopPropagation();
 
@@ -110,6 +119,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             underboardRef,
             reconcile,
             addEngineMoveRef,
+            solitaire,
         ],
     );
 
@@ -144,6 +154,16 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                             event.deltaY < 0
                                 ? ShortcutAction.PreviousMove
                                 : ShortcutAction.NextMove;
+
+                        if (
+                            action === ShortcutAction.NextMove &&
+                            solitaire?.enabled &&
+                            !solitaire.complete &&
+                            chess.currentMove() === solitaire.currentMove
+                        ) {
+                            return;
+                        }
+
                         keyboardShortcutHandlers[action]({
                             chess,
                             board,
@@ -156,7 +176,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                 );
             }
         };
-    }, [board, chess, scrollToMove, reconcile]);
+    }, [board, chess, scrollToMove, reconcile, solitaire]);
 
     useEffect(() => {
         window.addEventListener('keydown', onKeyDown);

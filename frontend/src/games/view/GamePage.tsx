@@ -169,6 +169,7 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
                             DefaultUnderboardTab.Comments,
                             DefaultUnderboardTab.Explorer,
                             DefaultUnderboardTab.Clocks,
+                            DefaultUnderboardTab.Tools,
                             DefaultUnderboardTab.Share,
                             DefaultUnderboardTab.Settings,
                         ]}

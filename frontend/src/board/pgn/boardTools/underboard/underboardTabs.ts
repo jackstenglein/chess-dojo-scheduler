@@ -11,6 +11,7 @@ export enum DefaultUnderboardTab {
     Clocks = 'clocks',
     Share = 'share',
     Settings = 'settings',
+    Tools = 'tools',
 }
 
 export interface DefaultUnderboardTabInfo {
