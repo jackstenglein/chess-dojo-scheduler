@@ -1,7 +1,6 @@
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
-    ENGINE_ADD_INFO_ON_SPACEBAR,
     ENGINE_DEPTH,
     ENGINE_HASH,
     ENGINE_LINE_COUNT,
@@ -35,6 +34,8 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import KeyboardShortcuts from '../../boardTools/underboard/settings/KeyboardShortcuts';
+import { ShortcutAction } from '../../boardTools/underboard/settings/ShortcutAction';
 import Slider from './Slider';
 
 export default function Settings() {
@@ -65,10 +66,6 @@ export default function Settings() {
     const [addEngineInfoOnMove, setAddEngineInfoOnMove] = useLocalStorage<boolean>(
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
-    );
-    const [addEngineInfoOnSpacebar, setAddEngineInfoOnSpacebar] = useLocalStorage<boolean>(
-        ENGINE_ADD_INFO_ON_SPACEBAR.Key,
-        ENGINE_ADD_INFO_ON_SPACEBAR.Default,
     );
     const [highlightEngineLines, setHighlightEngineLines] = useLocalStorage<boolean>(
         HIGHLIGHT_ENGINE_LINES.Key,
@@ -164,7 +161,7 @@ export default function Settings() {
                         />
                     </Stack>
 
-                    <Stack rowGap={{ xs: 2, sm: 1 }} sx={{ mt: 3 }}>
+                    <Stack rowGap={{ xs: 2, sm: 1 }} sx={{ my: 3 }}>
                         <FormControl>
                             <FormLabel>Primary Evaluation Type</FormLabel>
                             <RadioGroup
@@ -200,17 +197,7 @@ export default function Settings() {
                                     onChange={(e) => setAddEngineInfoOnMove(e.target.checked)}
                                 />
                             }
-                            label='Add engine info as a comment when clicking move'
-                        />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={addEngineInfoOnSpacebar}
-                                    onChange={(e) => setAddEngineInfoOnSpacebar(e.target.checked)}
-                                />
-                            }
-                            label='Enable "spacebar analysis"'
+                            label='Add engine info as a comment when clicking move or when using keyboard shortcut for top engine move'
                         />
 
                         <FormControlLabel
@@ -223,6 +210,8 @@ export default function Settings() {
                             label='Highlight engine lines in PGN text'
                         />
                     </Stack>
+
+                    <KeyboardShortcuts actions={[ShortcutAction.InsertEngineMove]} hideReset />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpen(false)}>Done</Button>

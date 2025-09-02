@@ -122,7 +122,7 @@ function shortcutActionDescription(action: ShortcutAction): string {
         case ShortcutAction.InsertNullMove:
             return 'Inserts a null move into the PGN, passing the turn to the other side without changing the position. Null moves cannot be added when in check or immediately after another null move.';
         case ShortcutAction.InsertEngineMove:
-            return 'Inserts the top engine move into the game or as a comment if a move already exists.';
+            return 'Inserts the top engine move into the game (note: the engine must be running).';
     }
 }
 
@@ -430,7 +430,15 @@ export function matchAction(
 /**
  * @returns A component for viewing and editing keyboard shortcuts.
  */
-const KeyboardShortcuts = () => {
+const KeyboardShortcuts = ({
+    actions = Object.values(ShortcutAction),
+    hideReset,
+}: {
+    /** The actions to display. Defaults to all actions. */
+    actions?: ShortcutAction[];
+    /** If true, the button to reset all to defaults is hidden. */
+    hideReset?: boolean;
+}) => {
     const [keyBindings, setKeyBindings] = useLocalStorage(
         ShortcutBindings.key,
         ShortcutBindings.default,
@@ -522,6 +530,7 @@ const KeyboardShortcuts = () => {
                 Keyboard shortcuts are disabled while editing text fields (comments, clock times,
                 tags, etc).
             </Typography>
+
             <Grid container rowGap={2} columnSpacing={2} alignItems='center' mt={1.5}>
                 <Grid sx={{ borderBottom: 1, borderColor: 'divider' }} size={5}>
                     <Typography>Action</Typography>
@@ -532,7 +541,7 @@ const KeyboardShortcuts = () => {
                 <Grid sx={{ borderBottom: 1, borderColor: 'divider' }} size={3.5}>
                     <Typography textAlign='center'>Key</Typography>
                 </Grid>
-                {Object.values(ShortcutAction).map((a) => {
+                {actions.map((a) => {
                     const binding = keyBindings[a] || ShortcutBindings.default[a];
                     return (
                         <Fragment key={a}>
@@ -582,11 +591,13 @@ const KeyboardShortcuts = () => {
                         </Fragment>
                     );
                 })}
-                <Grid size={12}>
-                    <Button color='error' onClick={onReset} sx={{ textTransform: 'none' }}>
-                        Reset All to Defaults
-                    </Button>
-                </Grid>
+                {!hideReset && (
+                    <Grid size={12}>
+                        <Button color='error' onClick={onReset} sx={{ textTransform: 'none' }}>
+                            Reset All to Defaults
+                        </Button>
+                    </Grid>
+                )}
             </Grid>
             <Dialog
                 open={!!editAction}

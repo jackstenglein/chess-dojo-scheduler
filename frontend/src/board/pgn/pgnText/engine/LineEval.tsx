@@ -2,7 +2,6 @@ import { useReconcile } from '@/board/Board';
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
-    ENGINE_ADD_INFO_ON_SPACEBAR,
     ENGINE_PRIMARY_EVAL_TYPE,
     EngineInfo,
     LineEval,
@@ -35,90 +34,70 @@ export default function LineEvaluation({ engineInfo, line, isTop }: Props) {
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Key,
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
     );
-    const [addInfoOnSpacebar] = useLocalStorage(
-        ENGINE_ADD_INFO_ON_SPACEBAR.Key,
-        ENGINE_ADD_INFO_ON_SPACEBAR.Default,
-    );
 
     const evaluation = line ? formatLineEval(line) : '?';
+
     const addEngineComment = useCallback(
         (addInfo: boolean, startTurn: Color) => {
-            if (!chess) {
+            if (!chess || !addInfo) {
                 return;
             }
-            const lastMove = chess?.previousMove();
-            const lastMoveHasDojo = lastMove?.commentDiag?.dojoEngine === 'true';
 
-            if (addInfo) {
-                let comment = chess.getComment();
-                if (comment.trim().length > 0) {
-                    comment += `\n\n`;
-                }
-                comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
-                comment += formatResultPercentages(startTurn, chess.turn(), line);
-                comment += ')';
-                chess.setComment(comment);
+            let comment = chess.getComment();
+            if (comment.trim().length > 0) {
+                comment += `\n\n`;
             }
-            if (lastMoveHasDojo) {
-                const commentBefore = lastMove?.commentAfter;
-                if (commentBefore && commentBefore.length > 0) {
-                    const newComment = commentBefore.replace(/\(SF \d+(\.\d+)? [ \d/.+-]+\)/, '');
+            comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
+            comment += formatResultPercentages(startTurn, chess.turn(), line);
+            comment += ')';
+            chess.setComment(comment);
+
+            const lastMove = chess?.previousMove();
+            const lastMoveHasEngine = lastMove?.commentDiag?.dojoEngine === 'true';
+            if (lastMoveHasEngine) {
+                const oldComment = lastMove?.commentAfter;
+                if (oldComment) {
+                    const newComment = oldComment.replace(/\(SF \d+(\.\d+)? [ \d/.+-]+\)/, '');
                     chess.setComment(newComment, undefined, lastMove);
                 }
-                reconcile();
-                return;
             }
         },
-        [chess, engineInfo, evaluation, line, reconcile],
+        [chess, engineInfo, evaluation, line],
     );
 
     const addEngineMove = useCallback(
-        (addInfo: boolean = addInfoOnSpacebar) => {
-            if (!line || line.pv.length === 0) {
-                console.log('no line or pv');
+        (index: number, addInfo: boolean = addInfoOnMove) => {
+            if (!line || index >= line.pv.length || chess?.fen() !== line.fen) {
                 return;
             }
 
-            if (chess?.fen() !== line.fen) {
-                console.log('fen does not match');
-                return;
-            }
+            // Must be set here because we need the turn before we start
+            // adding moves
+            const startTurn = chess.turn();
 
-            let move = chess.move(line.pv[0], { existingOnly: true });
-            let engineMove = false;
-            if (!move) {
-                move = chess.move(line.pv[0], { existingOnly: false });
-                if (move) {
-                    engineMove = true;
+            let existingOnly = true;
+            for (let i = 0; i <= index; i++) {
+                const move = chess.move(line.pv[i], { existingOnly });
+                if (move === null) {
+                    existingOnly = false;
+                    i--;
+                } else if (!existingOnly) {
                     chess.setCommand('dojoEngine', 'true', move);
-                } else {
-                    console.log('move failed to apply:', line.pv[0]);
-                    return;
                 }
             }
 
-            const startTurn = chess.turn();
-
-            if (!engineMove) {
-                return;
+            if (!existingOnly) {
+                addEngineComment(addInfo, startTurn);
             }
 
-            addEngineComment(addInfo, startTurn);
             reconcile();
-            return;
         },
-        [addEngineComment, addInfoOnSpacebar, chess, line, reconcile],
+        [addEngineComment, addInfoOnMove, chess, line, reconcile],
     );
 
     useEffect(() => {
-        if (!isTop) {
-            if (addEngineMoveRef?.current === addEngineMove) {
-                addEngineMoveRef.current = null;
-            }
-        } else {
-            if (addEngineMoveRef) {
-                addEngineMoveRef.current = addEngineMove;
-            }
+        if (isTop && addEngineMoveRef) {
+            addEngineMoveRef.current = () => addEngineMove(0);
         }
     }, [isTop, addEngineMoveRef, addEngineMove]);
 
@@ -135,28 +114,12 @@ export default function LineEvaluation({ engineInfo, line, isTop }: Props) {
     const moves = line.pv.map(moveLineUciToMove(line.fen));
 
     const onClick = (index: number, addInfo: boolean = addInfoOnMove) => {
-        if (chess?.fen() !== line.fen || index >= line.pv.length) {
-            return;
-        }
-
-        const startTurn = chess.turn();
-        let existingOnly = true;
-        for (let i = 0; i <= index; i++) {
-            const move = chess.move(line.pv[i], { existingOnly });
-            if (move === null) {
-                existingOnly = false;
-                i--;
-            } else if (!existingOnly) {
-                chess.setCommand('dojoEngine', 'true', move);
-            }
-        }
-        addEngineComment(addInfo, startTurn);
-        reconcile();
+        addEngineMove(index, addInfo);
     };
 
     const onClickEval = () => {
         if (line.pv.length > 0) {
-            onClick(line.pv.length - 1, addInfoOnEval);
+            addEngineMove(line.pv.length - 1, addInfoOnEval);
         }
     };
 
