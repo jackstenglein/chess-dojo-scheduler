@@ -1,0 +1,64 @@
+# Deploys the email service
+
+service: chess-dojo-emails
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  dojoDigestUnsubscribe:
+    handler: dojoDigest/unsubscribe/main.go
+    events:
+      - httpApi:
+          path: /public/dojodigest/unsubscribe
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:SecretsBucket}
+            - /dojoDigestUnsubscribeServiceAccountKey.json
+
+  createSupportTicket:
+    handler: support/main.go
+    events:
+      - httpApi:
+          path: /public/support-ticket
+          method: post
+      - httpApi:
+          path: /support-ticket
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ses:SendTemplatedEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
+          - arn:aws:ses:${aws:region}:${aws:accountId}:template/supportTicket

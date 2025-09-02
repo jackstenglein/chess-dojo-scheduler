@@ -1,0 +1,11 @@
+Hello,
+
+Round robin {{name}} has started! Here are your pairings:
+
+{{pairingText}}
+
+Minimum Time Control: {{timeControl}}
+
+Rounds can be played in any order. Contact your opponents through Discord or Chess.com/Lichess messages to schedule games. You can find your opponents' Discord, Chess.com, and Lichess usernames and submit results on the ChessDojo site. You have {{numWeeks}} weeks to play all your games. Late submissions will not be accepted.
+
+Your tournament info can be found here: {{tournamentUrl}}

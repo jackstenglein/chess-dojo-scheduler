@@ -1,0 +1,177 @@
+# Deploys the course service.
+
+service: chess-dojo-course
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  get:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /courses/{type}/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/courses/{type}/{id}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt CoursesTable.Arn
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
+  list:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /courses/{type}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/courses
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:Scan
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt CoursesTable.Arn
+                - '/index/SummaryIndex'
+          - Fn::Join:
+              - ''
+              - - !GetAtt CoursesTable.Arn
+                - '/index/SummaryIdx'
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt CoursesTable.Arn
+
+  purchase:
+    handler: purchase/main.go
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+    events:
+      - httpApi:
+          path: /courses/{type}/{id}/purchase
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/courses/{type}/{id}/purchase
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt CoursesTable.Arn
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
+  set:
+    handler: set/main.go
+    events:
+      - httpApi:
+          path: /courses
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt CoursesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
+  Resources:
+    CoursesTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-courses
+        AttributeDefinitions:
+          - AttributeName: type
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: type
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        GlobalSecondaryIndexes:
+          - IndexName: SummaryIndex
+            KeySchema:
+              - AttributeName: type
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - name
+                - description
+                - whatsIncluded
+                - color
+                - cohorts
+                - cohortRange
+                - includedWithSubscription
+                - availableForFreeUsers
+                - purchaseOptions
+                - owner
+                - ownerDisplayName

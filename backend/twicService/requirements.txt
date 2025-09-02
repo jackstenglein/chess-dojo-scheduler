@@ -1,0 +1,4 @@
+chess
+beautifulsoup4
+requests
+dynamodb-json

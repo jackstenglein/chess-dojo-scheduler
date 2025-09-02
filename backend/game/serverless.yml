@@ -1,0 +1,310 @@
+# Deploys the games service.
+
+service: chess-dojo-games
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  delete:
+    handler: delete/main.go
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id+}
+          method: delete
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: ${param:GamesTableArn}
+
+  get:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /public/game/{cohort}/{id+}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:GamesTableArn}
+
+  createComment:
+    handler: comment/create/main.go
+    events:
+      - httpApi:
+          path: /game/{cohort}/{id+}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /game/v2/{cohort}/{id+}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:UpdateItem
+        Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action: dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+    environment:
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
+  
+  editComment:
+    handler: comment/edit/main.go
+    events:
+      - httpApi:
+          path: /game/comment
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:GamesTableArn}
+  
+  deleteComment:
+    handler: comment/delete/main.go
+    events:
+      - httpApi:
+          path: /game/comment/delete
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:GamesTableArn}
+
+  listByCohort:
+    handler: list/cohort/main.go
+    events:
+      - httpApi:
+          path: /game/{cohort}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - ${param:GamesTableArn}
+
+  listByOwner:
+    handler: list/owner/main.go
+    events:
+      - httpApi:
+          path: /game
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/OwnerIdx'
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/WhiteIndex'
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/BlackIndex'
+
+  listByOpening:
+    handler: list/opening/main.go
+    events:
+      - httpApi:
+          path: /game/opening
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - ${param:GamesTableArn}
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/OwnerIdx'
+
+  listByFeatured:
+    handler: list/featured/main.go
+    events:
+      - httpApi:
+          path: /game/featured
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/FeaturedIndex'
+  
+  listByReview:
+    handler: list/review/main.go
+    events:
+      - httpApi:
+          path: /game/review
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GamesTableArn}
+                - '/index/ReviewIndex'
+
+  updateStatistics:
+    handler: statistics/update/main.go
+    events:
+      - schedule:
+          rate: cron(20 0 * * ? *)
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:GameDatabaseBucket}
+            - /dojo_database.zip
+  
+  requestReview:
+    handler: review/request/main.go
+    events:
+      - httpApi:
+          path: /game/review/request
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      quickGameReviewPriceId: ${file(../config-${sls:stage}.yml):quickGameReviewPriceId}
+      deepGameReviewPriceId: ${file(../config-${sls:stage}.yml):deepGameReviewPriceId}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:GamesTableArn}
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+  
+  adminUpdateReview:
+    handler: review/update/main.go
+    events:
+      - httpApi:
+          path: /game/review/admin
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: 
+          - ${param:GamesTableArn}
+          - ${param:NotificationsTableArn}
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+    environment:
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
+
+resources:
+  Resources:
+    UpdateGameStatisticsTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: UpdateGameStatisticsTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for updateGameStatistics function'
+        AlarmActions:
+          - ${param:AlertNotificationsTopic}
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-games-${sls:stage}-updateStatistics
+        Period: 86400
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore

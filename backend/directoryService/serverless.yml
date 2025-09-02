@@ -1,0 +1,341 @@
+# Deploys the directory service.
+
+service: chess-dojo-directories
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+functions:
+  createV2:
+    handler: create.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{parent}
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  getV2:
+    handler: get.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/v2
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  getStats:
+    handler: stats.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/stats
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  listBreadcrumbs:
+    handler: listBreadcrumbs.handler
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/breadcrumbs
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  updateV2:
+    handler: update.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  share:
+    handler: share.handler
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/share
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource: !GetAtt DirectoriesTable.Arn
+
+  deleteV2:
+    handler: delete.handlerV2
+    events:
+      - httpApi:
+          path: /directory/delete/v2
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
+  recursiveDelete:
+    handler: recursiveDelete.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt DirectoriesTable.StreamArn
+          batchWindow: 60
+          batchSize: 100
+          parallelizationFactor: 10
+          filterPatterns:
+            - eventName: [REMOVE]
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
+  addItemsV2:
+    handler: addItems.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{id}/items
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
+  removeItemsV2:
+    handler: removeItems.handlerV2
+    events:
+      - httpApi:
+          path: /directory/{owner}/{directoryId}/items/delete
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
+  moveItemsV2:
+    handler: moveItems.handlerV2
+    events:
+      - httpApi:
+          path: /directory/items/move/v2
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+          - dynamodb:PartiQLUpdate
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:PartiQLUpdate
+        Resource: ${param:GamesTableArn}
+
+  startExport:
+    handler: export.startExport
+    events:
+      - httpApi:
+          path: /directory/export
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt DirectoryExportTable.Arn
+      - Effect: Allow
+        Action:
+          - lambda:InvokeFunction
+        Resource: !GetAtt RunExportLambdaFunction.Arn
+
+  runExport:
+    timeout: 900
+    handler: export.runExport
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt DirectoryExportTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+        Resource: ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoriesTable.Arn
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:GameDatabaseBucket}
+            - /exports/*/*.zip
+
+  checkExport:
+    handler: export.checkExport
+    events:
+      - httpApi:
+          path: /directory/export/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt DirectoryExportTable.Arn
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:GameDatabaseBucket}
+            - /exports/*/*.zip
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
+  Resources:
+    DirectoriesTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-directories
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        AttributeDefinitions:
+          - AttributeName: owner
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: owner
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        StreamSpecification:
+          StreamViewType: OLD_IMAGE
+
+    DirectoryExportTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${sls:stage}-directory-exports
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+
+  Outputs:
+    DirectoriesTableArn:
+      Value: !GetAtt DirectoriesTable.Arn

@@ -1,0 +1,29 @@
+name: Code Quality
+
+on:
+  - pull_request
+
+jobs:
+  run-quality-check:
+    name: Lint, check formatting and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Frontend
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run linters for frontend
+        working-directory: frontend
+        run: npm run lint
+      
+      - name: Run format check for frontend
+        working-directory: frontend
+        run: npm run format:check
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build

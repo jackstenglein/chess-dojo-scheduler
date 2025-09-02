@@ -1,0 +1,15 @@
+{
+    "jsxSingleQuote": true,
+    "printWidth": 100,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "overrides": [
+        {
+            "files": "*.yml",
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ],
+    "plugins": ["prettier-plugin-organize-imports"]
+}

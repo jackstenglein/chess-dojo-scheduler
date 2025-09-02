@@ -1,0 +1,198 @@
+# Deploys the round robin service.
+
+service: chess-dojo-round-robin
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+functions:
+  list:
+    handler: list.handler
+    events:
+      - httpApi:
+          path: /public/tournaments/round-robin
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: ${param:TournamentsTableArn}
+
+  register:
+    handler: register.handler
+    events:
+      - httpApi:
+          path: /tournaments/round-robin/register
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
+      discordBotToken: ${file(../discord.yml):discordAuth}
+      discordGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordRoundRobinRole: ${file(../config-${sls:stage}.yml):discordRoundRobinRole}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+
+  startEarly:
+    handler: startEarly.handler
+    events:
+      - schedule:
+          rate: cron(0 0 * * ? *)
+    timeout: 180
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      notificationEventSqsUrl: ${param:NotificationEventQueueUrl}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+      - Effect: Allow
+        Action: sqs:SendMessage
+        Resource: ${param:NotificationEventQueueArn}
+
+  sendReminder:
+    handler: sendReminder.handler
+    package:
+      individually: true
+      patterns:
+        - emailTemplates/roundRobin/tournamentReminder.minified.html
+        - emailTemplates/roundRobin/tournamentReminder.subject
+        - emailTemplates/roundRobin/tournamentReminder.txt
+    events:
+      - schedule:
+          rate: cron(0 0 * * ? *)
+    timeout: 300
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      discordAuth: ${file(../discord.yml):discordAuth}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - ses:SendTemplatedEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
+
+  withdraw:
+    handler: withdraw.handler
+    events:
+      - httpApi:
+          path: /tournaments/round-robin/withdraw
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
+
+  submitGame:
+    handler: submitGame.handler
+    events:
+      - httpApi:
+          path: /tournaments/round-robin/submit-game
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: ${param:TournamentsTableArn}
+
+  webhook:
+    handler: stripeWebhook.handler
+    events:
+      - httpApi:
+          path: /tournaments/round-robin/payment/webhook
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:PutItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeRoundRobinEndpoint-*
+
+  endTournaments:
+    handler: endTournaments.handler
+    events:
+      - schedule:
+          rate: cron(0 0 * * ? *)
+    timeout: 180
+    environment:
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordAchievementsChannelId: ${file(../config-${sls:stage}.yml):discordAchievementsChannelId}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${param:UsersTableArn}

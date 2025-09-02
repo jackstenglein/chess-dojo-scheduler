@@ -1,0 +1,218 @@
+services:
+  chess-dojo-scheduler:
+    path: root
+
+  users:
+    path: user
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UserPoolArn: ${chess-dojo-scheduler.UserPoolArn}
+      UserPoolId: ${chess-dojo-scheduler.UserPoolId}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      RequirementsTableArn: ${chess-dojo-scheduler.RequirementsTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      GraduationsTableArn: ${chess-dojo-scheduler.GraduationsTableArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      FollowersTableArn: ${chess-dojo-scheduler.FollowersTableArn}
+      PicturesBucket: ${chess-dojo-scheduler.PicturesBucket}
+      SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+      AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
+      DirectoriesTableArn: ${directoryService.DirectoriesTableArn}
+  
+  discordAuthService:
+    path: discordAuthService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+
+  coach:
+    path: coach
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+
+  scoreboard:
+    path: scoreboard
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      FollowersTableArn: ${chess-dojo-scheduler.FollowersTableArn}
+
+  requirements:
+    path: requirement
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      RequirementsTableArn: ${chess-dojo-scheduler.RequirementsTableArn}
+
+  graduations:
+    path: graduation
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      GraduationsTableArn: ${chess-dojo-scheduler.GraduationsTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+
+  courseService:
+    path: courseService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+
+  newsfeed:
+    path: newsfeed
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      TimelineTableStreamArn: ${chess-dojo-scheduler.TimelineTableStreamArn}
+      FollowersTableStreamArn: ${chess-dojo-scheduler.FollowersTableStreamArn}
+      NewsfeedTableArn: ${chess-dojo-scheduler.NewsfeedTableArn}
+      FollowersTableArn: ${chess-dojo-scheduler.FollowersTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
+
+  tournaments:
+    path: tournament
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+      AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
+
+  events:
+    path: event
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      EventsTableStreamArn: ${chess-dojo-scheduler.EventsTableStreamArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
+
+  games:
+    path: game
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      GameDatabaseBucket: ${chess-dojo-scheduler.GameDatabaseBucket}
+      AlertNotificationsTopic: ${chess-dojo-scheduler.AlertNotificationsTopic}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
+
+  paymentService:
+    path: paymentService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+
+  emailService:
+    path: email
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
+  
+  chatBotService:
+    path: chatBotService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}    
+
+  yearReviewService:
+    path: yearReviewService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+
+  clubService:
+    path: clubService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      PicturesBucket: ${chess-dojo-scheduler.PicturesBucket}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
+
+  examService:
+    path: examService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+
+  pgnService:
+    path: pgnService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+      GamesTableStreamArn: ${chess-dojo-scheduler.GamesTableStreamArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      ExamsTableArn: ${examService.ExamsTableArn}
+      ExamsTableStreamArn: ${examService.ExamsTableStreamArn}
+      DirectoriesTableArn: ${directoryService.DirectoriesTableArn}
+
+  twicService:
+    path: twicService
+    params:
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+  
+  directoryService:
+    path: directoryService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      GameDatabaseBucket: ${chess-dojo-scheduler.GameDatabaseBucket}
+
+  pgnExportGifService:
+    path: pgnExport/gif
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+  
+  pgnExportPdfService:
+    path: pgnExport/pdf
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+
+  notificationService:
+    path: notificationService
+    params:
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      NotificationsTableArn: ${chess-dojo-scheduler.NotificationsTableArn}
+      GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      TimelineTableArn: ${chess-dojo-scheduler.TimelineTableArn}
+      EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+
+  roundRobinService:
+    path: roundRobinService
+    params:
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
+      apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
+      TournamentsTableArn: ${chess-dojo-scheduler.TournamentsTableArn}
+      UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}

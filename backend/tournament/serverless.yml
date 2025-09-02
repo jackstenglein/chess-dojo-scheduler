@@ -1,0 +1,358 @@
+# Deploys the tournament service.
+
+service: chess-dojo-tournaments
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  create:
+    handler: create/main.go
+    events:
+      - httpApi:
+          path: /tournaments
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: ${param:EventsTableArn}
+    environment:
+      botAccessToken: ${file(../tournament.yml):botAccessToken}
+
+  updateLeaderboard:
+    handler: leaderboard/update/main.go
+    events:
+      - httpApi:
+          path: /tournaments/leaderboard
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+        Resource: ${param:TournamentsTableArn}
+    environment:
+      botAccessToken: ${file(../tournament.yml):botAccessToken}
+
+  getLeaderboard:
+    handler: leaderboard/get/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/leaderboard
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:TournamentsTableArn}
+
+  snapshotLeaderboard:
+    handler: leaderboard/snapshot/main.go
+    events:
+      - schedule:
+          rate: cron(0 0 1 * ? *)
+    timeout: 900
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource: ${param:TournamentsTableArn}
+    environment:
+      mongoConnectionString: ${file(../tournament.yml):mongoConnectionString}
+
+  ocRegister:
+    handler: openClassical/register/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/register
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+    environment:
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordOpenClassicalRole: ${file(../config-${sls:stage}.yml):discordOpenClassicalRole}
+
+  ocSubmitResults:
+    handler: openClassical/results/submit/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/results
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:SecretsBucket}
+            - /openClassicalServiceAccountKey.json
+
+  getOpenClassical:
+    handler: openClassical/get/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/open-classical
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:TournamentsTableArn}
+
+  listOpenClassicals:
+    handler: openClassical/list/main.go
+    events:
+      - httpApi:
+          path: /public/tournaments/open-classical/previous
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:TournamentsTableArn}
+                - '/index/OpenClassicalIndex'
+
+  ocAdminGetRegistrations:
+    handler: openClassical/admin/getRegistrations/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/registrations
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:TournamentsTableArn}
+          - ${param:UsersTableArn}
+
+  ocAdminSetPairings:
+    handler: openClassical/admin/setPairings/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/pairings
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+
+  ocAdminSendPairings:
+    handler: openClassical/admin/emailPairings/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/email-pairings
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    timeout: 20
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - ses:SendTemplatedEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
+          - arn:aws:ses:${aws:region}:${aws:accountId}:template/openClassicalPairing
+
+  ocAdminBanPlayer:
+    handler: openClassical/admin/banPlayer/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/ban-player
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+
+  ocAdminUnbanPlayer:
+    handler: openClassical/admin/unbanPlayer/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/unban-player
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+  
+  ocAdminWithdrawPlayer:
+    handler: openClassical/admin/withdrawPlayer/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/withdraw-player
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+  
+  ocAdminVerifyResult:
+    handler: openClassical/admin/verifyResult/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/verify-result
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+  
+  ocAdminCompleteTournament:
+    handler: openClassical/admin/completeTournament/main.go
+    events:
+      - httpApi:
+          path: /tournaments/open-classical/admin/complete
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource:
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+
+resources:
+  Resources:
+    SnapshotTournamentLeaderboardTimeoutAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: SnapshotLeaderboardTimeout-${sls:stage}
+        AlarmDescription: 'Notifications about Lambda timeouts for snapshotLeaderboard function'
+        AlarmActions:
+          - ${param:AlertNotificationsTopic}
+        Namespace: AWS/Lambda
+        MetricName: Duration
+        Statistic: Maximum
+        Dimensions:
+          - Name: FunctionName
+            Value: chess-dojo-tournaments-${sls:stage}-snapshotLeaderboard
+        Period: 86400
+        EvaluationPeriods: 1
+        Threshold: 700000
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: ignore

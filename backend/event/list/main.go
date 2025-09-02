@@ -1,0 +1,53 @@
+package main
+
+import (
+	"context"
+	"os"
+
+	"github.com/aws/aws-lambda-go/lambda"
+
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
+)
+
+var repository database.EventLister = database.DynamoDB
+var stage = os.Getenv("stage")
+
+type ListEventsResponse struct {
+	Events           []*database.Event `json:"events"`
+	LastEvaluatedKey string            `json:"lastEvaluatedKey,omitempty"`
+}
+
+func main() {
+	if stage == "prod" {
+		log.SetLevel(log.InfoLevel)
+	}
+	lambda.Start(Handler)
+}
+
+func Handler(ctx context.Context, request api.Request) (api.Response, error) {
+	log.SetRequestId(request.RequestContext.RequestID)
+	log.Infof("Request: %#v", request)
+
+	info := api.GetUserInfo(request)
+	startKey, _ := request.QueryStringParameters["startKey"]
+
+	events, lastKey, err := repository.ScanEvents(info.Username == "", startKey)
+	if err != nil {
+		return api.Failure(err), nil
+	}
+
+	for _, e := range events {
+		p := e.Participants[info.Username]
+		if e.Type == database.EventType_Coaching && e.Owner != info.Username && (p == nil || !p.HasPaid) {
+			e.Location = "Location is hidden until payment is complete"
+			e.Messages = nil
+		}
+	}
+
+	return api.Success(&ListEventsResponse{
+		Events:           events,
+		LastEvaluatedKey: lastKey,
+	}), nil
+}

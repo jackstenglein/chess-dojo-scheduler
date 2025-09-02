@@ -1,0 +1,213 @@
+# Deploys the payment service.
+
+service: chess-dojo-payment
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  webhook:
+    handler: webhook/main.go
+    environment:
+      metaPixelId: ${file(../analytics-${sls:stage}.yml):metaPixelId}
+      metaAccessToken: ${file(../analytics-${sls:stage}.yml):metaAccessToken}
+      gaMeasurementId: ${file(../analytics-${sls:stage}.yml):gaMeasurementId}
+      gaMeasurementApiKey: ${file(../analytics-${sls:stage}.yml):gaMeasurementApiKey}
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordPublicGuildId: ${file(../config-${sls:stage}.yml):discordPublicGuildId}
+      discordFreeRoles: ${file(../config-${sls:stage}.yml):discordFreeRoles}
+      discordPaidRoles: ${file(../config-${sls:stage}.yml):discordPaidRoles}
+    events:
+      - httpApi:
+          path: /payment/webhook
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:EventsTableArn}
+          - ${param:GamesTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeEndpoint-*
+
+  connectWebhook:
+    handler: account/webhook/main.go
+    events:
+      - httpApi:
+          path: /payment/webhook/connect
+          method: post
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeEndpointConnect-*
+
+  subscriptionCheckout:
+    handler: subscription/checkout/main.go
+    events:
+      - httpApi:
+          path: /subscription/checkout
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      monthlyPriceId: ${file(../config-${sls:stage}.yml):monthlySubscriptionPriceId}
+      yearlyPriceId: ${file(../config-${sls:stage}.yml):yearlySubscriptionPriceId}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
+  subscriptionManage:
+    handler: subscription/manage/main.go
+    events:
+      - httpApi:
+          path: /subscription/manage
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
+  syncPurchases:
+    handler: purchases/sync/main.go
+    events:
+      - httpApi:
+          path: /purchases/sync
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
+  createAccount:
+    handler: account/create/main.go
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+    events:
+      - httpApi:
+          path: /payment/account
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
+  getAccount:
+    handler: account/get/main.go
+    events:
+      - httpApi:
+          path: /payment/account
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*
+
+  accountLogin:
+    handler: account/login/main.go
+    events:
+      - httpApi:
+          path: /payment/account/login
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:chess-dojo-${sls:stage}-stripeKey-*

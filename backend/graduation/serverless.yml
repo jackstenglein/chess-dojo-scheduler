@@ -1,0 +1,121 @@
+# Deploys the graduations service.
+
+service: chess-dojo-graduations
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  listByCohort:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /graduations/{cohort}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/graduations/{cohort}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GraduationsTableArn}
+                - '/index/CohortIndex'
+
+  listByOwner:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /graduations/owner/{username}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/graduations/owner/{username}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: ${param:GraduationsTableArn}
+
+  listByDate:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /graduations
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/graduations
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GraduationsTableArn}
+                - '/index/DateIndex'
+  
+  announce:
+    handler: announce/main.go
+    timeout: 30
+    events:
+      - schedule:
+          rate: cron(0 13 ? * WED *)
+          input:
+            id: U1000
+      - schedule:
+          rate: cron(0 13 ? * THU *)
+          input:
+            id: 1000+
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordGraduationsChannelId: ${file(../config-${sls:stage}.yml):discordGraduationsChannelId}
+      discordAuth: ${file(../discord.yml):discordAuth}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:GraduationsTableArn}
+                - '/index/DateIndex'
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}

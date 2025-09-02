@@ -1,0 +1,24 @@
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - echo 'Pre build'
+            - pwd
+            - npm --version
+            - node --version
+            - npm ci --cache .npm --prefer-offline
+        build:
+          commands:
+            - pwd
+            - npm run build:$AMPLIFY_ENV
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - .next/cache/**/*
+          - .npm/**/*

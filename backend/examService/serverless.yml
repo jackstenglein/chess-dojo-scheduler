@@ -1,0 +1,123 @@
+# Deploys the exams service.
+
+service: chess-dojo-exams
+frameworkVersion: '3'
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-go-plugin
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+custom:
+  go:
+    binDir: bin
+    cmd: GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -ldflags="-s -w"
+    supportedRuntimes: ['provided.al2']
+    buildProvidedRuntimeAsBootstrap: true
+
+functions:
+  get:
+    handler: get/main.go
+    events:
+      - httpApi:
+          path: /exams/{type}/{id}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt ExamsTable.Arn
+
+  list:
+    handler: list/main.go
+    events:
+      - httpApi:
+          path: /exams
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt ExamsTable.Arn
+  
+  putAnswer:
+    handler: answers/put/main.go
+    events:
+      - httpApi:
+          path: /exams/answers
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt ExamsTable.Arn
+  
+  getAnswer:
+    handler: answers/get/main.go
+    events:
+      - httpApi:
+          path: /exams/answers
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt ExamsTable.Arn
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
+  Resources:
+    ExamsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-exams
+        AttributeDefinitions:
+          - AttributeName: type
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: type
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+  Outputs:
+    ExamsTableArn:
+      Value: !GetAtt ExamsTable.Arn
+    ExamsTableStreamArn:
+      Value: !GetAtt ExamsTable.StreamArn

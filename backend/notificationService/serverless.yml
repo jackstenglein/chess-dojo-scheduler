@@ -1,0 +1,80 @@
+# Deploys the notification service.
+
+service: chess-dojo-notification
+
+plugins:
+  - serverless-esbuild
+  - serverless-plugin-custom-roles
+
+package:
+  individually: true
+  patterns:
+    - emailTemplates/**/*.minified.html
+    - emailTemplates/**/*.subject
+    - emailTemplates/**/*.txt
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  deploymentMethod: direct
+
+functions:
+  handler:
+    handler: handler.handler
+    timeout: 300
+    events:
+      - sqs:
+          arn: !GetAtt NotificationEventQueue.Arn
+          batchSize: 200
+          maximumBatchingWindow: 60
+          maximumConcurrency: 5
+    environment:
+      frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordRoundRobinChannelId: ${file(../config-${sls:stage}.yml):discordRoundRobinChannelId}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - ${param:UsersTableArn}
+          - ${param:GamesTableArn}
+          - ${param:TimelineTableArn}
+          - ${param:EventsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - ${param:NotificationsTableArn}
+          - ${param:TournamentsTableArn}
+      - Effect: Allow
+        Action:
+          - sqs:ReceiveMessage
+          - sqs:DeleteMessage
+          - sqs:GetQueueAttributes
+        Resource: !GetAtt NotificationEventQueue.Arn
+      - Effect: Allow
+        Action:
+          - ses:SendTemplatedEmail
+        Resource:
+          - arn:aws:ses:${aws:region}:${aws:accountId}:identity/chessdojo.club
+
+resources:
+  Resources:
+    NotificationEventQueue:
+      Type: AWS::SQS::Queue
+      DeletionPolicy: Retain
+      Properties:
+        QueueName: ${sls:stage}-notification-events
+        VisibilityTimeout: 300
+
+  Outputs:
+    NotificationEventQueueArn:
+      Value: !GetAtt NotificationEventQueue.Arn
+    NotificationEventQueueUrl:
+      Value: !Ref NotificationEventQueue

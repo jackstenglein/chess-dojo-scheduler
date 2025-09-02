@@ -1,0 +1,745 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: chess-dojo-scheduler
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: provided.al2
+  architecture: arm64
+  region: us-east-1
+  deploymentMethod: direct
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+    IsNotSimple: !Not [!Equals ['${sls:stage}', 'simple']]
+
+  Resources:
+    ######### API Gateway Resources ###########
+
+    HttpApi:
+      Type: AWS::ApiGatewayV2::Api
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        Name: ${sls:stage}-chess-dojo-scheduler
+        ProtocolType: HTTP
+        CorsConfiguration:
+          AllowHeaders:
+            - Content-Type
+            - X-Amz-Date
+            - Authorization
+            - X-Api-Key
+            - X-Amz-Security-Token
+            - X-Amz-User-Agent
+            - X-Amzn-Trace-Id
+          AllowMethods:
+            - OPTIONS
+            - GET
+            - POST
+            - PUT
+            - DELETE
+          AllowOrigins:
+            - '*'
+
+    HttpApiStage:
+      Type: AWS::ApiGatewayV2::Stage
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        ApiId: !Ref HttpApi
+        StageName: $default
+        AutoDeploy: true
+        DefaultRouteSettings:
+          DetailedMetricsEnabled: false
+
+    HttpApiAuthorizerServiceAuthorizer:
+      Type: AWS::ApiGatewayV2::Authorizer
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        ApiId: !Ref HttpApi
+        Name: serviceAuthorizer
+        IdentitySource:
+          - $request.header.Authorization
+        AuthorizerType: JWT
+        JwtConfiguration:
+          Audience:
+            - Ref: UserClient
+          Issuer: !GetAtt CognitoUserPool.ProviderURL
+
+    ######### Cognito Resources ###############
+
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        UserPoolName: ${sls:stage}-chess-dojo-scheduler-auth-pool
+        DeletionProtection: ACTIVE
+        UsernameConfiguration:
+          CaseSensitive: false
+        AliasAttributes:
+          - email
+        MfaConfiguration: OFF
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: true
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+        AutoVerifiedAttributes: ['email']
+
+    UserClient:
+      Type: AWS::Cognito::UserPoolClient
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        ClientName: ${sls:stage}-chess-dojo-scheduler-auth-client
+        GenerateSecret: false
+        UserPoolId: { Ref: CognitoUserPool }
+        ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthFlows:
+          - code
+        AllowedOAuthScopes:
+          - openid
+          - email
+          - profile
+        CallbackURLs:
+          - ${file(../config-${sls:stage}.yml):frontendHost}
+          - ${file(../config-${sls:stage}.yml):mobileHost}
+          - https://www.dojoscoreboard.com
+          - https://beta.chessdojo.club
+        LogoutURLs:
+          - ${file(../config-${sls:stage}.yml):frontendHost}
+          - ${file(../config-${sls:stage}.yml):mobileHost}
+          - https://www.dojoscoreboard.com
+          - https://beta.chessdojo.club
+        SupportedIdentityProviders: !If [IsNotSimple,
+          [COGNITO, Google],
+          [COGNITO]
+        ]
+        AccessTokenValidity: 24
+        IdTokenValidity: 24
+
+    UserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        UserPoolId: { Ref: CognitoUserPool }
+        Domain: !If [IsNotSimple, 'user-pool-domain-${sls:stage}-chess-dojo-scheduler', 'user-pool-domain-${sls:stage}-${aws:accountId}-chess-dojo-scheduler']
+
+    CustomDomainCertificate:
+      Condition: IsNotSimple
+      Type: AWS::CertificateManager::Certificate
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        DomainName: ${file(../config-${sls:stage}.yml):cognitoUserPoolDomain}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${file(../config-${sls:stage}.yml):cognitoUserPoolDomain}
+            HostedZoneId: ${file(../config-${sls:stage}.yml):hostedZoneId}
+
+    CustomUserPoolDomain:
+      Condition: IsNotSimple
+      Type: AWS::Cognito::UserPoolDomain
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        UserPoolId: { Ref: CognitoUserPool }
+        Domain: !If
+          - IsProd
+          - auth.chessdojo.club
+          - authdev.chessdojo.club
+        CustomDomainConfig:
+          CertificateArn: !Ref CustomDomainCertificate
+
+    UserPoolIdentityProvider:
+      Condition: IsNotSimple
+      Type: AWS::Cognito::UserPoolIdentityProvider
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        UserPoolId: { Ref: CognitoUserPool }
+        ProviderName: 'Google'
+        ProviderDetails:
+          client_id: ${file(../oauth.yml):client_id}
+          client_secret: ${file(../oauth.yml):client_secret}
+          authorize_scopes: 'profile email openid'
+        ProviderType: 'Google'
+        AttributeMapping:
+          email: 'email'
+          name: 'name'
+          username: 'sub'
+          email_verified: 'email_verified'
+
+    ######### End Cognito Resources ###############
+
+    ######### DynamoDB Resources ##################
+
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-users
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: dojoCohort
+            AttributeType: S
+          - AttributeName: subscriptionStatus
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        GlobalSecondaryIndexes:
+          - IndexName: CohortIdx
+            KeySchema:
+              - AttributeName: dojoCohort
+                KeyType: HASH
+              - AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: SearchIdx
+            KeySchema:
+              - AttributeName: dojoCohort
+                KeyType: HASH
+              - AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - displayName
+                - discordUsername
+                - searchKey
+                - ratings
+          - IndexName: ScoreboardSummaryIdx
+            KeySchema:
+              - AttributeName: subscriptionStatus
+                KeyType: HASH
+              - AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - displayName
+                - graduationCohorts
+                - previousCohort
+                - ratings
+                - ratingSystem
+                - totalDojoScore
+                - dojoCohort
+                - updatedAt
+                - minutesSpent
+
+    TimelineTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-timeline
+        AttributeDefinitions:
+          - AttributeName: owner
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: owner
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+
+    FollowersTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-followers
+        AttributeDefinitions:
+          - AttributeName: poster
+            AttributeType: S
+          - AttributeName: follower
+            AttributeType: S
+        KeySchema:
+          - AttributeName: poster
+            KeyType: HASH
+          - AttributeName: follower
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        StreamSpecification:
+          StreamViewType: KEYS_ONLY
+        GlobalSecondaryIndexes:
+          - IndexName: FollowingIndex
+            KeySchema:
+              - AttributeName: follower
+                KeyType: HASH
+              - AttributeName: poster
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    EventsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-events
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: !If
+          - IsProd
+          - PROVISIONED
+          - PAY_PER_REQUEST
+        ProvisionedThroughput: !If
+          - IsProd
+          - ReadCapacityUnits: 2
+            WriteCapacityUnits: 1
+          - !Ref AWS::NoValue
+        TimeToLiveSpecification:
+          AttributeName: expirationTime
+          Enabled: true
+        StreamSpecification:
+          StreamViewType: OLD_IMAGE
+
+    RequirementsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-requirements
+        AttributeDefinitions:
+          - AttributeName: status
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: status
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    GraduationsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-graduations
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: previousCohort
+            AttributeType: S
+          - AttributeName: type
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+          - AttributeName: previousCohort
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        GlobalSecondaryIndexes:
+          - IndexName: CohortIndex
+            KeySchema:
+              - AttributeName: previousCohort
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: DateIndex
+            KeySchema:
+              - AttributeName: type
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    GamesTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-games
+        AttributeDefinitions:
+          - AttributeName: cohort
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: owner
+            AttributeType: S
+          - AttributeName: white
+            AttributeType: S
+          - AttributeName: black
+            AttributeType: S
+          - AttributeName: isFeatured
+            AttributeType: S
+          - AttributeName: featuredAt
+            AttributeType: S
+          - AttributeName: reviewStatus
+            AttributeType: S
+          - AttributeName: reviewRequestedAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: cohort
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+        GlobalSecondaryIndexes:
+          - IndexName: OwnerIdx
+            KeySchema:
+              - AttributeName: owner
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
+          - IndexName: WhiteIndex
+            KeySchema:
+              - AttributeName: white
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - black
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
+          - IndexName: BlackIndex
+            KeySchema:
+              - AttributeName: black
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
+          - IndexName: FeaturedIndex
+            KeySchema:
+              - AttributeName: isFeatured
+                KeyType: HASH
+              - AttributeName: featuredAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
+          - IndexName: ReviewIndex
+            KeySchema:
+              - AttributeName: reviewStatus
+                KeyType: HASH
+              - AttributeName: reviewRequestedAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - white
+                - black
+                - date
+                - createdAt
+                - updatedAt
+                - publishedAt
+                - owner
+                - ownerDisplayName
+                - ownerPreviousCohort
+                - headers
+                - unlisted
+                - review
+
+    TournamentsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-tournaments
+        AttributeDefinitions:
+          - AttributeName: type
+            AttributeType: S
+          - AttributeName: startsAt
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+        KeySchema:
+          - AttributeName: type
+            KeyType: HASH
+          - AttributeName: startsAt
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        GlobalSecondaryIndexes:
+          - IndexName: OpenClassicalIndex
+            KeySchema:
+              - AttributeName: type
+                KeyType: HASH
+              - AttributeName: name
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
+
+    NotificationsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-notifications
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    NewsfeedTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        TableName: ${sls:stage}-newsfeed
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: newsfeedId
+            AttributeType: S
+          - AttributeName: sortKey
+            AttributeType: S
+          - AttributeName: poster
+            AttributeType: S
+          - AttributeName: timelineId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: newsfeedId
+            KeyType: HASH
+          - AttributeName: sortKey
+            KeyType: RANGE
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        GlobalSecondaryIndexes:
+          - IndexName: PosterIndex
+            KeySchema:
+              - AttributeName: poster
+                KeyType: HASH
+              - AttributeName: timelineId
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
+
+    ############# S3 Resources #################
+
+    GameDatabaseBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        BucketName: !If [IsNotSimple, 'chess-dojo-${sls:stage}-game-database', 'chess-dojo-simple-${aws:accountId}-game-database']
+        PublicAccessBlockConfiguration:
+          BlockPublicPolicy: false
+        LifecycleConfiguration:
+          Rules:
+            - Prefix: exports/
+              ExpirationInDays: 7
+              Status: Enabled
+
+    GameDatabaseBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        Bucket: !Ref GameDatabaseBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref GameDatabaseBucket
+                  - /dojo_database.zip
+              Principal: '*'
+
+    PicturesBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        BucketName: !If [IsNotSimple, 'chess-dojo-${sls:stage}-pictures', 'chess-dojo-simple-${aws:accountId}-pictures']
+        PublicAccessBlockConfiguration:
+          BlockPublicPolicy: false
+
+    PicturesBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        Bucket: !Ref PicturesBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref PicturesBucket
+                  - /*
+              Principal: '*'
+
+    SecretsBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      Properties:
+        BucketName: !If [IsNotSimple, 'chess-dojo-${sls:stage}-secrets', 'chess-dojo-simple-${aws:accountId}-secrets']
+
+    ############# End S3 Resources ##############
+
+    ############# Alert Resources ###############
+
+    AlertNotificationsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: chess-dojo-${sls:stage}-alert-notifications
+        Subscription: !If
+          - IsNotSimple
+          - - Endpoint: jackstenglein@gmail.com
+              Protocol: EMAIL
+          - !Ref AWS::NoValue
+
+    ########### End Alert Resources #############
+
+  Outputs:
+    HttpApiId:
+      Value: !Ref HttpApi
+    serviceAuthorizer:
+      Value: !Ref HttpApiAuthorizerServiceAuthorizer
+    UserPoolId:
+      Value: !Ref CognitoUserPool
+    UserPoolArn:
+      Value: !GetAtt CognitoUserPool.Arn
+    userPoolClient:
+      Value: !Ref UserClient
+    userPoolProviderUrl:
+      Value: !GetAtt CognitoUserPool.ProviderURL
+    UsersTableArn:
+      Value: !GetAtt UsersTable.Arn
+    RequirementsTableArn:
+      Value: !GetAtt RequirementsTable.Arn
+    GraduationsTableArn:
+      Value: !GetAtt GraduationsTable.Arn
+    NewsfeedTableArn:
+      Value: !GetAtt NewsfeedTable.Arn
+    TimelineTableArn:
+      Value: !GetAtt TimelineTable.Arn
+    TimelineTableStreamArn:
+      Value: !GetAtt TimelineTable.StreamArn
+    FollowersTableArn:
+      Value: !GetAtt FollowersTable.Arn
+    FollowersTableStreamArn:
+      Value: !GetAtt FollowersTable.StreamArn
+    NotificationsTableArn:
+      Value: !GetAtt NotificationsTable.Arn
+    EventsTableArn:
+      Value: !GetAtt EventsTable.Arn
+    EventsTableStreamArn:
+      Value: !GetAtt EventsTable.StreamArn
+    TournamentsTableArn:
+      Value: !GetAtt TournamentsTable.Arn
+    GamesTableArn:
+      Value: !GetAtt GamesTable.Arn
+    GamesTableStreamArn:
+      Value: !GetAtt GamesTable.StreamArn
+    PicturesBucket:
+      Value: !Ref PicturesBucket
+    GameDatabaseBucket:
+      Value: !Ref GameDatabaseBucket
+    SecretsBucket:
+      Value: !Ref SecretsBucket
+    AlertNotificationsTopic:
+      Value: !Ref AlertNotificationsTopic
