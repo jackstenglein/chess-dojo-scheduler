@@ -4,17 +4,32 @@ import {
     correctMoveGlyphHtml,
     incorrectMoveGlyphHtml,
 } from '@/components/material/memorizegames/moveGlyphs';
-import { Chess, Move, Square } from '@jackstenglein/chess';
+import { Chess, Color, Move, Square } from '@jackstenglein/chess';
 import { RefObject, useCallback, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
-interface WrongMove {
+interface SimpleMove {
     from: Square;
     to: Square;
     promotion?: string | undefined;
 }
 
 export type PlayAs = 'both' | 'white' | 'black';
+
+interface SolitareColorResults {
+    correct: number;
+    total: number;
+}
+
+interface SolitaireResults {
+    white: SolitareColorResults;
+    black: SolitareColorResults;
+}
+
+const EMPTY_SOLITAIRE_RESULTS = {
+    white: { correct: 0, total: 0 },
+    black: { correct: 0, total: 0 },
+};
 
 export interface UseSolitareChessResponse {
     /** Whether solitaire mode is enabled. */
@@ -37,6 +52,8 @@ export interface UseSolitareChessResponse {
     stop: () => void;
     /** A callback to invoke when the user makes a move on the board. */
     onMove: (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => void;
+    /** The results of the solitaire mode. */
+    results: SolitaireResults;
 }
 
 export function useSolitaireChess(
@@ -49,13 +66,15 @@ export function useSolitaireChess(
     const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
     const [currentMove, setCurrentMove] = useState<Move | null>(null);
     const lastMove = useRef<Move | null>(null);
-    const incorrectMoves = useRef<WrongMove[]>([]);
+    const incorrectMoves = useRef<SimpleMove[]>([]);
+    const [results, setResults] = useState<SolitaireResults>(EMPTY_SOLITAIRE_RESULTS);
 
     const start = useCallback(
         (move: Move | null) => {
             chess.seek(move);
             reconcile(chess, board, showGlyphs);
             incorrectMoves.current = [];
+            setResults(EMPTY_SOLITAIRE_RESULTS);
             setCurrentMove(move);
             setEnabled(true);
             lastMove.current = chess.lastMove();
@@ -99,6 +118,7 @@ export function useSolitaireChess(
                     incorrectMoves,
                     currentMove,
                     setCurrentMove,
+                    setResults,
                 });
                 return;
             }
@@ -133,8 +153,9 @@ export function useSolitaireChess(
             start,
             stop,
             onMove,
+            results,
         }),
-        [addWrongMoves, enabled, onMove, start, stop, currentMove, playAs],
+        [addWrongMoves, enabled, onMove, start, stop, currentMove, playAs, results],
     );
 }
 
@@ -148,16 +169,18 @@ function handleCorrectMove({
     incorrectMoves,
     currentMove,
     setCurrentMove,
+    setResults,
 }: {
     chess: Chess;
     board: BoardApi;
     showGlyphs: boolean;
     playAs: PlayAs;
-    move: WrongMove;
+    move: SimpleMove;
     addWrongMoves: boolean;
-    incorrectMoves: RefObject<WrongMove[]>;
+    incorrectMoves: RefObject<SimpleMove[]>;
     currentMove: Move | null;
     setCurrentMove: (v: Move | null) => void;
+    setResults: React.Dispatch<React.SetStateAction<SolitaireResults>>;
 }) {
     const nextMove = chess.move(move);
     if (addWrongMoves) {
@@ -165,6 +188,15 @@ function handleCorrectMove({
             chess.move(m, { previousMove: currentMove, skipSeek: true });
         }
     }
+
+    const color = nextMove?.color === Color.white ? 'white' : 'black';
+    setResults((results) => ({
+        ...results,
+        [color]: {
+            correct: results[color].correct + (incorrectMoves.current.length ? 0 : 1),
+            total: results[color].total + 1,
+        },
+    }));
 
     incorrectMoves.current = [];
     reconcile(chess, board, showGlyphs);
