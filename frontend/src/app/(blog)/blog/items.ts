@@ -10,6 +10,10 @@ import yearstats from './dojo-digest/vol-17/2024+stats.png';
 import masteringtime from './dojo-digest/vol-18/mastering-time.jpg';
 import weeklyplanner from './dojo-digest/vol-19/weekly-planner.png';
 import openingscout from './dojo-digest/vol-20/openingscout.png';
+import dojo4 from './dojo-digest/vol-21/Dojo4.png';
+import youtubeaward from './dojo-digest/vol-22/youtube.webp';
+import kraaichamp from './dojo-digest/vol-23/kraaichamp.jpg';
+import UIUpgrade from './dojo-digest/vol-24/UI+Upgrade.jpg';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import worldrapid from './dojo-talks/2024-world-rapid-blitz/2024-rapid.png';
@@ -31,6 +35,46 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'New UI, Performance Stats & Annotation Workshop',
+        subtitle: 'Dojo Digest • September 1, 2025',
+        body: `New Training Plan UI!`,
+        href: '/blog/dojo-digest/vol-24',
+        image: {
+            src: UIUpgrade,
+            alt: '',
+        },
+    },
+    {
+        title: 'My Games Folder, Annotation Workshop, & Other News',
+        subtitle: 'Dojo Digest • August 1, 2025',
+        body: `All Dojo users now have a default folder called My Games.`,
+        href: '/blog/dojo-digest/vol-23',
+        image: {
+            src: kraaichamp,
+            alt: '',
+        },
+    },
+    {
+        title: '100,000 YouTube Subscribers!',
+        subtitle: 'Dojo Digest • July 1, 2025',
+        body: `It’s been a long journey!`,
+        href: '/blog/dojo-digest/vol-22',
+        image: {
+            src: youtubeaward,
+            alt: '',
+        },
+    },
+    {
+        title: '40% Off ChessDojo, New Features, & More!',
+        subtitle: 'Dojo Digest • June 1, 2025',
+        body: `We launched Dojo 4.0!`,
+        href: '/blog/dojo-digest/vol-21',
+        image: {
+            src: dojo4,
+            alt: '',
+        },
+    },
     {
         title: 'Dojo 4.0 is live!',
         subtitle: 'Dojo Blog • May 16, 2025',
