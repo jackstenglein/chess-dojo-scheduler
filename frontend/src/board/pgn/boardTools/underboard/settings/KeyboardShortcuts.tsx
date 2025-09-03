@@ -69,6 +69,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Unfocus Text Fields';
         case ShortcutAction.InsertNullMove:
             return 'Insert Null Move';
+        case ShortcutAction.InsertEngineMove:
+            return 'Insert Top Engine Move';
     }
 }
 
@@ -119,6 +121,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Unfocuses all text fields, allowing the usage of keyboard shortcuts and board controls.';
         case ShortcutAction.InsertNullMove:
             return 'Inserts a null move into the PGN, passing the turn to the other side without changing the position. Null moves cannot be added when in check or immediately after another null move.';
+        case ShortcutAction.InsertEngineMove:
+            return 'Inserts the top engine move into the game (note: the engine must be running).';
     }
 }
 
@@ -160,6 +164,11 @@ interface ShortcutHandlerOptions {
      * A function which toggles the orientation of the board.
      */
     toggleOrientation?: () => void;
+
+    /**
+     * Whether to insert the next engine's move when hitting the keybind.
+     */
+    addEngineMove?: () => void;
 }
 
 interface ShortcutHandlerProps {
@@ -341,6 +350,12 @@ function handleInsertNullMove({ chess, reconcile }: ShortcutHandlerProps) {
     reconcile?.();
 }
 
+/** Handles inserting the top engine move.
+ */
+function handleInsertEngineMove({ opts }: ShortcutHandlerProps) {
+    opts?.addEngineMove?.();
+}
+
 /**
  * Maps ShortcutActions to their handler functions. Not all ShortcutActions are included.
  */
@@ -365,6 +380,7 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.FocusCommentTextField]: handleFocusCommentTextField,
     [ShortcutAction.UnfocusTextField]: handleUnfocusTextField,
     [ShortcutAction.InsertNullMove]: handleInsertNullMove,
+    [ShortcutAction.InsertEngineMove]: handleInsertEngineMove,
 };
 
 /**
@@ -414,7 +430,15 @@ export function matchAction(
 /**
  * @returns A component for viewing and editing keyboard shortcuts.
  */
-const KeyboardShortcuts = () => {
+const KeyboardShortcuts = ({
+    actions = Object.values(ShortcutAction),
+    hideReset,
+}: {
+    /** The actions to display. Defaults to all actions. */
+    actions?: ShortcutAction[];
+    /** If true, the button to reset all to defaults is hidden. */
+    hideReset?: boolean;
+}) => {
     const [keyBindings, setKeyBindings] = useLocalStorage(
         ShortcutBindings.key,
         ShortcutBindings.default,
@@ -506,6 +530,7 @@ const KeyboardShortcuts = () => {
                 Keyboard shortcuts are disabled while editing text fields (comments, clock times,
                 tags, etc).
             </Typography>
+
             <Grid container rowGap={2} columnSpacing={2} alignItems='center' mt={1.5}>
                 <Grid sx={{ borderBottom: 1, borderColor: 'divider' }} size={5}>
                     <Typography>Action</Typography>
@@ -516,7 +541,7 @@ const KeyboardShortcuts = () => {
                 <Grid sx={{ borderBottom: 1, borderColor: 'divider' }} size={3.5}>
                     <Typography textAlign='center'>Key</Typography>
                 </Grid>
-                {Object.values(ShortcutAction).map((a) => {
+                {actions.map((a) => {
                     const binding = keyBindings[a] || ShortcutBindings.default[a];
                     return (
                         <Fragment key={a}>
@@ -566,11 +591,13 @@ const KeyboardShortcuts = () => {
                         </Fragment>
                     );
                 })}
-                <Grid size={12}>
-                    <Button color='error' onClick={onReset} sx={{ textTransform: 'none' }}>
-                        Reset All to Defaults
-                    </Button>
-                </Grid>
+                {!hideReset && (
+                    <Grid size={12}>
+                        <Button color='error' onClick={onReset} sx={{ textTransform: 'none' }}>
+                            Reset All to Defaults
+                        </Button>
+                    </Grid>
+                )}
             </Grid>
             <Dialog
                 open={!!editAction}

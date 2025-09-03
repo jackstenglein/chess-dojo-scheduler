@@ -3,6 +3,7 @@ import { useLightMode } from '@/style/useLightMode';
 import {
     AccessAlarm,
     Chat,
+    Construction,
     Edit,
     Folder,
     Sell,
@@ -36,6 +37,7 @@ import Settings from './settings/Settings';
 import { ShortcutAction, ShortcutBindings } from './settings/ShortcutAction';
 import { ShareTab } from './share/ShareTab';
 import Tags from './tags/Tags';
+import { Tools } from './tools/Tools';
 import {
     CustomUnderboardTab,
     DefaultUnderboardTab,
@@ -91,6 +93,11 @@ const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
         tooltip: 'Settings',
         icon: <SettingsIcon />,
         shortcut: ShortcutAction.OpenSettings,
+    },
+    [DefaultUnderboardTab.Tools]: {
+        name: DefaultUnderboardTab.Tools,
+        tooltip: 'Tools',
+        icon: <Construction />,
     },
 };
 
@@ -264,6 +271,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                             />
                         )}
                         {underboard === DefaultUnderboardTab.Share && <ShareTab />}
+                        {underboard === DefaultUnderboardTab.Tools && <Tools />}
 
                         {customTab?.element}
                     </Stack>

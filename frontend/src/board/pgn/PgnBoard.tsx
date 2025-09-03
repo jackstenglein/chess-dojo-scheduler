@@ -1,10 +1,6 @@
-import {
-    correctMoveGlyphHtml,
-    incorrectMoveGlyphHtml,
-} from '@/components/material/memorizegames/moveGlyphs';
 import useGame from '@/context/useGame';
 import LoadingPage from '@/loading/LoadingPage';
-import { Chess, Observer, Square } from '@jackstenglein/chess';
+import { Chess, Move, Observer } from '@jackstenglein/chess';
 import { Box } from '@mui/material';
 import { Color } from 'chessground/types';
 import React, {
@@ -20,20 +16,14 @@ import React, {
     useState,
     type JSX,
 } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
-import { BoardApi, defaultOnMove, onMoveFunc, PrimitiveMove, reconcile } from '../Board';
+import { BoardApi, onMoveFunc } from '../Board';
 import ResizableContainer from './ResizableContainer';
-import { ShowGlyphsKey } from './boardTools/underboard/settings/ViewerSettings';
 import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
+import { useSolitaireChess, UseSolitareChessResponse } from './solitaire/useSolitaireChess';
 
 export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
-
-export enum PgnBoardMode {
-    Normal = 'NORMAL',
-    Solitaire = 'SOLITAIRE',
-}
 
 interface ChessConfig {
     initKey?: string;
@@ -46,21 +36,17 @@ interface ChessConfig {
 }
 
 interface ChessContextType {
-    mode?: PgnBoardMode;
     chess?: Chess;
     board?: BoardApi;
     boardRef?: RefObject<HTMLDivElement | null>;
     config?: ChessConfig;
     toggleOrientation?: () => void;
-    keydownMap?: React.MutableRefObject<Record<string, boolean>>;
+    keydownMap?: React.RefObject<Record<string, boolean>>;
     slots?: PgnBoardSlots;
     slotProps?: PgnBoardSlotProps;
     orientation?: 'white' | 'black';
-    solitaire?: {
-        solution: React.RefObject<Chess | null>;
-        isComplete: boolean;
-        reset: () => void;
-    };
+    solitaire?: UseSolitareChessResponse;
+    addEngineMoveRef?: React.RefObject<(() => void) | null>;
 }
 
 export const ChessContext = createContext<ChessContextType>({});
@@ -71,6 +57,10 @@ export function useChess() {
 
 export interface PgnBoardApi {
     getPgn: () => string;
+    solitaire: {
+        start: (move: Move | null) => void;
+        stop: () => void;
+    };
     addObserver: (observer: Observer) => void;
     removeObserver: (observer: Observer) => void;
 }
@@ -89,16 +79,9 @@ export interface PgnBoardSlotProps {
     };
 }
 
-interface WrongMove {
-    from: Square;
-    to: Square;
-    promotion?: string | undefined;
-}
-
 interface PgnBoardProps extends ChessConfig {
     underboardTabs: UnderboardTab[];
     initialUnderboardTab?: string;
-    mode?: PgnBoardMode;
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
@@ -113,7 +96,6 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         {
             underboardTabs,
             initialUnderboardTab,
-            mode,
             pgn,
             fen,
             showPlayerHeaders = true,
@@ -139,71 +121,8 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
         const [chess] = useState<Chess>(new Chess({ disableNullMoves }));
         const [orientation, setOrientation] = useState(game?.orientation || startOrientation);
         const keydownMap = useRef<Record<string, boolean>>({});
-        const [showGlyphs] = useLocalStorage(ShowGlyphsKey, false);
-
-        // Solitaire chess
-        const solitaireSolution = useRef<Chess>(new Chess({ pgn }));
-        const solitaireIncorrectMoves = useRef<WrongMove[]>([]);
-        const [solitaireComplete, setSolitaireComplete] = useState(false);
-        const onSolitaireMove = useCallback(
-            (board: BoardApi, chess: Chess, primMove: PrimitiveMove) => {
-                if (
-                    (chess.history().length && chess.currentMove() !== chess.history().at(-1)) ||
-                    solitaireSolution.current?.currentMove() ===
-                        solitaireSolution.current?.history().at(-1)
-                ) {
-                    defaultOnMove(showGlyphs)(board, chess, primMove);
-                    return;
-                }
-
-                const move = {
-                    from: primMove.orig,
-                    to: primMove.dest,
-                    promotion: primMove.promotion,
-                };
-                if (solitaireSolution.current?.isMainline(move)) {
-                    solitaireSolution.current.move(move);
-                    const currentMove = chess.currentMove();
-                    const newMove = chess.move(move);
-                    for (const m of solitaireIncorrectMoves.current) {
-                        chess.move(m, { previousMove: currentMove });
-                    }
-                    solitaireIncorrectMoves.current = [];
-
-                    chess.seek(newMove);
-                    reconcile(chess, board, showGlyphs);
-                    board.set({
-                        drawable: {
-                            autoShapes: [
-                                { orig: move.to, customSvg: { html: correctMoveGlyphHtml } },
-                            ],
-                        },
-                    });
-                    setSolitaireComplete(
-                        solitaireSolution.current.currentMove() ===
-                            solitaireSolution.current.history().at(-1),
-                    );
-                } else {
-                    solitaireIncorrectMoves.current.push(move);
-                    board.set({
-                        movable: {},
-                        premovable: {
-                            enabled: false,
-                        },
-                        drawable: {
-                            autoShapes: [
-                                { orig: move.to, customSvg: { html: incorrectMoveGlyphHtml } },
-                            ],
-                            eraseOnClick: false,
-                        },
-                    });
-                    setTimeout(() => {
-                        reconcile(chess, board, showGlyphs);
-                    }, 500);
-                }
-            },
-            [showGlyphs],
-        );
+        const solitaire = useSolitaireChess(chess, board);
+        const addEngineMoveRef = useRef<(() => void) | null>(null);
 
         const toggleOrientation = useCallback(() => {
             if (board) {
@@ -233,22 +152,14 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                     board: {
                         onMove: slotProps?.board?.onMove
                             ? slotProps.board.onMove
-                            : mode === PgnBoardMode.Solitaire
-                              ? onSolitaireMove
+                            : solitaire.enabled
+                              ? solitaire.onMove
                               : undefined,
                     },
                 },
                 orientation,
-                mode,
-                solitaire: {
-                    solution: solitaireSolution,
-                    isComplete: solitaireComplete,
-                    reset: () => {
-                        solitaireSolution.current?.seek(null);
-                        solitaireIncorrectMoves.current = [];
-                        setSolitaireComplete(false);
-                    },
-                },
+                solitaire,
+                addEngineMoveRef,
             }),
             [
                 chess,
@@ -265,10 +176,8 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 disableEngine,
                 initKey,
                 showElapsedMoveTimes,
-                mode,
-                solitaireSolution,
-                solitaireComplete,
-                onSolitaireMove,
+                solitaire,
+                addEngineMoveRef,
             ],
         );
 
@@ -293,18 +202,14 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             chess.disableNullMoves = disableNullMoves;
         }, [chess, disableNullMoves]);
 
-        useEffect(() => {
-            if (mode === PgnBoardMode.Solitaire) {
-                solitaireSolution.current = new Chess({ pgn });
-                solitaireSolution.current.seek(null);
-                solitaireIncorrectMoves.current = [];
-            }
-        }, [mode, pgn]);
-
-        useImperativeHandle(ref, () => {
+        useImperativeHandle(ref, (): PgnBoardApi => {
             return {
                 getPgn() {
                     return chess.renderPgn() || '';
+                },
+                solitaire: {
+                    start: solitaire.start,
+                    stop: solitaire.stop,
                 },
                 addObserver(observer: Observer) {
                     chess.addObserver(observer);
@@ -313,12 +218,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                     chess.removeObserver(observer);
                 },
             };
-        }, [chess]);
-
-        let finalPgn = pgn;
-        if (mode === PgnBoardMode.Solitaire) {
-            finalPgn = pgn?.split('\n\n')[0];
-        }
+        }, [chess, solitaire.start, solitaire.stop]);
 
         return (
             <Box
@@ -331,18 +231,18 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                     overflowY: chess ? undefined : 'hidden',
                 }}
             >
-                {(!chess || (!finalPgn && !fen)) && (
+                {(!chess || (!pgn && !fen)) && (
                     <LoadingPage disableShrink sx={{ position: 'absolute', width: 1 }} />
                 )}
 
-                {(finalPgn || fen) && (
+                {(pgn || fen) && (
                     <ChessContext.Provider value={chessContext}>
                         <ResizableContainer
                             {...{
                                 underboardTabs,
                                 initialUnderboardTab,
                                 showPlayerHeaders,
-                                pgn: finalPgn,
+                                pgn,
                                 fen,
                                 startOrientation,
                                 onInitialize,

@@ -126,6 +126,7 @@ export function TimeControlEditor({
             classes={{
                 container: BlockBoardKeyboardShortcuts,
             }}
+            className={BlockBoardKeyboardShortcuts}
         >
             <DialogTitle>Update Time Control</DialogTitle>
             <DialogContent>
