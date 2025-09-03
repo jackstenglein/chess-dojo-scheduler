@@ -6,6 +6,7 @@ import {
     Construction,
     Edit,
     Folder,
+    MoreHoriz,
     Sell,
     Settings as SettingsIcon,
     Share,
@@ -13,6 +14,10 @@ import {
 } from '@mui/icons-material';
 import {
     Card,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
     Paper,
     Stack,
     ToggleButton,
@@ -44,6 +49,8 @@ import {
     DefaultUnderboardTabInfo,
     UnderboardTab,
 } from './underboardTabs';
+
+const MIN_TAB_BUTTON_WIDTH = 40;
 
 const tabInfo: Record<DefaultUnderboardTab, DefaultUnderboardTabInfo> = {
     [DefaultUnderboardTab.Directories]: {
@@ -128,6 +135,16 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
         const { game, isOwner } = useGame();
         const [focusEditor, setFocusEditor] = useState(false);
         const [focusCommenter, setFocusCommenter] = useState(false);
+        const [moreAnchor, setMoreAnchor] = useState<HTMLElement>();
+        const [keyBindings] = useLocalStorage(ShortcutBindings.key, ShortcutBindings.default);
+
+        const maxTabs = Math.max(2, Math.floor(resizeData.width / MIN_TAB_BUTTON_WIDTH));
+        let displayedTabs = tabs;
+        let hiddenTabs: UnderboardTab[] = [];
+        if (tabs.length > maxTabs) {
+            displayedTabs = tabs.slice(0, maxTabs - 1);
+            hiddenTabs = tabs.slice(maxTabs - 1);
+        }
 
         const [underboard, setUnderboard] = useState(
             initialTab
@@ -216,7 +233,7 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                 onChange={(_, val: string | null) => val && setUnderboard(val)}
                                 fullWidth
                             >
-                                {tabs.map((tab, index) => {
+                                {displayedTabs.map((tab, index) => {
                                     const info = getTabInfo(tab);
 
                                     return (
@@ -242,9 +259,56 @@ const Underboard = forwardRef<UnderboardApi, UnderboardProps>(
                                         </UnderboardButton>
                                     );
                                 })}
+
+                                {hiddenTabs.length > 0 && (
+                                    <UnderboardButton
+                                        tooltip='More'
+                                        value='more'
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setMoreAnchor(e.currentTarget);
+                                        }}
+                                    >
+                                        <MoreHoriz />
+                                    </UnderboardButton>
+                                )}
                             </ToggleButtonGroup>
                         </Paper>
                     )}
+
+                    <Menu
+                        anchorEl={moreAnchor}
+                        open={!!moreAnchor}
+                        onClose={() => setMoreAnchor(undefined)}
+                    >
+                        {hiddenTabs.map((tab) => {
+                            const info = getTabInfo(tab);
+
+                            if (info.shortcut) {
+                                const binding =
+                                    keyBindings[info.shortcut] ||
+                                    ShortcutBindings.default[info.shortcut];
+                                if (binding.key) {
+                                    info.tooltip += ` (${binding.modifier ? `${binding.modifier}+` : ''}${binding.key})`;
+                                }
+                            }
+
+                            return (
+                                <MenuItem
+                                    key={info.name}
+                                    onClick={() => {
+                                        setUnderboard(info.name);
+                                        setMoreAnchor(undefined);
+                                    }}
+                                    selected={info.name === underboard}
+                                >
+                                    <ListItemIcon>{info.icon}</ListItemIcon>
+                                    <ListItemText>{info.tooltip}</ListItemText>
+                                </MenuItem>
+                            );
+                        })}
+                    </Menu>
 
                     <Stack sx={{ overflowY: 'auto', flexGrow: 1 }}>
                         {underboard === DefaultUnderboardTab.Directories && <Directories />}
@@ -288,13 +352,7 @@ interface UnderboardButtonProps extends ToggleButtonProps {
     shortcut?: ShortcutAction;
 }
 
-const UnderboardButton: React.FC<UnderboardButtonProps> = ({
-    children,
-    value,
-    tooltip,
-    shortcut,
-    ...props
-}) => {
+function UnderboardButton({ children, value, tooltip, shortcut, ...props }: UnderboardButtonProps) {
     const [keyBindings] = useLocalStorage(ShortcutBindings.key, ShortcutBindings.default);
     if (shortcut) {
         const binding = keyBindings[shortcut] || ShortcutBindings.default[shortcut];
@@ -310,6 +368,6 @@ const UnderboardButton: React.FC<UnderboardButtonProps> = ({
             </ToggleButton>
         </Tooltip>
     );
-};
+}
 
 export default Underboard;
