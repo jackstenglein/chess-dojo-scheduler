@@ -231,8 +231,14 @@ export function useEvents(): UseEventsResponse {
                     cache.events.putMany(events);
                 })
                 .catch((err) => {
-                    console.error(err);
-                    request.onFailure(err);
+                    console.error('Events API error:', err);
+                    // In offline mode, don't mark as failure if we have cached data
+                    if (typeof window !== 'undefined' && !navigator.onLine && events.length > 0) {
+                        console.log('[Cache] Using cached events in offline mode');
+                        request.onSuccess();
+                    } else {
+                        request.onFailure(err);
+                    }
                 })
                 .finally(() => {
                     cache.setIsLoading(false);
@@ -273,8 +279,14 @@ export function useNotifications(): UseNotificationsResponse {
                     cache.notifications.putMany(resp.data.notifications);
                 })
                 .catch((err) => {
-                    console.error(err);
-                    request.onFailure(err);
+                    console.error('Notifications API error:', err);
+                    // In offline mode, don't mark as failure if we have cached data
+                    if (typeof window !== 'undefined' && !navigator.onLine && notifications.length >= 0) {
+                        console.log('[Cache] Using cached notifications in offline mode');
+                        request.onSuccess();
+                    } else {
+                        request.onFailure(err);
+                    }
                 });
         }
     }, [auth.status, request, api, cache]);
