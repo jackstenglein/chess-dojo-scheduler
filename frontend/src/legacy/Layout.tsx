@@ -3,6 +3,7 @@ import { CacheProvider } from '@/api/cache/Cache';
 import { AuthProvider } from '@/auth/Auth';
 import { RequireProfile } from '@/components/auth/RequireProfile';
 import { LocalizationProvider } from '@/components/mui/LocalizationProvider';
+import { OfflinePageIndicator } from '@/components/OfflinePageIndicator';
 import Navbar from '@/navbar/Navbar';
 import ThemeProvider from '@/style/ThemeProvider';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
@@ -16,6 +17,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         <RequireProfile />
 
                         <CacheProvider>
+                            <OfflinePageIndicator />
                             <Navbar />
                             <LocalizationProvider>{children}</LocalizationProvider>
                         </CacheProvider>

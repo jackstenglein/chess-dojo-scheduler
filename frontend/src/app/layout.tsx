@@ -1,4 +1,5 @@
 import { MetaPixel } from '@/components/analytics/MetaPixel';
+import { ServiceWorkerProvider } from '@/components/ServiceWorkerProvider';
 import { WebVitals } from '@/components/analytics/WebVitals';
 import { NavigationGuardProvider } from 'next-navigation-guard';
 import { defaultMetadata } from './(scoreboard)/defaultMetadata';
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <NavigationGuardProvider>
                     <MetaPixel />
                     <WebVitals />
+                    <ServiceWorkerProvider />
                     <div id='root'>{children}</div>
                 </NavigationGuardProvider>
             </body>
