@@ -3,6 +3,7 @@ import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
 import { NavigationMenu } from '@/components/directories/navigation/NavigationMenu';
 import { GameCell } from '@/components/games/list/GameListItem';
+import { PAGE_SIZE_OPTIONS } from '@/components/ui/pagination';
 import { GameResult } from '@/database/game.ts';
 import { useDataGridContextMenu } from '@/hooks/useDataGridContextMenu';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
@@ -46,8 +47,6 @@ import { useDirectory } from './DirectoryCache';
 import { adminColumns, DirectoryCreatedAt, publicColumns } from './DirectoryGridColumns';
 import { ShareButton } from './share/ShareButton';
 import { StatsButton } from './stats/StatsButton';
-
-const pageSizeOptions = [10, 25, 50, 100] as const;
 
 interface DirectoriesSectionProps {
     /** The namespace for the local storage data. */
@@ -304,7 +303,7 @@ const DirectorySection = ({
                     rowReordering={isAdmin && !isMobile}
                     onRowOrderChange={handleRowOrderChange}
                     pagination
-                    pageSizeOptions={pageSizeOptions}
+                    pageSizeOptions={PAGE_SIZE_OPTIONS}
                     sx={{ width: 1, display: 'grid', ...sx }}
                     showToolbar={!isMobile}
                 />

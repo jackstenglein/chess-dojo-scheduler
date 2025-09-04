@@ -1,4 +1,5 @@
 import { useFreeTier } from '@/auth/Auth';
+import { PAGE_SIZE_OPTIONS } from '@/components/ui/pagination';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import { TablePagination } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
@@ -34,6 +35,7 @@ export const CustomPagination: React.FC<CustomPaginationProps & PaginationPropsO
             count={count}
             page={page}
             onPageChange={() => null}
+            rowsPerPageOptions={PAGE_SIZE_OPTIONS}
             onRowsPerPageChange={(e) => setPageSize(parseInt(e.target.value))}
             rowsPerPage={pageSize}
             labelDisplayedRows={({
