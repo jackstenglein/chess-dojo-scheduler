@@ -1,6 +1,7 @@
 import { MetaPixel } from '@/components/analytics/MetaPixel';
 import { ServiceWorkerProvider } from '@/components/ServiceWorkerProvider';
 import { WebVitals } from '@/components/analytics/WebVitals';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { NavigationGuardProvider } from 'next-navigation-guard';
 import { defaultMetadata } from './(scoreboard)/defaultMetadata';
 
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <MetaPixel />
                     <WebVitals />
                     <ServiceWorkerProvider />
+                    {/* <OfflineIndicator /> */}
                     <div id='root'>{children}</div>
                 </NavigationGuardProvider>
             </body>

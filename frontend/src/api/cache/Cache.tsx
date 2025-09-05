@@ -160,6 +160,20 @@ interface CacheContextType {
     notifications: IdentifiableCache<Notification>;
     positions: IdentifiableCache<GetExplorerPositionResult>;
     clubs: IdentifiableCache<Club>;
+    
+    // Additional API caches
+    users: IdentifiableCache<any>;
+    games: IdentifiableCache<any>;
+    courses: IdentifiableCache<any>;
+    tournaments: IdentifiableCache<any>;
+    scoreboard: IdentifiableCache<any>;
+    payments: IdentifiableCache<any>;
+    exams: IdentifiableCache<any>;
+    graduations: IdentifiableCache<any>;
+    newsfeed: IdentifiableCache<any>;
+    directories: IdentifiableCache<any>;
+    emails: IdentifiableCache<any>;
+    yearReviews: IdentifiableCache<any>;
 
     imageBypass: number;
     setImageBypass: (v: number) => void;
@@ -189,6 +203,21 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         (item) => item?.normalizedFen || '',
     );
     const clubs = useIdentifiableCache<Club>();
+    
+    // Additional API caches
+    const users = useIdentifiableCache<any>();
+    const games = useIdentifiableCache<any>();
+    const courses = useIdentifiableCache<any>();
+    const tournaments = useIdentifiableCache<any>();
+    const scoreboard = useIdentifiableCache<any>();
+    const payments = useIdentifiableCache<any>();
+    const exams = useIdentifiableCache<any>();
+    const graduations = useIdentifiableCache<any>();
+    const newsfeed = useIdentifiableCache<any>();
+    const directories = useIdentifiableCache<any>();
+    const emails = useIdentifiableCache<any>();
+    const yearReviews = useIdentifiableCache<any>();
+    
     const [imageBypass, setImageBypass] = useState(Date.now());
 
     const value = {
@@ -199,6 +228,18 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         notifications,
         positions,
         clubs,
+        users,
+        games,
+        courses,
+        tournaments,
+        scoreboard,
+        payments,
+        exams,
+        graduations,
+        newsfeed,
+        directories,
+        emails,
+        yearReviews,
         imageBypass,
         setImageBypass,
     };
@@ -244,7 +285,7 @@ export function useEvents(): UseEventsResponse {
                     cache.setIsLoading(false);
                 });
         }
-    }, [auth.status, request, api, cache]);
+    }, [auth.status, request, api, cache, events.length]);
 
     return {
         events,
@@ -289,7 +330,7 @@ export function useNotifications(): UseNotificationsResponse {
                     }
                 });
         }
-    }, [auth.status, request, api, cache]);
+    }, [auth.status, request, api, cache, notifications.length]);
 
     return {
         notifications,
