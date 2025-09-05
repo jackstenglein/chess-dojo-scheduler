@@ -182,9 +182,15 @@ async function handleApiRequest(request) {
     // Try network first
     const networkResp = await fetch(request);
     
-    // Cache ALL successful responses (GET, POST, etc.)
+    // Cache ALL successful responses (GET, POST, PUT, DELETE, etc.)
     if (networkResp.ok) {
-      cache.put(request, networkResp.clone()).catch(err => {
+      // Create a cache key that includes query parameters
+      const cacheKey = new Request(request.url, {
+        method: 'GET', // Normalize to GET for caching
+        headers: request.headers
+      });
+      
+      cache.put(cacheKey, networkResp.clone()).catch(err => {
         console.warn('[SW] Failed to cache API:', err);
       });
       console.log('[SW] Cached API response:', request.url);
@@ -194,11 +200,23 @@ async function handleApiRequest(request) {
   } catch (error) {
     console.log('[SW] API failed, serving from cache:', request.url);
     
-    // Serve from cache
-    const cachedResp = await cache.match(request);
+    // Try to find cached response with normalized key
+    const cacheKey = new Request(request.url, {
+      method: 'GET',
+      headers: request.headers
+    });
+    
+    const cachedResp = await cache.match(cacheKey);
     if (cachedResp) {
       console.log('[SW] Serving API from cache:', request.url);
       return cachedResp;
+    }
+    
+    // Also try original request
+    const originalCached = await cache.match(request);
+    if (originalCached) {
+      console.log('[SW] Serving API from cache (original):', request.url);
+      return originalCached;
     }
     
     // Return appropriate empty response based on endpoint
@@ -284,7 +302,30 @@ function isApiRequest(url) {
          url.pathname.includes('/material') ||
          url.pathname.includes('/clubs') ||
          url.pathname.includes('/tournaments') ||
-         url.pathname.includes('/requirements');
+         url.pathname.includes('/requirements') ||
+         url.pathname.includes('/users') ||
+         url.pathname.includes('/payments') ||
+         url.pathname.includes('/exams') ||
+         url.pathname.includes('/graduations') ||
+         url.pathname.includes('/newsfeed') ||
+         url.pathname.includes('/directories') ||
+         url.pathname.includes('/emails') ||
+         url.pathname.includes('/year-reviews') ||
+         url.pathname.includes('/coach') ||
+         url.pathname.includes('/chatbot') ||
+         url.pathname.includes('/explorer') ||
+         url.pathname.includes('/round-robin') ||
+         url.pathname.includes('/directory') ||
+         // Catch any request that looks like an API call
+         (url.pathname.includes('/') && (
+           url.search.includes('cohort=') ||
+           url.search.includes('username=') ||
+           url.search.includes('id=') ||
+           url.search.includes('type=') ||
+           url.search.includes('page=') ||
+           url.search.includes('limit=') ||
+           url.search.includes('offset=')
+         ));
 }
 
 function isStaticAsset(url) {
@@ -324,6 +365,32 @@ function createOfflineApiResponse(requestUrl) {
     offlineData = { courses: [], data: [] };
   } else if (url.pathname.includes('/requirements')) {
     offlineData = { requirements: [], data: [] };
+  } else if (url.pathname.includes('/tournaments')) {
+    offlineData = { tournaments: [], data: [] };
+  } else if (url.pathname.includes('/clubs')) {
+    offlineData = { clubs: [], data: [] };
+  } else if (url.pathname.includes('/payments')) {
+    offlineData = { payments: [], data: [] };
+  } else if (url.pathname.includes('/exams')) {
+    offlineData = { exams: [], data: [] };
+  } else if (url.pathname.includes('/graduations')) {
+    offlineData = { graduations: [], data: [] };
+  } else if (url.pathname.includes('/newsfeed')) {
+    offlineData = { posts: [], data: [] };
+  } else if (url.pathname.includes('/directories')) {
+    offlineData = { directories: [], data: [] };
+  } else if (url.pathname.includes('/emails')) {
+    offlineData = { emails: [], data: [] };
+  } else if (url.pathname.includes('/year-reviews')) {
+    offlineData = { reviews: [], data: [] };
+  } else if (url.pathname.includes('/coach')) {
+    offlineData = { coaches: [], data: [] };
+  } else if (url.pathname.includes('/chatbot')) {
+    offlineData = { messages: [], data: [] };
+  } else if (url.pathname.includes('/explorer')) {
+    offlineData = { positions: [], data: [] };
+  } else if (url.pathname.includes('/round-robin')) {
+    offlineData = { rounds: [], data: [] };
   } else {
     offlineData = { data: [], items: [], results: [] };
   }
