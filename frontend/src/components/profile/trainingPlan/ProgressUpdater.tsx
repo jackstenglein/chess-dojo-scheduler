@@ -233,7 +233,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                     </Stack>
                 </Stack>
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ flexWrap: 'wrap' }}>
                 <Button onClick={onClose} disabled={request.isLoading()}>
                     Cancel
                 </Button>

@@ -296,7 +296,7 @@ function DetailsDialog({ task, onClose, cohort, setView }: DetailsDialogProps) {
                         ))}
                 </Stack>
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ flexWrap: 'wrap' }}>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button onClick={() => setView(TaskDialogView.Progress)}>Update Progress</Button>
                 <Button onClick={() => setView(TaskDialogView.History)}>Show History</Button>

@@ -535,8 +535,8 @@ const ProgressHistory = ({ requirement, onClose, setView }: ProgressHistoryProps
                     </Stack>
                 )}
             </DialogContent>
-            <DialogActions>
-                <Stack sx={{ flexGrow: 1 }}>
+            <DialogActions sx={{ flexWrap: 'wrap' }}>
+                <Stack sx={{ flexGrow: 1, mb: { xs: 1, sm: 0 } }}>
                     {!isTimeOnly && (
                         <Typography color='text.secondary'>
                             Total Count: {totalCount}. Current Cohort: {cohortCount}
