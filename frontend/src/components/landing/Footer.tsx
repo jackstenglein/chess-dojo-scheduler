@@ -1,4 +1,4 @@
-import SocialIcons from '@/navbar/SocialIcons';
+import SocialIcons from '@/components/navigation/navbar/SocialIcons';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import { Link } from '../navigation/Link';
