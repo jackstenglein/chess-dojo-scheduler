@@ -491,8 +491,13 @@ export class TaskSuggestionAlgorithm {
 
         const pinnedTasks = this.pinnedTasks.filter(
             (t) =>
-                !isComplete(this.user.dojoCohort, t, this.user.progress[t.id]) &&
-                !this.skippedTaskIds.includes(t.id),
+                !isComplete(
+                    this.user.dojoCohort,
+                    t,
+                    this.user.progress[t.id],
+                    this.timeline,
+                    true,
+                ) && !this.skippedTaskIds.includes(t.id),
         );
         suggestedTasks.push(...pinnedTasks);
 
