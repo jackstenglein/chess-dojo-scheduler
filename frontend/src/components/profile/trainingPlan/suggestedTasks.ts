@@ -160,6 +160,7 @@ export class TaskSuggestionAlgorithm {
      * @returns The suggested tasks for the current week.
      */
     getWeeklySuggestions(): WeeklySuggestedTasks {
+        console.log(`getWeeklySuggestions user: `, this.user);
         const { today, start: current, end } = getDates(this.user.weekStart);
         const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
         this.timePerTask = {};
@@ -185,6 +186,7 @@ export class TaskSuggestionAlgorithm {
             progressUpdatedAt,
             nextGame: getUpcomingGameSchedule(this.user.gameSchedule)[0]?.date ?? '',
         };
+        console.log(`getWeeklySuggestions result: `, result);
         return result;
     }
 
@@ -491,8 +493,13 @@ export class TaskSuggestionAlgorithm {
 
         const pinnedTasks = this.pinnedTasks.filter(
             (t) =>
-                !isComplete(this.user.dojoCohort, t, this.user.progress[t.id]) &&
-                !this.skippedTaskIds.includes(t.id),
+                !isComplete(
+                    this.user.dojoCohort,
+                    t,
+                    this.user.progress[t.id],
+                    this.timeline,
+                    true,
+                ) && !this.skippedTaskIds.includes(t.id),
         );
         suggestedTasks.push(...pinnedTasks);
 

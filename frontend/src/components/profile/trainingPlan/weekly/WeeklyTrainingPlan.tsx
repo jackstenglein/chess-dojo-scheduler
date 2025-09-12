@@ -93,7 +93,10 @@ function WeeklyTrainingPlanDay({
 }) {
     const { suggestionsByDay, startDate, timeline, user, allRequirements, pinnedTasks } =
         use(TrainingPlanContext);
+    console.log('Suggestions by Day: ', suggestionsByDay);
+    console.log('Day index: ', dayIndex);
     const suggestedTasks = suggestionsByDay[dayIndex];
+    console.log('suggestedTasks: ', suggestedTasks);
     const todayIndex = new Date().getDay();
 
     const dayStart = getDayOfWeekAfterDate(new Date(startDate), dayIndex);
