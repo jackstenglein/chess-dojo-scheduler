@@ -160,7 +160,6 @@ export class TaskSuggestionAlgorithm {
      * @returns The suggested tasks for the current week.
      */
     getWeeklySuggestions(): WeeklySuggestedTasks {
-        console.log(`getWeeklySuggestions user: `, this.user);
         const { today, start: current, end } = getDates(this.user.weekStart);
         const taskList: SuggestedTask[][] = new Array(7).fill(0).map(() => []);
         this.timePerTask = {};
@@ -186,7 +185,6 @@ export class TaskSuggestionAlgorithm {
             progressUpdatedAt,
             nextGame: getUpcomingGameSchedule(this.user.gameSchedule)[0]?.date ?? '',
         };
-        console.log(`getWeeklySuggestions result: `, result);
         return result;
     }
 
