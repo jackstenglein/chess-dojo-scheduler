@@ -1,4 +1,4 @@
-import { SolitareAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
+import { SolitaireAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
 import { UnpublishedGameBanner } from '@/components/games/edit/UnpublishedGameBanner';
 import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
 import useGame from '@/context/useGame';
@@ -59,7 +59,7 @@ const PgnText = () => {
                     {slots?.afterPgnText ? (
                         slots.afterPgnText
                     ) : solitaire?.enabled ? (
-                        <SolitareAfterPgnText />
+                        <SolitaireAfterPgnText />
                     ) : undefined}
                 </Stack>
             </Card>

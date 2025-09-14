@@ -5,7 +5,7 @@ import {
     incorrectMoveGlyphHtml,
 } from '@/components/material/memorizegames/moveGlyphs';
 import { Chess, Color, Move, Square } from '@jackstenglein/chess';
-import { RefObject, useCallback, useMemo, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 interface SimpleMove {
@@ -16,14 +16,14 @@ interface SimpleMove {
 
 export type PlayAs = 'both' | 'white' | 'black';
 
-interface SolitareColorResults {
+interface SolitaireColorResults {
     correct: number;
     total: number;
 }
 
 interface SolitaireResults {
-    white: SolitareColorResults;
-    black: SolitareColorResults;
+    white: SolitaireColorResults;
+    black: SolitaireColorResults;
 }
 
 const EMPTY_SOLITAIRE_RESULTS = {
@@ -31,7 +31,7 @@ const EMPTY_SOLITAIRE_RESULTS = {
     black: { correct: 0, total: 0 },
 };
 
-export interface UseSolitareChessResponse {
+export interface UseSolitaireChessResponse {
     /** Whether solitaire mode is enabled. */
     enabled: boolean;
     /** Which colors to play as. */
@@ -42,12 +42,12 @@ export interface UseSolitareChessResponse {
     addWrongMoves: boolean;
     /** Sets whether to add wrong moves to the PGN. */
     setAddWrongMoves: (v: boolean) => void;
-    /** Whether solitare mode has been completed. */
+    /** Whether solitaire mode has been completed. */
     complete: boolean;
     /** The last correctly guessed move. */
     currentMove: Move | null;
     /** A callback to start solitaire mode from the given move. */
-    start: (move: Move | null) => void;
+    start: (move: Move | null, opts?: SolitaireChessOptions) => void;
     /** A callback to stop solitaire mode. */
     stop: () => void;
     /** A callback to invoke when the user makes a move on the board. */
@@ -56,10 +56,23 @@ export interface UseSolitareChessResponse {
     results: SolitaireResults;
 }
 
+export type SolitaireChessOptions = Partial<
+    Pick<UseSolitaireChessResponse, 'playAs' | 'addWrongMoves'>
+> & {
+    /** The delay before the first move is played by the computer, if applicable. */
+    firstMoveDelayMs?: number;
+    /** The board object to use when reconciling with the chess object. */
+    board?: BoardApi;
+    /** A callback invoked when a wrong move is played. */
+    onWrongMove?: () => void;
+    /** A callback invoked when the full PGN is completed. */
+    onComplete?: () => void;
+};
+
 export function useSolitaireChess(
     chess: Chess,
     board: BoardApi | undefined,
-): UseSolitareChessResponse {
+): UseSolitaireChessResponse {
     const [enabled, setEnabled] = useState(false);
     const [playAs, setPlayAs] = useState<PlayAs>('both');
     const [addWrongMoves, setAddWrongMoves] = useState(true);
@@ -68,9 +81,20 @@ export function useSolitaireChess(
     const lastMove = useRef<Move | null>(null);
     const incorrectMoves = useRef<SimpleMove[]>([]);
     const [results, setResults] = useState<SolitaireResults>(EMPTY_SOLITAIRE_RESULTS);
+    const onWrongMove = useRef<() => void>(undefined);
+    const onComplete = useRef<() => void>(undefined);
 
     const start = useCallback(
-        (move: Move | null) => {
+        (move: Move | null, opts?: SolitaireChessOptions) => {
+            if (opts?.playAs) {
+                setPlayAs(opts.playAs);
+            }
+            if (opts?.addWrongMoves !== undefined) {
+                setAddWrongMoves(opts.addWrongMoves);
+            }
+            onWrongMove.current = opts?.onWrongMove;
+            onComplete.current = opts?.onComplete;
+
             chess.seek(move);
             reconcile(chess, board, showGlyphs);
             incorrectMoves.current = [];
@@ -78,13 +102,20 @@ export function useSolitaireChess(
             setCurrentMove(move);
             setEnabled(true);
             lastMove.current = chess.lastMove();
-            if (playAs !== 'both' && chess.turn(move) !== playAs[0] && chess.nextMove(move)) {
+
+            const finalPlayAs = opts?.playAs ?? playAs;
+            if (
+                finalPlayAs !== 'both' &&
+                chess.turn(move) !== finalPlayAs[0] &&
+                chess.nextMove(move)
+            ) {
                 waitForOpponentMove({
                     chess,
-                    board,
+                    board: opts?.board ?? board,
                     showGlyphs,
                     move: chess.nextMove(move),
                     setCurrentMove,
+                    delay: opts?.firstMoveDelayMs,
                 });
             }
         },
@@ -137,9 +168,17 @@ export function useSolitaireChess(
             setTimeout(() => {
                 reconcile(chess, board, showGlyphs);
             }, 500);
+            onWrongMove.current?.();
         },
         [showGlyphs, addWrongMoves, currentMove, playAs],
     );
+
+    const complete = currentMove === lastMove.current;
+    useEffect(() => {
+        if (complete) {
+            onComplete.current?.();
+        }
+    }, [complete]);
 
     return useMemo(
         () => ({
@@ -148,14 +187,14 @@ export function useSolitaireChess(
             setPlayAs,
             addWrongMoves,
             setAddWrongMoves,
-            complete: currentMove === lastMove.current,
+            complete,
             currentMove,
             start,
             stop,
             onMove,
             results,
         }),
-        [addWrongMoves, enabled, onMove, start, stop, currentMove, playAs, results],
+        [addWrongMoves, enabled, onMove, start, stop, currentMove, playAs, results, complete],
     );
 }
 
@@ -225,12 +264,14 @@ function waitForOpponentMove({
     showGlyphs,
     move,
     setCurrentMove,
+    delay = 500,
 }: {
     chess: Chess;
     board: BoardApi | undefined;
     showGlyphs: boolean;
     move: Move | null;
     setCurrentMove: (v: Move | null) => void;
+    delay?: number;
 }) {
     board?.set({
         movable: {},
@@ -238,7 +279,9 @@ function waitForOpponentMove({
     });
     setCurrentMove(move);
     setTimeout(() => {
+        console.log('Seeking to move: ', move);
         chess.seek(move);
+        console.log('Reconciling chess and board: ', chess, board);
         reconcile(chess, board, showGlyphs);
-    }, 500);
+    }, delay);
 }
