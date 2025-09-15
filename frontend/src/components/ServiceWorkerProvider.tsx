@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
  */
 export function ServiceWorkerProvider() {
     const [isOffline, setIsOffline] = useState(false);
-    const [debugInfo, setDebugInfo] = useState('');
 
     useEffect(() => {
         if ('serviceWorker' in navigator) {
@@ -19,7 +18,6 @@ export function ServiceWorkerProvider() {
         const updateOnlineStatus = () => {
             const offline = !navigator.onLine;
             setIsOffline(offline);
-            setDebugInfo(offline ? 'OFFLINE MODE ACTIVE' : 'ONLINE MODE');
             console.log('Network status changed:', offline ? 'OFFLINE' : 'ONLINE');
         };
         
