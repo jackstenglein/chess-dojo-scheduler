@@ -4,6 +4,14 @@ import { WebVitals } from '@/components/analytics/WebVitals';
 import { OfflineIndicator as _OfflineIndicator } from '@/components/OfflineIndicator';
 import { NavigationGuardProvider } from 'next-navigation-guard';
 import { defaultMetadata } from './(scoreboard)/defaultMetadata';
+import { AuthProvider } from '@/auth/Auth';
+import { ApiProvider } from '@/api/Api';
+import { CacheProvider } from '@/api/cache/Cache';
+import { RequireProfile } from '@/components/auth/RequireProfile';
+import { LocalizationProvider } from '@/components/mui/LocalizationProvider';
+import Navbar from '@/navbar/Navbar';
+import ThemeProvider from '@/style/ThemeProvider';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 
 export const metadata = defaultMetadata;
 
@@ -49,7 +57,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <WebVitals />
                     <ServiceWorkerProvider />
                     {/* <OfflineIndicator /> */}
-                    <div id='root'>{children}</div>
+                    <AppRouterCacheProvider>
+                        <ThemeProvider>
+                            <AuthProvider>
+                                <ApiProvider>
+                                    <RequireProfile />
+
+                                    <CacheProvider>
+                                        <Navbar />
+                                        <LocalizationProvider>
+                                            <div id='root'>{children}</div>
+                                        </LocalizationProvider>
+                                    </CacheProvider>
+                                </ApiProvider>
+                            </AuthProvider>
+                        </ThemeProvider>
+                    </AppRouterCacheProvider>
                 </NavigationGuardProvider>
             </body>
         </html>
