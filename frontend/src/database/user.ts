@@ -177,6 +177,9 @@ export interface User {
 
     /** The user's schedule of upcoming classical games. */
     gameSchedule?: GameScheduleEntry[];
+
+    /** The user's firebase cloud messaging tokens. */
+    firebaseTokens?: string[];
 }
 
 export interface WorkGoalSettings {

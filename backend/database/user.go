@@ -326,6 +326,9 @@ type User struct {
 
 	// The user's schedule of upcoming classical games
 	GameSchedule []GameScheduleEntry `dynamodbav:"gameSchedule,omitempty" json:"gameSchedule"`
+
+	// The user's firebase cloud messaging tokens
+	FirebaseTokens []string `dynamodbav:"firebaseTokens,omitempty" json:"-"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -722,6 +725,9 @@ type UserUpdate struct {
 
 	// The user's schedule of upcoming classical games
 	GameSchedule *[]GameScheduleEntry `dynamodbav:"gameSchedule,omitempty" json:"gameSchedule,omitempty"`
+
+	// The user's firebase cloud messaging tokens
+	FirebaseTokens *[]string `dynamodbav:"firebaseTokens,omitempty" json:"firebaseTokens,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem
