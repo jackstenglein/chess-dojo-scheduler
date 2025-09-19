@@ -1,0 +1,110 @@
+# OSX
+.DS_Store
+
+# Xcode / iOS
+build/
+ios/build/
+DerivedData
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.xcuserstate
+**/.xcode.env.local
+*.xcworkspace/xcuserdata/
+
+# Android / IntelliJ
+build/
+android/app/build/
+android/build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
+.kotlin/
+captures/
+
+# Node.js
+node_modules/
+test/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# React Native
+*.jsbundle
+.expo/
+
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# Ruby / CocoaPods
+**/Pods/
+/vendor/bundle/
+Podfile.lock
+
+# Temporary files created by Metro
+.metro-health-check*
+
+# Testing
+/coverage
+
+# Yarn (Berry)
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Android Artifacts
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+android/outputs/
+
+# macOS
+*.swp
+*.lock
+
+# Archives
+*.zip
+*.tar.gz
+*.tgz
+
+# Environment
+.env
+
+# Android release builds
+android/app/release/
+app-release.apk
+app-release.aab
+
+ios/release/
+*.ipa
+
+
+local.properties
+*.jks
+*.keystore
