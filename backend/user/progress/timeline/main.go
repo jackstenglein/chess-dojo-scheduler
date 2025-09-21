@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -16,14 +15,12 @@ import (
 var repository database.UserProgressUpdater = database.DynamoDB
 
 type UpdateTimelineRequest struct {
-	RequirementId string `json:"requirementId"`
-	// Deprecated
-	Cohort       database.DojoCohort          `json:"cohort"`
-	Updated      []*database.TimelineEntry    `json:"updated"`
-	Deleted      []*database.TimelineEntry    `json:"deleted"`
-	Count        int                          `json:"count"`
-	MinutesSpent int                          `json:"minutesSpent"`
-	Progress     database.RequirementProgress `json:"progress"`
+	RequirementId string                       `json:"requirementId"`
+	Updated       []*database.TimelineEntry    `json:"updated"`
+	Deleted       []*database.TimelineEntry    `json:"deleted"`
+	Count         int                          `json:"count"`
+	MinutesSpent  int                          `json:"minutesSpent"`
+	Progress      database.RequirementProgress `json:"progress"`
 }
 
 func main() {
@@ -45,9 +42,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 	if request.RequirementId == "" {
 		return api.Failure(errors.New(400, "Invalid request: requirementId is required", "")), nil
-	}
-	if !strings.Contains(event.RawPath, "/v2") && request.Cohort == "" {
-		return api.Failure(errors.New(400, "Invalid request: cohort is required", "")), nil
 	}
 
 	if len(request.Updated) == 0 && len(request.Deleted) == 0 {
@@ -120,30 +114,6 @@ func updateRequirementProgress(request *UpdateTimelineRequest, user *database.Us
 
 // Updates the progess for a task, whether it is a custom task or training plan requirement.
 func updateTaskProgress(request *UpdateTimelineRequest, user *database.User, task database.Task) {
-	if request.Cohort != "" {
-		progress, ok := user.Progress[request.RequirementId]
-		if !ok {
-			progress = &database.RequirementProgress{
-				RequirementId: request.RequirementId,
-				Counts:        make(map[database.DojoCohort]int),
-				MinutesSpent:  make(map[database.DojoCohort]int),
-			}
-		}
-		if progress.Counts == nil {
-			progress.Counts = make(map[database.DojoCohort]int)
-		}
-
-		progress.MinutesSpent[request.Cohort] = request.MinutesSpent
-		if task.GetNumberOfCohorts() == 1 || task.GetNumberOfCohorts() == 0 {
-			progress.Counts[database.AllCohorts] = request.Count
-		} else {
-			progress.Counts[request.Cohort] = request.Count
-		}
-
-		progress.UpdatedAt = time.Now().Format(time.RFC3339)
-		user.Progress[progress.RequirementId] = progress
-	} else {
-		request.Progress.UpdatedAt = time.Now().Format(time.RFC3339)
-		user.Progress[request.RequirementId] = &request.Progress
-	}
+	request.Progress.UpdatedAt = time.Now().Format(time.RFC3339)
+	user.Progress[request.RequirementId] = &request.Progress
 }
