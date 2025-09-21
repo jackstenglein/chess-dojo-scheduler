@@ -18,8 +18,6 @@ type UpdateTimelineRequest struct {
 	RequirementId string                       `json:"requirementId"`
 	Updated       []*database.TimelineEntry    `json:"updated"`
 	Deleted       []*database.TimelineEntry    `json:"deleted"`
-	Count         int                          `json:"count"`
-	MinutesSpent  int                          `json:"minutesSpent"`
 	Progress      database.RequirementProgress `json:"progress"`
 }
 
@@ -80,18 +78,8 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	// Update user's progress
-	found := false
-	for _, t := range user.CustomTasks {
-		if t.Id == request.RequirementId {
-			updateTaskProgress(request, user, t)
-			found = true
-			break
-		}
-	}
-	if !found {
-		updateRequirementProgress(request, user)
-	}
-
+	request.Progress.UpdatedAt = time.Now().Format(time.RFC3339)
+	user.Progress[request.RequirementId] = &request.Progress
 	update := &database.UserUpdate{
 		Progress: &user.Progress,
 	}
@@ -100,20 +88,4 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 	return api.Success(user), nil
-}
-
-// Updates the progress for a requirement in the Dojo's training plan.
-func updateRequirementProgress(request *UpdateTimelineRequest, user *database.User) error {
-	requirement, err := repository.GetRequirement(request.RequirementId)
-	if err != nil {
-		return err
-	}
-	updateTaskProgress(request, user, requirement)
-	return nil
-}
-
-// Updates the progess for a task, whether it is a custom task or training plan requirement.
-func updateTaskProgress(request *UpdateTimelineRequest, user *database.User, task database.Task) {
-	request.Progress.UpdatedAt = time.Now().Format(time.RFC3339)
-	user.Progress[request.RequirementId] = &request.Progress
 }
