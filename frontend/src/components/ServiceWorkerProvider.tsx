@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
  */
 export function ServiceWorkerProvider() {
     const [isOffline, setIsOffline] = useState(false);
-    const [debugInfo, setDebugInfo] = useState('');
 
     useEffect(() => {
         if ('serviceWorker' in navigator) {
@@ -19,7 +18,6 @@ export function ServiceWorkerProvider() {
         const updateOnlineStatus = () => {
             const offline = !navigator.onLine;
             setIsOffline(offline);
-            setDebugInfo(offline ? 'OFFLINE MODE ACTIVE' : 'ONLINE MODE');
             console.log('Network status changed:', offline ? 'OFFLINE' : 'ONLINE');
         };
         
@@ -80,27 +78,134 @@ export function ServiceWorkerProvider() {
                             top: 0,
                             left: 0,
                             right: 0,
-                            backgroundColor: 'var(--mui-palette-error-main, #f44336)',
-                            color: 'var(--mui-palette-error-contrastText, white)',
-                            padding: '15px 20px',
+                            background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
+                            color: 'white',
+                            padding: '12px 20px',
                             textAlign: 'center',
-                            fontSize: '18px',
-                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            fontWeight: '600',
                             zIndex: 99999,
-                            boxShadow: '0 4px 12px rgba(244, 67, 54, 0.5)',
-                            borderBottom: '3px solid var(--mui-palette-error-dark, #d32f2f)'
+                            boxShadow: '0 4px 20px rgba(255, 107, 107, 0.4)',
+                            borderBottom: '3px solid #d63031',
+                            animation: 'slideDown 0.4s ease-out',
+                            backdropFilter: 'blur(10px)',
                         }}
                     >
-                        🔴 OFFLINE MODE - Navigation cached, but some features limited | {debugInfo}
+                        <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            gap: '8px',
+                            maxWidth: '1200px',
+                            margin: '0 auto'
+                        }}>
+                            <div style={{ 
+                                width: '12px', 
+                                height: '12px', 
+                                borderRadius: '50%', 
+                                backgroundColor: '#fff',
+                                animation: 'pulse 2s infinite'
+                            }} />
+                            <span style={{ fontSize: '14px', fontWeight: '500' }}>
+                                You are offline - Please check your internet connection.
+                            </span>
+                            <div style={{ 
+                                width: '12px', 
+                                height: '12px', 
+                                borderRadius: '50%', 
+                                backgroundColor: '#fff',
+                                animation: 'pulse 2s infinite 0.5s'
+                            }} />
+                        </div>
                     </div>
+                    
                     <style dangerouslySetInnerHTML={{
                         __html: `
-                            #offline-indicator {
-                                animation: pulse 2s infinite;
+                            @keyframes slideDown {
+                                from {
+                                    transform: translateY(-100%);
+                                    opacity: 0;
+                                }
+                                to {
+                                    transform: translateY(0);
+                                    opacity: 1;
+                                }
                             }
+                            
                             @keyframes pulse {
-                                0%, 100% { opacity: 1; }
-                                50% { opacity: 0.8; }
+                                0%, 100% { 
+                                    opacity: 1;
+                                    transform: scale(1);
+                                }
+                                50% { 
+                                    opacity: 0.6;
+                                    transform: scale(0.8);
+                                }
+                            }
+                            
+                            @keyframes shimmer {
+                                0% { background-position: -200px 0; }
+                                100% { background-position: calc(200px + 100%) 0; }
+                            }
+                            
+                            #offline-indicator {
+                                background-size: 200px 100%;
+                                background-image: linear-gradient(
+                                    90deg,
+                                    transparent,
+                                    rgba(255, 255, 255, 0.2),
+                                    transparent
+                                );
+                                animation: shimmer 3s infinite;
+                            }
+                            
+                            @media (max-width: 768px) {
+                                #offline-indicator {
+                                    padding: 10px 16px;
+                                    font-size: 14px;
+                                }
+                                
+                                #offline-indicator span {
+                                    font-size: 13px !important;
+                                }
+                                
+                                #offline-indicator div {
+                                    width: 10px !important;
+                                    height: 10px !important;
+                                }
+                            }
+                            
+                            @media (max-width: 480px) {
+                                #offline-indicator {
+                                    padding: 8px 12px;
+                                    font-size: 13px;
+                                }
+                                
+                                #offline-indicator span {
+                                    font-size: 12px !important;
+                                }
+                                
+                                #offline-indicator div {
+                                    width: 8px !important;
+                                    height: 8px !important;
+                                }
+                            }
+                            
+                            /* Add padding to body when offline indicator is shown */
+                            body:has(#offline-indicator) {
+                                padding-top: 60px !important;
+                            }
+                            
+                            @media (max-width: 768px) {
+                                body:has(#offline-indicator) {
+                                    padding-top: 50px !important;
+                                }
+                            }
+                            
+                            @media (max-width: 480px) {
+                                body:has(#offline-indicator) {
+                                    padding-top: 45px !important;
+                                }
                             }
                         `
                     }} />

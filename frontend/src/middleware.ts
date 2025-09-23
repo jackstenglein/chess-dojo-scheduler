@@ -27,6 +27,10 @@ const publicPaths = [
     /^\/clubs$/,
     /^\/games\/.*\/.*$/,
     /^\/profile\/.*\/postmortem\/.*$/,
+    // Add icon files to public paths
+    /^\/apple-touch-icon.*\.png$/,
+    /^\/favicon.*\.png$/,
+    /^\/android-chrome.*\.png$/,
 ];
 
 const unauthenticatedPaths = [

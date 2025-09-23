@@ -64,6 +64,7 @@ interface AuthContextType {
 
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
+    directTokenLogin: (token: string) => Promise<void>;
 
     socialSignin: (provider: 'Google', redirectUri: string) => void;
     signin: (email: string, password: string) => Promise<void>;
@@ -94,6 +95,7 @@ const AuthContext = createContext<AuthContextType>({
     status: AuthStatus.Loading,
     getCurrentUser: defaultAuthContextFunction,
     updateUser: defaultAuthContextFunction,
+    directTokenLogin: defaultAuthContextFunction,
     socialSignin: defaultAuthContextFunction,
     signin: defaultAuthContextFunction,
     signup: defaultAuthContextFunction,
@@ -178,26 +180,75 @@ export function useFreeTier() {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
+    const [isClient, setIsClient] = useState(false);
 
     const handleCognitoResponse = useCallback(async (cognitoUser: CognitoUser) => {
+        console.log('handleCognitoResponse called with:', cognitoUser.username);
         const checkoutSessionIds = getAllCheckoutSessionIds();
         let apiResponse: AxiosResponse<User>;
 
-        if (Object.values(checkoutSessionIds).length > 0) {
-            apiResponse = await syncPurchases(
-                cognitoUser.tokens?.idToken?.toString() ?? '',
-                checkoutSessionIds,
-            );
-            clearCheckoutSessionIds();
-        } else {
-            apiResponse = await getUser(cognitoUser.tokens?.idToken?.toString() ?? '');
-        }
+        try {
+            if (Object.values(checkoutSessionIds).length > 0) {
+                console.log('Syncing purchases...');
+                apiResponse = await syncPurchases(
+                    cognitoUser.tokens?.idToken?.toString() ?? '',
+                    checkoutSessionIds,
+                );
+                clearCheckoutSessionIds();
+            } else {
+                console.log('Getting user from API...');
+                const token = cognitoUser.tokens?.idToken?.toString() ?? '';
+                console.log('Token for API call:', token.substring(0, 50) + '...');
+                apiResponse = await getUser(token);
+                console.log('API response received:', apiResponse.data);
+            }
 
-        const user = parseUser(apiResponse.data, cognitoUser);
-        setUser(user);
-        setStatus(AuthStatus.Authenticated);
-        setAnalyticsUser(user);
+            const user = parseUser(apiResponse.data, cognitoUser);
+            console.log('Parsed user:', user);
+            setUser(user);
+            setStatus(AuthStatus.Authenticated);
+            setAnalyticsUser(user);
+            console.log('User set in state, status updated to Authenticated');
+        } catch (apiError) {
+            console.error('API call failed in handleCognitoResponse:', apiError);
+            throw apiError; // Re-throw to be caught by directTokenLogin
+        }
     }, []);
+
+    const directTokenLogin = useCallback(async (token: string) => {
+        try {
+            console.log('Attempting direct token login');
+            trackEvent(EventType.Login, { method: 'DirectToken' });
+            
+            // Create a mock CognitoUser object with the provided token
+            const mockCognitoUser: CognitoUser = {
+                username: 'direct-login-user',
+                tokens: {
+                    idToken: {
+                        toString: () => token
+                    }
+                } as CognitoUser['tokens']
+            };
+            
+            await handleCognitoResponse(mockCognitoUser);
+            
+            // Clean up URL parameters after successful login
+            if (typeof window !== 'undefined') {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('token');
+                window.history.replaceState({}, '', url.toString());
+            }
+        } catch (err) {
+            console.error('Failed direct token login: ', err);
+            
+            // Show browser alert to user
+            if (typeof window !== 'undefined') {
+                alert('❌ Login failed: Token is invalid or expired. Please get a fresh token.');
+            }
+            
+            setStatus(AuthStatus.Unauthenticated);
+        }
+    }, [handleCognitoResponse]);
 
     const getCurrentUser = useCallback(async () => {
         try {
@@ -213,9 +264,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [handleCognitoResponse]);
 
+    // Detect client-side hydration
     useEffect(() => {
-        void getCurrentUser();
-    }, [getCurrentUser]);
+        setIsClient(true);
+    }, []);
+
+    // Token extraction effect - only runs on client side after hydration
+    useEffect(() => {
+        if (!isClient) {
+            return;
+        }
+
+        // Check for direct token login first
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        if (token) {
+            void directTokenLogin(token);
+        } else {
+            // If no token in URL, proceed with normal authentication flow
+            void getCurrentUser();
+        }
+    }, [isClient, directTokenLogin, getCurrentUser]);
+
 
     const updateUser = (update: Partial<User>) => {
         if (user) {
@@ -262,6 +333,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         getCurrentUser,
         updateUser,
+        directTokenLogin,
 
         socialSignin,
         signin,
