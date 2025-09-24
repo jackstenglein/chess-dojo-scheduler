@@ -21,6 +21,9 @@ import CustomButton from '../components/CustomButton';
 import LogoHeader from '../components/Logo';
 import SocialButton from '../components/SocialButton';
 import Fonts from '../assets/fonts';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../redux/store';
+import { signUpUser } from '../redux/thunk/authThunk';
 
 type Props = RootStackScreenProps<'SignUpScreen'>;
 
@@ -33,6 +36,7 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  const dispatch = useDispatch<AppDispatch>();
   const handleSignUp = () => {
     let isValid = true;
 
@@ -69,6 +73,7 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
     if (!isValid) return;
 
     console.log('Creating account with:', {name, email, password});
+    dispatch(signUpUser({name, email, password}));
     Alert.alert('Success', 'Account created successfully!');
     navigation.navigate(SCREEN_NAMES.LOGIN);
   };

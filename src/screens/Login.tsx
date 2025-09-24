@@ -19,19 +19,24 @@ import CustomTextInput from '../components/CustomTextInput';
 import CustomButton from '../components/CustomButton';
 import LinkButton from '../components/LinkButton';
 import SocialButton from '../components/SocialButton';
-import { useTheme } from 'react-native-paper';
-import { CustomTheme } from '../utils/theme';
+import {useTheme} from 'react-native-paper';
+import {CustomTheme} from '../utils/theme';
 import LogoHeader from '../components/Logo';
+import {signIn, socialSignin} from '../services/AuthService';
+import {signInUser} from '../redux/thunk/authThunk';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '../redux/store';
 
 type Props = RootStackScreenProps<'LoginScreen'>;
 
 const LoginScreen: React.FC<Props> = ({navigation}) => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string>('john@yopmail.com');
+  const [password, setPassword] = useState<string>('Admin@123');
   const [emailError, setEmailError] = useState<string>('');
   const [passwordError, setPasswordError] = useState<string>('');
+  const dispatch = useDispatch<AppDispatch>();
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     let isValid = true;
 
     // Email validation
@@ -61,8 +66,9 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
 
     if (!isValid) return;
 
-    // 👉 Your login logic here
-    console.log('Logging in with:', {email, password});
+    const user = await dispatch(signInUser({email, password})).unwrap();
+    // console.log( "SignIn Result: ",result)
+    console.log('Logging in with:', user);
     Alert.alert('Success', 'Signed in successfully!');
     navigation.navigate(SCREEN_NAMES.HOME);
   };
@@ -76,10 +82,11 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
   };
 
   const handleGoogleSignIn = () => {
-    Alert.alert('Google Sign-In', 'Google sign-in pressed.');
+    // Alert.alert('Google Sign-In', 'Google sign-in pressed.');
     // 👉 Implement Google Sign-In here
+    socialSignin('Google');
   };
-const {colors} = useTheme<CustomTheme>();
+  const {colors} = useTheme<CustomTheme>();
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -89,14 +96,13 @@ const {colors} = useTheme<CustomTheme>();
           <View style={styles.inner}>
             {/* Logo */}
             <LogoHeader />
-          
 
             {/* Email */}
             <CustomTextInput
               label="Email"
               mode="outlined"
               value={email}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setEmail(text);
                 setEmailError('');
               }}
@@ -110,7 +116,7 @@ const {colors} = useTheme<CustomTheme>();
               label="Password"
               mode="outlined"
               value={password}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setPassword(text);
                 setPasswordError('');
               }}
@@ -123,20 +129,21 @@ const {colors} = useTheme<CustomTheme>();
             <CustomButton
               onPress={handleSignIn}
               title="Login"
-              textColor={"#000000"}
+              textColor={'#000000'}
             />
 
             {/* Links */}
             <View style={styles.linkContainer}>
               <LinkButton onPress={handleSignUp} title="Sign Up" />
-              <LinkButton onPress={handleResetPassword} title="Reset Password" />
+              <LinkButton
+                onPress={handleResetPassword}
+                title="Reset Password"
+              />
             </View>
 
             {/* Google Sign In */}
             <SocialButton
-              icon={
-                <GoogleIcon/>
-              }
+              icon={<GoogleIcon />}
               title="Sign In with Google"
               onPress={handleGoogleSignIn}
             />

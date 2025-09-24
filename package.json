@@ -11,6 +11,10 @@
     "ios:sim": "react-native run-ios --simulator='iPhone 16 Pro'"
   },
   "dependencies": {
+    "@aws-amplify/core": "^6.13.2",
+    "@aws-amplify/react-native": "^1.1.10",
+    "@aws-amplify/rtn-web-browser": "^1.1.4",
+    "@aws-amplify/ui-react-native": "^2.6.0",
     "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-native-firebase/app": "^23.3.0",
     "@react-native-firebase/messaging": "^23.3.0",
@@ -20,9 +24,11 @@
     "@react-navigation/native": "^7.1.17",
     "@react-navigation/native-stack": "^7.3.26",
     "@reduxjs/toolkit": "^2.9.0",
+    "aws-amplify": "^6.15.6",
     "react": "19.0.0",
     "react-native": "0.78.0",
     "react-native-bootsplash": "^6.3.11",
+    "react-native-get-random-values": "^1.11.0",
     "react-native-paper": "^5.14.5",
     "react-native-safe-area-context": "^5.6.1",
     "react-native-screens": "^4.16.0",
@@ -31,7 +37,8 @@
     "react-native-toast-notifications": "^3.4.0",
     "react-native-webview": "^13.16.0",
     "react-redux": "^9.2.0",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

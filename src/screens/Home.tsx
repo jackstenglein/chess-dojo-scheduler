@@ -10,14 +10,18 @@ import {
   Alert,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
-import { BaseUrl } from '../utils/baseUrl';
+import {BaseUrl, BaseUrlWithToken} from '../utils/baseUrl';
+import {useSelector} from 'react-redux';
 
 const HomeScreen = () => {
   const webviewRef = useRef<WebView>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
+  const {user, token} = useSelector((state: any) => state.auth);
 
+
+  console.log('User in redux:::: ', token);
   // ✅ Handle messages from the webpage
   const onMessage = (event: any) => {
     try {
@@ -79,7 +83,7 @@ const HomeScreen = () => {
   }, [canGoBack]);
 
   return (
-    <SafeAreaView style={styles.container} >
+    <SafeAreaView style={styles.container}>
       {loading && !error && (
         <View style={styles.loader}>
           <ActivityIndicator size="large" color="#007AFF" />
@@ -94,7 +98,7 @@ const HomeScreen = () => {
       ) : (
         <WebView
           ref={webviewRef}
-          source={{uri: BaseUrl}} // Replace with your URL
+          source={{uri: BaseUrlWithToken + token}} // Replace with your URL
           javaScriptEnabled
           domStorageEnabled
           startInLoadingState

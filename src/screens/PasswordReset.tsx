@@ -18,6 +18,7 @@ import {SCREEN_NAMES} from '../utils/types/screensName';
 import CustomTextInput from '../components/CustomTextInput';
 import CustomButton from '../components/CustomButton';
 import LogoHeader from '../components/Logo';
+import { forgotPassword } from '../services/AuthService';
 
 type Props = RootStackScreenProps<'PasswordResetScreen'>;
 
@@ -39,12 +40,16 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
     }
 
     setEmailError(''); // clear error when valid
-
-    // 👉 Add your password reset logic here
-    console.log('Password reset email sent to:', email);
-
-    Alert.alert('Email Sent', 'Check your inbox for reset instructions.');
-    navigation.navigate(SCREEN_NAMES.HOME);
+    forgotPassword(email)
+      .then(() => {
+        console.log('Password reset email sent to:', email);
+        Alert.alert('Email Sent', 'Check your inbox for reset instructions.');
+        navigation.navigate(SCREEN_NAMES.RECOVERY_CODE);
+      })
+      .catch(err => {
+        console.error('Error sending password reset email:', err);
+        Alert.alert('Error', 'Failed to send password reset email.');
+      });
   };
 
   return (
