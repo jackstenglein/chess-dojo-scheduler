@@ -24,7 +24,8 @@ interface KeyboardHandlerProps {
 }
 
 const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
-    const { chess, board, boardRef, keydownMap, toggleOrientation } = useChess();
+    const { chess, board, boardRef, keydownMap, toggleOrientation, solitaire, addEngineMoveRef } =
+        useChess();
     const reconcile = useReconcile();
     const [variationBehavior] = useLocalStorage(VariationBehaviorKey, VariationBehavior.Dialog);
     const [variationDialogMove, setVariationDialogMove] = useState<Move | null>(null);
@@ -71,14 +72,32 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             }
 
             const activeElement = document.activeElement;
+
+            let ancestorBlockingKeyboardInput = false;
+            if (event.target instanceof Element) {
+                ancestorBlockingKeyboardInput = !!event.target.closest(
+                    `.${BlockBoardKeyboardShortcuts}`,
+                );
+            }
+
             if (
                 activeElement?.tagName === 'INPUT' ||
                 activeElement?.id === BlockBoardKeyboardShortcuts ||
-                activeElement?.classList.contains(BlockBoardKeyboardShortcuts)
+                activeElement?.classList.contains(BlockBoardKeyboardShortcuts) ||
+                ancestorBlockingKeyboardInput
             ) {
                 if (matchedAction !== ShortcutAction.UnfocusTextField) {
                     return;
                 }
+            }
+
+            if (
+                matchedAction === ShortcutAction.NextMove &&
+                solitaire?.enabled &&
+                !solitaire.complete &&
+                chess.currentMove() === solitaire.currentMove
+            ) {
+                return;
             }
 
             event.preventDefault();
@@ -95,6 +114,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                         variationBehavior === VariationBehavior.Dialog
                             ? setVariationDialogMove
                             : undefined,
+                    addEngineMove: addEngineMoveRef?.current || undefined,
                 },
             });
         },
@@ -108,6 +128,8 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             setVariationDialogMove,
             underboardRef,
             reconcile,
+            addEngineMoveRef,
+            solitaire,
         ],
     );
 
@@ -142,6 +164,16 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                             event.deltaY < 0
                                 ? ShortcutAction.PreviousMove
                                 : ShortcutAction.NextMove;
+
+                        if (
+                            action === ShortcutAction.NextMove &&
+                            solitaire?.enabled &&
+                            !solitaire.complete &&
+                            chess.currentMove() === solitaire.currentMove
+                        ) {
+                            return;
+                        }
+
                         keyboardShortcutHandlers[action]({
                             chess,
                             board,
@@ -154,7 +186,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                 );
             }
         };
-    }, [board, chess, scrollToMove, reconcile]);
+    }, [board, chess, scrollToMove, reconcile, solitaire]);
 
     useEffect(() => {
         window.addEventListener('keydown', onKeyDown);

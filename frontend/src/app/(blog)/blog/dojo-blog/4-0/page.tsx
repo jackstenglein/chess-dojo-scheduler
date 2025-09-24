@@ -128,7 +128,7 @@ export default function CustomTasks() {
                     requirements. Note that we still 100% recommend doing as much of your training
                     against a real person 🧍‍♂️, but if you have no other option, you can check out
                     Jesse's guide{' '}
-                    <Link href='https://www.chessdojo.club/material/bots' target='_blank'>
+                    <Link href='https://www.chessdojo.club/material/guides' target='_blank'>
                         here.
                     </Link>{' '}
                 </Typography>

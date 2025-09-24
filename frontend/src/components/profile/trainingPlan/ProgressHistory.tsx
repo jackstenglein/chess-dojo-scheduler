@@ -33,6 +33,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { AxiosResponse } from 'axios';
+import deepEqual from 'deep-equal';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TaskDialogView } from './TaskDialog';
@@ -315,7 +316,7 @@ function getTimelineUpdate(
             } as unknown as RequirementProgress);
         }
 
-        updated.push({
+        const newEntry = {
             ...item.entry,
             cohort: item.cohort,
             notes: item.notes,
@@ -326,7 +327,11 @@ function getTimelineUpdate(
             totalDojoPoints: newScore,
             minutesSpent,
             totalMinutesSpent: progress.minutesSpent[item.cohort],
-        });
+        };
+
+        if (!deepEqual(item.entry, newEntry)) {
+            updated.push(newEntry);
+        }
     }
 
     return {
@@ -535,19 +540,20 @@ const ProgressHistory = ({ requirement, onClose, setView }: ProgressHistoryProps
                     </Stack>
                 )}
             </DialogContent>
-            <DialogActions>
-                <Stack sx={{ flexGrow: 1 }}>
-                    {!isTimeOnly && (
-                        <Typography color='text.secondary'>
-                            Total Count: {totalCount}. Current Cohort: {cohortCount}
-                        </Typography>
-                    )}
-                    <Typography color='text.secondary'>
-                        Total Time: {Math.floor(totalTime / 60)}h {totalTime % 60}m. Current Cohort:{' '}
-                        {Math.floor(cohortTime / 60)}h {Math.floor(cohortTime % 60)}m
-                    </Typography>
-                </Stack>
 
+            <Stack sx={{ flexGrow: 1, px: 2, pt: 1.5 }}>
+                {!isTimeOnly && (
+                    <Typography color='text.secondary'>
+                        Total Count: {totalCount}. Current Cohort: {cohortCount}
+                    </Typography>
+                )}
+                <Typography color='text.secondary'>
+                    Total Time: {Math.floor(totalTime / 60)}h {totalTime % 60}m. Current Cohort:{' '}
+                    {Math.floor(cohortTime / 60)}h {Math.floor(cohortTime % 60)}m
+                </Typography>
+            </Stack>
+
+            <DialogActions sx={{ flexWrap: 'wrap' }}>
                 <Button onClick={onClose} disabled={request.isLoading()}>
                     Cancel
                 </Button>

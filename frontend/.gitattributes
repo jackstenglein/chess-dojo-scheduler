@@ -1,0 +1,45 @@
+###############################################################################
+# Global rule —- normalize all text files to LF in the repository
+###############################################################################
+* text=auto eol=lf
+
+###############################################################################
+# Binary assets —- disable EOL normalization & diff
+###############################################################################
+# Images
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.svg  -text
+*.ico  -text
+# Media
+*.mp3  binary
+*.wav  binary
+*.mp4  binary
+*.mov  binary
+# Documents / archives
+*.pdf  binary
+*.zip  binary
+*.tar  binary
+*.gz   binary
+*.tgz  binary
+*.7z   binary
+# Fonts
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+
+###############################################################################
+# Optional overrides
+###############################################################################
+# Windows–only scripts: keep CRLF so they run natively on Windows shells
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Unix shell scripts: still LF, and mark executable when core.fileMode=true
+*.sh  text eol=lf
+
+# End of file

@@ -9,16 +9,18 @@ import {
 } from '@/stockfish/engine/engine';
 import { Chess, Color, Move } from '@jackstenglein/chess';
 import { Box, ListItem, Skeleton, styled, Typography } from '@mui/material';
+import { useCallback, useEffect } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../../PgnBoard';
 
 interface Props {
-    line?: LineEval;
+    line: LineEval;
     engineInfo: EngineInfo;
+    isTop?: boolean;
 }
 
-export default function LineEvaluation({ engineInfo, line }: Props) {
-    const { chess } = useChess();
+export default function LineEvaluation({ engineInfo, line, isTop }: Props) {
+    const { chess, addEngineMoveRef } = useChess();
     const reconcile = useReconcile();
     const [primaryEvalType] = useLocalStorage<PrimaryEvalType>(
         ENGINE_PRIMARY_EVAL_TYPE.Key,
@@ -33,11 +35,76 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
         ENGINE_ADD_INFO_ON_MOVE_CLICK.Default,
     );
 
+    const evaluation = line ? formatLineEval(line) : '?';
+
+    const addEngineComment = useCallback(
+        (addInfo: boolean, startTurn: Color) => {
+            if (!chess || !addInfo) {
+                return;
+            }
+
+            let comment = chess.getComment();
+            if (comment.trim().length > 0) {
+                comment += `\n\n`;
+            }
+            comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
+            comment += formatResultPercentages(startTurn, chess.turn(), line);
+            comment += ')';
+            chess.setComment(comment);
+
+            const lastMove = chess?.previousMove();
+            const lastMoveHasEngine = lastMove?.commentDiag?.dojoEngine === 'true';
+            if (lastMoveHasEngine) {
+                const oldComment = lastMove?.commentAfter;
+                if (oldComment) {
+                    const newComment = oldComment.replace(/\(SF \d+(\.\d+)? [ \d/.+-]+\)/, '');
+                    chess.setComment(newComment, undefined, lastMove);
+                }
+            }
+        },
+        [chess, engineInfo, evaluation, line],
+    );
+
+    const addEngineMove = useCallback(
+        (index: number, addInfo: boolean = addInfoOnMove) => {
+            if (!line || index >= line.pv.length || chess?.fen() !== line.fen) {
+                return;
+            }
+
+            // Must be set here because we need the turn before we start
+            // adding moves
+            const startTurn = chess.turn();
+
+            let existingOnly = true;
+            for (let i = 0; i <= index; i++) {
+                const move = chess.move(line.pv[i], { existingOnly });
+                if (move === null) {
+                    existingOnly = false;
+                    i--;
+                } else if (!existingOnly) {
+                    chess.setCommand('dojoEngine', 'true', move);
+                }
+            }
+
+            if (!existingOnly) {
+                addEngineComment(addInfo, startTurn);
+            }
+
+            reconcile();
+        },
+        [addEngineComment, addInfoOnMove, chess, line, reconcile],
+    );
+
+    useEffect(() => {
+        if (isTop && addEngineMoveRef) {
+            addEngineMoveRef.current = () => addEngineMove(0);
+        }
+    }, [isTop, addEngineMoveRef, addEngineMove]);
+
     if (!line) {
         return <ListItem disablePadding sx={{ minHeight: '31px' }} />;
     }
 
-    const evaluation = formatLineEval(line);
     const wdl = formatResultPercentages(Color.white, Color.white, line, ' ');
 
     const isBlackCp =
@@ -47,37 +114,12 @@ export default function LineEvaluation({ engineInfo, line }: Props) {
     const moves = line.pv.map(moveLineUciToMove(line.fen));
 
     const onClick = (index: number, addInfo: boolean = addInfoOnMove) => {
-        if (chess?.fen() !== line.fen || index >= line.pv.length) {
-            return;
-        }
-
-        const startTurn = chess.turn();
-        let existingOnly = true;
-        for (let i = 0; i <= index; i++) {
-            const move = chess.move(line.pv[i], { existingOnly });
-            if (move === null) {
-                existingOnly = false;
-                i--;
-            } else if (!existingOnly) {
-                chess.setCommand('dojoEngine', 'true', move);
-            }
-        }
-        if (addInfo) {
-            let comment = chess.getComment();
-            if (comment.trim().length > 0) {
-                comment += `\n\n`;
-            }
-            comment += `(${engineInfo.extraShortName} ${evaluation}/${line.depth}`;
-            comment += formatResultPercentages(startTurn, chess.turn(), line);
-            comment += ')';
-            chess.setComment(comment);
-        }
-        reconcile();
+        addEngineMove(index, addInfo);
     };
 
     const onClickEval = () => {
         if (line.pv.length > 0) {
-            onClick(line.pv.length - 1, addInfoOnEval);
+            addEngineMove(line.pv.length - 1, addInfoOnEval);
         }
     };
 

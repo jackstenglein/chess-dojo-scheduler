@@ -15,7 +15,7 @@ const publicPaths = [
     /^\/courses$/,
     /^\/material\/books$/,
     /^\/material\/ratings$/,
-    /^\/material\/bots$/,
+    /^\/material\/guides$/,
     /^\/blog\/?.*$/,
     /^\/coaching$/,
     /^\/dojodigest\/unsubscribe$/,
@@ -45,6 +45,7 @@ const legacyRoutes = [
     { oldPath: '/home', newPath: '/profile' },
     { oldPath: '/plans-pricing', newPath: '/prices' },
     { oldPath: '/shop', newPath: 'https://www.chessdojo.shop/shop' },
+    { oldPath: '/material/bots', newPath: '/material/guides' },
 ];
 
 export async function middleware(request: NextRequest) {

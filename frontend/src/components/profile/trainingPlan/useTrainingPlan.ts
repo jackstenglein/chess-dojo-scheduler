@@ -273,18 +273,18 @@ export function useTrainingPlanProgress({
 }: {
     startDate: string;
     endDate: string;
-    tasks: SuggestedTask[];
+    tasks?: SuggestedTask[];
     timeline: TimelineEntry[];
 }): [number, number, number, Set<string>] {
     return useMemo(() => {
-        const goalMinutes = tasks.reduce((sum, { goalMinutes }) => sum + goalMinutes, 0);
+        const goalMinutes = tasks?.reduce((sum, { goalMinutes }) => sum + goalMinutes, 0) ?? 0;
         const extraTaskIds = new Set<string>();
 
         let suggestedTimeWorked = 0;
         let totalTimeWorked = 0;
         for (const entry of timeline) {
             const date = entry.date || entry.createdAt;
-            const isSuggestedTask = tasks.some(({ task }) => task.id === entry.requirementId);
+            const isSuggestedTask = tasks?.some(({ task }) => task.id === entry.requirementId);
             if (date >= startDate && date < endDate) {
                 totalTimeWorked += entry.minutesSpent;
                 if (!isSuggestedTask) {
