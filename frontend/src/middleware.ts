@@ -5,6 +5,10 @@ import { NextRequest, NextResponse } from 'next/server';
 const publicPaths = [
     /^\/_next\/.*$/,
     /^\/static\/.*$/,
+    /^\/sw\.js$/,
+    /^\/service-worker\.js$/,
+    /^\/manifest\.json$/,
+    /^\/offline\.html$/,
     /^\/donate$/,
     /^\/help.*/,
     /^\/tournaments$/,
@@ -23,6 +27,10 @@ const publicPaths = [
     /^\/clubs$/,
     /^\/games\/.*\/.*$/,
     /^\/profile\/.*\/postmortem\/.*$/,
+    // Add icon files to public paths
+    /^\/apple-touch-icon.*\.png$/,
+    /^\/favicon.*\.png$/,
+    /^\/android-chrome.*\.png$/,
 ];
 
 const unauthenticatedPaths = [
