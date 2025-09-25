@@ -44,7 +44,7 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
       .then(() => {
         console.log('Password reset email sent to:', email);
         Alert.alert('Email Sent', 'Check your inbox for reset instructions.');
-        navigation.navigate(SCREEN_NAMES.RECOVERY_CODE);
+        navigation.navigate(SCREEN_NAMES.RECOVERY_CODE, { email });
       })
       .catch(err => {
         console.error('Error sending password reset email:', err);

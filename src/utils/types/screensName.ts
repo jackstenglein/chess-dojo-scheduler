@@ -3,5 +3,5 @@ export const SCREEN_NAMES = {
   SIGNUP: 'SignUpScreen', 
   HOME: 'HomeScreen',
   PASSWORD_RESET: 'PasswordResetScreen',
-  RECOVERY_CODE: 'ResetPasswordScreen',
+  RECOVERY_CODE: 'PasswordRecoveryScreen',
 } as const;

@@ -7,7 +7,7 @@ export type RootStackParamList = {
   SignUpScreen: undefined;
   HomeScreen: undefined;
   PasswordResetScreen: undefined;
-  ResetPasswordScreen: undefined;
+  PasswordRecoveryScreen: { email: string };
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =
