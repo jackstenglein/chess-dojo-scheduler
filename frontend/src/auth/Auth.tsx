@@ -183,72 +183,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isClient, setIsClient] = useState(false);
 
     const handleCognitoResponse = useCallback(async (cognitoUser: CognitoUser) => {
-        console.log('handleCognitoResponse called with:', cognitoUser.username);
         const checkoutSessionIds = getAllCheckoutSessionIds();
         let apiResponse: AxiosResponse<User>;
 
         try {
             if (Object.values(checkoutSessionIds).length > 0) {
-                console.log('Syncing purchases...');
                 apiResponse = await syncPurchases(
                     cognitoUser.tokens?.idToken?.toString() ?? '',
                     checkoutSessionIds,
                 );
                 clearCheckoutSessionIds();
             } else {
-                console.log('Getting user from API...');
                 const token = cognitoUser.tokens?.idToken?.toString() ?? '';
-                console.log('Token for API call:', token.substring(0, 50) + '...');
                 apiResponse = await getUser(token);
-                console.log('API response received:', apiResponse.data);
             }
 
             const user = parseUser(apiResponse.data, cognitoUser);
-            console.log('Parsed user:', user);
             setUser(user);
             setStatus(AuthStatus.Authenticated);
             setAnalyticsUser(user);
-            console.log('User set in state, status updated to Authenticated');
         } catch (apiError) {
             console.error('API call failed in handleCognitoResponse:', apiError);
             throw apiError; // Re-throw to be caught by directTokenLogin
         }
     }, []);
 
-    const directTokenLogin = useCallback(async (token: string) => {
-        try {
-            console.log('Attempting direct token login');
-            trackEvent(EventType.Login, { method: 'DirectToken' });
-            
-            // Create a mock CognitoUser object with the provided token
-            const mockCognitoUser: CognitoUser = {
-                username: 'direct-login-user',
-                tokens: {
-                    idToken: {
-                        toString: () => token
-                    }
-                } as CognitoUser['tokens']
-            };
-            
-            await handleCognitoResponse(mockCognitoUser);
-            
-            // Clean up URL parameters after successful login
-            if (typeof window !== 'undefined') {
-                const url = new URL(window.location.href);
-                url.searchParams.delete('token');
-                window.history.replaceState({}, '', url.toString());
+    const directTokenLogin = useCallback(
+        async (token: string) => {
+            try {
+                trackEvent(EventType.Login, { method: 'DirectToken' });
+
+                // Create a mock CognitoUser object with the provided token
+                const mockCognitoUser: CognitoUser = {
+                    username: 'direct-login-user',
+                    tokens: {
+                        idToken: {
+                            toString: () => token,
+                        },
+                    } as CognitoUser['tokens'],
+                };
+
+                await handleCognitoResponse(mockCognitoUser);
+
+                // Clean up URL parameters after successful login
+                if (typeof window !== 'undefined') {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('token');
+                    window.history.replaceState({}, '', url.toString());
+                }
+            } catch (err) {
+                console.error('Failed direct token login: ', err);
+
+                // Show browser alert to user
+                if (typeof window !== 'undefined') {
+                    alert(
+                        '❌ Login failed: Token is invalid or expired. Please get a fresh token.',
+                    );
+                }
+
+                setStatus(AuthStatus.Unauthenticated);
             }
-        } catch (err) {
-            console.error('Failed direct token login: ', err);
-            
-            // Show browser alert to user
-            if (typeof window !== 'undefined') {
-                alert('❌ Login failed: Token is invalid or expired. Please get a fresh token.');
-            }
-            
-            setStatus(AuthStatus.Unauthenticated);
-        }
-    }, [handleCognitoResponse]);
+        },
+        [handleCognitoResponse],
+    );
 
     const getCurrentUser = useCallback(async () => {
         try {
@@ -264,41 +261,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [handleCognitoResponse]);
 
-    // Detect client-side hydration
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    // Token extraction effect - only runs on client side after hydration
-    useEffect(() => {
-        if (!isClient) {
-            return;
-        }
-
-        // Check for direct token login first
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        
-        if (token) {
-            void directTokenLogin(token);
-        } else {
-            // If no token in URL, proceed with normal authentication flow
-            void getCurrentUser();
-        }
-    }, [isClient, directTokenLogin, getCurrentUser]);
-
-
-    const updateUser = (update: Partial<User>) => {
-        if (user) {
-            setUser({ ...user, ...update });
-        }
-    };
-
-    const signin = (email: string, password: string) => {
+    const signin = (email: string, password: string, isFromParam: boolean = false) => {
         return new Promise<void>((resolve, reject) => {
             void (async () => {
                 try {
-                    console.log('Signing in');
                     await amplifySignIn({ username: email, password });
                     const authUser = await amplifyGetCurrentUser();
                     const authSession = await fetchAuthSession({ forceRefresh: true });
@@ -307,6 +273,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         username: authUser.username,
                         tokens: authSession.tokens,
                     });
+                    if (isFromParam) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete('email');
+                        url.searchParams.delete('pass');
+                        window.history.replaceState({}, '', url.toString());
+                        localStorage.setItem('isFromMobile', 'true');
+                    }
                     resolve();
                 } catch (err) {
                     console.error('Failed Auth.signIn: ', err);
@@ -321,9 +294,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             trackEvent(EventType.Logout);
             await amplifySignOut();
-            window.location.href = '/';
+
+            if (localStorage.getItem('isFromMobile') === 'true') {
+                localStorage.removeItem('isFromMobile');
+
+                // Redirect with query param so React Native can detect
+                window.location.href = '/?redirect=app';
+            } else {
+                // Normal browser logout
+                window.location.href = '/';
+            }
         } catch (err) {
             console.error('Error signing out: ', err);
+        }
+    };
+
+    // Detect client-side hydration
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    // Token extraction effect - only runs on client side after hydration
+    useEffect(() => {
+        if (!isClient) {
+            return;
+        }
+
+        // Check for email and pass
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        const pass = urlParams.get('pass');
+
+        if (email && pass) {
+            void signin(email, pass, true);
+        } else {
+            // If no token in URL, proceed with normal authentication flow
+            void getCurrentUser();
+        }
+    }, [isClient, signin, getCurrentUser]);
+
+    const updateUser = (update: Partial<User>) => {
+        if (user) {
+            setUser({ ...user, ...update });
         }
     };
 
