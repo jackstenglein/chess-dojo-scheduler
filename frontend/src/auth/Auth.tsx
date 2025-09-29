@@ -261,7 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [handleCognitoResponse]);
 
-    const signin = (email: string, password: string, isFromParam: boolean = false) => {
+    const signin = (email: string, password: string, isFromParam = false) => {
         return new Promise<void>((resolve, reject) => {
             void (async () => {
                 try {
