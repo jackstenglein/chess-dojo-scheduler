@@ -24,7 +24,7 @@
         "@aws-sdk/client-sesv2": "^3.859.0",
         "@aws-sdk/client-sqs": "^3.859.0",
         "@aws-sdk/s3-request-presigner": "^3.859.0",
-        "@aws-sdk/util-dynamodb": "^3.859.0",
+        "@aws-sdk/util-dynamodb": "^3.899.0",
         "@jackstenglein/chess": "^2.2.13",
         "@jackstenglein/chess-dojo-common": "file:../common",
         "@savi2w/chess-tcn": "^1.0.0",
