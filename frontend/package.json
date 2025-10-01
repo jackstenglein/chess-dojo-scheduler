@@ -127,7 +127,7 @@
         "cypress-parallel": "^0.15.0",
         "dotenv": "^17.2.1",
         "eslint": "^8.57.0",
-        "eslint-config-next": "15.4.5",
+        "eslint-config-next": "15.5.4",
         "eslint-plugin-cypress": "^3.5.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "eslint-plugin-react": "^7.37.5",
