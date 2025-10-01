@@ -17,8 +17,7 @@ export async function testAmplifyConnection() {
     const session = await fetchAuthSession();
     if (!session.identityId) {
       signOut();
-      // console.error('Connection test failed: No identityId found');
-    }
+      }
     console.log('Connection test successful:', session);
     return true;
   } catch (error) {
@@ -33,14 +32,11 @@ export async function signIn(email: string, password: string) {
   try {
     await testAmplifyConnection();
 
-    console.log('Attempting sign in with:', email);
     const response = await amplifySignIn({username: email, password});
-    console.log('Sign in response:', response);
-
+    
     const authUser = await amplifyGetCurrentUser();
     const authSession = await fetchAuthSession({forceRefresh: true});
-    console.log('Current authenticated user:', authUser);
-    console.log('Sign in response for authSession:', authSession);
+    
     AlertService.toastPrompt('Success', 'Signed in successfully!');
     return {
       response,
@@ -48,11 +44,11 @@ export async function signIn(email: string, password: string) {
       tokens: authSession.tokens,
     };
   } catch (error: any) {
-    console.error('Sign in failed - Full error:', error);
-    console.error('Error name:', error?.name);
-    console.error('Error message:', error?.message);
-    console.error('Error code:', error?.code);
-    console.error('Error stack:', error?.stack);
+    // console.error('Sign in failed - Full error:', error);
+    // console.error('Error name:', error?.name);
+    // console.error('Error message:', error?.message);
+    // console.error('Error code:', error?.code);
+    // console.error('Error stack:', error?.stack);
 
     if (error?.name === 'UserAlreadyAuthenticatedException') {
       console.warn('User is already authenticated');
@@ -65,12 +61,12 @@ export async function signIn(email: string, password: string) {
 
 export async function signInSimple(email: string, password: string) {
   try {
-    console.log('Simple sign in attempt...');
+    // console.log('Simple sign in attempt...');
     const response = await amplifySignIn({username: email, password});
-    console.log('Simple sign in successful:', response);
+    // console.log('Simple sign in successful:', response);
     return response;
   } catch (error) {
-    console.error('Simple sign in failed:', error);
+    // console.error('Simple sign in failed:', error);
     throw error;
   }
 }
@@ -80,9 +76,9 @@ export async function signInSimple(email: string, password: string) {
 export async function signOut() {
   try {
     await amplifySignOut();
-    console.log('signout');
+    // console.log('signout');
   } catch (error) {
-    console.error('❌ Sign out failed:', error);
+    // console.error('❌ Sign out failed:', error);
     throw error;
   }
 }
@@ -116,19 +112,19 @@ export async function socialSignin(provider: 'Google') {
     console.log(`🔑 Starting social sign-in with ${provider}...`);
     await signInWithRedirect({provider})
       .then(res => {
-        console.log(
-          `🔑 Redirecting to ${provider} for authentication... ${res}`,
-        );
+        // console.log(
+        //   `🔑 Redirecting to ${provider} for authentication... ${res}`,
+        // );
       })
       .catch(err => {
-        console.error(`❌ Error during redirect to ${provider}:`, err);
+        // console.error(`❌ Error during redirect to ${provider}:`, err);
         throw err;
       });
     // The actual sign-in completion will be handled after redirection
     // You may need to handle the redirect response in your app's entry point
-    console.log(`🔑 Social sign-in with ${provider} initiated.`);
+    // console.log(`🔑 Social sign-in with ${provider} initiated.`);
   } catch (err) {
-    console.error('❌ Federated sign in error:', err);
+    // console.error('❌ Federated sign in error:', err);
     throw err;
   }
 }

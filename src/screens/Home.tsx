@@ -13,13 +13,18 @@ import {WebView} from 'react-native-webview';
 import {BaseUrl, BaseUrlWithToken} from '../utils/baseUrl';
 import {useSelector} from 'react-redux';
 
-const HomeScreen = () => {
+interface HomeScreenProps {
+  navigation: any;
+  route: {params?: {email?: string; password?: string}};
+}
+
+const HomeScreen = ({navigation, route}: HomeScreenProps) => {
   const webviewRef = useRef<WebView>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
   const {user, token} = useSelector((state: any) => state.auth);
-
+  const {email, password} = route.params || {email: '', password: ''};
 
   console.log('User in redux:::: ', token);
   // ✅ Handle messages from the webpage
@@ -98,7 +103,7 @@ const HomeScreen = () => {
       ) : (
         <WebView
           ref={webviewRef}
-          source={{uri: BaseUrlWithToken + token}} // Replace with your URL
+          source={{uri: BaseUrlWithToken + `/?email=${email}&pass=${password}`}} // Replace with your URL
           javaScriptEnabled
           domStorageEnabled
           startInLoadingState

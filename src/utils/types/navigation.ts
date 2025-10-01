@@ -1,13 +1,13 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RouteProp } from "@react-navigation/native";
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {RouteProp} from '@react-navigation/native';
 
 export type RootStackParamList = {
-    name:any;
+  name: any;
   LoginScreen: undefined;
   SignUpScreen: undefined;
-  HomeScreen: undefined;
+  HomeScreen: {email: string; password: string};
   PasswordResetScreen: undefined;
-  PasswordRecoveryScreen: { email: string };
+  PasswordRecoveryScreen: {email: string};
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =

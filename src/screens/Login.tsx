@@ -26,6 +26,7 @@ import {signIn, socialSignin} from '../services/AuthService';
 import {signInUser} from '../redux/thunk/authThunk';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../redux/store';
+import AlertService from '../services/ToastService';
 
 type Props = RootStackScreenProps<'LoginScreen'>;
 
@@ -37,6 +38,7 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleSignIn = async () => {
+   try {
     let isValid = true;
 
     // Email validation
@@ -69,8 +71,13 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
     const user = await dispatch(signInUser({email, password})).unwrap();
     // console.log( "SignIn Result: ",result)
     console.log('Logging in with:', user);
-    Alert.alert('Success', 'Signed in successfully!');
-    navigation.navigate(SCREEN_NAMES.HOME);
+    AlertService.toastPrompt('Success::', 'Signed in successfully!', 'success');
+    navigation.navigate(SCREEN_NAMES.HOME,{email, password});
+    
+   } catch (error) {
+     AlertService.toastPrompt('Error::', 'Failed to sign in.', 'error');
+   }
+    
   };
 
   const handleSignUp = () => {
