@@ -22,7 +22,7 @@
         "@mui/x-data-grid-pro": "^8.9.2",
         "@mui/x-date-pickers-pro": "^8.9.2",
         "@savi2w/chess-tcn": "^1.0.0",
-        "@types/node": "^24.2.1",
+        "@types/node": "^24.6.1",
         "@types/react": "19.1.9",
         "@types/react-dom": "19.1.7",
         "async-mutex": "^0.5.0",
