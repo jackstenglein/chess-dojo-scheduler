@@ -81,7 +81,7 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
               }}
               keyboardType="email-address"
               icon={<Ionicons name="mail" size={20} color="#FF9800" />}
-              errorMessage={emailError} // ✅ shows error below input
+              errorMessage={emailError} // shows error below input
             />
 
             {/* Send Email */}

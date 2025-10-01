@@ -22,7 +22,7 @@ target 'ChessDojo' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # ✅ Force only Firebase pods to use modular headers
+  #  Force only Firebase pods to use modular headers
    pod 'FirebaseCore', :modular_headers => true
   pod 'FirebaseCoreInternal', :modular_headers => true
   pod 'GoogleUtilities', :modular_headers => true
@@ -35,7 +35,7 @@ target 'ChessDojo' do
       :mac_catalyst_enabled => false,
     )
 
-    # ✅ Allow non-modular includes inside frameworks (fixes FIRMessaging issues)
+    #  Allow non-modular includes inside frameworks (fixes FIRMessaging issues)
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'

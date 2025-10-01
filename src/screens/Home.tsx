@@ -27,7 +27,7 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
   const {user, token} = useSelector((state: any) => state.auth);
   const {email, password} = route.params || {email: '', password: ''};
 
-  // ✅ Handle messages from the webpage
+  // Handle messages from the webpage
   const onMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
@@ -43,18 +43,18 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
     }
   };
 
-  // ✅ Handle navigation changes
+  // Handle navigation changes
   const onNavigationStateChange = (navState: any) => {
     setCanGoBack(navState.canGoBack);
   };
 
-  // ✅ Handle error
+  // Handle error
   const onError = useCallback(() => {
     setError(true);
     setLoading(false);
   }, []);
 
-  // ✅ Inject viewport meta for responsiveness
+  // Inject viewport meta for responsiveness
   const injectedJavaScript = `
     (function() {
       var meta = document.createElement('meta'); 
@@ -65,7 +65,7 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
     true;
   `;
 
-  // ✅ Handle Android hardware back press
+  // Handle Android hardware back press
   useEffect(() => {
     const backAction = () => {
       if (canGoBack && webviewRef.current) {
