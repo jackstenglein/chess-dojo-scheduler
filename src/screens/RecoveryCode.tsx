@@ -73,10 +73,8 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
     if (!valid) return;
 
     // All good → continue
-    console.log({email, code, newPassword, confirmPassword});
     forgotPasswordConfirm(email, code, newPassword)
       .then(() => {
-        console.log('Password reset successful for:', email);
         AlertService.toastPrompt(
           'Success',
           'Your password has been reset. Please log in with your new password.',
@@ -85,7 +83,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
         navigation.navigate(SCREEN_NAMES.LOGIN);
       })
       .catch(err => {
-        console.error('Error resetting password:', err);
         Alert.alert(
           'Error',
           'Failed to reset password. Please check the code and try again.',

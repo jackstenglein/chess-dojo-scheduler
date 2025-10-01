@@ -13,7 +13,6 @@ import {
 
 export const BaseUrl = API_DEV;
 export const BaseUrlWithToken = API_TOKEN;
-console.log("Public",PUBLIC_AUTH_REGION)
 export const awsConfig = {
   Auth: {
     Cognito: {
@@ -38,4 +37,3 @@ export const awsConfig = {
     },
   },
 };
-

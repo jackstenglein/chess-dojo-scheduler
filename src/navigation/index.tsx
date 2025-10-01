@@ -21,7 +21,6 @@ const RootNavigation = () => {
   const {user, token} = useSelector((state: any) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
 
-  console.log('User:::::', user, 'Token:::::', token);
   useEffect(() => {
     setTimeout(() => {
       RNBootSplash.hide({fade: true});

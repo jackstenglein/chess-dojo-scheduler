@@ -12,6 +12,7 @@ import {
 import {WebView} from 'react-native-webview';
 import {BaseUrl, BaseUrlWithToken} from '../utils/baseUrl';
 import {useSelector} from 'react-redux';
+import AlertService from '../services/ToastService';
 
 interface HomeScreenProps {
   navigation: any;
@@ -26,25 +27,25 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
   const {user, token} = useSelector((state: any) => state.auth);
   const {email, password} = route.params || {email: '', password: ''};
 
-  console.log('User in redux:::: ', token);
   // ✅ Handle messages from the webpage
   const onMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      console.log('📩 Message from Web:', data);
+
 
       if (data.type === 'LOGOUT') {
-        console.log('User logged out');
+  AlertService.toastPrompt('Info', 'Logging out...');
+        navigation.navigate('LoginScreen');
       }
     } catch (e) {
       console.warn('Invalid message received:', event.nativeEvent.data);
+      AlertService.toastPrompt('Warning', 'Invalid message received from webpage.');
     }
   };
 
   // ✅ Handle navigation changes
   const onNavigationStateChange = (navState: any) => {
     setCanGoBack(navState.canGoBack);
-    console.log('🌍 Navigation changed:', navState.url);
   };
 
   // ✅ Handle error

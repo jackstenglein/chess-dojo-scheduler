@@ -72,7 +72,6 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
 
     if (!isValid) return;
 
-    console.log('Creating account with:', {name, email, password});
     dispatch(signUpUser({name, email, password}));
     Alert.alert('Success', 'Account created successfully!');
     navigation.navigate(SCREEN_NAMES.LOGIN);

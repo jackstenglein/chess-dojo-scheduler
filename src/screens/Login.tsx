@@ -69,8 +69,6 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
     if (!isValid) return;
 
     const user = await dispatch(signInUser({email, password})).unwrap();
-    // console.log( "SignIn Result: ",result)
-    console.log('Logging in with:', user);
     AlertService.toastPrompt('Success::', 'Signed in successfully!', 'success');
     navigation.navigate(SCREEN_NAMES.HOME,{email, password});
     
