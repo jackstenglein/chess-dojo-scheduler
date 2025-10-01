@@ -10,9 +10,7 @@ import {
   Keyboard,
   Alert,
 } from 'react-native';
-import {TextInput, Button} from 'react-native-paper';
 import Ionicons from '@react-native-vector-icons/ionicons';
-import {Colors, Logo} from '../assets';
 import {RootStackScreenProps} from '../utils/types/navigation';
 import {SCREEN_NAMES} from '../utils/types/screensName';
 import CustomTextInput from '../components/CustomTextInput';

@@ -11,8 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
-import FontAwesome from '@react-native-vector-icons/fontawesome';
-import {Colors, GoogleIcon, Logo} from '../assets';
+import { GoogleIcon, } from '../assets';
 import {RootStackScreenProps} from '../utils/types/navigation';
 import {SCREEN_NAMES} from '../utils/types/screensName';
 import CustomTextInput from '../components/CustomTextInput';
@@ -22,7 +21,7 @@ import SocialButton from '../components/SocialButton';
 import {useTheme} from 'react-native-paper';
 import {CustomTheme} from '../utils/theme';
 import LogoHeader from '../components/Logo';
-import {signIn, socialSignin} from '../services/AuthService';
+import { socialSignin} from '../services/AuthService';
 import {signInUser} from '../redux/thunk/authThunk';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../redux/store';
@@ -87,7 +86,6 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
   };
 
   const handleGoogleSignIn = () => {
-    // Alert.alert('Google Sign-In', 'Google sign-in pressed.');
     // 👉 Implement Google Sign-In here
     socialSignin('Google');
   };
