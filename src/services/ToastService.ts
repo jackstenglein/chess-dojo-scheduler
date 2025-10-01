@@ -1,5 +1,5 @@
-import { Alert } from 'react-native';
-import { Toast } from 'react-native-toast-notifications';
+import {Alert} from 'react-native';
+import {Toast} from 'react-native-toast-notifications';
 
 type ToastType = 'success' | 'error' | 'custom_toast';
 
@@ -7,7 +7,7 @@ class AlertServiceClass {
   toastPrompt = (
     msg: string,
     msg1?: string,
-    type: ToastType = 'success'
+    type: ToastType = 'success',
   ): void => {
     if (type === 'error') {
       Toast.show(msg, {
@@ -23,18 +23,6 @@ class AlertServiceClass {
         animationType: 'zoom-in',
       });
     }
-
-    // Example for custom toast usage:
-    // if (type === 'custom_toast') {
-    //   Toast.show("custom_toast", {
-    //     type: "custom_toast",
-    //     duration: 5000,
-    //     data: {
-    //       title: msg1,
-    //       message: msg1,
-    //     },
-    //   });
-    // }
   };
 
   show(title: string, message: string): void {
@@ -47,7 +35,7 @@ class AlertServiceClass {
   }
 
   deleteAlert(): Promise<boolean> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       Alert.alert('Delete', 'Are you sure you want to delete?', [
         {
           text: 'Cancel',
@@ -67,7 +55,7 @@ class AlertServiceClass {
     message: string,
     okText?: string,
     cancelText?: string,
-    title?: string
+    title?: string,
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       Alert.alert(
@@ -84,7 +72,7 @@ class AlertServiceClass {
             onPress: () => resolve(true),
           },
         ],
-        { cancelable: false }
+        {cancelable: false},
       );
     });
   }
