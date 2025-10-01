@@ -35,7 +35,7 @@
         "deep-equal": "^2.2.3",
         "lodash.debounce": "^4.0.8",
         "luxon": "^3.7.1",
-        "modern-screenshot": "^4.6.5",
+        "modern-screenshot": "^4.6.6",
         "next": "15.4.5",
         "next-navigation-guard": "^0.2.0",
         "react": "19.1.1",
