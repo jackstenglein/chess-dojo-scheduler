@@ -21,6 +21,7 @@ import {
 import { AxiosResponse } from 'axios';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { decodeCredentials } from '../../cypress/e2e/util';
 import { EventType, setUserProperties as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { syncPurchases } from '../api/paymentApi';
 import { getUser } from '../api/userApi';
@@ -275,8 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     });
                     if (isFromParam) {
                         const url = new URL(window.location.href);
-                        url.searchParams.delete('email');
-                        url.searchParams.delete('pass');
+                        url.searchParams.delete('values');
                         window.history.replaceState({}, '', url.toString());
                         localStorage.setItem('isFromMobile', 'true');
                     }
@@ -321,12 +321,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         // Check for email and pass
-        const urlParams = new URLSearchParams(window.location.search);
-        const email = urlParams.get('email');
-        const pass = urlParams.get('pass');
+        const { email, password } = decodeCredentials(
+            new URL(window.location.href).searchParams.get('values') ?? '',
+        ) ?? { email: null, pass: null };
 
-        if (email && pass) {
-            void signin(email, pass, true);
+        if (email && password) {
+            void signin(email, password, true);
         } else {
             // If no token in URL, proceed with normal authentication flow
             void getCurrentUser();

@@ -39,3 +39,19 @@ export interface Event {
     startTime: string;
     endTime: string;
 }
+
+export const decodeCredentials = (
+  encoded: string
+): { email: string | null; password: string | null } | null => {
+  try {
+    const decoded = Buffer.from(encoded, 'base64').toString('utf-8');
+    const params = new URLSearchParams(decoded);
+    return {
+      email: params.get('email'),
+      password: params.get('pass'),
+    };
+  } catch (error) {
+    console.error('Failed to decode credentials:', error);
+    return null;
+  }
+};
