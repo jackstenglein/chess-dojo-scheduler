@@ -9,7 +9,7 @@ import {
   BackHandler,
   Alert,
 } from 'react-native';
-import {WebView} from 'react-native-webview';
+import {WebView, WebViewNavigation} from 'react-native-webview';
 import {BaseUrl, BaseUrlWithCreds} from '../utils/baseUrl';
 import {useDispatch, useSelector} from 'react-redux';
 import AlertService from '../services/ToastService';
@@ -76,19 +76,7 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
     })();
     true;
   `;
-  const handleNavigationChange = useCallback((navState: WebViewNavigation) => {
-    const {url} = navState;
-    // Example: https://example.com/?redirect=app
-    if (url.includes('redirect=app')) {
-      console.log('🔸 Detected redirect to app:', url);
 
-      // 👉 Handle sign-out / redirect logic here
-      // e.g., navigate to login, clear tokens, etc.
-      Alert.alert('Redirect detected', 'User signed out, returning to app.');
-    }
-  }, []);
-
-  // Handle Android hardware back press
   useEffect(() => {
     const backAction = () => {
       if (canGoBack && webviewRef.current) {
@@ -113,10 +101,6 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
 
   const encodedCredentials = encodeCredentials(email ?? '', password ?? '');
 
-  console.log(
-    'Encoded Credentials:',
-    BaseUrl + `?values=${encodedCredentials}`,
-  ); // Debugging line
   return (
     <SafeAreaView style={styles.container}>
       {loading && !error && (
