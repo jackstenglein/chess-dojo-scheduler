@@ -189,8 +189,6 @@ export function useDirectory(owner: string, id: string): UseDirectoryResponse {
     const compoundKey = `${owner}/${id}`;
     const directory = useMemo(() => cache.get(compoundKey), [cache, compoundKey]);
 
-    console.log('useDirectory: ', directory);
-
     const isFetched = cache.isFetched;
     const reset = cache.request.reset;
     const success = cache.request.onSuccess;
