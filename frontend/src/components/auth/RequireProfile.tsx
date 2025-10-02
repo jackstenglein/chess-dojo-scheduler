@@ -48,7 +48,11 @@ export function RequireProfile() {
 
     useEffect(() => {
         if (user && !hasCreatedProfile(user) && !validPathnames.includes(pathname)) {
-            router.push(`/profile?redirectUri=${pathname}`);
+            const isSocialFromMobile = localStorage.getItem('isSocialFromMobile');
+            router.push(
+                `/profile?redirectUri=${pathname}${isSocialFromMobile ? '&loggedInFromMobile=true' : ''}`,
+            );
+            localStorage.removeItem('isSocialFromMobile');
         }
     }, [user, pathname, router]);
 

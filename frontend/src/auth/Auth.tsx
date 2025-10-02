@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { getConfig } from '@/config';
@@ -65,8 +66,6 @@ interface AuthContextType {
 
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
-    directTokenLogin: (token: string) => Promise<void>;
-
     socialSignin: (provider: 'Google', redirectUri: string) => void;
     signin: (email: string, password: string) => Promise<void>;
 
@@ -96,7 +95,6 @@ const AuthContext = createContext<AuthContextType>({
     status: AuthStatus.Loading,
     getCurrentUser: defaultAuthContextFunction,
     updateUser: defaultAuthContextFunction,
-    directTokenLogin: defaultAuthContextFunction,
     socialSignin: defaultAuthContextFunction,
     signin: defaultAuthContextFunction,
     signup: defaultAuthContextFunction,
@@ -114,7 +112,7 @@ function socialSignin(provider: 'Google', redirectUri: string) {
         customState: redirectUri,
     })
         .then((value) => {
-            console.log('Federated sign in value: ', value);
+            console.log('Federated sign in value1: ', value);
         })
         .catch((err) => {
             console.error('Federated sign in error: ', err);
@@ -182,6 +180,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
     const [isClient, setIsClient] = useState(false);
+    const isSocialFromMobile: boolean =
+        typeof window !== 'undefined'
+            ? new URL(window.location.href).searchParams.get('isSocialFromMobile') === 'true'
+            : false;
 
     const handleCognitoResponse = useCallback(async (cognitoUser: CognitoUser) => {
         const checkoutSessionIds = getAllCheckoutSessionIds();
@@ -205,48 +207,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setAnalyticsUser(user);
         } catch (apiError) {
             console.error('API call failed in handleCognitoResponse:', apiError);
-            throw apiError; // Re-throw to be caught by directTokenLogin
+            throw apiError; // Re-throw to be caught by
         }
     }, []);
-
-    const directTokenLogin = useCallback(
-        async (token: string) => {
-            try {
-                trackEvent(EventType.Login, { method: 'DirectToken' });
-
-                // Create a mock CognitoUser object with the provided token
-                const mockCognitoUser: CognitoUser = {
-                    username: 'direct-login-user',
-                    tokens: {
-                        idToken: {
-                            toString: () => token,
-                        },
-                    } as CognitoUser['tokens'],
-                };
-
-                await handleCognitoResponse(mockCognitoUser);
-
-                // Clean up URL parameters after successful login
-                if (typeof window !== 'undefined') {
-                    const url = new URL(window.location.href);
-                    url.searchParams.delete('token');
-                    window.history.replaceState({}, '', url.toString());
-                }
-            } catch (err) {
-                console.error('Failed direct token login: ', err);
-
-                // Show browser alert to user
-                if (typeof window !== 'undefined') {
-                    alert(
-                        '❌ Login failed: Token is invalid or expired. Please get a fresh token.',
-                    );
-                }
-
-                setStatus(AuthStatus.Unauthenticated);
-            }
-        },
-        [handleCognitoResponse],
-    );
 
     const getCurrentUser = useCallback(async () => {
         try {
@@ -275,9 +238,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         tokens: authSession.tokens,
                     });
                     if (isFromParam) {
-                        const url = new URL(window.location.href);
+                        const url = new URL(window?.location.href);
                         url.searchParams.delete('values');
-                        window.history.replaceState({}, '', url.toString());
+                        window?.history.replaceState({}, '', url.toString());
                         localStorage.setItem('isFromMobile', 'true');
                     }
                     resolve();
@@ -314,6 +277,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsClient(true);
     }, []);
 
+    useEffect(() => {
+        if (isSocialFromMobile) {
+            localStorage.setItem('isSocialFromMobile', 'true');
+            socialSignin('Google', '/profile?loggedInFromMobile=true');
+        }
+    }, [isSocialFromMobile]);
+
     // Token extraction effect - only runs on client side after hydration
     useEffect(() => {
         if (!isClient) {
@@ -345,7 +315,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         getCurrentUser,
         updateUser,
-        directTokenLogin,
 
         socialSignin,
         signin,
