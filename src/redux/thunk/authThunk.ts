@@ -3,17 +3,38 @@ import {signIn, signOut, signUp} from '../../services/AuthService';
 import {resetAuth, setToken, setUser} from '../reducers/authSlice';
 
 // Sign in thunk
+
 export const signInUser = createAsyncThunk(
   'auth/signInUser',
-  async ({email, password}: {email: string; password: string}, {dispatch}) => {
-    const {response, user, tokens} = (await signIn(email, password)) ?? {};
+  async (
+    { email, password }: { email: string; password: string },
+    { dispatch }
+  ) => {
+    const result = await signIn(email, password);
+    if (!result) {
+      return { response: null, user: null, tokens: null };
+    }
 
-    // update redux slice
+    const { response, user, tokens } = result;
+
+    // ✅ Safely convert token to a plain string
+    const accessToken =
+      typeof tokens?.idToken === 'string'
+        ? tokens.idToken
+        : tokens?.idToken?.token ?? String(tokens?.idToken ?? '');
+
     dispatch(setUser(user));
-    dispatch(setToken(tokens?.idToken?.toString() ?? null));
+    dispatch(setToken(accessToken));
 
-    return {response, user, tokens};
-  },
+    return {
+      response,
+      user,
+      tokens: {
+        ...tokens,
+        idToken: accessToken, // ensure it's a plain string
+      },
+    };
+  }
 );
 
 // Sign up thunk

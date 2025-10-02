@@ -1,5 +1,5 @@
 declare module '@env' {
-  export const API_TOKEN: string;
+  export const API_CREDS: string;
   export const API_DEV: string;
   export const PUBLIC_AUTH_REGION: string;
   export const PUBLIC_AUTH_USER_POOL_ID: string;

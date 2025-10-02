@@ -25,6 +25,7 @@
     "@react-navigation/native-stack": "^7.3.26",
     "@reduxjs/toolkit": "^2.9.0",
     "aws-amplify": "^6.15.6",
+    "buffer": "^6.0.3",
     "react": "19.0.0",
     "react-native": "0.78.0",
     "react-native-bootsplash": "^6.3.11",

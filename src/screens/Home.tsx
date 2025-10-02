@@ -10,9 +10,12 @@ import {
   Alert,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
-import {BaseUrl, BaseUrlWithToken} from '../utils/baseUrl';
-import {useSelector} from 'react-redux';
+import {BaseUrl, BaseUrlWithCreds} from '../utils/baseUrl';
+import {useDispatch, useSelector} from 'react-redux';
 import AlertService from '../services/ToastService';
+import {encodeCredentials} from '../utils/base64Helper';
+import {signOutUser} from '../redux/thunk/authThunk';
+import {AppDispatch} from '../redux/store';
 
 interface HomeScreenProps {
   navigation: any;
@@ -26,27 +29,36 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
   const [canGoBack, setCanGoBack] = useState(false);
   const {user, token} = useSelector((state: any) => state.auth);
   const {email, password} = route.params || {email: '', password: ''};
+  const dispatch = useDispatch<AppDispatch>();
 
   // Handle messages from the webpage
   const onMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
 
-
       if (data.type === 'LOGOUT') {
-  AlertService.toastPrompt('Info', 'Logging out...');
+        AlertService.toastPrompt('Info', 'Logging out...');
         navigation.navigate('LoginScreen');
       }
     } catch (e) {
       console.warn('Invalid message received:', event.nativeEvent.data);
-      AlertService.toastPrompt('Warning', 'Invalid message received from webpage.');
+      AlertService.toastPrompt(
+        'Warning',
+        'Invalid message received from webpage.',
+      );
     }
   };
 
   // Handle navigation changes
-  const onNavigationStateChange = (navState: any) => {
-    setCanGoBack(navState.canGoBack);
-  };
+  const onNavigationStateChange = useCallback((navState: WebViewNavigation) => {
+    const {url} = navState;
+    // Example: https://example.com/?redirect=app
+    if (url.includes('redirect=app')) {
+      console.log('🔸 Detected redirect to app:', url);
+      setCanGoBack(navState.canGoBack);
+      dispatch(signOutUser());
+    }
+  }, []);
 
   // Handle error
   const onError = useCallback(() => {
@@ -64,6 +76,17 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
     })();
     true;
   `;
+  const handleNavigationChange = useCallback((navState: WebViewNavigation) => {
+    const {url} = navState;
+    // Example: https://example.com/?redirect=app
+    if (url.includes('redirect=app')) {
+      console.log('🔸 Detected redirect to app:', url);
+
+      // 👉 Handle sign-out / redirect logic here
+      // e.g., navigate to login, clear tokens, etc.
+      Alert.alert('Redirect detected', 'User signed out, returning to app.');
+    }
+  }, []);
 
   // Handle Android hardware back press
   useEffect(() => {
@@ -88,6 +111,12 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
     return () => backHandler.remove();
   }, [canGoBack]);
 
+  const encodedCredentials = encodeCredentials(email ?? '', password ?? '');
+
+  console.log(
+    'Encoded Credentials:',
+    BaseUrl + `?values=${encodedCredentials}`,
+  ); // Debugging line
   return (
     <SafeAreaView style={styles.container}>
       {loading && !error && (
@@ -104,7 +133,7 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
       ) : (
         <WebView
           ref={webviewRef}
-          source={{uri: BaseUrlWithToken + `/?email=${email}&pass=${password}`}} // Replace with your URL
+          source={{uri: BaseUrl + `/?values=${encodedCredentials}`}}
           javaScriptEnabled
           domStorageEnabled
           startInLoadingState

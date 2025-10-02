@@ -7,7 +7,9 @@ import store, {persistor} from './src/redux/store';
 import RootNavigation from './src/navigation';
 import {PaperProvider} from 'react-native-paper';
 import {DarkTheme, LightTheme} from './src/utils/theme';
+import { Buffer } from 'buffer';
 
+(global as any).Buffer = Buffer;
 const App = () => {
   const colorScheme = useColorScheme(); 
   const isDarkMode = colorScheme === 'dark';

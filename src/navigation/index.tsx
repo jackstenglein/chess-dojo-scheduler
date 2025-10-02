@@ -27,9 +27,7 @@ const RootNavigation = () => {
     }, 1000);
   }, []);
 
-  const handleLogout = () => {
-    dispatch(signOutUser());
-  };
+  
 
   return (
     <NavigationContainer>
@@ -42,10 +40,7 @@ const RootNavigation = () => {
               name={SCREEN_NAMES.HOME}
               component={HomeScreen}
               options={{
-                headerShown: true,
-                headerRight: () => (
-                  <Button title="Logout" onPress={handleLogout} />
-                ),
+                headerShown: false,
               }}
             />
           </>

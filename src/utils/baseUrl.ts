@@ -1,6 +1,6 @@
 import {
   API_DEV,
-  API_TOKEN,
+  API_CREDS,
   PUBLIC_AUTH_REGION,
   PUBLIC_AUTH_USER_POOL_ID,
   PUBLIC_AUTH_USER_POOL_WEB_CLIENT_ID,
@@ -12,7 +12,7 @@ import {
 } from '@env';
 
 export const BaseUrl = API_DEV;
-export const BaseUrlWithToken = API_TOKEN;
+export const BaseUrlWithCreds = API_CREDS;
 export const awsConfig = {
   Auth: {
     Cognito: {
