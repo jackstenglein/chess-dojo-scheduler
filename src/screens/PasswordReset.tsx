@@ -16,7 +16,7 @@ import {SCREEN_NAMES} from '../utils/types/screensName';
 import CustomTextInput from '../components/CustomTextInput';
 import CustomButton from '../components/CustomButton';
 import LogoHeader from '../components/Logo';
-import { forgotPassword } from '../services/AuthService';
+import {forgotPassword} from '../services/AuthService';
 
 type Props = RootStackScreenProps<'PasswordResetScreen'>;
 
@@ -30,18 +30,17 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
       return;
     }
 
-    // Basic email regex for format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError('Please enter a valid email address.');
       return;
     }
 
-    setEmailError(''); // clear error when valid
+    setEmailError('');
     forgotPassword(email)
       .then(() => {
         Alert.alert('Email Sent', 'Check your inbox for reset instructions.');
-        navigation.navigate(SCREEN_NAMES.RECOVERY_CODE, { email });
+        navigation.navigate(SCREEN_NAMES.RECOVERY_CODE, {email});
       })
       .catch(err => {
         Alert.alert('Error', 'Failed to send password reset email.');
@@ -55,9 +54,7 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.inner}>
-            {/* Logo */}
             <LogoHeader />
-            {/* Instruction */}
             <Text
               style={{
                 color: '#fff',
@@ -69,8 +66,6 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
               Enter your email, and we'll send you a code to reset your
               password.
             </Text>
-
-            {/* Email */}
             <CustomTextInput
               label="Email"
               mode="outlined"
@@ -83,15 +78,11 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
               icon={<Ionicons name="mail" size={20} color="#FF9800" />}
               errorMessage={emailError} // shows error below input
             />
-
-            {/* Send Email */}
             <CustomButton
               onPress={handleSendEmail}
               title="Send Email"
               textColor="#000000"
             />
-
-            {/* Cancel */}
             <View style={styles.linkContainer}>
               <Text
                 style={styles.linkText}

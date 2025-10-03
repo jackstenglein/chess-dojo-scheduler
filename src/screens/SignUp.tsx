@@ -12,8 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
-import FontAwesome from '@react-native-vector-icons/fontawesome';
-import {Colors, GoogleIcon, Logo} from '../assets';
+import {Colors, GoogleIcon} from '../assets';
 import {RootStackScreenProps} from '../utils/types/navigation';
 import {SCREEN_NAMES} from '../utils/types/screensName';
 import CustomTextInput from '../components/CustomTextInput';
@@ -21,9 +20,9 @@ import CustomButton from '../components/CustomButton';
 import LogoHeader from '../components/Logo';
 import SocialButton from '../components/SocialButton';
 import Fonts from '../assets/fonts';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../redux/store';
-import { signUpUser } from '../redux/thunk/authThunk';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '../redux/store';
+import {signUpUser} from '../redux/thunk/authThunk';
 
 type Props = RootStackScreenProps<'SignUpScreen'>;
 
@@ -88,10 +87,7 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.inner}>
-            {/* Logo */}
             <LogoHeader />
-
-            {/* Name */}
             <CustomTextInput
               label="Name"
               mode="outlined"
@@ -103,8 +99,6 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
               icon={<Ionicons name="person" size={20} color="#FF9800" />}
               errorMessage={nameError}
             />
-
-            {/* Email */}
             <CustomTextInput
               label="Email"
               mode="outlined"
@@ -117,8 +111,6 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
               icon={<Ionicons name="mail" size={20} color="#FF9800" />}
               errorMessage={emailError}
             />
-
-            {/* Password */}
             <CustomTextInput
               mode="outlined"
               label="Password"
@@ -131,23 +123,18 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
               icon={<Ionicons name="lock-closed" size={20} color="#FF9800" />}
               errorMessage={passwordError}
             />
-
-            {/* Sign Up Button */}
             <CustomButton
               title="Create Account"
               onPress={handleSignUp}
               backgroundColor="#64B5F6"
               textColor="#000000"
             />
-
-            {/* Google Sign Up */}
             <SocialButton
               icon={<GoogleIcon />}
               title="Sign Up with Google"
               onPress={handleGoogleSignUp}
             />
 
-            {/* Navigate to Login */}
             <View style={{alignItems: 'center', marginTop: 20}}>
               <Text style={styles.linkText}>
                 Already have an account?{' '}
@@ -193,7 +180,7 @@ const styles = StyleSheet.create({
   linkText: {
     color: Colors.WHITE,
     fontSize: 14,
-    fontFamily:Fonts.LIGHT
+    fontFamily: Fonts.LIGHT,
   },
   googleButton: {
     flexDirection: 'row',

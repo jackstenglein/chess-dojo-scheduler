@@ -12,7 +12,6 @@ export const LightTheme: CustomTheme = {
     ...MD3LightTheme.colors,
     primary: '#FF9800',
     text: '#ffffff',
-
   },
 };
 
@@ -22,6 +21,5 @@ export const DarkTheme: CustomTheme = {
     ...MD3DarkTheme.colors,
     primary: '#FF9800',
     text: '#ffffff',
-
   },
 };

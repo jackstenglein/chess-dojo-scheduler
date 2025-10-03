@@ -1,4 +1,3 @@
-// src/screens/HomeScreen.tsx
 import React, {useRef, useState, useCallback, useEffect} from 'react';
 import {
   StyleSheet,
@@ -54,7 +53,6 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
     const {url} = navState;
     // Example: https://example.com/?redirect=app
     if (url.includes('redirect=app')) {
-      console.log('🔸 Detected redirect to app:', url);
       setCanGoBack(navState.canGoBack);
       dispatch(signOutUser());
     }
@@ -145,7 +143,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    // marginTop:20
   },
   loader: {
     position: 'absolute',

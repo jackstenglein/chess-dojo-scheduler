@@ -37,7 +37,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
   const handleResetPassword = () => {
     let valid = true;
 
-    // Recovery code validation
     if (!code) {
       setCodeError('Recovery code is required.');
       valid = false;
@@ -48,7 +47,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
       setCodeError('');
     }
 
-    // New password validation
     if (!newPassword) {
       setNewPasswordError('New password is required.');
       valid = false;
@@ -59,7 +57,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
       setNewPasswordError('');
     }
 
-    // Confirm password validation
     if (!confirmPassword) {
       setConfirmPasswordError('Please confirm your password.');
       valid = false;
@@ -72,13 +69,12 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
 
     if (!valid) return;
 
-    // All good → continue
     forgotPasswordConfirm(email, code, newPassword)
       .then(() => {
         AlertService.toastPrompt(
           'Success',
           'Your password has been reset. Please log in with your new password.',
-          'success'
+          'success',
         );
         navigation.navigate(SCREEN_NAMES.LOGIN);
       })
@@ -88,8 +84,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
           'Failed to reset password. Please check the code and try again.',
         );
       });
-    // Alert.alert('Success', 'Password reset successfully!');
-    // TODO: Integrate with Amplify / API
   };
 
   const handleCancel = () => {

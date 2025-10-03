@@ -27,14 +27,10 @@ const RootNavigation = () => {
     }, 1000);
   }, []);
 
-  
-
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        
         {token ? (
-          // If logged in → show Home flow
           <>
             <Stack.Screen
               name={SCREEN_NAMES.HOME}
@@ -45,7 +41,6 @@ const RootNavigation = () => {
             />
           </>
         ) : (
-          // If not logged in → show Auth flow
           <>
             <Stack.Screen name={SCREEN_NAMES.LOGIN} component={LoginScreen} />
             <Stack.Screen name={SCREEN_NAMES.SIGNUP} component={SignUpScreen} />
@@ -53,7 +48,7 @@ const RootNavigation = () => {
               name={SCREEN_NAMES.PASSWORD_RESET}
               component={PasswordResetScreen}
             />
-             <Stack.Screen
+            <Stack.Screen
               name={SCREEN_NAMES.RECOVERY_CODE}
               component={PasswordRecoveryScreen}
             />

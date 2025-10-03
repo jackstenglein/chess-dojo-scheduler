@@ -16,24 +16,22 @@ export async function testAmplifyConnection() {
     const session = await fetchAuthSession();
     if (!session.identityId) {
       signOut();
-      }
+    }
     return true;
   } catch (error) {
     return false;
   }
 }
-/**
- * Sign in user with email & password
- */
+
 export async function signIn(email: string, password: string) {
   try {
     await testAmplifyConnection();
 
     const response = await amplifySignIn({username: email, password});
-    
+
     const authUser = await amplifyGetCurrentUser();
     const authSession = await fetchAuthSession({forceRefresh: true});
-    
+
     AlertService.toastPrompt('Success', 'Signed in successfully!');
     return {
       response,
@@ -41,7 +39,6 @@ export async function signIn(email: string, password: string) {
       tokens: authSession.tokens,
     };
   } catch (error: any) {
-  
     if (error?.name === 'UserAlreadyAuthenticatedException') {
       console.warn('User is already authenticated');
       signOut();
@@ -59,9 +56,7 @@ export async function signInSimple(email: string, password: string) {
     throw error;
   }
 }
-/**
- * Sign out the current user
- */
+
 export async function signOut() {
   try {
     await amplifySignOut();
@@ -70,9 +65,6 @@ export async function signOut() {
   }
 }
 
-/**
- * Sign up a new user with name, email & password
- */
 export async function signUp(name: string, email: string, password: string) {
   try {
     const username = uuidv4();
@@ -91,20 +83,14 @@ export async function signUp(name: string, email: string, password: string) {
   }
 }
 
-/**
- * Sign up and Sign in new user with Google
- */
 export async function socialSignin(provider: 'Google') {
   try {
     await signInWithRedirect({provider})
-      .then(res => {
-      })
+      .then(res => {})
       .catch(err => {
         throw err;
       });
-    // The actual sign-in completion will be handled after redirection
-    // You may need to handle the redirect response in your app's entry point
-   } catch (err) {
+  } catch (err) {
     throw err;
   }
 }
@@ -113,7 +99,11 @@ export async function forgotPassword(email: string) {
   return await resetPassword({username: email});
 }
 
-export async function forgotPasswordConfirm(email: string, code: string, password: string) {
+export async function forgotPasswordConfirm(
+  email: string,
+  code: string,
+  password: string,
+) {
   return confirmResetPassword({
     username: email,
     confirmationCode: code,

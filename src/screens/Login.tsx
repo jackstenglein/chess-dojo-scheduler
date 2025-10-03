@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
-import { GoogleIcon, } from '../assets';
+import {GoogleIcon} from '../assets';
 import {RootStackScreenProps} from '../utils/types/navigation';
 import {SCREEN_NAMES} from '../utils/types/screensName';
 import CustomTextInput from '../components/CustomTextInput';
@@ -21,7 +21,7 @@ import SocialButton from '../components/SocialButton';
 import {useTheme} from 'react-native-paper';
 import {CustomTheme} from '../utils/theme';
 import LogoHeader from '../components/Logo';
-import { socialSignin} from '../services/AuthService';
+import {socialSignin} from '../services/AuthService';
 import {signInUser} from '../redux/thunk/authThunk';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../redux/store';
@@ -37,44 +37,44 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleSignIn = async () => {
-   try {
-    let isValid = true;
+    try {
+      let isValid = true;
 
-    // Email validation
-    if (!email) {
-      setEmailError('Email is required.');
-      isValid = false;
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        setEmailError('Enter a valid email address.');
+      if (!email) {
+        setEmailError('Email is required.');
         isValid = false;
       } else {
-        setEmailError('');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          setEmailError('Enter a valid email address.');
+          isValid = false;
+        } else {
+          setEmailError('');
+        }
       }
+
+      if (!password) {
+        setPasswordError('Password is required.');
+        isValid = false;
+      } else if (password.length < 6) {
+        setPasswordError('Password must be at least 6 characters.');
+        isValid = false;
+      } else {
+        setPasswordError('');
+      }
+
+      if (!isValid) return;
+
+      const user = await dispatch(signInUser({email, password})).unwrap();
+      AlertService.toastPrompt(
+        'Success::',
+        'Signed in successfully!',
+        'success',
+      );
+      navigation.navigate(SCREEN_NAMES.HOME, {email, password});
+    } catch (error) {
+      AlertService.toastPrompt('Error::', 'Failed to sign in.', 'error');
     }
-
-    // Password validation
-    if (!password) {
-      setPasswordError('Password is required.');
-      isValid = false;
-    } else if (password.length < 6) {
-      setPasswordError('Password must be at least 6 characters.');
-      isValid = false;
-    } else {
-      setPasswordError('');
-    }
-
-    if (!isValid) return;
-
-    const user = await dispatch(signInUser({email, password})).unwrap();
-    AlertService.toastPrompt('Success::', 'Signed in successfully!', 'success');
-    navigation.navigate(SCREEN_NAMES.HOME,{email, password});
-    
-   } catch (error) {
-     AlertService.toastPrompt('Error::', 'Failed to sign in.', 'error');
-   }
-    
   };
 
   const handleSignUp = () => {
@@ -86,7 +86,6 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
   };
 
   const handleGoogleSignIn = () => {
-    // 👉 Implement Google Sign-In here
     socialSignin('Google');
   };
   const {colors} = useTheme<CustomTheme>();
@@ -97,10 +96,8 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.inner}>
-            {/* Logo */}
             <LogoHeader />
 
-            {/* Email */}
             <CustomTextInput
               label="Email"
               mode="outlined"
@@ -114,7 +111,6 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
               errorMessage={emailError}
             />
 
-            {/* Password */}
             <CustomTextInput
               label="Password"
               mode="outlined"
@@ -128,14 +124,12 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
               errorMessage={passwordError}
             />
 
-            {/* Sign In */}
             <CustomButton
               onPress={handleSignIn}
               title="Login"
               textColor={'#000000'}
             />
 
-            {/* Links */}
             <View style={styles.linkContainer}>
               <LinkButton onPress={handleSignUp} title="Sign Up" />
               <LinkButton
@@ -144,7 +138,6 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
               />
             </View>
 
-            {/* Google Sign In */}
             <SocialButton
               icon={<GoogleIcon />}
               title="Sign In with Google"
