@@ -30,7 +30,7 @@
         "@savi2w/chess-tcn": "^1.0.0",
         "adm-zip": "^0.5.16",
         "aws-lambda": "^1.0.7",
-        "axios": "^1.11.0",
+        "axios": "^1.12.2",
         "bad-words": "^4.0.0",
         "chess-dojo-directory-service": "file:../directoryService",
         "deep-equal": "^2.2.3",
