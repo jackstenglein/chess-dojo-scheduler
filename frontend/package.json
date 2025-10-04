@@ -132,7 +132,7 @@
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^5.2.0",
-        "happy-dom": "^18.0.1",
+        "happy-dom": "^19.0.2",
         "json-2-csv": "^5.5.9",
         "nyc": "^17.1.0",
         "prettier": "^3.6.2",
