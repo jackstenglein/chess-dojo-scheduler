@@ -12,7 +12,7 @@
     "dependencies": {
         "@jackstenglein/chess": "^2.2.13",
         "ml-regression-simple-linear": "^3.0.1",
-        "stripe": "^17.5.0",
+        "stripe": "^19.1.0",
         "uuid": "^13.0.0",
         "zod": "^4.1.11"
     },
