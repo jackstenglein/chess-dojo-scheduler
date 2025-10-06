@@ -1,0 +1,112 @@
+import {
+  signIn as amplifySignIn,
+  signUp as amplifySignUp,
+  signOut as amplifySignOut,
+  getCurrentUser as amplifyGetCurrentUser,
+  fetchAuthSession,
+  signInWithRedirect,
+  resetPassword,
+  confirmResetPassword,
+} from 'aws-amplify/auth';
+import {v4 as uuidv4} from 'uuid';
+import AlertService from './ToastService';
+
+export async function testAmplifyConnection() {
+  try {
+    const session = await fetchAuthSession();
+    if (!session.identityId) {
+      signOut();
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function signIn(email: string, password: string) {
+  try {
+    await testAmplifyConnection();
+
+    const response = await amplifySignIn({username: email, password});
+
+    const authUser = await amplifyGetCurrentUser();
+    const authSession = await fetchAuthSession({forceRefresh: true});
+
+    AlertService.toastPrompt('Success', 'Signed in successfully!');
+    return {
+      response,
+      user: authUser,
+      tokens: authSession.tokens,
+    };
+  } catch (error: any) {
+    if (error?.name === 'UserAlreadyAuthenticatedException') {
+      console.warn('User is already authenticated');
+      signOut();
+    }
+
+    throw error;
+  }
+}
+
+export async function signInSimple(email: string, password: string) {
+  try {
+    const response = await amplifySignIn({username: email, password});
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function signOut() {
+  try {
+    await amplifySignOut();
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function signUp(name: string, email: string, password: string) {
+  try {
+    const username = uuidv4();
+    const response = await amplifySignUp({
+      username,
+      password,
+      options: {
+        userAttributes: {email, name},
+      },
+    });
+
+    return {...response, username};
+  } catch (error) {
+    console.error('❌ Sign up failed:', error);
+    throw error;
+  }
+}
+
+export async function socialSignin(provider: 'Google') {
+  try {
+    await signInWithRedirect({provider})
+      .then(res => {})
+      .catch(err => {
+        throw err;
+      });
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function forgotPassword(email: string) {
+  return await resetPassword({username: email});
+}
+
+export async function forgotPasswordConfirm(
+  email: string,
+  code: string,
+  password: string,
+) {
+  return confirmResetPassword({
+    username: email,
+    confirmationCode: code,
+    newPassword: password,
+  });
+}
