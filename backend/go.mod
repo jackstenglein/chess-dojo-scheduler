@@ -45,7 +45,7 @@ require (
 
 require (
 	github.com/aws/aws-sdk-go v1.55.8
-	github.com/bwmarrin/discordgo v0.28.1
+	github.com/bwmarrin/discordgo v0.29.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3 // indirect
