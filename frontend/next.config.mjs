@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    outputFileTracingRoot: import.meta.dirname,
     productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
     images: {
         remotePatterns: [
