@@ -8,6 +8,7 @@ import {
     Box,
     Checkbox,
     Chip,
+    CircularProgress,
     debounce,
     Divider,
     FormControlLabel,
@@ -50,12 +51,14 @@ export function InviteFormSection({
 }: InviteFormSectionProps) {
     const [options, setOptions] = useState<SearchParticipant[]>([]);
     const [inputValue, setInputValue] = useState('');
+    const [loading, setLoading] = useState(false);
     const api = useApi();
 
     const searchUsers = api.searchUsers;
     const fetch = useMemo(
         () =>
             debounce((input: string, callback: (results?: SearchParticipant[]) => void) => {
+                setLoading(true);
                 searchUsers(input.trim(), [
                     'display',
                     'discord',
@@ -63,6 +66,7 @@ export function InviteFormSection({
                     RatingSystem.Lichess,
                 ])
                     .then((resp) => {
+                        setLoading(false);
                         callback(
                             resp.map((u) => ({
                                 username: u.username,
@@ -119,6 +123,7 @@ export function InviteFormSection({
             <Autocomplete
                 sx={{ mt: 2, mb: 2 }}
                 multiple
+                loading={loading}
                 options={options}
                 value={invited}
                 onChange={(_, users) => setInvited(users)}
@@ -132,6 +137,19 @@ export function InviteFormSection({
                         placeholder='Add people'
                         error={!!errors.invited}
                         helperText={errors.invited}
+                        slotProps={{
+                            input: {
+                                ...params.InputProps,
+                                endAdornment: (
+                                    <Fragment>
+                                        {loading ? (
+                                            <CircularProgress color='inherit' size={20} />
+                                        ) : null}
+                                        {params.InputProps.endAdornment}
+                                    </Fragment>
+                                ),
+                            },
+                        }}
                     />
                 )}
                 renderTags={(users, getTagProps) =>
