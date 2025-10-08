@@ -337,7 +337,7 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                                 autoSelect
                                 freeSolo
                                 fullWidth
-                                onChange={(e, v) => setCustomTagLabel(v ?? '')}
+                                onChange={(_e, v) => setCustomTagLabel(v ?? '')}
                                 options={suggestedCustomTags.filter(
                                     (name) =>
                                         !Object.keys(chess.header().valueMap()).includes(name),
