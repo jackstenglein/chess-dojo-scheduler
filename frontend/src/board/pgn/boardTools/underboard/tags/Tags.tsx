@@ -4,8 +4,22 @@ import { Game, MastersCohort } from '@/database/game';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { EventType, PgnDate, PgnTime, TimeControl } from '@jackstenglein/chess';
-import {Alert, Autocomplete, Box, Button, Dialog, DialogContent, DialogTitle, Grid, IconButton, Snackbar, Stack, TextField, Typography} from '@mui/material';
 import { Close } from '@mui/icons-material';
+import {
+    Alert,
+    Autocomplete,
+    Box,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Grid,
+    IconButton,
+    Snackbar,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
 import {
     DataGridPro,
     GridCellParams,
@@ -157,13 +171,7 @@ const defaultTags = [
 
 const uneditableTags = ['PlyCount'];
 
-const suggestedCustomTags = [
-    'Site',
-    'Annotator',
-    'Time',
-    'Termination',
-    'Mode'
-]
+const suggestedCustomTags = ['Site', 'Annotator', 'Time', 'Termination', 'Mode'];
 
 interface TagsProps {
     game?: Game;
@@ -303,20 +311,14 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     setError(err.message);
                 }}
             />
-            <Button onClick={() => setIsModalOpen(true)}>
-                Add PGN Tag
-            </Button>
-            <Dialog
-                fullWidth
-                maxWidth='sm'
-                open={isModalOpen}
-            >
+            <Button onClick={() => setIsModalOpen(true)}>Add PGN Tag</Button>
+            <Dialog fullWidth maxWidth='sm' open={isModalOpen}>
                 <IconButton
                     aria-label='close'
                     onClick={() => {
-                        setIsModalOpen(false)
-                        setCustomTagLabel('')
-                        setCustomTagValue('')
+                        setIsModalOpen(false);
+                        setCustomTagLabel('');
+                        setCustomTagValue('');
                     }}
                     sx={{
                         position: 'absolute',
@@ -329,23 +331,21 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                 </IconButton>
                 <DialogTitle>Add PGN Tag</DialogTitle>
                 <DialogContent>
-                    <Grid
-                        container
-                        spacing={2}
-                        sx={{pt:1}}
-                    >
+                    <Grid container spacing={2} sx={{ pt: 1 }}>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Autocomplete
                                 autoSelect
                                 freeSolo
                                 fullWidth
-                                onChange={(e,v) => setCustomTagLabel(v ?? "")}
-                                options={suggestedCustomTags.filter(name=>!Object.keys(chess.header().valueMap()).includes(name))}
+                                onChange={(e, v) => setCustomTagLabel(v ?? '')}
+                                options={suggestedCustomTags.filter(
+                                    (name) =>
+                                        !Object.keys(chess.header().valueMap()).includes(name),
+                                )}
                                 value={customTagLabel}
-                                renderInput={(params) => <TextField
-                                    {...params}
-                                    label='Tag Label'
-                                />}
+                                renderInput={(params) => (
+                                    <TextField {...params} label='Tag Label' />
+                                )}
                             />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
@@ -357,12 +357,14 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                             />
                         </Grid>
                         <Grid size={6}>
-                            <Button onClick={() => {
-                                chess.setHeader(customTagLabel, customTagValue);
-                                setIsModalOpen(false);
-                                setCustomTagLabel('');
-                                setCustomTagValue('');
-                            }}>
+                            <Button
+                                onClick={() => {
+                                    chess.setHeader(customTagLabel, customTagValue);
+                                    setIsModalOpen(false);
+                                    setCustomTagLabel('');
+                                    setCustomTagValue('');
+                                }}
+                            >
                                 Add Tag
                             </Button>
                         </Grid>
