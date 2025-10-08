@@ -28,6 +28,8 @@ export interface UseTrainingPlanResponse {
     skippedTaskIds?: string[];
     /** A callback function to toggle whether a task is skipped. */
     toggleSkip: (...ids: string[]) => void;
+    /** A callback function to toggle whether a day is a rest day. */
+    toggleRestDay: (date: string) => void;
 }
 
 /**
@@ -73,6 +75,24 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         api.updateUser({ weeklyPlan: newPlan }).catch(console.error);
     };
 
+    const toggleRestDay = (date: string) => {
+        if (!user.weeklyPlan) {
+            return;
+        }
+        const dateOnly = new Date(date).toISOString().split('T')[0];
+        const currentRestDays: string[] = Array.isArray(user.weeklyPlan.restDays)
+            ? (user.weeklyPlan.restDays)
+            : [];
+        const isRest = currentRestDays.some((rd) => rd.split('T')[0] === dateOnly);
+        const newRestDays = isRest
+            ? currentRestDays.filter((d) => d.split('T')[0] !== dateOnly)
+            : [...currentRestDays, dateOnly];
+
+        const newPlan = { ...user.weeklyPlan, restDays: newRestDays };
+        updateUser({ weeklyPlan: newPlan });
+        api.updateUser({ weeklyPlan: newPlan }).catch(console.error);
+    };
+
     return {
         user,
         request,
@@ -83,6 +103,7 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         isCurrentUser: currentUser?.username === user.username,
         skippedTaskIds: user.weeklyPlan?.skippedTasks,
         toggleSkip,
+        toggleRestDay,
     };
 }
 

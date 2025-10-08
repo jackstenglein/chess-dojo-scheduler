@@ -17,7 +17,7 @@ import LoadingPage from '@/loading/LoadingPage';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { Scheduler } from '@jackstenglein/react-scheduler';
 import { ProcessedEvent, SchedulerRef } from '@jackstenglein/react-scheduler/types';
-import { CalendarMonth, FormatListBulleted } from '@mui/icons-material';
+import { CalendarMonth, FormatListBulleted, Hotel } from '@mui/icons-material';
 import {
     Box,
     Card,
@@ -238,6 +238,9 @@ const ActivityTimelineCalendar = ({
     const filters = useFilters();
     const { entries, hasMore, onLoadMore, onEdit } = timeline;
     const calendarRef = useRef<SchedulerRef>(null);
+    const restDays: string[] = Array.isArray(user.weeklyPlan?.restDays)
+        ? user.weeklyPlan.restDays
+        : [];
 
     const initialEvents: ProcessedEvent[] = useMemo(() => {
         const minDate = calendarRef.current?.scheduler.selectedDate
@@ -288,6 +291,7 @@ const ActivityTimelineCalendar = ({
     return (
         <Box
             sx={{
+                position: 'relative',
                 '& div:has(> .rs__time)': {
                     gridTemplateColumns: 'repeat(7, 1fr) !important',
                 },
@@ -296,6 +300,9 @@ const ActivityTimelineCalendar = ({
                     '& span:first-child': { display: 'none !important' },
                 },
                 '& .rs__time': { display: 'none !important' },
+                '& .rs__cell': {
+                    position: 'relative',
+                },
             }}
         >
             <Scheduler
@@ -348,7 +355,30 @@ const ActivityTimelineCalendar = ({
                 }}
                 onSelectedDateChange={onSelectedDateChange}
             />
+            {restDays.length > 0 && <RestDayOverlays restDays={restDays} />}
         </Box>
+    );
+};
+
+const RestDayOverlays: React.FC<{ restDays: string[] }> = ({ restDays }) => {
+    return (
+        <>
+            {restDays.map((restDay) => (
+                <Box
+                    key={restDay}
+                    data-rest-day={restDay.split('T')[0]}
+                    sx={{
+                        position: 'absolute',
+                        top: 2,
+                        right: 2,
+                        pointerEvents: 'none',
+                        display: 'none',
+                    }}
+                >
+                    <Hotel fontSize='small' sx={{ color: 'text.secondary', opacity: 0.6 }} />
+                </Box>
+            ))}
+        </>
     );
 };
 

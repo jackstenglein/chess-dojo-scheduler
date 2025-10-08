@@ -2,8 +2,18 @@ import { CustomTask, Requirement } from '@/database/requirement';
 import LoadingPage from '@/loading/LoadingPage';
 import { CategoryColors, themeRequirementCategory } from '@/style/ThemeProvider';
 import { displayRequirementCategoryShort } from '@jackstenglein/chess-dojo-common/src/database/requirement';
-import { Check } from '@mui/icons-material';
-import { alpha, Box, ButtonBase, Card, Chip, Grid, Stack, Typography } from '@mui/material';
+import { Check, Hotel } from '@mui/icons-material';
+import {
+    alpha,
+    Box,
+    ButtonBase,
+    Card,
+    Chip,
+    Grid,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { use, useMemo, useState } from 'react';
 import { taskTitle } from '../daily/DailyTrainingPlan';
 import { SuggestedTask } from '../suggestedTasks';
@@ -91,8 +101,16 @@ function WeeklyTrainingPlanDay({
     dayIndex: number;
     onOpenTask: (task: Requirement | CustomTask, view: TaskDialogView) => void;
 }) {
-    const { suggestionsByDay, startDate, timeline, user, allRequirements, pinnedTasks } =
-        use(TrainingPlanContext);
+    const {
+        suggestionsByDay,
+        startDate,
+        timeline,
+        user,
+        allRequirements,
+        pinnedTasks,
+        toggleRestDay,
+        isCurrentUser,
+    } = use(TrainingPlanContext);
     const suggestedTasks = suggestionsByDay[dayIndex];
     const todayIndex = new Date().getDay();
 
@@ -100,6 +118,11 @@ function WeeklyTrainingPlanDay({
     const end = new Date(dayStart);
     end.setDate(end.getDate() + 1);
     const dayEnd = end.toISOString();
+
+    const currentRestDays: string[] = Array.isArray(user.weeklyPlan?.restDays)
+        ? (user.weeklyPlan.restDays)
+        : [];
+    const isRestDay = currentRestDays.some((rd) => rd.split('T')[0] === dayStart.split('T')[0]);
 
     const [_, __, ___, extraTaskIds] = useTrainingPlanProgress({
         startDate: dayStart,
@@ -123,14 +146,29 @@ function WeeklyTrainingPlanDay({
 
     return (
         <Stack height={1}>
-            <Typography
-                variant='subtitle1'
-                fontWeight='bold'
-                color={todayIndex === dayIndex ? 'primary' : 'text.secondary'}
-                sx={{ ml: 0.25 }}
+            <Tooltip
+                title={isCurrentUser ? (isRestDay ? 'Remove rest day' : 'Mark as rest day') : ''}
             >
-                {days[dayIndex]}
-            </Typography>
+                <ButtonBase
+                    onClick={isCurrentUser ? () => toggleRestDay(dayStart) : undefined}
+                    sx={{
+                        borderRadius: 1,
+                        px: 0.5,
+                        cursor: isCurrentUser ? 'pointer' : 'default',
+                    }}
+                    disabled={!isCurrentUser}
+                >
+                    <Typography
+                        variant='subtitle1'
+                        fontWeight='bold'
+                        color={todayIndex === dayIndex ? 'primary' : 'text.secondary'}
+                    >
+                        {days[dayIndex]}
+                        {isRestDay && ' '}
+                        {isRestDay && <Hotel fontSize='small' sx={{ verticalAlign: 'middle' }} />}
+                    </Typography>
+                </ButtonBase>
+            </Tooltip>
 
             <Card
                 sx={{
@@ -138,33 +176,42 @@ function WeeklyTrainingPlanDay({
                     border: '1px solid',
                     borderColor: 'divider',
                     borderLeft: dayIndex === 0 ? undefined : 'none',
+                    backgroundColor: isRestDay ? alpha('#9e9e9e', 0.05) : undefined,
                 }}
             >
-                <Stack spacing={1} py={1} px={0.5}>
-                    {suggestedTasks.map(
-                        (t) =>
-                            (t.goalMinutes > 0 ||
-                                pinnedTasks.some((pin) => pin.id === t.task.id)) && (
-                                <WeeklyTrainingPlanItem
-                                    key={t.task.id}
-                                    suggestion={t}
-                                    onOpenTask={onOpenTask}
-                                    startDate={dayStart}
-                                    endDate={dayEnd}
-                                />
-                            ),
-                    )}
+                {isRestDay ? (
+                    <Stack alignItems='center' justifyContent='center' py={4}>
+                        <Typography variant='body2' color='text.secondary'>
+                            Rest Day
+                        </Typography>
+                    </Stack>
+                ) : (
+                    <Stack spacing={1} py={1} px={0.5}>
+                        {suggestedTasks.map(
+                            (t) =>
+                                (t.goalMinutes > 0 ||
+                                    pinnedTasks.some((pin) => pin.id === t.task.id)) && (
+                                    <WeeklyTrainingPlanItem
+                                        key={t.task.id}
+                                        suggestion={t}
+                                        onOpenTask={onOpenTask}
+                                        startDate={dayStart}
+                                        endDate={dayEnd}
+                                    />
+                                ),
+                        )}
 
-                    {extraTasks.map((task) => (
-                        <WeeklyTrainingPlanItem
-                            key={task.id}
-                            suggestion={{ task, goalMinutes: 0 }}
-                            onOpenTask={onOpenTask}
-                            startDate={dayStart}
-                            endDate={dayEnd}
-                        />
-                    ))}
-                </Stack>
+                        {extraTasks.map((task) => (
+                            <WeeklyTrainingPlanItem
+                                key={task.id}
+                                suggestion={{ task, goalMinutes: 0 }}
+                                onOpenTask={onOpenTask}
+                                startDate={dayStart}
+                                endDate={dayEnd}
+                            />
+                        ))}
+                    </Stack>
+                )}
             </Card>
         </Stack>
     );

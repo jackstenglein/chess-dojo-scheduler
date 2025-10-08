@@ -222,6 +222,8 @@ export interface WeeklyPlan {
     nextGame: string;
     /** The ids of the user's skipped tasks (in order) when the weekly plan was last generated. */
     skippedTasks?: string[];
+    /** Set of ISO 8601 dates that are marked as rest days. */
+    restDays?: string[];
 }
 
 export interface GameScheduleEntry {

@@ -11,9 +11,11 @@ import { shouldPromptGraduation } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { themeRequirementCategory } from '@/style/ThemeProvider';
 import { displayRequirementCategory } from '@jackstenglein/chess-dojo-common/src/database/requirement';
-import { Check, Help, NotInterested, PushPin, PushPinOutlined } from '@mui/icons-material';
+import { Check, Help, Hotel, NotInterested, PushPin, PushPinOutlined } from '@mui/icons-material';
 import {
+    alpha,
     Box,
+    Button,
     Card,
     CardActionArea,
     CardActions,
@@ -95,11 +97,25 @@ function DailyTrainingPlanInternal({
     endDate: string;
     extraTaskIds: Set<string>;
 }) {
-    const { suggestionsByDay, user, skippedTaskIds, allRequirements, pinnedTasks } =
-        use(TrainingPlanContext);
+    const {
+        suggestionsByDay,
+        user,
+        skippedTaskIds,
+        allRequirements,
+        pinnedTasks,
+        toggleRestDay,
+        isCurrentUser,
+    } = use(TrainingPlanContext);
     const suggestedTasks = useMemo(() => suggestionsByDay[new Date().getDay()], [suggestionsByDay]);
     const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
+
+    // Check if today is a rest day
+    const todayDate = new Date().toISOString().split('T')[0];
+    const currentRestDays: string[] = Array.isArray(user.weeklyPlan?.restDays)
+        ? (user.weeklyPlan.restDays)
+        : [];
+    const isRestDay = currentRestDays.some((rd) => rd.split('T')[0] === todayDate);
 
     const extraTasks = useMemo(() => {
         const tasks = [];
@@ -123,6 +139,42 @@ function DailyTrainingPlanInternal({
         setSelectedTask(undefined);
         setTaskDialogView(undefined);
     };
+
+    // Show rest day panel if today is marked as rest day
+    if (isRestDay) {
+        return (
+            <Stack width={1}>
+                <Card
+                    variant='outlined'
+                    sx={{
+                        backgroundColor: alpha('#9e9e9e', 0.05),
+                        borderColor: 'divider',
+                    }}
+                >
+                    <CardContent>
+                        <Stack spacing={3} alignItems='center' py={4}>
+                            <Hotel sx={{ fontSize: 64, color: 'text.secondary' }} />
+                            <Typography variant='h5' fontWeight='bold'>
+                                Rest Day
+                            </Typography>
+                            <Typography variant='body1' color='text.secondary' textAlign='center'>
+                                Today is marked as a rest day. Take time to recover and recharge!
+                            </Typography>
+                            {isCurrentUser && (
+                                <Button
+                                    variant='outlined'
+                                    onClick={() => toggleRestDay(startDate)}
+                                    sx={{ mt: 2 }}
+                                >
+                                    Remove Rest Day
+                                </Button>
+                            )}
+                        </Stack>
+                    </CardContent>
+                </Card>
+            </Stack>
+        );
+    }
 
     return (
         <Stack width={1}>
