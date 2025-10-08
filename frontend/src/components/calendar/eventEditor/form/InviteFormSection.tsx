@@ -79,6 +79,7 @@ export function InviteFormSection({
                         );
                     })
                     .catch((err) => {
+                        setLoading(false);
                         console.error('searchUsers: ', err);
                     });
             }, 400),
