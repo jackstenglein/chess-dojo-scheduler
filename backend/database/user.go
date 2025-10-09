@@ -472,6 +472,9 @@ type EmailNotificationSettings struct {
 
 	// Whether to disable notifications when a round robin starts
 	DisableRoundRobinStart bool `dynamodbav:"disableRoundRobinStart" json:"disableRoundRobinStart"`
+
+	// Whether to disable notifications when the user creates a subscription
+	DisableSubscriptionCreated bool `dynamodbav:"disableSubscriptionCreated" json:"disableSubscriptionCreated"`
 }
 
 // The user's settings for in-site notifications.
