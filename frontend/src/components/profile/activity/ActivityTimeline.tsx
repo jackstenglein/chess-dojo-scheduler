@@ -361,12 +361,19 @@ const ActivityTimelineCalendar = ({
 };
 
 const RestDayOverlays: React.FC<{ restDays: string[] }> = ({ restDays }) => {
+    const formatRestDayKey = (value: string) => {
+        const date = new Date(value);
+        const month = `${date.getUTCMonth() + 1}`.padStart(2, '0');
+        const day = `${date.getUTCDate()}`.padStart(2, '0');
+        return `${date.getUTCFullYear()}-${month}-${day}`;
+    };
+
     return (
         <>
             {restDays.map((restDay) => (
                 <Box
                     key={restDay}
-                    data-rest-day={restDay.split('T')[0]}
+                    data-rest-day={formatRestDayKey(restDay)}
                     sx={{
                         position: 'absolute',
                         top: 2,

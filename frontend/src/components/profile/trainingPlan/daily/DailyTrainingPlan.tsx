@@ -38,16 +38,13 @@ import { TrainingPlanContext } from '../TrainingPlanTab';
 import { useTrainingPlanProgress } from '../useTrainingPlan';
 import { WorkGoalSettingsEditor } from '../WorkGoalSettingsEditor';
 import { GraduationTask } from './GraduationTask';
+import { addLocalDaysIso, isSameLocalDay, startOfLocalDayIso } from '../dateUtils';
 
 export function DailyTrainingPlan() {
     const [startDate, endDate] = useMemo(() => {
-        const startDate = new Date();
-        startDate.setHours(0, 0, 0, 0);
-
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + 1);
-
-        return [startDate.toISOString(), endDate.toISOString()];
+        const start = startOfLocalDayIso(new Date());
+        const end = addLocalDaysIso(start, 1);
+        return [start, end];
     }, []);
 
     const { suggestionsByDay, isCurrentUser, timeline, isLoading, user } = use(TrainingPlanContext);
@@ -103,6 +100,7 @@ function DailyTrainingPlanInternal({
         skippedTaskIds,
         allRequirements,
         pinnedTasks,
+        restDays,
         toggleRestDay,
         isCurrentUser,
     } = use(TrainingPlanContext);
@@ -111,11 +109,8 @@ function DailyTrainingPlanInternal({
     const [taskDialogView, setTaskDialogView] = useState<TaskDialogView>();
 
     // Check if today is a rest day
-    const todayDate = new Date().toISOString().split('T')[0];
-    const currentRestDays: string[] = Array.isArray(user.weeklyPlan?.restDays)
-        ? (user.weeklyPlan.restDays)
-        : [];
-    const isRestDay = currentRestDays.some((rd) => rd.split('T')[0] === todayDate);
+    const todayIso = startOfLocalDayIso(new Date());
+    const isRestDay = restDays.some((rd) => isSameLocalDay(rd, todayIso));
 
     const extraTasks = useMemo(() => {
         const tasks = [];
@@ -161,11 +156,11 @@ function DailyTrainingPlanInternal({
                                 Today is marked as a rest day. Take time to recover and recharge!
                             </Typography>
                             {isCurrentUser && (
-                                <Button
-                                    variant='outlined'
-                                    onClick={() => toggleRestDay(startDate)}
-                                    sx={{ mt: 2 }}
-                                >
+                                    <Button
+                                        variant='outlined'
+                                        onClick={() => void toggleRestDay(startDate)}
+                                        sx={{ mt: 2 }}
+                                    >
                                     Remove Rest Day
                                 </Button>
                             )}

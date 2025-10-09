@@ -22,6 +22,7 @@ import { TimeProgressChip } from '../TimeProgressChip';
 import { TrainingPlanContext } from '../TrainingPlanTab';
 import { useTrainingPlanProgress } from '../useTrainingPlan';
 import { WorkGoalSettingsEditor } from '../WorkGoalSettingsEditor';
+import { addLocalDaysIso, isSameLocalDay } from '../dateUtils';
 
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
 
@@ -108,21 +109,16 @@ function WeeklyTrainingPlanDay({
         user,
         allRequirements,
         pinnedTasks,
+        restDays,
         toggleRestDay,
         isCurrentUser,
     } = use(TrainingPlanContext);
     const suggestedTasks = suggestionsByDay[dayIndex];
     const todayIndex = new Date().getDay();
 
-    const dayStart = getDayOfWeekAfterDate(new Date(startDate), dayIndex);
-    const end = new Date(dayStart);
-    end.setDate(end.getDate() + 1);
-    const dayEnd = end.toISOString();
-
-    const currentRestDays: string[] = Array.isArray(user.weeklyPlan?.restDays)
-        ? (user.weeklyPlan.restDays)
-        : [];
-    const isRestDay = currentRestDays.some((rd) => rd.split('T')[0] === dayStart.split('T')[0]);
+    const dayStart = getWeekdayIso(startDate, dayIndex);
+    const dayEnd = addLocalDaysIso(dayStart, 1);
+    const isRestDay = restDays.some((rd) => isSameLocalDay(rd, dayStart));
 
     const [_, __, ___, extraTaskIds] = useTrainingPlanProgress({
         startDate: dayStart,
@@ -150,7 +146,7 @@ function WeeklyTrainingPlanDay({
                 title={isCurrentUser ? (isRestDay ? 'Remove rest day' : 'Mark as rest day') : ''}
             >
                 <ButtonBase
-                    onClick={isCurrentUser ? () => toggleRestDay(dayStart) : undefined}
+                    onClick={isCurrentUser ? () => void toggleRestDay(dayStart) : undefined}
                     sx={{
                         borderRadius: 1,
                         px: 0.5,
@@ -326,12 +322,8 @@ function WeeklyTrainingPlanItem({
     );
 }
 
-function getDayOfWeekAfterDate(reference: Date, day: number): string {
-    reference.setHours(0, 0, 0, 0);
-    if (reference.getDay() < day) {
-        reference.setDate(reference.getDate() + day - reference.getDay());
-    } else if (reference.getDay() > day) {
-        reference.setDate(reference.getDate() + 7 - reference.getDay() + day);
-    }
-    return reference.toISOString();
+function getWeekdayIso(startDate: string, dayIndex: number): string {
+    const start = new Date(startDate);
+    const offset = (dayIndex - start.getDay() + 7) % 7;
+    return addLocalDaysIso(startDate, offset);
 }

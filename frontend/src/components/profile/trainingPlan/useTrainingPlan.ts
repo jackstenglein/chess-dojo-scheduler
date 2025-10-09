@@ -5,9 +5,10 @@ import { useAuth } from '@/auth/Auth';
 import { CustomTask, Requirement } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { ALL_COHORTS, User, WeeklyPlan, WorkGoalSettings } from '@/database/user';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTimelineContext } from '../activity/useTimeline';
 import { SuggestedTask, TaskSuggestionAlgorithm } from './suggestedTasks';
+import { addLocalDaysIso, isSameLocalDay, startOfLocalDayIso } from './dateUtils';
 
 export interface UseTrainingPlanResponse {
     /** The request for fetching requirements. */
@@ -28,8 +29,10 @@ export interface UseTrainingPlanResponse {
     skippedTaskIds?: string[];
     /** A callback function to toggle whether a task is skipped. */
     toggleSkip: (...ids: string[]) => void;
+    /** The list of rest-day ISO strings associated with the current weekly plan. */
+    restDays: string[];
     /** A callback function to toggle whether a day is a rest day. */
-    toggleRestDay: (date: string) => void;
+    toggleRestDay: (date: string) => Promise<void>;
 }
 
 /**
@@ -40,6 +43,7 @@ export interface UseTrainingPlanResponse {
 export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanResponse {
     const { user: currentUser, updateUser } = useAuth();
     const api = useApi();
+    const { restDays, toggleRestDay } = useRestDays(user);
     const { request, requirements: allRequirements } = useRequirements(ALL_COHORTS, false);
     const { requirements } = useRequirements(cohort || user.dojoCohort, false);
     const pinnedTasks = useMemo(() => {
@@ -75,24 +79,6 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         api.updateUser({ weeklyPlan: newPlan }).catch(console.error);
     };
 
-    const toggleRestDay = (date: string) => {
-        if (!user.weeklyPlan) {
-            return;
-        }
-        const dateOnly = new Date(date).toISOString().split('T')[0];
-        const currentRestDays: string[] = Array.isArray(user.weeklyPlan.restDays)
-            ? (user.weeklyPlan.restDays)
-            : [];
-        const isRest = currentRestDays.some((rd) => rd.split('T')[0] === dateOnly);
-        const newRestDays = isRest
-            ? currentRestDays.filter((d) => d.split('T')[0] !== dateOnly)
-            : [...currentRestDays, dateOnly];
-
-        const newPlan = { ...user.weeklyPlan, restDays: newRestDays };
-        updateUser({ weeklyPlan: newPlan });
-        api.updateUser({ weeklyPlan: newPlan }).catch(console.error);
-    };
-
     return {
         user,
         request,
@@ -103,6 +89,7 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         isCurrentUser: currentUser?.username === user.username,
         skippedTaskIds: user.weeklyPlan?.skippedTasks,
         toggleSkip,
+        restDays,
         toggleRestDay,
     };
 }
@@ -125,7 +112,7 @@ export interface UseWeeklyTrainingPlanResponse extends UseTrainingPlanResponse {
 export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse {
     const api = useApi();
     const trainingPlan = useTrainingPlan(user);
-    const { pinnedTasks, requirements, allRequirements, isCurrentUser } = trainingPlan;
+    const { pinnedTasks, requirements, allRequirements, isCurrentUser, restDays } = trainingPlan;
     const { entries: timeline } = useTimelineContext();
 
     const { suggestionsByDay, weekSuggestions, endDate, progressUpdatedAt, nextGame } =
@@ -138,7 +125,22 @@ export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse
             ).getWeeklySuggestions();
 
             const weekSuggestions: SuggestedTask[] = [];
-            for (const day of result.suggestionsByDay) {
+            const restDayLookup = new Set(restDays);
+            const weekDates = getWeekDates(result.endDate);
+            const adjustedSuggestionsByDay = result.suggestionsByDay.map(
+                (daySuggestions, dayIndex) => {
+                    const dayDate = weekDates.get(dayIndex);
+                    if (!dayDate || !restDayLookup.has(dayDate)) {
+                        return daySuggestions;
+                    }
+                    return daySuggestions.map((suggestion) => ({
+                        ...suggestion,
+                        goalMinutes: 0,
+                    }));
+                },
+            );
+
+            for (const day of adjustedSuggestionsByDay) {
                 for (const suggestion of day) {
                     const existing = weekSuggestions.find((s) => s.task.id === suggestion.task.id);
                     if (existing) {
@@ -149,8 +151,8 @@ export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse
                 }
             }
 
-            return { ...result, weekSuggestions };
-        }, [user, requirements, allRequirements, timeline]);
+            return { ...result, suggestionsByDay: adjustedSuggestionsByDay, weekSuggestions };
+        }, [user, requirements, allRequirements, timeline, restDays]);
 
     const savedPlan = user.weeklyPlan;
     const isLoading = requirements.length === 0;
@@ -200,15 +202,14 @@ export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse
         isLoading,
     ]);
 
-    const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - 7);
+    const startDate = addLocalDaysIso(endDate, -7);
 
     return {
         ...trainingPlan,
         suggestionsByDay,
         weekSuggestions,
         endDate,
-        startDate: startDate.toISOString(),
+        startDate,
         isLoading,
         timeline,
     };
@@ -275,6 +276,94 @@ function equalPlans(
 
 function isEmpty(suggestionsByDay: SuggestedTask[][]) {
     return suggestionsByDay.every((day) => day.length === 0);
+}
+
+function normalizeRestDays(plan?: WeeklyPlan): string[] {
+    if (!plan?.restDays) {
+        return [];
+    }
+    const seen = new Set<number>();
+    const normalized: string[] = [];
+    for (const day of plan.restDays) {
+        const iso = startOfLocalDayIso(day);
+        const time = new Date(iso).getTime();
+        if (!seen.has(time)) {
+            seen.add(time);
+            normalized.push(iso);
+        }
+    }
+    normalized.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    return normalized;
+}
+
+function restDayListsEqual(a: string[], b: string[]): boolean {
+    if (a.length !== b.length) {
+        return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+        if (!isSameLocalDay(a[i], b[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function getWeekDates(endDate: string): Map<number, string> {
+    const endIso = addLocalDaysIso(endDate, 0);
+    const startIso = addLocalDaysIso(endIso, -7);
+    const dates = new Map<number, string>();
+    for (let offset = 0; offset < 7; offset++) {
+        const dayIso = addLocalDaysIso(startIso, offset);
+        const day = new Date(dayIso);
+        dates.set(day.getDay(), dayIso);
+    }
+    return dates;
+}
+
+export function useRestDays(user: User) {
+    const api = useApi();
+    const { user: currentUser, updateUser } = useAuth();
+    const [restDays, setRestDays] = useState<string[]>(() => normalizeRestDays(user.weeklyPlan));
+
+    useEffect(() => {
+        const normalized = normalizeRestDays(user.weeklyPlan);
+        if (!restDayListsEqual(restDays, normalized)) {
+            setRestDays(normalized);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user.weeklyPlan?.restDays]);
+
+    const toggleRestDay = async (date: string) => {
+        if (!user.weeklyPlan || currentUser?.username !== user.username) {
+            return;
+        }
+        const normalizedDate = startOfLocalDayIso(date);
+        const previousRestDays = [...restDays];
+        const isRestDay = restDays.some((rd) => isSameLocalDay(rd, normalizedDate));
+        const nextRestDays = isRestDay
+            ? restDays.filter((rd) => !isSameLocalDay(rd, normalizedDate))
+            : [...restDays, normalizedDate];
+        nextRestDays.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+        const previousPlan = user.weeklyPlan;
+        const nextPlan = { ...previousPlan, restDays: nextRestDays };
+
+        setRestDays(nextRestDays);
+        updateUser({ weeklyPlan: nextPlan });
+
+        try {
+            await api.updateUser({ weeklyPlan: nextPlan });
+        } catch (err) {
+            console.error('Failed to update rest day: ', err);
+            const revertedPlan = previousPlan
+                ? { ...previousPlan, restDays: previousRestDays }
+                : previousPlan;
+            setRestDays(previousRestDays);
+            updateUser({ weeklyPlan: revertedPlan });
+        }
+    };
+
+    return { restDays, toggleRestDay };
 }
 
 /**
