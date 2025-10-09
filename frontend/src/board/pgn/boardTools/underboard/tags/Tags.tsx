@@ -4,7 +4,22 @@ import { Game, MastersCohort } from '@/database/game';
 import Avatar from '@/profile/Avatar';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { EventType, PgnDate, PgnTime, TimeControl } from '@jackstenglein/chess';
-import { Alert, Box, Snackbar, Stack, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import {
+    Alert,
+    Autocomplete,
+    Box,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Grid,
+    IconButton,
+    Snackbar,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
 import {
     DataGridPro,
     GridCellParams,
@@ -156,6 +171,8 @@ const defaultTags = [
 
 const uneditableTags = ['PlyCount'];
 
+const suggestedCustomTags = ['Site', 'Annotator', 'Time', 'Termination', 'Mode'];
+
 interface TagsProps {
     game?: Game;
     allowEdits?: boolean;
@@ -165,6 +182,9 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
     const chess = useChess().chess;
     const [, setForceRender] = useState(0);
     const [error, setError] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [customTagLabel, setCustomTagLabel] = useState('');
+    const [customTagValue, setCustomTagValue] = useState('');
 
     useEffect(() => {
         if (chess) {
@@ -291,6 +311,66 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     setError(err.message);
                 }}
             />
+            <Button onClick={() => setIsModalOpen(true)}>Add PGN Tag</Button>
+            <Dialog fullWidth maxWidth='sm' open={isModalOpen}>
+                <IconButton
+                    aria-label='close'
+                    onClick={() => {
+                        setIsModalOpen(false);
+                        setCustomTagLabel('');
+                        setCustomTagValue('');
+                    }}
+                    sx={{
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                        color: (theme) => theme.palette.grey[500],
+                    }}
+                >
+                    <Close />
+                </IconButton>
+                <DialogTitle>Add PGN Tag</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2} sx={{ pt: 1 }}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Autocomplete
+                                autoSelect
+                                freeSolo
+                                fullWidth
+                                onChange={(_e, v) => setCustomTagLabel(v ?? '')}
+                                options={suggestedCustomTags.filter(
+                                    (name) =>
+                                        !Object.keys(chess.header().valueMap()).includes(name),
+                                )}
+                                value={customTagLabel}
+                                renderInput={(params) => (
+                                    <TextField {...params} label='Tag Label' />
+                                )}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
+                                fullWidth
+                                label='Tag Value'
+                                value={customTagValue}
+                                onChange={(e) => setCustomTagValue(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <Button
+                                onClick={() => {
+                                    chess.setHeader(customTagLabel, customTagValue);
+                                    setIsModalOpen(false);
+                                    setCustomTagLabel('');
+                                    setCustomTagValue('');
+                                }}
+                            >
+                                Add Tag
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 };
