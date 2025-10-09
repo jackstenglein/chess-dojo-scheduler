@@ -7,9 +7,10 @@ import CohortIcon, { cohortIcons } from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
 import { displayRequirementCategory } from '@jackstenglein/chess-dojo-common/src/database/requirement';
-import { CheckCircle, Close, HourglassBottom } from '@mui/icons-material';
+import { CheckCircle, Close, Hotel, HourglassBottom } from '@mui/icons-material';
 import {
     Box,
+    ButtonBase,
     Checkbox,
     Divider,
     FormControlLabel,
@@ -19,6 +20,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { cloneElement, useEffect, useMemo, useState } from 'react';
 import {
     ActivityCalendar,
@@ -27,6 +29,7 @@ import {
     DayIndex,
 } from 'react-activity-calendar';
 import { GiCrossedSwords } from 'react-icons/gi';
+import { startOfLocalDayIso } from '../trainingPlan/dateUtils';
 import { DEFAULT_WORK_GOAL } from '../trainingPlan/workGoal';
 import { MIN_BLOCK_SIZE } from './HeatmapCard';
 import { HeatmapOptions, TimelineEntryField, useHeatmapOptions } from './HeatmapOptions';
@@ -56,6 +59,9 @@ interface ExtendedBaseActivity extends BaseActivity {
 
     /** The highest cohort the user graduated from on this date. */
     graduation?: string;
+
+    /** Whether the day is marked as a rest day. */
+    restDay?: boolean;
 }
 
 interface Activity extends ExtendedBaseActivity {
@@ -159,6 +165,8 @@ export function Heatmap({
     maxDate,
     workGoalHistory,
     slotProps,
+    restDays = [],
+    onToggleRestDay,
 }: {
     entries: TimelineEntry[];
     description: string;
@@ -170,11 +178,17 @@ export function Heatmap({
     slotProps?: {
         weekdayLabelPaper?: PaperProps;
     };
+    restDays?: string[];
+    onToggleRestDay?: (date: string) => void;
 }) {
     const isLight = useLightMode();
     const { user: viewer } = useAuth();
     const [, setCalendarRef] = useState<HTMLElement | null>(null);
     const { field, colorMode, maxPoints, maxMinutes, weekStartOn, weekEndOn } = useHeatmapOptions();
+    const normalizedRestDays = useMemo(
+        (): string[] => (restDays ?? []).map((day: string) => startOfLocalDayIso(day)),
+        [restDays],
+    );
     const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
     const theme = isLight ? LIGHT_THEME : DARK_THEME;
 
@@ -191,8 +205,8 @@ export function Heatmap({
     }
 
     const { activities, weekSummaries, totalDojoPoints, totalMinutesSpent } = useMemo(() => {
-        return getActivity(entries, minDate, maxDate, viewer);
-    }, [entries, minDate, maxDate, viewer]);
+        return getActivity(entries, minDate, maxDate, viewer, normalizedRestDays);
+    }, [entries, minDate, maxDate, viewer, normalizedRestDays]);
 
     useEffect(() => {
         const scroller = document.getElementById('heatmap-scroll-container');
@@ -276,6 +290,7 @@ export function Heatmap({
                                 workGoalHistory={workGoalHistory}
                                 monochrome={colorMode === 'monochrome'}
                                 maxDate={maxDate}
+                                onToggleRestDay={onToggleRestDay}
                             />
                         )}
                         maxLevel={MAX_LEVEL}
@@ -424,6 +439,7 @@ function getActivity(
     minDate: string,
     maxDate: string,
     viewer?: User,
+    restDays?: string[],
 ): {
     activities: Activity[];
     weekSummaries: Record<string, WeekSummary>;
@@ -433,6 +449,11 @@ function getActivity(
     const activities: Record<string, Activity> = {};
     let totalDojoPoints = 0;
     let totalMinutesSpent = 0;
+    const restDayKeys = new Set(
+        (restDays ?? []).map((day) =>
+            formatDateKey(getTimeZonedDate(new Date(day), viewer?.timezoneOverride)),
+        ),
+    );
 
     for (const entry of entries) {
         if (!VALID_CATEGORIES.includes(entry.requirementCategory)) {
@@ -451,7 +472,7 @@ function getActivity(
         let date = new Date(entry.date || entry.createdAt);
         date = getTimeZonedDate(date, viewer?.timezoneOverride);
 
-        const dateStr = `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
+        const dateStr = formatDateKey(date);
 
         const activity = activities[dateStr] || {
             date: dateStr,
@@ -491,6 +512,22 @@ function getActivity(
         totalDojoPoints += entry.dojoPoints;
         totalMinutesSpent += entry.minutesSpent;
         activities[dateStr] = activity;
+    }
+
+    for (const restDay of restDayKeys) {
+        if (restDay < minDate || restDay > maxDate) {
+            continue;
+        }
+        const restActivity = activities[restDay] || {
+            date: restDay,
+            count: 0,
+            level: 0,
+            dojoPoints: 0,
+            minutesSpent: 0,
+            categoryCounts: {},
+        };
+        restActivity.restDay = true;
+        activities[restDay] = restActivity;
     }
 
     if (!activities[minDate]) {
@@ -586,6 +623,12 @@ function mergeActivity(target: WeekSummary, source: Activity) {
     }
 }
 
+function formatDateKey(date: Date): string {
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    return `${date.getFullYear()}-${month}-${day}`;
+}
+
 /**
  * Renders a block in the heatmap.
  * @param block The block to render, as passed from React Activity Calendar.
@@ -610,6 +653,7 @@ function Block({
     workGoalHistory,
     monochrome,
     maxDate,
+    onToggleRestDay,
 }: {
     block: BlockElement;
     activity: Activity | ExtendedBaseActivity;
@@ -621,12 +665,14 @@ function Block({
     workGoalHistory: WorkGoalHistory[];
     monochrome?: boolean;
     maxDate: string;
+    onToggleRestDay?: (date: string) => void;
 }) {
     let maxCategory: RequirementCategory | undefined = undefined;
     let totalCount = 0;
     let maxCount: number | undefined = undefined;
     let color: string | undefined = undefined;
     let isCustom = false;
+    const restDay = Boolean((activity as Activity).restDay);
 
     if (monochrome) {
         const level = calculateLevel(activity[field], clamp);
@@ -655,8 +701,103 @@ function Block({
         }
     }
 
-    const newStyle = color ? { ...block.props.style, fill: color } : block.props.style;
+    const restDayColor = restDay ? alpha('#9e9e9e', monochrome ? 0.45 : 0.35) : undefined;
+    const baseStyle = {
+        ...block.props.style,
+        ...(color ? { fill: color } : {}),
+        ...(restDayColor ? { fill: restDayColor, stroke: 'transparent' } : {}),
+        ...(onToggleRestDay ? { cursor: 'pointer' } : {}),
+    };
     const icon = Boolean(activity.graduation || activity.gamePlayed);
+
+    const rectElement =
+        isCustom && !activity.graduation && !activity.gamePlayed ? (
+            <>
+                {cloneElement(block, {
+                    style: {
+                        ...baseStyle,
+                        ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
+                    },
+                })}
+                <StripePattern />
+            </>
+        ) : (
+            cloneElement(block, {
+                style: {
+                    ...baseStyle,
+                    ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
+                },
+            })
+        );
+
+    const tooltipContent = <BlockTooltip activity={activity} field={field} />;
+    const rectContent = onToggleRestDay ? (
+        rectElement
+    ) : (
+        <Tooltip key={activity.date} disableInteractive title={tooltipContent}>
+            {rectElement}
+        </Tooltip>
+    );
+
+    const restDayOverlay = restDay ? (
+        <foreignObject
+            x={block.props.x}
+            y={block.props.y}
+            width={block.props.width}
+            height={block.props.height}
+            style={{ pointerEvents: 'none' }}
+        >
+            <Box
+                component='div'
+                sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-end',
+                    p: '2px',
+                }}
+            >
+                <Hotel
+                    sx={{
+                        fontSize: (block.props.width as number) * 0.6,
+                        color: 'text.disabled',
+                        opacity: 0.85,
+                    }}
+                />
+            </Box>
+        </foreignObject>
+    ) : null;
+
+    const interactiveOverlay = onToggleRestDay ? (
+        <foreignObject
+            x={block.props.x}
+            y={block.props.y}
+            width={block.props.width}
+            height={block.props.height}
+        >
+            <Tooltip disableInteractive title={tooltipContent}>
+                <ButtonBase
+                    sx={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: 1,
+                        p: 0,
+                        backgroundColor: 'transparent',
+                    }}
+                    disableRipple
+                    aria-label='Toggle rest day'
+                    onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        onToggleRestDay?.(startOfLocalDayIso(activity.date));
+                    }}
+                >
+                    <Box component='span' sx={{ width: '100%', height: '100%' }} />
+                </ButtonBase>
+            </Tooltip>
+        </foreignObject>
+    ) : null;
 
     const isEndOfWeek = new Date(activity.date).getUTCDay() === weekEndOn;
     const isEnd = activity.date === maxDate;
@@ -694,40 +835,9 @@ function Block({
                 )
             )}
 
-            {isCustom && !activity.graduation && !activity.gamePlayed && (
-                <>
-                    {cloneElement(block, {
-                        style: {
-                            ...newStyle,
-                            ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
-                        },
-                    })}
-                    <StripePattern />
-                </>
-            )}
-
-            <Tooltip
-                key={activity.date}
-                disableInteractive
-                title={<BlockTooltip activity={activity} field={field} />}
-            >
-                {isCustom && !activity.graduation && !activity.gamePlayed ? (
-                    <rect
-                        x={block.props.x}
-                        y={block.props.y}
-                        width={block.props.width}
-                        height={block.props.height}
-                        fill='url(#diagonalHatch)'
-                    />
-                ) : (
-                    cloneElement(block, {
-                        style: {
-                            ...newStyle,
-                            ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
-                        },
-                    })
-                )}
-            </Tooltip>
+            {rectContent}
+            {restDayOverlay}
+            {interactiveOverlay}
 
             {(isEndOfWeek || isEnd) && (
                 <WeekSummaryBlock

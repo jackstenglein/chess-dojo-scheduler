@@ -1,3 +1,4 @@
+import { useAuth } from '@/auth/Auth';
 import { User } from '@/database/user';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { Grid, useMediaQuery } from '@mui/material';
@@ -7,6 +8,7 @@ import { getBlockSize, MIN_BLOCK_SIZE } from '../info/HeatmapCard';
 import ActivityPieChart from './ActivityPieChart';
 import ActivityTimeline from './ActivityTimeline';
 import { useTimelineContext } from './useTimeline';
+import { useRestDays } from '../trainingPlan/useTrainingPlan';
 
 interface ActivityTabProps {
     user: User;
@@ -17,6 +19,9 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ user }) => {
 
     const timeline = useTimelineContext();
     const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
+    const { user: currentUser } = useAuth();
+    const { restDays, toggleRestDay } = useRestDays(user);
+    const canToggleRestDay = currentUser?.username === user.username;
 
     const resizeDialogBlocks = useCallback(() => {
         setBlockSize(getBlockSize());
@@ -39,6 +44,8 @@ const ActivityTab: React.FC<ActivityTabProps> = ({ user }) => {
                             },
                         }}
                         workGoalHistory={user.workGoalHistory ?? []}
+                        restDays={restDays}
+                        onToggleRestDay={canToggleRestDay ? toggleRestDay : undefined}
                     />
                 </Grid>
             )}

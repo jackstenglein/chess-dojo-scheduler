@@ -396,6 +396,9 @@ type WeeklyPlan struct {
 
 	// The ids of the user's skipped tasks (in order) when the weekly plan was last generated.
 	SkippedTasks []string `dynamodbav:"skippedTasks,omitempty" json:"skippedTasks,omitempty"`
+
+	// Set of ISO 8601 dates that are marked as rest days.
+	RestDays []string `dynamodbav:"restDays,omitempty" json:"restDays,omitempty"`
 }
 
 type GameScheduleEntry struct {
