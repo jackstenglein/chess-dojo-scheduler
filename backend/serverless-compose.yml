@@ -21,7 +21,7 @@ services:
       NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
       NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
       DirectoriesTableArn: ${directoryService.DirectoriesTableArn}
-  
+
   discordAuthService:
     path: discordAuthService
     params:
@@ -124,6 +124,8 @@ services:
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
 
   emailService:
     path: email
@@ -131,11 +133,11 @@ services:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
-  
+
   chatBotService:
     path: chatBotService
     params:
-      httpApiId: ${chess-dojo-scheduler.HttpApiId}    
+      httpApiId: ${chess-dojo-scheduler.HttpApiId}
 
   yearReviewService:
     path: yearReviewService
@@ -178,7 +180,7 @@ services:
     path: twicService
     params:
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
-  
+
   directoryService:
     path: directoryService
     params:
@@ -191,7 +193,7 @@ services:
     path: pgnExport/gif
     params:
       httpApiId: ${chess-dojo-scheduler.HttpApiId}
-  
+
   pgnExportPdfService:
     path: pgnExport/pdf
     params:

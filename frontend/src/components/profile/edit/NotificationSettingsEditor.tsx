@@ -97,6 +97,10 @@ const sections: NotificationSettingsSection[] = [
                 label: 'Notify me when my round robin tournament starts',
                 path: 'emailNotificationSettings.disableRoundRobinStart',
             },
+            {
+                label: 'Send me an email with getting started tips when I subscribe to the Dojo',
+                path: 'emailNotificationSettings.disableSubscriptionCreated',
+            },
         ],
     },
     {
