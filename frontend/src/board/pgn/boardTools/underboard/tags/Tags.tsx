@@ -11,6 +11,7 @@ import {
     Box,
     Button,
     Dialog,
+    DialogActions,
     DialogContent,
     DialogTitle,
     Grid,
@@ -171,7 +172,17 @@ const defaultTags = [
 
 const uneditableTags = ['PlyCount'];
 
-const suggestedCustomTags = ['Site', 'Annotator', 'Time', 'Termination', 'Mode'];
+const suggestedCustomTags = [
+    'Site',
+    'Annotator',
+    'Termination',
+    'Mode',
+    'WhiteTeam',
+    'WhiteFideId',
+    'BlackTeam',
+    'BlackFideId',
+    'GameId',
+].sort((a, b) => a.localeCompare(b));
 
 interface TagsProps {
     game?: Game;
@@ -182,9 +193,10 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
     const chess = useChess().chess;
     const [, setForceRender] = useState(0);
     const [error, setError] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [customModalOpen, setCustomModalOpen] = useState(false);
     const [customTagLabel, setCustomTagLabel] = useState('');
     const [customTagValue, setCustomTagValue] = useState('');
+    const [customTagError, setCustomTagError] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (chess) {
@@ -204,6 +216,30 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
     if (!header) {
         return null;
     }
+
+    const onCloseCustomModal = () => {
+        setCustomModalOpen(false);
+        setCustomTagLabel('');
+        setCustomTagValue('');
+        setCustomTagError({});
+    };
+
+    const onAddCustomTag = () => {
+        const newErrors: Record<string, string> = {};
+        if (customTagLabel.trim().length === 0) {
+            newErrors.label = 'This field is required';
+        }
+        if (customTagValue.trim().length === 0) {
+            newErrors.value = 'This field is required';
+        }
+        setCustomTagError(newErrors);
+        if (Object.entries(newErrors).length > 0) {
+            return;
+        }
+
+        chess.setHeader(customTagLabel.trim(), customTagValue.trim());
+        onCloseCustomModal();
+    };
 
     const rows: TagRow[] = [];
     if (game) {
@@ -311,15 +347,11 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     setError(err.message);
                 }}
             />
-            <Button onClick={() => setIsModalOpen(true)}>Add PGN Tag</Button>
-            <Dialog fullWidth maxWidth='sm' open={isModalOpen}>
+            <Button onClick={() => setCustomModalOpen(true)}>Add PGN Tag</Button>
+            <Dialog fullWidth maxWidth='sm' open={customModalOpen}>
                 <IconButton
                     aria-label='close'
-                    onClick={() => {
-                        setIsModalOpen(false);
-                        setCustomTagLabel('');
-                        setCustomTagValue('');
-                    }}
+                    onClick={onCloseCustomModal}
                     sx={{
                         position: 'absolute',
                         right: 8,
@@ -344,7 +376,12 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                                 )}
                                 value={customTagLabel}
                                 renderInput={(params) => (
-                                    <TextField {...params} label='Tag Label' />
+                                    <TextField
+                                        {...params}
+                                        label='Tag Label'
+                                        error={!!customTagError.label}
+                                        helperText={customTagError.label}
+                                    />
                                 )}
                             />
                         </Grid>
@@ -354,22 +391,16 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                                 label='Tag Value'
                                 value={customTagValue}
                                 onChange={(e) => setCustomTagValue(e.target.value)}
+                                error={!!customTagError.value}
+                                helperText={customTagError.value}
                             />
-                        </Grid>
-                        <Grid size={6}>
-                            <Button
-                                onClick={() => {
-                                    chess.setHeader(customTagLabel, customTagValue);
-                                    setIsModalOpen(false);
-                                    setCustomTagLabel('');
-                                    setCustomTagValue('');
-                                }}
-                            >
-                                Add Tag
-                            </Button>
                         </Grid>
                     </Grid>
                 </DialogContent>
+                <DialogActions>
+                    <Button onClick={onCloseCustomModal}>Cancel</Button>
+                    <Button onClick={onAddCustomTag}>Add Tag</Button>
+                </DialogActions>
             </Dialog>
         </Box>
     );
