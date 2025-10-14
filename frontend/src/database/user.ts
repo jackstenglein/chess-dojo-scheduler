@@ -180,6 +180,9 @@ export interface User {
 
     /** The user's firebase cloud messaging tokens. */
     firebaseTokens?: string[];
+
+    /** Set of ISO 8601 dates that are marked as rest days. */
+    restDays?: string[];
 }
 
 export interface WorkGoalSettings {

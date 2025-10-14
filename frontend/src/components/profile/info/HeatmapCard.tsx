@@ -1,10 +1,12 @@
 import { useTimelineContext } from '@/components/profile/activity/useTimeline';
-import { WorkGoalHistory } from '@/database/user';
+import { useAuth } from '@/auth/Auth';
+import { User, WorkGoalHistory } from '@/database/user';
 import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { Close } from '@mui/icons-material';
 import { Card, CardContent, Dialog, DialogContent, IconButton } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Heatmap } from './Heatmap';
+import { useRestDays } from '../trainingPlan/useTrainingPlan';
 
 const BLOCK_COLUMNS = 54;
 const BLOCK_MARGIN = 4;
@@ -27,12 +29,22 @@ export function getBlockSize() {
 
 /**
  * Renders a card showing the user's activity heatmap.
+ * @param user The user whose heatmap is being displayed.
  * @param workGoalHistory The work goal history of the user.
  */
-export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHistory[] }) => {
+export const HeatmapCard = ({
+    user,
+    workGoalHistory,
+}: {
+    user: User;
+    workGoalHistory: WorkGoalHistory[];
+}) => {
     const { entries } = useTimelineContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
+    const { user: currentUser } = useAuth();
+    const { restDays, toggleRestDay } = useRestDays(user);
+    const canToggleRestDay = currentUser?.username === user.username;
 
     const resizeDialogBlocks = useCallback(() => {
         if (isModalOpen) {
@@ -52,6 +64,8 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
                         onPopOut={() => setIsModalOpen(true)}
                         description=''
                         workGoalHistory={workGoalHistory}
+                        restDays={restDays}
+                        onToggleRestDay={canToggleRestDay ? toggleRestDay : undefined}
                     />
                 </CardContent>
             </Card>
@@ -90,6 +104,8 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
                         blockSize={blockSize}
                         description='in the past year'
                         workGoalHistory={workGoalHistory}
+                        restDays={restDays}
+                        onToggleRestDay={canToggleRestDay ? toggleRestDay : undefined}
                     />
                 </DialogContent>
             </Dialog>
