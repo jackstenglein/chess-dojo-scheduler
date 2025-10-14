@@ -329,6 +329,9 @@ type User struct {
 
 	// The user's firebase cloud messaging tokens
 	FirebaseTokens []string `dynamodbav:"firebaseTokens,omitempty" json:"-"`
+
+	// Set of ISO 8601 dates that are marked as rest days.
+	RestDays []string `dynamodbav:"restDays,omitempty" json:"restDays,omitempty"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -396,9 +399,6 @@ type WeeklyPlan struct {
 
 	// The ids of the user's skipped tasks (in order) when the weekly plan was last generated.
 	SkippedTasks []string `dynamodbav:"skippedTasks,omitempty" json:"skippedTasks,omitempty"`
-
-	// Set of ISO 8601 dates that are marked as rest days.
-	RestDays []string `dynamodbav:"restDays,omitempty" json:"restDays,omitempty"`
 }
 
 type GameScheduleEntry struct {
@@ -731,6 +731,9 @@ type UserUpdate struct {
 
 	// The user's firebase cloud messaging tokens
 	FirebaseTokens *[]string `dynamodbav:"firebaseTokens,omitempty" json:"firebaseTokens,omitempty"`
+
+	// Set of ISO 8601 dates that are marked as rest days.
+	RestDays *[]string `dynamodbav:"restDays,omitempty" json:"restDays,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

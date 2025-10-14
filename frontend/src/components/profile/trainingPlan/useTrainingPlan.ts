@@ -278,13 +278,13 @@ function isEmpty(suggestionsByDay: SuggestedTask[][]) {
     return suggestionsByDay.every((day) => day.length === 0);
 }
 
-function normalizeRestDays(plan?: WeeklyPlan): string[] {
-    if (!plan?.restDays) {
+function normalizeRestDays(restDays?: string[]): string[] {
+    if (!restDays) {
         return [];
     }
     const seen = new Set<number>();
     const normalized: string[] = [];
-    for (const day of plan.restDays) {
+    for (const day of restDays) {
         const iso = startOfLocalDayIso(day);
         const time = new Date(iso).getTime();
         if (!seen.has(time)) {
@@ -323,18 +323,18 @@ function getWeekDates(endDate: string): Map<number, string> {
 export function useRestDays(user: User) {
     const api = useApi();
     const { user: currentUser, updateUser } = useAuth();
-    const [restDays, setRestDays] = useState<string[]>(() => normalizeRestDays(user.weeklyPlan));
+    const [restDays, setRestDays] = useState<string[]>(() => normalizeRestDays(user.restDays));
 
     useEffect(() => {
-        const normalized = normalizeRestDays(user.weeklyPlan);
+        const normalized = normalizeRestDays(user.restDays);
         if (!restDayListsEqual(restDays, normalized)) {
             setRestDays(normalized);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user.weeklyPlan?.restDays]);
+    }, [user.restDays]);
 
     const toggleRestDay = async (date: string) => {
-        if (!user.weeklyPlan || currentUser?.username !== user.username) {
+        if (currentUser?.username !== user.username) {
             return;
         }
         const normalizedDate = startOfLocalDayIso(date);
@@ -345,21 +345,15 @@ export function useRestDays(user: User) {
             : [...restDays, normalizedDate];
         nextRestDays.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
-        const previousPlan = user.weeklyPlan;
-        const nextPlan = { ...previousPlan, restDays: nextRestDays };
-
         setRestDays(nextRestDays);
-        updateUser({ weeklyPlan: nextPlan });
+        updateUser({ restDays: nextRestDays });
 
         try {
-            await api.updateUser({ weeklyPlan: nextPlan });
+            await api.updateUser({ restDays: nextRestDays });
         } catch (err) {
             console.error('Failed to update rest day: ', err);
-            const revertedPlan = previousPlan
-                ? { ...previousPlan, restDays: previousRestDays }
-                : previousPlan;
             setRestDays(previousRestDays);
-            updateUser({ weeklyPlan: revertedPlan });
+            updateUser({ restDays: previousRestDays });
         }
     };
 

@@ -238,9 +238,7 @@ const ActivityTimelineCalendar = ({
     const filters = useFilters();
     const { entries, hasMore, onLoadMore, onEdit } = timeline;
     const calendarRef = useRef<SchedulerRef>(null);
-    const restDays: string[] = Array.isArray(user.weeklyPlan?.restDays)
-        ? user.weeklyPlan.restDays
-        : [];
+    const restDays: string[] = Array.isArray(user.restDays) ? user.restDays : [];
 
     const initialEvents: ProcessedEvent[] = useMemo(() => {
         const minDate = calendarRef.current?.scheduler.selectedDate
