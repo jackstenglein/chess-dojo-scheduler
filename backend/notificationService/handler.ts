@@ -16,6 +16,7 @@ import { handleClubJoinRequest, handleClubJoinRequestApproved } from './club';
 import { handleCalendarInvite, handleEventBooked } from './events';
 import { handleGameComment, handleGameReview } from './game';
 import { handleRoundRobinStart } from './roundRobin';
+import { handleSubscriptionCreated } from './subscription';
 import { handleTimelineComment, handleTimelineReaction } from './timeline';
 
 const userTable = process.env.stage + '-users';
@@ -61,6 +62,8 @@ function handleEvent(event: NotificationEvent) {
             return handleCalendarInvite(event);
         case NotificationEventTypes.ROUND_ROBIN_START:
             return handleRoundRobinStart(event);
+        case NotificationEventTypes.SUBSCRIPTION_CREATED:
+            return handleSubscriptionCreated(event);
         default:
             throw new ApiError({
                 statusCode: 400,

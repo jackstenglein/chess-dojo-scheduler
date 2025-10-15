@@ -112,6 +112,7 @@ export interface EmailNotificationSettings {
     disableNewsletter: boolean;
     disableInactiveWarning: boolean;
     disableRoundRobinStart: boolean;
+    disableSubscriptionCreated: boolean;
 }
 
 export interface SiteNotificationSettings {
