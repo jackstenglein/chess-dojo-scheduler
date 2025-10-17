@@ -41,17 +41,18 @@ export interface Event {
 }
 
 export const decodeCredentials = (
-  encoded: string
-): { email: string | null; password: string | null } | null => {
-  try {
-    const decoded = Buffer.from(encoded, 'base64').toString('utf-8');
-    const params = new URLSearchParams(decoded);
-    return {
-      email: params.get('email'),
-      password: params.get('pass'),
-    };
-  } catch (error) {
-    console.error('Failed to decode credentials:', error);
-    return null;
-  }
+    encoded: string,
+): { email: string | null; password: string | null; token: string | null } | null => {
+    try {
+        const decoded = Buffer.from(encoded, 'base64').toString('utf-8');
+        const params = new URLSearchParams(decoded);
+        return {
+            email: params.get('email'),
+            password: params.get('pass'),
+            token: params.get('token'),
+        };
+    } catch (error) {
+        console.error('Failed to decode credentials:', error);
+        return null;
+    }
 };

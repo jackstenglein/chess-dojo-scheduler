@@ -25,7 +25,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { decodeCredentials } from '../../cypress/e2e/util';
 import { EventType, setUserProperties as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { syncPurchases } from '../api/paymentApi';
-import { getUser } from '../api/userApi';
+import { updateUser as apiUpdateUser, getUser } from '../api/userApi';
 import {
     clearCheckoutSessionIds,
     getAllCheckoutSessionIds,
@@ -225,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [handleCognitoResponse]);
 
-    const signin = (email: string, password: string, isFromParam = false) => {
+    const signin = (email: string, password: string, isFromParam = false, token = '') => {
         return new Promise<void>((resolve, reject) => {
             void (async () => {
                 try {
@@ -242,6 +242,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         url.searchParams.delete('values');
                         window?.history.replaceState({}, '', url.toString());
                         localStorage.setItem('isFromMobile', 'true');
+                    }
+                    if (token) {
+                        const idToken = authSession.tokens?.idToken?.toString() ?? '';
+                        if (idToken) {
+                            await apiUpdateUser(idToken, { firebaseTokens: [token] }, updateUser);
+                        } else {
+                            updateUser({ firebaseTokens: [token] });
+                        }
                     }
                     resolve();
                 } catch (err) {
@@ -291,12 +299,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         // Check for email and pass
-        const { email, password } = decodeCredentials(
+        const { email, password, token } = decodeCredentials(
             new URL(window.location.href).searchParams.get('values') ?? '',
-        ) ?? { email: null, pass: null };
+        ) ?? { email: null, pass: null, token: null };
 
         if (email && password) {
-            void signin(email, password, true);
+            void signin(email, password, true, token ?? '');
         } else {
             // If no token in URL, proceed with normal authentication flow
             void getCurrentUser();
