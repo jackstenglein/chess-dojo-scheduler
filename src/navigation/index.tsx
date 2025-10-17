@@ -30,8 +30,8 @@ const RootNavigation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        {token ? (
-          <>
+        {/* {token ? ( */}
+          {/* <> */}
             <Stack.Screen
               name={SCREEN_NAMES.HOME}
               component={HomeScreen}
@@ -39,9 +39,9 @@ const RootNavigation = () => {
                 headerShown: false,
               }}
             />
-          </>
-        ) : (
-          <>
+          {/* </> */}
+        {/*  ) : ( */}
+          {/* <> */}
             <Stack.Screen name={SCREEN_NAMES.LOGIN} component={LoginScreen} />
             <Stack.Screen name={SCREEN_NAMES.SIGNUP} component={SignUpScreen} />
             <Stack.Screen
@@ -52,8 +52,8 @@ const RootNavigation = () => {
               name={SCREEN_NAMES.RECOVERY_CODE}
               component={PasswordRecoveryScreen}
             />
-          </>
-        )}
+          {/* </> */}
+        {/* )} */}
       </Stack.Navigator>
     </NavigationContainer>
   );

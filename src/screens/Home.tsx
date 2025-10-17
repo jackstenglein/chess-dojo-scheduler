@@ -15,10 +15,11 @@ import AlertService from '../services/ToastService';
 import {encodeCredentials} from '../utils/base64Helper';
 import {signOutUser} from '../redux/thunk/authThunk';
 import {AppDispatch} from '../redux/store';
+import { SCREEN_NAMES } from '../utils/types/screensName';
 
 interface HomeScreenProps {
   navigation: any;
-  route: {params?: {email?: string; password?: string}};
+  route: {params?: {email?: string | undefined; password?: string | undefined}};
 }
 
 const HomeScreen = ({navigation, route}: HomeScreenProps) => {
@@ -30,7 +31,7 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
   const {email, password} = route.params || {email: '', password: ''};
   const dispatch = useDispatch<AppDispatch>();
 
-  // Handle messages from the webpage
+  console.log('Email', email);
   const onMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
@@ -48,23 +49,20 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
     }
   };
 
-  // Handle navigation changes
   const onNavigationStateChange = useCallback((navState: WebViewNavigation) => {
     const {url} = navState;
-    // Example: https://example.com/?redirect=app
+
     if (url.includes('redirect=app')) {
       setCanGoBack(navState.canGoBack);
       dispatch(signOutUser());
     }
   }, []);
 
-  // Handle error
   const onError = useCallback(() => {
     setError(true);
     setLoading(false);
   }, []);
 
-  // Inject viewport meta for responsiveness
   const injectedJavaScript = `
     (function() {
       var meta = document.createElement('meta'); 
@@ -99,6 +97,11 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
 
   const encodedCredentials = encodeCredentials(email ?? '', password ?? '');
 
+  useEffect(() => {
+    if (email === ''){ dispatch(signOutUser());
+      navigation.navigate(SCREEN_NAMES.LOGIN);
+    }
+  }, [email]);
   return (
     <SafeAreaView style={styles.container}>
       {loading && !error && (
@@ -115,7 +118,12 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
       ) : (
         <WebView
           ref={webviewRef}
-          source={{uri: BaseUrl + `/?values=${encodedCredentials}`}}
+          source={{
+            uri:
+              email === 'email' && password === 'password'
+                ? BaseUrl + '/signin/?isSocialFromMobile=true'
+                : BaseUrl + `/?values=${encodedCredentials}`,
+          }}
           javaScriptEnabled
           domStorageEnabled
           startInLoadingState

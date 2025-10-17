@@ -86,7 +86,11 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
   };
 
   const handleGoogleSignIn = () => {
-    socialSignin('Google');
+    // socialSignin('Google');
+    navigation.navigate(SCREEN_NAMES.HOME, {
+      email: 'email',
+      password: 'password',
+    });
   };
   const {colors} = useTheme<CustomTheme>();
   return (
