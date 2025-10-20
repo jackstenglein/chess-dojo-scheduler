@@ -22,7 +22,7 @@ import {
 import { AxiosResponse } from 'axios';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { decodeCredentials } from '../../cypress/e2e/util';
+import { decryptObject } from '../../cypress/e2e/util';
 import { EventType, setUserProperties as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { syncPurchases } from '../api/paymentApi';
 import { updateUser as apiUpdateUser, getUser } from '../api/userApi';
@@ -298,17 +298,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        // Check for email and pass
-        const { email, password, token } = decodeCredentials(
-            new URL(window.location.href).searchParams.get('values') ?? '',
-        ) ?? { email: null, pass: null, token: null };
+        void (async () => {
+            const params_value = new URL(window.location.href).searchParams.get('values');
+            if (!params_value) {
+                // If no token in URL, proceed with normal authentication flow
+                void getCurrentUser();
+                return;
+            } else {
+                const { email, password, token } = await decryptObject(
+                    {
+                        iv: params_value?.split('/')[0] ?? '',
+                        encryptedData: params_value?.split('/')[1] ?? '',
+                    },
+                    process.env.NEXT_PUBLIC_ENCRYPTION_SECRET!,
+                );
 
-        if (email && password) {
-            void signin(email, password, true, token ?? '');
-        } else {
-            // If no token in URL, proceed with normal authentication flow
-            void getCurrentUser();
-        }
+                if (email && password) {
+                    void signin(email, password, true, token ?? '');
+                }
+            }
+        })();
     }, [isClient, signin, getCurrentUser]);
 
     const updateUser = (update: Partial<User>) => {
