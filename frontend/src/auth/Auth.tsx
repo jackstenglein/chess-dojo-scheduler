@@ -25,7 +25,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { decryptObject } from '../../cypress/e2e/util';
 import { EventType, setUserProperties as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { syncPurchases } from '../api/paymentApi';
-import { updateUser as apiUpdateUser, getUser } from '../api/userApi';
+import { getUser } from '../api/userApi';
 import {
     clearCheckoutSessionIds,
     getAllCheckoutSessionIds,
@@ -225,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [handleCognitoResponse]);
 
-    const signin = (email: string, password: string, isFromParam = false, token = '') => {
+    const signin = (email: string, password: string, isFromParam = false) => {
         return new Promise<void>((resolve, reject) => {
             void (async () => {
                 try {
@@ -242,14 +242,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         url.searchParams.delete('values');
                         window?.history.replaceState({}, '', url.toString());
                         localStorage.setItem('isFromMobile', 'true');
-                    }
-                    if (token) {
-                        const idToken = authSession.tokens?.idToken?.toString() ?? '';
-                        if (idToken) {
-                            await apiUpdateUser(idToken, { firebaseTokens: [token] }, updateUser);
-                        } else {
-                            updateUser({ firebaseTokens: [token] });
-                        }
                     }
                     resolve();
                 } catch (err) {
@@ -318,8 +310,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     token?: string;
                 }>({ iv, encryptedData }, secret);
 
+                if (token) {
+                    localStorage.setItem('firebaseTokens', token);
+                }
+
                 if (email && password) {
-                    void signin(email, password, true, token ?? '');
+                    void signin(email, password, true);
                 }
             } catch (err) {
                 console.error('Decryption failed:', err);
