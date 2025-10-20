@@ -56,3 +56,69 @@ export const decodeCredentials = (
         return null;
     }
 };
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
+/** Convert buffer to hex string */
+function bufToHex(buffer: ArrayBuffer) {
+    return Array.from(new Uint8Array(buffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+/** Convert hex string back to buffer */
+function hexToBuf(hex: string) {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+    }
+    return bytes;
+}
+
+/** Derive AES-256 key from a passphrase */
+async function getKey(secret: string): Promise<CryptoKey> {
+    const cryptoObj = window.crypto;
+    const keyMaterial = await cryptoObj.subtle.importKey(
+        'raw',
+        textEncoder.encode(secret.padEnd(32, '0')).slice(0, 32),
+        { name: 'AES-CBC' },
+        false,
+        ['encrypt', 'decrypt'],
+    );
+    return keyMaterial;
+}
+
+/** Encrypt an object */
+export async function encryptObject(obj: Record<string, any>, secret: string) {
+    const cryptoObj = window.crypto;
+    const json = JSON.stringify(obj);
+    const iv = cryptoObj.getRandomValues(new Uint8Array(16));
+    const key = await getKey(secret);
+    const encryptedBuffer = await cryptoObj.subtle.encrypt(
+        { name: 'AES-CBC', iv },
+        key,
+        textEncoder.encode(json),
+    );
+    return {
+        iv: bufToHex(iv.buffer),
+        encryptedData: bufToHex(encryptedBuffer),
+    };
+}
+
+/** Decrypt an object */
+export async function decryptObject(
+    encrypted: { iv: string; encryptedData: string },
+    secret: string,
+) {
+    const cryptoObj = window.crypto;
+    const iv = hexToBuf(encrypted.iv);
+    const key = await getKey(secret);
+    const decryptedBuffer = await cryptoObj.subtle.decrypt(
+        { name: 'AES-CBC', iv },
+        key,
+        hexToBuf(encrypted.encryptedData),
+    );
+    const decryptedJson = textDecoder.decode(decryptedBuffer);
+    return JSON.parse(decryptedJson);
+}
