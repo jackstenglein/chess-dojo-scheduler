@@ -107,10 +107,10 @@ export async function encryptObject(obj: Record<string, any>, secret: string) {
 }
 
 /** Decrypt an object */
-export async function decryptObject(
+export async function decryptObject<T>(
     encrypted: { iv: string; encryptedData: string },
     secret: string,
-) {
+): Promise<T> {
     const cryptoObj = window.crypto;
     const iv = hexToBuf(encrypted.iv);
     const key = await getKey(secret);
@@ -120,5 +120,5 @@ export async function decryptObject(
         hexToBuf(encrypted.encryptedData),
     );
     const decryptedJson = textDecoder.decode(decryptedBuffer);
-    return JSON.parse(decryptedJson);
+    return JSON.parse(decryptedJson) as T;
 }

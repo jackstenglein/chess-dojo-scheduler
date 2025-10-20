@@ -294,28 +294,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Token extraction effect - only runs on client side after hydration
     useEffect(() => {
-        if (!isClient) {
-            return;
-        }
+        if (!isClient) return;
 
         void (async () => {
-            const params_value = new URL(window.location.href).searchParams.get('values');
-            if (!params_value) {
-                // If no token in URL, proceed with normal authentication flow
+            const paramsValue = new URL(window.location.href).searchParams.get('values');
+            if (!paramsValue) {
                 void getCurrentUser();
                 return;
-            } else {
-                const { email, password, token } = await decryptObject(
-                    {
-                        iv: params_value?.split('/')[0] ?? '',
-                        encryptedData: params_value?.split('/')[1] ?? '',
-                    },
-                    process.env.NEXT_PUBLIC_ENCRYPTION_SECRET!,
-                );
+            }
+
+            const [iv = '', encryptedData = ''] = paramsValue.split('/');
+
+            const secret = process.env.NEXT_PUBLIC_ENCRYPTION_SECRET ?? '';
+            if (!secret) {
+                console.error('Encryption secret is missing');
+                return;
+            }
+
+            try {
+                const { email, password, token } = await decryptObject<{
+                    email?: string;
+                    password?: string;
+                    token?: string;
+                }>({ iv, encryptedData }, secret);
 
                 if (email && password) {
                     void signin(email, password, true, token ?? '');
                 }
+            } catch (err) {
+                console.error('Decryption failed:', err);
             }
         })();
     }, [isClient, signin, getCurrentUser]);
