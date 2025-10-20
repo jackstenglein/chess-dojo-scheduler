@@ -2,6 +2,7 @@
 
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
+import { updateUser as apiUpdateUser } from '@/api/userApi';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { hasCreatedProfile, SubscriptionStatus } from '@/database/user';
 import { AxiosError } from 'axios';
@@ -57,6 +58,36 @@ export function RequireProfile() {
             localStorage.removeItem('isFromMobile');
         }
     }, [user, pathname, router]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function updateUserWithFirebaseTokens() {
+            const stored = localStorage.getItem('firebaseTokens');
+            if (!stored) return;
+
+            let firebaseTokens: string[] = [];
+            try {
+                firebaseTokens = JSON.parse(stored);
+            } catch {
+                firebaseTokens = [stored];
+            }
+
+            const idToken = user?.cognitoUser?.tokens?.idToken?.toString() ?? '';
+            if (!idToken) return;
+
+            const res = await apiUpdateUser(idToken, { firebaseTokens }, updateUser);
+            if (isMounted && res?.status === 200) {
+                localStorage.removeItem('firebaseTokens');
+            }
+        }
+
+        void updateUserWithFirebaseTokens();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [api, request, apiUpdateUser]);
 
     return null;
 }
