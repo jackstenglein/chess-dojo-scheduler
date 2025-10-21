@@ -280,7 +280,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (isSocialFromMobile) {
             localStorage.setItem('isSocialFromMobile', 'true');
-            socialSignin('Google', '/profile?loggedInFromMobile=true');
+            void (async () => {
+                const paramsValue = new URL(window.location.href).searchParams.get('values');
+                if (!paramsValue) {
+                    socialSignin('Google', '/profile?loggedInFromMobile=true');
+                    return;
+                }
+
+                const [iv = '', encryptedData = ''] = paramsValue.split('/');
+
+                const secret = process.env.NEXT_PUBLIC_ENCRYPTION_SECRET ?? '';
+                if (!secret) {
+                    console.error('Encryption secret is missing');
+                    return;
+                }
+
+                try {
+                    const { token } = await decryptObject<{
+                        token?: string;
+                    }>({ iv, encryptedData }, secret);
+
+                    if (token) {
+                        localStorage.setItem('firebaseTokens', token);
+                    }
+                } catch (err) {
+                    console.error('Decryption failed:', err);
+                } finally {
+                    socialSignin('Google', '/profile?loggedInFromMobile=true');
+                }
+            })();
         }
     }, [isSocialFromMobile]);
 
