@@ -9,4 +9,5 @@ declare module '@env' {
   export const PUBLIC_AUTH_OAUTH_REDIRECT_SIGN_IN: string;
   export const PUBLIC_AUTH_OAUTH_REDIRECT_SIGN_OUT: string;
   export const PUBLIC_AUTH_OAUTH_RESPONSE_TYPE: string;
+  export const PUBLIC_ENCRYPTION_SECRET: string;
 }

@@ -15,9 +15,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['token', 'introWalkthrough'],
-  blacklist: ['fcmToken'], // Don't persist FCM token
-  timeout: 10000, // 10 seconds timeout
+  whitelist: ['token'],
+  blacklist: ['fcmToken'], 
+  timeout: 10000, 
 };
 
 const persistedReducer = persistReducer(persistConfig, authSlice);

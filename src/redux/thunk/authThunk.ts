@@ -15,7 +15,7 @@ export const signInUser = createAsyncThunk(
     const accessToken =
       typeof tokens?.idToken === 'string'
         ? tokens.idToken
-        : tokens?.idToken?.token ?? String(tokens?.idToken ?? '');
+        : tokens?.idToken?.payload
 
     dispatch(setUser(user));
     dispatch(setToken(accessToken));

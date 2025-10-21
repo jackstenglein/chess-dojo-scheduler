@@ -8,23 +8,29 @@ import RootNavigation from './src/navigation';
 import {PaperProvider} from 'react-native-paper';
 import {DarkTheme, LightTheme} from './src/utils/theme';
 import {Buffer} from 'buffer';
-import messaging from '@react-native-firebase/messaging'; // ✅ Added
+import messaging from '@react-native-firebase/messaging';
+import firebase from '@react-native-firebase/app';
 
 (global as any).Buffer = Buffer;
 
 const App = () => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
+  const firebaseConfig = {
+    apiKey: 'AIzaSyDhVd5ZEMufsKeE_oskOsPUjVFaA9cpSzM',
+    appId: '1:994091266539:ios:b5b664a06817aa063d29ae',
+    projectId: 'chess-dojo-scheduler',
+    storageBucket: 'chess-dojo-scheduler.firebasestorage.app',
+  };
+
+  // Initialize only if not already done
+  if (!firebase.apps.length) {
+    console.log('not initialized:::');
+  }
+  firebase.initializeApp(firebaseConfig);
 
   useEffect(() => {
     requestUserPermission();
-    getFCMToken();
-
-    const unsubscribe = messaging().onTokenRefresh(token => {
-      console.log('New FCM Token:', token);
-    });
-
-    return unsubscribe;
   }, []);
 
   const requestUserPermission = async () => {
@@ -37,15 +43,6 @@ const App = () => {
       console.log('Notification permission granted:', authStatus);
     } else {
       console.log('Notification permission denied');
-    }
-  };
-
-  const getFCMToken = async () => {
-    try {
-      const token = await messaging().getToken();
-      console.log('FCM Token:', token);
-    } catch (error) {
-      console.log('Error getting FCM token:', error);
     }
   };
 
