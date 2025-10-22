@@ -8,6 +8,7 @@ export type RootStackParamList = {
   HomeScreen: {email?: string | undefined; password?: string | undefined};
   PasswordResetScreen: undefined;
   PasswordRecoveryScreen: {email: string};
+  ConfirmCodeScreen: {username: string};
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =

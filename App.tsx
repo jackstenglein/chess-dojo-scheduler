@@ -1,5 +1,11 @@
 import React, {useEffect} from 'react';
-import {SafeAreaView, StyleSheet, useColorScheme} from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  useColorScheme,
+  StatusBar,
+  Platform,
+} from 'react-native';
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import {ToastProvider} from 'react-native-toast-notifications';
@@ -10,6 +16,7 @@ import {DarkTheme, LightTheme} from './src/utils/theme';
 import {Buffer} from 'buffer';
 import messaging from '@react-native-firebase/messaging';
 import firebase from '@react-native-firebase/app';
+import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 (global as any).Buffer = Buffer;
 
@@ -23,14 +30,18 @@ const App = () => {
     storageBucket: 'chess-dojo-scheduler.firebasestorage.app',
   };
 
-  // Initialize only if not already done
   if (!firebase.apps.length) {
-    console.log('not initialized:::');
+    console.log('Initializing Firebase...');
+    firebase.initializeApp(firebaseConfig);
   }
-  firebase.initializeApp(firebaseConfig);
 
   useEffect(() => {
     requestUserPermission();
+
+    // ✅ Set black navigation bar for Android
+    if (Platform.OS === 'android') {
+      SystemNavigationBar.setNavigationColor('#000000', 'light'); // 'light' = white icons
+    }
   }, []);
 
   const requestUserPermission = async () => {
@@ -51,6 +62,13 @@ const App = () => {
       <PaperProvider theme={isDarkMode ? DarkTheme : LightTheme}>
         <PersistGate loading={null} persistor={persistor}>
           <ToastProvider placement="top" duration={3000} swipeEnabled={true}>
+            {/* ✅ Top status bar */}
+            <StatusBar
+              backgroundColor="#000000"
+              barStyle="light-content"
+              translucent={false}
+            />
+
             <SafeAreaView style={styles.container}>
               <RootNavigation />
             </SafeAreaView>
@@ -66,5 +84,6 @@ export default App;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000', // optional to blend with bars
   },
 });

@@ -34,7 +34,7 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
   const [password, setPassword] = useState<string>('');
   const [emailError, setEmailError] = useState<string>('');
   const [passwordError, setPasswordError] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false); 
+  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const {colors} = useTheme<CustomTheme>();
 
@@ -72,13 +72,13 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
 
       AlertService.toastPrompt(
         'Success::Signed in successfully!',
-        'a',
+        '',
         'success',
       );
 
       if (user.user) navigation.navigate(SCREEN_NAMES.HOME, {email, password});
     } catch (error) {
-      AlertService.toastPrompt('Error::', 'Failed to sign in.', 'error');
+      AlertService.toastPrompt(`Error::${error?.message}`, '', 'error');
     } finally {
       setLoading(false);
     }

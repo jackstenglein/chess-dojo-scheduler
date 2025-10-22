@@ -14,6 +14,7 @@ import {signOutUser} from '../redux/thunk/authThunk';
 import {AppDispatch} from '../redux/store';
 import ResetPasswordScreen from '../screens/RecoveryCode';
 import PasswordRecoveryScreen from '../screens/RecoveryCode';
+import ConfirmCodeScreen from '../screens/SignUpConfirm';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -31,28 +32,32 @@ const RootNavigation = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {/* {token ? ( */}
-          {/* <> */}
-            <Stack.Screen
-              name={SCREEN_NAMES.HOME}
-              component={HomeScreen}
-              options={{
-                headerShown: false,
-              }}
-            />
-          {/* </> */}
+        {/* <> */}
+        <Stack.Screen
+          name={SCREEN_NAMES.HOME}
+          component={HomeScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        {/* </> */}
         {/*  ) : ( */}
-          {/* <> */}
-            <Stack.Screen name={SCREEN_NAMES.LOGIN} component={LoginScreen} />
-            <Stack.Screen name={SCREEN_NAMES.SIGNUP} component={SignUpScreen} />
-            <Stack.Screen
-              name={SCREEN_NAMES.PASSWORD_RESET}
-              component={PasswordResetScreen}
-            />
-            <Stack.Screen
-              name={SCREEN_NAMES.RECOVERY_CODE}
-              component={PasswordRecoveryScreen}
-            />
-          {/* </> */}
+        {/* <> */}
+        <Stack.Screen name={SCREEN_NAMES.LOGIN} component={LoginScreen} />
+        <Stack.Screen name={SCREEN_NAMES.SIGNUP} component={SignUpScreen} />
+        <Stack.Screen
+          name={SCREEN_NAMES.PASSWORD_RESET}
+          component={PasswordResetScreen}
+        />
+        <Stack.Screen
+          name={SCREEN_NAMES.RECOVERY_CODE}
+          component={PasswordRecoveryScreen}
+        />
+        <Stack.Screen
+          name={SCREEN_NAMES.CONFIRM_CODE}
+          component={ConfirmCodeScreen}
+        />
+        {/* </> */}
         {/* )} */}
       </Stack.Navigator>
     </NavigationContainer>

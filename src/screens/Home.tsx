@@ -109,12 +109,12 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
 
   useEffect(() => {
     const backAction = () => {
-      if (email === 'email' && password === 'password') {
-        if (navigation.canGoBack()) {
-          navigation.goBack();
-          return true;
-        }
-      }
+      // if (email === 'email' && password === 'password') {
+      //   if (navigation.canGoBack()) {
+      //     navigation.goBack();
+      //     return true;
+      //   }
+      // }
 
       if (canGoBack && webviewRef.current) {
         webviewRef.current.goBack();

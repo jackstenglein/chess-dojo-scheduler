@@ -18,13 +18,16 @@ import Fonts from '../assets/fonts';
 import LogoHeader from '../components/Logo';
 import {RootStackScreenProps} from '../utils/types/navigation';
 import {SCREEN_NAMES} from '../utils/types/screensName';
-import {forgotPasswordConfirm} from '../services/AuthService';
+import {
+  confirmUserRegistration,
+  forgotPasswordConfirm,
+} from '../services/AuthService';
 import AlertService from '../services/ToastService';
 
-type Props = RootStackScreenProps<'PasswordRecoveryScreen'>;
+type Props = RootStackScreenProps<'ConfirmCodeScreen'>;
 
-const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
-  const {email} = route.params ?? {email: ''};
+const ConfirmCodeScreen: React.FC<Props> = ({navigation, route}) => {
+  const {username} = route.params ?? {username: ''};
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -47,32 +50,15 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
       setCodeError('');
     }
 
-    if (!newPassword) {
-      setNewPasswordError('New password is required.');
-      valid = false;
-    } else if (newPassword.length < 6) {
-      setNewPasswordError('Password must be at least 6 characters.');
-      valid = false;
-    } else {
-      setNewPasswordError('');
+    if (!valid) {
+      AlertService.toastPrompt('Please Enter Code code', '', 'error');
+      return;
     }
 
-    if (!confirmPassword) {
-      setConfirmPasswordError('Please confirm your password.');
-      valid = false;
-    } else if (newPassword !== confirmPassword) {
-      setConfirmPasswordError('Passwords do not match.');
-      valid = false;
-    } else {
-      setConfirmPasswordError('');
-    }
-
-    if (!valid) return;
-
-    forgotPasswordConfirm(email, code, newPassword)
+    confirmUserRegistration(username, code)
       .then(() => {
         AlertService.toastPrompt(
-          'Success:Your password has been reset. Please log in with your new password.',
+          'Success:Your Account has been Created.',
           '',
           'success',
         );
@@ -80,9 +66,9 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
       })
       .catch(err => {
         AlertService.toastPrompt(
-          'Error:Failed to reset password. Please check the code and try again.',
+          'Error:Failed to Create Account.',
           '',
-          'error'
+          'error',
         );
       });
   };
@@ -103,12 +89,12 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
 
             {/* Info */}
             <Text style={styles.infoText}>
-              Email sent! Enter the code to reset your password.
+              Email sent! Enter the code to Activate Account.
             </Text>
 
             {/* Code */}
             <CustomTextInput
-              label="Recovery Code"
+              label="Confirmation Code"
               mode="outlined"
               value={code}
               onChangeText={text => {
@@ -119,36 +105,10 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
               errorMessage={codeError}
             />
 
-            {/* New Password */}
-            <CustomTextInput
-              label="New Password"
-              mode="outlined"
-              value={newPassword}
-              onChangeText={text => {
-                setNewPassword(text);
-                setNewPasswordError('');
-              }}
-              secureTextEntry
-              errorMessage={newPasswordError}
-            />
-
-            {/* Confirm Password */}
-            <CustomTextInput
-              label="Confirm New Password"
-              mode="outlined"
-              value={confirmPassword}
-              onChangeText={text => {
-                setConfirmPassword(text);
-                setConfirmPasswordError('');
-              }}
-              secureTextEntry
-              errorMessage={confirmPasswordError}
-            />
-
             {/* Reset Password Button */}
             <CustomButton
               onPress={handleResetPassword}
-              title="Reset Password"
+              title="Continue"
               textColor="#000000"
               backgroundColor="#64B5F6"
             />
@@ -166,7 +126,7 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
   );
 };
 
-export default PasswordRecoveryScreen;
+export default ConfirmCodeScreen;
 
 const styles = StyleSheet.create({
   container: {
