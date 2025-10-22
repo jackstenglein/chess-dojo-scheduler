@@ -55,7 +55,6 @@ export function RequireProfile() {
                 `/profile?redirectUri=${pathname}${isSocialFromMobile ? '&loggedInFromMobile=true' : ''}${isTraditionalLogin ? '&loggedInFromMobile=true' : ''}`,
             );
             localStorage.removeItem('isSocialFromMobile');
-            localStorage.removeItem('isFromMobile');
         }
     }, [user, pathname, router]);
 
