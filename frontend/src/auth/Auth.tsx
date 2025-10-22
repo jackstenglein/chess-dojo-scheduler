@@ -238,11 +238,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         tokens: authSession.tokens,
                     });
                     if (isFromParam) {
-                        const url = new URL(window?.location.href);
-                        url.searchParams.delete('values');
-                        window?.history.replaceState({}, '', url.toString());
+                        // Clean URL
+                        const cleanUrl = window.location.origin + window.location.pathname;
+
+                        // Save flag
                         localStorage.setItem('isFromMobile', 'true');
+
+                        // Replace current page in history so user can't go "back" to redirect
+                        window.location.replace(cleanUrl);
                     }
+
                     resolve();
                 } catch (err) {
                     console.error('Failed Auth.signIn: ', err);
@@ -306,6 +311,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 } catch (err) {
                     console.error('Decryption failed:', err);
                 } finally {
+                    // Clean URL
+                    const cleanUrl = window.location.origin + window.location.pathname;
+                    // Replace current page in history so user can't go "back" to redirect
+                    window.location.replace(cleanUrl);
                     socialSignin('Google', '/profile?loggedInFromMobile=true');
                 }
             })();
