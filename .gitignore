@@ -110,4 +110,4 @@ local.properties
 *.keystore
 
 
-!ios/GoogleService-Info.plist
+ios/GoogleService-Info.plist
