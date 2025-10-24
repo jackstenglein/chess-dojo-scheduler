@@ -72,11 +72,11 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
               value={email}
               onChangeText={text => {
                 setEmail(text);
-                setEmailError(''); // clear while typing
+                setEmailError(''); 
               }}
               keyboardType="email-address"
               icon={<Ionicons name="mail" size={20} color="#FF9800" />}
-              errorMessage={emailError} // shows error below input
+              errorMessage={emailError} 
             />
             <CustomButton
               onPress={handleSendEmail}

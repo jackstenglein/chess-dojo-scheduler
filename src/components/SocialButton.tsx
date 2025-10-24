@@ -13,7 +13,7 @@ const SocialButton: React.FC<SocialButtonProps> = ({
   icon,
   title,
   onPress,
-  backgroundColor = 'rgb(66, 133, 244)', // // '#4285F4',rgb(66, 133, 244);
+  backgroundColor = 'rgb(66, 133, 244)', 
 }) => {
   return (
     <TouchableOpacity
