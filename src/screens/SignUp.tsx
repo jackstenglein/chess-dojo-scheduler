@@ -23,6 +23,7 @@ import Fonts from '../assets/fonts';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../redux/store';
 import {signUpUser} from '../redux/thunk/authThunk';
+import AlertService from '../services/ToastService';
 
 type Props = RootStackScreenProps<'SignUpScreen'>;
 
@@ -36,7 +37,7 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
   const [passwordError, setPasswordError] = useState('');
 
   const dispatch = useDispatch<AppDispatch>();
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     let isValid = true;
 
     if (!name) {
@@ -71,9 +72,19 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
 
     if (!isValid) return;
 
-    dispatch(signUpUser({name, email, password}));
-    Alert.alert('Success', 'Account created successfully!');
-    navigation.navigate(SCREEN_NAMES.LOGIN);
+    const signUp: any =await dispatch(signUpUser({name, email, password})).unwrap();
+    console.log(SCREEN_NAMES.CONFIRM_CODE,signUp)
+    const username: string = signUp?.username ?? '';
+    console.log(SCREEN_NAMES.CONFIRM_CODE,username)
+    Alert.alert('Email Sent', 'Check your email for the confirmation code');
+    
+    navigation.navigate(SCREEN_NAMES.CONFIRM_CODE, {username});
+    // AlertService.toastPrompt(
+    //   'Success::Account created successfully!',
+    //   '',
+    //   'success',
+    // );
+    // navigation.navigate(SCREEN_NAMES.LOGIN);
   };
 
   const handleGoogleSignUp = () => {
@@ -131,7 +142,7 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
             />
             <SocialButton
               icon={<GoogleIcon />}
-              title="Sign Up with Google"
+              title="Sign In with Google"
               onPress={handleGoogleSignUp}
             />
 

@@ -39,7 +39,7 @@ const PasswordResetScreen: React.FC<Props> = ({navigation}) => {
     setEmailError('');
     forgotPassword(email)
       .then(() => {
-        Alert.alert('Email Sent', 'Check your inbox for reset instructions.');
+        Alert.alert('Email Sent', 'Check your email for the reset code');
         navigation.navigate(SCREEN_NAMES.RECOVERY_CODE, {email});
       })
       .catch(err => {

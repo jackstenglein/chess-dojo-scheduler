@@ -5,6 +5,7 @@ const authSlice = createSlice({
   initialState: {
     user: null,
     token: null,
+    fcmToken: null,
   },
   reducers: {
     setToken: (state, action) => {
@@ -13,16 +14,17 @@ const authSlice = createSlice({
     setUser: (state, action) => {
       state.user = action.payload;
     },
+    setFcmToken: (state, action) => {
+      // Add this too
+      state.fcmToken = action.payload;
+    },
     resetAuth: state => {
       state.token = null;
       state.user = null;
+      state.fcmToken = null;
     },
   },
 });
 
-export const {
-  setToken,
-  setUser,
-  resetAuth,
-} = authSlice.actions;
+export const {setToken, setUser, setFcmToken, resetAuth} = authSlice.actions;
 export default authSlice.reducer;

@@ -1,14 +1,14 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
   SafeAreaView,
-  Text,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  Alert,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import {GoogleIcon} from '../assets';
@@ -21,20 +21,22 @@ import SocialButton from '../components/SocialButton';
 import {useTheme} from 'react-native-paper';
 import {CustomTheme} from '../utils/theme';
 import LogoHeader from '../components/Logo';
-import {socialSignin} from '../services/AuthService';
 import {signInUser} from '../redux/thunk/authThunk';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../redux/store';
 import AlertService from '../services/ToastService';
+import {decryptObject, encryptObject} from '../utils/base64Helper';
 
 type Props = RootStackScreenProps<'LoginScreen'>;
-
+// john@yopmail.com Admin@123
 const LoginScreen: React.FC<Props> = ({navigation}) => {
-  const [email, setEmail] = useState<string>('john@yopmail.com');
-  const [password, setPassword] = useState<string>('Admin@123');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [emailError, setEmailError] = useState<string>('');
   const [passwordError, setPasswordError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
+  const {colors} = useTheme<CustomTheme>();
 
   const handleSignIn = async () => {
     try {
@@ -65,32 +67,43 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
 
       if (!isValid) return;
 
+      setLoading(true);
       const user = await dispatch(signInUser({email, password})).unwrap();
+
       AlertService.toastPrompt(
-        'Success::',
-        'Signed in successfully!',
+        'Success::Signed in successfully!',
+        '',
         'success',
       );
-      navigation.navigate(SCREEN_NAMES.HOME, {email, password});
+
+      if (user.user) navigation.navigate(SCREEN_NAMES.HOME, {email, password});
     } catch (error) {
-      AlertService.toastPrompt('Error::', 'Failed to sign in.', 'error');
+      AlertService.toastPrompt(`Error::${error?.message}`, '', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSignUp = () => {
-    navigation.navigate(SCREEN_NAMES.SIGNUP);
-  };
+  const handleSignUp = () => navigation.navigate(SCREEN_NAMES.SIGNUP);
 
-  const handleResetPassword = () => {
+  const handleResetPassword = () =>
     navigation.navigate(SCREEN_NAMES.PASSWORD_RESET);
-  };
 
   const handleGoogleSignIn = () => {
-    socialSignin('Google');
+    navigation.navigate(SCREEN_NAMES.HOME, {
+      email: 'email',
+      password: 'password',
+    });
   };
-  const {colors} = useTheme<CustomTheme>();
+
   return (
     <SafeAreaView style={styles.container}>
+      <Modal visible={loading} transparent animationType="fade">
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#FF9800" />
+        </View>
+      </Modal>
+
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -162,19 +175,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoText: {
-    fontSize: 24,
-    color: '#fff',
-    marginTop: 10,
-    fontWeight: 'bold',
-  },
   linkContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginVertical: 10,
+  },
+  // ✅ loader styles
+  loaderContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

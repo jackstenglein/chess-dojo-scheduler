@@ -9,16 +9,19 @@ import {
   Alert,
 } from 'react-native';
 import {WebView, WebViewNavigation} from 'react-native-webview';
-import {BaseUrl, BaseUrlWithCreds} from '../utils/baseUrl';
+import {BaseUrl, Secret} from '../utils/baseUrl';
 import {useDispatch, useSelector} from 'react-redux';
 import AlertService from '../services/ToastService';
-import {encodeCredentials} from '../utils/base64Helper';
+import {decryptObject, encryptObject} from '../utils/base64Helper';
 import {signOutUser} from '../redux/thunk/authThunk';
 import {AppDispatch} from '../redux/store';
+import {SCREEN_NAMES} from '../utils/types/screensName';
+import messaging from '@react-native-firebase/messaging';
+import {onTokenRefresh, getToken} from '@react-native-firebase/messaging';
 
 interface HomeScreenProps {
   navigation: any;
-  route: {params?: {email?: string; password?: string}};
+  route: {params?: {email?: string | undefined; password?: string | undefined}};
 }
 
 const HomeScreen = ({navigation, route}: HomeScreenProps) => {
@@ -26,15 +29,18 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
-  const {user, token} = useSelector((state: any) => state.auth);
+  const [token, setFcmToken] = useState('');
+  const [encodedCredentials, setEncodedCredentials] = useState<string | null>(
+    null,
+  );
+  const {user} = useSelector((state: any) => state.auth);
   const {email, password} = route.params || {email: '', password: ''};
   const dispatch = useDispatch<AppDispatch>();
+  const hasRedirected = useRef(false);
 
-  // Handle messages from the webpage
   const onMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-
       if (data.type === 'LOGOUT') {
         AlertService.toastPrompt('Info', 'Logging out...');
         navigation.navigate('LoginScreen');
@@ -48,23 +54,49 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
     }
   };
 
-  // Handle navigation changes
-  const onNavigationStateChange = useCallback((navState: WebViewNavigation) => {
-    const {url} = navState;
-    // Example: https://example.com/?redirect=app
-    if (url.includes('redirect=app')) {
-      setCanGoBack(navState.canGoBack);
-      dispatch(signOutUser());
+  const getFCMToken = async () => {
+    try {
+      const newToken = await messaging().getToken();
+      if (newToken && newToken !== token) {
+        setFcmToken(newToken);
+      }
+    } catch (error) {
+      console.log('Error getting FCM token:', error);
     }
+  };
+
+  useEffect(() => {
+    getFCMToken();
+    const unsubscribe = onTokenRefresh(messaging(), newToken => {
+      setFcmToken(newToken);
+    });
+    return unsubscribe;
   }, []);
 
-  // Handle error
+  const onNavigationStateChange = useCallback(
+    (navState: WebViewNavigation) => {
+      const {url} = navState;
+
+      if (url.includes('redirect=app') && !hasRedirected.current) {
+        hasRedirected.current = true;
+        setCanGoBack(navState.canGoBack);
+        dispatch(signOutUser());
+        navigation.navigate(SCREEN_NAMES.LOGIN, {
+          email: 'email',
+          password: 'password',
+        });
+      } else {
+        setCanGoBack(navState.canGoBack);
+      }
+    },
+    [dispatch, navigation],
+  );
+
   const onError = useCallback(() => {
     setError(true);
     setLoading(false);
   }, []);
 
-  // Inject viewport meta for responsiveness
   const injectedJavaScript = `
     (function() {
       var meta = document.createElement('meta'); 
@@ -77,28 +109,66 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
 
   useEffect(() => {
     const backAction = () => {
+      // if (email === 'email' && password === 'password') {
+      //   if (navigation.canGoBack()) {
+      //     navigation.goBack();
+      //     return true;
+      //   }
+      // }
+
       if (canGoBack && webviewRef.current) {
         webviewRef.current.goBack();
-        return true; // prevent app from exiting
-      } else {
-        Alert.alert('Exit App', 'Do you want to exit?', [
-          {text: 'Cancel', style: 'cancel'},
-          {text: 'Exit', onPress: () => BackHandler.exitApp()},
-        ]);
         return true;
       }
+
+      Alert.alert('Exit App', 'Do you want to exit?', [
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'Exit', onPress: () => BackHandler.exitApp()},
+      ]);
+      return true;
     };
 
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       backAction,
     );
-
     return () => backHandler.remove();
-  }, [canGoBack]);
+  }, [canGoBack, email, password, navigation]);
 
-  const encodedCredentials = encodeCredentials(email ?? '', password ?? '');
+  useEffect(() => {
+    if (!email) {
+      dispatch(signOutUser());
+      navigation.navigate(SCREEN_NAMES.LOGIN);
+    }
+  }, [email]);
 
+  useEffect(() => {
+    if (!token) return;
+
+    const handleEncryption = async () => {
+      try {
+        const payload =
+          email === 'email' && password === 'password'
+            ? {token}
+            : {email: email ?? '', password: password ?? '', token};
+
+        const encrypted = await encryptObject(payload, Secret);
+        if (encrypted?.iv && encrypted?.encryptedData) {
+          setEncodedCredentials(`${encrypted.iv}/${encrypted.encryptedData}`);
+        }
+      } catch (err) {
+        console.error('Encryption/Decryption Error:', err);
+      }
+    };
+
+    handleEncryption();
+  }, [email, password, token]);
+  console.log(
+    'URLSSSS===>',
+    email === 'email' && password === 'password'
+      ? BaseUrl + `signin/?isSocialFromMobile=true&values=${encodedCredentials}`
+      : BaseUrl + `?values=${encodedCredentials}`,
+  );
   return (
     <SafeAreaView style={styles.container}>
       {loading && !error && (
@@ -115,7 +185,13 @@ const HomeScreen = ({navigation, route}: HomeScreenProps) => {
       ) : (
         <WebView
           ref={webviewRef}
-          source={{uri: BaseUrl + `/?values=${encodedCredentials}`}}
+          source={{
+            uri:
+              email === 'email' && password === 'password'
+                ? BaseUrl +
+                  `signin/?isSocialFromMobile=true&values=${encodedCredentials}`
+                : BaseUrl + `?values=${encodedCredentials}`,
+          }}
           javaScriptEnabled
           domStorageEnabled
           startInLoadingState

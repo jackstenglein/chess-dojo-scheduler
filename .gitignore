@@ -108,3 +108,6 @@ ios/release/
 local.properties
 *.jks
 *.keystore
+
+
+ios/GoogleService-Info.plist

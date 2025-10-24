@@ -9,9 +9,11 @@ import {
   PUBLIC_AUTH_OAUTH_REDIRECT_SIGN_IN,
   PUBLIC_AUTH_OAUTH_REDIRECT_SIGN_OUT,
   PUBLIC_AUTH_OAUTH_RESPONSE_TYPE,
+  PUBLIC_ENCRYPTION_SECRET,
 } from '@env';
 
 export const BaseUrl = API_DEV;
+export const Secret = PUBLIC_ENCRYPTION_SECRET;
 export const BaseUrlWithCreds = API_CREDS;
 export const awsConfig = {
   Auth: {
