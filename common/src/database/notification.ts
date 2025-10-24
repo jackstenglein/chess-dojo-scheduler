@@ -23,6 +23,8 @@ const NotificationEventTypeSchema = z.enum([
     'CALENDAR_INVITE',
     /** A round robin tournament has started */
     'ROUND_ROBIN_START',
+    /** A user has created their subscription */
+    'SUBSCRIPTION_CREATED',
 ]);
 
 /** The types of a notification event. */
@@ -182,6 +184,17 @@ const RoundRobinStartEventSchema = z.object({
 /** The type of a notification event when a round robin tournament starts. */
 export type RoundRobinStartEvent = z.infer<typeof RoundRobinStartEventSchema>;
 
+/** The type of a notification event when a user has created their subscription. */
+const SubscriptionCreatedEventSchema = z.object({
+    /** The type of the event. */
+    type: z.literal(NotificationEventTypes.SUBSCRIPTION_CREATED),
+    /** The username of the user that created the subscription. */
+    username: z.string(),
+});
+
+/** The type of a notification event when a user has created their subscription. */
+export type SubscriptionCreatedEvent = z.infer<typeof SubscriptionCreatedEventSchema>;
+
 /** The schema of an event that generates notifications. */
 export const NotificationEventSchema = z.discriminatedUnion('type', [
     NewFollowerEventSchema,
@@ -194,6 +207,7 @@ export const NotificationEventSchema = z.discriminatedUnion('type', [
     EventBookedEventSchema,
     CalendarInviteEventSchema,
     RoundRobinStartEventSchema,
+    SubscriptionCreatedEventSchema,
 ]);
 
 /** An event that generates notifications. */

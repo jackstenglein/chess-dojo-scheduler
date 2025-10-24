@@ -300,6 +300,7 @@ const Board: React.FC<BoardProps> = ({ config, onInitialize, onInitializeBoard, 
         if (boardRef.current && !board) {
             const chessgroundApi = Chessground(boardRef.current, config);
             setBoard(chessgroundApi);
+            window.chessground = chessgroundApi;
         } else if (boardRef.current && board && chess && !isInitialized) {
             if (config?.pgn) {
                 chess.loadPgn(config.pgn);

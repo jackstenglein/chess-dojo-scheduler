@@ -32,7 +32,8 @@
         "./*.cjs",
         "./*.mjs",
         "./next-env.d.ts",
-        ".next/types/**/*.ts"
+        ".next/types/**/*.ts",
+        "./window.d.ts"
     ],
     "exclude": [
         "node_modules",
