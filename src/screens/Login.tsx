@@ -28,7 +28,7 @@ import AlertService from '../services/ToastService';
 import {decryptObject, encryptObject} from '../utils/base64Helper';
 
 type Props = RootStackScreenProps<'LoginScreen'>;
-// john@yopmail.com Admin@123
+
 const LoginScreen: React.FC<Props> = ({navigation}) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');

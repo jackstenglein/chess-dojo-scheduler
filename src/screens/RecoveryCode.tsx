@@ -28,8 +28,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  // error states
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [codeError, setCodeError] = useState('');
@@ -98,15 +96,12 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.inner}>
-            {/* Logo */}
             <LogoHeader />
 
-            {/* Info */}
             <Text style={styles.infoText}>
               Email sent! Enter the code to reset your password.
             </Text>
 
-            {/* Code */}
             <CustomTextInput
               label="Recovery Code"
               mode="outlined"
@@ -119,7 +114,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
               errorMessage={codeError}
             />
 
-            {/* New Password */}
             <CustomTextInput
               label="New Password"
               mode="outlined"
@@ -132,7 +126,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
               errorMessage={newPasswordError}
             />
 
-            {/* Confirm Password */}
             <CustomTextInput
               label="Confirm New Password"
               mode="outlined"
@@ -145,7 +138,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
               errorMessage={confirmPasswordError}
             />
 
-            {/* Reset Password Button */}
             <CustomButton
               onPress={handleResetPassword}
               title="Reset Password"
@@ -153,7 +145,6 @@ const PasswordRecoveryScreen: React.FC<Props> = ({navigation, route}) => {
               backgroundColor="#64B5F6"
             />
 
-            {/* Cancel */}
             <TouchableOpacity
               onPress={handleCancel}
               style={styles.linkContainer}>

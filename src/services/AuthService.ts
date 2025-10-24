@@ -32,8 +32,6 @@ export async function signIn(email: string, password: string) {
     const authUser = await amplifyGetCurrentUser();
     const authSession = await fetchAuthSession({forceRefresh: true});
 
-    // AlertService.toastPrompt('Success', 'Signed in successfully!', 'success');
-    console.log(response, 'AUth Session', authSession, '\n');
     return {
       response,
       user: authUser,
@@ -42,7 +40,6 @@ export async function signIn(email: string, password: string) {
   } catch (error: any) {
     console.log(error?.message);
     if (error?.name === 'UserAlreadyAuthenticatedException') {
-      // AlertService.toastPrompt('Error', 'Incorrect username and password!', 'error');
       console.warn('User is already authenticated');
       signOut();
     }
@@ -90,8 +87,8 @@ export async function signUp(name: string, email: string, password: string) {
 export async function confirmUserRegistration(username: string, code: string) {
   try {
     const response = await confirmSignUp({
-      username, // same username used during signUp
-      confirmationCode: code, // the code sent to user's email or phone
+      username,
+      confirmationCode: code,
     });
 
     console.log('✅ User confirmed successfully:', response);

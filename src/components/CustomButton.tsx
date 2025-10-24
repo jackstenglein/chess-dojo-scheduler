@@ -13,7 +13,7 @@ interface CustomButtonProps {
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,
   onPress,
-  backgroundColor = '#64B5F6', //rgb(66, 165, 245) rgb(66, 133, 244);
+  backgroundColor = '#64B5F6', 
   textColor = '#000',
 }) => {
   return (
