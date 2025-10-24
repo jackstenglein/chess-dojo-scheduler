@@ -79,12 +79,7 @@ const SignUpScreen: React.FC<Props> = ({navigation}) => {
     Alert.alert('Email Sent', 'Check your email for the confirmation code');
     
     navigation.navigate(SCREEN_NAMES.CONFIRM_CODE, {username});
-    // AlertService.toastPrompt(
-    //   'Success::Account created successfully!',
-    //   '',
-    //   'success',
-    // );
-    // navigation.navigate(SCREEN_NAMES.LOGIN);
+   
   };
 
   const handleGoogleSignUp = () => {

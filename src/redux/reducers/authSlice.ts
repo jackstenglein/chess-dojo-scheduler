@@ -15,7 +15,7 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
     setFcmToken: (state, action) => {
-      // Add this too
+      
       state.fcmToken = action.payload;
     },
     resetAuth: state => {

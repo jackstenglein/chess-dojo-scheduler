@@ -32,7 +32,6 @@ const ConfirmCodeScreen: React.FC<Props> = ({navigation, route}) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // error states
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [codeError, setCodeError] = useState('');
@@ -84,16 +83,13 @@ const ConfirmCodeScreen: React.FC<Props> = ({navigation, route}) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.inner}>
-            {/* Logo */}
             <LogoHeader />
 
-            {/* Info */}
             <Text style={styles.infoText}>
               Email sent! Enter the code to Activate Account.
             </Text>
 
-            {/* Code */}
-            <CustomTextInput
+           <CustomTextInput
               label="Confirmation Code"
               mode="outlined"
               value={code}
@@ -105,7 +101,6 @@ const ConfirmCodeScreen: React.FC<Props> = ({navigation, route}) => {
               errorMessage={codeError}
             />
 
-            {/* Reset Password Button */}
             <CustomButton
               onPress={handleResetPassword}
               title="Continue"
@@ -113,7 +108,6 @@ const ConfirmCodeScreen: React.FC<Props> = ({navigation, route}) => {
               backgroundColor="#64B5F6"
             />
 
-            {/* Cancel */}
             <TouchableOpacity
               onPress={handleCancel}
               style={styles.linkContainer}>

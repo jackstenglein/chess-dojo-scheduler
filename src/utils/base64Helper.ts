@@ -6,14 +6,12 @@ const textDecoder = {
   decode: (bytes: ArrayBuffer) => Buffer.from(bytes).toString('utf-8'),
 };
 
-/** Utility: convert buffer to hex */
 function bufToHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
-/** Utility: convert hex to Uint8Array */
 function hexToBuf(hex: string): Uint8Array {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
@@ -22,7 +20,6 @@ function hexToBuf(hex: string): Uint8Array {
   return bytes;
 }
 
-/** Derive AES-256 key from a passphrase */
 async function getKey(secret: string): Promise<any> {
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -34,7 +31,6 @@ async function getKey(secret: string): Promise<any> {
   return keyMaterial;
 }
 
-/** Encrypt an object */
 export async function encryptObject(obj: Record<string, any>, secret: string) {
   const json = JSON.stringify(obj);
   const iv = crypto.getRandomValues(new Uint8Array(16));
