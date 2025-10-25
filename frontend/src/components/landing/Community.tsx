@@ -1,5 +1,5 @@
 import { fontFamily } from '@/style/font';
-import { Container, Divider, Grid, Stack, Typography, Box } from '@mui/material';
+import { Box, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { BulletPoint } from './BulletPoint';
 import { communityBulletPoints } from './bulletPoints';
 import { barlow, barlowCondensed } from './fonts';
@@ -104,7 +104,11 @@ export function Community() {
                     </Grid>
 
                     <Grid size={{ xs: 12, md: 8 }}>
-                        <Grid container spacing='2rem' justifyContent={{ xs: 'center', md: 'start' }}>
+                        <Grid
+                            container
+                            spacing='2rem'
+                            justifyContent={{ xs: 'center', md: 'start' }}
+                        >
                             {communityBulletPoints.map((bp) => (
                                 <Grid size={{ xs: 11, md: 6 }} key={bp.title}>
                                     <BulletPoint {...bp} />
