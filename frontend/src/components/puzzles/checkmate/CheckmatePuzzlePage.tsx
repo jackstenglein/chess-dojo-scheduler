@@ -1,5 +1,8 @@
 'use client';
 
+import { ApiContextType, useApi } from '@/api/Api';
+import { Request, useRequest } from '@/api/Request';
+import { AuthStatus, useAuth } from '@/auth/Auth';
 import { getPieceSx } from '@/board/boardThemes';
 import { formatTime } from '@/board/pgn/boardTools/underboard/clock/ClockUsage';
 import {
@@ -9,8 +12,14 @@ import {
 import PgnBoard, { PgnBoardApi, useChess } from '@/board/pgn/PgnBoard';
 import { InProgressAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
+import LoadingPage from '@/loading/LoadingPage';
 import { Chess, Color } from '@jackstenglein/chess';
-import { AccessTime, Help, Info, Timeline } from '@mui/icons-material';
+import {
+    NextPuzzleRequest,
+    NextPuzzleResponse,
+    Puzzle,
+} from '@jackstenglein/chess-dojo-common/src/puzzles/api';
+import { AccessTime, Info, Timeline } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -22,7 +31,6 @@ import {
     MenuItem,
     Stack,
     TextField,
-    Tooltip,
     Typography,
 } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -31,79 +39,94 @@ import { useCountdown, useLocalStorage } from 'usehooks-ts';
 const RATED_KEY = 'puzzles.rated';
 const SHOW_TIMER_KEY = 'puzzles.showTimer';
 const SHOW_RATING_KEY = 'puzzles.showRating';
-
-interface Puzzle {
-    fen: string;
-    moves: string[];
-    rating: number;
-    lichessPlays: number;
-    successfulPlays: number;
-}
-
-const puzzles: Puzzle[] = [
-    {
-        fen: '4r3/1k6/pp3r2/1b2P2p/3R1p2/P1R2P2/1P4PP/6K1 w - - 0 35',
-        moves: 'e5f6 e8e1 g1f2 e1f1'.split(' '),
-        rating: 1353,
-        lichessPlays: 631,
-        successfulPlays: 303,
-    },
-    {
-        fen: 'r1bqk2r/pp1nbNp1/2p1p2p/8/2BP4/1PN3P1/P3QP1P/3R1RK1 b kq - 0 19',
-        moves: 'e8f7 e2e6 f7f8 e6f7'.split(' '),
-        rating: 1508,
-        lichessPlays: 641,
-        successfulPlays: 500,
-    },
-    {
-        fen: '4r1k1/5ppp/r1p5/p1n1RP2/8/2P2N1P/2P3P1/3R2K1 b - - 0 21',
-        moves: 'e8e5 d1d8 e5e8 d8e8'.split(' '),
-        rating: 1120,
-        lichessPlays: 80,
-        successfulPlays: 20,
-    },
-    {
-        fen: '5r1k/pp4pp/5p2/1BbQp1r1/6K1/7P/1PP3P1/3R3R w - - 2 26',
-        moves: 'g4h4 c5f2 g2g3 f2g3'.split(' '),
-        rating: 1018,
-        lichessPlays: 224,
-        successfulPlays: 100,
-    },
-    {
-        fen: '1rb2rk1/q5P1/4p2p/3p3p/3P1P2/2P5/2QK3P/3R2R1 b - - 0 29',
-        moves: 'f8f7 c2h7 g8h7 g7g8q'.split(' '),
-        rating: 1039,
-        lichessPlays: 211,
-        successfulPlays: 200,
-    },
-];
+const DIFFICULTY_KEY = 'puzzles.difficulty';
+const THEME_KEY = 'puzzles.theme';
 
 export function CheckmatePuzzlePage() {
-    const pgnRef = useRef<PgnBoardApi>(null);
-    const [puzzleIndex, setPuzzleIndex] = useState(0);
+    const { status } = useAuth();
+    if (status === AuthStatus.Loading) {
+        return <LoadingPage />;
+    }
+    return <AuthCheckmatePuzzlePage />;
+}
+
+function readLocalStorage<T>(key: string, defaultValue: T): T {
+    const value = window.localStorage.getItem(key);
+    if (!value) {
+        return defaultValue;
+    }
+    return JSON.parse(value) as T;
+}
+
+async function fetchNextPuzzle({
+    api,
+    request,
+    requestTracker,
+}: {
+    api: ApiContextType;
+    request?: NextPuzzleRequest;
+    requestTracker?: Request<NextPuzzleResponse>;
+}) {
+    try {
+        requestTracker?.onStart();
+        const themes = readLocalStorage(THEME_KEY, ['mateIn1', 'mateIn2', 'mateIn3']);
+        const difficulty = readLocalStorage(DIFFICULTY_KEY, 'standard');
+        const response = await api.nextPuzzle({
+            ...request,
+            themes,
+            relativeRating: DIFFICULTY_TO_RATING_RANGE[difficulty],
+        });
+        console.log(`nextPuzzle: `, response);
+        requestTracker?.onSuccess(response.data);
+    } catch (err) {
+        console.error(`nextPuzzle: `, err);
+        requestTracker?.onFailure(err);
+    }
+}
+
+function AuthCheckmatePuzzlePage() {
+    const api = useApi();
+    const requestTracker = useRequest<NextPuzzleResponse>();
+    const [currentPuzzle, setCurrentPuzzle] = useState<Puzzle>();
     const [seconds, { startCountdown, stopCountdown, resetCountdown }] = useCountdown({
         isIncrement: true,
         countStart: 0,
         countStop: -1,
     });
+
+    useEffect(() => {
+        if (!requestTracker.isSent()) {
+            void fetchNextPuzzle({
+                api,
+                requestTracker,
+            });
+        }
+    }, [requestTracker, api]);
+
+    useEffect(() => {
+        if (!currentPuzzle && requestTracker.data) {
+            setCurrentPuzzle(requestTracker.data.puzzle);
+            resetCountdown();
+            startCountdown();
+        }
+    }, [currentPuzzle, requestTracker, resetCountdown, startCountdown]);
+
+    const pgnRef = useRef<PgnBoardApi>(null);
     const [result, setResult] = useState<'win' | 'loss'>();
     const [complete, setComplete] = useState(false);
     const [currentRating, setCurrentRating] = useState(1505);
 
-    useEffect(() => {
-        startCountdown();
-    }, [startCountdown]);
-
-    const currentPuzzle = puzzles[puzzleIndex];
-
     const [puzzlePGN, playerColor] = useMemo(() => {
-        const puzzle = puzzles[puzzleIndex];
-        const chess = new Chess({ fen: puzzle.fen });
-        for (const move of puzzle.moves) {
+        if (!currentPuzzle) {
+            return ['', Color.white];
+        }
+        const chess = new Chess({ fen: currentPuzzle.fen });
+        for (const move of currentPuzzle.moves) {
             chess.move(move);
         }
         return [chess.renderPgn(), chess.history()[1].color];
-    }, [puzzleIndex]);
+    }, [currentPuzzle]);
+
     const orientation = playerColor === Color.white ? 'white' : 'black';
 
     const ratingChange = result === 'win' ? 10 : result === 'loss' ? -10 : 0;
@@ -112,9 +135,7 @@ export function CheckmatePuzzlePage() {
         setCurrentRating((r) => r + ratingChange);
         setResult(undefined);
         setComplete(false);
-        setPuzzleIndex((i) => (i + 1) % puzzles.length);
-        resetCountdown();
-        startCountdown();
+        setCurrentPuzzle(undefined);
     };
 
     const onWrongMove = () => {
@@ -125,13 +146,28 @@ export function CheckmatePuzzlePage() {
         stopCountdown();
         setResult((r) => r ?? 'win');
         setComplete(true);
+
+        void fetchNextPuzzle({
+            api,
+            requestTracker,
+            request: {
+                previousPuzzle: currentPuzzle
+                    ? {
+                          id: currentPuzzle.id,
+                          result: result ?? 'win',
+                          timeSpentSeconds: seconds,
+                          pgn: pgnRef.current?.getPgn() ?? '',
+                      }
+                    : undefined,
+            },
+        });
     };
 
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
             <PgnBoard
                 ref={pgnRef}
-                key={currentPuzzle.fen}
+                key={currentPuzzle?.fen}
                 showPlayerHeaders={false}
                 underboardTabs={[
                     {
@@ -145,6 +181,7 @@ export function CheckmatePuzzlePage() {
                                 orientation={orientation}
                                 currentRating={currentRating}
                                 ratingChange={ratingChange}
+                                onChangeOptions={requestTracker.reset}
                             />
                         ),
                     },
@@ -170,15 +207,24 @@ export function CheckmatePuzzlePage() {
     );
 }
 
+const DIFFICULTY_TO_RATING_RANGE: Record<string, [number, number]> = {
+    easiest: [-600, -400],
+    easier: [-400, -200],
+    standard: [-200, 200],
+    harder: [200, 400],
+    hardest: [400, 600],
+};
+
 function CheckmatePuzzleUnderboard({
     puzzle,
     seconds,
     orientation,
     currentRating,
     ratingChange,
+    onChangeOptions,
 }: {
     /** The puzzle the user is playing. */
-    puzzle: Puzzle;
+    puzzle?: Puzzle;
     /** The number of seconds the user has been working on the puzzle. */
     seconds: number;
     /** The color the user is playing. */
@@ -187,11 +233,15 @@ function CheckmatePuzzleUnderboard({
     currentRating: number;
     /** The user's rating change after taking the puzzle. */
     ratingChange: number;
+    /** A callback to invoke when the user changes options that affect the next puzzle. */
+    onChangeOptions: () => void;
 }) {
     const { solitaire } = useChess();
     const [rated, setRated] = useLocalStorage(RATED_KEY, true);
     const [showTimer, setShowTimer] = useLocalStorage(SHOW_TIMER_KEY, true);
     const [showRating, setShowRating] = useLocalStorage(SHOW_RATING_KEY, true);
+    const [difficulty, setDifficulty] = useLocalStorage(DIFFICULTY_KEY, 'standard');
+    const [themes, setThemes] = useLocalStorage(THEME_KEY, ['mateIn1', 'mateIn2', 'mateIn3']);
 
     const [pieceStyle] = useLocalStorage<PieceStyle>(PieceStyleKey, PieceStyle.Standard);
     const pieceSx = getPieceSx(pieceStyle);
@@ -253,7 +303,10 @@ function CheckmatePuzzleUnderboard({
                             {orientation.slice(1)} to move
                         </Typography>
                         <Typography variant='subtitle1' color='text.secondary' fontWeight='bold'>
-                            Mate in 2
+                            Mate in{' '}
+                            {puzzle?.themes
+                                .find((t) => t.startsWith('mateIn'))
+                                ?.replaceAll('mateIn', '')}
                         </Typography>
                     </Stack>
                 </Stack>
@@ -302,12 +355,12 @@ function CheckmatePuzzleUnderboard({
                 {solitaire?.complete && (
                     <Stack mt={4}>
                         {showRating && (
-                            <PuzzleDetailRow label='Puzzle Rating' value={puzzle.rating} />
+                            <PuzzleDetailRow label='Puzzle Rating' value={puzzle?.rating || ''} />
                         )}
-                        <PuzzleDetailRow label='Total Attempts' value={puzzle.lichessPlays} />
+                        <PuzzleDetailRow label='Total Attempts' value={puzzle?.plays || ''} />
                         <PuzzleDetailRow
                             label='Successful Attempts'
-                            value={`${puzzle.successfulPlays} (${Math.round((1000 * puzzle.successfulPlays) / puzzle.lichessPlays) / 10}%)`}
+                            value={`${puzzle?.successfulPlays ?? 0} (${Math.round((1000 * (puzzle?.successfulPlays ?? 0)) / (puzzle?.plays ?? 1)) / 10}%)`}
                         />
                         <PuzzleDetailRow label='Target Time' value='1:00' />
                         <PuzzleDetailRow label='Used Time' value={formatTime(seconds)} />
@@ -317,8 +370,11 @@ function CheckmatePuzzleUnderboard({
                 <Stack sx={{ flexGrow: 1, justifyContent: 'end' }}>
                     <MultipleSelectChip
                         label='Themes'
-                        selected={['mateIn1', 'mateIn2', 'mateIn3']}
-                        setSelected={() => null}
+                        selected={themes}
+                        setSelected={(v) => {
+                            setThemes(v);
+                            onChangeOptions();
+                        }}
                         options={[
                             { value: 'mateIn1', label: 'Mate in 1' },
                             { value: 'mateIn2', label: 'Mate in 2' },
@@ -331,9 +387,13 @@ function CheckmatePuzzleUnderboard({
                     <TextField
                         label='Difficulty'
                         select
-                        value='standard'
+                        value={difficulty}
                         size='small'
                         sx={{ mb: 1 }}
+                        onChange={(e) => {
+                            setDifficulty(e.target.value);
+                            onChangeOptions();
+                        }}
                     >
                         <MenuItem value='easiest'>Easiest (-600)</MenuItem>
                         <MenuItem value='easier'>Easier (-300)</MenuItem>
@@ -369,7 +429,8 @@ function CheckmatePuzzleUnderboard({
                         }
                         label='Show Timer'
                     />
-                    <FormControlLabel
+                    {/* TODO: re-enable this */}
+                    {/* <FormControlLabel
                         control={<Checkbox checked={false} disabled />}
                         label={
                             <>
@@ -382,7 +443,7 @@ function CheckmatePuzzleUnderboard({
                                 </Tooltip>
                             </>
                         }
-                    />
+                    /> */}
                 </Stack>
             </Stack>
         </CardContent>

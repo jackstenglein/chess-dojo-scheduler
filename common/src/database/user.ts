@@ -84,6 +84,23 @@ export interface User {
 
     /** A map from exam id to the user's summary for that exam. */
     exams: Record<string, UserExamSummary>;
+
+    /**
+     * A map from puzzle theme to the user's overview stats for that theme.
+     * The user's overall stats will be under the theme OVERALL.
+     */
+    puzzles?: Record<string, PuzzleThemeOverview>;
+}
+
+export interface PuzzleThemeOverview {
+    /** The user's rating for the theme. */
+    rating: number;
+    /** The user's rating deviation (rd) for the theme. */
+    rd: number;
+    /** The user's rating volatility for the theme. */
+    volatility: number;
+    /** The number of times a user has played a puzzle with the theme. */
+    plays: number;
 }
 
 export interface PaymentInfo {
