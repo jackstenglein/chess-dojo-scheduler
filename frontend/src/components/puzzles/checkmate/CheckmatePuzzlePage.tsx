@@ -12,8 +12,10 @@ import {
 import PgnBoard, { PgnBoardApi, useChess } from '@/board/pgn/PgnBoard';
 import { InProgressAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
+import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { Chess, Color } from '@jackstenglein/chess';
+import { getPuzzleOverview } from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     NextPuzzleRequest,
     NextPuzzleResponse,
@@ -42,12 +44,16 @@ const SHOW_RATING_KEY = 'puzzles.showRating';
 const DIFFICULTY_KEY = 'puzzles.difficulty';
 const THEME_KEY = 'puzzles.theme';
 
+const PROVISIONAL_RATING_DEVIATION = 110;
+
 export function CheckmatePuzzlePage() {
-    const { status } = useAuth();
+    const { user, status } = useAuth();
     if (status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
-    return <AuthCheckmatePuzzlePage />;
+    if (user) {
+        return <AuthCheckmatePuzzlePage user={user} />;
+    }
 }
 
 function readLocalStorage<T>(key: string, defaultValue: T): T {
@@ -62,10 +68,12 @@ async function fetchNextPuzzle({
     api,
     request,
     requestTracker,
+    onSuccess,
 }: {
     api: ApiContextType;
     request?: NextPuzzleRequest;
     requestTracker?: Request<NextPuzzleResponse>;
+    onSuccess?: (response: NextPuzzleResponse) => void;
 }) {
     try {
         requestTracker?.onStart();
@@ -78,13 +86,15 @@ async function fetchNextPuzzle({
         });
         console.log(`nextPuzzle: `, response);
         requestTracker?.onSuccess(response.data);
+        onSuccess?.(response.data);
     } catch (err) {
         console.error(`nextPuzzle: `, err);
         requestTracker?.onFailure(err);
     }
 }
 
-function AuthCheckmatePuzzlePage() {
+function AuthCheckmatePuzzlePage({ user }: { user: User }) {
+    const { updateUser } = useAuth();
     const api = useApi();
     const requestTracker = useRequest<NextPuzzleResponse>();
     const [currentPuzzle, setCurrentPuzzle] = useState<Puzzle>();
@@ -108,13 +118,15 @@ function AuthCheckmatePuzzlePage() {
             setCurrentPuzzle(requestTracker.data.puzzle);
             resetCountdown();
             startCountdown();
+            updateUser(requestTracker.data.user);
         }
-    }, [currentPuzzle, requestTracker, resetCountdown, startCountdown]);
+    }, [currentPuzzle, requestTracker, resetCountdown, startCountdown, updateUser]);
 
     const pgnRef = useRef<PgnBoardApi>(null);
     const [result, setResult] = useState<'win' | 'loss'>();
     const [complete, setComplete] = useState(false);
-    const [currentRating, setCurrentRating] = useState(1505);
+    const [puzzleOverview, setPuzzleOverview] = useState(getPuzzleOverview(user, 'OVERALL'));
+    const [ratingChange, setRatingChange] = useState(0);
 
     const [puzzlePGN, playerColor] = useMemo(() => {
         if (!currentPuzzle) {
@@ -127,12 +139,9 @@ function AuthCheckmatePuzzlePage() {
         return [chess.renderPgn(), chess.history()[1].color];
     }, [currentPuzzle]);
 
-    const orientation = playerColor === Color.white ? 'white' : 'black';
-
-    const ratingChange = result === 'win' ? 10 : result === 'loss' ? -10 : 0;
-
     const onNextPuzzle = () => {
-        setCurrentRating((r) => r + ratingChange);
+        setPuzzleOverview((overview) => ({ ...overview, rating: overview.rating + ratingChange }));
+        setRatingChange(0);
         setResult(undefined);
         setComplete(false);
         setCurrentPuzzle(undefined);
@@ -157,12 +166,22 @@ function AuthCheckmatePuzzlePage() {
                           result: result ?? 'win',
                           timeSpentSeconds: seconds,
                           pgn: pgnRef.current?.getPgn() ?? '',
+                          rated: readLocalStorage(RATED_KEY, true),
                       }
                     : undefined,
+            },
+            onSuccess: ({ user }) => {
+                const newOverview = getPuzzleOverview(user, 'OVERALL');
+                setRatingChange(newOverview.rating - puzzleOverview.rating);
+                setPuzzleOverview({
+                    ...puzzleOverview,
+                    ratingDeviation: newOverview.ratingDeviation,
+                });
             },
         });
     };
 
+    const orientation = playerColor === Color.white ? 'white' : 'black';
     return (
         <Container maxWidth={false} sx={{ py: 4 }}>
             <PgnBoard
@@ -179,8 +198,10 @@ function AuthCheckmatePuzzlePage() {
                                 puzzle={currentPuzzle}
                                 seconds={seconds}
                                 orientation={orientation}
-                                currentRating={currentRating}
-                                ratingChange={ratingChange}
+                                rating={puzzleOverview.rating}
+                                ratingDeviation={puzzleOverview.ratingDeviation}
+                                ratingChange={Math.round(ratingChange)}
+                                result={result}
                                 onChangeOptions={requestTracker.reset}
                             />
                         ),
@@ -219,8 +240,10 @@ function CheckmatePuzzleUnderboard({
     puzzle,
     seconds,
     orientation,
-    currentRating,
+    rating,
+    ratingDeviation,
     ratingChange,
+    result,
     onChangeOptions,
 }: {
     /** The puzzle the user is playing. */
@@ -230,9 +253,13 @@ function CheckmatePuzzleUnderboard({
     /** The color the user is playing. */
     orientation: 'white' | 'black';
     /** The user's rating before taking the puzzle. */
-    currentRating: number;
+    rating: number;
+    /** The user's rating deviation before/after taking the puzzle. */
+    ratingDeviation: number;
     /** The user's rating change after taking the puzzle. */
     ratingChange: number;
+    /** The user's result on the puzzle. */
+    result?: 'win' | 'loss';
     /** A callback to invoke when the user changes options that affect the next puzzle. */
     onChangeOptions: () => void;
 }) {
@@ -246,22 +273,18 @@ function CheckmatePuzzleUnderboard({
     const [pieceStyle] = useLocalStorage<PieceStyle>(PieceStyleKey, PieceStyle.Standard);
     const pieceSx = getPieceSx(pieceStyle);
 
-    const [displayedRating, setDisplayedRating] = useState(currentRating);
+    const [displayedRating, setDisplayedRating] = useState(rating);
     const animationFrameRef = useRef<number>(undefined);
     const startTimeRef = useRef<number>(undefined);
 
     useEffect(() => {
-        if (
-            !rated ||
-            displayedRating === currentRating + ratingChange ||
-            animationFrameRef.current
-        ) {
+        if (!rated || displayedRating === rating + ratingChange || animationFrameRef.current) {
             return;
         }
 
         const duration = 750;
         const start = displayedRating;
-        const target = currentRating + ratingChange;
+        const target = rating + ratingChange;
 
         const animate = (timestamp: number) => {
             if (!startTimeRef.current) {
@@ -282,7 +305,9 @@ function CheckmatePuzzleUnderboard({
         };
 
         animationFrameRef.current = requestAnimationFrame(animate);
-    }, [displayedRating, currentRating, ratingChange, rated]);
+    }, [displayedRating, rating, ratingChange, rated]);
+
+    const successfulPlays = (puzzle?.successfulPlays ?? 0) + (result === 'win' ? 1 : 0);
 
     return (
         <CardContent sx={{ minHeight: 1 }}>
@@ -324,7 +349,9 @@ function CheckmatePuzzleUnderboard({
                         <Stack direction='row' alignItems='center' gap={1.5}>
                             <Timeline fontSize='large' />
                             <Typography variant='h4' fontWeight='bold'>
-                                {rated ? displayedRating : 'Unrated'}
+                                {rated
+                                    ? `${Math.round(displayedRating)}${ratingDeviation >= PROVISIONAL_RATING_DEVIATION ? '?' : ''}`
+                                    : 'Unrated'}
                             </Typography>
                             {showRating && rated && (solitaire?.complete || ratingChange !== 0) && (
                                 <Typography
@@ -352,15 +379,28 @@ function CheckmatePuzzleUnderboard({
                     )}
                 </Stack>
 
-                {solitaire?.complete && (
+                {solitaire?.complete && puzzle && (
                     <Stack mt={4}>
                         {showRating && (
-                            <PuzzleDetailRow label='Puzzle Rating' value={puzzle?.rating || ''} />
+                            <>
+                                <PuzzleDetailRow
+                                    label='Puzzle Rating'
+                                    value={Math.round(puzzle.rating)}
+                                />
+                                <PuzzleDetailRow
+                                    label='Puzzle Rating Deviation'
+                                    value={Math.round(puzzle.ratingDeviation)}
+                                />
+                                <PuzzleDetailRow
+                                    label='Your Rating Deviation'
+                                    value={Math.round(ratingDeviation)}
+                                />
+                            </>
                         )}
-                        <PuzzleDetailRow label='Total Attempts' value={puzzle?.plays || ''} />
+                        <PuzzleDetailRow label='Total Attempts' value={puzzle.plays + 1} />
                         <PuzzleDetailRow
                             label='Successful Attempts'
-                            value={`${puzzle?.successfulPlays ?? 0} (${Math.round((1000 * (puzzle?.successfulPlays ?? 0)) / (puzzle?.plays ?? 1)) / 10}%)`}
+                            value={`${successfulPlays} (${Math.round((1000 * successfulPlays) / (puzzle.plays + 1)) / 10}%)`}
                         />
                         <PuzzleDetailRow label='Target Time' value='1:00' />
                         <PuzzleDetailRow label='Used Time' value={formatTime(seconds)} />
@@ -382,6 +422,7 @@ function CheckmatePuzzleUnderboard({
                         ]}
                         size='small'
                         sx={{ mb: 2.5 }}
+                        disabled={!solitaire?.complete}
                     />
 
                     <TextField
@@ -394,6 +435,7 @@ function CheckmatePuzzleUnderboard({
                             setDifficulty(e.target.value);
                             onChangeOptions();
                         }}
+                        disabled={!solitaire?.complete}
                     >
                         <MenuItem value='easiest'>Easiest (-600)</MenuItem>
                         <MenuItem value='easier'>Easier (-300)</MenuItem>
@@ -410,6 +452,7 @@ function CheckmatePuzzleUnderboard({
                             />
                         }
                         label='Rated'
+                        disabled={!solitaire?.complete}
                     />
                     <FormControlLabel
                         control={

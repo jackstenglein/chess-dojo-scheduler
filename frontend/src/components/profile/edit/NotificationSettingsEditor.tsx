@@ -7,7 +7,10 @@ import { UserNotificationSettings } from '@/database/user';
 import { Email, Notifications, Web } from '@mui/icons-material';
 import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 
-function getSettingValue(notificationSettings: UserNotificationSettings, path: string): boolean {
+function getSettingValue(
+    notificationSettings: UserNotificationSettings | undefined,
+    path: string,
+): boolean {
     const components = path.split('.');
 
     let currentSetting: any = notificationSettings;
@@ -21,7 +24,7 @@ function getSettingValue(notificationSettings: UserNotificationSettings, path: s
 }
 
 function setSettingValue(
-    notificationSettings: UserNotificationSettings,
+    notificationSettings: UserNotificationSettings | undefined,
     path: string,
     value: boolean,
 ): UserNotificationSettings {
@@ -33,10 +36,10 @@ function setSettingValue(
 
     for (let i = 0; i < components.length - i; i++) {
         const component = components[i];
-        currentResultSetting[component] = { ...currentOriginalSetting[component] };
+        currentResultSetting[component] = { ...currentOriginalSetting?.[component] };
 
         currentResultSetting = currentResultSetting[component];
-        currentOriginalSetting = currentOriginalSetting[component];
+        currentOriginalSetting = currentOriginalSetting?.[component];
     }
 
     currentResultSetting[components[components.length - 1]] = value;
@@ -124,7 +127,7 @@ const sections: NotificationSettingsSection[] = [
 ];
 
 interface NotificationSettingsEditorProps {
-    notificationSettings: UserNotificationSettings;
+    notificationSettings?: UserNotificationSettings;
     setNotificationSettings: (value: UserNotificationSettings) => void;
 }
 

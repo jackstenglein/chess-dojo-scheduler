@@ -8,7 +8,7 @@ export interface RequirementProgress {
      * requirements whose progress carries over across cohorts, the special value
      * ALL_COHORTS is used as a key.
      */
-    counts: Record<string, number>;
+    counts?: Record<string, number>;
 
     /** A map from the cohort to the user's time spent on the requirement in that cohort. */
     minutesSpent: Record<string, number>;
@@ -16,6 +16,16 @@ export interface RequirementProgress {
     /** The time the user last updated their progress on the requirement. */
     updatedAt: string;
 }
+
+/** The categories of a custom task. This is a subset of RequirementCategory. */
+export type CustomTaskCategory = Extract<
+    RequirementCategory,
+    | RequirementCategory.Games
+    | RequirementCategory.Tactics
+    | RequirementCategory.Middlegames
+    | RequirementCategory.Endgame
+    | RequirementCategory.Opening
+>;
 
 /** A custom non-dojo task created by a user. */
 export interface CustomTask {
@@ -37,17 +47,36 @@ export interface CustomTask {
      */
     counts: Record<string, number>;
 
-    /** The scoreboard display of the CustomTask. Should always be non-dojo. */
-    scoreboardDisplay: ScoreboardDisplay.NonDojo;
+    /** The scoreboard display of the CustomTask. */
+    scoreboardDisplay: ScoreboardDisplay;
 
-    /** The category of the CustomTask. Should always be non-dojo. */
-    category: RequirementCategory.NonDojo;
+    /** The category of the CustomTask. */
+    category: CustomTaskCategory;
 
     /** The last time the CustomTask definition was updated. */
     updatedAt: string;
 
-    /** Whether the CustomTask applies to the free tier. */
-    isFree?: boolean;
+    /**
+     * The number of cohorts the requirement needs to be completed in before it
+     * stops being suggested. For requirements that restart their progress in every
+     * cohort, this is the special value -1.
+     */
+    numberOfCohorts: number;
+
+    /** An optional string that is used to label the count of the progress bar. */
+    progressBarSuffix: string;
+
+    /**
+     * Does not exist for CustomTasks, but makes the type system happy when
+     * working with both Requirements and CustomTasks.
+     */
+    dailyName?: undefined;
+
+    /**
+     * Does not exist for CustomTasks, but including this makes it easier to
+     * perform operations on objects of type Requirement|CustomTask.
+     */
+    startCount?: number;
 }
 
 /** Defines how the requirement is displayed on the scoreboard. */
@@ -92,7 +121,7 @@ export enum RequirementCategory {
  * @param category The category to convert.
  */
 export function displayRequirementCategory(category: RequirementCategory): string {
-    switch(category) {
+    switch (category) {
         case RequirementCategory.Middlegames:
             return 'Middlegame';
         default:
@@ -100,12 +129,12 @@ export function displayRequirementCategory(category: RequirementCategory): strin
     }
 }
 
-/** 
- * Converts a requirement category into a short user-facing display string. 
+/**
+ * Converts a requirement category into a short user-facing display string.
  * @param category The category to convert.
  */
 export function displayRequirementCategoryShort(category: RequirementCategory): string {
-    switch(category) {
+    switch (category) {
         case RequirementCategory.Welcome:
             return 'Welcome';
         case RequirementCategory.Games:

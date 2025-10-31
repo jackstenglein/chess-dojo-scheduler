@@ -1,9 +1,19 @@
-import { GetItemCommand } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
-import { nextPuzzleRequestSchema } from '@jackstenglein/chess-dojo-common/src/puzzles/api';
+import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import {
+    getPuzzleOverview,
+    PuzzleThemeOverview,
+    User,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
+import {
+    NextPuzzleRequest,
+    nextPuzzleRequestSchema,
+    Puzzle,
+    PuzzleHistory,
+} from '@jackstenglein/chess-dojo-common/src/puzzles/api';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { Glicko2 } from 'glicko2';
+import { MongoClient, ServerApiVersion, WithId } from 'mongodb';
 import {
     ApiError,
     errToApiGatewayProxyResultV2,
@@ -11,9 +21,10 @@ import {
     requireUserInfo,
     success,
 } from '../directoryService/api';
-import { dynamo } from '../directoryService/database';
+import { dynamo, UpdateItemBuilder } from '../directoryService/database';
 
 const userTable = `${process.env.stage}-users`;
+const puzzleResultsTable = `${process.env.stage}-puzzle-results`;
 
 const mongoClient = new MongoClient(process.env.MONGODB_URI ?? '', {
     auth: {
@@ -38,19 +49,15 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         console.log('Event: %j', event);
         const request = parseEvent(event, nextPuzzleRequestSchema);
         const userInfo = requireUserInfo(event);
-        const user = await fetchUser(userInfo.username);
+        let user = await fetchUser(userInfo.username);
 
-        let rating = user.puzzles?.OVERALL.rating ?? user.ratings[user.ratingSystem]?.currentRating;
-        if (!rating) {
-            throw new ApiError({
-                statusCode: 400,
-                publicMessage: `User has no puzzle rating or current rating in their preferred rating system`,
-            });
+        if (request.previousPuzzle) {
+            user = await handlePreviousPuzzle(request.previousPuzzle, user);
         }
 
+        const rating = getPuzzleOverview(user, 'OVERALL').rating;
         const minRatingAdjustment = request.relativeRating?.[0] ?? -200;
         const maxRatingAdjustment = request.relativeRating?.[1] ?? 200;
-
         const cursor = mongoClient
             .db('puzzles')
             .collection('puzzles')
@@ -67,10 +74,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 { $sample: { size: 5 } },
             ]);
         const document = await cursor.next();
-        console.log(`Got document from mongo: `, document);
         return success({
             puzzle: { plays: 0, successfulPlays: 0, id: document?._id, ...document },
-            rating,
+            user,
         });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
@@ -88,7 +94,7 @@ async function fetchUser(username: string) {
             Key: {
                 username: { S: username },
             },
-            ProjectionExpression: `puzzles, ratingSystem, ratings`,
+            ProjectionExpression: `username, puzzles, ratingSystem, ratings`,
             TableName: userTable,
         }),
     );
@@ -96,5 +102,145 @@ async function fetchUser(username: string) {
         throw new ApiError({ statusCode: 404, publicMessage: `User not found` });
     }
 
-    return unmarshall(output.Item) as Pick<User, 'puzzles' | 'ratingSystem' | 'ratings'>;
+    return unmarshall(output.Item) as Pick<
+        User,
+        'username' | 'puzzles' | 'ratingSystem' | 'ratings'
+    >;
+}
+
+const SCORE_PER_RESULT = {
+    win: 1,
+    draw: 0.5,
+    loss: 0,
+};
+
+/**
+ * Updates the ratings of the previous puzzle and the user. Also saves an entry for the user/puzzle
+ * in the puzzle results table.
+ * @param previousPuzzle The previous puzzle the user took.
+ * @param user The user who took the puzzle.
+ * @return The updated user object.
+ */
+async function handlePreviousPuzzle(
+    previousPuzzle: Required<NextPuzzleRequest>['previousPuzzle'],
+    user: Pick<User, 'username' | 'puzzles' | 'ratingSystem' | 'ratings'>,
+) {
+    const updatesByTheme: Record<string, PuzzleThemeOverview> = {};
+    let attempts = 0;
+    const MAX_ATTEMPTS = 3;
+
+    const session = mongoClient.startSession();
+    let puzzle: WithId<Puzzle> | null = null;
+    while (attempts < MAX_ATTEMPTS) {
+        try {
+            puzzle = await session.withTransaction(async () => {
+                const collection = mongoClient.db('puzzles').collection<Puzzle>('puzzles');
+                const puzzle = await collection.findOne({ _id: previousPuzzle.id });
+                if (!puzzle) {
+                    console.error(`Failed to fetch previous puzzle with id "${previousPuzzle.id}"`);
+                    return puzzle;
+                }
+                if (!previousPuzzle.rated) {
+                    return puzzle;
+                }
+
+                for (const theme of ['OVERALL'].concat(puzzle.themes)) {
+                    const ranking = new Glicko2();
+                    const themeOverview = getPuzzleOverview(user, theme);
+                    const userRanking = ranking.makePlayer(
+                        themeOverview.rating,
+                        themeOverview.ratingDeviation,
+                        themeOverview.volatility,
+                    );
+                    const puzzleRanking = ranking.makePlayer(
+                        puzzle.rating,
+                        puzzle.ratingDeviation,
+                        puzzle.volatility,
+                    );
+                    ranking.updateRatings([
+                        [userRanking, puzzleRanking, SCORE_PER_RESULT[previousPuzzle.result]],
+                    ]);
+
+                    updatesByTheme[theme] = {
+                        rating: Math.round(userRanking.getRating()),
+                        ratingDeviation: userRanking.getRd(),
+                        volatility: userRanking.getVol(),
+                        plays: (user.puzzles?.[theme]?.plays ?? 0) + 1,
+                    };
+                    if (theme === 'OVERALL') {
+                        const update = {
+                            rating: Math.round(puzzleRanking.getRating()),
+                            ratingDeviation: puzzleRanking.getRd(),
+                            volatility: puzzleRanking.getVol(),
+                            plays: (puzzle.plays ?? 0) + 1,
+                            successfulPlays:
+                                (puzzle.successfulPlays ?? 0) +
+                                (previousPuzzle.result === 'win' ? 1 : 0),
+                        };
+                        console.log(
+                            `Updating puzzle with id: ${previousPuzzle.id} and update: `,
+                            update,
+                        );
+                        const result = await collection.updateOne(
+                            { _id: previousPuzzle.id },
+                            {
+                                $set: {
+                                    rating: Math.round(puzzleRanking.getRating()),
+                                    ratingDeviation: puzzleRanking.getRd(),
+                                    volatility: puzzleRanking.getVol(),
+                                    plays: (puzzle.plays ?? 0) + 1,
+                                    successfulPlays:
+                                        (puzzle.successfulPlays ?? 0) +
+                                        (previousPuzzle.result === 'win' ? 1 : 0),
+                                },
+                            },
+                        );
+                        console.log(`Puzzle update result: `, result);
+                    }
+                }
+                return puzzle;
+            });
+            break;
+        } catch (err) {
+            console.error(`Failed transaction to update puzzle: `, err);
+            attempts++;
+        }
+    }
+    await session.endSession();
+
+    if (attempts === MAX_ATTEMPTS) {
+        throw new ApiError({
+            statusCode: 500,
+            publicMessage: `Failed to update puzzle in ${MAX_ATTEMPTS} attempts`,
+        });
+    }
+
+    const input = new UpdateItemBuilder()
+        .key('username', user.username)
+        .set('puzzles', { ...user.puzzles, ...updatesByTheme })
+        .table(userTable)
+        .build();
+    await dynamo.send(input);
+
+    const history: PuzzleHistory = {
+        username: user.username,
+        createdAt: new Date().toISOString(),
+        id: previousPuzzle.id,
+        fen: puzzle?.fen || '',
+        puzzleRating: puzzle?.rating ?? 0,
+        result: previousPuzzle.result,
+        timeSpentSeconds: previousPuzzle.timeSpentSeconds,
+        pgn: previousPuzzle.pgn,
+        rated: previousPuzzle.rated,
+        rating: updatesByTheme.OVERALL.rating,
+        ratingChange: updatesByTheme.OVERALL.rating - getPuzzleOverview(user, 'OVERALL').rating,
+    };
+    await dynamo.send(
+        new PutItemCommand({
+            Item: marshall(history),
+            TableName: puzzleResultsTable,
+        }),
+    );
+
+    return { ...user, puzzles: { ...user.puzzles, ...updatesByTheme } };
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { User } from '../database/user';
 
 /** Verifies the type of a request to get the next puzzle. */
 export const nextPuzzleRequestSchema = z.object({
@@ -13,6 +14,8 @@ export const nextPuzzleRequestSchema = z.object({
             timeSpentSeconds: z.number(),
             /** The user's final PGN on the puzzle. */
             pgn: z.string(),
+            /** Whether the puzzle was rated or not. */
+            rated: z.boolean(),
         })
         .optional(),
     /** The themes that the next puzzle must be in. The puzzle must match any of the themes. */
@@ -26,6 +29,8 @@ export type NextPuzzleRequest = z.infer<typeof nextPuzzleRequestSchema>;
 
 export interface Puzzle {
     /** The ID of the puzzle. */
+    _id: string;
+    /** The ID of the puzzle. */
     id: string;
     /** The FEN of the starting position of the puzzle. */
     fen: string;
@@ -33,6 +38,10 @@ export interface Puzzle {
     moves: string[];
     /** The current rating of the puzzle. */
     rating: number;
+    /** The rating deviation of the puzzle. */
+    ratingDeviation: number;
+    /** The volatility of the puzzle. */
+    volatility: number;
     /** The number of times the puzzle has been played. */
     plays: number;
     /** The number of times the puzzle has been successfully completed. */
@@ -45,6 +54,31 @@ export interface Puzzle {
 export interface NextPuzzleResponse {
     /** The next puzzle to play. */
     puzzle: Puzzle;
-    /** The user's current rating. */
+    /** The updated user. */
+    user: Pick<User, 'puzzles' | 'ratingSystem' | 'ratings'>;
+}
+
+export interface PuzzleHistory {
+    /** The username of the user that took the puzzle. */
+    username: string;
+    /** The time the user took the puzzle, in ISO 8601. */
+    createdAt: string;
+    /** The id of the puzzle that the user took. */
+    id: string;
+    /** The FEN of the puzzle. */
+    fen: string;
+    /** The rating of the puzzle, at the time the user took it. */
+    puzzleRating: number;
+    /** The result of the puzzle, from the user's perspective. */
+    result: 'win' | 'draw' | 'loss';
+    /** The amount of time the user spent on the puzzle. */
+    timeSpentSeconds: number;
+    /** The user's final PGN on the puzzle. */
+    pgn: string;
+    /** Whether the puzzle was rated or not. */
+    rated: boolean;
+    /** The user's rating after taking the puzzle. */
     rating: number;
+    /** The rating change from taking the puzzle. */
+    ratingChange: number;
 }

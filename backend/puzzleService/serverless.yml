@@ -37,14 +37,13 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-          - dynamodb:UpdateItem
-          - dynamodb:GetItem
         Resource: !GetAtt PuzzleResultsTable.Arn
       - Effect: Allow
         Action:
           - dynamodb:GetItem
+          - dynamodb:UpdateItem
         Resource: ${param:UsersTableArn}
-      # This function also has access to the MongoDB puzzle database, which
+      # This function also has R/W access to the MongoDB puzzle database, which
       # is configured by adding the function's role ARN as a database user
       # in Mongo Cloud Atlas.
 
