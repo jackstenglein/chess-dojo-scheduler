@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    outputFileTracingRoot: import.meta.dirname,
     productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
     images: {
         remotePatterns: [
@@ -50,6 +51,11 @@ const nextConfig = {
             destination: '/games/analysis',
             permanent: true,
         },
+        {
+            source: '/material/bots',
+            destination: '/material/guides',
+            permanent: true,
+        },
     ],
 };
 
@@ -78,7 +84,7 @@ const pagesWithVideos = [
     '/blog/olympiad-2024',
     '/blog/new-ratings',
     '/blog/dojo-talks/:path*',
-    '/material/bots',
+    '/material/guides',
 
     // K+P Endings
     '/courses/ENDGAME/34241b4d-3a8f-4d5f-9a15-b26cf718a0d0/1/1',

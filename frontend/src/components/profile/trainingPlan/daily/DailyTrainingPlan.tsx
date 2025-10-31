@@ -1,6 +1,7 @@
 import {
     CustomTask,
     formatTime,
+    getCurrentCount,
     getTotalCount,
     isPinnable,
     isRequirement,
@@ -25,6 +26,7 @@ import {
     Typography,
 } from '@mui/material';
 import { use, useMemo, useState } from 'react';
+import { displayProgress } from '../full/FullTrainingPlanItem';
 import { ScheduleClassicalGameDaily } from '../ScheduleClassicalGame';
 import { SCHEDULE_CLASSICAL_GAME_TASK_ID, SuggestedTask } from '../suggestedTasks';
 import { TaskDescription } from '../TaskDescription';
@@ -56,7 +58,7 @@ export function DailyTrainingPlan() {
     });
 
     return (
-        <Stack spacing={2} width={1}>
+        <Stack data-cy='training-plan-today' spacing={2} width={1}>
             <Stack direction='row' alignItems='center' spacing={2}>
                 <Typography variant='h5' fontWeight='bold'>
                     Today
@@ -212,37 +214,54 @@ function DailyTrainingPlanItem({
                     onClick={() => onOpenTask(task, TaskDialogView.Details)}
                 >
                     <CardContent sx={{ height: 1 }}>
-                        <Stack spacing={1} alignItems='start'>
-                            <Chip
-                                variant='outlined'
-                                label={displayRequirementCategory(task.category)}
-                                color={themeRequirementCategory(task.category)}
-                                size='small'
-                            />
+                        <Stack sx={{ height: 1 }}>
+                            <Stack spacing={1} alignItems='start'>
+                                <Chip
+                                    variant='outlined'
+                                    label={displayRequirementCategory(task.category)}
+                                    color={themeRequirementCategory(task.category)}
+                                    size='small'
+                                />
 
-                            <Typography variant='h6' fontWeight='bold'>
-                                {taskTitle({ task, cohort: user.dojoCohort, goalMinutes })}
-                            </Typography>
+                                <Typography variant='h6' fontWeight='bold'>
+                                    {taskTitle({ task, cohort: user.dojoCohort, goalMinutes })}
+                                </Typography>
+                            </Stack>
+
+                            {task.description && (
+                                <Box
+                                    color='text.secondary'
+                                    sx={{
+                                        mt: 1,
+                                        lineClamp: 4,
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 4,
+                                        WebkitBoxOrient: 'vertical',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                    }}
+                                >
+                                    <TaskDescription>
+                                        {task.description.replaceAll('{{count}}', `${totalCount}`)}
+                                    </TaskDescription>
+                                </Box>
+                            )}
+
+                            {displayProgress(task) && (
+                                <Stack sx={{ flexGrow: 1, justifyContent: 'end', mt: 2 }}>
+                                    <Typography color='textSecondary'>
+                                        {getCurrentCount({
+                                            cohort: user.dojoCohort,
+                                            requirement: task,
+                                            progress: user.progress[task.id],
+                                            timeline,
+                                        })}{' '}
+                                        / {totalCount} {task.progressBarSuffix.toLowerCase()}{' '}
+                                        completed
+                                    </Typography>
+                                </Stack>
+                            )}
                         </Stack>
-
-                        {task.description && (
-                            <Box
-                                color='text.secondary'
-                                sx={{
-                                    mt: 1,
-                                    lineClamp: 4,
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 4,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                }}
-                            >
-                                <TaskDescription>
-                                    {task.description.replaceAll('{{count}}', `${totalCount}`)}
-                                </TaskDescription>
-                            </Box>
-                        )}
                     </CardContent>
                 </CardActionArea>
                 <CardActions disableSpacing>

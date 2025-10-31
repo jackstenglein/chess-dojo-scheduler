@@ -3,7 +3,7 @@ import { CacheProvider } from '@/api/cache/Cache';
 import { AuthProvider } from '@/auth/Auth';
 import { RequireProfile } from '@/components/auth/RequireProfile';
 import { LocalizationProvider } from '@/components/mui/LocalizationProvider';
-import Navbar from '@/navbar/Navbar';
+import Navbar from '@/components/navigation/navbar/Navbar';
 import ThemeProvider from '@/style/ThemeProvider';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 

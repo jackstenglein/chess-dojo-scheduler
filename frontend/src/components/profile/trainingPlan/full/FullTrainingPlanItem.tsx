@@ -257,7 +257,7 @@ export const FullTrainingPlanItem = ({
  * Returns true if the task should display a progress bar.
  * @param task The task to check.
  */
-function displayProgress(task: Requirement | CustomTask): boolean {
+export function displayProgress(task: Requirement | CustomTask): boolean {
     switch (task.scoreboardDisplay) {
         case ScoreboardDisplay.Unspecified:
         case ScoreboardDisplay.ProgressBar:

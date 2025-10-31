@@ -1,5 +1,8 @@
 import { useApi } from '@/api/Api';
+import { useAuth, useFreeTier } from '@/auth/Auth';
+import { ChangeVisibilityDialog } from '@/components/games/list/ChangeVisibilityDialog';
 import { DownloadGamesDialog } from '@/components/games/list/DownloadGamesDialog';
+import { GameInfo, GameKey } from '@/database/game';
 import {
     compareRoles,
     Directory,
@@ -15,8 +18,10 @@ import {
     DriveFileMoveOutlined,
     DriveFileRenameOutline,
     FolderOff,
+    Visibility,
+    VisibilityOff,
 } from '@mui/icons-material';
-import { IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import { Alert, IconButton, Paper, Snackbar, Stack, Tooltip, Typography } from '@mui/material';
 import { useMemo, useState, type JSX } from 'react';
 import { DeleteDialog, DeleteDialogType } from './DeleteDialog';
 import { useDirectoryCache } from './DirectoryCache';
@@ -28,6 +33,15 @@ interface UseDirectoryEditorResponse {
     directory: Directory;
     /** The items selected to be edited. */
     items: DirectoryItem[];
+    /**
+     * The list of selected, published games to be edited. Only games the
+     * current user owns are included. */
+    published: GameInfo[];
+    /**
+     * The list of selected, unpublished games to be edited. Only games the
+     * current user owns are included.
+     */
+    unpublished: GameInfo[];
     /** Whether the rename dialog is open. */
     renameOpen: boolean;
     /** Whether the move dialog is open. */
@@ -44,6 +58,12 @@ interface UseDirectoryEditorResponse {
      * fully deletes selected games.
      */
     deleteOpen: boolean;
+    /** What state the visibility dialog is in. */
+    visibilityDialog: string;
+    /** Which games have skipped visibility. */
+    visibilitySkipped: GameKey[];
+    /** Callback to set which games have skipped visibility. */
+    setVisibilitySkipped: (v: GameKey[]) => void;
     /** Opens the rename dialog. */
     onRename: () => void;
     /** Opens the move dialog. */
@@ -56,6 +76,8 @@ interface UseDirectoryEditorResponse {
     onDelete: () => void;
     /** Closes any open dialogs. */
     handleClose: () => void;
+    /** Callback to invoke when games have their visibility changed. */
+    handleVisibilityChange: (updated: GameKey[], skipped: GameKey[]) => void;
     /** The actions the user can take. */
     actions: {
         /** The title of the action. */
@@ -78,15 +100,57 @@ export function useDirectoryEditor({
     accessRole: DirectoryAccessRole | undefined;
     onClose: () => void;
 }): UseDirectoryEditorResponse {
+    const { user } = useAuth();
+    const isFreeTier = useFreeTier();
+    const cache = useDirectoryCache();
+
     const items = useMemo(() => {
         return itemIds.map((id) => directory.items[id]).filter((item) => item);
     }, [directory, itemIds]);
+
+    const published = items
+        .map((item) =>
+            item.type !== DirectoryItemTypes.DIRECTORY
+                ? {
+                      ...item.metadata,
+                      headers: {
+                          Result: item.metadata.result,
+                          White: item.metadata.white,
+                          Black: item.metadata.black,
+                          Date: item.metadata.createdAt.split('T')[0],
+                      },
+                  }
+                : undefined,
+        )
+        .filter(
+            (item) => item && item.owner === user?.username && !item.unlisted,
+        ) as unknown as GameInfo[];
+
+    const unpublished = items
+        .map((item) =>
+            item.type !== DirectoryItemTypes.DIRECTORY
+                ? {
+                      ...item.metadata,
+                      headers: {
+                          Result: item.metadata.result,
+                          White: item.metadata.white,
+                          Black: item.metadata.black,
+                          Date: item.metadata.createdAt.split('T')[0],
+                      },
+                  }
+                : undefined,
+        )
+        .filter(
+            (item) => item && item.owner === user?.username && item.unlisted,
+        ) as unknown as GameInfo[];
 
     const [renameOpen, setRenameOpen] = useState(false);
     const [moveOpen, setMoveOpen] = useState(false);
     const [downloadOpen, setDownloadOpen] = useState(false);
     const [removeOpen, setRemoveOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
+    const [visibilityDialog, setVisibilityDialog] = useState('');
+    const [visibilitySkipped, setVisibilitySkipped] = useState<GameKey[]>([]);
 
     const onRename = () => {
         setRenameOpen(true);
@@ -108,6 +172,27 @@ export function useDirectoryEditor({
         setDeleteOpen(true);
     };
 
+    const handleVisibilityChange = (updated: GameKey[], skipped: GameKey[]) => {
+        const newItems = { ...directory.items };
+        for (const item of updated) {
+            const id = `${item.cohort}/${item.id}`;
+            if (newItems[id] && newItems[id].type !== DirectoryItemTypes.DIRECTORY) {
+                newItems[id] = {
+                    ...newItems[id],
+                    metadata: {
+                        ...newItems[id].metadata,
+                        unlisted: visibilityDialog === 'unlisted',
+                    },
+                };
+            }
+        }
+
+        cache.put({ ...directory, items: newItems });
+        setVisibilityDialog('');
+        setVisibilitySkipped(skipped);
+        onClose();
+    };
+
     const handleClose = () => {
         onClose();
         setRenameOpen(false);
@@ -115,6 +200,7 @@ export function useDirectoryEditor({
         setDownloadOpen(false);
         setRemoveOpen(false);
         setDeleteOpen(false);
+        setVisibilityDialog('');
     };
 
     const defaultDirectorySelected = itemIds.some((id) => isDefaultDirectory(id));
@@ -134,6 +220,22 @@ export function useDirectoryEditor({
         });
     }
 
+    if (unpublished.length > 0 && !isFreeTier) {
+        actions.push({
+            title: `Publish Game${unpublished.length > 1 ? 's' : ''}`,
+            onClick: () => setVisibilityDialog('published'),
+            icon: <Visibility />,
+        });
+    }
+
+    if (published.length > 0) {
+        actions.push({
+            title: `Unlist Game${published.length > 1 ? 's' : ''}`,
+            onClick: () => setVisibilityDialog('unlisted'),
+            icon: <VisibilityOff />,
+        });
+    }
+
     if (!defaultDirectorySelected) {
         actions.push({ title: 'Move', onClick: onMove, icon: <DriveFileMoveOutlined /> });
     }
@@ -150,17 +252,23 @@ export function useDirectoryEditor({
     return {
         directory,
         items,
+        published,
+        unpublished,
         renameOpen,
         moveOpen,
         downloadOpen,
         removeOpen,
         deleteOpen,
+        visibilityDialog,
+        visibilitySkipped,
+        setVisibilitySkipped,
         onRename,
         onMove,
         onDownload,
         onRemove,
         onDelete,
         handleClose,
+        handleVisibilityChange,
         actions,
     };
 }
@@ -276,5 +384,33 @@ export const ItemEditorDialogs = ({ editor }: { editor: UseDirectoryEditorRespon
         );
     }
 
-    return null;
+    if (editor.visibilityDialog) {
+        return (
+            <ChangeVisibilityDialog
+                games={
+                    editor.visibilityDialog === 'unlisted' ? editor.published : editor.unpublished
+                }
+                onCancel={editor.handleClose}
+                onSuccess={editor.handleVisibilityChange}
+                unlisted={editor.visibilityDialog === 'unlisted'}
+            />
+        );
+    }
+
+    return (
+        <Snackbar
+            open={editor.visibilitySkipped.length > 0}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+            <Alert
+                severity='error'
+                variant='filled'
+                onClose={() => editor.setVisibilitySkipped([])}
+            >
+                {editor.visibilitySkipped.length} game
+                {editor.visibilitySkipped.length !== 1 ? 's were' : ' was'} not able to be published
+                because {editor.visibilitySkipped.length !== 1 ? 'they are' : 'it is'} missing data.
+            </Alert>
+        </Snackbar>
+    );
 };

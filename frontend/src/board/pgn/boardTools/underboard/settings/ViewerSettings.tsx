@@ -1,5 +1,13 @@
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
-import { Checkbox, FormControlLabel, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+    Box,
+    Checkbox,
+    FormControlLabel,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 import KeyboardShortcuts from './KeyboardShortcuts';
 
@@ -125,6 +133,8 @@ const ViewerSettings = () => {
     return (
         <Stack spacing={3}>
             <Typography variant='h5'>Viewer Settings</Typography>
+
+            <Box id='chessdojo-integrations' sx={{ '&:empty': { mt: '0 !important' } }}></Box>
 
             <TextField
                 select

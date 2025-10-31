@@ -124,6 +124,8 @@ services:
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
       GamesTableArn: ${chess-dojo-scheduler.GamesTableArn}
+      NotificationEventQueueArn: ${notificationService.NotificationEventQueueArn}
+      NotificationEventQueueUrl: ${notificationService.NotificationEventQueueUrl}
 
   emailService:
     path: email

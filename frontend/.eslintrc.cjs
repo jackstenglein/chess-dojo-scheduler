@@ -22,6 +22,7 @@ module.exports = {
         'src/stockfish/engine/sf17-79.js',
         'src/stockfish/engine/sf171-79.js',
         'scripts/simulate-suggested-tasks.ts',
+        'next-env.d.ts',
     ],
     root: true,
 };

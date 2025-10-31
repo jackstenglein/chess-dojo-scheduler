@@ -27,6 +27,7 @@ import {
     Groups,
     Help,
     ImportContacts,
+    Info,
     LocalFireDepartment,
     Logout,
     MenuBook,
@@ -39,7 +40,6 @@ import {
     Scoreboard,
     Sell,
     SignalCellularAlt,
-    SmartToy,
     Speed,
     Storage,
     Storefront,
@@ -235,9 +235,9 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     href: '/material/ratings',
                 },
                 {
-                    name: 'Guide to Bots',
-                    icon: <SmartToy />,
-                    href: '/material/bots',
+                    name: 'Guides',
+                    icon: <Info />,
+                    href: '/material/guides',
                 },
                 {
                     name: 'Discord',

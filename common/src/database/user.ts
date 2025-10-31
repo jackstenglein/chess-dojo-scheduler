@@ -111,6 +111,9 @@ export interface User {
      * The user's overall stats will be under the theme OVERALL.
      */
     puzzles?: Record<string, PuzzleThemeOverview>;
+
+    /** The user's firebase cloud messaging tokens. */
+    firebaseTokens?: string[];
 }
 
 export interface WorkGoalSettings {
@@ -216,6 +219,7 @@ export interface EmailNotificationSettings {
     disableNewsletter: boolean;
     disableInactiveWarning: boolean;
     disableRoundRobinStart: boolean;
+    disableSubscriptionCreated: boolean;
 }
 
 export interface SiteNotificationSettings {

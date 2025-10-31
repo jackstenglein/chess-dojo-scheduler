@@ -13,8 +13,8 @@
         "@jackstenglein/chess": "^2.2.13",
         "ml-regression-simple-linear": "^3.0.1",
         "stripe": "^17.5.0",
-        "uuid": "^11.1.0",
-        "zod": "^4.0.14"
+        "uuid": "^13.0.0",
+        "zod": "^4.1.11"
     },
     "devDependencies": {
         "@jackstenglein/eslint-config-dojo": "file:../eslint-config-dojo",
@@ -24,6 +24,6 @@
         "eslint": "^8.57.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "prettier": "^3.6.2",
-        "prettier-plugin-organize-imports": "^4.2.0"
+        "prettier-plugin-organize-imports": "^4.3.0"
     }
 }

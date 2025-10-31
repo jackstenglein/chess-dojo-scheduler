@@ -158,6 +158,10 @@ func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Res
 		log.Errorf("Failed to set Discord roles: %v", err)
 	}
 
+	if err := database.SendSubscriptionCreatedEvent(user.Username); err != nil {
+		log.Errorf("Failed to send subscription created notification: %v", err)
+	}
+
 	analytics.PurchaseEvent(user, checkoutSession)
 	return api.Success(nil)
 }
