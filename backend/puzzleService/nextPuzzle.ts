@@ -178,24 +178,15 @@ async function handlePreviousPuzzle(
                                 (previousPuzzle.result === 'win' ? 1 : 0),
                         };
                         console.log(
-                            `Updating puzzle with id: ${previousPuzzle.id} and update: `,
-                            update,
+                            `Updating original puzzle: ${JSON.stringify(puzzle, undefined, 2)} with update: ${JSON.stringify(update, undefined, 2)}`,
                         );
-                        const result = await collection.updateOne(
+
+                        await collection.updateOne(
                             { _id: previousPuzzle.id },
                             {
-                                $set: {
-                                    rating: Math.round(puzzleRanking.getRating()),
-                                    ratingDeviation: puzzleRanking.getRd(),
-                                    volatility: puzzleRanking.getVol(),
-                                    plays: (puzzle.plays ?? 0) + 1,
-                                    successfulPlays:
-                                        (puzzle.successfulPlays ?? 0) +
-                                        (previousPuzzle.result === 'win' ? 1 : 0),
-                                },
+                                $set: update,
                             },
                         );
-                        console.log(`Puzzle update result: `, result);
                     }
                 }
                 return puzzle;
@@ -215,6 +206,9 @@ async function handlePreviousPuzzle(
         });
     }
 
+    console.log(
+        `Updating original user puzzles: ${JSON.stringify(user.puzzles, undefined, 2)} with update: ${JSON.stringify(updatesByTheme, undefined, 2)}`,
+    );
     const input = new UpdateItemBuilder()
         .key('username', user.username)
         .set('puzzles', { ...user.puzzles, ...updatesByTheme })
@@ -237,7 +231,7 @@ async function handlePreviousPuzzle(
     };
     await dynamo.send(
         new PutItemCommand({
-            Item: marshall(history),
+            Item: marshall(history, { removeUndefinedValues: true }),
             TableName: puzzleResultsTable,
         }),
     );

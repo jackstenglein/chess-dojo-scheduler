@@ -155,6 +155,9 @@ export function useSolitaireChess(
             }
 
             incorrectMoves.current.push(move);
+            if (addWrongMoves) {
+                chess.move(move, { previousMove: currentMove, skipSeek: true });
+            }
             board.set({
                 movable: {},
                 premovable: {

@@ -103,6 +103,8 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
         countStart: 0,
         countStop: -1,
     });
+    const secondsRef = useRef(seconds);
+    secondsRef.current = seconds;
 
     useEffect(() => {
         if (!requestTracker.isSent()) {
@@ -119,11 +121,14 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
             resetCountdown();
             startCountdown();
             updateUser(requestTracker.data.user);
+            setPuzzleOverview(getPuzzleOverview(requestTracker.data.user, 'OVERALL'));
         }
     }, [currentPuzzle, requestTracker, resetCountdown, startCountdown, updateUser]);
 
     const pgnRef = useRef<PgnBoardApi>(null);
     const [result, setResult] = useState<'win' | 'loss'>();
+    const resultRef = useRef(result);
+    resultRef.current = result;
     const [complete, setComplete] = useState(false);
     const [puzzleOverview, setPuzzleOverview] = useState(getPuzzleOverview(user, 'OVERALL'));
     const [ratingChange, setRatingChange] = useState(0);
@@ -149,12 +154,6 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
 
     const onWrongMove = () => {
         setResult('loss');
-    };
-
-    const onComplete = () => {
-        stopCountdown();
-        setResult((r) => r ?? 'win');
-        setComplete(true);
 
         void fetchNextPuzzle({
             api,
@@ -163,8 +162,8 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                 previousPuzzle: currentPuzzle
                     ? {
                           id: currentPuzzle.id,
-                          result: result ?? 'win',
-                          timeSpentSeconds: seconds,
+                          result: 'loss',
+                          timeSpentSeconds: secondsRef.current,
                           pgn: pgnRef.current?.getPgn() ?? '',
                           rated: readLocalStorage(RATED_KEY, true),
                       }
@@ -179,6 +178,37 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                 });
             },
         });
+    };
+
+    const onComplete = () => {
+        stopCountdown();
+        setResult((r) => r ?? 'win');
+        setComplete(true);
+
+        if (resultRef.current !== 'loss') {
+            void fetchNextPuzzle({
+                api,
+                requestTracker,
+                request: {
+                    previousPuzzle: currentPuzzle
+                        ? {
+                              id: currentPuzzle.id,
+                              result: secondsRef.current <= 60 ? 'win' : 'draw',
+                              timeSpentSeconds: secondsRef.current,
+                              rated: readLocalStorage(RATED_KEY, true),
+                          }
+                        : undefined,
+                },
+                onSuccess: ({ user }) => {
+                    const newOverview = getPuzzleOverview(user, 'OVERALL');
+                    setRatingChange(newOverview.rating - puzzleOverview.rating);
+                    setPuzzleOverview({
+                        ...puzzleOverview,
+                        ratingDeviation: newOverview.ratingDeviation,
+                    });
+                },
+            });
+        }
     };
 
     const orientation = playerColor === Color.white ? 'white' : 'black';
@@ -402,58 +432,59 @@ function CheckmatePuzzleUnderboard({
                             label='Successful Attempts'
                             value={`${successfulPlays} (${Math.round((1000 * successfulPlays) / (puzzle.plays + 1)) / 10}%)`}
                         />
-                        <PuzzleDetailRow label='Target Time' value='1:00' />
+                        <PuzzleDetailRow label='Target Time' value='01:00' />
                         <PuzzleDetailRow label='Used Time' value={formatTime(seconds)} />
                     </Stack>
                 )}
 
                 <Stack sx={{ flexGrow: 1, justifyContent: 'end' }}>
-                    <MultipleSelectChip
-                        label='Themes'
-                        selected={themes}
-                        setSelected={(v) => {
-                            setThemes(v);
-                            onChangeOptions();
-                        }}
-                        options={[
-                            { value: 'mateIn1', label: 'Mate in 1' },
-                            { value: 'mateIn2', label: 'Mate in 2' },
-                            { value: 'mateIn3', label: 'Mate in 3' },
-                        ]}
-                        size='small'
-                        sx={{ mb: 2.5 }}
-                        disabled={!solitaire?.complete}
-                    />
-
-                    <TextField
-                        label='Difficulty'
-                        select
-                        value={difficulty}
-                        size='small'
-                        sx={{ mb: 1 }}
-                        onChange={(e) => {
-                            setDifficulty(e.target.value);
-                            onChangeOptions();
-                        }}
-                        disabled={!solitaire?.complete}
-                    >
-                        <MenuItem value='easiest'>Easiest (-600)</MenuItem>
-                        <MenuItem value='easier'>Easier (-300)</MenuItem>
-                        <MenuItem value='standard'>Standard (±200)</MenuItem>
-                        <MenuItem value='harder'>Harder (+300)</MenuItem>
-                        <MenuItem value='hardest'>Hardest (+600)</MenuItem>
-                    </TextField>
-
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={rated}
-                                onChange={(e) => setRated(e.target.checked)}
+                    {solitaire?.complete && (
+                        <>
+                            <MultipleSelectChip
+                                label='Themes'
+                                selected={themes}
+                                setSelected={(v) => {
+                                    setThemes(v);
+                                    onChangeOptions();
+                                }}
+                                options={[
+                                    { value: 'mateIn1', label: 'Mate in 1' },
+                                    { value: 'mateIn2', label: 'Mate in 2' },
+                                    { value: 'mateIn3', label: 'Mate in 3' },
+                                ]}
+                                size='small'
+                                sx={{ mb: 2.5 }}
                             />
-                        }
-                        label='Rated'
-                        disabled={!solitaire?.complete}
-                    />
+
+                            <TextField
+                                label='Difficulty'
+                                select
+                                value={difficulty}
+                                size='small'
+                                sx={{ mb: 1 }}
+                                onChange={(e) => {
+                                    setDifficulty(e.target.value);
+                                    onChangeOptions();
+                                }}
+                            >
+                                <MenuItem value='easiest'>Easiest (-600)</MenuItem>
+                                <MenuItem value='easier'>Easier (-300)</MenuItem>
+                                <MenuItem value='standard'>Standard (±200)</MenuItem>
+                                <MenuItem value='harder'>Harder (+300)</MenuItem>
+                                <MenuItem value='hardest'>Hardest (+600)</MenuItem>
+                            </TextField>
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={rated}
+                                        onChange={(e) => setRated(e.target.checked)}
+                                    />
+                                }
+                                label='Rated'
+                            />
+                        </>
+                    )}
                     <FormControlLabel
                         control={
                             <Checkbox

@@ -12,8 +12,11 @@ export const nextPuzzleRequestSchema = z.object({
             result: z.union([z.literal('win'), z.literal('draw'), z.literal('loss')]),
             /** The time spent on the puzzle. */
             timeSpentSeconds: z.number(),
-            /** The user's final PGN on the puzzle. */
-            pgn: z.string(),
+            /**
+             * The user's final PGN on the puzzle. This is only included if the user lost the puzzle,
+             * as a win or draw would be the same PGN as the solution.
+             */
+            pgn: z.string().optional(),
             /** Whether the puzzle was rated or not. */
             rated: z.boolean(),
         })
@@ -73,8 +76,10 @@ export interface PuzzleHistory {
     result: 'win' | 'draw' | 'loss';
     /** The amount of time the user spent on the puzzle. */
     timeSpentSeconds: number;
-    /** The user's final PGN on the puzzle. */
-    pgn: string;
+    /**
+     * The user's final PGN on the puzzle. This is only included if the user lost the puzzle,
+     * as a win or draw would be the same PGN as the solution. */
+    pgn?: string;
     /** Whether the puzzle was rated or not. */
     rated: boolean;
     /** The user's rating after taking the puzzle. */
