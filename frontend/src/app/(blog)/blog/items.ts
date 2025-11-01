@@ -14,6 +14,7 @@ import dojo4 from './dojo-digest/vol-21/Dojo4.png';
 import youtubeaward from './dojo-digest/vol-22/youtube.webp';
 import kraaichamp from './dojo-digest/vol-23/kraaichamp.jpg';
 import UIUpgrade from './dojo-digest/vol-24/UI+Upgrade.jpg';
+import solitairechess from './dojo-digest/vol-25/solitairechess.jpg';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import worldrapid from './dojo-talks/2024-world-rapid-blitz/2024-rapid.png';
@@ -35,6 +36,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'CoachChamps, Solitaire Chess & More',
+        subtitle: 'Dojo Digest • October 1, 2025',
+        body: `Solitaire Chess (Guess the Move)!`,
+        href: '/blog/dojo-digest/vol-25',
+        image: {
+            src: solitairechess,
+            alt: '',
+        },
+    },
     {
         title: 'New UI, Performance Stats & Annotation Workshop',
         subtitle: 'Dojo Digest • September 1, 2025',
