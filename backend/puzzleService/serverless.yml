@@ -1,0 +1,75 @@
+# Deploys functions and resources related to puzzles
+
+service: chess-dojo-puzzle
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+functions:
+  nextPuzzle:
+    handler: nextPuzzle.handler
+    timeout: 15
+    events:
+      - httpApi:
+          path: /puzzle/next
+          method: post
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      MONGODB_URI: ${file(../config-${sls:stage}.yml):mongoUri}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt PuzzleResultsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: ${param:UsersTableArn}
+      # This function also has R/W access to the MongoDB puzzle database, which
+      # is configured by adding the function's role ARN as a database user
+      # in Mongo Cloud Atlas.
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+
+  Resources:
+    PuzzleResultsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-puzzle-results
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE

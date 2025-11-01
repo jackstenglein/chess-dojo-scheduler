@@ -2,15 +2,19 @@ import { Requirement } from '@/database/requirement';
 import { Chess, Move } from '@jackstenglein/chess';
 import { getCohortRangeInt } from '@jackstenglein/chess-dojo-common/src/database/cohort';
 import { Exam, ExamAnswer, ExamType } from '@jackstenglein/chess-dojo-common/src/database/exam';
+import {
+    getPuzzleOverview,
+    PROVISIONAL_PUZZLE_RATING_DEVIATION,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import { useEffect } from 'react';
 import { useApi } from '../../api/Api';
 import { useRequest } from '../../api/Request';
 import {
     ALL_COHORTS,
-    User,
     compareCohorts,
     isCohortInRange,
     isCohortLess,
+    User,
 } from '../../database/user';
 
 /**
@@ -189,16 +193,14 @@ export interface TacticsRating {
 export interface TacticsRatingComponent {
     /** The name of the component. */
     name: string;
-
     /** The user's rating for this specific component. If negative, the user doesn't have a rating for this component. */
     rating: number;
-
+    /** Whether the rating is provisional. */
+    provisional?: boolean;
     /** A description of the component to be displayed to users. */
     description: string;
-
     /** Link relevant to this component */
     link?: string;
-
     /** Number of tests used to calculate this rating */
     examCount?: number;
 }
@@ -218,7 +220,14 @@ export function calculateTacticsRating(user: User, requirements: Requirement[]):
     };
 
     if (isCohortLess(user.dojoCohort, '2100-2200')) {
-        rating.components.push(...getExamRating(user, ExamType.Polgar));
+        const overview = getPuzzleOverview(user, 'mate');
+        rating.components.push({
+            name: 'Checkmate Puzzles',
+            rating: overview.rating,
+            provisional: overview.ratingDeviation >= PROVISIONAL_PUZZLE_RATING_DEVIATION,
+            description: 'Your rating on the checkmate puzzles',
+            link: '/puzzles/checkmate',
+        });
     }
 
     if (isCohortLess(user.dojoCohort, '1700-1800')) {

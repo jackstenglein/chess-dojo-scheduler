@@ -20,6 +20,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
+import { NextPuzzleRequest } from '@jackstenglein/chess-dojo-common/src/puzzles/api';
 import {
     RoundRobinRegisterRequest,
     RoundRobinSubmitGameRequest,
@@ -137,6 +138,7 @@ import {
     subscriptionCheckout,
     subscriptionManage,
 } from './paymentApi';
+import { PuzzleApiContextType, nextPuzzle } from './puzzleApi';
 import {
     RequirementApiContextType,
     getRequirement,
@@ -214,7 +216,8 @@ export type ApiContextType = UserApiContextType &
     ExamApiContextType &
     EmailApiContextType &
     DirectoryApiContextType &
-    RoundRobinApiContextType;
+    RoundRobinApiContextType &
+    PuzzleApiContextType;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const ApiContext = createContext<ApiContextType>(null!);
@@ -447,6 +450,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 withdrawFromRoundRobin(idToken, request),
             submitRoundRobinGame: (request: RoundRobinSubmitGameRequest) =>
                 submitRoundRobinGame(idToken, request),
+
+            nextPuzzle: (request: NextPuzzleRequest) => nextPuzzle(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 

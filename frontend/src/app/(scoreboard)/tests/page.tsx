@@ -18,9 +18,9 @@ export default function ExamLandingPage() {
                 />
 
                 <ExamCard
-                    name='Checkmate Tests'
+                    name='Checkmate Puzzles'
                     description='All Ratings'
-                    href='/tests/checkmate'
+                    href='/puzzles/checkmate'
                     icon={KingIcon}
                 />
 

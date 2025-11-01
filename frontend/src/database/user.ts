@@ -1,9 +1,28 @@
-import { WeekDays } from '@/components/calendar/filters/CalendarFilters';
 import {
     dojoCohorts,
     getCohortRangeInt,
 } from '@jackstenglein/chess-dojo-common/src/database/cohort';
-import { RatingSystem } from '@jackstenglein/chess-dojo-common/src/database/user';
+import {
+    CoachInfo,
+    User as CommonUser,
+    DiscordNotificationSettings,
+    EmailNotificationSettings,
+    GameScheduleEntry,
+    MinutesSpentKey,
+    PaymentInfo,
+    Rating,
+    RatingHistory,
+    RatingSystem,
+    SiteNotificationSettings,
+    SubscriptionStatus,
+    TimeFormat,
+    UserExamSummary,
+    UserNotificationSettings,
+    UserSummary,
+    WeeklyPlan,
+    WorkGoalHistory,
+    WorkGoalSettings,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     getMinRatingBoundary,
     getNormalizedRating,
@@ -12,8 +31,6 @@ import {
     ratingBoundaries,
 } from '@jackstenglein/chess-dojo-common/src/ratings/ratings';
 import { AuthTokens } from 'aws-amplify/auth';
-import { ExamType } from './exam';
-import { CustomTask, RequirementProgress } from './requirement';
 import { ScoreboardSummary } from './scoreboard';
 
 // TODO: migrate re-exports.
@@ -24,6 +41,26 @@ export {
     getRatingBoundary,
     isCustom,
     RatingSystem,
+    SubscriptionStatus,
+    TimeFormat,
+};
+
+export type {
+    CoachInfo,
+    DiscordNotificationSettings,
+    EmailNotificationSettings,
+    GameScheduleEntry,
+    MinutesSpentKey,
+    PaymentInfo,
+    Rating,
+    RatingHistory,
+    SiteNotificationSettings,
+    UserExamSummary,
+    UserNotificationSettings,
+    UserSummary,
+    WeeklyPlan,
+    WorkGoalHistory,
+    WorkGoalSettings,
 };
 
 /** The user as returned by Cognito. */
@@ -33,6 +70,10 @@ export interface CognitoUser {
 
     /** The user's authentication tokens. */
     tokens?: AuthTokens;
+}
+
+export interface User extends CommonUser {
+    cognitoUser?: CognitoUser;
 }
 
 export function formatRatingSystem(ratingSystem: RatingSystem | string): string {
@@ -62,239 +103,6 @@ export function formatRatingSystem(ratingSystem: RatingSystem | string): string 
     }
     return ratingSystem;
 }
-
-export interface Rating {
-    username: string;
-    hideUsername: boolean;
-    startRating: number;
-    currentRating: number;
-    name?: string;
-}
-
-export interface RatingHistory {
-    date: string;
-    rating: number;
-}
-
-export enum SubscriptionStatus {
-    Subscribed = 'SUBSCRIBED',
-    FreeTier = 'FREE_TIER',
-}
-
-export enum TimeFormat {
-    Default = '',
-    TwelveHour = '12',
-    TwentyFourHour = '24',
-}
-
-export interface User {
-    cognitoUser?: CognitoUser;
-
-    username: string;
-    displayName: string;
-    discordUsername: string;
-    discordId?: string;
-    dojoCohort: string;
-    bio: string;
-    coachBio?: string;
-
-    subscriptionStatus: string;
-
-    ratingSystem: RatingSystem;
-    ratings: Partial<Record<RatingSystem, Rating>>;
-    ratingHistories?: Record<RatingSystem, RatingHistory[]>;
-
-    progress: Record<string, RequirementProgress>;
-    disableBookingNotifications: boolean;
-    disableCancellationNotifications: boolean;
-    isAdmin: boolean;
-    isCalendarAdmin: boolean;
-    isTournamentAdmin: boolean;
-    isBetaTester: boolean;
-    isCoach: boolean;
-    createdAt: string;
-    updatedAt: string;
-    numberOfGraduations: number;
-    previousCohort: string;
-    graduationCohorts?: string[];
-    lastGraduatedAt: string;
-
-    enableLightMode: boolean;
-    /** Whether to enable zen mode. */
-    enableZenMode: boolean;
-    timezoneOverride: string;
-    timeFormat: TimeFormat;
-
-    hasCreatedProfile: boolean;
-
-    customTasks?: CustomTask[];
-
-    openingProgress?: Record<
-        string,
-        {
-            exercises?: boolean[];
-        }
-    >;
-
-    tutorials?: Record<string, boolean>;
-    minutesSpent?: Record<MinutesSpentKey, number>;
-
-    followerCount: number;
-    followingCount: number;
-
-    referralSource: string;
-
-    notificationSettings: UserNotificationSettings;
-
-    totalDojoScore: number;
-
-    purchasedCourses?: Record<string, boolean>;
-
-    paymentInfo?: PaymentInfo;
-
-    coachInfo?: CoachInfo;
-
-    /** The set of club ids the user is a member of. */
-    clubs?: string[];
-
-    /** A map from exam id to the user's summary for that exam. */
-    exams: Record<string, UserExamSummary>;
-
-    /** The IDs of the user's pinned tasks. */
-    pinnedTasks?: string[];
-
-    /** The day the user's week starts on. Sunday is 0; Saturday is 6. */
-    weekStart: WeekDays;
-
-    /** The user's work goal settings. */
-    workGoal?: WorkGoalSettings;
-
-    /** The user's history of the work goal. New entries are added only when the work goal is changed. */
-    workGoalHistory?: WorkGoalHistory[];
-
-    /** The user's weekly training plan. */
-    weeklyPlan?: WeeklyPlan;
-
-    /** The user's schedule of upcoming classical games. */
-    gameSchedule?: GameScheduleEntry[];
-
-    /** The user's firebase cloud messaging tokens. */
-    firebaseTokens?: string[];
-}
-
-export interface WorkGoalSettings {
-    /**
-     * A list of the minutes the user wants to work per day of the week.
-     * In conjunction with minutesPerTask, this affects how many tasks the
-     * user is suggested. Sunday is index 0; Saturday is index 6.
-     */
-    minutesPerDay: number[];
-}
-
-export interface WorkGoalHistory {
-    /** The date the user set the work goal, in ISO 8601. */
-    date: string;
-    /** The user's work goal on the given date. */
-    workGoal: WorkGoalSettings;
-}
-
-export interface WeeklyPlan {
-    /** The exclusive date the weekly plan ends, in ISO 8601. */
-    endDate: string;
-    /**
-     * The tasks in the plan, in a list ordered by the index of the day of the week.
-     * Sunday is index 0; Saturday is index 6.
-     */
-    tasks: {
-        /** The id of the task. */
-        id: string;
-        /** The work goal of the task in minutes. */
-        minutes: number;
-    }[][];
-    /**
-     * The date (in ISO 8601) the user's progress was most recently updated when the weekly plan
-     * was last generated.
-     */
-    progressUpdatedAt: string;
-    /** The ids of the user's pinned tasks (in order) when the weekly plan was last generated. */
-    pinnedTasks?: string[];
-    /** The date (in ISO 8601) of the user's next scheduled game when the weekly plan was last generated. */
-    nextGame: string;
-    /** The ids of the user's skipped tasks (in order) when the weekly plan was last generated. */
-    skippedTasks?: string[];
-}
-
-export interface GameScheduleEntry {
-    /** The date the game(s) will be played, in ISO 8601 format. */
-    date: string;
-    /** The number of games that will be played. */
-    count: number;
-}
-
-export type UserSummary = Pick<User, 'username' | 'displayName' | 'dojoCohort'>;
-
-/** A summary of a user's performance on a single exam. */
-export interface UserExamSummary {
-    /** The type of the exam this summary refers to. */
-    examType: ExamType;
-
-    /** The cohort range of the exam this summary refers to. */
-    cohortRange: string;
-
-    /** The date the user took the exam, in ISO format. */
-    createdAt: string;
-
-    /** The rating the user got on the exam, as determined by the exam's linear regression. */
-    rating: number;
-}
-
-export interface PaymentInfo {
-    customerId: string;
-}
-
-export interface CoachInfo {
-    stripeId: string;
-    onboardingComplete: boolean;
-}
-
-export interface UserNotificationSettings {
-    discordNotificationSettings?: DiscordNotificationSettings;
-    emailNotificationSettings?: EmailNotificationSettings;
-    siteNotificationSettings?: SiteNotificationSettings;
-}
-
-export interface DiscordNotificationSettings {
-    disableMeetingBooking: boolean;
-    disableMeetingCancellation: boolean;
-}
-
-export interface EmailNotificationSettings {
-    disableNewsletter: boolean;
-    disableInactiveWarning: boolean;
-}
-
-export interface SiteNotificationSettings {
-    disableGameComment: boolean;
-    disableGameCommentReplies: boolean;
-    disableNewFollower: boolean;
-    disableNewsfeedComment: boolean;
-    disableNewsfeedReaction: boolean;
-    hideCohortPromptUntil?: string;
-}
-
-export type MinutesSpentKey =
-    | 'ALL_TIME'
-    | 'LAST_7_DAYS'
-    | 'LAST_30_DAYS'
-    | 'LAST_90_DAYS'
-    | 'LAST_365_DAYS'
-    | 'NON_DOJO'
-    | 'ALL_COHORTS_ALL_TIME'
-    | 'ALL_COHORTS_LAST_7_DAYS'
-    | 'ALL_COHORTS_LAST_30_DAYS'
-    | 'ALL_COHORTS_LAST_90_DAYS'
-    | 'ALL_COHORTS_LAST_365_DAYS'
-    | 'ALL_COHORTS_NON_DOJO';
 
 export function parseUser(apiResponse: Omit<User, 'cognitoUser'>, cognitoUser?: CognitoUser): User {
     return {
@@ -583,6 +391,7 @@ export function getPartialUserHideCohortPrompt(user?: User): Partial<User> {
         disableNewFollower: false,
         disableNewsfeedComment: false,
         disableNewsfeedReaction: false,
+        disableCalendarInvite: false,
     };
     const oneMonthForward = new Date();
     oneMonthForward.setTime(new Date().getTime() + ONE_MONTH);

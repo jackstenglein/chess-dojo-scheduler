@@ -19,7 +19,7 @@ import { useState } from 'react';
 
 /**
  * Renders an underboard tab with miscellaneous tools. Currently, this
- * contains only the solitare chess controls.
+ * contains only the solitaire chess controls.
  */
 export function Tools() {
     const { chess, solitaire } = useChess();

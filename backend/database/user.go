@@ -329,6 +329,21 @@ type User struct {
 
 	// The user's firebase cloud messaging tokens
 	FirebaseTokens []string `dynamodbav:"firebaseTokens,omitempty" json:"-"`
+
+	// A map from puzzle theme to the user's overview stats for that theme. The user's
+	// overall stats will be under the theme OVERALL.
+	Puzzles map[string]PuzzleThemeOverview `dynamodbav:"puzzles,omitempty" json:"puzzles,omitempty"`
+}
+
+type PuzzleThemeOverview struct {
+	// The user's rating for the theme.
+	Rating float32 `dynamodbav:"rating" json:"rating"`
+	// The user's rating deviation for the theme.
+	RatingDeviation float32 `dynamodbav:"ratingDeviation" json:"ratingDeviation"`
+	// The number of times the user has played a puzzle with the theme.
+	Plays int `dynamodbav:"plays" json:"plays"`
+	// The time the puzzle was last played, in ISO 8601.
+	LastPlayed string `dynamodbav:"lastPlayed" json:"lastPlayed"`
 }
 
 // A summary of a user's performance on a single exam.

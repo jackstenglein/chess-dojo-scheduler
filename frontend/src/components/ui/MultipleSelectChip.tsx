@@ -109,7 +109,7 @@ export default function MultipleSelectChip({
                         value={option.value}
                         style={getStyles(option.value, selected, theme)}
                     >
-                        <ListItemIcon>{option.icon}</ListItemIcon>
+                        {option.icon && <ListItemIcon>{option.icon}</ListItemIcon>}
                         <ListItemText>{option.label}</ListItemText>
                     </MenuItem>
                 ))}
