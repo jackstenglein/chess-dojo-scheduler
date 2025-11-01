@@ -3,7 +3,8 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 THEMES = ['mateIn1', 'mateIn2', 'mateIn3', 'mate', 'advancedPawn', 'advantage', 'anastasiaMate', 'arabianMate', 'attackingF2F7', 'attraction', 'backRankMate', 'bishopEndgame', 'bodenMate', 'castling', 'capturingDefender', 'crushing', 'doubleBishopMate', 'dovetailMate', 'enPassant', 'equality', 'kingsideAttack', 'clearance', 'defensiveMove', 'deflection', 'discoveredAttack', 'doubleCheck', 'endgame', 'exposedKing', 'fork', 'hangingPiece', 'hookMate', 'interference', 'intermezzo', 'killBoxMate', 'vukovicMate', 'knightEndgame', 'long', 'master', 'masterVsMaster', 'middlegame', 'oneMove', 'opening', 'pawnEndgame', 'pin', 'promotion', 'queenEndgame', 'queenRookEndgame', 'queensideAttack', 'quietMove', 'rookEndgame', 'sacrifice', 'short', 'skewer', 'smotheredMate', 'superGM', 'trappedPiece', 'underPromotion', 'veryLong', 'xRayAttack', 'zugzwang', 'mix', 'playerGames']
-COHORTS = ['0-300', '300-400', '400-500', '500-600', '600-700', '700-800', '800-900', '900-1000', '1000-1100', '1100-1200', '1200-1300', '1300-1400', '1400-1500', '1500-1600', '1600-1700', '1800-1900', '1900-2000', '2000-2100', '2100-2200', '2200-2300', '2300-2400', '2400+']
+COHORTS = ['0-300', '300-400', '400-500', '500-600', '600-700', '700-800', '800-900', '900-1000', '1000-1100', '1100-1200', '1200-1300', '1300-1400', '1400-1500', '1500-1600', '1600-1700', '1700-1800', '1800-1900', '1900-2000', '2000-2100', '2100-2200', '2200-2300', '2300-2400', '2400+']
+RATING_BOUNDARY = [1250, 1310, 1370, 1435, 1500, 1550, 1600, 1665, 1730, 1795, 1850, 1910, 1970, 2030, 2090, 2150, 2225, 2310, 2370, 2410, 2440, 2470]
 
 CSV_FILE = '/Users/jackstenglein/Downloads/lichess_db_puzzle.csv'
 MAX_RATING_DEVIATION = 100
@@ -14,57 +15,34 @@ LIMITED_THEMES = [
 ]
 MAX_LIMITED_THEMES = 200
 
-uri = "mongodb+srv://puzzle_writer:<password>@dev-chess-dojo.pqjx4ee.mongodb.net/?retryWrites=true&w=majority&appName=dev-chess-dojo"
+uri = "mongodb+srv://puzzle_writer_prod:<password>@chess-dojo-prod.bsc8oxy.mongodb.net/?retryWrites=true&w=majority&appName=chess-dojo-prod"
 client = MongoClient(uri, server_api=ServerApi('1'))
 
 
 def get_cohort(lichess_rating) -> str:
-    if lichess_rating < 1250:
-        return '0-300'
-    if lichess_rating < 1310:
-        return '300-400'
-    if lichess_rating < 1370:
-        return '400-500'
-    if lichess_rating < 1435:
-        return '500-600'
-    if lichess_rating < 1500:
-        return '600-700'
-    if lichess_rating < 1550:
-        return '700-800'
-    if lichess_rating < 1600:
-        return '800-900'
-    if lichess_rating < 1665:
-        return '900-1000'
-    if lichess_rating < 1730:
-        return '1000-1100'
-    if lichess_rating < 1795:
-        return '1100-1200'
-    if lichess_rating < 1850:
-        return '1200-1300'
-    if lichess_rating < 1910:
-        return '1300-1400'
-    if lichess_rating < 1970:
-        return '1400-1500'
-    if lichess_rating < 2030:
-        return '1500-1600'
-    if lichess_rating < 2090:
-        return '1600-1700'
-    if lichess_rating < 2150:
-        return '1700-1800'
-    if lichess_rating < 2225:
-        return '1800-1900'
-    if lichess_rating < 2310:
-        return '1900-2000'
-    if lichess_rating < 2370:
-        return '2000-2100'
-    if lichess_rating < 2410:
-        return '2100-2200'
-    if lichess_rating < 2440:
-        return '2200-2300'
-    if lichess_rating < 2470:
-        return '2300-2400'
+    for i, boundary in enumerate(RATING_BOUNDARY):
+        if lichess_rating < boundary:
+            return COHORTS[i]
     return '2400+'
+
+
+def normalize_rating(rating) -> int:
+    for i, x2 in enumerate(RATING_BOUNDARY):
+        if x2 < rating: continue
+
+        x1 = 0 if i == 0 else RATING_BOUNDARY[i-1]
+        y1 = float(COHORTS[i].split('-')[0])
+        y2 = float(COHORTS[i].split('-')[1])
+        result = ((y2-y1) / (x2-x1)) * (rating - x1) + y1
+        return round(result)
     
+    x1 = RATING_BOUNDARY[-2]
+    x2 = RATING_BOUNDARY[-1]
+    y1 = 2300.0
+    y2 = 2400.0
+    result = ((y2-y1) / (x2-x1)) * (rating - x1) + y1
+    return round(result)
+
 
 def insert_row_if_necessary(row, collection, themes_per_cohort) -> bool:
     if 'mateIn1' not in row['Themes'] and 'mateIn2' not in row['Themes'] and 'mateIn3' not in row['Themes']:
@@ -88,12 +66,14 @@ def insert_row_if_necessary(row, collection, themes_per_cohort) -> bool:
             '_id': row['PuzzleId'],
             'fen': row['FEN'],
             'moves': row['Moves'].split(' '),
-            'rating': int(row['Rating']),
+            'rating': normalize_rating(int(row['Rating'])),
             'ratingDeviation': 2*int(row['RatingDeviation']),
             'themes': row['Themes'].split(' '),
             'openingTags': row['OpeningTags'].split(' '),
             'lichessId': row['PuzzleId'],
             'lichessGameUrl': row['GameUrl'],
+            'plays': 0,
+            'successfulPlays': 0,
         })
         return True
     except Exception as e:
@@ -112,8 +92,10 @@ def main():
         for row in reader:
             if insert_row_if_necessary(row, collection, themes_per_cohort):
                 count += 1
+            if count % 1000 == 0:
+                print(f'Inserted {count} puzzles...')
 
-    print(f'Inserted {count} puzzles')
+    print(f'Finished. Inserted {count} total puzzles')
 
     with open('lichess_puzzle_cohort_stats.csv', 'w') as f:
         writer = csv.DictWriter(f, fieldnames=['cohort'] + THEMES)
