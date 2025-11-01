@@ -282,9 +282,7 @@ function waitForOpponentMove({
     });
     setCurrentMove(move);
     setTimeout(() => {
-        console.log('Seeking to move: ', move);
         chess.seek(move);
-        console.log('Reconciling chess and board: ', chess, board);
         reconcile(chess, board, showGlyphs);
     }, delay);
 }

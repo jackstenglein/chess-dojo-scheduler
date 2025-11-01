@@ -32,7 +32,7 @@ functions:
             type: jwt
             id: ${param:apiAuthorizer}
     environment:
-      MONGODB_URI: mongodb+srv://dev-chess-dojo.pqjx4ee.mongodb.net/?retryWrites=true&w=majority&appName=dev-chess-dojo
+      MONGODB_URI: ${file(../config-${sls:stage}.yml):mongoUri}
     iamRoleStatements:
       - Effect: Allow
         Action:
