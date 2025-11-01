@@ -191,6 +191,8 @@ export interface PuzzleThemeOverview {
     volatility: number;
     /** The number of times a user has played a puzzle with the theme. */
     plays: number;
+    /** The time the theme was last played, in ISO 8601. */
+    lastPlayed: string;
 }
 
 export interface PaymentInfo {
@@ -318,16 +320,28 @@ export function getPuzzleOverview(
     theme: string,
 ): PuzzleThemeOverview {
     if (user.puzzles?.[theme]) {
-        return user.puzzles[theme];
+        return adjustRatingDeviation(user.puzzles[theme]);
     }
 
     const rating = user.ratings[user.ratingSystem]?.currentRating;
     if (!rating || rating <= 0) {
-        return { rating: 1000, ratingDeviation: 350, volatility: 0.06, plays: 0 };
+        return {
+            rating: 1000,
+            ratingDeviation: 350,
+            volatility: 0.06,
+            plays: 0,
+            lastPlayed: new Date().toISOString(),
+        };
     }
 
     if (isCustom(user.ratingSystem)) {
-        return { rating, ratingDeviation: 350, volatility: 0.06, plays: 0 };
+        return {
+            rating,
+            ratingDeviation: 350,
+            volatility: 0.06,
+            plays: 0,
+            lastPlayed: new Date().toISOString(),
+        };
     }
 
     return {
@@ -335,5 +349,32 @@ export function getPuzzleOverview(
         ratingDeviation: 200,
         volatility: 0.06,
         plays: 0,
+        lastPlayed: new Date().toISOString(),
     };
+}
+
+const millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+
+/**
+ * Adjusts the rating deviation for the given overview to account for periods of
+ * inactivity. For each week since the theme was last played, the rating deviation
+ * is updated.
+ * @param overview The overview to update.
+ * @returns The overview with the rating deviation adjusted for inactivity.
+ */
+function adjustRatingDeviation(overview: PuzzleThemeOverview): PuzzleThemeOverview {
+    if (!overview.lastPlayed) {
+        return overview;
+    }
+
+    const lastPlayed = new Date(overview.lastPlayed);
+    const now = new Date();
+    const timeDifference = Math.abs(now.getTime() - lastPlayed.getTime());
+    const weeksSinceLastPlayed = Math.round(timeDifference / millisecondsPerWeek);
+    for (let i = 0; i < weeksSinceLastPlayed; i++) {
+        overview.ratingDeviation = Math.sqrt(
+            overview.ratingDeviation ** 2 + overview.volatility ** 2,
+        );
+    }
+    return overview;
 }

@@ -342,6 +342,8 @@ type PuzzleThemeOverview struct {
 	RatingDeviation float32 `dynamodbav:"ratingDeviation" json:"ratingDeviation"`
 	// The number of times the user has played a puzzle with the theme.
 	Plays int `dynamodbav:"plays" json:"plays"`
+	// The time the puzzle was last played, in ISO 8601.
+	LastPlayed string `dynamodbav:"lastPlayed" json:"lastPlayed"`
 }
 
 // A summary of a user's performance on a single exam.

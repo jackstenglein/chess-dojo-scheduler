@@ -129,6 +129,7 @@ async function handlePreviousPuzzle(
     let attempts = 0;
     const MAX_ATTEMPTS = 3;
 
+    const date = new Date().toISOString();
     const session = mongoClient.startSession();
     let puzzle: WithId<Puzzle> | null = null;
     while (attempts < MAX_ATTEMPTS) {
@@ -145,7 +146,7 @@ async function handlePreviousPuzzle(
                 }
 
                 for (const theme of ['OVERALL'].concat(puzzle.themes)) {
-                    const ranking = new Glicko2();
+                    const ranking = new Glicko2({ rating: 1000 });
                     const themeOverview = getPuzzleOverview(user, theme);
                     const userRanking = ranking.makePlayer(
                         themeOverview.rating,
@@ -166,6 +167,7 @@ async function handlePreviousPuzzle(
                         ratingDeviation: userRanking.getRd(),
                         volatility: userRanking.getVol(),
                         plays: (user.puzzles?.[theme]?.plays ?? 0) + 1,
+                        lastPlayed: date,
                     };
                     if (theme === 'OVERALL') {
                         const update = {
@@ -218,7 +220,7 @@ async function handlePreviousPuzzle(
 
     const history: PuzzleHistory = {
         username: user.username,
-        createdAt: new Date().toISOString(),
+        createdAt: date,
         id: previousPuzzle.id,
         fen: puzzle?.fen || '',
         puzzleRating: puzzle?.rating ?? 0,
