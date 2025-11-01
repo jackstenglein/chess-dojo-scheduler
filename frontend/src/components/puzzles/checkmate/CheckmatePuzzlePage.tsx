@@ -12,6 +12,8 @@ import {
 import PgnBoard, { PgnBoardApi, useChess } from '@/board/pgn/PgnBoard';
 import { InProgressAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
+import { RequirementProgress } from '@/database/requirement';
+import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { Chess, Color } from '@jackstenglein/chess';
@@ -38,14 +40,37 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useCountdown, useLocalStorage } from 'usehooks-ts';
+
+const checkmatePuzzlesTaskId = '324fa93d-fbdf-456e-bcfa-a04eb4213171';
 
 const RATED_KEY = 'puzzles.rated';
 const SHOW_TIMER_KEY = 'puzzles.showTimer';
 const SHOW_RATING_KEY = 'puzzles.showRating';
 const DIFFICULTY_KEY = 'puzzles.difficulty';
 const THEME_KEY = 'puzzles.theme';
+
+/** Tracks a single session playing puzzles. */
+interface PuzzleSession {
+    /** The cohort the session applies to. */
+    cohort: string;
+    /** The start rating of the session. */
+    start: number;
+    /** The history of the session. */
+    history: {
+        /** The result of the puzzle. */
+        result: 'win' | 'draw' | 'loss';
+        /** The rating after the puzzle. */
+        rating: number;
+    }[];
+    /** The total time spent in seconds during the session. */
+    timeSpentSeconds: number;
+    /** The requirement progress associated with the session. */
+    progress?: RequirementProgress;
+    /** The timeline entry associated with the session. */
+    timelineEntry?: TimelineEntry;
+}
 
 export function CheckmatePuzzlePage() {
     const { user, status } = useAuth();
@@ -94,6 +119,69 @@ async function fetchNextPuzzle({
     }
 }
 
+async function updateProgress({
+    api,
+    session,
+}: {
+    api: ApiContextType;
+    session: RefObject<PuzzleSession>;
+}) {
+    try {
+        const { win, draw, loss } = session.current.history.reduce(
+            (acc, { result }) => {
+                acc[result] += 1;
+                return acc;
+            },
+            { win: 0, draw: 0, loss: 0 },
+        );
+
+        if (session.current.timelineEntry && session.current.progress) {
+            let totalMinutesSpent = session.current.timelineEntry.totalMinutesSpent;
+            totalMinutesSpent =
+                totalMinutesSpent -
+                session.current.timelineEntry.minutesSpent +
+                Math.round(session.current.timeSpentSeconds / 60);
+
+            await api.updateUserTimeline({
+                requirementId: checkmatePuzzlesTaskId,
+                progress: {
+                    requirementId: checkmatePuzzlesTaskId,
+                    minutesSpent: {
+                        ...session.current.progress.minutesSpent,
+                        [session.current.cohort]: totalMinutesSpent,
+                    },
+                    counts: { ALL_COHORTS: session.current.history.at(-1)?.rating ?? 0 },
+                    updatedAt: new Date().toISOString(),
+                },
+                updated: [
+                    {
+                        ...session.current.timelineEntry,
+                        minutesSpent: Math.round(session.current.timeSpentSeconds / 60),
+                        totalMinutesSpent,
+                        newCount: session.current.history.at(-1)?.rating ?? 0,
+                        notes: `I took ${session.current.history.length} puzzles!\n\n✅ Wins: ${win}\n☑️ Draws: ${draw}\n❌ Losses: ${loss}`,
+                    },
+                ],
+                deleted: [],
+            });
+        } else {
+            const response = await api.updateUserProgress({
+                requirementId: checkmatePuzzlesTaskId,
+                cohort: session.current.cohort,
+                previousCount: session.current.start,
+                newCount: session.current.history.at(-1)?.rating ?? 0,
+                incrementalMinutesSpent: Math.round(session.current.timeSpentSeconds / 60),
+                date: null,
+                notes: `I took ${session.current.history.length} puzzles!\n\n✅ Wins: ${win}\n☑️ Draws: ${draw}\n❌ Losses: ${loss}`,
+            });
+            session.current.timelineEntry = response.data.timelineEntry;
+            session.current.progress = response.data.user.progress[checkmatePuzzlesTaskId];
+        }
+    } catch (err) {
+        console.error(`updateProgress: `, err);
+    }
+}
+
 function AuthCheckmatePuzzlePage({ user }: { user: User }) {
     const { updateUser } = useAuth();
     const api = useApi();
@@ -106,6 +194,12 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
     });
     const secondsRef = useRef(seconds);
     secondsRef.current = seconds;
+    const session = useRef<PuzzleSession>({
+        cohort: user.dojoCohort,
+        start: getPuzzleOverview(user, 'mate').rating,
+        history: [],
+        timeSpentSeconds: 0,
+    });
 
     useEffect(() => {
         if (!requestTracker.isSent()) {
@@ -170,13 +264,19 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                       }
                     : undefined,
             },
-            onSuccess: ({ user }) => {
-                const newOverview = getPuzzleOverview(user, 'OVERALL');
+            onSuccess: ({ user: newUser }) => {
+                const newOverview = getPuzzleOverview(newUser, 'OVERALL');
                 setRatingChange(newOverview.rating - puzzleOverview.rating);
                 setPuzzleOverview({
                     ...puzzleOverview,
                     ratingDeviation: newOverview.ratingDeviation,
                 });
+                session.current.history.push({
+                    result: 'loss',
+                    rating: getPuzzleOverview(newUser, 'mate').rating,
+                });
+                session.current.timeSpentSeconds += secondsRef.current;
+                void updateProgress({ api, session });
             },
         });
     };
@@ -186,30 +286,38 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
         setResult((r) => r ?? 'win');
         setComplete(true);
 
-        if (resultRef.current !== 'loss') {
-            void fetchNextPuzzle({
-                api,
-                requestTracker,
-                request: {
-                    previousPuzzle: currentPuzzle
-                        ? {
-                              id: currentPuzzle.id,
-                              result: secondsRef.current <= 60 ? 'win' : 'draw',
-                              timeSpentSeconds: secondsRef.current,
-                              rated: readLocalStorage(RATED_KEY, true),
-                          }
-                        : undefined,
-                },
-                onSuccess: ({ user }) => {
-                    const newOverview = getPuzzleOverview(user, 'OVERALL');
-                    setRatingChange(newOverview.rating - puzzleOverview.rating);
-                    setPuzzleOverview({
-                        ...puzzleOverview,
-                        ratingDeviation: newOverview.ratingDeviation,
-                    });
-                },
-            });
+        if (resultRef.current === 'loss') {
+            return;
         }
+
+        void fetchNextPuzzle({
+            api,
+            requestTracker,
+            request: {
+                previousPuzzle: currentPuzzle
+                    ? {
+                          id: currentPuzzle.id,
+                          result: secondsRef.current <= 60 ? 'win' : 'draw',
+                          timeSpentSeconds: secondsRef.current,
+                          rated: readLocalStorage(RATED_KEY, true),
+                      }
+                    : undefined,
+            },
+            onSuccess: ({ user: newUser }) => {
+                const newOverview = getPuzzleOverview(newUser, 'OVERALL');
+                setRatingChange(newOverview.rating - puzzleOverview.rating);
+                setPuzzleOverview({
+                    ...puzzleOverview,
+                    ratingDeviation: newOverview.ratingDeviation,
+                });
+                session.current.history.push({
+                    result: secondsRef.current <= 60 ? 'win' : 'draw',
+                    rating: getPuzzleOverview(newUser, 'mate').rating,
+                });
+                session.current.timeSpentSeconds += secondsRef.current;
+                void updateProgress({ api, session });
+            },
+        });
     };
 
     const orientation = playerColor === Color.white ? 'white' : 'black';
