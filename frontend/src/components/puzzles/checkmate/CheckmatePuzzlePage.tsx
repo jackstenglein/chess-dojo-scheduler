@@ -250,35 +250,38 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
     const onWrongMove = () => {
         setResult('loss');
 
-        void fetchNextPuzzle({
-            api,
-            requestTracker,
-            request: {
-                previousPuzzle: currentPuzzle
-                    ? {
-                          id: currentPuzzle.id,
-                          result: 'loss',
-                          timeSpentSeconds: secondsRef.current,
-                          pgn: pgnRef.current?.getPgn() ?? '',
-                          rated: readLocalStorage(RATED_KEY, true),
-                      }
-                    : undefined,
-            },
-            onSuccess: ({ user: newUser }) => {
-                const newOverview = getPuzzleOverview(newUser, 'OVERALL');
-                setRatingChange(newOverview.rating - puzzleOverview.rating);
-                setPuzzleOverview({
-                    ...puzzleOverview,
-                    ratingDeviation: newOverview.ratingDeviation,
-                });
-                session.current.history.push({
-                    result: 'loss',
-                    rating: getPuzzleOverview(newUser, 'mate').rating,
-                });
-                session.current.timeSpentSeconds += secondsRef.current;
-                void updateProgress({ api, session });
-            },
-        });
+        if (resultRef.current === undefined) {
+            console.log('Reporting loss');
+            void fetchNextPuzzle({
+                api,
+                requestTracker,
+                request: {
+                    previousPuzzle: currentPuzzle
+                        ? {
+                              id: currentPuzzle.id,
+                              result: 'loss',
+                              timeSpentSeconds: secondsRef.current,
+                              pgn: pgnRef.current?.getPgn() ?? '',
+                              rated: readLocalStorage(RATED_KEY, true),
+                          }
+                        : undefined,
+                },
+                onSuccess: ({ user: newUser }) => {
+                    const newOverview = getPuzzleOverview(newUser, 'OVERALL');
+                    setRatingChange(newOverview.rating - puzzleOverview.rating);
+                    setPuzzleOverview({
+                        ...puzzleOverview,
+                        ratingDeviation: newOverview.ratingDeviation,
+                    });
+                    session.current.history.push({
+                        result: 'loss',
+                        rating: getPuzzleOverview(newUser, 'mate').rating,
+                    });
+                    session.current.timeSpentSeconds += secondsRef.current;
+                    void updateProgress({ api, session });
+                },
+            });
+        }
     };
 
     const onComplete = () => {
@@ -355,6 +358,7 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                     pgnRef.current?.solitaire.start(null, {
                         playAs: orientation,
                         board,
+                        allowDifferentMates: true,
                         onWrongMove,
                         onComplete,
                     })

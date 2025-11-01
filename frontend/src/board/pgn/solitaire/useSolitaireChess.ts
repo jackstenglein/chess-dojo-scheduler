@@ -63,6 +63,8 @@ export type SolitaireChessOptions = Partial<
     firstMoveDelayMs?: number;
     /** The board object to use when reconciling with the chess object. */
     board?: BoardApi;
+    /** Allow the user to play any move which checkmates, even if it isn't the mainline move. */
+    allowDifferentMates?: boolean;
     /** A callback invoked when a wrong move is played. */
     onWrongMove?: () => void;
     /** A callback invoked when the full PGN is completed. */
@@ -83,6 +85,7 @@ export function useSolitaireChess(
     const [results, setResults] = useState<SolitaireResults>(EMPTY_SOLITAIRE_RESULTS);
     const onWrongMove = useRef<() => void>(undefined);
     const onComplete = useRef<() => void>(undefined);
+    const allowDifferentMates = useRef(false);
 
     const start = useCallback(
         (move: Move | null, opts?: SolitaireChessOptions) => {
@@ -92,6 +95,7 @@ export function useSolitaireChess(
             if (opts?.addWrongMoves !== undefined) {
                 setAddWrongMoves(opts.addWrongMoves);
             }
+            allowDifferentMates.current = opts?.allowDifferentMates ?? false;
             onWrongMove.current = opts?.onWrongMove;
             onComplete.current = opts?.onComplete;
 
@@ -138,16 +142,18 @@ export function useSolitaireChess(
             }
 
             const move = { from: primMove.orig, to: primMove.dest, promotion: primMove.promotion };
-            if (chess.isMainline(move)) {
+            const testMove = chess.move(move, { previousMove: currentMove, skipSeek: true });
+            if (
+                chess.isMainline(move) ||
+                (allowDifferentMates.current && chess.isCheckmate(testMove))
+            ) {
                 handleCorrectMove({
                     chess,
                     board,
                     showGlyphs,
                     playAs,
                     move,
-                    addWrongMoves,
                     incorrectMoves,
-                    currentMove,
                     setCurrentMove,
                     setResults,
                 });
@@ -155,8 +161,8 @@ export function useSolitaireChess(
             }
 
             incorrectMoves.current.push(move);
-            if (addWrongMoves) {
-                chess.move(move, { previousMove: currentMove, skipSeek: true });
+            if (!addWrongMoves) {
+                chess.delete(testMove);
             }
             board.set({
                 movable: {},
@@ -176,7 +182,7 @@ export function useSolitaireChess(
         [showGlyphs, addWrongMoves, currentMove, playAs],
     );
 
-    const complete = currentMove === lastMove.current;
+    const complete = currentMove === lastMove.current || chess.isCheckmate(currentMove);
     useEffect(() => {
         if (complete) {
             onComplete.current?.();
@@ -207,9 +213,7 @@ function handleCorrectMove({
     showGlyphs,
     playAs,
     move,
-    addWrongMoves,
     incorrectMoves,
-    currentMove,
     setCurrentMove,
     setResults,
 }: {
@@ -218,19 +222,11 @@ function handleCorrectMove({
     showGlyphs: boolean;
     playAs: PlayAs;
     move: SimpleMove;
-    addWrongMoves: boolean;
     incorrectMoves: RefObject<SimpleMove[]>;
-    currentMove: Move | null;
     setCurrentMove: (v: Move | null) => void;
     setResults: React.Dispatch<React.SetStateAction<SolitaireResults>>;
 }) {
     const nextMove = chess.move(move);
-    if (addWrongMoves) {
-        for (const m of incorrectMoves.current) {
-            chess.move(m, { previousMove: currentMove, skipSeek: true });
-        }
-    }
-
     const color = nextMove?.color === Color.white ? 'white' : 'black';
     setResults((results) => ({
         ...results,
@@ -247,7 +243,7 @@ function handleCorrectMove({
             autoShapes: [{ orig: move.to, customSvg: { html: correctMoveGlyphHtml } }],
         },
     });
-    const isComplete = nextMove === chess.history().at(-1);
+    const isComplete = nextMove === chess.history().at(-1) || chess.isCheckmate(nextMove);
     if (!isComplete && playAs !== 'both') {
         waitForOpponentMove({
             chess,
