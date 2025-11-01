@@ -19,7 +19,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
     const maxCohort =
         user.dojoCohort.split('-').length > 1 ? parseInt(user.dojoCohort.split('-')[1]) : minCohort;
 
-    const isProvisional = tacticsRating.components.some((c) => c.rating < 0);
+    const isProvisional = tacticsRating.components.some((c) => c.rating < 0 || c.provisional);
 
     return (
         <Card variant='outlined'>
@@ -93,6 +93,7 @@ const TacticsScoreCard: React.FC<TacticsScoreCardProps> = ({ user }) => {
                                         }}
                                     >
                                         {c.rating > 0 ? Math.round(c.rating) : '?'}
+                                        {c.provisional && '?'}
                                     </Typography>
                                     {c.examCount !== undefined && c.rating > 0 && (
                                         <Typography variant='body2' color='text.secondary'>

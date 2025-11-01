@@ -15,7 +15,10 @@ import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import { Chess, Color } from '@jackstenglein/chess';
-import { getPuzzleOverview } from '@jackstenglein/chess-dojo-common/src/database/user';
+import {
+    getPuzzleOverview,
+    PROVISIONAL_PUZZLE_RATING_DEVIATION,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     NextPuzzleRequest,
     NextPuzzleResponse,
@@ -43,8 +46,6 @@ const SHOW_TIMER_KEY = 'puzzles.showTimer';
 const SHOW_RATING_KEY = 'puzzles.showRating';
 const DIFFICULTY_KEY = 'puzzles.difficulty';
 const THEME_KEY = 'puzzles.theme';
-
-const PROVISIONAL_RATING_DEVIATION = 110;
 
 export function CheckmatePuzzlePage() {
     const { user, status } = useAuth();
@@ -380,7 +381,7 @@ function CheckmatePuzzleUnderboard({
                             <Timeline fontSize='large' />
                             <Typography variant='h4' fontWeight='bold'>
                                 {rated
-                                    ? `${Math.round(displayedRating)}${ratingDeviation >= PROVISIONAL_RATING_DEVIATION ? '?' : ''}`
+                                    ? `${Math.round(displayedRating)}${ratingDeviation >= PROVISIONAL_PUZZLE_RATING_DEVIATION ? '?' : ''}`
                                     : 'Unrated'}
                             </Typography>
                             {showRating && rated && (solitaire?.complete || ratingChange !== 0) && (

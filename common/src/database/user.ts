@@ -304,6 +304,9 @@ export function getSearchKey(user: User): string {
     return searchKey.toLowerCase();
 }
 
+/** If the user's rating deviation is >= this value, they are considered provisional. */
+export const PROVISIONAL_PUZZLE_RATING_DEVIATION = 110;
+
 /**
  * Returns the puzzle overview for the given user/theme.
  * @param user The user to get the overview for.
