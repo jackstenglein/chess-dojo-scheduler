@@ -159,7 +159,7 @@ async function updateProgress({
                         minutesSpent: Math.round(session.current.timeSpentSeconds / 60),
                         totalMinutesSpent,
                         newCount: session.current.history.at(-1)?.rating ?? 0,
-                        notes: `I took ${session.current.history.length} puzzles!\n\n✅ Wins: ${win}\n☑️ Draws: ${draw}\n❌ Losses: ${loss}`,
+                        notes: `Solved ${session.current.history.length} puzzles!\n\n✅ Correct: ${win}\n☑️ Equal: ${draw}\n❌ Wrong: ${loss}`,
                     },
                 ],
                 deleted: [],
@@ -172,7 +172,7 @@ async function updateProgress({
                 newCount: session.current.history.at(-1)?.rating ?? 0,
                 incrementalMinutesSpent: Math.round(session.current.timeSpentSeconds / 60),
                 date: null,
-                notes: `I took ${session.current.history.length} puzzles!\n\n✅ Wins: ${win}\n☑️ Draws: ${draw}\n❌ Losses: ${loss}`,
+                notes: `Solved ${session.current.history.length} puzzles!\n\n✅ Correct: ${win}\n☑️ Equal: ${draw}\n❌ Wrong: ${loss}`,
             });
             session.current.timelineEntry = response.data.timelineEntry;
             session.current.progress = response.data.user.progress[checkmatePuzzlesTaskId];
