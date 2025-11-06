@@ -42,6 +42,7 @@ import {
 } from '@mui/material';
 import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useCountdown, useLocalStorage } from 'usehooks-ts';
+import { PuzzleSessionChart } from '../chart/PuzzleSessionChart';
 
 const checkmatePuzzlesTaskId = '324fa93d-fbdf-456e-bcfa-a04eb4213171';
 
@@ -52,17 +53,21 @@ const DIFFICULTY_KEY = 'puzzles.difficulty';
 const THEME_KEY = 'puzzles.theme';
 
 /** Tracks a single session playing puzzles. */
-interface PuzzleSession {
+export interface PuzzleSession {
     /** The cohort the session applies to. */
     cohort: string;
     /** The start rating of the session. */
     start: number;
     /** The history of the session. */
     history: {
+        /** The puzzle that was played. */
+        puzzle: Puzzle;
         /** The result of the puzzle. */
         result: 'win' | 'draw' | 'loss';
         /** The rating after the puzzle. */
         rating: number;
+        /** The rating change from the puzzle. */
+        ratingChange: number;
     }[];
     /** The total time spent in seconds during the session. */
     timeSpentSeconds: number;
@@ -273,10 +278,14 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                         ...puzzleOverview,
                         ratingDeviation: newOverview.ratingDeviation,
                     });
-                    session.current.history.push({
-                        result: 'loss',
-                        rating: getPuzzleOverview(newUser, 'mate').rating,
-                    });
+                    if (currentPuzzle) {
+                        session.current.history.push({
+                            puzzle: currentPuzzle,
+                            result: 'loss',
+                            rating: newOverview.rating,
+                            ratingChange: newOverview.rating - puzzleOverview.rating,
+                        });
+                    }
                     session.current.timeSpentSeconds += secondsRef.current;
                     void updateProgress({ api, session });
                 },
@@ -313,10 +322,14 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                     ...puzzleOverview,
                     ratingDeviation: newOverview.ratingDeviation,
                 });
-                session.current.history.push({
-                    result: secondsRef.current <= 60 ? 'win' : 'draw',
-                    rating: getPuzzleOverview(newUser, 'mate').rating,
-                });
+                if (currentPuzzle) {
+                    session.current.history.push({
+                        puzzle: currentPuzzle,
+                        result: secondsRef.current <= 60 ? 'win' : 'draw',
+                        rating: newOverview.rating,
+                        ratingChange: newOverview.rating - puzzleOverview.rating,
+                    });
+                }
                 session.current.timeSpentSeconds += secondsRef.current;
                 void updateProgress({ api, session });
             },
@@ -344,6 +357,7 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                                 ratingDeviation={puzzleOverview.ratingDeviation}
                                 ratingChange={Math.round(ratingChange)}
                                 result={result}
+                                session={session.current}
                                 onChangeOptions={requestTracker.reset}
                             />
                         ),
@@ -387,6 +401,7 @@ function CheckmatePuzzleUnderboard({
     ratingDeviation,
     ratingChange,
     result,
+    session,
     onChangeOptions,
 }: {
     /** The puzzle the user is playing. */
@@ -403,6 +418,8 @@ function CheckmatePuzzleUnderboard({
     ratingChange: number;
     /** The user's result on the puzzle. */
     result?: 'win' | 'loss';
+    /** The user's current session. */
+    session: PuzzleSession;
     /** A callback to invoke when the user changes options that affect the next puzzle. */
     onChangeOptions: () => void;
 }) {
@@ -522,8 +539,12 @@ function CheckmatePuzzleUnderboard({
                     )}
                 </Stack>
 
+                {solitaire?.complete && showRating && session.history.length > 0 && (
+                    <PuzzleSessionChart session={session} />
+                )}
+
                 {solitaire?.complete && puzzle && (
-                    <Stack mt={4}>
+                    <Stack mt={2}>
                         {showRating && (
                             <>
                                 <PuzzleDetailRow
@@ -550,7 +571,7 @@ function CheckmatePuzzleUnderboard({
                     </Stack>
                 )}
 
-                <Stack sx={{ flexGrow: 1, justifyContent: 'end' }}>
+                <Stack sx={{ flexGrow: 1, justifyContent: 'end', mt: 5 }}>
                     {solitaire?.complete && (
                         <>
                             <MultipleSelectChip
