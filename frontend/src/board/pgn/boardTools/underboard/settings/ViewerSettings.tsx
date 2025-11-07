@@ -1,3 +1,7 @@
+import {
+    CORRECT_SOUND_KEY,
+    INCORRECT_SOUND_KEY,
+} from '@/components/puzzles/settings/puzzleSettingsKeys';
 import { HIGHLIGHT_ENGINE_LINES } from '@/stockfish/engine/engine';
 import {
     Box,
@@ -101,6 +105,8 @@ export enum ViewerSetting {
     HighlightEngineLines,
     DisplaySuggestedVariations,
     ScrollOnBoardToMove,
+    CorrectSolitaireMoveSound,
+    IncorrectSolitaireMoveSound,
 }
 
 const ViewerSettings = ({
@@ -151,6 +157,8 @@ const ViewerSettings = ({
         ScrollToMove.key,
         ScrollToMove.default,
     );
+    const [correctSound, setCorrectSound] = useLocalStorage(CORRECT_SOUND_KEY, true);
+    const [incorrectSound, setIncorrectSound] = useLocalStorage(INCORRECT_SOUND_KEY, true);
 
     return (
         <Stack spacing={3}>
@@ -332,6 +340,31 @@ const ViewerSettings = ({
                             />
                         }
                         label='Scroll on board to go to next/previous move'
+                    />
+                )}
+
+                {(!enabledSettings || enabledSettings[ViewerSetting.CorrectSolitaireMoveSound]) && (
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={correctSound}
+                                onChange={(e) => setCorrectSound(e.target.checked)}
+                            />
+                        }
+                        label='Play sound on correct move (in solitaire chess)'
+                    />
+                )}
+
+                {(!enabledSettings ||
+                    enabledSettings[ViewerSetting.IncorrectSolitaireMoveSound]) && (
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={incorrectSound}
+                                onChange={(e) => setIncorrectSound(e.target.checked)}
+                            />
+                        }
+                        label='Play sound on incorrect move (in solitaire chess)'
                     />
                 )}
             </Stack>

@@ -4,6 +4,10 @@ import {
     correctMoveGlyphHtml,
     incorrectMoveGlyphHtml,
 } from '@/components/material/memorizegames/moveGlyphs';
+import {
+    CORRECT_SOUND_KEY,
+    INCORRECT_SOUND_KEY,
+} from '@/components/puzzles/settings/puzzleSettingsKeys';
 import { Chess, Color, Move, Square } from '@jackstenglein/chess';
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -86,6 +90,8 @@ export function useSolitaireChess(
     const onWrongMove = useRef<() => void>(undefined);
     const onComplete = useRef<() => void>(undefined);
     const allowDifferentMates = useRef(false);
+    const [correctSound] = useLocalStorage(CORRECT_SOUND_KEY, true);
+    const [incorrectSound] = useLocalStorage(INCORRECT_SOUND_KEY, true);
 
     const start = useCallback(
         (move: Move | null, opts?: SolitaireChessOptions) => {
@@ -147,6 +153,10 @@ export function useSolitaireChess(
                 chess.isMainline(move) ||
                 (allowDifferentMates.current && chess.isCheckmate(testMove))
             ) {
+                if (correctSound) {
+                    const audio = new Audio('/static/sounds/puzzles_correct_move.mp3');
+                    void audio.play();
+                }
                 handleCorrectMove({
                     chess,
                     board,
@@ -158,6 +168,11 @@ export function useSolitaireChess(
                     setResults,
                 });
                 return;
+            }
+
+            if (incorrectSound) {
+                const audio = new Audio('/static/sounds/puzzles_incorrect_move.mp3');
+                void audio.play();
             }
 
             incorrectMoves.current.push(move);
@@ -179,7 +194,7 @@ export function useSolitaireChess(
             }, 500);
             onWrongMove.current?.();
         },
-        [showGlyphs, addWrongMoves, currentMove, playAs],
+        [showGlyphs, addWrongMoves, currentMove, playAs, incorrectSound, correctSound],
     );
 
     const complete = currentMove === lastMove.current || chess.isCheckmate(currentMove);

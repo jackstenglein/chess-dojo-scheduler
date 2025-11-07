@@ -14,13 +14,16 @@ import {
     Typography,
 } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
-
-export const RATED_KEY = 'puzzles.rated';
-export const SHOW_TIMER_KEY = 'puzzles.showTimer';
-export const SHOW_RATING_KEY = 'puzzles.showRating';
-export const SHOW_STREAK_KEY = 'puzzles.showStreak';
-export const DIFFICULTY_KEY = 'puzzles.difficulty';
-export const THEME_KEY = 'puzzles.theme';
+import {
+    CORRECT_SOUND_KEY,
+    DIFFICULTY_KEY,
+    INCORRECT_SOUND_KEY,
+    RATED_KEY,
+    SHOW_RATING_KEY,
+    SHOW_STREAK_KEY,
+    SHOW_TIMER_KEY,
+    THEME_KEY,
+} from '../settings/puzzleSettingsKeys';
 
 const viewerSettings = {
     [ViewerSetting.BoardStyle]: true,
@@ -76,6 +79,8 @@ function PuzzleSpecificSettings({
     const [showStreak, setShowStreak] = useLocalStorage(SHOW_STREAK_KEY, true);
     const [difficulty, setDifficulty] = useLocalStorage(DIFFICULTY_KEY, 'standard');
     const [themes, setThemes] = useLocalStorage(THEME_KEY, ['mateIn1', 'mateIn2', 'mateIn3']);
+    const [correctSound, setCorrectSound] = useLocalStorage(CORRECT_SOUND_KEY, true);
+    const [incorrectSound, setIncorrectSound] = useLocalStorage(INCORRECT_SOUND_KEY, true);
 
     return (
         <Stack spacing={3} mb={3}>
@@ -162,6 +167,26 @@ function PuzzleSpecificSettings({
                         />
                     }
                     label='Show Timer'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={correctSound}
+                            onChange={(e) => setCorrectSound(e.target.checked)}
+                        />
+                    }
+                    label='Play sound on correct move'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={incorrectSound}
+                            onChange={(e) => setIncorrectSound(e.target.checked)}
+                        />
+                    }
+                    label='Play sound on incorrect move'
                 />
                 {/* TODO: re-enable this */}
                 {/* <FormControlLabel
