@@ -87,3 +87,21 @@ export interface PuzzleHistory {
     /** The rating change from taking the puzzle. */
     ratingChange: number;
 }
+
+/** Verifies the type of a request to get puzzle history. */
+export const getPuzzleHistorySchema = z.object({
+    /** The username to fetch puzzle history for. If not included, defaults to the calling user. */
+    username: z.string().optional(),
+    /** The exclusive start key to use for pagination. */
+    startKey: z.string().optional(),
+});
+
+/** A request to get puzzle history. */
+export type GetPuzzleHistoryRequest = z.infer<typeof getPuzzleHistorySchema>;
+
+export interface GetPuzzleHistoryResponse {
+    /** The history for the requested user. */
+    history: PuzzleHistory[];
+    /** The last evaluated key to use for pagination. */
+    lastEvaluatedKey?: string;
+}

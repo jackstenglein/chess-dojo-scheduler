@@ -11,6 +11,7 @@ import {
 } from '@/board/pgn/boardTools/underboard/settings/ViewerSettings';
 import PgnBoard, { PgnBoardApi, useChess } from '@/board/pgn/PgnBoard';
 import { InProgressAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
+import { Link } from '@/components/navigation/Link';
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { RequirementProgress } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
@@ -26,7 +27,7 @@ import {
     NextPuzzleResponse,
     Puzzle,
 } from '@jackstenglein/chess-dojo-common/src/puzzles/api';
-import { AccessTime, Info, Timeline } from '@mui/icons-material';
+import { AccessTime, Info, LocalFireDepartment, Timeline } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -40,7 +41,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useCountdown, useLocalStorage } from 'usehooks-ts';
 import { PuzzleSessionChart } from '../chart/PuzzleSessionChart';
 
@@ -49,6 +50,7 @@ const checkmatePuzzlesTaskId = '324fa93d-fbdf-456e-bcfa-a04eb4213171';
 const RATED_KEY = 'puzzles.rated';
 const SHOW_TIMER_KEY = 'puzzles.showTimer';
 const SHOW_RATING_KEY = 'puzzles.showRating';
+const SHOW_STREAK_KEY = 'puzzles.showStreak';
 const DIFFICULTY_KEY = 'puzzles.difficulty';
 const THEME_KEY = 'puzzles.theme';
 
@@ -427,6 +429,7 @@ function CheckmatePuzzleUnderboard({
     const [rated, setRated] = useLocalStorage(RATED_KEY, true);
     const [showTimer, setShowTimer] = useLocalStorage(SHOW_TIMER_KEY, true);
     const [showRating, setShowRating] = useLocalStorage(SHOW_RATING_KEY, true);
+    const [showStreak, setShowStreak] = useLocalStorage(SHOW_STREAK_KEY, true);
     const [difficulty, setDifficulty] = useLocalStorage(DIFFICULTY_KEY, 'standard');
     const [themes, setThemes] = useLocalStorage(THEME_KEY, ['mateIn1', 'mateIn2', 'mateIn3']);
 
@@ -468,6 +471,13 @@ function CheckmatePuzzleUnderboard({
     }, [displayedRating, rating, ratingChange, rated]);
 
     const successfulPlays = (puzzle?.successfulPlays ?? 0) + (result === 'win' ? 1 : 0);
+    let streak = 0;
+    for (let i = session.history.length - 1; i >= 0; i--) {
+        if (session.history[i].result !== 'win') {
+            break;
+        }
+        streak++;
+    }
 
     return (
         <CardContent sx={{ minHeight: 1 }}>
@@ -539,7 +549,16 @@ function CheckmatePuzzleUnderboard({
                     )}
                 </Stack>
 
-                {solitaire?.complete && showRating && session.history.length > 0 && (
+                {solitaire?.complete && showStreak && streak > 1 && (
+                    <Stack direction='row' alignItems='center' mt={1} gap={0.5}>
+                        <LocalFireDepartment color='dojoOrange' sx={{ fontSize: 30 }} />
+                        <Typography variant='h6' color='dojoOrange' fontWeight='bold'>
+                            {streak} in a row!
+                        </Typography>
+                    </Stack>
+                )}
+
+                {solitaire?.complete && showRating && rated && session.history.length > 0 && (
                     <PuzzleSessionChart session={session} />
                 )}
 
@@ -568,6 +587,9 @@ function CheckmatePuzzleUnderboard({
                         />
                         <PuzzleDetailRow label='Target Time' value='01:00' />
                         <PuzzleDetailRow label='Used Time' value={formatTime(seconds)} />
+                        <Typography variant='body2' mt={0.5} alignSelf='end'>
+                            <Link href='/puzzles/history'>View Puzzle History</Link>
+                        </Typography>
                     </Stack>
                 )}
 
@@ -617,6 +639,16 @@ function CheckmatePuzzleUnderboard({
                                 }
                                 label='Rated'
                             />
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={showStreak}
+                                        onChange={(e) => setShowStreak(e.target.checked)}
+                                    />
+                                }
+                                label='Show Streak'
+                            />
                         </>
                     )}
                     <FormControlLabel
@@ -658,7 +690,7 @@ function CheckmatePuzzleUnderboard({
     );
 }
 
-function PuzzleDetailRow({ label, value }: { label: string; value: string | number }) {
+function PuzzleDetailRow({ label, value }: { label: ReactNode; value: string | number }) {
     return (
         <Stack
             direction='row'
