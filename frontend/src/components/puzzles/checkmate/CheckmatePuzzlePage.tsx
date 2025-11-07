@@ -53,13 +53,13 @@ import { useCountdown, useLocalStorage } from 'usehooks-ts';
 import { PuzzleSessionChart } from '../chart/PuzzleSessionChart';
 import {
     DIFFICULTY_KEY,
-    PuzzleSettings,
     RATED_KEY,
     SHOW_RATING_KEY,
     SHOW_STREAK_KEY,
     SHOW_TIMER_KEY,
     THEME_KEY,
-} from './PuzzleSettings';
+} from '../settings/puzzleSettingsKeys';
+import { PuzzleSettings } from './PuzzleSettings';
 
 const checkmatePuzzlesTaskId = '324fa93d-fbdf-456e-bcfa-a04eb4213171';
 
