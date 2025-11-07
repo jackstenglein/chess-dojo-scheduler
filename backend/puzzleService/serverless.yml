@@ -47,6 +47,24 @@ functions:
       # is configured by adding the function's role ARN as a database user
       # in Mongo Cloud Atlas.
 
+  getHistory:
+    handler: history.handler
+    events:
+      - httpApi:
+          path: /puzzle/history
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+      - httpApi:
+          path: /public/puzzle/history/{username}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt PuzzleResultsTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

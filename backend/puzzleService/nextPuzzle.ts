@@ -218,6 +218,7 @@ async function handlePreviousPuzzle(
         .build();
     await dynamo.send(input);
 
+    const originalRating = getPuzzleOverview(user, 'OVERALL').rating;
     const history: PuzzleHistory = {
         username: user.username,
         createdAt: date,
@@ -228,8 +229,8 @@ async function handlePreviousPuzzle(
         timeSpentSeconds: previousPuzzle.timeSpentSeconds,
         pgn: previousPuzzle.pgn,
         rated: previousPuzzle.rated,
-        rating: updatesByTheme.OVERALL.rating,
-        ratingChange: updatesByTheme.OVERALL.rating - getPuzzleOverview(user, 'OVERALL').rating,
+        rating: previousPuzzle.rated ? updatesByTheme.OVERALL.rating : originalRating,
+        ratingChange: previousPuzzle.rated ? updatesByTheme.OVERALL.rating - originalRating : 0,
     };
     await dynamo.send(
         new PutItemCommand({
