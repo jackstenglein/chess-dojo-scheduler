@@ -5,6 +5,11 @@ import { Request, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { getPieceSx } from '@/board/boardThemes';
 import { formatTime } from '@/board/pgn/boardTools/underboard/clock/ClockUsage';
+import { matchAction } from '@/board/pgn/boardTools/underboard/settings/KeyboardShortcuts';
+import {
+    ShortcutAction,
+    ShortcutBindings,
+} from '@/board/pgn/boardTools/underboard/settings/ShortcutAction';
 import {
     PieceStyle,
     PieceStyleKey,
@@ -12,7 +17,6 @@ import {
 import PgnBoard, { PgnBoardApi, useChess } from '@/board/pgn/PgnBoard';
 import { InProgressAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
 import { Link } from '@/components/navigation/Link';
-import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { RequirementProgress } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
@@ -27,32 +31,37 @@ import {
     NextPuzzleResponse,
     Puzzle,
 } from '@jackstenglein/chess-dojo-common/src/puzzles/api';
-import { AccessTime, Info, LocalFireDepartment, Timeline } from '@mui/icons-material';
+import {
+    AccessTime,
+    Extension,
+    LocalFireDepartment,
+    Settings,
+    Timeline,
+} from '@mui/icons-material';
 import {
     Box,
     Button,
     CardContent,
-    Checkbox,
     Container,
     Divider,
-    FormControlLabel,
-    MenuItem,
     Stack,
-    TextField,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import { ReactNode, RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useCountdown, useLocalStorage } from 'usehooks-ts';
 import { PuzzleSessionChart } from '../chart/PuzzleSessionChart';
+import {
+    DIFFICULTY_KEY,
+    PuzzleSettings,
+    RATED_KEY,
+    SHOW_RATING_KEY,
+    SHOW_STREAK_KEY,
+    SHOW_TIMER_KEY,
+    THEME_KEY,
+} from './PuzzleSettings';
 
 const checkmatePuzzlesTaskId = '324fa93d-fbdf-456e-bcfa-a04eb4213171';
-
-const RATED_KEY = 'puzzles.rated';
-const SHOW_TIMER_KEY = 'puzzles.showTimer';
-const SHOW_RATING_KEY = 'puzzles.showRating';
-const SHOW_STREAK_KEY = 'puzzles.showStreak';
-const DIFFICULTY_KEY = 'puzzles.difficulty';
-const THEME_KEY = 'puzzles.theme';
 
 /** Tracks a single session playing puzzles. */
 export interface PuzzleSession {
@@ -347,9 +356,9 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                 showPlayerHeaders={false}
                 underboardTabs={[
                     {
-                        name: 'info',
-                        tooltip: 'Info',
-                        icon: <Info />,
+                        name: 'puzzles',
+                        tooltip: 'Puzzle Details',
+                        icon: <Extension />,
                         element: (
                             <CheckmatePuzzleUnderboard
                                 puzzle={currentPuzzle}
@@ -360,13 +369,18 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
                                 ratingChange={Math.round(ratingChange)}
                                 result={result}
                                 session={session.current}
-                                onChangeOptions={requestTracker.reset}
                             />
                         ),
                     },
+                    {
+                        name: 'puzzleSettings',
+                        tooltip: 'Settings',
+                        icon: <Settings />,
+                        element: <PuzzleSettings onChangeOptions={requestTracker.reset} />,
+                    },
                 ]}
                 pgn={puzzlePGN}
-                initialUnderboardTab='info'
+                initialUnderboardTab='puzzles'
                 disableEngine={!complete}
                 disableNullMoves={!complete}
                 startOrientation={orientation}
@@ -404,7 +418,6 @@ function CheckmatePuzzleUnderboard({
     ratingChange,
     result,
     session,
-    onChangeOptions,
 }: {
     /** The puzzle the user is playing. */
     puzzle?: Puzzle;
@@ -422,16 +435,12 @@ function CheckmatePuzzleUnderboard({
     result?: 'win' | 'loss';
     /** The user's current session. */
     session: PuzzleSession;
-    /** A callback to invoke when the user changes options that affect the next puzzle. */
-    onChangeOptions: () => void;
 }) {
     const { solitaire } = useChess();
-    const [rated, setRated] = useLocalStorage(RATED_KEY, true);
-    const [showTimer, setShowTimer] = useLocalStorage(SHOW_TIMER_KEY, true);
-    const [showRating, setShowRating] = useLocalStorage(SHOW_RATING_KEY, true);
-    const [showStreak, setShowStreak] = useLocalStorage(SHOW_STREAK_KEY, true);
-    const [difficulty, setDifficulty] = useLocalStorage(DIFFICULTY_KEY, 'standard');
-    const [themes, setThemes] = useLocalStorage(THEME_KEY, ['mateIn1', 'mateIn2', 'mateIn3']);
+    const [rated] = useLocalStorage(RATED_KEY, true);
+    const [showTimer] = useLocalStorage(SHOW_TIMER_KEY, true);
+    const [showRating] = useLocalStorage(SHOW_RATING_KEY, true);
+    const [showStreak] = useLocalStorage(SHOW_STREAK_KEY, true);
 
     const [pieceStyle] = useLocalStorage<PieceStyle>(PieceStyleKey, PieceStyle.Standard);
     const pieceSx = getPieceSx(pieceStyle);
@@ -597,99 +606,6 @@ function CheckmatePuzzleUnderboard({
                         </Typography>
                     </Stack>
                 )}
-
-                <Stack sx={{ flexGrow: 1, justifyContent: 'end', mt: 5 }}>
-                    {solitaire?.complete && (
-                        <>
-                            <MultipleSelectChip
-                                label='Themes'
-                                selected={themes}
-                                setSelected={(v) => {
-                                    setThemes(v);
-                                    onChangeOptions();
-                                }}
-                                options={[
-                                    { value: 'mateIn1', label: 'Mate in 1' },
-                                    { value: 'mateIn2', label: 'Mate in 2' },
-                                    { value: 'mateIn3', label: 'Mate in 3' },
-                                ]}
-                                size='small'
-                                sx={{ mb: 2.5 }}
-                            />
-
-                            <TextField
-                                label='Difficulty'
-                                select
-                                value={difficulty}
-                                size='small'
-                                sx={{ mb: 1 }}
-                                onChange={(e) => {
-                                    setDifficulty(e.target.value);
-                                    onChangeOptions();
-                                }}
-                            >
-                                <MenuItem value='easiest'>Easiest (-600)</MenuItem>
-                                <MenuItem value='easier'>Easier (-300)</MenuItem>
-                                <MenuItem value='standard'>Standard (±200)</MenuItem>
-                                <MenuItem value='harder'>Harder (+300)</MenuItem>
-                                <MenuItem value='hardest'>Hardest (+600)</MenuItem>
-                            </TextField>
-
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={rated}
-                                        onChange={(e) => setRated(e.target.checked)}
-                                    />
-                                }
-                                label='Rated'
-                            />
-
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={showStreak}
-                                        onChange={(e) => setShowStreak(e.target.checked)}
-                                    />
-                                }
-                                label='Show Streak'
-                            />
-                        </>
-                    )}
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={showRating}
-                                onChange={(e) => setShowRating(e.target.checked)}
-                            />
-                        }
-                        label='Show Rating'
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={showTimer}
-                                onChange={(e) => setShowTimer(e.target.checked)}
-                            />
-                        }
-                        label='Show Timer'
-                    />
-                    {/* TODO: re-enable this */}
-                    {/* <FormControlLabel
-                        control={<Checkbox checked={false} disabled />}
-                        label={
-                            <>
-                                Master Mode{' '}
-                                <Tooltip title="In master mode, you play both your moves and the opponent's moves. If you do not find the correct critical response(s) for the opponent, you will lose points.">
-                                    <Help
-                                        fontSize='small'
-                                        sx={{ color: 'text.secondary', verticalAlign: 'middle' }}
-                                    />
-                                </Tooltip>
-                            </>
-                        }
-                    /> */}
-                </Stack>
             </Stack>
         </CardContent>
     );
@@ -721,13 +637,45 @@ function AfterPgnText({
     result?: 'win' | 'loss';
     onNextPuzzle: () => void;
 }) {
-    const { solitaire } = useChess();
+    const { solitaire, keydownMap } = useChess();
+    const [keyBindings] = useLocalStorage(ShortcutBindings.key, ShortcutBindings.default);
+    const keyBinding =
+        keyBindings[ShortcutAction.NextPuzzle] ??
+        ShortcutBindings.default[ShortcutAction.NextPuzzle];
+
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (!solitaire?.complete) {
+                return;
+            }
+            const matchedAction = matchAction(
+                keyBindings,
+                event.code.replace('Key', ''),
+                keydownMap?.current || {},
+            );
+            if (matchedAction === ShortcutAction.NextPuzzle) {
+                onNextPuzzle();
+            }
+        };
+
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [solitaire?.complete, keyBindings, keydownMap, onNextPuzzle]);
+
     if (solitaire?.complete) {
         return (
             <Stack>
                 <Divider sx={{ width: 1 }} />
                 <Box sx={{ my: 1, px: 1 }}>
-                    <Button onClick={onNextPuzzle}>Next Puzzle</Button>
+                    <Tooltip
+                        title={
+                            keyBinding.key || keyBinding.modifier
+                                ? `Shortcut: ${keyBinding.modifier}${keyBinding.modifier ? '+' : ''}${keyBinding.key}`
+                                : ''
+                        }
+                    >
+                        <Button onClick={onNextPuzzle}>Next Puzzle</Button>
+                    </Tooltip>
                 </Box>
             </Stack>
         );
