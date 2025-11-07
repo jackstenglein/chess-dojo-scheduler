@@ -542,9 +542,14 @@ function CheckmatePuzzleUnderboard({
                     )}
 
                     {showTimer && (
-                        <Stack direction='row' alignItems='center' gap={1.5} color='text.secondary'>
+                        <Stack
+                            direction='row'
+                            alignItems='center'
+                            gap={1.5}
+                            color={seconds >= 60 ? 'error.main' : 'text.secondary'}
+                        >
                             <AccessTime />
-                            <Typography variant='h5'>{formatTime(seconds)}</Typography>
+                            <Typography variant='h5'>{formatTime(60 - seconds)}</Typography>
                         </Stack>
                     )}
                 </Stack>
