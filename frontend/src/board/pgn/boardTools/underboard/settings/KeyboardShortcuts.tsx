@@ -71,6 +71,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Insert Null Move';
         case ShortcutAction.InsertEngineMove:
             return 'Insert Top Engine Move';
+        case ShortcutAction.NextPuzzle:
+            return 'Next Puzzle';
     }
 }
 
@@ -123,6 +125,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Inserts a null move into the PGN, passing the turn to the other side without changing the position. Null moves cannot be added when in check or immediately after another null move.';
         case ShortcutAction.InsertEngineMove:
             return 'Inserts the top engine move into the game (note: the engine must be running).';
+        case ShortcutAction.NextPuzzle:
+            return 'Goes to the next puzzle (has no effect outside of puzzles).';
     }
 }
 
@@ -381,6 +385,7 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.UnfocusTextField]: handleUnfocusTextField,
     [ShortcutAction.InsertNullMove]: handleInsertNullMove,
     [ShortcutAction.InsertEngineMove]: handleInsertEngineMove,
+    [ShortcutAction.NextPuzzle]: () => null, // This action is a special case handled by the CheckmatePuzzlePage component.
 };
 
 /**
@@ -427,18 +432,20 @@ export function matchAction(
     return matchedAction;
 }
 
+export interface KeyboardShortcutsProps {
+    /** The actions to display. Defaults to all actions. */
+    actions?: ShortcutAction[];
+    /** If true, the button to reset all to defaults is hidden. */
+    hideReset?: boolean;
+}
+
 /**
  * @returns A component for viewing and editing keyboard shortcuts.
  */
 const KeyboardShortcuts = ({
     actions = Object.values(ShortcutAction),
     hideReset,
-}: {
-    /** The actions to display. Defaults to all actions. */
-    actions?: ShortcutAction[];
-    /** If true, the button to reset all to defaults is hidden. */
-    hideReset?: boolean;
-}) => {
+}: KeyboardShortcutsProps) => {
     const [keyBindings, setKeyBindings] = useLocalStorage(
         ShortcutBindings.key,
         ShortcutBindings.default,

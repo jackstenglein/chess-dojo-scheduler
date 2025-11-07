@@ -64,6 +64,9 @@ export enum ShortcutAction {
 
     /** Inserts the engine's top move. */
     InsertEngineMove = 'INSERT_ENGINE_MOVE',
+
+    /** Goes to the next puzzle. */
+    NextPuzzle = 'NEXT_PUZZLE',
 }
 
 export interface KeyBinding {
@@ -99,5 +102,6 @@ export const ShortcutBindings = {
         [ShortcutAction.UnfocusTextField]: { modifier: '', key: '' },
         [ShortcutAction.InsertNullMove]: { modifier: '', key: '' },
         [ShortcutAction.InsertEngineMove]: { modifier: '', key: 'Space' },
+        [ShortcutAction.NextPuzzle]: { modifier: '', key: 'Space' },
     },
 } as const;
