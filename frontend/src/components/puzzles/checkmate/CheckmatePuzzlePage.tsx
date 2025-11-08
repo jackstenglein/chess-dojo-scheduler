@@ -20,6 +20,7 @@ import { Link } from '@/components/navigation/Link';
 import { RequirementProgress } from '@/database/requirement';
 import { TimelineEntry } from '@/database/timeline';
 import { User } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { Chess, Color } from '@jackstenglein/chess';
 import {
@@ -88,13 +89,18 @@ export interface PuzzleSession {
     timelineEntry?: TimelineEntry;
 }
 
-export function CheckmatePuzzlePage() {
+export function CheckmatePuzzlePage({
+    id,
+}: {
+    /** If included, shows a specific puzzle by id. */
+    id?: string;
+}) {
     const { user, status } = useAuth();
     if (status === AuthStatus.Loading) {
         return <LoadingPage />;
     }
     if (user) {
-        return <AuthCheckmatePuzzlePage user={user} />;
+        return <AuthCheckmatePuzzlePage user={user} id={id} />;
     }
 }
 
@@ -198,7 +204,7 @@ async function updateProgress({
     }
 }
 
-function AuthCheckmatePuzzlePage({ user }: { user: User }) {
+function AuthCheckmatePuzzlePage({ user, id }: { user: User; id?: string }) {
     const { updateUser } = useAuth();
     const api = useApi();
     const requestTracker = useRequest<NextPuzzleResponse>();
@@ -216,15 +222,17 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
         history: [],
         timeSpentSeconds: 0,
     });
+    const router = useRouter();
 
     useEffect(() => {
         if (!requestTracker.isSent()) {
             void fetchNextPuzzle({
                 api,
+                request: { nextId: id },
                 requestTracker,
             });
         }
-    }, [requestTracker, api]);
+    }, [requestTracker, api, id]);
 
     useEffect(() => {
         if (!currentPuzzle && requestTracker.data) {
@@ -256,11 +264,18 @@ function AuthCheckmatePuzzlePage({ user }: { user: User }) {
     }, [currentPuzzle]);
 
     const onNextPuzzle = () => {
-        setPuzzleOverview((overview) => ({ ...overview, rating: overview.rating + ratingChange }));
-        setRatingChange(0);
-        setResult(undefined);
-        setComplete(false);
-        setCurrentPuzzle(undefined);
+        if (id) {
+            router.push('/puzzles/checkmate');
+        } else {
+            setPuzzleOverview((overview) => ({
+                ...overview,
+                rating: overview.rating + ratingChange,
+            }));
+            setRatingChange(0);
+            setResult(undefined);
+            setComplete(false);
+            setCurrentPuzzle(undefined);
+        }
     };
 
     const onWrongMove = () => {
@@ -578,6 +593,7 @@ function CheckmatePuzzleUnderboard({
 
                 {solitaire?.complete && puzzle && (
                     <Stack mt={2}>
+                        <PuzzleDetailRow label='Puzzle ID' value={puzzle.id} />
                         {showRating && (
                             <>
                                 <PuzzleDetailRow

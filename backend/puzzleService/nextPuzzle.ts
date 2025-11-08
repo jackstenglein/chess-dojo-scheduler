@@ -55,6 +55,17 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             user = await handlePreviousPuzzle(request.previousPuzzle, user);
         }
 
+        if (request.nextId) {
+            const document = await mongoClient
+                .db('puzzles')
+                .collection<Puzzle>('puzzles')
+                .findOne({ _id: request.nextId });
+            return success({
+                puzzle: { plays: 0, successfulPlays: 0, id: document?._id, ...document },
+                user,
+            });
+        }
+
         const rating = getPuzzleOverview(user, 'OVERALL').rating;
         const minRatingAdjustment = request.relativeRating?.[0] ?? -200;
         const maxRatingAdjustment = request.relativeRating?.[1] ?? 200;
