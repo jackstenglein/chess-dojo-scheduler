@@ -1,6 +1,9 @@
 import { getNormalizedRating, isCustom } from '../ratings/ratings';
 import { ExamType } from './exam';
+import { RatingSystem } from './ratingSystem';
 import { CustomTask, RequirementProgress } from './requirement';
+
+export { RatingSystem };
 
 /** A summary of a user's performance on a single exam. */
 export interface UserExamSummary {
@@ -285,21 +288,6 @@ export type MinutesSpentKey =
     | 'ALL_COHORTS_LAST_90_DAYS'
     | 'ALL_COHORTS_LAST_365_DAYS'
     | 'ALL_COHORTS_NON_DOJO';
-
-export enum RatingSystem {
-    Chesscom = 'CHESSCOM',
-    Lichess = 'LICHESS',
-    Fide = 'FIDE',
-    Uscf = 'USCF',
-    Ecf = 'ECF',
-    Cfc = 'CFC',
-    Dwz = 'DWZ',
-    Acf = 'ACF',
-    Knsb = 'KNSB',
-    Custom = 'CUSTOM',
-    Custom2 = 'CUSTOM_2',
-    Custom3 = 'CUSTOM_3',
-}
 
 export interface Rating {
     username?: string;
