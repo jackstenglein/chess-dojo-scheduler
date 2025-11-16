@@ -457,6 +457,9 @@ func (pi *PaymentInfo) GetSubscriptionTier() SubscriptionTier {
 	if pi == nil {
 		return SubscriptionTier_Free
 	}
+	if pi.SubscriptionTier == "" {
+		return SubscriptionTier_Basic
+	}
 	return pi.SubscriptionTier
 }
 
@@ -653,11 +656,7 @@ func (u *User) GetSubscriptionTier() SubscriptionTier {
 	if u.SubscriptionOverride {
 		return SubscriptionTier_Basic
 	}
-	tier := u.PaymentInfo.GetSubscriptionTier()
-	if tier == "" && u.GetSubscriptionStatus() == SubscriptionStatus_Subscribed {
-		return SubscriptionTier_Basic
-	}
-	return tier
+	return u.PaymentInfo.GetSubscriptionTier()
 }
 
 // UserUpdate contains pointers to fields included in the update of a user record. If a field

@@ -316,7 +316,6 @@ export interface RatingHistory {
 
 export enum SubscriptionStatus {
     Subscribed = 'SUBSCRIBED',
-    // FreeTier = 'FREE_TIER',
     Canceled = 'CANCELED',
     NotSubscribed = 'NOT_SUBSCRIBED',
 }

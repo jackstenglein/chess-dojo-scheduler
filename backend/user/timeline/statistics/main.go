@@ -117,7 +117,7 @@ func updateUser(user *database.User, requirements []*database.Requirement, requi
 	var startKey = ""
 	var err error
 
-	if user.SubscriptionStatus == database.SubscriptionStatus_NotSubscribed || user.UpdatedAt < sixtyDaysAgo {
+	if user.GetSubscriptionStatus() != database.SubscriptionStatus_Subscribed || user.UpdatedAt < sixtyDaysAgo {
 		// User won't appear on the scoreboard, so skip updating their data
 		// to reduce runtime and DB pressure
 		return false
