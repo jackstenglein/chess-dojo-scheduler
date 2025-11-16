@@ -72,6 +72,9 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 	case "customer.subscription.deleted":
 		return handleSubscriptionDeletion(&stripeEvent), nil
 
+	case "customer.subscription.updated":
+		return handleSubscriptionUpdated(&stripeEvent), nil
+
 	default:
 		log.Debugf("Unhandled event type: %s", stripeEvent.Type)
 	}
@@ -281,11 +284,16 @@ func handleSubscriptionDeletion(event *stripe.Event) api.Response {
 	if username == "" {
 		return api.Failure(errors.New(400, "Invalid request: no username in subscription metadata", ""))
 	}
+	tier, err := getTier(&subscription)
+	if err != nil {
+		return api.Failure(err)
+	}
 
 	paymentInfo := database.PaymentInfo{
 		CustomerId:         subscription.Customer.ID,
 		SubscriptionId:     subscription.ID,
 		SubscriptionStatus: database.SubscriptionStatus_Canceled,
+		SubscriptionTier:   tier,
 	}
 	update := database.UserUpdate{
 		PaymentInfo:        &paymentInfo,
@@ -300,4 +308,64 @@ func handleSubscriptionDeletion(event *stripe.Event) api.Response {
 		log.Errorf("Failed to set Discord roles: %v", err)
 	}
 	return api.Success(nil)
+}
+
+// Handles updating a subscription on the user in the subscription metadata.
+func handleSubscriptionUpdated(event *stripe.Event) api.Response {
+	var subscription stripe.Subscription
+	if err := json.Unmarshal(event.Data.Raw, &subscription); err != nil {
+		err := errors.Wrap(400, "Invalid request: unable to unmarshal event data", "", err)
+		return api.Failure(err)
+	}
+
+	str := spew.Sdump(subscription)
+	log.Debugf("Got subscription: %s", str)
+
+	username := subscription.Metadata["username"]
+	if username == "" {
+		return api.Failure(errors.New(400, "Invalid request: no username in subscription metadata", ""))
+	}
+	tier, err := getTier(&subscription)
+	if err != nil {
+		return api.Failure(err)
+	}
+
+	paymentInfo := database.PaymentInfo{
+		CustomerId:         subscription.Customer.ID,
+		SubscriptionId:     subscription.ID,
+		SubscriptionStatus: database.SubscriptionStatus_Subscribed,
+		SubscriptionTier:   tier,
+	}
+	update := database.UserUpdate{
+		PaymentInfo:        &paymentInfo,
+		SubscriptionStatus: stripe.String(string(database.SubscriptionStatus_Subscribed)),
+	}
+
+	user, err := repository.UpdateUser(username, &update)
+	if err != nil {
+		return api.Failure(err)
+	}
+	if err := discord.SetCohortRole(user); err != nil {
+		log.Errorf("Failed to set Discord roles: %v", err)
+	}
+
+	return api.Success(nil)
+}
+
+// Returns the tier for the given stripe subscription by checking the metadata of its first price.
+func getTier(subscription *stripe.Subscription) (database.SubscriptionTier, error) {
+	if subscription.Items == nil {
+		return "", errors.New(400, "no items in subscription", "")
+	}
+	if len(subscription.Items.Data) == 0 {
+		return "", errors.New(400, "no data in subscription.items", "")
+	}
+	if subscription.Items.Data[0].Price == nil {
+		return "", errors.New(400, "no price in subscription.items.data[0]", "")
+	}
+	tier := subscription.Items.Data[0].Price.Metadata["tier"]
+	if tier == "" {
+		return "", errors.New(400, "no tier in subscription.items.data[0].price.metadata", "")
+	}
+	return database.SubscriptionTier(tier), nil
 }
