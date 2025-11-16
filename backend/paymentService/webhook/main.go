@@ -140,14 +140,20 @@ func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Res
 		return api.Failure(errors.New(400, "Invalid request: no clientReferenceId included", ""))
 	}
 
+	tier := database.SubscriptionTier(checkoutSession.Metadata["tier"])
+	if tier == "" {
+		tier = database.SubscriptionTier_Basic
+	}
+
 	paymentInfo := database.PaymentInfo{
 		CustomerId:         checkoutSession.Customer.ID,
 		SubscriptionId:     checkoutSession.Subscription.ID,
 		SubscriptionStatus: database.SubscriptionStatus_Subscribed,
+		SubscriptionTier:   tier,
 	}
 	update := database.UserUpdate{
 		PaymentInfo:        &paymentInfo,
-		SubscriptionStatus: stripe.String(database.SubscriptionStatus_Subscribed),
+		SubscriptionStatus: stripe.String(string(database.SubscriptionStatus_Subscribed)),
 	}
 
 	user, err := repository.UpdateUser(checkoutSession.ClientReferenceID, &update)
@@ -283,7 +289,7 @@ func handleSubscriptionDeletion(event *stripe.Event) api.Response {
 	}
 	update := database.UserUpdate{
 		PaymentInfo:        &paymentInfo,
-		SubscriptionStatus: stripe.String(database.SubscriptionStatus_FreeTier),
+		SubscriptionStatus: stripe.String(string(database.SubscriptionStatus_NotSubscribed)),
 	}
 
 	user, err := repository.UpdateUser(username, &update)

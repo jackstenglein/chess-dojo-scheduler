@@ -1,5 +1,6 @@
 'use client';
 
+import { SubscriptionTier } from '@/api/paymentApi';
 import { LoadingButton } from '@mui/lab';
 import { Button, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -31,7 +32,7 @@ const priceDataByCurrency: Record<string, { symbol: string; monthly: number; yea
 };
 
 interface PriceMatrixProps {
-    onSubscribe?: (interval: 'month' | 'year') => void;
+    onSubscribe?: (tier: SubscriptionTier, interval: 'month' | 'year') => void;
     request?: Request;
     interval?: string;
     onFreeTier?: () => void;
@@ -168,7 +169,11 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                 fullWidth
                                 loading={request?.isLoading() && interval === 'month'}
                                 disabled={request?.isLoading() && interval !== 'month'}
-                                onClick={onSubscribe ? () => onSubscribe('month') : undefined}
+                                onClick={
+                                    onSubscribe
+                                        ? () => onSubscribe(SubscriptionTier.Basic, 'month')
+                                        : undefined
+                                }
                                 href={subscribeLink}
                                 color='subscribe'
                             >
@@ -219,7 +224,11 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                 fullWidth
                                 loading={request?.isLoading() && interval === 'year'}
                                 disabled={request?.isLoading() && interval !== 'year'}
-                                onClick={onSubscribe ? () => onSubscribe('year') : undefined}
+                                onClick={
+                                    onSubscribe
+                                        ? () => onSubscribe(SubscriptionTier.Basic, 'year')
+                                        : undefined
+                                }
                                 href={subscribeLink}
                                 color='subscribe'
                             >

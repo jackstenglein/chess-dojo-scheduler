@@ -1,7 +1,7 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { Link } from '@/components/navigation/Link';
-import { SubscriptionStatus, User } from '@/database/user';
+import { isFree, User } from '@/database/user';
 import { OpenInNew } from '@mui/icons-material';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { LoadingButton } from '@mui/lab';
@@ -27,7 +27,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
             });
     };
 
-    const isFreeTier = user.subscriptionStatus !== SubscriptionStatus.Subscribed;
+    const isFreeTier = isFree(user);
     const paymentInfo = user.paymentInfo;
 
     return (

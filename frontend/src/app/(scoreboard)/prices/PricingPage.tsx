@@ -3,6 +3,7 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { metaInitiateCheckout } from '@/analytics/meta';
 import { useApi } from '@/api/Api';
+import { SubscriptionTier } from '@/api/paymentApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { getConfig } from '@/config';
@@ -11,6 +12,7 @@ import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import PriceMatrix from '@/upsell/PriceMatrix';
+import { getSubscriptionStatus } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Container, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
@@ -33,12 +35,12 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         return <LoadingPage />;
     }
 
-    if (user?.subscriptionStatus === SubscriptionStatus.Subscribed) {
+    if (getSubscriptionStatus(user) === SubscriptionStatus.Subscribed) {
         router.push('/profile');
         return;
     }
 
-    const onSubscribe = (interval: 'month' | 'year') => {
+    const onSubscribe = (tier: SubscriptionTier, interval: 'month' | 'year') => {
         if (!user) {
             router.push('/signup');
         }
@@ -55,7 +57,12 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
             value: price,
             items: [{ item_id: itemId, item_name: 'Training Plan Subscription' }],
         });
-        api.subscriptionCheckout({ interval, successUrl: redirect, cancelUrl: redirect })
+        api.subscriptionCheckout({
+            tier,
+            interval,
+            successUrl: redirect,
+            cancelUrl: redirect,
+        })
             .then((resp) => {
                 window.location.href = resp.data.url;
             })

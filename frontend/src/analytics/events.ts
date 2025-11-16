@@ -1,3 +1,7 @@
+import {
+    getSubscriptionStatus,
+    getSubscriptionTier,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import ReactGA from 'react-ga4';
 import { User } from '../database/user';
 
@@ -67,6 +71,7 @@ export function setUserProperties(user: User) {
     ReactGA.gtag('set', 'user_properties', {
         username: user.username,
         dojo_cohort: user.dojoCohort,
-        subscription_status: user.subscriptionStatus,
+        subscription_status: getSubscriptionStatus(user),
+        subscription_tier: getSubscriptionTier(user),
     });
 }

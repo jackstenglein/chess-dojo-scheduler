@@ -41,8 +41,17 @@ export interface PaymentApiContextType {
     paymentAccountLogin: () => Promise<AxiosResponse<StripeUrlResponse>>;
 }
 
+export enum SubscriptionTier {
+    Free = 'FREE',
+    Basic = 'BASIC',
+    GameReview = 'GAME_REVIEW',
+}
+
 /** A request to create a subscription checkout session. */
 export interface SubscriptionCheckoutRequest {
+    /** The tier to subscribe to. */
+    tier: SubscriptionTier;
+
     /** The interval the user requested to subscribe for. */
     interval: 'month' | 'year';
 

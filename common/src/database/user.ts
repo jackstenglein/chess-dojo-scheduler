@@ -116,6 +116,37 @@ export interface User {
     firebaseTokens?: string[];
 }
 
+/**
+ * Returns the subscription status for the given user.
+ * @param user The user to get the subscription status for.
+ */
+export function getSubscriptionStatus(user?: User): SubscriptionStatus {
+    if (!user) {
+        return SubscriptionStatus.NotSubscribed;
+    }
+    if (user.subscriptionStatus === SubscriptionStatus.Subscribed) {
+        return SubscriptionStatus.Subscribed;
+    }
+    return user.paymentInfo?.subscriptionStatus ?? SubscriptionStatus.NotSubscribed;
+}
+
+/**
+ * Returns the subscription tier for the given user.
+ * @param user The user to get the subscription tier for.
+ */
+export function getSubscriptionTier(user?: User): SubscriptionTier {
+    if (!user) {
+        return SubscriptionTier.Free;
+    }
+    if (user.subscriptionStatus === SubscriptionStatus.Subscribed) {
+        return SubscriptionTier.Basic;
+    }
+    if (!user.paymentInfo) {
+        return SubscriptionTier.Free;
+    }
+    return user.paymentInfo.subscriptionTier;
+}
+
 export interface WorkGoalSettings {
     /**
      * A list of the minutes the user wants to work per day of the week.
@@ -196,7 +227,14 @@ export interface PuzzleThemeOverview {
 }
 
 export interface PaymentInfo {
+    /** The stripe customer id or a special value for non-stripe subscriptions. */
     customerId: string;
+    /** The stripe subscription id or a special value for non-stripe subscriptions. */
+    subscriptionId: string;
+    /** The status of the subscription. */
+    subscriptionStatus: SubscriptionStatus;
+    /** The tier of the subscription. */
+    subscriptionTier: SubscriptionTier;
 }
 
 export interface CoachInfo {
@@ -278,7 +316,15 @@ export interface RatingHistory {
 
 export enum SubscriptionStatus {
     Subscribed = 'SUBSCRIBED',
-    FreeTier = 'FREE_TIER',
+    // FreeTier = 'FREE_TIER',
+    Canceled = 'CANCELED',
+    NotSubscribed = 'NOT_SUBSCRIBED',
+}
+
+export enum SubscriptionTier {
+    Free = 'FREE',
+    Basic = 'BASIC',
+    GameReview = 'GAME_REVIEW',
 }
 
 export enum TimeFormat {

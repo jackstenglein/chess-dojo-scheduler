@@ -28,7 +28,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	if !user.SubscriptionOverride && !user.PaymentInfo.IsSubscribed() {
 		isForbidden, err = access.IsForbidden(user.WixEmail, 0)
 		if isForbidden {
-			subscriptionStatus = database.SubscriptionStatus_FreeTier
+			subscriptionStatus = database.SubscriptionStatus_NotSubscribed
 		}
 	}
 
@@ -36,15 +36,16 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		// Cache the user's subscription status, that way future reloads of the
 		// frontend immediately show the correct version of the site
 		_, err := repository.UpdateUser(info.Username, &database.UserUpdate{
-			SubscriptionStatus: aws.String(subscriptionStatus),
+			SubscriptionStatus: aws.String(string(subscriptionStatus)),
 		})
 		if err != nil {
 			log.Error("Failed UpdateUser: ", err)
 		}
 
-		if user.SubscriptionStatus == database.SubscriptionStatus_Subscribed {
+		switch user.SubscriptionStatus {
+		case database.SubscriptionStatus_Subscribed:
 			err = repository.RecordSubscriptionCancelation(user.DojoCohort)
-		} else if user.SubscriptionStatus == database.SubscriptionStatus_FreeTier {
+		case database.SubscriptionStatus_NotSubscribed, "FREE_TIER":
 			err = repository.RecordFreeTierConversion(user.DojoCohort)
 		}
 		if err != nil {

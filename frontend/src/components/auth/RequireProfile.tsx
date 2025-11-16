@@ -1,6 +1,7 @@
 'use client';
 
 import { useApi } from '@/api/Api';
+import { SubscriptionTier } from '@/api/paymentApi';
 import { useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { hasCreatedProfile, SubscriptionStatus } from '@/database/user';
@@ -32,6 +33,13 @@ export function RequireProfile() {
                     request.onSuccess();
                     updateUser({
                         subscriptionStatus: SubscriptionStatus.Subscribed,
+                        paymentInfo: {
+                            customerId: 'WIX',
+                            subscriptionId: 'WIX',
+                            subscriptionTier: SubscriptionTier.Basic,
+                            ...user?.paymentInfo,
+                            subscriptionStatus: SubscriptionStatus.Subscribed,
+                        },
                     });
                 })
                 .catch((err: AxiosError) => {
@@ -39,12 +47,19 @@ export function RequireProfile() {
                     request.onFailure(err);
                     if (err.response?.status === 403) {
                         updateUser({
-                            subscriptionStatus: SubscriptionStatus.FreeTier,
+                            subscriptionStatus: SubscriptionStatus.NotSubscribed,
+                            paymentInfo: {
+                                customerId: 'WIX',
+                                subscriptionId: 'WIX',
+                                subscriptionTier: SubscriptionTier.Free,
+                                ...user?.paymentInfo,
+                                subscriptionStatus: SubscriptionStatus.NotSubscribed,
+                            },
                         });
                     }
                 });
         }
-    }, [request, api, status, updateUser]);
+    }, [request, api, status, updateUser, user]);
 
     useEffect(() => {
         if (user && !hasCreatedProfile(user) && !validPathnames.includes(pathname)) {

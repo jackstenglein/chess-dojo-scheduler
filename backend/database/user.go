@@ -13,11 +13,17 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
+type SubscriptionStatus string
+type SubscriptionTier string
+
 const (
-	SubscriptionStatus_Subscribed = "SUBSCRIBED"
-	SubscriptionStatus_FreeTier   = "FREE_TIER"
-	SubscriptionStatus_Canceled   = "CANCELED"
-	SubscriptionStatus_Unknown    = "UNKNOWN"
+	SubscriptionStatus_Subscribed    SubscriptionStatus = "SUBSCRIBED"
+	SubscriptionStatus_Canceled      SubscriptionStatus = "CANCELED"
+	SubscriptionStatus_NotSubscribed SubscriptionStatus = "NOT_SUBSCRIBED"
+
+	SubscriptionTier_Free       SubscriptionTier = "FREE"
+	SubscriptionTier_Basic      SubscriptionTier = "BASIC"
+	SubscriptionTier_GameReview SubscriptionTier = "GAME_REVIEW"
 )
 
 type DojoCohort string
@@ -161,9 +167,6 @@ type User struct {
 	// The user's email address used to log into the wix site
 	WixEmail string `dynamodbav:"wixEmail" json:"-"`
 
-	// The user's subscription status
-	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
-
 	// Override subscription status to give full site access. Can only be set manually in DynamoDB
 	SubscriptionOverride bool `dynamodbav:"subscriptionOverride" json:"-"`
 
@@ -293,6 +296,10 @@ type User struct {
 	// The ids of the user's purchased courses
 	PurchasedCourses map[string]bool `dynamodbav:"purchasedCourses" json:"purchasedCourses"`
 
+	// The user's subscription status. This field matches the value in PaymentInfo.SubscriptionStatus
+	// and exists only to act as a top-level DynamoDB GSI key.
+	SubscriptionStatus SubscriptionStatus `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+
 	// The user's payment info
 	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo" json:"paymentInfo"`
 
@@ -369,7 +376,10 @@ type PaymentInfo struct {
 	SubscriptionId string `dynamodbav:"subscriptionId" json:"-"`
 
 	// The status of the subscription
-	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+	SubscriptionStatus SubscriptionStatus `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+
+	// The tier of the subscription
+	SubscriptionTier SubscriptionTier `dynamodbav:"subscriptionTier" json:"subscriptionTier"`
 }
 
 type WorkGoalSettings struct {
@@ -434,6 +444,20 @@ func (pi *PaymentInfo) GetCustomerId() string {
 		return ""
 	}
 	return pi.CustomerId
+}
+
+func (pi *PaymentInfo) GetSubscriptionStatus() SubscriptionStatus {
+	if pi == nil {
+		return SubscriptionStatus_NotSubscribed
+	}
+	return pi.SubscriptionStatus
+}
+
+func (pi *PaymentInfo) GetSubscriptionTier() SubscriptionTier {
+	if pi == nil {
+		return SubscriptionTier_Free
+	}
+	return pi.SubscriptionTier
 }
 
 type CoachInfo struct {
@@ -612,14 +636,35 @@ func (u *User) IsSubscribed() bool {
 	return u.SubscriptionOverride || u.PaymentInfo.IsSubscribed() || u.SubscriptionStatus == SubscriptionStatus_Subscribed
 }
 
+func (u *User) GetSubscriptionStatus() SubscriptionStatus {
+	if u == nil {
+		return SubscriptionStatus_NotSubscribed
+	}
+	if u.SubscriptionOverride {
+		return SubscriptionStatus_Subscribed
+	}
+	return u.PaymentInfo.GetSubscriptionStatus()
+}
+
+func (u *User) GetSubscriptionTier() SubscriptionTier {
+	if u == nil {
+		return SubscriptionTier_Free
+	}
+	if u.SubscriptionOverride {
+		return SubscriptionTier_Basic
+	}
+	tier := u.PaymentInfo.GetSubscriptionTier()
+	if tier == "" && u.GetSubscriptionStatus() == SubscriptionStatus_Subscribed {
+		return SubscriptionTier_Basic
+	}
+	return tier
+}
+
 // UserUpdate contains pointers to fields included in the update of a user record. If a field
 // should not be updated in a particular request, then it is set to nil.
 // Some fields from the User type are removed as they cannot be updated. Other fields
 // are ignored by the json encoder because they cannot be manually updated by the user.
 type UserUpdate struct {
-	// The user's subscription status. Cannot be passed by the user.
-	SubscriptionStatus *string `dynamodbav:"subscriptionStatus,omitempty" json:"-"`
-
 	// The user's preferred display name on the site
 	DisplayName *string `dynamodbav:"displayName,omitempty" json:"displayName,omitempty"`
 
@@ -719,6 +764,10 @@ type UserUpdate struct {
 
 	// The ids of the user's purchased courses. This field cannot be manually set by the user.
 	PurchasedCourses *map[string]bool `dynamodbav:"purchasedCourses,omitempty" json:"-"`
+
+	// The user's subscription status. This field matches the value in PaymentInfo.SubscriptionStatus
+	// and exists only to act as a top-level DynamoDB GSI key. Cannot be passed by the user.
+	SubscriptionStatus *string `dynamodbav:"subscriptionStatus,omitempty" json:"-"`
 
 	// The user's payment info. This field cannot be manually set by the user.
 	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo,omitempty" json:"-"`
@@ -826,7 +875,7 @@ func GetSearchKey(user *User, update *UserUpdate) string {
 
 type UserCreator interface {
 	// CreateUser creates a new User object with the provided information.
-	CreateUser(username, email, name, subscriptionStatus string) (*User, error)
+	CreateUser(username, email, name string, paymentInfo *PaymentInfo) (*User, error)
 }
 
 type UserGetter interface {
@@ -882,7 +931,7 @@ type AdminUserLister interface {
 }
 
 // CreateUser creates a new User object with the provided information.
-func (repo *dynamoRepository) CreateUser(username, email, name, subscriptionStatus string) (*User, error) {
+func (repo *dynamoRepository) CreateUser(username, email, name string, paymentInfo *PaymentInfo) (*User, error) {
 	user := &User{
 		Username:           username,
 		Email:              email,
@@ -890,7 +939,8 @@ func (repo *dynamoRepository) CreateUser(username, email, name, subscriptionStat
 		Name:               name,
 		CreatedAt:          time.Now().Format(time.RFC3339),
 		DojoCohort:         NoCohort,
-		SubscriptionStatus: subscriptionStatus,
+		PaymentInfo:        paymentInfo,
+		SubscriptionStatus: paymentInfo.GetSubscriptionStatus(),
 	}
 
 	err := repo.SetUserConditional(user, aws.String("attribute_not_exists(username)"))
@@ -1334,13 +1384,13 @@ func (repo *dynamoRepository) UpdateUserSubscriptionStatuses(users []*User) erro
 	var sb strings.Builder
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		params, err := dynamodbattribute.MarshalList([]interface{}{user.SubscriptionStatus})
+		params, err := dynamodbattribute.MarshalList([]any{user.GetSubscriptionStatus(), user.PaymentInfo})
 		if err != nil {
-			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.MinutesSpent", err)
+			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.PaymentInfo", err)
 		}
 
 		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
-		sb.WriteString(" SET subscriptionStatus=?")
+		sb.WriteString(" SET subscriptionStatus=? paymentInfo=?")
 		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 
 		statement := &dynamodb.BatchStatementRequest{
