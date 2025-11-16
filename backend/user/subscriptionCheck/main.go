@@ -75,9 +75,6 @@ func updateUser(user *database.User) bool {
 	if !isWix(user) {
 		return false
 	}
-	if user.SubscriptionOverride {
-		return false
-	}
 	if user.PaymentInfo.IsSubscribed() {
 		return false
 	}

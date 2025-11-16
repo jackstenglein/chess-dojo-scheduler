@@ -167,9 +167,6 @@ type User struct {
 	// The user's email address used to log into the wix site
 	WixEmail string `dynamodbav:"wixEmail" json:"-"`
 
-	// Override subscription status to give full site access. Can only be set manually in DynamoDB
-	SubscriptionOverride bool `dynamodbav:"subscriptionOverride" json:"-"`
-
 	// The name of the user
 	Name string `dynamodbav:"name" json:"-"`
 
@@ -636,15 +633,12 @@ func (u *User) IsSubscribed() bool {
 	if u == nil {
 		return false
 	}
-	return u.SubscriptionOverride || u.PaymentInfo.IsSubscribed() || u.SubscriptionStatus == SubscriptionStatus_Subscribed
+	return u.PaymentInfo.IsSubscribed() || u.SubscriptionStatus == SubscriptionStatus_Subscribed
 }
 
 func (u *User) GetSubscriptionStatus() SubscriptionStatus {
 	if u == nil {
 		return SubscriptionStatus_NotSubscribed
-	}
-	if u.SubscriptionOverride {
-		return SubscriptionStatus_Subscribed
 	}
 	return u.PaymentInfo.GetSubscriptionStatus()
 }
@@ -652,9 +646,6 @@ func (u *User) GetSubscriptionStatus() SubscriptionStatus {
 func (u *User) GetSubscriptionTier() SubscriptionTier {
 	if u == nil {
 		return SubscriptionTier_Free
-	}
-	if u.SubscriptionOverride {
-		return SubscriptionTier_Basic
 	}
 	return u.PaymentInfo.GetSubscriptionTier()
 }
@@ -1260,7 +1251,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, subscriptionStatus, subscriptionOverride, paymentInfo, wixEmail, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories, lichessBan"
+const ratingsProjection = "username, dojoCohort, subscriptionStatus, paymentInfo, wixEmail, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories, lichessBan"
 
 // ListUserRatings returns a list of Users matching the provided cohort, up to 1MB of data.
 // Only the fields necessary for the rating/statistics update are returned.
