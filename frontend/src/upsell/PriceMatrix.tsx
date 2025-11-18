@@ -1,53 +1,53 @@
 'use client';
 
 import { SubscriptionTier } from '@/api/paymentApi';
-import { LoadingButton } from '@mui/lab';
-import { Button, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
+import { Button, ButtonProps, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Request } from '../api/Request';
-import SellingPoint, { SellingPointStatus } from './SellingPoint';
+import SellingPoint, { SellingPointProps, SellingPointStatus } from './SellingPoint';
 import { getCurrency } from './locales';
 
-const priceDataByCurrency: Record<string, { symbol: string; monthly: number; yearly: number }> = {
+const priceDataByCurrency: Record<string, { symbol: string; month: number; year: number }> = {
     USD: {
         symbol: '$',
-        monthly: 15,
-        yearly: 120,
+        month: 15,
+        year: 10,
     },
     EUR: {
         symbol: '€',
-        monthly: 15,
-        yearly: 120,
+        month: 15,
+        year: 10,
     },
     GBP: {
         symbol: '£',
-        monthly: 15,
-        yearly: 120,
+        month: 15,
+        year: 10,
     },
     INR: {
         symbol: '₹',
-        monthly: 650,
-        yearly: 5200,
+        month: 650,
+        year: 433,
     },
 };
 
 interface PriceMatrixProps {
-    onSubscribe?: (tier: SubscriptionTier, interval: 'month' | 'year') => void;
     request?: Request;
-    interval?: string;
+    interval: 'month' | 'year';
+    selectedTier?: SubscriptionTier;
+    onSubscribe: (
+        tier: SubscriptionTier.Basic | SubscriptionTier.GameReview,
+        interval: 'month' | 'year',
+        price: { currency: string; value: number },
+    ) => void;
     onFreeTier?: () => void;
-
-    subscribeLink?: string;
-    freeTierLink?: string;
 }
 
 const PriceMatrix: React.FC<PriceMatrixProps> = ({
     request,
     interval,
+    selectedTier,
     onSubscribe,
     onFreeTier,
-    subscribeLink,
-    freeTierLink,
 }) => {
     const [currency, setCurrency] = useState('USD');
     useEffect(() => {
@@ -59,187 +59,217 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
 
     return (
         <>
-            {(onFreeTier || freeTierLink) && (
-                <Grid
-                    size={{
-                        xs: 12,
-                        sm: 4,
-                    }}
-                >
-                    <Card variant='outlined' sx={{ height: 1 }}>
-                        <CardContent sx={{ height: 1 }}>
-                            <Stack alignItems='center' spacing={3} height={1}>
-                                <Stack alignItems='center'>
-                                    <Typography
-                                        variant='subtitle1'
-                                        fontWeight='bold'
-                                        color='text.secondary'
-                                        textAlign='center'
-                                    >
-                                        Free Tier
-                                    </Typography>
-
-                                    <Typography variant='h6'>{priceData.symbol}0</Typography>
-                                </Stack>
-
-                                <Stack spacing={1} flexGrow={1}>
-                                    <SellingPoint
-                                        description='No payment info required'
-                                        status={SellingPointStatus.Included}
-                                    />
-                                    <SellingPoint
-                                        description='Limited training plans, 0-2500'
-                                        status={SellingPointStatus.Restricted}
-                                    />
-                                    <SellingPoint
-                                        description='Limited Dojo games database'
-                                        status={SellingPointStatus.Restricted}
-                                    />
-                                    <SellingPoint
-                                        description='Opening courses'
-                                        status={SellingPointStatus.Excluded}
-                                    />
-                                    <SellingPoint
-                                        description='Private Discord server'
-                                        status={SellingPointStatus.Excluded}
-                                    />
-                                </Stack>
-
-                                <Button
-                                    variant='contained'
-                                    fullWidth
-                                    disabled={request?.isLoading()}
-                                    color='subscribe'
-                                    onClick={onFreeTier}
-                                    href={freeTierLink}
-                                >
-                                    Continue for Free
-                                </Button>
-                            </Stack>
-                        </CardContent>
-                    </Card>
+            {onFreeTier && (
+                <Grid size={{ xs: 12, sm: 8.5, md: 4 }}>
+                    <PriceCard
+                        name='Free Tier'
+                        price={{
+                            value: 0,
+                            symbol: priceData.symbol,
+                            interval: '',
+                        }}
+                        sellingPoints={[
+                            {
+                                description: 'Limited training plans, 0-2500',
+                                status: SellingPointStatus.Restricted,
+                            },
+                            {
+                                description: 'Limited game database',
+                                status: SellingPointStatus.Restricted,
+                            },
+                            {
+                                description: 'Limited puzzles',
+                                status: SellingPointStatus.Restricted,
+                            },
+                            {
+                                description: 'Opening courses',
+                                status: SellingPointStatus.Excluded,
+                            },
+                            {
+                                description: 'Community forum access',
+                                status: SellingPointStatus.Excluded,
+                            },
+                        ]}
+                        buttonProps={{
+                            disabled: request?.isLoading(),
+                            onClick: onFreeTier,
+                            children: 'Continue for Free',
+                            variant: 'outlined',
+                            color: 'primary',
+                        }}
+                    />
                 </Grid>
             )}
-            <Grid
-                size={{
-                    xs: 12,
-                    sm: onFreeTier || freeTierLink ? 4 : 6,
-                }}
-            >
-                <Card variant='outlined' sx={{ height: 1 }}>
-                    <CardContent sx={{ height: 1 }}>
-                        <Stack alignItems='center' spacing={3} height={1}>
-                            <Stack alignItems='center'>
-                                <Typography
-                                    variant='subtitle1'
-                                    fontWeight='bold'
-                                    color='text.secondary'
-                                    textAlign='center'
-                                >
-                                    Training Program
-                                </Typography>
 
-                                <Typography variant='h6'>
-                                    {priceData.symbol}
-                                    {priceData.monthly} / month
-                                </Typography>
-                            </Stack>
-
-                            <Stack spacing={1} flexGrow={1}>
-                                <SellingPoint
-                                    description='All training plans, 0-2500'
-                                    status={SellingPointStatus.Included}
-                                />
-                                <SellingPoint
-                                    description='Full Dojo games database'
-                                    status={SellingPointStatus.Included}
-                                />
-                                <SellingPoint
-                                    description='All opening courses'
-                                    status={SellingPointStatus.Included}
-                                />
-                                <SellingPoint
-                                    description='Private Discord server'
-                                    status={SellingPointStatus.Included}
-                                />
-                            </Stack>
-
-                            <LoadingButton
-                                variant='contained'
-                                fullWidth
-                                loading={request?.isLoading() && interval === 'month'}
-                                disabled={request?.isLoading() && interval !== 'month'}
-                                onClick={
-                                    onSubscribe
-                                        ? () => onSubscribe(SubscriptionTier.Basic, 'month')
-                                        : undefined
-                                }
-                                href={subscribeLink}
-                                color='subscribe'
-                            >
-                                Subscribe
-                            </LoadingButton>
-                        </Stack>
-                    </CardContent>
-                </Card>
+            <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 4 : 6 }}>
+                <PriceCard
+                    name='ChessDojo Self-Guided'
+                    price={{
+                        fullValue: interval === 'year' ? priceData.month : undefined,
+                        value: priceData[interval],
+                        symbol: priceData.symbol,
+                        interval: `month${interval === 'year' ? '*' : ''}`,
+                    }}
+                    sellingPoints={[
+                        {
+                            description: 'All training plans, 0-2500',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Rating dashboard & progress tracking',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Full game database',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Unlimited puzzles',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'All opening courses',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Community forum access',
+                            status: SellingPointStatus.Included,
+                        },
+                    ]}
+                    buttonProps={{
+                        loading: request?.isLoading() && selectedTier === SubscriptionTier.Basic,
+                        disabled: request?.isLoading() && selectedTier !== SubscriptionTier.Basic,
+                        onClick: () =>
+                            onSubscribe(SubscriptionTier.Basic, interval, {
+                                currency,
+                                value: priceData[interval],
+                            }),
+                        children: 'Start Training',
+                    }}
+                />
             </Grid>
-            <Grid
-                size={{
-                    xs: 12,
-                    sm: onFreeTier || freeTierLink ? 4 : 6,
-                }}
-            >
-                <Card variant='outlined' sx={{ height: 1 }}>
-                    <CardContent sx={{ height: 1 }}>
-                        <Stack alignItems='center' spacing={3} height={1}>
-                            <Stack alignItems='center'>
-                                <Typography
-                                    variant='subtitle1'
-                                    fontWeight='bold'
-                                    color='text.secondary'
-                                    textAlign='center'
-                                >
-                                    Training Program - Yearly
-                                </Typography>
 
-                                <Typography variant='h6'>
-                                    {priceData.symbol}
-                                    {priceData.yearly} / year
-                                </Typography>
-                            </Stack>
-
-                            <Stack spacing={1} flexGrow={1}>
-                                <SellingPoint
-                                    description='All features from monthly membership'
-                                    status={SellingPointStatus.Included}
-                                />
-                                <SellingPoint
-                                    description={`Saves ${priceData.symbol}${priceData.monthly * 12 - priceData.yearly} / year compared to monthly membership`}
-                                    status={SellingPointStatus.Included}
-                                />
-                            </Stack>
-
-                            <LoadingButton
-                                variant='contained'
-                                fullWidth
-                                loading={request?.isLoading() && interval === 'year'}
-                                disabled={request?.isLoading() && interval !== 'year'}
-                                onClick={
-                                    onSubscribe
-                                        ? () => onSubscribe(SubscriptionTier.Basic, 'year')
-                                        : undefined
-                                }
-                                href={subscribeLink}
-                                color='subscribe'
-                            >
-                                Subscribe
-                            </LoadingButton>
-                        </Stack>
-                    </CardContent>
-                </Card>
+            <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 4 : 6 }}>
+                <PriceCard
+                    name='ChessDojo Live Training'
+                    price={{
+                        value: 150,
+                        symbol: '$',
+                        interval: 'month',
+                    }}
+                    sellingPoints={[
+                        {
+                            description: 'All features from previous tiers',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Direct feedback from a sensei',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Personalized game review classes',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Weekly live group classes on specialized topics',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Access to recordings of all classes',
+                            status: SellingPointStatus.Included,
+                        },
+                    ]}
+                    buttonProps={{
+                        loading:
+                            request?.isLoading() && selectedTier === SubscriptionTier.GameReview,
+                        disabled:
+                            request?.isLoading() && selectedTier === SubscriptionTier.GameReview,
+                        onClick: () =>
+                            onSubscribe(SubscriptionTier.GameReview, 'month', {
+                                currency: 'USD',
+                                value: 150,
+                            }),
+                        children: 'Get Sensei Feedback',
+                    }}
+                />
             </Grid>
         </>
     );
 };
 
 export default PriceMatrix;
+
+function PriceCard({
+    name,
+    price,
+    sellingPoints,
+    buttonProps,
+}: {
+    name: string;
+    price: {
+        fullValue?: number;
+        value: number;
+        symbol: string;
+        interval: string;
+    };
+    sellingPoints: SellingPointProps[];
+    buttonProps: ButtonProps;
+}) {
+    return (
+        <Card variant='outlined' sx={{ height: 1 }}>
+            <CardContent sx={{ height: 1 }}>
+                <Stack alignItems='center' spacing={3} height={1}>
+                    <Stack alignItems='center' gap={1}>
+                        <Typography
+                            variant='h6'
+                            fontWeight='bold'
+                            color='text.secondary'
+                            textAlign='center'
+                        >
+                            {name}
+                        </Typography>
+
+                        <Typography variant='h4'>
+                            {price.fullValue && (
+                                <Typography
+                                    variant='h5'
+                                    component='span'
+                                    sx={{ textDecoration: 'line-through', verticalAlign: 'middle' }}
+                                    color='text.secondary'
+                                >
+                                    {price.symbol}
+                                    {price.fullValue}
+                                </Typography>
+                            )}
+
+                            <Typography
+                                variant='h4'
+                                component='span'
+                                color={price.fullValue ? 'success' : undefined}
+                            >
+                                {' '}
+                                {price.symbol}
+                                {price.value}
+                            </Typography>
+
+                            {price.interval && (
+                                <Typography variant='h6' component='span'>
+                                    {' '}
+                                    / {price.interval}
+                                </Typography>
+                            )}
+                        </Typography>
+                    </Stack>
+
+                    <Stack spacing={1} flexGrow={1}>
+                        {sellingPoints.map((sp) => (
+                            <SellingPoint key={sp.description} {...sp} />
+                        ))}
+                    </Stack>
+
+                    <Button variant='contained' fullWidth color='subscribe' {...buttonProps} />
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+}
