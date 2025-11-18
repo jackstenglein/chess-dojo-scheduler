@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { getConfig } from '@/config';
@@ -21,6 +22,7 @@ import {
 import { AxiosResponse } from 'axios';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { decryptObject } from '../../cypress/e2e/util';
 import { EventType, setUserProperties as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { syncPurchases } from '../api/paymentApi';
 import { getUser } from '../api/userApi';
@@ -64,7 +66,6 @@ interface AuthContextType {
 
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
-
     socialSignin: (provider: 'Google', redirectUri: string) => void;
     signin: (email: string, password: string) => Promise<void>;
 
@@ -111,7 +112,7 @@ function socialSignin(provider: 'Google', redirectUri: string) {
         customState: redirectUri,
     })
         .then((value) => {
-            console.log('Federated sign in value: ', value);
+            console.log('Federated sign in value1: ', value);
         })
         .catch((err) => {
             console.error('Federated sign in error: ', err);
@@ -178,25 +179,36 @@ export function useFreeTier() {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
+    const [isClient, setIsClient] = useState(false);
+    const isSocialFromMobile: boolean =
+        typeof window !== 'undefined'
+            ? new URL(window.location.href).searchParams.get('isSocialFromMobile') === 'true'
+            : false;
 
     const handleCognitoResponse = useCallback(async (cognitoUser: CognitoUser) => {
         const checkoutSessionIds = getAllCheckoutSessionIds();
         let apiResponse: AxiosResponse<User>;
 
-        if (Object.values(checkoutSessionIds).length > 0) {
-            apiResponse = await syncPurchases(
-                cognitoUser.tokens?.idToken?.toString() ?? '',
-                checkoutSessionIds,
-            );
-            clearCheckoutSessionIds();
-        } else {
-            apiResponse = await getUser(cognitoUser.tokens?.idToken?.toString() ?? '');
-        }
+        try {
+            if (Object.values(checkoutSessionIds).length > 0) {
+                apiResponse = await syncPurchases(
+                    cognitoUser.tokens?.idToken?.toString() ?? '',
+                    checkoutSessionIds,
+                );
+                clearCheckoutSessionIds();
+            } else {
+                const token = cognitoUser.tokens?.idToken?.toString() ?? '';
+                apiResponse = await getUser(token);
+            }
 
-        const user = parseUser(apiResponse.data, cognitoUser);
-        setUser(user);
-        setStatus(AuthStatus.Authenticated);
-        setAnalyticsUser(user);
+            const user = parseUser(apiResponse.data, cognitoUser);
+            setUser(user);
+            setStatus(AuthStatus.Authenticated);
+            setAnalyticsUser(user);
+        } catch (apiError) {
+            console.error('API call failed in handleCognitoResponse:', apiError);
+            throw apiError; // Re-throw to be caught by
+        }
     }, []);
 
     const getCurrentUser = useCallback(async () => {
@@ -213,21 +225,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [handleCognitoResponse]);
 
-    useEffect(() => {
-        void getCurrentUser();
-    }, [getCurrentUser]);
-
-    const updateUser = (update: Partial<User>) => {
-        if (user) {
-            setUser({ ...user, ...update });
-        }
-    };
-
-    const signin = (email: string, password: string) => {
+    const signin = (email: string, password: string, isFromParam = false) => {
         return new Promise<void>((resolve, reject) => {
             void (async () => {
                 try {
-                    console.log('Signing in');
                     await amplifySignIn({ username: email, password });
                     const authUser = await amplifyGetCurrentUser();
                     const authSession = await fetchAuthSession({ forceRefresh: true });
@@ -236,6 +237,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         username: authUser.username,
                         tokens: authSession.tokens,
                     });
+                    if (isFromParam) {
+                        // Clean URL
+                        const cleanUrl = window.location.origin + window.location.pathname;
+
+                        // Save flag
+                        localStorage.setItem('isFromMobile', 'true');
+
+                        // Replace current page in history so user can't go "back" to redirect
+                        window.location.replace(cleanUrl);
+                    }
+
                     resolve();
                 } catch (err) {
                     console.error('Failed Auth.signIn: ', err);
@@ -250,9 +262,107 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             trackEvent(EventType.Logout);
             await amplifySignOut();
-            window.location.href = '/';
+
+            if (localStorage.getItem('isFromMobile') === 'true') {
+                localStorage.removeItem('isFromMobile');
+
+                // Redirect with query param so React Native can detect
+                window.location.href = '/?redirect=app';
+            } else {
+                // Normal browser logout
+                window.location.href = '/';
+            }
         } catch (err) {
             console.error('Error signing out: ', err);
+        }
+    };
+
+    // Detect client-side hydration
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (isSocialFromMobile) {
+            localStorage.setItem('isSocialFromMobile', 'true');
+            void (async () => {
+                const paramsValue = new URL(window.location.href).searchParams.get('values');
+                if (!paramsValue) {
+                    socialSignin('Google', '/profile?loggedInFromMobile=true');
+                    return;
+                }
+
+                const [iv = '', encryptedData = ''] = paramsValue.split('/');
+
+                const secret = process.env.NEXT_PUBLIC_ENCRYPTION_SECRET ?? '';
+                if (!secret) {
+                    console.error('Encryption secret is missing');
+                    return;
+                }
+
+                try {
+                    const { token } = await decryptObject<{
+                        token?: string;
+                    }>({ iv, encryptedData }, secret);
+
+                    if (token) {
+                        localStorage.setItem('firebaseTokens', token);
+                    }
+                } catch (err) {
+                    console.error('Decryption failed:', err);
+                } finally {
+                    // Clean URL
+                    const cleanUrl = window.location.origin + window.location.pathname;
+                    // Replace current page in history so user can't go "back" to redirect
+                    window.location.replace(cleanUrl);
+                    socialSignin('Google', '/profile?loggedInFromMobile=true');
+                }
+            })();
+        }
+    }, [isSocialFromMobile]);
+
+    // Token extraction effect - only runs on client side after hydration
+    useEffect(() => {
+        if (!isClient) return;
+
+        void (async () => {
+            const paramsValue = new URL(window.location.href).searchParams.get('values');
+            if (!paramsValue) {
+                void getCurrentUser();
+                return;
+            }
+
+            const [iv = '', encryptedData = ''] = paramsValue.split('/');
+
+            const secret = process.env.NEXT_PUBLIC_ENCRYPTION_SECRET ?? '';
+            if (!secret) {
+                console.error('Encryption secret is missing');
+                return;
+            }
+
+            try {
+                const { email, password, token } = await decryptObject<{
+                    email?: string;
+                    password?: string;
+                    token?: string;
+                }>({ iv, encryptedData }, secret);
+
+                if (token) {
+                    localStorage.setItem('firebaseTokens', token);
+                }
+
+                if (email && password) {
+                    void signin(email, password, true);
+                }
+            } catch (err) {
+                console.error('Decryption failed:', err);
+            }
+        })();
+    }, [isClient, signin, getCurrentUser]);
+
+    const updateUser = (update: Partial<User>) => {
+        if (user) {
+            setUser({ ...user, ...update });
         }
     };
 

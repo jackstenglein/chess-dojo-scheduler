@@ -33,7 +33,13 @@ export function useClubs(clubIds: string[]) {
                 })
                 .catch((err) => {
                     console.error('batchGetClubs: ', err);
-                    request.onFailure(err);
+                    // In offline mode, don't mark as failure if we have some cached data
+                    if (typeof window !== 'undefined' && !navigator.onLine && clubs.length > 0) {
+                        console.log('[Cache] Using cached clubs in offline mode');
+                        request.onSuccess();
+                    } else {
+                        request.onFailure(err);
+                    }
                 });
         }
     }, [clubIds, clubs, request, api, cache.clubs]);
