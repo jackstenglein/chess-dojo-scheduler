@@ -23,6 +23,7 @@ const (
 
 	SubscriptionTier_Free       SubscriptionTier = "FREE"
 	SubscriptionTier_Basic      SubscriptionTier = "BASIC"
+	SubscriptionTier_Lecture    SubscriptionTier = "LECTURE"
 	SubscriptionTier_GameReview SubscriptionTier = "GAME_REVIEW"
 )
 
@@ -549,6 +550,20 @@ type UserOpeningModule struct {
 	Exercises []bool `dynamodbav:"exercises,omitempty" json:"exercises,omitempty"`
 }
 
+func (u *User) GetUsername() string {
+	if u == nil {
+		return ""
+	}
+	return u.Username
+}
+
+func (u *User) GetCohort() DojoCohort {
+	if u == nil {
+		return NoCohort
+	}
+	return u.DojoCohort
+}
+
 // GetRatings returns the start and current ratings in the user's preferred rating system.
 func (u *User) GetRatings() (int, int) {
 	if u == nil {
@@ -648,6 +663,13 @@ func (u *User) GetSubscriptionTier() SubscriptionTier {
 		return SubscriptionTier_Free
 	}
 	return u.PaymentInfo.GetSubscriptionTier()
+}
+
+func (u *User) GetIsCalendarAdmin() bool {
+	if u == nil {
+		return false
+	}
+	return u.IsAdmin || u.IsCalendarAdmin
 }
 
 // UserUpdate contains pointers to fields included in the update of a user record. If a field
