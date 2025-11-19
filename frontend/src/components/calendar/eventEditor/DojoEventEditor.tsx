@@ -1,14 +1,8 @@
 import { Event, EventStatus } from '@/database/event';
 import { dojoCohorts, User } from '@/database/user';
 import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
-import { Checkbox, FormControlLabel } from '@mui/material';
 import { Options, RRule } from 'rrule';
 import { getTimeZonedDate } from '../displayDate';
-import CohortsFormSection from './form/CohortsFormSection';
-import DescriptionFormSection from './form/DescriptionFormSection';
-import LocationFormSection from './form/LocationFormSection';
-import TimesFormSection from './form/TimesFormSection';
-import TitleFormSection from './form/TitleFormSection';
 import { getDefaultRRuleCount, RRuleEnds, UseEventEditorResponse } from './useEventEditor';
 
 export function validateDojoEventEditor(
@@ -120,90 +114,3 @@ export function validateDojoEventEditor(
         errors,
     ];
 }
-
-interface DojoEventEditorProps {
-    editor: UseEventEditorResponse;
-}
-
-const DojoEventEditor: React.FC<DojoEventEditorProps> = ({ editor }) => {
-    const {
-        title,
-        setTitle,
-        start,
-        setStart,
-        end,
-        setEnd,
-        location,
-        setLocation,
-        description,
-        setDescription,
-        allCohorts,
-        setAllCohorts,
-        cohorts,
-        setCohort,
-        hideFromPublicDiscord,
-        setHideFromPublicDiscord,
-        rruleOptions,
-        setRRuleOptions,
-        errors,
-    } = editor;
-
-    return (
-        <>
-            <FormControlLabel
-                label='Hide from public Discord server? If checked, no event will be created in the public Discord.'
-                control={
-                    <Checkbox
-                        checked={hideFromPublicDiscord}
-                        onChange={(e) => setHideFromPublicDiscord(e.target.checked)}
-                    />
-                }
-            />
-
-            <TimesFormSection
-                start={start}
-                setStart={setStart}
-                startError={errors.start}
-                end={end}
-                setEnd={setEnd}
-                endError={errors.end}
-                minEnd={null}
-                enableRecurrence
-                rruleOptions={rruleOptions}
-                setRRuleOptions={setRRuleOptions}
-                countError={errors.count}
-            />
-
-            <TitleFormSection
-                title={title}
-                subtitle='This title will be used in the calendar and in the Discord events.'
-                setTitle={setTitle}
-                error={errors.title}
-            />
-
-            <DescriptionFormSection
-                subtitle='This description will be visible in the calendar and the Discord events.'
-                description={description}
-                setDescription={setDescription}
-            />
-
-            <LocationFormSection
-                location={location}
-                setLocation={setLocation}
-                helperText='Defaults to "No Location Provided" if left blank.'
-                subtitle='Add a Zoom link, specify a Discord classroom, etc.'
-            />
-
-            <CohortsFormSection
-                description='Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.'
-                allCohorts={allCohorts}
-                setAllCohorts={setAllCohorts}
-                cohorts={cohorts}
-                setCohort={setCohort}
-                error={errors.cohorts}
-            />
-        </>
-    );
-};
-
-export default DojoEventEditor;

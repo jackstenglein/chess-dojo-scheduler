@@ -27,15 +27,17 @@ export function getMinEnd(start: DateTime | null): DateTime | null {
     return minEnd;
 }
 
+export type EditableEventType = EventType.Availability | EventType.Coaching | EventType.Dojo;
+
 export interface UseEventEditorResponse {
     /** The type of the Event. */
-    type: EventType;
+    type: EditableEventType;
 
     /**
      * Sets the type of the Event.
      * @param type The new type of the Event.
      */
-    setType: (type: EventType) => void;
+    setType: (type: EditableEventType) => void;
 
     /** The title of the Event. */
     title: string;
@@ -254,7 +256,9 @@ export default function useEventEditor(
 ): UseEventEditorResponse {
     const { user } = useAuth();
 
-    const [type, setType] = useState<EventType>(initialEvent?.type ?? EventType.Availability);
+    const [type, setType] = useState<EditableEventType>(
+        (initialEvent?.type as EditableEventType) ?? EventType.Availability,
+    );
     const [title, setTitle] = useState<string>(initialEvent?.title || '');
 
     const [start, setStart] = useState<DateTime | null>(
@@ -338,7 +342,7 @@ export default function useEventEditor(
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const onChangeEventType = useCallback(
-        (value: EventType) => {
+        (value: EditableEventType) => {
             const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>((map, cohort) => {
                 map[cohort] = false;
                 return map;
