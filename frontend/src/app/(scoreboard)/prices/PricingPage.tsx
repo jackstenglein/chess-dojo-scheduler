@@ -87,7 +87,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
     };
 
     return (
-        <Container sx={{ py: 5 }}>
+        <Container maxWidth='xl' sx={{ py: 5 }}>
             <RequestSnackbar request={request} />
             <Grid container spacing={3} justifyContent='center' flexWrap='wrap'>
                 <Grid
@@ -120,7 +120,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
                     container
                     spacing={3}
                     justifyContent='center'
-                    flexWrap='wrap-reverse'
+                    flexWrap={{ xs: 'wrap-reverse', md: 'wrap' }}
                 >
                     <PriceMatrix
                         onSubscribe={onSubscribe}

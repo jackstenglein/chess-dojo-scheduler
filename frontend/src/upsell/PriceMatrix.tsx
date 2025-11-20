@@ -60,13 +60,14 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
     return (
         <>
             {onFreeTier && (
-                <Grid size={{ xs: 12, sm: 8.5, md: 4 }}>
+                <Grid size={{ xs: 12, sm: 8.5, md: 6, lg: 'grow' }}>
                     <PriceCard
                         name='Free Tier'
                         price={{
                             value: 0,
                             symbol: priceData.symbol,
                             interval: '',
+                            subtitle: ' ',
                         }}
                         sellingPoints={[
                             {
@@ -101,7 +102,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                 </Grid>
             )}
 
-            <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 4 : 6 }}>
+            <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 6 : 4, lg: 'grow' }}>
                 <PriceCard
                     name='ChessDojo Self-Guided'
                     price={{
@@ -109,6 +110,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         value: priceData[interval],
                         symbol: priceData.symbol,
                         interval: `month${interval === 'year' ? '*' : ''}`,
+                        subtitle: ' ',
                     }}
                     sellingPoints={[
                         {
@@ -149,21 +151,62 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                 />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 4 : 6 }}>
+            <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 6 : 4, lg: 'grow' }}>
                 <PriceCard
-                    name='ChessDojo Live Training'
+                    name='ChessDojo Group Classes'
                     price={{
-                        value: 150,
+                        value: 75,
                         symbol: '$',
-                        interval: 'month',
+                        interval: `month`,
+                        subtitle: `(~ $5 / class)`,
                     }}
                     sellingPoints={[
                         {
-                            description: 'All features from previous tiers',
+                            description: 'Everything from previous tier',
                             status: SellingPointStatus.Included,
                         },
                         {
-                            description: 'Direct feedback from a sensei',
+                            description: 'Weekly live group classes on specialized topics',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Q&A sessions with Dojo coaches',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Structured homework assignments',
+                            status: SellingPointStatus.Included,
+                        },
+                        {
+                            description: 'Access to recordings of all group classes',
+                            status: SellingPointStatus.Included,
+                        },
+                    ]}
+                    buttonProps={{
+                        loading: request?.isLoading() && selectedTier === SubscriptionTier.Basic,
+                        disabled: request?.isLoading() && selectedTier !== SubscriptionTier.Basic,
+                        onClick: () =>
+                            onSubscribe(SubscriptionTier.Basic, interval, {
+                                currency,
+                                value: priceData[interval],
+                            }),
+                        children: 'Join Group Classes',
+                    }}
+                />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 6 : 4, lg: 'grow' }}>
+                <PriceCard
+                    name='ChessDojo Live Training'
+                    price={{
+                        value: 200,
+                        symbol: '$',
+                        interval: 'month',
+                        subtitle: `(~ $10 / class)`,
+                    }}
+                    sellingPoints={[
+                        {
+                            description: 'Everything from previous tiers',
                             status: SellingPointStatus.Included,
                         },
                         {
@@ -171,7 +214,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             status: SellingPointStatus.Included,
                         },
                         {
-                            description: 'Weekly live group classes on specialized topics',
+                            description: 'Direct feedback from a sensei',
                             status: SellingPointStatus.Included,
                         },
                         {
@@ -211,6 +254,7 @@ function PriceCard({
         value: number;
         symbol: string;
         interval: string;
+        subtitle?: string;
     };
     sellingPoints: SellingPointProps[];
     buttonProps: ButtonProps;
@@ -258,6 +302,10 @@ function PriceCard({
                                     / {price.interval}
                                 </Typography>
                             )}
+                        </Typography>
+
+                        <Typography variant='h6' mt={-1} color='text.secondary' whiteSpace='pre'>
+                            {price.subtitle}
                         </Typography>
                     </Stack>
 
