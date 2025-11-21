@@ -36,9 +36,11 @@ const MaxParticipantsFormSection: React.FC<MaxParticipantsFormSectionProps> = ({
                 label='Max Participants'
                 variant='outlined'
                 value={maxParticipants}
-                inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
+                slotProps={{
+                    htmlInput: {
+                        inputMode: 'numeric',
+                        pattern: '[0-9]*',
+                    },
                 }}
                 onChange={(event) => setMaxParticipants(event.target.value)}
                 helperText={error || helperText}

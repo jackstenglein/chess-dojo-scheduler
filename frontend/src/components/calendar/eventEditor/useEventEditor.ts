@@ -27,7 +27,12 @@ export function getMinEnd(start: DateTime | null): DateTime | null {
     return minEnd;
 }
 
-export type EditableEventType = EventType.Availability | EventType.Coaching | EventType.Dojo;
+export type EditableEventType =
+    | EventType.Availability
+    | EventType.Coaching
+    | EventType.Dojo
+    | EventType.LectureTier
+    | EventType.GameReviewTier;
 
 export interface UseEventEditorResponse {
     /** The type of the Event. */

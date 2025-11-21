@@ -22,12 +22,10 @@ import {
     DialogTitle,
     FormControl,
     FormControlLabel,
-    InputAdornment,
     Radio,
     RadioGroup,
     Slide,
     Stack,
-    TextField,
     Toolbar,
     Typography,
 } from '@mui/material';
@@ -37,11 +35,13 @@ import { forwardRef, JSX } from 'react';
 import { validateAvailabilityEditor } from './AvailabilityEditor';
 import { validateCoachingEditor } from './CoachingEditor';
 import { validateDojoEventEditor } from './DojoEventEditor';
+import { validateClassEditor } from './classEditor';
 import CohortsFormSection from './form/CohortsFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
 import { InviteFormSection } from './form/InviteFormSection';
 import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
+import { PricingFormSection } from './form/PricingFormSection';
 import TimesFormSection from './form/TimesFormSection';
 import TitleFormSection from './form/TitleFormSection';
 import useEventEditor, {
@@ -63,6 +63,8 @@ const editorValidators = {
     [EventType.Availability]: validateAvailabilityEditor,
     [EventType.Dojo]: validateDojoEventEditor,
     [EventType.Coaching]: validateCoachingEditor,
+    [EventType.LectureTier]: validateClassEditor,
+    [EventType.GameReviewTier]: validateClassEditor,
 };
 
 interface EventEditorProps {
@@ -256,6 +258,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                         minEnd={config.getMinEnd(editor.start)}
                                         rruleOptions={editor.rruleOptions}
                                         setRRuleOptions={editor.setRRuleOptions}
+                                        countError={editor.errors.count}
                                     />
                                 );
                             case 'location':
@@ -288,6 +291,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                         helperText={
                                             config.getHelperText?.(editor) ?? config.helperText
                                         }
+                                        error={editor.errors.maxParticipants}
                                     />
                                 );
                             case 'invite':
@@ -304,6 +308,15 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                                         cohorts={editor.cohorts}
                                         setCohort={editor.setCohort}
                                         error={editor.errors.cohorts}
+                                    />
+                                );
+                            case 'pricing':
+                                return (
+                                    <PricingFormSection
+                                        key={i}
+                                        editor={editor}
+                                        fullPriceOpts={config.fullPriceOpts}
+                                        currentPriceOpts={config.currentPriceOpts}
                                     />
                                 );
                             case 'custom':
@@ -358,6 +371,12 @@ interface CohortsFormConfig {
     description: string;
 }
 
+interface PricingFormConfig {
+    type: 'pricing';
+    fullPriceOpts?: { helperText?: string };
+    currentPriceOpts?: { helperText?: string };
+}
+
 interface CustomFormConfig {
     type: 'custom';
     element: (props: { editor: UseEventEditorResponse }) => JSX.Element;
@@ -371,7 +390,28 @@ type FormConfig =
     | MaxParticipantsFormConfig
     | InviteFormConfig
     | CohortsFormConfig
+    | PricingFormConfig
     | CustomFormConfig;
+
+const classConfig: FormConfig[] = [
+    { type: 'times', enableRecurrence: true, getMinEnd: () => null },
+    { type: 'title' },
+    {
+        type: 'description',
+        subtitle:
+            'This description will be visible in the calendar and should describe what your class will cover.',
+    },
+    {
+        type: 'location',
+        subtitle:
+            'Add a Zoom link, specify a Discord classroom, etc. This is how your students will access your lesson and will only be visible after they pay.',
+    },
+    {
+        type: 'cohorts',
+        description:
+            'Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.',
+    },
+];
 
 const formConfigs: Record<EditableEventType, FormConfig[]> = {
     [EventType.Availability]: [
@@ -516,63 +556,8 @@ const formConfigs: Record<EditableEventType, FormConfig[]> = {
             description:
                 'Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.',
         },
-        {
-            type: 'custom',
-            element: ({ editor }) => {
-                const percentOff = Math.round(
-                    ((parseFloat(editor.fullPrice) - parseFloat(editor.currentPrice)) /
-                        parseFloat(editor.fullPrice)) *
-                        100,
-                );
-                return (
-                    <Stack>
-                        <Typography variant='h6'>Pricing</Typography>
-                        <Stack spacing={3} mt={2} mb={6}>
-                            <TextField
-                                fullWidth
-                                label='Full Price'
-                                variant='outlined'
-                                value={editor.fullPrice}
-                                onChange={(e) => editor.setFullPrice(e.target.value)}
-                                error={Boolean(editor.errors.fullPrice)}
-                                helperText={editor.errors.fullPrice}
-                                slotProps={{
-                                    input: {
-                                        startAdornment: (
-                                            <InputAdornment position='start'>$</InputAdornment>
-                                        ),
-                                    },
-                                }}
-                            />
-                            <TextField
-                                fullWidth
-                                label='Sale Price'
-                                variant='outlined'
-                                value={editor.currentPrice}
-                                onChange={(e) => editor.setCurrentPrice(e.target.value)}
-                                error={Boolean(editor.errors.currentPrice)}
-                                helperText={
-                                    editor.errors.currentPrice ||
-                                    'If you want your coaching session to display as being on sale, enter a sale price and it will be shown as a discount off the full price. If left blank, students must pay the full price.'
-                                }
-                                slotProps={{
-                                    input: {
-                                        startAdornment: (
-                                            <InputAdornment position='start'>$</InputAdornment>
-                                        ),
-                                    },
-                                }}
-                            />
-
-                            {editor.fullPrice !== '' &&
-                                editor.currentPrice !== '' &&
-                                !isNaN(percentOff) && (
-                                    <Typography>Percent Off: {percentOff}%</Typography>
-                                )}
-                        </Stack>
-                    </Stack>
-                );
-            },
-        },
+        { type: 'pricing' },
     ],
+    [EventType.LectureTier]: classConfig,
+    [EventType.GameReviewTier]: classConfig,
 };
