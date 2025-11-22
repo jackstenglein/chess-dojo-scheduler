@@ -101,7 +101,8 @@ func gaPurchaseEvent(user *database.User, checkoutSession *stripe.CheckoutSessio
 		UserProperties: map[string]gaUserProperty{
 			"username":            {Value: user.Username},
 			"dojo_cohort":         {Value: string(user.DojoCohort)},
-			"subscription_status": {Value: user.SubscriptionStatus},
+			"subscription_status": {Value: string(user.GetSubscriptionStatus())},
+			"subscription_tier":   {Value: string(user.GetSubscriptionTier())},
 		},
 		UserData: gaUserData{
 			Address: getAddress(checkoutSession),

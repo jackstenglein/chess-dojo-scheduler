@@ -23,7 +23,7 @@ import {
     EventType,
     TimeControlType,
 } from '@/database/event';
-import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '@/database/user';
+import { ALL_COHORTS, isFree, TimeFormat, User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import Icon, { icons } from '@/style/Icon';
 import UpsellAlert from '@/upsell/UpsellAlert';
@@ -271,7 +271,7 @@ export function processCoachingEvent(
         return null;
     }
 
-    const isFreeTier = !user || user.subscriptionStatus === SubscriptionStatus.FreeTier;
+    const isFreeTier = isFree(user);
     if (!isOwner && isFreeTier && !event.coaching?.bookableByFreeUsers) {
         return null;
     }

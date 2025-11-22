@@ -1,4 +1,5 @@
 import { metaLead } from '@/analytics/meta';
+import { getSubscriptionStatus } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Box, Container, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import { useState } from 'react';
 import PricingPage from '../../app/(scoreboard)/prices/PricingPage';
@@ -76,7 +77,7 @@ const ProfileCreatorPage = () => {
 
     if (
         showPricingPage &&
-        user.subscriptionStatus !== SubscriptionStatus.Subscribed &&
+        getSubscriptionStatus(user) !== SubscriptionStatus.Subscribed &&
         activeStep === 0
     ) {
         return <PricingPage onFreeTier={onFreeTier} />;

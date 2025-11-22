@@ -7,7 +7,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { isObject } from './scoreboard';
 import { TimelineEntry } from './timeline';
-import { SubscriptionStatus, User } from './user';
+import { isFree, User } from './user';
 
 export { RequirementCategory, ScoreboardDisplay };
 
@@ -613,7 +613,7 @@ export function isBlocked(
         return acc;
     }, {});
 
-    const isFreeTier = user.subscriptionStatus !== SubscriptionStatus.Subscribed;
+    const isFreeTier = isFree(user);
 
     for (const blockerId of requirement.blockers) {
         const blocker = requirementMap[blockerId];

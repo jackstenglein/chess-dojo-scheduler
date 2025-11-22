@@ -8,6 +8,7 @@ import {
     DiscordNotificationSettings,
     EmailNotificationSettings,
     GameScheduleEntry,
+    getSubscriptionStatus,
     MinutesSpentKey,
     PaymentInfo,
     Rating,
@@ -432,5 +433,5 @@ export function isActive(user: User): boolean {
  * @param user The user to check
  */
 export function isFree(user: User | undefined): boolean {
-    return user?.subscriptionStatus !== SubscriptionStatus.Subscribed;
+    return getSubscriptionStatus(user) !== SubscriptionStatus.Subscribed;
 }

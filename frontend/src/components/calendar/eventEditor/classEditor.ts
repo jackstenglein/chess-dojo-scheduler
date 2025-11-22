@@ -1,11 +1,10 @@
-import { Event, EventStatus } from '@/database/event';
+import { Event, EventStatus, EventType } from '@/database/event';
 import { User } from '@/database/user';
 import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { getTimeZonedDate } from '../displayDate';
 import {
     optionalPrice,
     requireField,
-    requireMaxParticipants,
     requirePrice,
     selectedCohorts,
     validateRrule,
@@ -13,7 +12,7 @@ import {
 } from './eventValidation';
 import { UseEventEditorResponse } from './useEventEditor';
 
-export function validateCoachingEditor(
+export function validateClassEditor(
     user: User,
     originalEvent: ProcessedEvent | undefined,
     editor: UseEventEditorResponse,
@@ -24,10 +23,9 @@ export function validateCoachingEditor(
     requireField(editor, 'title', errors);
     requireField(editor, 'description', errors);
     requireField(editor, 'location', errors);
-
-    const fullPrice = requirePrice(editor, 'fullPrice', errors);
+    const fullPrice =
+        editor.type === EventType.LectureTier ? requirePrice(editor, 'fullPrice', errors) : -1;
     const currentPrice = optionalPrice(editor, 'currentPrice', errors);
-    const maxParticipants = requireMaxParticipants(editor, errors);
     const rrule = validateRrule(editor, user.timezoneOverride, errors);
 
     if (Object.entries(errors).length > 0) {
@@ -44,7 +42,6 @@ export function validateCoachingEditor(
             owner: user.username,
             ownerDisplayName: user.displayName,
             ownerCohort: user.dojoCohort,
-            ownerPreviousCohort: user.previousCohort,
             title: editor.title.trim(),
             startTime: getTimeZonedDate(
                 editor.start.toJSDate(),
@@ -57,18 +54,17 @@ export function validateCoachingEditor(
                 'forward',
             ).toISOString(),
             rrule,
-            types: [],
             cohorts: selectedCohorts(editor),
             status: EventStatus.Scheduled,
             location: editor.location.trim(),
             description: editor.description.trim(),
-            maxParticipants,
+            maxParticipants: 0,
             coaching: {
-                stripeId: user.coachInfo?.stripeId || '',
+                stripeId: user.coachInfo?.stripeId ?? '',
                 fullPrice,
                 currentPrice,
-                bookableByFreeUsers: editor.bookableByFreeUsers,
-                hideParticipants: editor.hideParticipants,
+                bookableByFreeUsers: true,
+                hideParticipants: false,
             },
         },
         errors,

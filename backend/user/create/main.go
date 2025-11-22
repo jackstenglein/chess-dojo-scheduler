@@ -47,12 +47,17 @@ func Handler(ctx context.Context, event Event) (Event, error) {
 		return handleError(event, errors.New("Invalid request: name field is required"))
 	}
 
-	subscriptionStatus := database.SubscriptionStatus_Subscribed
-	if isForbidden, _ := access.IsForbidden(email, 3*time.Second); isForbidden {
-		subscriptionStatus = database.SubscriptionStatus_FreeTier
+	var paymentInfo *database.PaymentInfo
+	if isForbidden, _ := access.IsForbidden(email, 3*time.Second); !isForbidden {
+		paymentInfo = &database.PaymentInfo{
+			CustomerId:         "WIX",
+			SubscriptionId:     "WIX",
+			SubscriptionStatus: database.SubscriptionStatus_Subscribed,
+			SubscriptionTier:   database.SubscriptionTier_Basic,
+		}
 	}
 
-	_, err := repository.CreateUser(cognitoUsername, email, name, subscriptionStatus)
+	_, err := repository.CreateUser(cognitoUsername, email, name, paymentInfo)
 	if err != nil {
 		return handleError(event, err)
 	}

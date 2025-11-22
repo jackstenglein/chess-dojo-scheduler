@@ -1,5 +1,5 @@
 import { dojoCohorts, getCohortRangeInt } from '../database/cohort';
-import { RatingSystem } from '../database/user';
+import { RatingSystem } from '../database/ratingSystem';
 
 /**
  * Returns true if the given rating system is a custom system.

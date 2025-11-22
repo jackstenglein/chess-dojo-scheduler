@@ -5,6 +5,8 @@ export enum EventType {
     Dojo = 'DOJO',
     LigaTournament = 'LIGA_TOURNAMENT',
     Coaching = 'COACHING',
+    LectureTier = 'LECTURE_TIER',
+    GameReviewTier = 'GAME_REVIEW_TIER',
 }
 
 export enum CalendarSessionType {
@@ -13,6 +15,8 @@ export enum CalendarSessionType {
     Meetings = 'MEETINGS',
     DojoEvents = 'DOJO_EVENTS',
     CoachingSessions = 'COACHING_SESSIONS',
+    Lectures = 'LECTURES',
+    GameReviews = 'GAME_REVIEWS',
 }
 
 export interface Event {
@@ -176,6 +180,10 @@ export function getDisplaySessionString(type: CalendarSessionType | null | undef
             return 'Dojo Events';
         case CalendarSessionType.Meetings:
             return 'Meetings';
+        case CalendarSessionType.Lectures:
+            return 'Lectures';
+        case CalendarSessionType.GameReviews:
+            return 'Game & Profile Reviews';
     }
 }
 
