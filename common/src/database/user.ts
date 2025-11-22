@@ -138,16 +138,10 @@ export function getSubscriptionStatus(user?: User): SubscriptionStatus {
  * @param user The user to get the subscription tier for.
  */
 export function getSubscriptionTier(user?: User): SubscriptionTier {
-    if (!user) {
+    if (getSubscriptionStatus(user) !== SubscriptionStatus.Subscribed) {
         return SubscriptionTier.Free;
     }
-    if (user.subscriptionStatus === SubscriptionStatus.Subscribed) {
-        return SubscriptionTier.Basic;
-    }
-    if (!user.paymentInfo) {
-        return SubscriptionTier.Free;
-    }
-    return user.paymentInfo.subscriptionTier;
+    return user?.paymentInfo?.subscriptionTier || SubscriptionTier.Basic;
 }
 
 export interface WorkGoalSettings {

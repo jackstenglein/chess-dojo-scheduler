@@ -1,10 +1,10 @@
 'use client';
 
 import { useApi } from '@/api/Api';
-import { SubscriptionTier } from '@/api/paymentApi';
 import { useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { hasCreatedProfile, SubscriptionStatus } from '@/database/user';
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { AxiosError } from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';

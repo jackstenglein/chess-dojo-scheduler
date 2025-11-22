@@ -659,7 +659,7 @@ func (u *User) GetSubscriptionStatus() SubscriptionStatus {
 }
 
 func (u *User) GetSubscriptionTier() SubscriptionTier {
-	if u == nil {
+	if u.GetSubscriptionStatus() != SubscriptionStatus_Subscribed {
 		return SubscriptionTier_Free
 	}
 	return u.PaymentInfo.GetSubscriptionTier()

@@ -2,6 +2,10 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { Link } from '@/components/navigation/Link';
 import { isFree, User } from '@/database/user';
+import {
+    getSubscriptionTier,
+    SubscriptionTier,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import { OpenInNew } from '@mui/icons-material';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { LoadingButton } from '@mui/lab';
@@ -58,6 +62,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
             ) : (
                 <>
                     <Typography>Subscription Status: Subscribed</Typography>
+                    <Typography>Current Tier: {displaySubscriptionTier(user)}</Typography>
 
                     {paymentInfo?.customerId ? (
                         <LoadingButton
@@ -82,5 +87,18 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
         </Stack>
     );
 };
+
+function displaySubscriptionTier(user: User): string {
+    switch (getSubscriptionTier(user)) {
+        case SubscriptionTier.Free:
+            return 'Free Tier';
+        case SubscriptionTier.Basic:
+            return 'Core';
+        case SubscriptionTier.Lecture:
+            return 'Group Classes';
+        case SubscriptionTier.GameReview:
+            return 'Game & Profile Review';
+    }
+}
 
 export default SubscriptionManager;
