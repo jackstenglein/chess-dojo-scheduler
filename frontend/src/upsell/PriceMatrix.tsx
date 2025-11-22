@@ -104,7 +104,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
 
             <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 6 : 4, lg: 'grow' }}>
                 <PriceCard
-                    name='ChessDojo Self-Guided'
+                    name='Core'
                     price={{
                         fullValue: interval === 'year' ? priceData.month : undefined,
                         value: priceData[interval],
@@ -153,7 +153,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
 
             <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 6 : 4, lg: 'grow' }}>
                 <PriceCard
-                    name='ChessDojo Group Classes'
+                    name='Group Classes'
                     price={{
                         value: 75,
                         symbol: '$',
@@ -197,7 +197,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
 
             <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 6 : 4, lg: 'grow' }}>
                 <PriceCard
-                    name='ChessDojo Live Training'
+                    name='Game & Profile Review'
                     price={{
                         value: 200,
                         symbol: '$',
