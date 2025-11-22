@@ -1,3 +1,4 @@
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { z } from 'zod';
 
 export const MUI_LICENSE_KEY =
@@ -27,9 +28,26 @@ export const EnvSchema = z.object({
     }),
     stripe: z.object({
         publishableKey: z.string(),
-        monthlyPriceId: z.string(),
-        yearlyPriceId: z.string(),
-        gameReviewMonthlyPriceId: z.string(),
+        tiers: z.object({
+            [SubscriptionTier.Basic]: z.object({
+                /** The monthly price id. */
+                month: z.string(),
+                /** The yearly price id. */
+                year: z.string(),
+            }),
+            [SubscriptionTier.Lecture]: z.object({
+                /** The monthly price id. */
+                month: z.string(),
+                /** The yearly price id. */
+                year: z.string(),
+            }),
+            [SubscriptionTier.GameReview]: z.object({
+                /** The monthly price id. */
+                month: z.string(),
+                /** The yearly price id. */
+                year: z.string(),
+            }),
+        }),
     }),
     baseUrl: z.string(),
     isBeta: z.boolean(),
@@ -66,9 +84,20 @@ export function getConfig(): Config {
         },
         stripe: {
             publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-            monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID,
-            yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID,
-            gameReviewMonthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_GAME_REVIEW_MONTHLY_PRICE_ID,
+            tiers: {
+                [SubscriptionTier.Basic]: {
+                    month: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID,
+                    year: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID,
+                },
+                [SubscriptionTier.Lecture]: {
+                    month: process.env.NEXT_PUBLIC_STRIPE_LECTURE_MONTHLY_PRICE_ID,
+                    year: process.env.NEXT_PUBLIC_STRIPE_LECTURE_MONTHLY_PRICE_ID,
+                },
+                [SubscriptionTier.GameReview]: {
+                    month: process.env.NEXT_PUBLIC_STRIPE_GAME_REVIEW_MONTHLY_PRICE_ID,
+                    year: process.env.NEXT_PUBLIC_STRIPE_GAME_REVIEW_MONTHLY_PRICE_ID,
+                },
+            },
         },
         baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
         isBeta: process.env.NEXT_PUBLIC_IS_BETA === 'true',

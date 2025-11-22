@@ -3,7 +3,6 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { metaInitiateCheckout } from '@/analytics/meta';
 import { useApi } from '@/api/Api';
-import { SubscriptionTier } from '@/api/paymentApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { getConfig } from '@/config';
@@ -11,23 +10,15 @@ import { SubscriptionStatus } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
-import PriceMatrix from '@/upsell/PriceMatrix';
-import { getSubscriptionStatus } from '@jackstenglein/chess-dojo-common/src/database/user';
+import PriceMatrix, { onSubscribeFunc } from '@/upsell/PriceMatrix';
+import {
+    getSubscriptionStatus,
+    SubscriptionTier,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Container, Grid, Tab, Tabs, Typography } from '@mui/material';
 import { useState } from 'react';
 
 const config = getConfig();
-
-const priceIds = {
-    [SubscriptionTier.Basic]: {
-        month: config.stripe.monthlyPriceId,
-        year: config.stripe.yearlyPriceId,
-    },
-    [SubscriptionTier.GameReview]: {
-        month: config.stripe.gameReviewMonthlyPriceId,
-        year: '',
-    },
-};
 
 interface PricingPageProps {
     onFreeTier?: () => void;
@@ -52,11 +43,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         return;
     }
 
-    const onSubscribe = (
-        tier: SubscriptionTier.Basic | SubscriptionTier.GameReview,
-        interval: 'month' | 'year',
-        price: { currency: string; value: number },
-    ) => {
+    const onSubscribe: onSubscribeFunc = (tier, interval, price) => {
         if (!user) {
             router.push('/signup');
         }
@@ -64,7 +51,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         setTier(tier);
         request.onStart();
 
-        const itemId = priceIds[tier][interval];
+        const itemId = config.stripe.tiers[tier][interval];
         metaInitiateCheckout([itemId], price.currency, price.value);
         trackEvent(EventType.BeginCheckout, {
             currency: price.currency,

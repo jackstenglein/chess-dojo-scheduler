@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { getConfig } from '../config';
 import { StripeAccount } from '../database/payment';
 import { User } from '../database/user';
@@ -39,12 +40,6 @@ export interface PaymentApiContextType {
      * @returns A stripe login link URL.
      */
     paymentAccountLogin: () => Promise<AxiosResponse<StripeUrlResponse>>;
-}
-
-export enum SubscriptionTier {
-    Free = 'FREE',
-    Basic = 'BASIC',
-    GameReview = 'GAME_REVIEW',
 }
 
 /** A request to create a subscription checkout session. */

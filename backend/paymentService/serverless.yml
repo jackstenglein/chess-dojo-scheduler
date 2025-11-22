@@ -99,7 +99,10 @@ functions:
       frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}
       monthlyPriceId: ${file(../config-${sls:stage}.yml):monthlySubscriptionPriceId}
       yearlyPriceId: ${file(../config-${sls:stage}.yml):yearlySubscriptionPriceId}
-      plusMonthlyPriceId: ${file(../config-${sls:stage}.yml):plusMonthlySubscriptionPriceId}
+      lectureTierMonthlyPriceId: ${file(../config-${sls:stage}.yml):lectureTierMonthlySubscriptionPriceId}
+      lectureTierPresalePriceId: ${file(../config-${sls:stage}.yml):lectureTierPresalePriceId}
+      gameReviewTierMonthlyPriceId: ${file(../config-${sls:stage}.yml):gameReviewTierMonthlySubscriptionPriceId}
+      gameReviewTierPresalePriceId: ${file(../config-${sls:stage}.yml):gameReviewTierPresalePriceId}
     iamRoleStatements:
       - Effect: Allow
         Action:

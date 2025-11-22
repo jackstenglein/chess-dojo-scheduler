@@ -118,9 +118,17 @@ var subscriptionPriceIds = map[database.SubscriptionTier]map[string]string{
 		string(stripe.PriceRecurringIntervalMonth): os.Getenv("monthlyPriceId"),
 		string(stripe.PriceRecurringIntervalYear):  os.Getenv("yearlyPriceId"),
 	},
-	database.SubscriptionTier_GameReview: {
-		string(stripe.PriceRecurringIntervalMonth): os.Getenv("plusMonthlyPriceId"),
+	database.SubscriptionTier_Lecture: {
+		string(stripe.PriceRecurringIntervalMonth): os.Getenv("lectureTierMonthlyPriceId"),
 	},
+	database.SubscriptionTier_GameReview: {
+		string(stripe.PriceRecurringIntervalMonth): os.Getenv("gameReviewTierMonthlyPriceId"),
+	},
+}
+
+var presalePriceIds = map[database.SubscriptionTier]string{
+	database.SubscriptionTier_Lecture:    os.Getenv("lectureTierPresalePriceId"),
+	database.SubscriptionTier_GameReview: os.Getenv("gameReviewTierPresalePriceId"),
 }
 
 type PurchaseSubscriptionRequest struct {
@@ -147,7 +155,8 @@ var feb1, _ = time.Parse(time.RFC3339, "2026-02-01T00:00:00Z")
 
 // TODO: delete this after Jan 1, 2026
 func updateCheckoutSessionForPresale(request *PurchaseSubscriptionRequest, params *stripe.CheckoutSessionParams) {
-	if request.Tier != database.SubscriptionTier_GameReview {
+	priceId := presalePriceIds[request.Tier]
+	if priceId == "" {
 		return
 	}
 
@@ -156,14 +165,7 @@ func updateCheckoutSessionForPresale(request *PurchaseSubscriptionRequest, param
 	}
 
 	params.LineItems = append(params.LineItems, &stripe.CheckoutSessionLineItemParams{
-		PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
-			Currency:   stripe.String("usd"),
-			UnitAmount: stripe.Int64(15000),
-			ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
-				Name:        stripe.String("ChessDojo Plus Presale"),
-				Description: stripe.String("Access to the ChessDojo Plus tier starting Jan 1, 2026. You won't be charged again until Feb 1, 2026."),
-			},
-		},
+		Price:    stripe.String(priceId),
 		Quantity: stripe.Int64(1),
 	})
 	params.SubscriptionData.TrialEnd = stripe.Int64(feb1.Unix())
@@ -219,8 +221,8 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 				},
 			},
 			Metadata: map[string]string{
-				"username": user.Username,
-				"tier":     string(request.Tier),
+				"username":     user.Username,
+				"originalTier": string(request.Tier),
 			},
 		},
 		PaymentMethodCollection: stripe.String(string(stripe.CheckoutSessionPaymentMethodCollectionAlways)),

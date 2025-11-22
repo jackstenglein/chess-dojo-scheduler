@@ -311,6 +311,7 @@ export enum SubscriptionStatus {
 export enum SubscriptionTier {
     Free = 'FREE',
     Basic = 'BASIC',
+    Lecture = 'LECTURE',
     GameReview = 'GAME_REVIEW',
 }
 

@@ -1,44 +1,94 @@
 'use client';
 
-import { SubscriptionTier } from '@/api/paymentApi';
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Button, ButtonProps, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Request } from '../api/Request';
 import SellingPoint, { SellingPointProps, SellingPointStatus } from './SellingPoint';
 import { getCurrency } from './locales';
 
-const priceDataByCurrency: Record<string, { symbol: string; month: number; year: number }> = {
+const priceDataByCurrency: Record<
+    string,
+    {
+        symbol: string;
+        [SubscriptionTier.Basic]: { month: number; year: number };
+        [SubscriptionTier.Lecture]: { month: number; year: number };
+        [SubscriptionTier.GameReview]: { month: number; year: number };
+    }
+> = {
     USD: {
         symbol: '$',
-        month: 15,
-        year: 10,
+        [SubscriptionTier.Basic]: {
+            month: 15,
+            year: 10,
+        },
+        [SubscriptionTier.Lecture]: {
+            month: 75,
+            year: 75,
+        },
+        [SubscriptionTier.GameReview]: {
+            month: 200,
+            year: 200,
+        },
     },
     EUR: {
         symbol: '€',
-        month: 15,
-        year: 10,
+        [SubscriptionTier.Basic]: {
+            month: 15,
+            year: 10,
+        },
+        [SubscriptionTier.Lecture]: {
+            month: 75,
+            year: 75,
+        },
+        [SubscriptionTier.GameReview]: {
+            month: 200,
+            year: 200,
+        },
     },
     GBP: {
         symbol: '£',
-        month: 15,
-        year: 10,
+        [SubscriptionTier.Basic]: {
+            month: 15,
+            year: 10,
+        },
+        [SubscriptionTier.Lecture]: {
+            month: 75,
+            year: 75,
+        },
+        [SubscriptionTier.GameReview]: {
+            month: 200,
+            year: 200,
+        },
     },
     INR: {
         symbol: '₹',
-        month: 650,
-        year: 433,
+        [SubscriptionTier.Basic]: {
+            month: 650,
+            year: 433,
+        },
+        [SubscriptionTier.Lecture]: {
+            month: 3250,
+            year: 3250,
+        },
+        [SubscriptionTier.GameReview]: {
+            month: 17925,
+            year: 17925,
+        },
     },
 };
+
+export type onSubscribeFunc = (
+    tier: SubscriptionTier.Basic | SubscriptionTier.Lecture | SubscriptionTier.GameReview,
+    interval: 'month' | 'year',
+    price: { currency: string; value: number },
+) => void;
 
 interface PriceMatrixProps {
     request?: Request;
     interval: 'month' | 'year';
     selectedTier?: SubscriptionTier;
-    onSubscribe: (
-        tier: SubscriptionTier.Basic | SubscriptionTier.GameReview,
-        interval: 'month' | 'year',
-        price: { currency: string; value: number },
-    ) => void;
+    onSubscribe: onSubscribeFunc;
     onFreeTier?: () => void;
 }
 
@@ -106,8 +156,11 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                 <PriceCard
                     name='Core'
                     price={{
-                        fullValue: interval === 'year' ? priceData.month : undefined,
-                        value: priceData[interval],
+                        fullValue:
+                            interval === 'year'
+                                ? priceData[SubscriptionTier.Basic].month
+                                : undefined,
+                        value: priceData[SubscriptionTier.Basic][interval],
                         symbol: priceData.symbol,
                         interval: `month${interval === 'year' ? '*' : ''}`,
                         subtitle: ' ',
@@ -144,7 +197,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         onClick: () =>
                             onSubscribe(SubscriptionTier.Basic, interval, {
                                 currency,
-                                value: priceData[interval],
+                                value: priceData[SubscriptionTier.Basic][interval],
                             }),
                         children: 'Start Training',
                     }}
@@ -155,10 +208,10 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                 <PriceCard
                     name='Group Classes'
                     price={{
-                        value: 75,
-                        symbol: '$',
+                        value: priceData[SubscriptionTier.Lecture][interval],
+                        symbol: priceData.symbol,
                         interval: `month`,
-                        subtitle: `(~ $5 / class)`,
+                        subtitle: `(~ ${priceData.symbol}${Math.round(priceData[SubscriptionTier.Lecture][interval] / 15)} / class)`,
                     }}
                     sellingPoints={[
                         {
@@ -183,12 +236,12 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         },
                     ]}
                     buttonProps={{
-                        loading: request?.isLoading() && selectedTier === SubscriptionTier.Basic,
-                        disabled: request?.isLoading() && selectedTier !== SubscriptionTier.Basic,
+                        loading: request?.isLoading() && selectedTier === SubscriptionTier.Lecture,
+                        disabled: request?.isLoading() && selectedTier !== SubscriptionTier.Lecture,
                         onClick: () =>
-                            onSubscribe(SubscriptionTier.Basic, interval, {
+                            onSubscribe(SubscriptionTier.Lecture, 'month', {
                                 currency,
-                                value: priceData[interval],
+                                value: priceData[SubscriptionTier.Lecture][interval],
                             }),
                         children: 'Join Group Classes',
                     }}
@@ -199,10 +252,10 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                 <PriceCard
                     name='Game & Profile Review'
                     price={{
-                        value: 200,
-                        symbol: '$',
+                        value: priceData[SubscriptionTier.GameReview][interval],
+                        symbol: priceData.symbol,
                         interval: 'month',
-                        subtitle: `(~ $10 / class)`,
+                        subtitle: `(~ ${priceData.symbol}${Math.round(priceData[SubscriptionTier.GameReview][interval] / 20)} / class)`,
                     }}
                     sellingPoints={[
                         {
@@ -226,11 +279,11 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         loading:
                             request?.isLoading() && selectedTier === SubscriptionTier.GameReview,
                         disabled:
-                            request?.isLoading() && selectedTier === SubscriptionTier.GameReview,
+                            request?.isLoading() && selectedTier !== SubscriptionTier.GameReview,
                         onClick: () =>
                             onSubscribe(SubscriptionTier.GameReview, 'month', {
-                                currency: 'USD',
-                                value: 150,
+                                currency,
+                                value: priceData[SubscriptionTier.Lecture][interval],
                             }),
                         children: 'Get Sensei Feedback',
                     }}
@@ -282,7 +335,7 @@ function PriceCard({
                                     color='text.secondary'
                                 >
                                     {price.symbol}
-                                    {price.fullValue}
+                                    {Math.round(price.fullValue * 100) / 100}
                                 </Typography>
                             )}
 
@@ -293,7 +346,7 @@ function PriceCard({
                             >
                                 {' '}
                                 {price.symbol}
-                                {price.value}
+                                {Math.round(price.value * 100) / 100}
                             </Typography>
 
                             {price.interval && (
