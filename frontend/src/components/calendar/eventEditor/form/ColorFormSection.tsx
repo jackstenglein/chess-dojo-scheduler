@@ -1,4 +1,5 @@
 import { EventType } from '@/database/event';
+import { Check } from '@mui/icons-material';
 import { Box, FormControl, Menu, Select, Stack, Tooltip } from '@mui/material';
 import { useRef, useState } from 'react';
 import { UseEventEditorResponse } from '../useEventEditor';
@@ -89,8 +90,15 @@ export function ColorFormSection({ editor }: { editor: UseEventEditorResponse })
                                             width: '22px',
                                             height: '22px',
                                         },
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}
-                                />
+                                >
+                                    {getColor(editor) === `${option}.main` && (
+                                        <Check fontSize='small' sx={{ color: 'white' }} />
+                                    )}
+                                </Box>
                             </Box>
                         </Tooltip>
                     ))}
