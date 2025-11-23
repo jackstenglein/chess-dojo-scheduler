@@ -26,7 +26,7 @@ import {
 function validateTimes(
     editor: UseEventEditorResponse,
     errors: Record<string, string>,
-    minEnd?: DateTime<boolean> | null,
+    minEnd?: DateTime | null,
 ) {
     if (editor.start === null) {
         errors.start = 'This field is required';
@@ -256,6 +256,7 @@ function validateClassEditor(
                 hideParticipants: false,
             },
             color: editor.color,
+            participants: {},
         },
         errors,
     ];
@@ -326,6 +327,7 @@ function validateCoachingEditor(
                 hideParticipants: editor.hideParticipants,
             },
             color: editor.color,
+            participants: {},
         },
         errors,
     ];
@@ -386,6 +388,7 @@ function validateDojoEventEditor(
             description: editor.description.trim(),
             maxParticipants: 0,
             color: editor.color,
+            participants: {},
         },
         errors,
     ];
@@ -496,6 +499,7 @@ function validateAvailabilityEditor(
             maxParticipants,
             invited: editor.invited,
             inviteOnly: editor.inviteOnly,
+            participants: {},
         },
         errors,
     ];

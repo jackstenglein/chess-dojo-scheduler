@@ -158,6 +158,7 @@ declare module '@mui/material' {
         youtube: true;
         twitch: true;
         darkBlue: true;
+        sage: true;
     }
 }
 

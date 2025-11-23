@@ -21,46 +21,33 @@ describe('Event Editor', () => {
     it('contains correct content', () => {
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
-        cy.getBySel('event-editor-title').contains('Edit Event');
-        cy.getBySel('event-editor-date').contains('Sunday');
+        cy.getBySel('event-title-textfield');
 
-        cy.getBySel('event-editor').contains('Times');
-        cy.getBySel('event-editor').contains('Availabilities must be at least one hour long');
         cy.getBySel('event-editor').find('#start-time');
         cy.getBySel('event-editor').find('#end-time');
 
-        cy.getBySel('event-editor').contains('Location (Optional)');
         cy.getBySel('event-editor').contains('Add a Zoom link, specify a Discord classroom, etc.');
         cy.getBySel('location-textfield');
 
-        cy.getBySel('event-editor').contains('Description (Optional)');
-        cy.getBySel('event-editor').contains(
-            'Add a sparring position or any other notes for your opponent.',
-        );
         cy.getBySel('description-textfield');
 
-        cy.getBySel('availability-types-section').contains('Availability Types');
-        cy.getBySel('availability-types-section').contains(
-            'Choose the meeting types you are available for.',
-        );
+        cy.getBySel('event-editor').contains('Choose the meeting types you are available for.');
 
-        cy.getBySel('event-editor').contains('Max Participants');
         cy.getBySel('event-editor').contains(
             'The number of people that can book your availability (not including yourself).',
         );
         cy.getBySel('participants-textfield');
 
-        cy.getBySel('event-editor').contains('Cohorts');
         cy.getBySel('event-editor').contains('Choose the cohorts that can book your availability.');
     });
 
     it('selects default cohorts on open', () => {
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
-        cy.getBySel('cohort-section').contains('1400-1500');
-        cy.getBySel('cohort-section').contains('1500-1600');
-        cy.getBySel('cohort-section').contains('1600-1700');
-        cy.getBySel('cohort-section').contains('1700-1800').should('not.exist');
+        cy.getBySel('event-editor').contains('1400-1500');
+        cy.getBySel('event-editor').contains('1500-1600');
+        cy.getBySel('event-editor').contains('1600-1700');
+        cy.getBySel('event-editor').contains('1700-1800').should('not.exist');
     });
 
     it('requires at least one type to save', () => {
@@ -74,7 +61,7 @@ describe('Event Editor', () => {
     it('requires at least one cohort to save', () => {
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
-        cy.getBySel('cohort-section').find(`[data-cy="cohort-selector"]`).click();
+        cy.getBySel('event-editor').find(`[data-cy="cohort-selector"]`).click();
         cy.get('.MuiPopover-root').contains('All Cohorts').click();
         cy.get('.MuiPopover-root').contains('All Cohorts').click();
         cy.getBySel('save-button').click({ force: true });

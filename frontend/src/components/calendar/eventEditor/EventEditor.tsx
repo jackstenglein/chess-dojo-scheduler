@@ -120,6 +120,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                         error={Boolean(editor.errors.title)}
                         helperText={editor.errors.title}
                         sx={{ fontSize: '1.5rem', mr: 5, flexGrow: 1 }}
+                        data-cy='event-title-textfield'
                     />
 
                     <Button
@@ -344,7 +345,7 @@ function FormSection({
 interface TimesFormConfig {
     type: 'times';
     enableRecurrence?: boolean;
-    getMinEnd: (start: DateTime<boolean> | null) => DateTime<boolean> | null;
+    getMinEnd: (start: DateTime | null) => DateTime | null;
 }
 
 interface TitleFormConfig {
