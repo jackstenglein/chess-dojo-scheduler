@@ -8,6 +8,7 @@ import { formatTime } from '@/board/pgn/boardTools/underboard/clock/ClockUsage';
 import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { DrawIcon, LoseIcon, WinIcon } from '@/components/games/list/GameListItem';
 import { User } from '@/database/user';
+import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { GetPuzzleHistoryResponse } from '@jackstenglein/chess-dojo-common/src/puzzles/api';
 import {
@@ -42,7 +43,7 @@ function UserPuzzleHistory({ user }: { user: User }) {
     const api = useApi();
     const request = useRequest<GetPuzzleHistoryResponse>();
     const { user: viewer } = useAuth();
-    // const router = useRouter();
+    const router = useRouter();
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -66,9 +67,9 @@ function UserPuzzleHistory({ user }: { user: User }) {
         return <LoadingPage />;
     }
 
-    // const onClickRow = (id: string) => {
-    //     router.push(`/puzzles/${id}`);
-    // };
+    const onClickRow = (id: string) => {
+        router.push(`/puzzles/${id}`);
+    };
 
     const handleChangePage = (_event: unknown, newPage: number) => {
         setPage(newPage);
@@ -125,7 +126,7 @@ function UserPuzzleHistory({ user }: { user: User }) {
                                         <TableRow
                                             hover
                                             sx={{ cursor: 'pointer' }}
-                                            // onClick={() => onClickRow(h.id)}
+                                            onClick={() => onClickRow(h.id)}
                                         >
                                             <TableCell>
                                                 {toDojoDateString(

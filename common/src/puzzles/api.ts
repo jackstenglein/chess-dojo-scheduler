@@ -25,6 +25,11 @@ export const nextPuzzleRequestSchema = z.object({
     themes: z.string().array().min(1).optional(),
     /** The rough rating level of the next puzzle, relative to the user's rating. */
     relativeRating: z.array(z.number()).length(2).optional(),
+    /**
+     * If included, the next puzzle will be fetched by this ID. The themes and relativeRating
+     * parameters will be ignored.
+     */
+    nextId: z.string().optional(),
 });
 
 /** A request to get the next puzzle. */
