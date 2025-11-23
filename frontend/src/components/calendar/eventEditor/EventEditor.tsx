@@ -11,39 +11,37 @@ import {
     getDefaultNumberOfParticipants,
     getDisplayString,
 } from '@/database/event';
+import { User } from '@/database/user';
 import Icon from '@/style/Icon';
+import { PresenterIcon } from '@/style/PresenterIcon';
 import { SchedulerHelpers } from '@jackstenglein/react-scheduler/types';
-import LoadingButton from '@mui/lab/LoadingButton';
+import { Troubleshoot } from '@mui/icons-material';
 import {
     AppBar,
     Button,
     Dialog,
     DialogContent,
-    DialogTitle,
-    FormControl,
-    FormControlLabel,
-    Radio,
-    RadioGroup,
+    Grid,
+    MenuItem,
+    Select,
     Slide,
     Stack,
+    TextField,
     Toolbar,
     Typography,
 } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import { DateTime } from 'luxon';
 import { forwardRef, JSX } from 'react';
-import { validateAvailabilityEditor } from './AvailabilityEditor';
-import { validateCoachingEditor } from './CoachingEditor';
-import { validateDojoEventEditor } from './DojoEventEditor';
-import { validateClassEditor } from './classEditor';
+import { validateEventEditor } from './eventValidation';
 import CohortsFormSection from './form/CohortsFormSection';
+import { ColorFormSection } from './form/ColorFormSection';
 import DescriptionFormSection from './form/DescriptionFormSection';
 import { InviteFormSection } from './form/InviteFormSection';
 import LocationFormSection from './form/LocationFormSection';
 import MaxParticipantsFormSection from './form/MaxParticipantsFormSection';
 import { PricingFormSection } from './form/PricingFormSection';
 import TimesFormSection from './form/TimesFormSection';
-import TitleFormSection from './form/TitleFormSection';
 import useEventEditor, {
     EditableEventType,
     getMinEnd,
@@ -58,14 +56,6 @@ const Transition = forwardRef(function Transition(
 ) {
     return <Slide direction='up' ref={ref} {...props} />;
 });
-
-const editorValidators = {
-    [EventType.Availability]: validateAvailabilityEditor,
-    [EventType.Dojo]: validateDojoEventEditor,
-    [EventType.Coaching]: validateCoachingEditor,
-    [EventType.LectureTier]: validateClassEditor,
-    [EventType.GameReviewTier]: validateClassEditor,
-};
 
 interface EventEditorProps {
     scheduler: SchedulerHelpers;
@@ -85,7 +75,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
     const editor = useEventEditor(defaultStart, defaultEnd, originalEvent?.event as Event);
 
     const onSubmit = async () => {
-        const [event, errors] = editorValidators[editor.type](user, originalEvent, editor);
+        const [event, errors] = validateEventEditor(user, originalEvent, editor);
         editor.setErrors(errors);
         if (Object.entries(errors).length > 0 || !event) {
             return;
@@ -121,20 +111,17 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
             <RequestSnackbar request={request} />
 
             <AppBar sx={{ position: 'relative' }}>
-                <Toolbar>
-                    <Typography
-                        data-cy='event-editor-title'
-                        sx={{ ml: 2, flex: 1 }}
-                        variant='h6'
-                        component='div'
-                    >
-                        <Icon
-                            name='avilb'
-                            color='primary'
-                            sx={{ marginRight: '0.8rem', verticalAlign: 'middle' }}
-                        />
-                        Edit Event
-                    </Typography>
+                <Toolbar sx={{ gap: 1 }}>
+                    <TextField
+                        variant='standard'
+                        placeholder='Add title'
+                        value={editor.title}
+                        onChange={(e) => editor.setTitle(e.target.value)}
+                        error={Boolean(editor.errors.title)}
+                        helperText={editor.errors.title}
+                        sx={{ fontSize: '1.5rem', mr: 5, flexGrow: 1 }}
+                    />
+
                     <Button
                         data-cy='cancel-button'
                         color='error'
@@ -144,7 +131,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                     >
                         Cancel
                     </Button>
-                    <LoadingButton
+                    <Button
                         data-cy='save-button'
                         color='success'
                         loading={request.isLoading()}
@@ -154,176 +141,114 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
                         startIcon={<Icon name='save' />}
                     >
                         Save
-                    </LoadingButton>
+                    </Button>
                 </Toolbar>
             </AppBar>
 
-            <DialogTitle data-cy='event-editor-date'>
-                {defaultStart.toLocaleDateString(undefined, {
-                    weekday: 'long',
-                    month: 'short',
-                    day: 'numeric',
-                })}
-            </DialogTitle>
+            <DialogContent sx={{ my: 2 }}>
+                <Grid container columnSpacing={6} rowSpacing={9}>
+                    <Grid
+                        size={{ xs: 12, lg: 6 }}
+                        sx={{ display: 'flex', flexDirection: 'column', rowGap: 4 }}
+                    >
+                        <Typography variant='h6'>Event Details</Typography>
 
-            <DialogContent>
-                <Stack
-                    spacing={4}
-                    sx={{
-                        mt: 4,
-                    }}
-                >
-                    {(user.isAdmin || user.isCalendarAdmin || user.isCoach) && (
-                        <Stack>
-                            <Typography variant='h6'>
-                                <Icon
-                                    name='avilb'
-                                    color='primary'
-                                    sx={{
-                                        marginRight: '0.4rem',
-                                        verticalAlign: 'middle',
-                                    }}
-                                />{' '}
-                                Event Type
-                            </Typography>
-                            <FormControl>
-                                <RadioGroup
+                        {(user.isAdmin || user.isCalendarAdmin || user.isCoach) && (
+                            <Stack direction='row' gap={2} flexWrap='wrap' alignItems='center'>
+                                <Select
                                     value={editor.type}
                                     onChange={(e) =>
                                         editor.setType(e.target.value as EditableEventType)
                                     }
+                                    sx={{ flexGrow: 1 }}
                                 >
-                                    <FormControlLabel
-                                        value={EventType.Availability}
-                                        control={<Radio />}
-                                        label='Bookable Availability'
-                                    />
+                                    <MenuItem value={EventType.Availability}>
+                                        <Stack direction='row' alignItems='center'>
+                                            <Icon
+                                                name='meet'
+                                                color='book'
+                                                sx={{ mr: '0.4rem', verticalAlign: 'medium' }}
+                                            />{' '}
+                                            Bookable Availability
+                                        </Stack>
+                                    </MenuItem>
+
                                     {(user.isAdmin || user.isCalendarAdmin) && (
-                                        <FormControlLabel
-                                            value={EventType.Dojo}
-                                            control={<Radio />}
-                                            label='Dojo-Wide Event'
-                                        />
+                                        <MenuItem value={EventType.Dojo}>
+                                            <Stack direction='row' alignItems='center'>
+                                                <Icon
+                                                    name='Dojo Events'
+                                                    color='dojoOrange'
+                                                    sx={{ mr: '0.4rem', verticalAlign: 'medium' }}
+                                                />{' '}
+                                                Dojo Event
+                                            </Stack>
+                                        </MenuItem>
                                     )}
                                     {user.isCoach && (
-                                        <FormControlLabel
-                                            value={EventType.Coaching}
-                                            control={<Radio />}
-                                            label='Coaching Session'
-                                        />
+                                        <MenuItem value={EventType.Coaching}>
+                                            <Stack direction='row' alignItems='center'>
+                                                <Icon
+                                                    name='Coaching Sessions'
+                                                    color='coaching'
+                                                    sx={{ mr: '0.4rem', verticalAlign: 'medium' }}
+                                                />{' '}
+                                                Coaching Session
+                                            </Stack>
+                                        </MenuItem>
                                     )}
-                                    {user.isAdmin && (
-                                        <>
-                                            <FormControlLabel
-                                                value={EventType.LectureTier}
-                                                control={<Radio />}
-                                                label='Lecture'
-                                            />
-                                            <FormControlLabel
-                                                value={EventType.GameReviewTier}
-                                                control={<Radio />}
-                                                label='Game & Profile Review'
-                                            />
-                                        </>
-                                    )}
-                                </RadioGroup>
-                            </FormControl>
-                        </Stack>
-                    )}
+                                    {user.isAdmin && [
+                                        <MenuItem
+                                            key={EventType.LectureTier}
+                                            value={EventType.LectureTier}
+                                        >
+                                            <Stack direction='row' alignItems='center'>
+                                                <PresenterIcon
+                                                    color='success'
+                                                    sx={{
+                                                        mr: '0.4rem',
+                                                        verticalAlign: 'medium',
+                                                        fontSize: '24px',
+                                                    }}
+                                                />{' '}
+                                                Group Lecture
+                                            </Stack>
+                                        </MenuItem>,
+                                        <MenuItem
+                                            key={EventType.GameReviewTier}
+                                            value={EventType.GameReviewTier}
+                                        >
+                                            <Stack direction='row' alignItems='center'>
+                                                <Troubleshoot
+                                                    color='info'
+                                                    sx={{ mr: '0.4rem', verticalAlign: 'medium' }}
+                                                />{' '}
+                                                Game & Profile Review
+                                            </Stack>
+                                        </MenuItem>,
+                                    ]}
+                                </Select>
 
-                    {formConfigs[editor.type].map((config, i) => {
-                        switch (config.type) {
-                            case 'title':
-                                return (
-                                    <TitleFormSection
-                                        key={i}
-                                        label={config.label}
-                                        title={editor.title}
-                                        setTitle={editor.setTitle}
-                                        error={editor.errors.title}
-                                    />
-                                );
-                            case 'times':
-                                return (
-                                    <TimesFormSection
-                                        key={i}
-                                        enableRecurrence={config.enableRecurrence}
-                                        description={config.description}
-                                        start={editor.start}
-                                        setStart={editor.setStart}
-                                        startError={editor.errors.start}
-                                        end={editor.end}
-                                        setEnd={editor.setEnd}
-                                        endError={editor.errors.end}
-                                        minEnd={config.getMinEnd(editor.start)}
-                                        rruleOptions={editor.rruleOptions}
-                                        setRRuleOptions={editor.setRRuleOptions}
-                                        countError={editor.errors.count}
-                                    />
-                                );
-                            case 'location':
-                                return (
-                                    <LocationFormSection
-                                        key={i}
-                                        location={editor.location}
-                                        setLocation={editor.setLocation}
-                                        helperText={config.helperText}
-                                        subtitle={config.subtitle}
-                                    />
-                                );
-                            case 'description':
-                                return (
-                                    <DescriptionFormSection
-                                        key={i}
-                                        subtitle={config.subtitle ?? ''}
-                                        description={editor.description}
-                                        setDescription={editor.setDescription}
-                                        error={editor.errors.description}
-                                    />
-                                );
-                            case 'maxParticipants':
-                                return (
-                                    <MaxParticipantsFormSection
-                                        key={i}
-                                        maxParticipants={editor.maxParticipants}
-                                        setMaxParticipants={editor.setMaxParticipants}
-                                        subtitle={config.subtitle}
-                                        helperText={
-                                            config.getHelperText?.(editor) ?? config.helperText
-                                        }
-                                        error={editor.errors.maxParticipants}
-                                    />
-                                );
-                            case 'invite':
-                                return (
-                                    <InviteFormSection key={i} owner={user.username} {...editor} />
-                                );
-                            case 'cohorts':
-                                return editor.inviteOnly ? null : (
-                                    <CohortsFormSection
-                                        key={i}
-                                        description={config.description}
-                                        allCohorts={editor.allCohorts}
-                                        setAllCohorts={editor.setAllCohorts}
-                                        cohorts={editor.cohorts}
-                                        setCohort={editor.setCohort}
-                                        error={editor.errors.cohorts}
-                                    />
-                                );
-                            case 'pricing':
-                                return (
-                                    <PricingFormSection
-                                        key={i}
-                                        editor={editor}
-                                        fullPriceOpts={config.fullPriceOpts}
-                                        currentPriceOpts={config.currentPriceOpts}
-                                    />
-                                );
-                            case 'custom':
-                                return <config.element key={i} editor={editor} />;
-                        }
-                    })}
-                </Stack>
+                                <ColorFormSection editor={editor} />
+                            </Stack>
+                        )}
+
+                        {formConfigs[editor.type].details.map((config, i) => (
+                            <FormSection key={i} config={config} editor={editor} user={user} />
+                        ))}
+                    </Grid>
+
+                    <Grid
+                        size={{ xs: 12, lg: 6 }}
+                        sx={{ display: 'flex', flexDirection: 'column', rowGap: 4 }}
+                    >
+                        <Typography variant='h6'>Guests</Typography>
+
+                        {formConfigs[editor.type].guests.map((config, i) => (
+                            <FormSection key={i} config={config} editor={editor} user={user} />
+                        ))}
+                    </Grid>
+                </Grid>
             </DialogContent>
         </Dialog>
     );
@@ -331,10 +256,94 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
 
 export default EventEditor;
 
+function FormSection({
+    config,
+    editor,
+    user,
+}: {
+    config: FormConfigSection;
+    editor: UseEventEditorResponse;
+    user: User;
+}) {
+    {
+        switch (config.type) {
+            case 'times':
+                return (
+                    <TimesFormSection
+                        enableRecurrence={config.enableRecurrence}
+                        start={editor.start}
+                        setStart={editor.setStart}
+                        startError={editor.errors.start}
+                        end={editor.end}
+                        setEnd={editor.setEnd}
+                        endError={editor.errors.end}
+                        minEnd={config.getMinEnd(editor.start)}
+                        rruleOptions={editor.rruleOptions}
+                        setRRuleOptions={editor.setRRuleOptions}
+                        countError={editor.errors.count}
+                    />
+                );
+            case 'location':
+                return (
+                    <LocationFormSection
+                        required={config.required}
+                        location={editor.location}
+                        setLocation={editor.setLocation}
+                        helperText={config.helperText}
+                        error={editor.errors.location}
+                    />
+                );
+            case 'description':
+                return (
+                    <DescriptionFormSection
+                        required={config.required}
+                        description={editor.description}
+                        setDescription={editor.setDescription}
+                        error={editor.errors.description}
+                    />
+                );
+            case 'maxParticipants':
+                return (
+                    <MaxParticipantsFormSection
+                        maxParticipants={editor.maxParticipants}
+                        setMaxParticipants={editor.setMaxParticipants}
+                        helperText={config.getHelperText?.(editor) ?? config.helperText}
+                        error={editor.errors.maxParticipants}
+                    />
+                );
+            case 'invite':
+                return <InviteFormSection owner={user.username} {...editor} />;
+            case 'cohorts':
+                return editor.inviteOnly ? null : (
+                    <CohortsFormSection
+                        placeholder={config.placeholder}
+                        helperText={config.helperText}
+                        allCohorts={editor.allCohorts}
+                        setAllCohorts={editor.setAllCohorts}
+                        cohorts={editor.cohorts}
+                        setCohort={editor.setCohort}
+                        error={editor.errors.cohorts}
+                    />
+                );
+            case 'pricing':
+                return (
+                    <PricingFormSection
+                        editor={editor}
+                        fullPriceOpts={config.fullPriceOpts}
+                        currentPriceOpts={config.currentPriceOpts}
+                    />
+                );
+            case 'color':
+                return <ColorFormSection editor={editor} />;
+            case 'custom':
+                return <config.element editor={editor} />;
+        }
+    }
+}
+
 interface TimesFormConfig {
     type: 'times';
     enableRecurrence?: boolean;
-    description?: string;
     getMinEnd: (start: DateTime<boolean> | null) => DateTime<boolean> | null;
 }
 
@@ -346,18 +355,18 @@ interface TitleFormConfig {
 
 interface LocationFormConfig {
     type: 'location';
-    subtitle: string;
     helperText?: string;
+    required?: boolean;
 }
 
 interface DescriptionFormConfig {
     type: 'description';
     subtitle?: string;
+    required?: boolean;
 }
 
 interface MaxParticipantsFormConfig {
     type: 'maxParticipants';
-    subtitle: string;
     helperText?: string;
     getHelperText?: (editor: UseEventEditorResponse) => string;
 }
@@ -368,7 +377,8 @@ interface InviteFormConfig {
 
 interface CohortsFormConfig {
     type: 'cohorts';
-    description: string;
+    placeholder: string;
+    helperText: string;
 }
 
 interface PricingFormConfig {
@@ -377,12 +387,16 @@ interface PricingFormConfig {
     currentPriceOpts?: { helperText?: string };
 }
 
+interface ColorFormConfig {
+    type: 'color';
+}
+
 interface CustomFormConfig {
     type: 'custom';
     element: (props: { editor: UseEventEditorResponse }) => JSX.Element;
 }
 
-type FormConfig =
+type FormConfigSection =
     | TimesFormConfig
     | TitleFormConfig
     | LocationFormConfig
@@ -391,95 +405,86 @@ type FormConfig =
     | InviteFormConfig
     | CohortsFormConfig
     | PricingFormConfig
+    | ColorFormConfig
     | CustomFormConfig;
 
-const classConfig: FormConfig[] = [
-    { type: 'times', enableRecurrence: true, getMinEnd: () => null },
-    { type: 'title' },
-    {
-        type: 'description',
-        subtitle:
-            'This description will be visible in the calendar and should describe what your class will cover.',
-    },
-    {
-        type: 'location',
-        subtitle:
-            'Add a Zoom link, specify a Discord classroom, etc. This is how your students will access your lesson and will only be visible after they pay.',
-    },
-    {
-        type: 'cohorts',
-        description:
-            'Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.',
-    },
-];
+interface FormConfig {
+    details: FormConfigSection[];
+    guests: FormConfigSection[];
+}
 
-const formConfigs: Record<EditableEventType, FormConfig[]> = {
-    [EventType.Availability]: [
-        { type: 'times', description: 'Availabilities must be at least one hour long', getMinEnd },
-        { type: 'title', label: 'Title (Optional)' },
+const classConfig: FormConfig = {
+    details: [
+        { type: 'times', enableRecurrence: true, getMinEnd: () => null },
         {
             type: 'location',
-            subtitle: 'Add a Zoom link, specify a Discord classroom, etc.',
-            helperText: `Defaults to "Discord" if left blank.`,
+            required: true,
+            helperText:
+                'Add a Zoom link, specify a Discord classroom, etc. This is how your students will access your lesson and will only be visible after they pay.',
         },
         {
             type: 'description',
-            subtitle: 'Add a sparring position or any other notes for your opponent.',
+            required: true,
         },
+    ],
+    guests: [
         {
-            type: 'custom',
-            element({ editor }) {
-                const { AllTypes, ...AvailabilityTypes } = AvailabilityType;
+            type: 'cohorts',
+            helperText:
+                'Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.',
+            placeholder: 'Choose cohorts',
+        },
+    ],
+};
 
-                const {
-                    allAvailabilityTypes,
-                    setAllAvailabilityTypes,
-                    availabilityTypes,
-                    setAvailabilityType,
-                } = editor;
+const formConfigs: Record<EditableEventType, FormConfig> = {
+    [EventType.Availability]: {
+        details: [
+            {
+                type: 'times',
+                getMinEnd,
+            },
+            {
+                type: 'custom',
+                element({ editor }) {
+                    const { AllTypes, ...AvailabilityTypes } = AvailabilityType;
 
-                const selectedTypes = allAvailabilityTypes
-                    ? [AllTypes]
-                    : Object.keys(availabilityTypes).filter(
-                          (t) => availabilityTypes[t as AvailabilityType],
-                      );
+                    const {
+                        allAvailabilityTypes,
+                        setAllAvailabilityTypes,
+                        availabilityTypes,
+                        setAvailabilityType,
+                    } = editor;
 
-                const onChangeType = (newTypes: string[]) => {
-                    const addedTypes = newTypes.filter((t) => !selectedTypes.includes(t));
-                    if (addedTypes.includes(AllTypes)) {
-                        setAllAvailabilityTypes(true);
-                        Object.values(AvailabilityTypes).forEach((t) =>
-                            setAvailabilityType(t, false),
-                        );
-                    } else {
-                        setAllAvailabilityTypes(false);
-                        Object.values(AvailabilityTypes).forEach((t) =>
-                            setAvailabilityType(t, false),
-                        );
-                        newTypes.forEach((t) => {
-                            if (t !== AllTypes) {
-                                setAvailabilityType(t as AvailabilityType, true);
-                            }
-                        });
-                    }
-                };
+                    const selectedTypes = allAvailabilityTypes
+                        ? [AllTypes]
+                        : Object.keys(availabilityTypes).filter(
+                              (t) => availabilityTypes[t as AvailabilityType],
+                          );
 
-                return (
-                    <Stack data-cy='availability-types-section'>
-                        <Typography variant='h6'>
-                            <Icon
-                                name='meet'
-                                color='primary'
-                                sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                                fontSize='medium'
-                            />
-                            Availability Types
-                        </Typography>
-                        <Typography variant='subtitle1' color='text.secondary' mb={0.5}>
-                            Choose the meeting types you are available for.
-                        </Typography>
+                    const onChangeType = (newTypes: string[]) => {
+                        const addedTypes = newTypes.filter((t) => !selectedTypes.includes(t));
+                        if (addedTypes.includes(AllTypes)) {
+                            setAllAvailabilityTypes(true);
+                            Object.values(AvailabilityTypes).forEach((t) =>
+                                setAvailabilityType(t, false),
+                            );
+                        } else {
+                            setAllAvailabilityTypes(false);
+                            Object.values(AvailabilityTypes).forEach((t) =>
+                                setAvailabilityType(t, false),
+                            );
+                            newTypes.forEach((t) => {
+                                if (t !== AllTypes) {
+                                    setAvailabilityType(t as AvailabilityType, true);
+                                }
+                            });
+                        }
+                    };
 
+                    return (
                         <MultipleSelectChip
+                            displayEmpty='Select Meeting Types'
                             selected={selectedTypes}
                             setSelected={onChangeType}
                             options={Object.values(AvailabilityType).map((t) => ({
@@ -488,76 +493,100 @@ const formConfigs: Record<EditableEventType, FormConfig[]> = {
                                 icon: <Icon name={t} color='primary' />,
                             }))}
                             error={Boolean(editor.errors.types)}
-                            helperText={editor.errors.types}
+                            helperText={
+                                editor.errors.types ||
+                                'Choose the meeting types you are available for.'
+                            }
                             data-cy='availability-type-selector'
                         />
-                    </Stack>
-                );
+                    );
+                },
             },
-        },
-        {
-            type: 'maxParticipants',
-            subtitle:
-                'The number of people that can book your availability (not including yourself).',
-            getHelperText: (editor) => {
-                let defaultMaxParticipants = 1;
-                if (editor.allAvailabilityTypes) {
-                    defaultMaxParticipants = 100;
-                } else {
-                    Object.entries(editor.availabilityTypes).forEach(([type, enabled]) => {
-                        if (enabled) {
-                            defaultMaxParticipants = Math.max(
-                                defaultMaxParticipants,
-                                getDefaultNumberOfParticipants(type as AvailabilityType),
-                            );
-                        }
-                    });
-                }
-                return `Defaults to ${defaultMaxParticipants} if left blank.`;
+            {
+                type: 'location',
+                helperText: `Add a Zoom link, specify a Discord classroom, etc. Defaults to "Discord" if left blank.`,
             },
-        },
-        { type: 'invite' },
-        { type: 'cohorts', description: 'Choose the cohorts that can book your availability.' },
-    ],
-    [EventType.Dojo]: [
-        { type: 'times', enableRecurrence: true, getMinEnd: () => null },
-        { type: 'title' },
-        { type: 'description' },
-        {
-            type: 'location',
-            subtitle: 'Add a Zoom link, specify a Discord classroom, etc.',
-            helperText: `Defaults to "No Location Provided" if left blank.`,
-        },
-        {
-            type: 'cohorts',
-            description:
-                'Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.',
-        },
-    ],
-    [EventType.Coaching]: [
-        { type: 'times', enableRecurrence: true, getMinEnd: () => null },
-        { type: 'title' },
-        {
-            type: 'description',
-            subtitle:
-                'This description will be visible in the calendar and should describe what your coaching session will cover.',
-        },
-        {
-            type: 'location',
-            subtitle:
-                'Add a Zoom link, specify a Discord classroom, etc. This is how your students will access your lesson and will only be visible after they pay.',
-        },
-        {
-            type: 'maxParticipants',
-            subtitle: 'The maximum number of students that can book your coaching session.',
-        },
-        {
-            type: 'cohorts',
-            description:
-                'Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.',
-        },
-        { type: 'pricing' },
-    ],
+            {
+                type: 'description',
+                subtitle: 'Add a sparring position or any other notes for your opponent.',
+            },
+        ],
+        guests: [
+            { type: 'invite' },
+            {
+                type: 'cohorts',
+                placeholder: 'Choose cohorts',
+                helperText: 'Choose the cohorts that can book your availability.',
+            },
+            {
+                type: 'maxParticipants',
+                getHelperText: (editor) => {
+                    let defaultMaxParticipants = 1;
+                    if (editor.allAvailabilityTypes) {
+                        defaultMaxParticipants = 100;
+                    } else {
+                        Object.entries(editor.availabilityTypes).forEach(([type, enabled]) => {
+                            if (enabled) {
+                                defaultMaxParticipants = Math.max(
+                                    defaultMaxParticipants,
+                                    getDefaultNumberOfParticipants(type as AvailabilityType),
+                                );
+                            }
+                        });
+                    }
+                    return `The number of people that can book your availability (not including yourself). Defaults to ${defaultMaxParticipants} if left blank.`;
+                },
+            },
+        ],
+    },
+    [EventType.Dojo]: {
+        details: [
+            { type: 'times', enableRecurrence: true, getMinEnd: () => null },
+            {
+                type: 'location',
+                helperText: `Add a Zoom link, specify a Discord classroom, etc. Defaults to "No Location Provided" if left blank.`,
+            },
+            { type: 'description' },
+        ],
+        guests: [
+            {
+                type: 'cohorts',
+                helperText:
+                    'Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.',
+                placeholder: 'Choose cohorts',
+            },
+        ],
+    },
+    [EventType.Coaching]: {
+        details: [
+            { type: 'times', enableRecurrence: true, getMinEnd: () => null },
+            {
+                type: 'location',
+                required: true,
+                helperText:
+                    'Add a Zoom link, specify a Discord classroom, etc. This is how your students will access your lesson and will only be visible after they pay.',
+            },
+            {
+                type: 'description',
+                subtitle:
+                    'This description will be visible in the calendar and should describe what your coaching session will cover.',
+                required: true,
+            },
+            { type: 'pricing' },
+        ],
+        guests: [
+            {
+                type: 'cohorts',
+                helperText:
+                    'Choose the cohorts that can see this event. If no cohorts are selected, all cohorts will be able to view the event.',
+                placeholder: 'Choose cohorts',
+            },
+            {
+                type: 'maxParticipants',
+                helperText: 'The maximum number of students that can book your coaching session.',
+            },
+        ],
+    },
     [EventType.LectureTier]: classConfig,
     [EventType.GameReviewTier]: classConfig,
 };

@@ -209,6 +209,9 @@ type Event struct {
 
 	// The recurrence rule of the event, if set.
 	RRule string `dynamodbav:"rrule,omitempty" json:"rrule,omitempty"`
+
+	// The color of the event.
+	Color string `dynamodbav:"color,omitempty" json:"color,omitempty"`
 }
 
 type TimeControlType string

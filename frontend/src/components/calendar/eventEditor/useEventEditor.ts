@@ -202,6 +202,12 @@ export interface UseEventEditorResponse {
     /** Sets whether the event can only be booked by people invited. */
     setInviteOnly: (value: boolean) => void;
 
+    /** The color of the event. */
+    color: string;
+
+    /** Sets the color of the event. */
+    setColor: (value: string) => void;
+
     /** A map of errors in the form. */
     errors: Record<string, string>;
 
@@ -315,7 +321,9 @@ export default function useEventEditor(
     );
 
     const [fullPrice, setFullPrice] = useState(
-        initialEvent?.coaching?.fullPrice ? `${initialEvent.coaching.fullPrice / 100}` : '',
+        (initialEvent?.coaching?.fullPrice ?? 0) > 0
+            ? `${initialEvent?.coaching?.fullPrice ?? 0 / 100}`
+            : '',
     );
     const [currentPrice, setCurrentPrice] = useState(
         (initialEvent?.coaching?.currentPrice ?? 0) > 0
@@ -343,6 +351,8 @@ export default function useEventEditor(
 
     const [invited, setInvited] = useState<Participant[]>(initialEvent?.invited ?? []);
     const [inviteOnly, setInviteOnly] = useState(initialEvent?.inviteOnly || false);
+
+    const [color, setColor] = useState(initialEvent?.color ?? '');
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -400,7 +410,9 @@ export default function useEventEditor(
         }
 
         const originalCohorts: string[] = initialEvent?.cohorts || [];
-        if (originalCohorts.length > 0) {
+        if (originalCohorts.length === dojoCohorts.length) {
+            setAllCohorts(true);
+        } else if (originalCohorts.length > 0) {
             const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>((map, cohort) => {
                 map[cohort] = false;
                 return map;
@@ -468,6 +480,9 @@ export default function useEventEditor(
         setInvited,
         inviteOnly,
         setInviteOnly,
+
+        color,
+        setColor,
 
         errors,
         setErrors,

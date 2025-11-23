@@ -15,8 +15,8 @@ export enum CalendarSessionType {
     Meetings = 'MEETINGS',
     DojoEvents = 'DOJO_EVENTS',
     CoachingSessions = 'COACHING_SESSIONS',
-    Lectures = 'LECTURES',
-    GameReviews = 'GAME_REVIEWS',
+    Lectures = 'LECTURE_TIER',
+    GameReviews = 'GAME_REVIEW_TIER',
 }
 
 export interface Event {
@@ -62,6 +62,9 @@ export interface Event {
 
     /** The recurrence rule of the event, as a string. */
     rrule?: string;
+
+    /** The color of the event. */
+    color?: string;
 }
 
 export enum TournamentType {

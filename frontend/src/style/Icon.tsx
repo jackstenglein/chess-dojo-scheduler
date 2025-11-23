@@ -57,6 +57,7 @@ import {
     Stadium,
     ThumbUp,
     Today,
+    Troubleshoot,
     Visibility,
     WavingHand,
     Whatshot,
@@ -77,6 +78,7 @@ import {
 import { RequirementCategory } from '../database/requirement';
 import { ChessDojoIcon } from './ChessDojoIcon';
 import { RookIcon } from './ChessIcons';
+import { PresenterIcon } from './PresenterIcon';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from './SocialMediaIcons';
 
 export const icons = {
@@ -173,6 +175,8 @@ export const icons = {
     [CalendarSessionType.CoachingSessions]: RocketLaunch,
     [CalendarSessionType.DojoEvents]: LiveTv,
     [CalendarSessionType.Meetings]: EventAvailableOutlined,
+    [CalendarSessionType.Lectures]: PresenterIcon,
+    [CalendarSessionType.GameReviews]: Troubleshoot,
     menuUp: KeyboardDoubleArrowUp,
     menuDown: KeyboardDoubleArrowDown,
     innerMenuUp: KeyboardArrowUp,
