@@ -37,6 +37,12 @@ export interface BlogItem {
 
 const items: BlogItem[] = [
     {
+        title: 'ChessDojo Launches Live Group Classes',
+        subtitle: 'November 24, 2025',
+        body: "ChessDojo's interactive group classes start January 1st. Join before December 2nd and get 25% off with the code BLACKFRIDAY!",
+        href: '/blog/live-classes',
+    },
+    {
         title: 'CoachChamps, Solitaire Chess & More',
         subtitle: 'Dojo Digest • October 1, 2025',
         body: `Solitaire Chess (Guess the Move)!`,
