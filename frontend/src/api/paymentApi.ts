@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { getConfig } from '../config';
 import { StripeAccount } from '../database/payment';
 import { User } from '../database/user';
@@ -43,6 +44,9 @@ export interface PaymentApiContextType {
 
 /** A request to create a subscription checkout session. */
 export interface SubscriptionCheckoutRequest {
+    /** The tier to subscribe to. */
+    tier: SubscriptionTier;
+
     /** The interval the user requested to subscribe for. */
     interval: 'month' | 'year';
 

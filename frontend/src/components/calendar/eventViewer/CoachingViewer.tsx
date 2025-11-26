@@ -49,7 +49,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                 });
                 window.location.href = resp.data.checkoutUrl;
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error('bookEvent: ', err);
                 request.onFailure(err);
             });

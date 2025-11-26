@@ -1,6 +1,5 @@
 import { useAuth } from '@/auth/Auth';
 import { TimeFormat } from '@/database/user';
-import Icon from '@/style/Icon';
 import {
     FormControl,
     FormControlLabel,
@@ -18,11 +17,10 @@ import {
 import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { Frequency, RRule } from 'rrule';
+import { DefaultTimezone } from '../../filters/TimezoneSelector';
 import { getDefaultRRuleCount, RRuleEnds, RRuleOptions } from '../useEventEditor';
 
 interface TimesFormSectionProps {
-    description?: string;
-
     start: DateTime | null;
     setStart: (value: DateTime | null) => void;
     startError?: string;
@@ -40,7 +38,6 @@ interface TimesFormSectionProps {
 }
 
 const TimesFormSection: React.FC<TimesFormSectionProps> = ({
-    description,
     start,
     setStart,
     startError,
@@ -53,7 +50,13 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
     setRRuleOptions,
     countError,
 }) => {
-    const timeFormat = useAuth().user?.timeFormat || TimeFormat.TwelveHour;
+    const { user } = useAuth();
+    const timeFormat = user?.timeFormat || TimeFormat.TwelveHour;
+    let timezone = user?.timezoneOverride;
+    if (!timezone || timezone === DefaultTimezone) {
+        const timezoneOffset = new Date().getTimezoneOffset() / 60;
+        timezone = timezoneOffset > 0 ? `UTC-${timezoneOffset}` : `UTC+${Math.abs(timezoneOffset)}`;
+    }
 
     const onChangeFreq = (value: string | Frequency) => {
         if (value === 'never') {
@@ -77,51 +80,40 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
 
     return (
         <Stack>
-            <Typography variant='h6'>
-                <Icon
-                    name='clock'
-                    color='primary'
-                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                    fontSize='medium'
+            <Stack direction='row' alignItems='baseline'>
+                <DateTimePicker
+                    value={start}
+                    onChange={(value) => setStart(value)}
+                    slotProps={{
+                        textField: {
+                            id: 'start-time',
+                            fullWidth: true,
+                            error: Boolean(startError),
+                            helperText: startError,
+                        },
+                    }}
+                    ampm={timeFormat === TimeFormat.TwelveHour}
                 />
-                Times
-            </Typography>
-            {description && (
-                <Typography variant='subtitle1' color='text.secondary'>
-                    {description}
-                </Typography>
-            )}
-            <DateTimePicker
-                label='Start Time'
-                value={start}
-                onChange={(value) => setStart(value)}
-                slotProps={{
-                    textField: {
-                        id: 'start-time',
-                        fullWidth: true,
-                        error: Boolean(startError),
-                        helperText: startError,
-                        sx: { mt: 2, mb: 3 },
-                    },
-                }}
-                ampm={timeFormat === TimeFormat.TwelveHour}
-            />
 
-            <DateTimePicker
-                label='End Time'
-                value={end}
-                onChange={(value) => setEnd(value)}
-                slotProps={{
-                    textField: {
-                        id: 'end-time',
-                        fullWidth: true,
-                        error: Boolean(endError),
-                        helperText: endError,
-                    },
-                }}
-                minDateTime={minEnd === null ? undefined : minEnd}
-                ampm={timeFormat === TimeFormat.TwelveHour}
-            />
+                <Typography sx={{ mx: 1 }}>to</Typography>
+
+                <DateTimePicker
+                    value={end}
+                    onChange={(value) => setEnd(value)}
+                    slotProps={{
+                        textField: {
+                            id: 'end-time',
+                            fullWidth: true,
+                            error: Boolean(endError),
+                            helperText: endError,
+                        },
+                    }}
+                    minDateTime={minEnd === null ? undefined : minEnd}
+                    ampm={timeFormat === TimeFormat.TwelveHour}
+                />
+
+                <Typography sx={{ ml: 1 }}>{timezone}</Typography>
+            </Stack>
 
             {enableRecurrence && (
                 <>
@@ -151,11 +143,17 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                                     label='Never'
                                 />
 
-                                <Stack direction='row' columnGap={2.4} alignItems='center'>
+                                <Stack
+                                    direction='row'
+                                    columnGap={1.5}
+                                    alignItems='center'
+                                    ml={-1.375}
+                                >
                                     <FormControlLabel
                                         value={RRuleEnds.Until}
                                         control={<Radio />}
                                         label='On'
+                                        sx={{ m: 0 }}
                                     />
 
                                     <DatePicker
@@ -179,11 +177,17 @@ const TimesFormSection: React.FC<TimesFormSectionProps> = ({
                                     />
                                 </Stack>
 
-                                <Stack direction='row' columnGap={1} alignItems='flex-start'>
+                                <Stack
+                                    direction='row'
+                                    columnGap={1.5}
+                                    alignItems='center'
+                                    ml={-1.375}
+                                >
                                     <FormControlLabel
                                         value={RRuleEnds.Count}
                                         control={<Radio />}
                                         label='After'
+                                        sx={{ m: 0 }}
                                     />
 
                                     <FormControl

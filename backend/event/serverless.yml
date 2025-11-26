@@ -198,6 +198,10 @@ functions:
         Action:
           - dynamodb:Scan
         Resource: ${param:EventsTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
 
   set:
     handler: set/main.go

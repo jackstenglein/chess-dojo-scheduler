@@ -155,11 +155,11 @@ func SetCohortRole(user *database.User) error {
 
 	var newRoles []string
 	for _, role := range member.Roles {
-		if !isCohortRole(role) {
+		if !isSubscriptionBasedRole(role) {
 			newRoles = append(newRoles, role)
 		}
 	}
-	newRoles = append(newRoles, getRole(user.DojoCohort, user.IsSubscribed()))
+	newRoles = append(newRoles, getRoles(user.DojoCohort, user.GetSubscriptionTier())...)
 
 	_, err = discord.GuildMemberEdit(privateGuildId, member.User.ID, &discordgo.GuildMemberParams{Roles: &newRoles})
 	return errors.Wrap(500, "Temporary server error", fmt.Sprintf("Failed to set guild member roles to %v", newRoles), err)

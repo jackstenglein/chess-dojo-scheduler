@@ -36,7 +36,7 @@ const Navbar = () => {
     const { events } = useEvents();
 
     const meetingCount = events.filter((e: Event) => {
-        if (Object.values(e.participants).length === 0) {
+        if (!e.participants || Object.values(e.participants).length === 0) {
             return false;
         }
         if (e.owner !== auth.user?.username && !e.participants[auth.user?.username || '']) {

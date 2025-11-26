@@ -1,8 +1,7 @@
-import Icon from '@/style/Icon';
-import { Stack, TextField, Typography } from '@mui/material';
+import { Notes } from '@mui/icons-material';
+import { InputAdornment, TextField } from '@mui/material';
 
 interface DescriptionFormSectionProps {
-    subtitle: string;
     description: string;
     setDescription: (value: string) => void;
     required?: boolean;
@@ -10,38 +9,32 @@ interface DescriptionFormSectionProps {
 }
 
 const DescriptionFormSection: React.FC<DescriptionFormSectionProps> = ({
-    subtitle,
     description,
     setDescription,
     required,
     error,
 }) => {
     return (
-        <Stack>
-            <Typography variant='h6'>
-                <Icon
-                    name='write'
-                    color='primary'
-                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                    fontSize='medium'
-                />
-                Description {!required && '(Optional)'}
-            </Typography>
-            <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 1.5 }}>
-                {subtitle}
-            </Typography>
-            <TextField
-                data-cy='description-textfield'
-                label='Description'
-                multiline
-                minRows={3}
-                maxRows={3}
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                error={Boolean(error)}
-                helperText={error}
-            />
-        </Stack>
+        <TextField
+            data-cy='description-textfield'
+            placeholder={`Description${required ? '' : ' (Optional)'}`}
+            multiline
+            minRows={3}
+            maxRows={5}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            error={Boolean(error)}
+            helperText={error}
+            slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position='start' sx={{ alignSelf: 'start' }}>
+                            <Notes />
+                        </InputAdornment>
+                    ),
+                },
+            }}
+        />
     );
 };
 

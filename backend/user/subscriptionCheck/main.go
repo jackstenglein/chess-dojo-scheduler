@@ -72,10 +72,7 @@ func updateUser(user *database.User) bool {
 	if user.UpdatedAt >= monthAgo {
 		return false
 	}
-	if user.SubscriptionStatus != database.SubscriptionStatus_Subscribed {
-		return false
-	}
-	if user.SubscriptionOverride {
+	if !isWix(user) {
 		return false
 	}
 	if user.PaymentInfo.IsSubscribed() {
@@ -87,6 +84,15 @@ func updateUser(user *database.User) bool {
 		return false
 	}
 
-	user.SubscriptionStatus = database.SubscriptionStatus_FreeTier
+	user.PaymentInfo = &database.PaymentInfo{
+		CustomerId:         "WIX",
+		SubscriptionId:     "WIX",
+		SubscriptionStatus: database.SubscriptionStatus_Canceled,
+		SubscriptionTier:   database.SubscriptionTier_Basic,
+	}
 	return true
+}
+
+func isWix(user *database.User) bool {
+	return user.PaymentInfo.GetCustomerId() == "" || user.PaymentInfo.GetCustomerId() == "WIX"
 }

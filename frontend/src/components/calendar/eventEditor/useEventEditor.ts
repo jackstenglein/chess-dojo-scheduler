@@ -27,15 +27,22 @@ export function getMinEnd(start: DateTime | null): DateTime | null {
     return minEnd;
 }
 
+export type EditableEventType =
+    | EventType.Availability
+    | EventType.Coaching
+    | EventType.Dojo
+    | EventType.LectureTier
+    | EventType.GameReviewTier;
+
 export interface UseEventEditorResponse {
     /** The type of the Event. */
-    type: EventType;
+    type: EditableEventType;
 
     /**
      * Sets the type of the Event.
      * @param type The new type of the Event.
      */
-    setType: (type: EventType) => void;
+    setType: (type: EditableEventType) => void;
 
     /** The title of the Event. */
     title: string;
@@ -195,6 +202,12 @@ export interface UseEventEditorResponse {
     /** Sets whether the event can only be booked by people invited. */
     setInviteOnly: (value: boolean) => void;
 
+    /** The color of the event. */
+    color: string;
+
+    /** Sets the color of the event. */
+    setColor: (value: string) => void;
+
     /** A map of errors in the form. */
     errors: Record<string, string>;
 
@@ -254,7 +267,9 @@ export default function useEventEditor(
 ): UseEventEditorResponse {
     const { user } = useAuth();
 
-    const [type, setType] = useState<EventType>(initialEvent?.type ?? EventType.Availability);
+    const [type, setType] = useState<EditableEventType>(
+        (initialEvent?.type as EditableEventType) ?? EventType.Availability,
+    );
     const [title, setTitle] = useState<string>(initialEvent?.title || '');
 
     const [start, setStart] = useState<DateTime | null>(
@@ -306,7 +321,9 @@ export default function useEventEditor(
     );
 
     const [fullPrice, setFullPrice] = useState(
-        initialEvent?.coaching?.fullPrice ? `${initialEvent.coaching.fullPrice / 100}` : '',
+        (initialEvent?.coaching?.fullPrice ?? 0) > 0
+            ? `${initialEvent?.coaching?.fullPrice ?? 0 / 100}`
+            : '',
     );
     const [currentPrice, setCurrentPrice] = useState(
         (initialEvent?.coaching?.currentPrice ?? 0) > 0
@@ -335,10 +352,12 @@ export default function useEventEditor(
     const [invited, setInvited] = useState<Participant[]>(initialEvent?.invited ?? []);
     const [inviteOnly, setInviteOnly] = useState(initialEvent?.inviteOnly || false);
 
+    const [color, setColor] = useState(initialEvent?.color ?? '');
+
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const onChangeEventType = useCallback(
-        (value: EventType) => {
+        (value: EditableEventType) => {
             const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>((map, cohort) => {
                 map[cohort] = false;
                 return map;
@@ -391,7 +410,9 @@ export default function useEventEditor(
         }
 
         const originalCohorts: string[] = initialEvent?.cohorts || [];
-        if (originalCohorts.length > 0) {
+        if (originalCohorts.length === dojoCohorts.length) {
+            setAllCohorts(true);
+        } else if (originalCohorts.length > 0) {
             const allFalseCohorts = dojoCohorts.reduce<Record<string, boolean>>((map, cohort) => {
                 map[cohort] = false;
                 return map;
@@ -459,6 +480,9 @@ export default function useEventEditor(
         setInvited,
         inviteOnly,
         setInviteOnly,
+
+        color,
+        setColor,
 
         errors,
         setErrors,
