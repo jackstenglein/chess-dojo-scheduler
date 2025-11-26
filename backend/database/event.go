@@ -72,6 +72,8 @@ const (
 	EventType_Dojo           EventType = "DOJO"
 	EventType_LigaTournament EventType = "LIGA_TOURNAMENT"
 	EventType_Coaching       EventType = "COACHING"
+	EventType_GameReviewTier EventType = "GAME_REVIEW_TIER"
+	EventType_LectureTier    EventType = "LECTURE_TIER"
 )
 
 // SchedulingStatus represents the status for events.
@@ -207,6 +209,9 @@ type Event struct {
 
 	// The recurrence rule of the event, if set.
 	RRule string `dynamodbav:"rrule,omitempty" json:"rrule,omitempty"`
+
+	// The color of the event.
+	Color string `dynamodbav:"color,omitempty" json:"color,omitempty"`
 }
 
 type TimeControlType string

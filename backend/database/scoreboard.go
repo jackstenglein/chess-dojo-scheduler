@@ -70,7 +70,7 @@ func (repo *dynamoRepository) ListScoreboardSummaries(startKey string) ([]Scoreb
 			"#cohort": aws.String("dojoCohort"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":subscribed": {S: aws.String(SubscriptionStatus_Subscribed)},
+			":subscribed": {S: aws.String(string(SubscriptionStatus_Subscribed))},
 			":u":          {S: aws.String(monthAgo)},
 			":none":       {S: aws.String(string(NoCohort))},
 		},
@@ -144,7 +144,7 @@ func (repo *dynamoRepository) GetCohort(cohort, startKey string) ([]User, string
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":cohort":     {S: aws.String(string(cohort))},
 			":u":          {S: aws.String(monthAgo)},
-			":subscribed": {S: aws.String(SubscriptionStatus_Subscribed)},
+			":subscribed": {S: aws.String(string(SubscriptionStatus_Subscribed))},
 		},
 		IndexName: aws.String("CohortIdx"),
 		TableName: aws.String(userTable),

@@ -2,7 +2,6 @@ import { useApi } from '@/api/Api';
 import { Participant } from '@/database/event';
 import { RatingSystem } from '@/database/user';
 import Avatar from '@/profile/Avatar';
-import Icon from '@/style/Icon';
 import {
     Autocomplete,
     Box,
@@ -17,7 +16,6 @@ import {
     ListItemText,
     Stack,
     TextField,
-    Typography,
 } from '@mui/material';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { SiChessdotcom, SiLichess } from 'react-icons/si';
@@ -78,7 +76,7 @@ export function InviteFormSection({
                             })),
                         );
                     })
-                    .catch((err) => {
+                    .catch((err: unknown) => {
                         setLoading(false);
                         console.error('searchUsers: ', err);
                     });
@@ -112,17 +110,8 @@ export function InviteFormSection({
 
     return (
         <Stack>
-            <Typography variant='h6'>
-                <Icon
-                    name='cohort'
-                    color='primary'
-                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                    fontSize='medium'
-                />
-                Invited Users
-            </Typography>
             <Autocomplete
-                sx={{ mt: 2, mb: 2 }}
+                sx={{ mb: 2 }}
                 multiple
                 loading={loading}
                 options={options}
@@ -135,7 +124,7 @@ export function InviteFormSection({
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        placeholder='Add people'
+                        placeholder='Invite users'
                         error={!!errors.invited}
                         helperText={errors.invited}
                         slotProps={{

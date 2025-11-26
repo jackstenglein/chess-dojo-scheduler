@@ -1,6 +1,9 @@
 import { getNormalizedRating, isCustom } from '../ratings/ratings';
 import { ExamType } from './exam';
+import { RatingSystem } from './ratingSystem';
 import { CustomTask, RequirementProgress } from './requirement';
+
+export { RatingSystem };
 
 /** A summary of a user's performance on a single exam. */
 export interface UserExamSummary {
@@ -116,6 +119,31 @@ export interface User {
     firebaseTokens?: string[];
 }
 
+/**
+ * Returns the subscription status for the given user.
+ * @param user The user to get the subscription status for.
+ */
+export function getSubscriptionStatus(user?: User): SubscriptionStatus {
+    if (!user) {
+        return SubscriptionStatus.NotSubscribed;
+    }
+    if (user.subscriptionStatus === SubscriptionStatus.Subscribed) {
+        return SubscriptionStatus.Subscribed;
+    }
+    return user.paymentInfo?.subscriptionStatus ?? SubscriptionStatus.NotSubscribed;
+}
+
+/**
+ * Returns the subscription tier for the given user.
+ * @param user The user to get the subscription tier for.
+ */
+export function getSubscriptionTier(user?: User): SubscriptionTier {
+    if (getSubscriptionStatus(user) !== SubscriptionStatus.Subscribed) {
+        return SubscriptionTier.Free;
+    }
+    return user?.paymentInfo?.subscriptionTier || SubscriptionTier.Basic;
+}
+
 export interface WorkGoalSettings {
     /**
      * A list of the minutes the user wants to work per day of the week.
@@ -196,7 +224,14 @@ export interface PuzzleThemeOverview {
 }
 
 export interface PaymentInfo {
+    /** The stripe customer id or a special value for non-stripe subscriptions. */
     customerId: string;
+    /** The stripe subscription id or a special value for non-stripe subscriptions. */
+    subscriptionId: string;
+    /** The status of the subscription. */
+    subscriptionStatus: SubscriptionStatus;
+    /** The tier of the subscription. */
+    subscriptionTier: SubscriptionTier;
 }
 
 export interface CoachInfo {
@@ -248,21 +283,6 @@ export type MinutesSpentKey =
     | 'ALL_COHORTS_LAST_365_DAYS'
     | 'ALL_COHORTS_NON_DOJO';
 
-export enum RatingSystem {
-    Chesscom = 'CHESSCOM',
-    Lichess = 'LICHESS',
-    Fide = 'FIDE',
-    Uscf = 'USCF',
-    Ecf = 'ECF',
-    Cfc = 'CFC',
-    Dwz = 'DWZ',
-    Acf = 'ACF',
-    Knsb = 'KNSB',
-    Custom = 'CUSTOM',
-    Custom2 = 'CUSTOM_2',
-    Custom3 = 'CUSTOM_3',
-}
-
 export interface Rating {
     username?: string;
     hideUsername: boolean;
@@ -278,7 +298,15 @@ export interface RatingHistory {
 
 export enum SubscriptionStatus {
     Subscribed = 'SUBSCRIBED',
-    FreeTier = 'FREE_TIER',
+    Canceled = 'CANCELED',
+    NotSubscribed = 'NOT_SUBSCRIBED',
+}
+
+export enum SubscriptionTier {
+    Free = 'FREE',
+    Basic = 'BASIC',
+    Lecture = 'LECTURE',
+    GameReview = 'GAME_REVIEW',
 }
 
 export enum TimeFormat {

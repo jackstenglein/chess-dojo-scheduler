@@ -255,6 +255,10 @@ function getSessionTypeColor(sessionType: CalendarSessionType): SvgIconOwnProps[
             return 'dojoOrange';
         case CalendarSessionType.Meetings:
             return 'meet';
+        case CalendarSessionType.Lectures:
+            return 'sage';
+        case CalendarSessionType.GameReviews:
+            return 'info';
     }
     return 'primary';
 }
