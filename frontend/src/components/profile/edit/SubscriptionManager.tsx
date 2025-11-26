@@ -4,6 +4,7 @@ import { Link } from '@/components/navigation/Link';
 import { isFree, User } from '@/database/user';
 import {
     getSubscriptionTier,
+    PaymentInfo,
     SubscriptionTier,
 } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { OpenInNew } from '@mui/icons-material';
@@ -25,7 +26,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
             .then((resp) => {
                 window.location.href = resp.data.url;
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error('subscriptionManage: ', err);
                 request.onFailure(err);
             });
@@ -64,7 +65,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
                     <Typography>Subscription Status: Subscribed</Typography>
                     <Typography>Current Tier: {displaySubscriptionTier(user)}</Typography>
 
-                    {paymentInfo?.customerId ? (
+                    {!isWix(paymentInfo) ? (
                         <LoadingButton
                             loading={request.isLoading()}
                             onClick={onManageSubscription}
@@ -99,6 +100,13 @@ function displaySubscriptionTier(user: User): string {
         case SubscriptionTier.GameReview:
             return 'Game & Profile Review';
     }
+}
+
+function isWix(paymentInfo?: PaymentInfo): boolean {
+    if (!paymentInfo) {
+        return true;
+    }
+    return paymentInfo.customerId === '' || paymentInfo.customerId === 'WIX';
 }
 
 export default SubscriptionManager;
