@@ -156,7 +156,7 @@ func shouldHideEventDetails(event *database.Event, user *database.User) bool {
 	}
 
 	isGameReviewTier := user.GetSubscriptionTier() == database.SubscriptionTier_GameReview && user.GetSubscriptionStatus() == database.SubscriptionStatus_Subscribed
-	isLectureTier := isGameReviewTier || user.GetSubscriptionTier() == database.SubscriptionTier_Lecture && user.GetSubscriptionStatus() == database.SubscriptionStatus_Subscribed
+	isLectureTier := isGameReviewTier || (user.GetSubscriptionTier() == database.SubscriptionTier_Lecture && user.GetSubscriptionStatus() == database.SubscriptionStatus_Subscribed)
 
 	p := event.Participants[username]
 	switch event.Type {
