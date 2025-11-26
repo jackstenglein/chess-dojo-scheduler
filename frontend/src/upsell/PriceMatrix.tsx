@@ -1,8 +1,9 @@
 'use client';
 
+import { Link } from '@/components/navigation/Link';
 import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Button, ButtonProps, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { Request } from '../api/Request';
 import SellingPoint, { SellingPointProps, SellingPointStatus } from './SellingPoint';
 import { getCurrency } from './locales';
@@ -245,6 +246,14 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             }),
                         children: 'Join Group Classes',
                     }}
+                    afterButton={
+                        <Link
+                            target='_blank'
+                            href='https://calendar.google.com/calendar/u/0/embed?src=c_771ab8bd3bcf653ae9cecfe549531b3894a17d052e5986da0bd3e1259e2778fc@group.calendar.google.com&mode=MONTH&dates=20260101/20260131&showPrint=0&showNav=0&showTabs=0&showCalendars=0'
+                        >
+                            View Full Class Calendar
+                        </Link>
+                    }
                 />
             </Grid>
 
@@ -287,6 +296,14 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             }),
                         children: 'Get Sensei Feedback',
                     }}
+                    afterButton={
+                        <Link
+                            target='_blank'
+                            href='https://calendar.google.com/calendar/u/0/embed?src=c_771ab8bd3bcf653ae9cecfe549531b3894a17d052e5986da0bd3e1259e2778fc@group.calendar.google.com&mode=MONTH&dates=20260101/20260131&showPrint=0&showNav=0&showTabs=0&showCalendars=0'
+                        >
+                            View Full Class Calendar
+                        </Link>
+                    }
                 />
             </Grid>
         </>
@@ -300,6 +317,7 @@ function PriceCard({
     price,
     sellingPoints,
     buttonProps,
+    afterButton,
 }: {
     name: string;
     price: {
@@ -311,6 +329,7 @@ function PriceCard({
     };
     sellingPoints: SellingPointProps[];
     buttonProps: ButtonProps;
+    afterButton?: JSX.Element;
 }) {
     return (
         <Card variant='outlined' sx={{ height: 1 }}>
@@ -369,6 +388,8 @@ function PriceCard({
                     </Stack>
 
                     <Button variant='contained' fullWidth color='subscribe' {...buttonProps} />
+
+                    {afterButton}
                 </Stack>
             </CardContent>
         </Card>

@@ -82,8 +82,15 @@ export default function Page() {
                     <Image src={kostyaImage} alt='Image of IM Kostya Kavutskiy' width={160} />
 
                     <Stack>
-                        <Typography variant='h6'>Calculation with IM Kostya Kavutskiy</Typography>
-                        <Typography color='text.secondary'>Kostya teaches calculation</Typography>
+                        <Typography variant='h6'>
+                            Calculation with IM Kostya Kavutskiy (1000-1400)
+                        </Typography>
+                        <Typography color='text.secondary'>
+                            A weekly class on calculation, focusing on various techniques and skills
+                            within calculation. Students will be given weekly homework to work on
+                            before the next class, and encouraged to form study groups to solve the
+                            material together.
+                        </Typography>
                         <Link href='/prices' sx={{ mt: 2 }}>
                             Join Now
                         </Link>
@@ -101,14 +108,19 @@ export default function Page() {
                     <Image src={davidImage} alt='Image of IM David Pruess' width={160} />
 
                     <Stack>
-                        <Typography variant='h6'>The Najdorf with IM David Pruess</Typography>
+                        <Typography variant='h6'>
+                            The Najdorf with IM David Pruess (two sections 1400-1800, 1800+)
+                        </Typography>
                         <Typography color='text.secondary'>
-                            The Najdorf is the most unbalanced but objectively fine response to
-                            1.e4. White gets tempi, black gets positional trumps. In this course, we
-                            will learn to play the Najdorf intuitively, focusing on the main ideas,
-                            before we try to memorize any long lines. Prior to each class, students
-                            will be expected to spar key positions which will be assigned ahead of
-                            time.
+                            The Najdorf Sicilian is the most unbalanced but objectively good
+                            response to 1.e4, and unsurprisingly, one of the most popular of all
+                            time. Wielded by the likes of Mikhail Tal, Bobby Fischer, Garry
+                            Kasparov, Viswanathan Anand, and Veselin Topalov, many amateurs wrongly
+                            fear it is an opening only for World Champions and opening monkeys. Not
+                            so! In this course, we will learn to play the Najdorf intuitively,
+                            focusing on the main ideas, without needing to memorize any lines. Prior
+                            to each class, students will be expected to spar key positions, assigned
+                            ahead of time.
                         </Typography>
                         <Link href='/prices' sx={{ mt: 2 }}>
                             Join Now
@@ -116,7 +128,7 @@ export default function Page() {
                     </Stack>
                 </Stack>
 
-                <Paper elevation={6} sx={{ my: 10, borderRadius: '20px', p: '16px' }}>
+                <Paper elevation={6} sx={{ mt: 10, borderRadius: '20px', p: '16px' }}>
                     <Grid container alignItems='center' flexWrap='wrap-reverse' rowGap={3}>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Stack>
@@ -154,7 +166,15 @@ export default function Page() {
                     </Grid>
                 </Paper>
 
-                <Typography variant='h5' textAlign='center'>
+                <Link
+                    target='_blank'
+                    href='https://calendar.google.com/calendar/u/0/embed?src=c_771ab8bd3bcf653ae9cecfe549531b3894a17d052e5986da0bd3e1259e2778fc@group.calendar.google.com&mode=MONTH&dates=20260101/20260131&showPrint=0&showNav=0&showTabs=0&showCalendars=0'
+                    sx={{ alignSelf: 'center', mt: 4, mb: 10 }}
+                >
+                    View Full Class Calendar
+                </Link>
+
+                <Typography variant='h5' textAlign='center' sx={{ mb: 3 }}>
                     Not interested in group classes?
                 </Typography>
                 <Typography variant='h6' textAlign='center'>
