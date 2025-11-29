@@ -6,13 +6,13 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { getConfig } from '@/config';
-import { SubscriptionStatus } from '@/database/user';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import PriceMatrix, { onSubscribeFunc } from '@/upsell/PriceMatrix';
 import {
-    getSubscriptionStatus,
+    getSubscriptionTier,
+    PaymentInfo,
     SubscriptionTier,
 } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Container, Grid, Tab, Tabs, Typography } from '@mui/material';
@@ -38,11 +38,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
         return <LoadingPage />;
     }
 
-    if (getSubscriptionStatus(user) === SubscriptionStatus.Subscribed) {
-        router.push('/profile');
-        return;
-    }
-
     const onSubscribe: onSubscribeFunc = (tier, interval, price) => {
         if (!user) {
             router.push('/signup');
@@ -58,19 +53,34 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
             value: price.value,
             items: [{ item_id: itemId, item_name: `Subscription - ${tier}` }],
         });
-        api.subscriptionCheckout({
-            tier,
-            interval,
-            successUrl: redirect,
-            cancelUrl: redirect,
-        })
-            .then((resp) => {
-                window.location.href = resp.data.url;
+
+        if (
+            isValidStripe(user?.paymentInfo) &&
+            getSubscriptionTier(user) !== SubscriptionTier.Free
+        ) {
+            api.subscriptionManage(tier, interval)
+                .then((resp) => {
+                    window.location.href = resp.data.url;
+                })
+                .catch((err: unknown) => {
+                    console.error(`subscriptionManage: `, err);
+                    request.onFailure(err);
+                });
+        } else {
+            api.subscriptionCheckout({
+                tier,
+                interval,
+                successUrl: redirect,
+                cancelUrl: redirect,
             })
-            .catch((err: unknown) => {
-                console.error('subscriptionCheckout: ', err);
-                request.onFailure(err);
-            });
+                .then((resp) => {
+                    window.location.href = resp.data.url;
+                })
+                .catch((err: unknown) => {
+                    console.error('subscriptionCheckout: ', err);
+                    request.onFailure(err);
+                });
+        }
     };
 
     return (
@@ -115,6 +125,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
                         interval={interval}
                         selectedTier={tier}
                         onFreeTier={onFreeTier}
+                        currentTier={getSubscriptionTier(user)}
                     />
                 </Grid>
 
@@ -135,3 +146,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
 };
 
 export default PricingPage;
+
+function isValidStripe(paymentInfo?: PaymentInfo): boolean {
+    const customerId = paymentInfo?.customerId ?? '';
+    return customerId !== '' && customerId !== 'WIX' && customerId !== 'OVERRIDE';
+}

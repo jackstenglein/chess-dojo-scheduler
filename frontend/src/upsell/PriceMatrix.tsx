@@ -91,6 +91,7 @@ interface PriceMatrixProps {
     selectedTier?: SubscriptionTier;
     onSubscribe: onSubscribeFunc;
     onFreeTier?: () => void;
+    currentTier: SubscriptionTier;
 }
 
 const PriceMatrix: React.FC<PriceMatrixProps> = ({
@@ -99,6 +100,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
     selectedTier,
     onSubscribe,
     onFreeTier,
+    currentTier,
 }) => {
     const [currency, setCurrency] = useState('USD');
     useEffect(() => {
@@ -149,6 +151,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             variant: 'outlined',
                             color: 'primary',
                         }}
+                        isCurrentTier={false}
                     />
                 </Grid>
             )}
@@ -202,6 +205,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             }),
                         children: 'Start Training',
                     }}
+                    isCurrentTier={currentTier === SubscriptionTier.Basic}
                 />
             </Grid>
 
@@ -254,6 +258,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             View Full Class Calendar
                         </Link>
                     }
+                    isCurrentTier={currentTier === SubscriptionTier.Lecture}
                 />
             </Grid>
 
@@ -304,6 +309,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             View Full Class Calendar
                         </Link>
                     }
+                    isCurrentTier={currentTier === SubscriptionTier.GameReview}
                 />
             </Grid>
         </>
@@ -318,6 +324,7 @@ function PriceCard({
     sellingPoints,
     buttonProps,
     afterButton,
+    isCurrentTier,
 }: {
     name: string;
     price: {
@@ -330,6 +337,7 @@ function PriceCard({
     sellingPoints: SellingPointProps[];
     buttonProps: ButtonProps;
     afterButton?: JSX.Element;
+    isCurrentTier: boolean;
 }) {
     return (
         <Card variant='outlined' sx={{ height: 1 }}>
@@ -387,7 +395,13 @@ function PriceCard({
                         ))}
                     </Stack>
 
-                    <Button variant='contained' fullWidth color='subscribe' {...buttonProps} />
+                    {isCurrentTier ? (
+                        <Button variant='contained' fullWidth disabled>
+                            Already Subscribed
+                        </Button>
+                    ) : (
+                        <Button variant='contained' fullWidth color='subscribe' {...buttonProps} />
+                    )}
 
                     {afterButton}
                 </Stack>
