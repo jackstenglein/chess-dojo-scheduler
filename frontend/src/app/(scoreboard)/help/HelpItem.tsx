@@ -9,7 +9,7 @@ const HelpItem: React.FC<PropsWithChildren<HelpItemProps>> = ({ title, children 
     return (
         <Stack
             spacing={0.5}
-            id={title}
+            id={title.toLowerCase().replaceAll(' ', '-')}
             sx={{
                 scrollMarginTop: '88px',
             }}
