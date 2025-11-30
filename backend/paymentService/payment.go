@@ -17,6 +17,7 @@ import (
 	"github.com/stripe/stripe-go/v81/checkout/session"
 	"github.com/stripe/stripe-go/v81/loginlink"
 	"github.com/stripe/stripe-go/v81/refund"
+	"github.com/stripe/stripe-go/v81/subscription"
 )
 
 var frontendHost = os.Getenv("frontendHost")
@@ -228,8 +229,8 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 		PaymentMethodCollection: stripe.String(string(stripe.CheckoutSessionPaymentMethodCollectionAlways)),
 	}
 
-	if user.PaymentInfo.GetCustomerId() != "" {
-		params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
+	if customerId := user.PaymentInfo.GetCustomerId(); customerId != "" && customerId != "WIX" && customerId != "OVERRIDE" {
+		params.Customer = stripe.String(customerId)
 	}
 
 	// TODO: remove after Jan 1, 2026
@@ -355,14 +356,37 @@ func GetCheckoutSession(id string) (*stripe.CheckoutSession, error) {
 	return session, nil
 }
 
-func GetBillingPortalSession(customerId string) (*stripe.BillingPortalSession, error) {
+func GetBillingPortalSession(paymentInfo *database.PaymentInfo, tier database.SubscriptionTier, interval string) (*stripe.BillingPortalSession, error) {
 	params := &stripe.BillingPortalSessionParams{
-		Customer:  stripe.String(customerId),
+		Customer:  stripe.String(paymentInfo.GetCustomerId()),
 		ReturnURL: stripe.String(fmt.Sprintf("%s/profile/edit", frontendHost)),
 	}
+
+	if tier != "" && interval != "" {
+		result, err := subscription.Get(paymentInfo.GetSubscriptionId(), &stripe.SubscriptionParams{})
+		if err != nil {
+			return nil, errors.Wrap(500, "Failed to create Stripe Billing Portal session", "Failed to fetch current subscription", err)
+		}
+
+		params.FlowData = &stripe.BillingPortalSessionFlowDataParams{
+			Type: stripe.String("subscription_update_confirm"),
+			SubscriptionUpdateConfirm: &stripe.BillingPortalSessionFlowDataSubscriptionUpdateConfirmParams{
+				Subscription: stripe.String(paymentInfo.GetSubscriptionId()),
+				Items: []*stripe.BillingPortalSessionFlowDataSubscriptionUpdateConfirmItemParams{
+					{
+						ID:       stripe.String(result.Items.Data[0].ID),
+						Quantity: stripe.Int64(1),
+						Price:    stripe.String(subscriptionPriceIds[tier][interval]),
+					},
+				},
+			},
+		}
+		params.ReturnURL = stripe.String(fmt.Sprintf("%s/profile", frontendHost))
+	}
+
 	session, err := bpsession.New(params)
 	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe Billing Portal session", err)
+		return nil, errors.Wrap(500, "Failed to create Stripe Billing Portal session", "", err)
 	}
 	return session, nil
 }

@@ -18,6 +18,7 @@ import {
     DeleteGamesRequest,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import {
@@ -396,7 +397,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             subscriptionCheckout: (request: SubscriptionCheckoutRequest) =>
                 subscriptionCheckout(idToken, request),
-            subscriptionManage: () => subscriptionManage(idToken),
+            subscriptionManage: (tier?: SubscriptionTier, interval?: 'month' | 'year') =>
+                subscriptionManage(idToken, tier, interval),
             createPaymentAccount: () => createPaymentAccount(idToken),
             getPaymentAccount: () => getPaymentAccount(idToken),
             paymentAccountLogin: () => paymentAccountLogin(idToken),

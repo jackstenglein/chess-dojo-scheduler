@@ -21,7 +21,10 @@ export interface PaymentApiContextType {
      * Creates a subscription manage session.
      * @returns A subscription manage session URL.
      */
-    subscriptionManage: () => Promise<AxiosResponse<StripeUrlResponse>>;
+    subscriptionManage: (
+        tier?: SubscriptionTier,
+        interval?: 'month' | 'year',
+    ) => Promise<AxiosResponse<StripeUrlResponse>>;
 
     /**
      * Creates a Stripe account for the current user.
@@ -82,10 +85,14 @@ export function subscriptionCheckout(idToken: string, request: SubscriptionCheck
  * @param idToken The id token of the current signed-in user.
  * @returns A subscription manage session URL.
  */
-export function subscriptionManage(idToken: string) {
+export function subscriptionManage(
+    idToken: string,
+    tier?: SubscriptionTier,
+    interval?: 'month' | 'year',
+) {
     return axios.post<StripeUrlResponse>(
         `${BASE_URL}/subscription/manage`,
-        {},
+        { tier, interval },
         { headers: { Authorization: 'Bearer ' + idToken } },
     );
 }

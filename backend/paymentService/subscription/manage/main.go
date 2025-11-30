@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
@@ -12,6 +14,11 @@ import (
 )
 
 var repository database.UserGetter = database.DynamoDB
+
+type SubscriptionManageRequest struct {
+	Tier     database.SubscriptionTier `json:"tier"`
+	Interval string                    `json:"interval"`
+}
 
 type SubscriptionManageResponse struct {
 	Url string `json:"url"`
@@ -31,14 +38,27 @@ func handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	if user.PaymentInfo == nil || user.PaymentInfo.CustomerId == "" {
-		return api.Failure(errors.New(400, "Invalid request: user does not have a Stripe customer ID", "")), nil
+	if !isValidCustomerId(user.PaymentInfo.GetCustomerId()) {
+		return api.Failure(errors.New(400, fmt.Sprintf("Invalid request: user has invalid Stripe customer ID %q", user.PaymentInfo.GetCustomerId()), "")), nil
 	}
 
-	session, err := payment.GetBillingPortalSession(user.PaymentInfo.CustomerId)
+	var request SubscriptionManageRequest
+	if err := json.Unmarshal([]byte(event.Body), &request); err != nil {
+		return api.Failure(errors.Wrap(400, "Failed to unmarshal request body", "", err)), nil
+	}
+
+	if request.Tier != "" && user.PaymentInfo.GetSubscriptionId() == "" {
+		return api.Failure(errors.New(400, "Invalid request: subscription tier specified but user has no subscription ID", "")), nil
+	}
+
+	session, err := payment.GetBillingPortalSession(user.PaymentInfo, request.Tier, request.Interval)
 	if err != nil {
 		return api.Failure(err), nil
 	}
 
 	return api.Success(SubscriptionManageResponse{Url: session.URL}), nil
+}
+
+func isValidCustomerId(customerID string) bool {
+	return customerID != "" && customerID != "WIX" && customerID != "OVERRIDE"
 }

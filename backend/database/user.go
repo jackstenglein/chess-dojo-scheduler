@@ -461,6 +461,13 @@ func (pi *PaymentInfo) GetSubscriptionTier() SubscriptionTier {
 	return pi.SubscriptionTier
 }
 
+func (pi *PaymentInfo) GetSubscriptionId() string {
+	if pi == nil {
+		return ""
+	}
+	return pi.SubscriptionId
+}
+
 type CoachInfo struct {
 	// The Stripe connected account id
 	StripeId string `dynamodbav:"stripeId" json:"stripeId"`

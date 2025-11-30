@@ -101,7 +101,22 @@ export const liveClassesFaq = {
             content: (
                 <>
                     All classes will be conducted through Google Meet. This allows us to
-                    automatically record and upload the classes for viewing on demand.
+                    automatically record and upload the classes for viewing on demand. The Google
+                    Meet links will be available in the{' '}
+                    <Link href='/calendar'>ChessDojo calendar</Link> after you have subscribed.
+                    Note: January classes will be posted to the calendar by Dec. 20th. No special
+                    software is required to join. All you need is a standard web browser.
+                </>
+            ),
+        },
+        {
+            title: 'Do I have to additionally register for specific classes after subscribing?',
+            content: (
+                <>
+                    No, all subscribers can join any of the group lecture classes using the Google
+                    Meet links in the calendar. Game and Profile Review subscribers will
+                    automatically have access to their specific cohort's section of the class
+                    through the Google Meet link in the calendar as well.
                 </>
             ),
         },
