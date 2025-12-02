@@ -32,7 +32,7 @@ func main() {
 		log.Fatalln("Failed to create html file: ", errors.Wrap(500, "Temporary server error", "Failed to create file for service account key", err))
 	}
 
-	if err = media.Download("chess-dojo-email-templates", "liveClassesPresaleMinified.html", f); err != nil {
+	if err = media.Download("chess-dojo-email-templates", "dojoDigest27Minified.html", f); err != nil {
 		log.Fatalln("Failed to download html", err)
 	}
 	f.Close()
@@ -80,7 +80,7 @@ func main() {
 		msg := gomail.NewMessage()
 		msg.SetHeader("From", "ChessDojo Digest <digest@mail.chessdojo.club>")
 		msg.SetHeader("To", email)
-		msg.SetHeader("Subject", "ChessDojo Live Classes on Sale Now | 25% Off Until Dec 2nd")
+		msg.SetHeader("Subject", "24 hours left for 25% Off ChessDojo | Digest Vol. 27")
 		msg.SetHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
 		msg.SetHeader("List-Unsubscribe", fmt.Sprintf("<https://g4shdaq6ug.execute-api.us-east-1.amazonaws.com/public/dojodigest/unsubscribe?email=%s>", email))
 		msg.SetBody("text/html", content)
