@@ -1223,6 +1223,27 @@ func (repo *dynamoRepository) GetUser(username string) (*User, error) {
 	return &user, nil
 }
 
+// GetUserByDiscordId returns the User object with the provided Discord ID.
+func (repo *dynamoRepository) GetUserByDiscordId(discordId string) (*User, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression:    aws.String("#discordId = :discordId"),
+		ExpressionAttributeNames:  map[string]*string{"#discordId": aws.String("discordId")},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":discordId": {S: aws.String(discordId)}},
+		TableName:                 aws.String(userTable),
+		IndexName:                 aws.String("DiscordIdIdx"),
+	}
+
+	var results []*User
+	if _, err := repo.query(input, "", &results); err != nil {
+		return nil, err
+	}
+
+	if len(results) < 1 {
+		return nil, errors.New(404, fmt.Sprintf("Discord ID %q not found", discordId), "")
+	}
+	return results[0], nil
+}
+
 const ONE_MONTH_AGO = -time.Hour * 24 * 31
 
 // ListUsersByCohort returns a list of Users in the provided cohort, up to 1MB of data.

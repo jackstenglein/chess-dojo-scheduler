@@ -205,6 +205,22 @@ functions:
           - dynamodb:GetItem
         Resource: ${param:UsersTableArn}
 
+  getByDiscordId:
+    handler: get/discord/main.go
+    events:
+      - httpApi:
+          path: /public/user/discord/{discordId}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:UsersTableArn}
+                - '/index/DiscordIdIdx'
+
   batchGetSummary:
     handler: batchGetSummary/main.go
     events:
