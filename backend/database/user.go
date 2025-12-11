@@ -178,7 +178,7 @@ type User struct {
 	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
 	// The user's Discord id
-	DiscordId string `dynamodbav:"discordId" json:"discordId"`
+	DiscordId string `dynamodbav:"discordId,omitempty" json:"discordId,omitempty"`
 
 	// A search field of the form display:DisplayName_discord:DiscordUsername_[ratingSystem:RatingSystem.Username]
 	// Stored in all lowercase. Each rating's username is only included if its HideUsername field is false.
@@ -687,9 +687,6 @@ type UserUpdate struct {
 	// The user's preferred display name on the site
 	DisplayName *string `dynamodbav:"displayName,omitempty" json:"displayName,omitempty"`
 
-	// The user's Discord username
-	DiscordUsername *string `dynamodbav:"discordUsername,omitempty" json:"discordUsername,omitempty"`
-
 	// A search field of the form display:DisplayName_discord:DiscordUsername_[ratingSystem:RatingSystem.Username]
 	// Stored in all lowercase. Each rating's username is only included if its HideUsername field is false.
 	// Ex: display:jackst_discord:jackstenglein_chesscom:jackstenglein_uscf:12345
@@ -844,16 +841,6 @@ func (u *UserUpdate) getDisplayName() string {
 	return *u.DisplayName
 }
 
-func (u *UserUpdate) getDiscordName() string {
-	if u == nil {
-		return ""
-	}
-	if u.DiscordUsername == nil {
-		return ""
-	}
-	return *u.DiscordUsername
-}
-
 func (u *UserUpdate) getRating(rs RatingSystem) (string, bool) {
 	if u == nil || u.Ratings == nil || (*u.Ratings)[rs] == nil {
 		return "", false
@@ -867,13 +854,11 @@ func GetSearchKey(user *User, update *UserUpdate) string {
 		return ""
 	}
 
-	displayName, discordName := update.getDisplayName(), update.getDiscordName()
+	displayName := update.getDisplayName()
 	if displayName == "" {
 		displayName = user.getDisplayName()
 	}
-	if discordName == "" {
-		discordName = user.getDiscordName()
-	}
+	discordName := user.getDiscordName()
 
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("display:%s_discord:%s", displayName, discordName))
