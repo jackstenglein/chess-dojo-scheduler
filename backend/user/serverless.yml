@@ -203,7 +203,12 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
+          - dynamodb:PutItem
         Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: ${param:DirectoriesTableArn}
 
   getByDiscordId:
     handler: get/discord/main.go

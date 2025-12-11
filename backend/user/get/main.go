@@ -11,7 +11,11 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-var repository database.UserGetter = database.DynamoDB
+var repository = database.DynamoDB
+
+func main() {
+	lambda.Start(Handler)
+}
 
 func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	log.SetRequestId(event.RequestContext.RequestID)
@@ -29,6 +33,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	user, err := repository.GetUser(username)
+	var apiErr *errors.Error
+	if errors.As(err, &apiErr) && apiErr.Code == 404 && username == info.Username {
+		return createUser(info)
+	}
 	if err != nil {
 		return api.Failure(err), nil
 	}
@@ -44,6 +52,10 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	return api.Success(user), err
 }
 
-func main() {
-	lambda.Start(Handler)
+func createUser(info *api.UserInfo) (api.Response, error) {
+	user, err := repository.CreateUser(info.Username, info.Email, info.Name, nil)
+	if err != nil {
+		return api.Failure(err), nil
+	}
+	return api.Success(user), nil
 }
