@@ -35,7 +35,7 @@ export function getMemberLink(ratingSystem: RatingSystem, username: string): str
         case RatingSystem.Fide:
             return `https://ratings.fide.com/profile/${username}`;
         case RatingSystem.Uscf:
-            return `https://www.uschess.org/msa/MbrDtlMain.php?${username}`;
+            return `https://ratings.uschess.org/player/${username}`;
         case RatingSystem.Ecf:
             return `https://www.ecfrating.org.uk/v2/new/player.php?ECF_code=${username}`;
         case RatingSystem.Cfc:

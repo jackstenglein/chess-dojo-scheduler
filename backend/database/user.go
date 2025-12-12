@@ -148,6 +148,9 @@ type Rating struct {
 
 	// The name of the rating system. Only present if this is a custom rating.
 	Name string `dynamodbav:"name,omitempty" json:"name,omitempty"`
+
+	// Whether the user's rating is provisional
+	IsProvisional bool `dynamodbav:"isProvisional,omitempty" json:"isProvisional,omitempty"`
 }
 
 type RatingHistory struct {

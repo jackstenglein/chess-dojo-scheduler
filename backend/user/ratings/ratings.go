@@ -1,7 +1,6 @@
 package ratings
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -19,9 +18,6 @@ import (
 var client = http.Client{Timeout: 5 * time.Second}
 
 var fideRegexp, _ = regexp.Compile(`<p>(\d+)</p>\s*<p.*>STANDARD`)
-var uscfCurrRegexp, _ = regexp.Compile(`Regular Rating\s*</td>\s*<td>\s*<b><nobr>\s*(\d+)`)
-var uscfFutureRegexp, _ = regexp.Compile(`(?s)Regular Rating\s*<\/td>\s*<td>\s*<b><nobr>.*<\/nobr>\s*<\/b>\s*<\/td>\s*<td>\s*(\d+)`)
-var uscfGameCountRegexp, _ = regexp.Compile(`<tr><td></td><td><b>(\d+)`)
 var acfRegexp, _ = regexp.Compile(`Current Rating:\s*</div>\s*<div id="stats-box-data-col">\s*[-\d]*\s*</div>\s*<div id="stats-box-data-col">\s*(\d+)`)
 
 type ChesscomResponse struct {
@@ -45,9 +41,10 @@ type LichessResponse struct {
 
 	Performances struct {
 		Classical struct {
-			Rating    int `json:"rating"`
-			NumGames  int `json:"games"`
-			Deviation int `json:"rd"`
+			Rating        int  `json:"rating"`
+			NumGames      int  `json:"games"`
+			Deviation     int  `json:"rd"`
+			IsProvisional bool `json:"prov"`
 		} `json:"classical"`
 	} `json:"perfs"`
 
@@ -76,6 +73,17 @@ type KnsbList struct {
 
 type KnsbListResponse struct {
 	Items []KnsbList `json:"items"`
+}
+
+type UscfRating struct {
+	Rating        int    `json:"rating"`
+	RatingSystem  string `json:"ratingSystem"`
+	NumGames      int    `json:"gamesPlayed"`
+	IsProvisional bool   `json:"isProvisional"`
+}
+
+type UscfResponse struct {
+	Ratings []UscfRating `json:"ratings"`
 }
 
 type RatingFetchFunc func(username string) (*database.Rating, error)
@@ -143,6 +151,7 @@ func FetchLichessRating(lichessUsername string) (*database.Rating, error) {
 		CurrentRating: rating.Performances.Classical.Rating,
 		Deviation:     rating.Performances.Classical.Deviation,
 		NumGames:      rating.Performances.Classical.NumGames,
+		IsProvisional: rating.Performances.Classical.IsProvisional,
 	}
 	return dojoRating, nil
 }
@@ -216,7 +225,7 @@ func FetchFideRating(fideId string) (*database.Rating, error) {
 }
 
 func FetchUscfRating(uscfId string) (*database.Rating, error) {
-	resp, err := client.Get(fmt.Sprintf("https://www.uschess.org/msa/MbrDtlMain.php?%s", uscfId))
+	resp, err := client.Get(fmt.Sprintf("https://ratings-api.uschess.org/api/v1/members/%s", uscfId))
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to get USCF page", err)
 		return nil, err
@@ -227,52 +236,30 @@ func FetchUscfRating(uscfId string) (*database.Rating, error) {
 		return nil, err
 	}
 
-	b, err := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	var uscfResp UscfResponse
+	err = json.NewDecoder(resp.Body).Decode(&uscfResp)
 	if err != nil {
 		err = errors.Wrap(500, "Temporary server error", "Failed to read USCF response", err)
 		return nil, err
 	}
 
-	rating, err := findRating(b, uscfFutureRegexp)
-	if err != nil {
-		rating, err = findRating(b, uscfCurrRegexp)
-		if err != nil {
-			if bytes.Contains(b, []byte("Non-Member")) {
-				err := errors.New(404, "Invalid request: the given USCF ID does not exist", "")
-				return nil, err
-			}
-			log.Warnf("USCF id %q: no rating found on website", uscfId)
-			rating = 0
+	var rating *UscfRating
+	for _, r := range uscfResp.Ratings {
+		if r.RatingSystem == "R" {
+			// Regular rating
+			rating = &r
 		}
 	}
 
-	dojoRating := &database.Rating{CurrentRating: rating}
-
-	resp, err = client.Get(fmt.Sprintf("https://www.uschess.org/datapage/gamestats.php?memid=%s", uscfId))
-	if err != nil {
-		log.Errorf("Failed to get USCF game stats for ID %s: %v", uscfId, err)
-		return dojoRating, nil
-	}
-	if resp.StatusCode != 200 {
-		log.Errorf("Invalid request: USCF game stats returned status `%d` for ID %s", resp.StatusCode, uscfId)
-		return dojoRating, nil
-	}
-	b, err = io.ReadAll(resp.Body)
-	resp.Body.Close()
-	if err != nil {
-		log.Errorf("Failed to read USCF game stats response for ID %s: %v", uscfId, err)
-		return dojoRating, nil
+	if rating == nil {
+		return nil, errors.New(404, "Invalid request: USCF member does not have a regular rating", "")
 	}
 
-	gameCount, err := findRating(b, uscfGameCountRegexp)
-	if err != nil {
-		log.Errorf("Failed to find game count for USCF ID %s: %v", uscfId, err)
-		return dojoRating, nil
-	}
-
-	dojoRating.NumGames = gameCount
-	return dojoRating, nil
+	return &database.Rating{
+		CurrentRating: rating.Rating,
+		NumGames:      rating.NumGames,
+		IsProvisional: rating.IsProvisional,
+	}, nil
 }
 
 func FetchEcfRating(ecfId string) (*database.Rating, error) {
