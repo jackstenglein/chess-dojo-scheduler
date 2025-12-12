@@ -148,6 +148,9 @@ type Rating struct {
 
 	// The name of the rating system. Only present if this is a custom rating.
 	Name string `dynamodbav:"name,omitempty" json:"name,omitempty"`
+
+	// Whether the user's rating is provisional
+	IsProvisional bool `dynamodbav:"isProvisional,omitempty" json:"isProvisional,omitempty"`
 }
 
 type RatingHistory struct {
@@ -1321,7 +1324,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		params, err := dynamodbattribute.MarshalList([]interface{}{user.Ratings, user.RatingHistories, user.LichessBan, user.Username})
+		params, err := dynamodbattribute.MarshalList([]any{user.Ratings, user.RatingHistories, user.LichessBan, user.Username})
 		if err != nil {
 			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.Ratings", err)
 		}

@@ -37,10 +37,11 @@ func updateRating(rating *database.Rating, systemName string, fetcher ratings.Ra
 
 	shouldUpdate := false
 
-	if data.CurrentRating != rating.CurrentRating || data.Deviation != rating.Deviation || data.NumGames != rating.NumGames {
+	if data.CurrentRating != rating.CurrentRating || data.Deviation != rating.Deviation || data.NumGames != rating.NumGames || data.IsProvisional != rating.IsProvisional {
 		rating.CurrentRating = data.CurrentRating
 		rating.Deviation = data.Deviation
 		rating.NumGames = data.NumGames
+		rating.IsProvisional = data.IsProvisional
 		shouldUpdate = true
 	}
 
@@ -123,6 +124,7 @@ func updateUsers(users []*database.User) {
 				CurrentRating: rating.Performances.Classical.Rating,
 				Deviation:     rating.Performances.Classical.Deviation,
 				NumGames:      rating.Performances.Classical.NumGames,
+				IsProvisional: rating.Performances.Classical.IsProvisional,
 			}, nil
 		}
 	}

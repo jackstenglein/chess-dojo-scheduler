@@ -49,6 +49,7 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
                     user.ratingHistories ? user.ratingHistories[preferredSystem] : undefined
                 }
                 name={user.ratings[preferredSystem]?.name}
+                isProvisional={user.ratings[preferredSystem]?.isProvisional}
             />
 
             {Object.values(RatingSystem).map((rs) => {
@@ -75,6 +76,7 @@ const StatsTab: React.FC<StatsTabProps> = ({ user }) => {
                         isPreferred={user.ratingSystem === rs}
                         ratingHistory={user.ratingHistories ? user.ratingHistories[rs] : undefined}
                         name={user.ratings[rs]?.name}
+                        isProvisional={user.ratings[rs]?.isProvisional}
                     />
                 );
             })}
