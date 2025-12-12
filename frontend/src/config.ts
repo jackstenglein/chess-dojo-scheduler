@@ -2,7 +2,7 @@ import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/
 import { z } from 'zod';
 
 export const MUI_LICENSE_KEY =
-    'b63a52d106bd196a9b02ba316e6e9673Tz0xMDE1MjMsRT0xNzYyNzMwMDQ1MDAwLFM9cHJvLExNPXN1YnNjcmlwdGlvbixQVj1RMy0yMDI0LEtWPTI=';
+    '24a7fa97376749c937d182874ff9e0bcTz0xMjMxMjIsRT0xNzk3MjA2Mzk5MDAwLFM9cHJvLExNPXN1YnNjcmlwdGlvbixQVj1RMy0yMDI0LEtWPTI=';
 
 export const EnvSchema = z.object({
     auth: z.object({
