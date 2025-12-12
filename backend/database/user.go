@@ -1324,7 +1324,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		params, err := dynamodbattribute.MarshalList([]interface{}{user.Ratings, user.RatingHistories, user.LichessBan, user.Username})
+		params, err := dynamodbattribute.MarshalList([]any{user.Ratings, user.RatingHistories, user.LichessBan, user.Username})
 		if err != nil {
 			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.Ratings", err)
 		}

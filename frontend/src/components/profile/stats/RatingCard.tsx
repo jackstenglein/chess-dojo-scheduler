@@ -170,6 +170,7 @@ interface RatingCardProps {
     name?: string;
     isPreferred?: boolean;
     ratingHistory?: RatingHistory[];
+    isProvisional?: boolean;
 }
 
 const RatingCard: React.FC<RatingCardProps> = ({
@@ -182,6 +183,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
     name,
     isPreferred,
     ratingHistory,
+    isProvisional,
 }) => {
     const { user } = useAuth();
     const dark = !user?.enableLightMode;
@@ -238,6 +240,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                     }}
                                 >
                                     {currentRating}
+                                    {isProvisional && '?'}
                                 </Typography>
                                 <Tooltip title='Ratings are updated every 24 hours'>
                                     <HelpIcon

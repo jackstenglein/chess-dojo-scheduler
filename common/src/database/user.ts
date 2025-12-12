@@ -289,6 +289,7 @@ export interface Rating {
     startRating: number;
     currentRating: number;
     name?: string;
+    isProvisional?: boolean;
 }
 
 export interface RatingHistory {
