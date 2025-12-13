@@ -8,6 +8,7 @@ export const pagesWithVideos = [
     /\/blog\/new-ratings/,
     /\/blog\/dojo-talks\/.*/,
     /^\/material\/guides$/,
+    /^\/material\/live-classes$/,
 
     // K+P Endings
     /^\/courses\/ENDGAME\/34241b4d-3a8f-4d5f-9a15-b26cf718a0d0\/(1|2|4|5|6|7|8|9|10|11)\/1$/,

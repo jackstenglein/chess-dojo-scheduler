@@ -52,6 +52,10 @@ functions:
 
   listRecordings:
     handler: listRecordings.handler
+    events:
+      - httpApi:
+          path: /public/live-classes/recordings
+          method: get
     environment:
       stage: ${sls:stage}
       s3Bucket: !Ref LiveClassesBucket
@@ -63,6 +67,32 @@ functions:
           - ''
           - - 'arn:aws:s3:::'
             - !Ref LiveClassesBucket
+
+  getRecording:
+    handler: getRecording.handler
+    events:
+      - httpApi:
+          path: /live-classes/recording
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      stage: ${sls:stage}
+      s3Bucket: !Ref LiveClassesBucket
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref LiveClassesBucket
+            - /*
 
 resources:
   Conditions:

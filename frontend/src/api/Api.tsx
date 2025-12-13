@@ -20,6 +20,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
+import { GetRecordingRequest } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import {
     GetPuzzleHistoryRequest,
@@ -121,6 +122,7 @@ import {
     listGraduationsByDate,
     listGraduationsByOwner,
 } from './graduationApi';
+import { LiveClassesApiContextType, getRecording, listRecordings } from './liveClassesApi';
 import {
     NewsfeedApiContextType,
     createNewsfeedComment,
@@ -221,7 +223,8 @@ export type ApiContextType = UserApiContextType &
     EmailApiContextType &
     DirectoryApiContextType &
     RoundRobinApiContextType &
-    PuzzleApiContextType;
+    PuzzleApiContextType &
+    LiveClassesApiContextType;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const ApiContext = createContext<ApiContextType>(null!);
@@ -459,6 +462,9 @@ export function ApiProvider({ children }: { children: ReactNode }) {
             nextPuzzle: (request: NextPuzzleRequest) => nextPuzzle(idToken, request),
             getPuzzleHistory: (request: GetPuzzleHistoryRequest) =>
                 getPuzzleHistory(idToken, request),
+
+            listRecordings,
+            getRecording: (request: GetRecordingRequest) => getRecording(idToken, request),
         };
     }, [idToken, auth.user, auth.updateUser]);
 
