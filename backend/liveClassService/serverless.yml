@@ -36,7 +36,6 @@ functions:
       - Effect: Allow
         Action:
           - s3:PutObject
-          - s3:DeleteObject
         Resource: !Join
           - ''
           - - 'arn:aws:s3:::'
@@ -50,6 +49,20 @@ functions:
           - - 'arn:aws:s3:::'
             - ${param:SecretsBucket}
             - /liveClassesServiceAccountKey.json
+
+  listRecordings:
+    handler: listRecordings.handler
+    environment:
+      stage: ${sls:stage}
+      s3Bucket: !Ref LiveClassesBucket
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:ListBucket
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref LiveClassesBucket
 
 resources:
   Conditions:
