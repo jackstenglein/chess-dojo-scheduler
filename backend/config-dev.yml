@@ -25,3 +25,5 @@ hostedZoneId: 'Z03344272RB3HOTGLLT2U'
 cognitoUserPoolDomain: 'authdev.chessdojo.club'
 coaches: 'google_112538452360881134254'
 mongoUri: mongodb+srv://dev-chess-dojo.pqjx4ee.mongodb.net/?retryWrites=true&w=majority&appName=dev-chess-dojo
+meetRecordingsDriveFolder: '102cXp0zEAGaMMBC0hzNnxdB5PeStvYfX'
+finishedUploadsDriveFolder: '1mU7cW4z8UWm21c4lyRlf7E4_Lvk5BrXX'

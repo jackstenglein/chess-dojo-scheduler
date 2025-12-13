@@ -1,0 +1,69 @@
+# Deploys the live class service.
+
+service: chess-dojo-live-class
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+functions:
+  copyRecordings:
+    handler: copyRecordings.handler
+    events:
+      - schedule:
+          rate: cron(0 0 * * ? *) # Once per day at 00:00 UTC
+    timeout: 600 # 10 min
+    environment:
+      stage: ${sls:stage}
+      meetRecordingsDriveFolder: ${file(../config-${sls:stage}.yml):meetRecordingsDriveFolder}
+      finishedUploadsDriveFolder: ${file(../config-${sls:stage}.yml):finishedUploadsDriveFolder}
+      s3Bucket: !Ref LiveClassesBucket
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:DeleteObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref LiveClassesBucket
+            - /*
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:SecretsBucket}
+            - /liveClassesServiceAccountKey.json
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+    IsNotSimple: !Not [!Equals ['${sls:stage}', 'simple']]
+
+  Resources:
+    LiveClassesBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      Properties:
+        BucketName:
+          !If [
+            IsNotSimple,
+            'chess-dojo-${sls:stage}-live-classes',
+            'chess-dojo-simple-${aws:accountId}-live-classes',
+          ]
