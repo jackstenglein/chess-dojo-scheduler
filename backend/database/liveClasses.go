@@ -1,0 +1,41 @@
+package database
+
+import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+)
+
+type GameReviewCohort struct {
+	// The primary key of the DynamoDB table. Always GAME_REVIEW_COHORT.
+	Type string `dynamodbav:"type" json:"type"`
+	// The id of the game review cohort.
+	Id string `dynamodbav:"id" json:"id"`
+	// The name of the game review cohort.
+	Name string `dynamodbav:"name" json:"name"`
+	// The Discord channel id for this cohort.
+	DiscordChannelId string `dynamodbav:"discordChannelId" json:"discordChannelId"`
+	// The members of this cohort.
+	Members map[string]GameReviewCohortMember `dynamodbav:"members" json:"members"`
+}
+
+type GameReviewCohortMember struct {
+	// The username of the member.
+	Username string `dynamodbav:"username" json:"username"`
+	// The display name of the member.
+	DisplayName string `dynamodbav:"displayName" json:"displayName"`
+	// The date the member joined the queue.
+	QueueDate string `dynamodbav:"queueDate" json:"queueDate"`
+}
+
+func (repo *dynamoRepository) GetGameReviewCohort(id string) (*GameReviewCohort, error) {
+	input := dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"type": {S: aws.String("GAM_REIVEW_COHORT")},
+			"id":   {S: aws.String(id)},
+		},
+		TableName: aws.String(liveClassesTable),
+	}
+	var output GameReviewCohort
+	err := repo.getItem(&input, &output)
+	return &output, err
+}

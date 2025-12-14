@@ -1,5 +1,7 @@
 import { getConfig } from '@/config';
 import {
+    GameReviewCohort,
+    GetGameReviewCohortRequest,
     GetRecordingRequest,
     LiveClass,
 } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
@@ -13,6 +15,10 @@ export interface LiveClassesApiContextType {
 
     /** Returns a presigned URL for the recording. */
     getRecording: (request: GetRecordingRequest) => Promise<AxiosResponse<{ url: string }>>;
+
+    getGameReviewCohort: (
+        request: GetGameReviewCohortRequest,
+    ) => Promise<AxiosResponse<{ gameReviewCohort: GameReviewCohort }>>;
 }
 
 export function listRecordings() {
@@ -26,4 +32,10 @@ export function getRecording(idToken: string, request: GetRecordingRequest) {
             Authorization: `Bearer ${idToken}`,
         },
     });
+}
+
+export function getGameReviewCohort(request: GetGameReviewCohortRequest) {
+    return axios.get<{ gameReviewCohort: GameReviewCohort }>(
+        `${BASE_URL}/public/game-review-cohort/${request.id}`,
+    );
 }

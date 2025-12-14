@@ -157,6 +157,7 @@ func handleSubscriptionPurchase(checkoutSession *stripe.CheckoutSession) api.Res
 	update := database.UserUpdate{
 		PaymentInfo:        &paymentInfo,
 		SubscriptionStatus: stripe.String(string(database.SubscriptionStatus_Subscribed)),
+		SubscriptionTier:   stripe.String(string(tier)),
 	}
 
 	user, err := repository.UpdateUser(checkoutSession.ClientReferenceID, &update)
@@ -298,6 +299,7 @@ func handleSubscriptionDeletion(event *stripe.Event) api.Response {
 	update := database.UserUpdate{
 		PaymentInfo:        &paymentInfo,
 		SubscriptionStatus: stripe.String(string(database.SubscriptionStatus_NotSubscribed)),
+		SubscriptionTier:   stripe.String(string(database.SubscriptionTier_Free)),
 	}
 
 	user, err := repository.UpdateUser(username, &update)
@@ -339,6 +341,7 @@ func handleSubscriptionUpdated(event *stripe.Event) api.Response {
 	update := database.UserUpdate{
 		PaymentInfo:        &paymentInfo,
 		SubscriptionStatus: stripe.String(string(database.SubscriptionStatus_Subscribed)),
+		SubscriptionTier:   stripe.String(string(tier)),
 	}
 
 	user, err := repository.UpdateUser(username, &update)

@@ -45,6 +45,7 @@ var yearReviewTable = stage + "-yearReviews"
 var clubTable = stage + "-clubs"
 var examsTable = stage + "-exams"
 var directoryTable = stage + "-directories"
+var liveClassesTable = stage + "-live-classes"
 
 const gameTableOwnerIndex = "OwnerIdx"
 const gameTableWhiteIndex = "WhiteIndex"

@@ -11,7 +11,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-var repository database.EventGetter = database.DynamoDB
+var repository = database.DynamoDB
 
 func main() {
 	lambda.Start(handler)
@@ -56,5 +56,14 @@ func handler(ctx context.Context, request api.Request) (api.Response, error) {
 		event.Location = "Location is hidden until payment is complete"
 		event.Messages = nil
 	}
+
+	if event.Type == database.EventType_GameReviewTier && event.GameReviewCohortId != "" {
+		gameReviewCohort, err := repository.GetGameReviewCohort(event.GameReviewCohortId)
+		if err != nil {
+			return api.Failure(err), nil
+		}
+		event.GameReviewCohort = gameReviewCohort
+	}
+
 	return api.Success(&event), nil
 }

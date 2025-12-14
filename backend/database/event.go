@@ -212,6 +212,13 @@ type Event struct {
 
 	// The color of the event.
 	Color string `dynamodbav:"color,omitempty" json:"color,omitempty"`
+
+	// The ID of the game review cohort of the event. Only relevant for game & profile review tier events.
+	GameReviewCohortId string `dynamodbav:"gameReviewCohortId,omitempty" json:"gameReviewCohortId,omitempty"`
+
+	// The game review cohort of the event. Populated in output only and will not be saved to Dynamo.
+	// Only relevant for game & profile review tier events.
+	GameReviewCohort *GameReviewCohort `dynamodbav:"-" json:"gameReviewCohort,omitempty"`
 }
 
 type TimeControlType string

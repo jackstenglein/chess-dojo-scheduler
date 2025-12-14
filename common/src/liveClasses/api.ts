@@ -29,3 +29,35 @@ export interface LiveClass {
         s3Key: string;
     }[];
 }
+
+/** A cohort of users in the Game & Profile Review tier. */
+export interface GameReviewCohort {
+    /** The primary key of the DynamoDB table. Always GAME_REVIEW_COHORT. */
+    type: 'GAME_REVIEW_COHORT';
+    /** The id of the game review cohort. */
+    id: string;
+    /** The name of the game review cohort. */
+    name: string;
+    /** The discord channel ID for the cohort. */
+    discordChannelId: string;
+    /** The members of the cohort. */
+    members: Record<string, GameReviewCohortMember>;
+}
+
+export interface GameReviewCohortMember {
+    /** The username of the member. */
+    username: string;
+    /** The display name of the member. */
+    displayName: string;
+    /** The date the member joined the queue. */
+    queueDate: string;
+}
+
+/** Verifies the type of a request to get a game review cohort. */
+export const getGameReviewCohortRequestSchema = z.object({
+    /** The id of the cohort to get. */
+    id: z.string(),
+});
+
+/** A request to get a game review cohort. */
+export type GetGameReviewCohortRequest = z.infer<typeof getGameReviewCohortRequestSchema>;

@@ -94,6 +94,18 @@ functions:
             - !Ref LiveClassesBucket
             - /*
 
+  getGameReviewCohort:
+    handler: getGameReviewCohort.handler
+    events:
+      - httpApi:
+          path: /public/game-review-cohort/{id}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt LiveClassesTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']
@@ -110,3 +122,25 @@ resources:
             'chess-dojo-${sls:stage}-live-classes',
             'chess-dojo-simple-${aws:accountId}-live-classes',
           ]
+
+    LiveClassesTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-live-classes
+        AttributeDefinitions:
+          - AttributeName: type
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: type
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false

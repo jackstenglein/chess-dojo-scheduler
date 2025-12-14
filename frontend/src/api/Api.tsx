@@ -122,7 +122,12 @@ import {
     listGraduationsByDate,
     listGraduationsByOwner,
 } from './graduationApi';
-import { LiveClassesApiContextType, getRecording, listRecordings } from './liveClassesApi';
+import {
+    LiveClassesApiContextType,
+    getGameReviewCohort,
+    getRecording,
+    listRecordings,
+} from './liveClassesApi';
 import {
     NewsfeedApiContextType,
     createNewsfeedComment,
@@ -465,6 +470,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             listRecordings,
             getRecording: (request: GetRecordingRequest) => getRecording(idToken, request),
+            getGameReviewCohort,
         };
     }, [idToken, auth.user, auth.updateUser]);
 
