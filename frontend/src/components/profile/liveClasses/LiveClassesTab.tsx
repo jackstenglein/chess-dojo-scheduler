@@ -4,10 +4,10 @@ import { Link } from '@/components/navigation/Link';
 import { getConfig } from '@/config';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
-import Avatar from '@/profile/Avatar';
 import { GameReviewCohort } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import { Divider, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
+import { GameReviewCohortQueue } from './GameReviewCohortQueue';
 
 export function LiveClassesTab({ user }: { user: User }) {
     const api = useApi();
@@ -113,7 +113,7 @@ export function LiveClassesTab({ user }: { user: User }) {
                 reviewed.
             </Typography>
 
-            {reviewQueue.map((member) => (
+            {/* {reviewQueue.map((member) => (
                 <Stack key={member.username} direction='row' alignItems='center'>
                     <Typography variant='h6' sx={{ mr: 2 }}>
                         1.
@@ -123,7 +123,11 @@ export function LiveClassesTab({ user }: { user: User }) {
                         {member.displayName}
                     </Link>
                 </Stack>
-            ))}
+            ))} */}
+            <GameReviewCohortQueue
+                gameReviewCohort={gameReviewCohort}
+                setGameReviewCohort={request.onSuccess}
+            />
         </Stack>
     );
 }

@@ -1,13 +1,16 @@
-import { getConfig } from '@/config';
 import {
     GameReviewCohort,
     GetGameReviewCohortRequest,
     GetRecordingRequest,
     LiveClass,
+    PauseQueueDateRequest,
+    ResetQueueDateRequest,
 } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import axios, { AxiosResponse } from 'axios';
 
-const BASE_URL = getConfig().api.baseUrl;
+interface GameReviewCohortResponse {
+    gameReviewCohort: GameReviewCohort;
+}
 
 export interface LiveClassesApiContextType {
     /** Returns a list of live class recordings. */
@@ -16,26 +19,54 @@ export interface LiveClassesApiContextType {
     /** Returns a presigned URL for the recording. */
     getRecording: (request: GetRecordingRequest) => Promise<AxiosResponse<{ url: string }>>;
 
+    /** Returns a specific game review cohort. */
     getGameReviewCohort: (
         request: GetGameReviewCohortRequest,
-    ) => Promise<AxiosResponse<{ gameReviewCohort: GameReviewCohort }>>;
+    ) => Promise<AxiosResponse<GameReviewCohortResponse>>;
 }
 
 export function listRecordings() {
-    return axios.get<{ classes: LiveClass[] }>(`${BASE_URL}/public/live-classes/recordings`);
+    return axios.get<{ classes: LiveClass[] }>(`/public/live-classes/recordings`, {
+        functionName: 'listRecordings',
+    });
 }
 
-export function getRecording(idToken: string, request: GetRecordingRequest) {
-    return axios.get<{ url: string }>(`${BASE_URL}/live-classes/recording`, {
+export function getRecording(request: GetRecordingRequest) {
+    return axios.get<{ url: string }>(`/live-classes/recording`, {
         params: request,
-        headers: {
-            Authorization: `Bearer ${idToken}`,
-        },
+        functionName: 'getRecording',
     });
 }
 
 export function getGameReviewCohort(request: GetGameReviewCohortRequest) {
-    return axios.get<{ gameReviewCohort: GameReviewCohort }>(
-        `${BASE_URL}/public/game-review-cohort/${request.id}`,
+    return axios.get<GameReviewCohortResponse>(`/public/game-review-cohort/${request.id}`, {
+        functionName: 'getGameReviewCohort',
+    });
+}
+
+/**
+ * Resets the queue date for a specific game review cohort member to the current time.
+ * The caller must be an admin.
+ * @param request The reset queue date request.
+ * @returns The updated game review cohort.
+ */
+export function resetQueueDate(request: ResetQueueDateRequest) {
+    return axios.put<GameReviewCohortResponse>(
+        `/admin/game-review-cohort/${request.id}/${request.username}/reset`,
+        { functionName: 'resetQueueDate' },
+    );
+}
+
+/**
+ * Pauses the queue date for a specific game review cohort member. The caller must be an
+ * admin or the member themeselves.
+ * @param request The pause queue date request.
+ * @returns The updated game review cohort.
+ */
+export function pauseQueueDate(request: PauseQueueDateRequest) {
+    return axios.put<GameReviewCohortResponse>(
+        `/game-review-cohort/${request.id}/${request.username}/pause`,
+        { pause: request.pause },
+        { functionName: 'pauseQueueDate' },
     );
 }

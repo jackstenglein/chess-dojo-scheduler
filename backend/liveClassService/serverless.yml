@@ -106,6 +106,44 @@ functions:
           - dynamodb:GetItem
         Resource: !GetAtt LiveClassesTable.Arn
 
+  resetQueueDate:
+    handler: admin/resetQueueDate.handler
+    events:
+      - httpApi:
+          path: /admin/game-review-cohort/{id}/{username}/reset
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt LiveClassesTable.Arn
+
+  pauseQueueDate:
+    handler: pauseQueueDate.handler
+    events:
+      - httpApi:
+          path: /game-review-cohort/{id}/{username}/pause
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt LiveClassesTable.Arn
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

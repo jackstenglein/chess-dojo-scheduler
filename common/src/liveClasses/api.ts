@@ -51,6 +51,8 @@ export interface GameReviewCohortMember {
     displayName: string;
     /** The date the member joined the queue. */
     queueDate: string;
+    /** Whether the user's queue position is paused. */
+    paused: boolean;
 }
 
 /** Verifies the type of a request to get a game review cohort. */
@@ -61,3 +63,34 @@ export const getGameReviewCohortRequestSchema = z.object({
 
 /** A request to get a game review cohort. */
 export type GetGameReviewCohortRequest = z.infer<typeof getGameReviewCohortRequestSchema>;
+
+/** Verifies the type of a ResetQueueDate request. */
+export const resetQueueDateRequestSchema = z.object({
+    /** The id of the game review cohort the user is in. */
+    id: z.string(),
+    /** The username of the user to reset the queue date for. */
+    username: z.string(),
+});
+
+/**
+ * A request to reset the game review queue date for a given user. The user's queue
+ * date will be set to the current date.
+ */
+export type ResetQueueDateRequest = z.infer<typeof resetQueueDateRequestSchema>;
+
+/** Verifies the type of a PauseQueueDate request. */
+export const pauseQueueDateRequestSchema = z.object({
+    /** The id of the game review cohort the user is in. */
+    id: z.string(),
+    /** The username of the user to pause/unpause the queue date for. */
+    username: z.string(),
+    /** Whether the user should be paused or unpaused. */
+    pause: z.boolean(),
+});
+
+/**
+ * A request to pause/unpause the game review queue date for a given user. If paused, the
+ * user will be skipped over in the queue, but will maintain their queue date when they
+ * unpause.
+ */
+export type PauseQueueDateRequest = z.infer<typeof pauseQueueDateRequestSchema>;

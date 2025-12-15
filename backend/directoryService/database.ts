@@ -1,22 +1,57 @@
 'use strict';
 
-import { AttributeValue, DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import {
+    AttributeValue,
+    DynamoDBClient,
+    GetItemCommand,
+    UpdateItemCommand,
+} from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { User } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { ApiError } from './api';
 
 export const dynamo = new DynamoDBClient({ region: 'us-east-1' });
 export const directoryTable = process.env.stage + '-directories';
 export const gameTable = process.env.stage + '-games';
 
+/** The name of the Dynamo table containing users. */
+export const USER_TABLE = `${process.env.stage}-users`;
+
+/** The name of the Dynamo table containing live classes info. */
+export const LIVE_CLASSES_TABLE = `${process.env.stage}-live-classes`;
+
 type updateReturnType = 'NONE' | 'ALL_OLD' | 'UPDATED_OLD' | 'ALL_NEW' | 'UPDATED_NEW';
 
 type AttributePathTokens = (string | number)[];
 export type AttributePath = string | AttributePathTokens;
 
-export class UpdateItemBuilder {
-    private keys: Record<string, AttributeValue> = {};
-    private _table: string = '';
+abstract class DynamoCommandBuilder {
+    protected keys: Record<string, AttributeValue> = {};
+    protected _table: string = '';
 
+    /**
+     * Sets the value of the given key.
+     * @param key The key to set.
+     * @param value The value to set for the key.
+     * @returns The builder for method chaining.
+     */
+    key(key: string, value: string): this {
+        this.keys[key] = { S: value };
+        return this;
+    }
+
+    /**
+     * Sets the table name for the command.
+     * @param table The table name.
+     * @returns The builder for method chaining.
+     */
+    table(table: string): this {
+        this._table = table;
+        return this;
+    }
+}
+
+export class UpdateItemBuilder<T> extends DynamoCommandBuilder {
     private attrIndex = 0;
     private exprAttrNames: Record<string, string> = {};
     private reversedExprAttrNames: Record<string, string> = {};
@@ -27,8 +62,6 @@ export class UpdateItemBuilder {
 
     private _condition: Condition | undefined;
     private returnValues: updateReturnType = 'NONE';
-
-    constructor() {}
 
     /**
      * Clears any previously set fields on the builder.
@@ -49,17 +82,6 @@ export class UpdateItemBuilder {
     }
 
     /**
-     * Sets the value of the given key.
-     * @param key The key to set.
-     * @param value The value to set for the key.
-     * @returns The UpdateItemBuilder for method chaining.
-     */
-    key(key: string, value: string): UpdateItemBuilder {
-        this.keys[key] = { S: value };
-        return this;
-    }
-
-    /**
      * Adds a command to set the given attribute to the given value.
      * If the value is undefined, this function is a no-op. If path is a string,
      * it will be split around the period character and each component will be
@@ -69,7 +91,7 @@ export class UpdateItemBuilder {
      * @param value The value to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    set(path: AttributePath, value: any): UpdateItemBuilder {
+    set(path: AttributePath, value: any): this {
         if (value === undefined) {
             return this;
         }
@@ -90,7 +112,7 @@ export class UpdateItemBuilder {
      * @param value The value to add. If undefined, this function is a no-op.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    add(path: AttributePath, value: any): UpdateItemBuilder {
+    add(path: AttributePath, value: any): this {
         if (value === undefined) {
             return this;
         }
@@ -108,7 +130,7 @@ export class UpdateItemBuilder {
      * @param value The value to add.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    private addPath(path: AttributePathTokens, value: any): UpdateItemBuilder {
+    private addPath(path: AttributePathTokens, value: any): this {
         if (this.addExpression.length > 0) {
             this.addExpression += ', ';
         }
@@ -126,7 +148,7 @@ export class UpdateItemBuilder {
      * @param value The value to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    private setPath(path: AttributePathTokens, value: any): UpdateItemBuilder {
+    private setPath(path: AttributePathTokens, value: any): this {
         if (value === undefined) {
             return this;
         }
@@ -154,7 +176,7 @@ export class UpdateItemBuilder {
      * @param values The values to append to the end of the list.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    appendToList(path: AttributePath, values: any[]): UpdateItemBuilder {
+    appendToList(path: AttributePath, values: any[]): this {
         if (this.setExpression.length > 0) {
             this.setExpression += ', ';
         }
@@ -182,7 +204,7 @@ export class UpdateItemBuilder {
      * @param path The attribute path to remove.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    remove(path: AttributePath): UpdateItemBuilder {
+    remove(path: AttributePath): this {
         if (typeof path === 'string') {
             return this.removePath(path.split('.'));
         }
@@ -194,7 +216,7 @@ export class UpdateItemBuilder {
      * @param path The attribute path to remove.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    private removePath(path: AttributePathTokens): UpdateItemBuilder {
+    private removePath(path: AttributePathTokens): this {
         if (this.removeExpression.length > 0) {
             this.removeExpression += ', ';
         }
@@ -207,18 +229,8 @@ export class UpdateItemBuilder {
      * @param condition The condition to set.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    condition(condition: Condition): UpdateItemBuilder {
+    condition(condition: Condition): this {
         this._condition = condition;
-        return this;
-    }
-
-    /**
-     * Sets the table name for the command.
-     * @param table The table name.
-     * @returns The UpdateItemBuilder for method chaining.
-     */
-    table(table: string): UpdateItemBuilder {
-        this._table = table;
         return this;
     }
 
@@ -227,7 +239,7 @@ export class UpdateItemBuilder {
      * @param value The value to return.
      * @returns The UpdateItemBuilder for method chaining.
      */
-    return(value: updateReturnType): UpdateItemBuilder {
+    return(value: updateReturnType): this {
         this.returnValues = value;
         return this;
     }
@@ -263,6 +275,19 @@ export class UpdateItemBuilder {
             ReturnValues: this.returnValues,
             TableName: this._table,
         });
+    }
+
+    /**
+     * Sends an UpdateItemCommand with the previously set parameters.
+     * @returns The unmarshalled return value from the command or undefined if return values was
+     * specified as NONE.
+     */
+    async send(): Promise<T | undefined> {
+        const output = await dynamo.send(this.build());
+        if (!output.Attributes) {
+            return undefined;
+        }
+        return unmarshall(output.Attributes) as T;
     }
 
     /**
@@ -515,4 +540,58 @@ export function notEqual(path: AttributePath, value: any): Condition {
  */
 export function sizeLessThan(path: AttributePath, value: number): Condition {
     return new SizeCondition(path, value, '<');
+}
+
+/** A builder for DynamoDB GetItem commands. */
+export class GetItemBuilder<T> extends DynamoCommandBuilder {
+    /**
+     * @returns A GetItemCommand with the previously set parameters.
+     */
+    build(): GetItemCommand {
+        if (Object.entries(this.keys).length === 0) {
+            throw new ApiError({
+                statusCode: 500,
+                publicMessage: `GetItemBuilder.build called with no keys`,
+            });
+        }
+        if (!this._table) {
+            throw new ApiError({
+                statusCode: 500,
+                publicMessage: `GetItemBuilder.build called with no table`,
+            });
+        }
+
+        return new GetItemCommand({
+            Key: this.keys,
+            TableName: this._table,
+        });
+    }
+
+    /**
+     * Sends a GetItemCommand to Dynamo with the previously set parameters.
+     * @returns The item or undefined if it is not found.
+     */
+    async send(): Promise<T | undefined> {
+        const output = await dynamo.send(this.build());
+        if (!output.Item) {
+            return undefined;
+        }
+        return unmarshall(output.Item) as T;
+    }
+}
+
+/**
+ * Returns the user with the given username or throws a 404 error if the user is not found.
+ * @param username The username to fetch.
+ * @returns The user with the given username.
+ */
+export async function getUser(username: string): Promise<User> {
+    const user = await new GetItemBuilder<User>()
+        .key('username', username)
+        .table(USER_TABLE)
+        .send();
+    if (!user) {
+        throw new ApiError({ statusCode: 404, publicMessage: `User ${username} not found` });
+    }
+    return user;
 }

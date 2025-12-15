@@ -1,5 +1,6 @@
 'use client';
 
+import { LogLevel, getConfig } from '@/config';
 import { DiscordAuthRequest } from '@jackstenglein/chess-dojo-common/src/auth/discord';
 import {
     AddDirectoryItemsRequestV2,
@@ -20,7 +21,6 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
-import { GetRecordingRequest } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
 import {
     GetPuzzleHistoryRequest,
@@ -31,6 +31,8 @@ import {
     RoundRobinSubmitGameRequest,
     RoundRobinWithdrawRequest,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
+import { fetchAuthSession } from 'aws-amplify/auth';
+import axios, { AxiosError } from 'axios';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Club, ClubJoinRequestStatus } from '../database/club';
@@ -240,6 +242,42 @@ const ApiContext = createContext<ApiContextType>(null!);
 export function useApi() {
     return useContext(ApiContext);
 }
+
+const config = getConfig();
+
+axios.defaults.baseURL = config.api.baseUrl;
+
+axios.interceptors.request.use(async (config) => {
+    if (!config.url || !config.url.startsWith('/') || config.url.startsWith('/public/')) {
+        return config;
+    }
+
+    const authTokens = await fetchAuthSession();
+    const idToken = authTokens.tokens?.idToken?.toString();
+    if (idToken) {
+        config.headers.Authorization = `Bearer ${idToken}`;
+    }
+
+    return config;
+});
+
+axios.interceptors.response.use(
+    (response) => {
+        if (config.logLevel <= LogLevel.Debug) {
+            console.debug(
+                `${response.config.functionName ?? 'unnamed function'} response:`,
+                response,
+            );
+        }
+        return response;
+    },
+    (err: AxiosError) => {
+        if (config.logLevel <= LogLevel.Error) {
+            console.error(`${err.config?.functionName ?? 'unnamed function'} error:`, err);
+        }
+        return Promise.reject(err);
+    },
+);
 
 /**
  * ApiProvider provides access to API calls. It implements the ApiContextType interface.
@@ -469,7 +507,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 getPuzzleHistory(idToken, request),
 
             listRecordings,
-            getRecording: (request: GetRecordingRequest) => getRecording(idToken, request),
+            getRecording,
             getGameReviewCohort,
         };
     }, [idToken, auth.user, auth.updateUser]);
