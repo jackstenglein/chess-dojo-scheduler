@@ -48,10 +48,6 @@ export function LiveClassesTab({ user }: { user: User }) {
     }
 
     const gameReviewCohort = request.data;
-    const reviewQueue = Object.values(gameReviewCohort.members).sort((lhs, rhs) =>
-        lhs.queueDate.localeCompare(rhs.queueDate),
-    );
-
     return (
         <Stack>
             <Typography variant='h5'>Game & Profile Review — {gameReviewCohort.name}</Typography>
@@ -68,7 +64,12 @@ export function LiveClassesTab({ user }: { user: User }) {
                 >
                     here
                 </Link>
-                .
+                . If you are unable to access the channel, make sure you have linked your Discord
+                account in your{' '}
+                <Link target='_blank' href='/profile/edit'>
+                    settings
+                </Link>{' '}
+                or try disconnecting and reconnecting your Discord account.
             </Typography>
 
             <Typography variant='h6' mt={2}>
@@ -113,17 +114,6 @@ export function LiveClassesTab({ user }: { user: User }) {
                 reviewed.
             </Typography>
 
-            {/* {reviewQueue.map((member) => (
-                <Stack key={member.username} direction='row' alignItems='center'>
-                    <Typography variant='h6' sx={{ mr: 2 }}>
-                        1.
-                    </Typography>
-                    <Avatar username={member.username} displayName={member.displayName} size={30} />
-                    <Link href={`/profile/${member.username}`} sx={{ ml: 1 }}>
-                        {member.displayName}
-                    </Link>
-                </Stack>
-            ))} */}
             <GameReviewCohortQueue
                 gameReviewCohort={gameReviewCohort}
                 setGameReviewCohort={request.onSuccess}
