@@ -42,6 +42,31 @@ func handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Success(&event), nil
 	}
 
+	if event.Type == database.EventType_GameReviewTier && event.GameReviewCohortId != "" {
+		gameReviewCohort, err := repository.GetGameReviewCohort(event.GameReviewCohortId)
+		if err != nil {
+			return api.Failure(err), nil
+		}
+
+		event.GameReviewCohort = gameReviewCohort
+		_, ok := event.GameReviewCohort.Members[info.Username]
+		isParticipant := ok || event.Owner == info.Username
+		if isParticipant {
+			return api.Success(&event), nil
+		}
+
+		user, err := repository.GetUser(info.Username)
+		if err != nil {
+			return api.Failure(err), nil
+		}
+		if user.IsAdmin {
+			return api.Success(&event), nil
+		}
+
+		err = errors.New(403, "Invalid request: user is not a member of this meeting", "")
+		return api.Failure(err), nil
+	}
+
 	if event.Owner == info.Username {
 		return api.Success(&event), nil
 	}
@@ -55,14 +80,6 @@ func handler(ctx context.Context, request api.Request) (api.Response, error) {
 	if event.Type == database.EventType_Coaching && !p.HasPaid {
 		event.Location = "Location is hidden until payment is complete"
 		event.Messages = nil
-	}
-
-	if event.Type == database.EventType_GameReviewTier && event.GameReviewCohortId != "" {
-		gameReviewCohort, err := repository.GetGameReviewCohort(event.GameReviewCohortId)
-		if err != nil {
-			return api.Failure(err), nil
-		}
-		event.GameReviewCohort = gameReviewCohort
 	}
 
 	return api.Success(&event), nil

@@ -1,4 +1,5 @@
 import { Comment } from '@jackstenglein/chess-dojo-common/src/database/timeline';
+import { GameReviewCohort } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 
 export enum EventType {
     Availability = 'AVAILABILITY',
@@ -65,6 +66,15 @@ export interface Event {
 
     /** The color of the event. */
     color?: string;
+
+    /** The ID of the game review cohort of the event. Only relevant for game & profile review tier events. */
+    gameReviewCohortId?: string;
+
+    /**
+     * The game review cohort of the event. Populated in output only and will not be saved to the database.
+     * Only relevant for game & profile review tier events.
+     */
+    gameReviewCohort?: GameReviewCohort;
 }
 
 export enum TournamentType {

@@ -171,6 +171,7 @@ functions:
           - dynamodb:GetItem
         Resource:
           - ${param:EventsTableArn}
+          - ${param:UsersTableArn}
 
   list:
     handler: list/main.go
