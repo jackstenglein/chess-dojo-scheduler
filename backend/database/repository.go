@@ -60,14 +60,14 @@ const graduationTableCohortIndex = "CohortIndex"
 // getItem handles sending a DynamoDB GetItem request and unmarshals the result into the provided output
 // value, which must be a non-nil pointer. If the result of the GetItem request is nil, then
 // a 404 error is returned. All other errors result in a 500 error.
-func (repo *dynamoRepository) getItem(input *dynamodb.GetItemInput, out interface{}) error {
+func (repo *dynamoRepository) getItem(input *dynamodb.GetItemInput, out any) error {
 	result, err := repo.svc.GetItem(input)
 	if err != nil {
 		return errors.Wrap(500, "Temporary server error", "DynamoDB GetItem failure", err)
 	}
 
 	if result.Item == nil {
-		return errors.New(404, "Invalid request: resource not found", "DynamoDB GetItem result.Item is nil")
+		return errors.New(404, "Invalid request: resource not found", fmt.Sprintf("DynamoDB GetItem result.Item is nil for input %+v", input))
 	}
 
 	err = dynamodbattribute.UnmarshalMap(result.Item, out)

@@ -182,3 +182,7 @@ resources:
             - IsProd
             - true
             - false
+
+  Outputs:
+    LiveClassesTableArn:
+      Value: !GetAtt LiveClassesTable.Arn

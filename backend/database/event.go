@@ -219,6 +219,9 @@ type Event struct {
 	// The game review cohort of the event. Populated in output only and will not be saved to Dynamo.
 	// Only relevant for game & profile review tier events.
 	GameReviewCohort *GameReviewCohort `dynamodbav:"-" json:"gameReviewCohort,omitempty"`
+
+	// The Discord channel id of the event, if one exists. Currently this is only set on lecture tier events.
+	DiscordChannelId string `dynamodbav:"discordChannelId,omitempty" json:"discordChannelId,omitempty"`
 }
 
 type TimeControlType string

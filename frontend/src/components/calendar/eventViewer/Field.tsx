@@ -1,14 +1,18 @@
 import Icon, { type IconName } from '@/style/Icon';
-import { Stack, Typography } from '@mui/material';
+import { Stack, Typography, TypographyProps } from '@mui/material';
+import { ReactNode } from 'react';
 
 interface FieldProps {
     title?: string;
-    body?: string;
+    body?: string | ReactNode;
     showEmptyBody?: boolean;
     iconName?: IconName;
+    slotProps?: {
+        body?: TypographyProps;
+    };
 }
 
-const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, iconName }) => {
+const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, iconName, slotProps }) => {
     if (!title || (!showEmptyBody && !body)) {
         return null;
     }
@@ -24,7 +28,9 @@ const Field: React.FC<FieldProps> = ({ title, body, showEmptyBody, iconName }) =
                 />
                 {title}
             </Typography>
-            <Typography variant='body1'>{body}</Typography>
+            <Typography variant='body1' {...slotProps?.body}>
+                {body}
+            </Typography>
         </Stack>
     );
 };

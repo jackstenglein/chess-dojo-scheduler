@@ -30,7 +30,7 @@ type GameReviewCohortMember struct {
 func (repo *dynamoRepository) GetGameReviewCohort(id string) (*GameReviewCohort, error) {
 	input := dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
-			"type": {S: aws.String("GAM_REIVEW_COHORT")},
+			"type": {S: aws.String("GAME_REVIEW_COHORT")},
 			"id":   {S: aws.String(id)},
 		},
 		TableName: aws.String(liveClassesTable),

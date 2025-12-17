@@ -75,6 +75,9 @@ export interface Event {
      * Only relevant for game & profile review tier events.
      */
     gameReviewCohort?: GameReviewCohort;
+
+    /** The discord channel of the event, if one exists. Currently this is only set on lecture tier events. */
+    discordChannelId?: string;
 }
 
 export enum TournamentType {

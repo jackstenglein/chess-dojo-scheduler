@@ -172,6 +172,7 @@ functions:
         Resource:
           - ${param:EventsTableArn}
           - ${param:UsersTableArn}
+          - ${param:LiveClassesTableArn}
 
   list:
     handler: list/main.go
