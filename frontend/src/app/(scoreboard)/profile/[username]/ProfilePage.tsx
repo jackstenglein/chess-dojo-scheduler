@@ -150,7 +150,8 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                                 aria-label='profile tabs'
                                 variant='scrollable'
                             >
-                                {getSubscriptionTier(user) === SubscriptionTier.GameReview && (
+                                {(getSubscriptionTier(user) === SubscriptionTier.GameReview ||
+                                    getSubscriptionTier(user) === SubscriptionTier.Lecture) && (
                                     <ProfileTab
                                         label={
                                             <Stack direction='row' alignItems='center'>

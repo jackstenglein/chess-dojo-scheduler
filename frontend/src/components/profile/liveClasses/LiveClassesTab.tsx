@@ -4,12 +4,23 @@ import { Link } from '@/components/navigation/Link';
 import { getConfig } from '@/config';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
+import {
+    getSubscriptionTier,
+    SubscriptionTier,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import { GameReviewCohort } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import { Divider, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { GameReviewCohortQueue } from './GameReviewCohortQueue';
 
 export function LiveClassesTab({ user }: { user: User }) {
+    if (getSubscriptionTier(user) === SubscriptionTier.GameReview) {
+        return <GameReviewSection user={user} />;
+    }
+    return <LectureSection />;
+}
+
+function GameReviewSection({ user }: { user: User }) {
     const request = useRequest<GameReviewCohort>();
 
     useEffect(() => {
@@ -87,11 +98,13 @@ export function LiveClassesTab({ user }: { user: User }) {
             </Typography>
 
             <Typography variant='h6' mt={2}>
-                Calendar
+                Joining Classes
             </Typography>
             <Typography color='textSecondary'>
                 You can find all the Game & Profile Review sessions (as well as the larger group
-                classes) on the <Link href='/calendar'>calendar</Link>.
+                classes) on the <Link href='/calendar'>calendar</Link>. All classes will be
+                conducted through Google Meet. To join, simply click the meeting link in the event
+                details on the calendar. You don't need to download any software ahead of time.
             </Typography>
 
             <Typography variant='h6' mt={2}>
@@ -115,6 +128,53 @@ export function LiveClassesTab({ user }: { user: User }) {
                 gameReviewCohort={gameReviewCohort}
                 setGameReviewCohort={request.onSuccess}
             />
+        </Stack>
+    );
+}
+
+function LectureSection() {
+    return (
+        <Stack>
+            <Typography variant='h5'>Group Classes</Typography>
+            <Divider />
+
+            <Typography variant='h6' mt={2}>
+                Classes
+            </Typography>
+            <Typography color='textSecondary'>
+                The group classes are larger, lecture-style classes. You can join any of the
+                classes, although material will be designed for the rating range listed in each
+                class description.
+            </Typography>
+
+            <Typography variant='h6' mt={2}>
+                Joining Classes
+            </Typography>
+            <Typography color='textSecondary'>
+                You can find all the classes on the <Link href='/calendar'>calendar</Link>. All
+                classes will be conducted through Google Meet. To join, simply click the meeting
+                link in the event details on the calendar. You don't need to download any software
+                ahead of time.
+            </Typography>
+
+            <Typography variant='h6' mt={2}>
+                Recordings
+            </Typography>
+            <Typography color='textSecondary'>
+                All classes are recorded. You can view the recordings{' '}
+                <Link href='/material/live-classes'>here</Link>. Note that it may take a few hours
+                after a class for the recording to be available.
+            </Typography>
+
+            <Typography variant='h6' mt={2}>
+                Communicating with Peers
+            </Typography>
+            <Typography color='textSecondary'>
+                Each class has its own Discord channel to handle organizational questions and to
+                allow you to discuss with your peers. For example, we will use these channels to
+                share sparring positions and you can schedule with other players to play them. You
+                can find these channels in the event details on the calendar.
+            </Typography>
         </Stack>
     );
 }
