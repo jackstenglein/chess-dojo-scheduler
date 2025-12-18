@@ -1,10 +1,13 @@
 import { GameReviewCohort } from '../liveClasses/api';
+import { Comment } from './timeline';
 
 export enum EventType {
     Availability = 'AVAILABILITY',
     Dojo = 'DOJO',
     LigaTournament = 'LIGA_TOURNAMENT',
     Coaching = 'COACHING',
+    LectureTier = 'LECTURE_TIER',
+    GameReviewTier = 'GAME_REVIEW_TIER',
 }
 
 export interface Event {

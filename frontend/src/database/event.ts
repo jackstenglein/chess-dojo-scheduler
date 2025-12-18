@@ -1,15 +1,7 @@
-import { Event } from '@jackstenglein/chess-dojo-common/src/database/event';
+import { Event, EventType } from '@jackstenglein/chess-dojo-common/src/database/event';
 
+export { EventType };
 export type { Event };
-
-export enum EventType {
-    Availability = 'AVAILABILITY',
-    Dojo = 'DOJO',
-    LigaTournament = 'LIGA_TOURNAMENT',
-    Coaching = 'COACHING',
-    LectureTier = 'LECTURE_TIER',
-    GameReviewTier = 'GAME_REVIEW_TIER',
-}
 
 export enum CalendarSessionType {
     AllSessions = 'ALL_SESSIONS',

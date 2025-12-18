@@ -5,7 +5,7 @@ import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useCache } from '@/api/cache/Cache';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString, toRRuleDate } from '@/components/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import Field from '@/components/calendar/eventViewer/Field';
 import ParticipantsList from '@/components/calendar/eventViewer/ParticipantsList';
 import { Link } from '@/components/navigation/Link';
@@ -154,15 +154,9 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
     let dates: Date[] = [];
     if (meeting.rrule) {
         const options = RRule.parseString(meeting.rrule);
-        options.dtstart = toRRuleDate(new Date(meeting.startTime));
         const rrule = new RRule(options);
         if (!options.count && !options.until) {
-            dates = rrule.between(
-                toRRuleDate(new Date()),
-                datetime(2050, 0, 1),
-                true,
-                (_, i: number) => i < 4,
-            );
+            dates = rrule.between(new Date(), datetime(2050, 0, 1), true, (_, i: number) => i < 4);
         } else {
             dates = rrule.all();
         }

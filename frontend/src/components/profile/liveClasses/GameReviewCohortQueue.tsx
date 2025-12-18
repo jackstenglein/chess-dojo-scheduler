@@ -1,7 +1,7 @@
 import { pauseQueueDate, resetQueueDate } from '@/api/liveClassesApi';
 import { useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { toDojoDateString, toDojoTimeString, toRRuleDate } from '@/components/calendar/displayDate';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import Avatar from '@/profile/Avatar';
 import {
@@ -122,40 +122,65 @@ export function GameReviewCohortQueue({
                                 </TableCell>
 
                                 <TableCell>
-                                    {toDojoDateString(new Date(queueDate), user?.timezoneOverride)}
+                                    {toDojoDateString(queueDate, user?.timezoneOverride)}
                                     {' • '}
                                     {toDojoTimeString(
-                                        new Date(queueDate),
+                                        queueDate,
                                         user?.timezoneOverride,
                                         user?.timeFormat,
                                     )}
                                 </TableCell>
 
                                 <TableCell>
-                                    {member.paused
-                                        ? '-'
-                                        : peerReviewDate
-                                          ? toDojoDateString(
-                                                new Date(peerReviewDate),
+                                    {member.paused ? (
+                                        '-'
+                                    ) : peerReviewDate ? (
+                                        <>
+                                            {toDojoDateString(
+                                                peerReviewDate,
                                                 user?.timezoneOverride,
-                                            )
-                                          : '?'}
+                                            )}
+                                            {' • '}
+                                            {toDojoTimeString(
+                                                peerReviewDate,
+                                                user?.timezoneOverride,
+                                                user?.timeFormat,
+                                            )}
+                                        </>
+                                    ) : (
+                                        '?'
+                                    )}
                                 </TableCell>
 
                                 <TableCell>
-                                    {member.paused
-                                        ? '-'
-                                        : senseiReviewDate
-                                          ? toDojoDateString(
-                                                new Date(senseiReviewDate),
+                                    {member.paused ? (
+                                        '-'
+                                    ) : senseiReviewDate ? (
+                                        <>
+                                            {toDojoDateString(
+                                                senseiReviewDate,
                                                 user?.timezoneOverride,
-                                            )
-                                          : '?'}
+                                            )}
+                                            {' • '}
+                                            {toDojoTimeString(
+                                                senseiReviewDate,
+                                                user?.timezoneOverride,
+                                                user?.timeFormat,
+                                            )}
+                                        </>
+                                    ) : (
+                                        '?'
+                                    )}
                                 </TableCell>
 
                                 <TableCell>
                                     {user?.isAdmin && (
-                                        <>
+                                        <Stack
+                                            direction='row'
+                                            gap={2}
+                                            flexWrap={'wrap'}
+                                            alignItems='center'
+                                        >
                                             <PauseButton
                                                 member={member}
                                                 onClickPause={onPause}
@@ -166,11 +191,10 @@ export function GameReviewCohortQueue({
                                                 variant='contained'
                                                 onClick={() => onMoveToBottom(member.username)}
                                                 disabled={request.isLoading()}
-                                                sx={{ ml: 2 }}
                                             >
                                                 Move to Bottom
                                             </Button>
-                                        </>
+                                        </Stack>
                                     )}
                                     {user?.username === member.username && !user.isAdmin && (
                                         <PauseButton
@@ -228,23 +252,30 @@ function getDatesByUser(
     }
 
     let options = RRule.parseString(gameReviewCohort.peerReviewEvent.rrule);
-    options.dtstart = toRRuleDate(new Date(gameReviewCohort.peerReviewEvent.startTime));
     const peerReviewRRule = new RRule(options);
     const peerReviewDates = peerReviewRRule.between(
-        toRRuleDate(peerReviewStart),
+        peerReviewStart,
         datetime(2050, 1, 1),
         false,
         (_: Date, i: number) => i < reviewQueue.length,
     );
 
     options = RRule.parseString(gameReviewCohort.senseiReviewEvent.rrule);
-    options.dtstart = toRRuleDate(new Date(gameReviewCohort.senseiReviewEvent.startTime));
     const senseiReviewRule = new RRule(options);
     const senseiReviewDates = senseiReviewRule.between(
-        toRRuleDate(new Date()),
+        new Date(),
         datetime(2050, 1, 1),
         !queueResetToday,
-        (_, i) => i < reviewQueue.length + 1,
+        (_, i) => i < reviewQueue.length,
+    );
+
+    console.log(
+        'Peer Review Dates: ',
+        peerReviewDates.map((d) => d.toISOString()),
+    );
+    console.log(
+        'Sensei Review Dates: ',
+        senseiReviewDates.map((d) => d.toISOString()),
     );
 
     let i = 0;
