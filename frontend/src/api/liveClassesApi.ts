@@ -38,6 +38,11 @@ export function getRecording(request: GetRecordingRequest) {
     });
 }
 
+/**
+ * Fetches a specific game review cohort.
+ * @param request The get game review cohort request.
+ * @returns The game review cohort specified in the request.
+ */
 export function getGameReviewCohort(request: GetGameReviewCohortRequest) {
     return axios.get<GameReviewCohortResponse>(`/public/game-review-cohort/${request.id}`, {
         functionName: 'getGameReviewCohort',

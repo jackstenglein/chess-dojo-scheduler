@@ -1,4 +1,4 @@
-import { useApi } from '@/api/Api';
+import { getGameReviewCohort } from '@/api/liveClassesApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { Link } from '@/components/navigation/Link';
 import { getConfig } from '@/config';
@@ -10,23 +10,20 @@ import { useEffect } from 'react';
 import { GameReviewCohortQueue } from './GameReviewCohortQueue';
 
 export function LiveClassesTab({ user }: { user: User }) {
-    const api = useApi();
     const request = useRequest<GameReviewCohort>();
 
     useEffect(() => {
         if (!request.isSent() && user.gameReviewCohortId) {
             request.onStart();
-            api.getGameReviewCohort({ id: user.gameReviewCohortId })
+            getGameReviewCohort({ id: user.gameReviewCohortId })
                 .then((resp) => {
-                    console.log(`getGameReviewCohort: `, resp.data);
                     request.onSuccess(resp.data.gameReviewCohort);
                 })
                 .catch((err: unknown) => {
-                    console.error(`getGameReviewCohort: `, err);
                     request.onFailure(err);
                 });
         }
-    }, [request, user.gameReviewCohortId, api]);
+    }, [request, user.gameReviewCohortId]);
 
     if (!user.gameReviewCohortId) {
         return (

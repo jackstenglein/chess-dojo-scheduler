@@ -1,3 +1,4 @@
+import { Event } from '@jackstenglein/chess-dojo-common/src/database/event';
 import {
     GameReviewCohort,
     getGameReviewCohortRequestSchema,
@@ -10,6 +11,8 @@ import {
     success,
 } from '../directoryService/api';
 import { GetItemBuilder, LIVE_CLASSES_TABLE } from '../directoryService/database';
+
+const EVENTS_TABLE = `${process.env.stage}-events`;
 
 /**
  * Returns the game review cohort with the given id.
@@ -31,6 +34,21 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 publicMessage: `No game review cohort found with id: ${request.id}`,
             });
         }
+
+        if (gameReviewCohort.senseiReviewEventId) {
+            gameReviewCohort.senseiReviewEvent = await new GetItemBuilder<Event>()
+                .key('id', gameReviewCohort.senseiReviewEventId)
+                .table(EVENTS_TABLE)
+                .send();
+        }
+
+        if (gameReviewCohort.peerReviewEventId) {
+            gameReviewCohort.peerReviewEvent = await new GetItemBuilder<Event>()
+                .key('id', gameReviewCohort.peerReviewEventId)
+                .table(EVENTS_TABLE)
+                .send();
+        }
+
         return success({ gameReviewCohort });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);

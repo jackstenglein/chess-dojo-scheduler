@@ -16,6 +16,12 @@ type GameReviewCohort struct {
 	DiscordChannelId string `dynamodbav:"discordChannelId" json:"discordChannelId"`
 	// The members of this cohort.
 	Members map[string]GameReviewCohortMember `dynamodbav:"members" json:"members"`
+	// The id of the calendar event for the peer review session.
+	PeerReviewEventId string `dynamodbav:"peerReviewEventId" json:"peerReviewEventId"`
+	// The id of the calendar event for the sensei review session
+	SenseiReviewEventId string `dynamodbav:"senseiReviewEventId" json:"senseiReviewEventId"`
+	// The date the queue order of a member was last reset.
+	QueueLastResetAt string `dynamodbav:"queueLastResetAt" json:"queueLastResetAt"`
 }
 
 type GameReviewCohortMember struct {

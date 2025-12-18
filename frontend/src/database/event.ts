@@ -1,5 +1,6 @@
-import { Comment } from '@jackstenglein/chess-dojo-common/src/database/timeline';
-import { GameReviewCohort } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
+import { Event } from '@jackstenglein/chess-dojo-common/src/database/event';
+
+export type { Event };
 
 export enum EventType {
     Availability = 'AVAILABILITY',
@@ -18,66 +19,6 @@ export enum CalendarSessionType {
     CoachingSessions = 'COACHING_SESSIONS',
     Lectures = 'LECTURE_TIER',
     GameReviews = 'GAME_REVIEW_TIER',
-}
-
-export interface Event {
-    id: string;
-    type: EventType;
-    owner: string;
-    ownerDisplayName: string;
-    ownerCohort: string;
-    ownerPreviousCohort: string;
-    title: string;
-    startTime: string;
-    endTime: string;
-    types?: AvailabilityType[];
-    bookedStartTime: string;
-    bookedType: AvailabilityType;
-    cohorts: string[];
-    status: EventStatus;
-    location: string;
-    description: string;
-    maxParticipants: number;
-    participants: Record<string, Participant>;
-    /** A list of users invited to the event. */
-    invited?: Participant[];
-    /** Whether the event can only be booked by people invited. */
-    inviteOnly?: boolean;
-    discordMessageId: string;
-    privateDiscordEventId: string;
-
-    /** Whether to hide the Event from the public Discord server. */
-    hideFromPublicDiscord: boolean;
-
-    /** The ID of the public Discord guild event for this Event. */
-    publicDiscordEventId: string;
-
-    /** The LigaTournament information for this event. Only present for LigaTournaments. */
-    ligaTournament?: LigaTournament;
-
-    /** The coaching information for this event. Only present for EventType.Coaching. */
-    coaching?: Coaching;
-
-    /** Messages on the meeting. */
-    messages?: Comment[];
-
-    /** The recurrence rule of the event, as a string. */
-    rrule?: string;
-
-    /** The color of the event. */
-    color?: string;
-
-    /** The ID of the game review cohort of the event. Only relevant for game & profile review tier events. */
-    gameReviewCohortId?: string;
-
-    /**
-     * The game review cohort of the event. Populated in output only and will not be saved to the database.
-     * Only relevant for game & profile review tier events.
-     */
-    gameReviewCohort?: GameReviewCohort;
-
-    /** The discord channel of the event, if one exists. Currently this is only set on lecture tier events. */
-    discordChannelId?: string;
 }
 
 export enum TournamentType {

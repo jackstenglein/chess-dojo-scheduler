@@ -104,7 +104,9 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: !GetAtt LiveClassesTable.Arn
+        Resource:
+          - !GetAtt LiveClassesTable.Arn
+          - ${param:EventsTableArn}
 
   resetQueueDate:
     handler: admin/resetQueueDate.handler

@@ -42,6 +42,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 .key('type', 'GAME_REVIEW_COHORT')
                 .key('id', request.id)
                 .set(['members', request.username, 'queueDate'], new Date().toISOString())
+                .set('queueLastResetAt', new Date().toISOString())
                 .condition(attributeExists(['members', request.username]))
                 .return('ALL_NEW')
                 .table(LIVE_CLASSES_TABLE)

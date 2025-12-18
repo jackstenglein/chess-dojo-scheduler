@@ -1,3 +1,5 @@
+import { GameReviewCohort } from '../liveClasses/api';
+
 export enum EventType {
     Availability = 'AVAILABILITY',
     Dojo = 'DOJO',
@@ -48,6 +50,21 @@ export interface Event {
 
     /** The recurrence rule of the event, as a string. */
     rrule?: string;
+
+    /** The color of the event. */
+    color?: string;
+
+    /** The ID of the game review cohort of the event. Only relevant for game & profile review tier events. */
+    gameReviewCohortId?: string;
+
+    /**
+     * The game review cohort of the event. Populated in output only and will not be saved to the database.
+     * Only relevant for game & profile review tier events.
+     */
+    gameReviewCohort?: GameReviewCohort;
+
+    /** The discord channel of the event, if one exists. Currently this is only set on lecture tier events. */
+    discordChannelId?: string;
 }
 
 export enum AvailabilityType {

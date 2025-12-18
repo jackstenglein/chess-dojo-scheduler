@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Event } from '../database/event';
 import { SubscriptionTier } from '../database/user';
 
 /** Matches the S3 key of a live class recording. */
@@ -42,6 +43,16 @@ export interface GameReviewCohort {
     discordChannelId: string;
     /** The members of the cohort. */
     members: Record<string, GameReviewCohortMember>;
+    /** The id of the calendar event for the peer review session. */
+    peerReviewEventId: string;
+    /** The peer review event. Output only, will not be saved to the database. */
+    peerReviewEvent?: Event;
+    /** The id of the calendar event for the sensei review session. */
+    senseiReviewEventId: string;
+    /** The sensei review event. Output only, will not be saved to the database. */
+    senseiReviewEvent?: Event;
+    /** The date the queue order of a member was last reset. */
+    queueLastResetAt?: string;
 }
 
 export interface GameReviewCohortMember {
