@@ -16,13 +16,13 @@ export interface Event {
     owner: string;
     ownerDisplayName: string;
     ownerCohort: string;
-    ownerPreviousCohort: string;
+    ownerPreviousCohort?: string;
     title: string;
     startTime: string;
     endTime: string;
     types?: AvailabilityType[];
-    bookedStartTime: string;
-    bookedType: AvailabilityType;
+    bookedStartTime?: string;
+    bookedType?: AvailabilityType;
     cohorts: string[];
     status: EventStatus;
     location: string;
@@ -33,14 +33,14 @@ export interface Event {
     invited?: Participant[];
     /** Whether the event can only be booked by people invited. */
     inviteOnly?: boolean;
-    discordMessageId: string;
-    privateDiscordEventId: string;
+    discordMessageId?: string;
+    privateDiscordEventId?: string;
 
     /** Whether to hide the Event from the public Discord server. */
-    hideFromPublicDiscord: boolean;
+    hideFromPublicDiscord?: boolean;
 
     /** The ID of the public Discord guild event for this Event. */
-    publicDiscordEventId: string;
+    publicDiscordEventId?: string;
 
     /** The LigaTournament information for this event. Only present for LigaTournaments. */
     ligaTournament?: LigaTournament;

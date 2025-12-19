@@ -55,16 +55,20 @@ export interface GameReviewCohort {
     queueLastResetAt?: string;
 }
 
-export interface GameReviewCohortMember {
+/** Verifies the shape of a GameReviewCohortMember. */
+const gameReviewCohortMemberSchema = z.object({
     /** The username of the member. */
-    username: string;
+    username: z.string(),
     /** The display name of the member. */
-    displayName: string;
+    displayName: z.string(),
     /** The date the member joined the queue. */
-    queueDate: string;
+    queueDate: z.string(),
     /** Whether the user's queue position is paused. */
-    paused: boolean;
-}
+    paused: z.boolean(),
+});
+
+/** A member of a game review cohort. */
+export type GameReviewCohortMember = z.infer<typeof gameReviewCohortMemberSchema>;
 
 /** Verifies the type of a request to get a game review cohort. */
 export const getGameReviewCohortRequestSchema = z.object({
@@ -105,3 +109,40 @@ export const pauseQueueDateRequestSchema = z.object({
  * unpause.
  */
 export type PauseQueueDateRequest = z.infer<typeof pauseQueueDateRequestSchema>;
+
+/** Verifies the type of a SetGameReviewCohorts request. */
+export const setGameReviewCohortsRequestSchema = z.object({
+    gameReviewCohorts: z
+        .object({
+            /** The id of the game review cohort. Not included for new cohorts. */
+            id: z.string().optional(),
+            /** The name of the game review cohort. */
+            name: z.string(),
+            /** The discord channel ID for the cohort. Not included for new cohorts. */
+            discordChannelId: z.string().optional(),
+            /** The members of the cohort. */
+            members: z.record(z.string(), gameReviewCohortMemberSchema),
+            /**
+             * The id of the calendar event for the peer review session. Not included
+             * for new cohorts or if a new peer review event is being created.
+             */
+            peerReviewEventId: z.string().optional(),
+            /**
+             * The id of the calendar event for the sensei review session. Not included
+             * for new cohorts or if a new sensei review event is being created.
+             */
+            senseiReviewEventId: z.string().optional(),
+            /**
+             * The recurrence rule for the peer review session.
+             */
+            peerReviewRrule: z.string().optional(),
+            /**
+             * The recurrence rule for the sensei review session.
+             */
+            senseiReviewRrule: z.string().optional(),
+        })
+        .array(),
+});
+
+/** A request to set the game review cohorts. */
+export type SetGameReviewCohortsRequest = z.infer<typeof setGameReviewCohortsRequestSchema>;
