@@ -1,6 +1,10 @@
 'use client';
 
-import { listGameReviewCohorts, setGameReviewCohorts } from '@/api/liveClassesApi';
+import {
+    listGameReviewCohorts,
+    ListGameReviewCohortsResponse,
+    setGameReviewCohorts,
+} from '@/api/liveClassesApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { getTimeZonedDate } from '@/components/calendar/displayDate';
@@ -9,7 +13,10 @@ import { getConfig } from '@/config';
 import { TimeFormat } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import Avatar from '@/profile/Avatar';
-import { GameReviewCohort } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
+import {
+    GameReviewCohort,
+    GameReviewCohortMember,
+} from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import { Add } from '@mui/icons-material';
 import {
     Button,
@@ -38,7 +45,8 @@ interface EditableGameReviewCohort extends GameReviewCohort {
 
 export function AdminGameReviewCohorts() {
     const { user } = useAuth();
-    const request = useRequest<GameReviewCohort[]>();
+    const request = useRequest<ListGameReviewCohortsResponse>();
+    const [unassignedUsers, setUnassignedUsers] = useState<GameReviewCohortMember[]>([]);
     const [editor, setEditor] = useState<EditableGameReviewCohort[]>([]);
     const [moving, setMoving] = useState<{
         anchorElement: HTMLElement;
@@ -53,8 +61,9 @@ export function AdminGameReviewCohorts() {
             request.onStart();
             listGameReviewCohorts()
                 .then((resp) => {
-                    request.onSuccess(resp.data.gameReviewCohorts);
+                    request.onSuccess(resp.data);
                     setEditor(resp.data.gameReviewCohorts);
+                    setUnassignedUsers(resp.data.unassignedUsers);
                 })
                 .catch((err) => request.onFailure(err));
         }
@@ -125,18 +134,35 @@ export function AdminGameReviewCohorts() {
         if (!moving) {
             return;
         }
-        const newEditor = [...editor];
-        const member = newEditor[moving.sourceIndex].members[moving.member];
 
-        newEditor[targetIndex] = { ...newEditor[targetIndex] };
-        newEditor[targetIndex].members[member.username] = member;
-        newEditor[moving.sourceIndex] = {
-            ...newEditor[moving.sourceIndex],
-            members: Object.fromEntries(
-                Object.entries(newEditor[moving.sourceIndex].members).filter(
-                    (m) => m[0] !== member.username,
+        const newEditor = [...editor];
+        let member: GameReviewCohortMember;
+
+        if (moving.sourceIndex < 0) {
+            const userIndex = unassignedUsers.findIndex((u) => u.username === moving.member);
+            if (userIndex < 0) {
+                return;
+            }
+            member = unassignedUsers[userIndex];
+            setUnassignedUsers([
+                ...unassignedUsers.slice(0, userIndex),
+                ...unassignedUsers.slice(userIndex + 1),
+            ]);
+        } else {
+            member = newEditor[moving.sourceIndex].members[moving.member];
+            newEditor[moving.sourceIndex] = {
+                ...newEditor[moving.sourceIndex],
+                members: Object.fromEntries(
+                    Object.entries(newEditor[moving.sourceIndex].members).filter(
+                        (m) => m[0] !== member.username,
+                    ),
                 ),
-            ),
+            };
+        }
+
+        newEditor[targetIndex] = {
+            ...newEditor[targetIndex],
+            members: { ...newEditor[targetIndex].members, [member.username]: member },
         };
 
         setEditor(newEditor);
@@ -207,7 +233,10 @@ export function AdminGameReviewCohorts() {
             })),
         })
             .then((resp) => {
-                request.onSuccess(resp.data.gameReviewCohorts);
+                request.onSuccess({
+                    gameReviewCohorts: resp.data.gameReviewCohorts,
+                    unassignedUsers,
+                });
                 setEditor(resp.data.gameReviewCohorts);
                 saveRequest.onSuccess();
             })
@@ -216,9 +245,14 @@ export function AdminGameReviewCohorts() {
 
     const onReset = () => {
         if (request.data) {
-            setEditor(request.data);
+            setEditor(request.data.gameReviewCohorts);
+            setUnassignedUsers(request.data.unassignedUsers);
+            setErrors({});
         }
     };
+
+    console.log('Editor: ', editor);
+    console.log('Request.data: ', request.data);
 
     return (
         <Container sx={{ py: 5 }}>
@@ -226,6 +260,41 @@ export function AdminGameReviewCohorts() {
             <RequestSnackbar request={saveRequest} />
 
             <Stack spacing={2}>
+                <Card variant='outlined'>
+                    <CardHeader title='Unassigned Users' />
+                    <CardContent>
+                        <Stack spacing={1} mt={1}>
+                            {unassignedUsers.map((m) => (
+                                <Stack key={m.username} direction='row' alignItems='center'>
+                                    <Avatar
+                                        username={m.username}
+                                        displayName={m.displayName}
+                                        size={30}
+                                    />
+                                    <Link
+                                        href={`/profile/${m.username}`}
+                                        target='_blank'
+                                        ml={1}
+                                        mr={3}
+                                    >
+                                        {m.displayName}
+                                    </Link>
+
+                                    <Button
+                                        variant='outlined'
+                                        onClick={(e) => onStartMove(e, -1, m.username)}
+                                    >
+                                        Move
+                                    </Button>
+                                </Stack>
+                            ))}
+                            {unassignedUsers.length === 0 && (
+                                <Typography>No unassigned users</Typography>
+                            )}
+                        </Stack>
+                    </CardContent>
+                </Card>
+
                 {editor.map((grc, i) => (
                     <Card
                         key={`${grc.id}-${i}`}
@@ -390,7 +459,7 @@ export function AdminGameReviewCohorts() {
                         variant='outlined'
                         color='error'
                         onClick={onReset}
-                        disabled={editor === request.data}
+                        disabled={editor === request.data?.gameReviewCohorts}
                     >
                         Reset Changes
                     </Button>
@@ -407,7 +476,6 @@ export function AdminGameReviewCohorts() {
                     onClose={() => setMoving(undefined)}
                     anchorEl={moving?.anchorElement}
                 >
-                    <MenuItem>Unassigned</MenuItem>
                     {editor.map((grc, i) => (
                         <MenuItem
                             key={`${grc.id}-${i}`}

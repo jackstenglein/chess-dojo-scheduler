@@ -1,5 +1,7 @@
+import { User } from '@/database/user';
 import {
     GameReviewCohort,
+    GameReviewCohortMember,
     GetGameReviewCohortRequest,
     GetRecordingRequest,
     LiveClass,
@@ -77,13 +79,34 @@ export function pauseQueueDate(request: PauseQueueDateRequest) {
     );
 }
 
+export interface ListGameReviewCohortsResponse {
+    gameReviewCohorts: GameReviewCohort[];
+    unassignedUsers: GameReviewCohortMember[];
+}
+
 /**
  * Fetches a list of all game review cohorts.
  */
-export function listGameReviewCohorts() {
-    return axios.get<{ gameReviewCohorts: GameReviewCohort[] }>(`/admin/game-review-cohorts`, {
+export async function listGameReviewCohorts(): Promise<
+    AxiosResponse<ListGameReviewCohortsResponse>
+> {
+    const response = await axios.get<{
+        gameReviewCohorts: GameReviewCohort[];
+        unassignedUsers: User[];
+    }>(`/admin/game-review-cohorts`, {
         functionName: 'listGameReviewCohorts',
     });
+    return {
+        ...response,
+        data: {
+            ...response.data,
+            unassignedUsers: response.data.unassignedUsers.map((u) => ({
+                username: u.username,
+                displayName: u.displayName,
+                queueDate: u.createdAt,
+            })),
+        },
+    };
 }
 
 export function setGameReviewCohorts(request: SetGameReviewCohortsRequest) {
