@@ -38,9 +38,9 @@ import { Frequency, RRule } from 'rrule';
 interface EditableGameReviewCohort extends GameReviewCohort {
     editDiscordChannelId?: string;
     editPeerReviewTime?: DateTime | null;
-    editPeerReviewGoogleMeetUrl?: string;
+    peerReviewGoogleMeetUrl?: string;
     editSenseiReviewTime?: DateTime | null;
-    editSenseiReviewGoogleMeetUrl?: string;
+    senseiReviewGoogleMeetUrl?: string;
 }
 
 export function AdminGameReviewCohorts() {
@@ -102,10 +102,9 @@ export function AdminGameReviewCohorts() {
             ...e.slice(0, i),
             {
                 ...e[i],
-                editPeerReviewGoogleMeetUrl:
-                    type === 'peer' ? value : e[i].editPeerReviewGoogleMeetUrl,
-                editSenseiReviewGoogleMeetUrl:
-                    type === 'sensei' ? value : e[i].editPeerReviewGoogleMeetUrl,
+                peerReviewGoogleMeetUrl: type === 'peer' ? value : e[i].peerReviewGoogleMeetUrl,
+                senseiReviewGoogleMeetUrl:
+                    type === 'sensei' ? value : e[i].senseiReviewGoogleMeetUrl,
             },
             ...e.slice(i + 1),
         ]);
@@ -183,7 +182,7 @@ export function AdminGameReviewCohorts() {
             if (!editor[i].peerReviewEventId && !editor[i].editPeerReviewTime) {
                 newErrors[i] = { ...newErrors[i], peerReviewTime: 'This field is required' };
             }
-            if (!editor[i].peerReviewEventId && !editor[i].editPeerReviewGoogleMeetUrl) {
+            if (!editor[i].peerReviewEventId && !editor[i].peerReviewGoogleMeetUrl) {
                 newErrors[i] = {
                     ...newErrors[i],
                     peerReviewGoogleMeetUrl: 'This field is required',
@@ -193,7 +192,7 @@ export function AdminGameReviewCohorts() {
             if (!editor[i].senseiReviewEventId && !editor[i].editSenseiReviewTime) {
                 newErrors[i] = { ...newErrors[i], senseiReviewTime: 'This field is required' };
             }
-            if (!editor[i].senseiReviewEventId && !editor[i].editSenseiReviewGoogleMeetUrl) {
+            if (!editor[i].senseiReviewEventId && !editor[i].senseiReviewGoogleMeetUrl) {
                 newErrors[i] = {
                     ...newErrors[i],
                     senseiReviewGoogleMeetUrl: 'This field is required',
@@ -361,7 +360,7 @@ export function AdminGameReviewCohorts() {
 
                                         <TextField
                                             label='Peer Review Google Meet URL'
-                                            value={grc.editPeerReviewGoogleMeetUrl || ''}
+                                            value={grc.peerReviewGoogleMeetUrl || ''}
                                             onChange={(e) =>
                                                 onChangeMeetUrl(i, 'peer', e.target.value)
                                             }
@@ -399,7 +398,7 @@ export function AdminGameReviewCohorts() {
                                         />
                                         <TextField
                                             label='Sensei Review Google Meet URL'
-                                            value={grc.editSenseiReviewGoogleMeetUrl || ''}
+                                            value={grc.senseiReviewGoogleMeetUrl || ''}
                                             onChange={(e) =>
                                                 onChangeMeetUrl(i, 'sensei', e.target.value)
                                             }
