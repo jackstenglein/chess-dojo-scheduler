@@ -64,7 +64,7 @@ const gameReviewCohortMemberSchema = z.object({
     /** The date the member joined the queue. */
     queueDate: z.string(),
     /** Whether the user's queue position is paused. */
-    paused: z.boolean(),
+    paused: z.boolean().optional(),
 });
 
 /** A member of a game review cohort. */
@@ -128,18 +128,30 @@ export const setGameReviewCohortsRequestSchema = z.object({
              */
             peerReviewEventId: z.string().optional(),
             /**
+             * The recurrence rule for the peer review session. Required if peerReviewEventId
+             * is not included.
+             */
+            peerReviewRrule: z.string().optional(),
+            /**
+             * The Google Meet URL for the peer review session. Required if peerReviewEventId
+             * is not included.
+             */
+            peerReviewGoogleMeetUrl: z.string().optional(),
+            /**
              * The id of the calendar event for the sensei review session. Not included
              * for new cohorts or if a new sensei review event is being created.
              */
             senseiReviewEventId: z.string().optional(),
             /**
-             * The recurrence rule for the peer review session.
-             */
-            peerReviewRrule: z.string().optional(),
-            /**
-             * The recurrence rule for the sensei review session.
+             * The recurrence rule for the sensei review session. Required if senseiReviewEventId
+             * is not included.
              */
             senseiReviewRrule: z.string().optional(),
+            /**
+             * The Google Meet URL for the sensei review session. Required if senseiReviewEventId
+             * is not included.
+             */
+            senseiReviewGoogleMeetUrl: z.string().optional(),
         })
         .array(),
 });

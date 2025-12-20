@@ -5,6 +5,7 @@ import {
     LiveClass,
     PauseQueueDateRequest,
     ResetQueueDateRequest,
+    SetGameReviewCohortsRequest,
 } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import axios, { AxiosResponse } from 'axios';
 
@@ -73,5 +74,22 @@ export function pauseQueueDate(request: PauseQueueDateRequest) {
         `/game-review-cohort/${request.id}/${request.username}/pause`,
         { pause: request.pause },
         { functionName: 'pauseQueueDate' },
+    );
+}
+
+/**
+ * Fetches a list of all game review cohorts.
+ */
+export function listGameReviewCohorts() {
+    return axios.get<{ gameReviewCohorts: GameReviewCohort[] }>(`/admin/game-review-cohorts`, {
+        functionName: 'listGameReviewCohorts',
+    });
+}
+
+export function setGameReviewCohorts(request: SetGameReviewCohortsRequest) {
+    return axios.put<{ gameReviewCohorts: GameReviewCohort[] }>(
+        `/admin/game-review-cohorts`,
+        request,
+        { functionName: 'setGameReviewCohorts' },
     );
 }

@@ -13,6 +13,9 @@ import {
     Client,
     Events,
     GatewayIntentBits,
+    Guild,
+    GuildChannelEditOptions,
+    OverwriteType,
     PermissionFlagsBits,
     TextChannel,
 } from 'discord.js';
@@ -34,6 +37,9 @@ import {
 } from '../../directoryService/database';
 
 const EVENTS_TABLE = `${process.env.stage}-events`;
+const DISCORD_GUILD_ID = process.env.discordPrivateGuildId || '';
+const DISCORD_CATEGORY_ID = process.env.discordLiveClassesCategoryId || '';
+const DISCORD_LIVE_CLASSES_ROLE_ID = process.env.discordLiveClassesRoleId || '';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -49,17 +55,25 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         const request = parseEvent(event, setGameReviewCohortsRequestSchema);
         const cohorts = await handleRequest(request);
-        return success(null);
+        return success({ gameReviewCohorts: cohorts });
     } catch (err) {
         return errToApiGatewayProxyResultV2(err);
     }
 };
 
+/**
+ * Handles updating game review cohorts and related resources
+ * to match the given request. Returns the list of new game review cohorts.
+ */
 async function handleRequest(request: SetGameReviewCohortsRequest) {
     const discordClient = await getDiscordClient();
 
     const newCohorts: GameReviewCohort[] = [];
     for (const cohort of request.gameReviewCohorts) {
+        if (Object.values(cohort.members).length === 0) {
+            continue;
+        }
+
         if (!cohort.id) {
             cohort.id = uuidv4();
         }
@@ -72,22 +86,24 @@ async function handleRequest(request: SetGameReviewCohortsRequest) {
             .return('ALL_NEW')
             .table(LIVE_CLASSES_TABLE);
 
-        if (!cohort.discordChannelId) {
+        if (!cohort.peerReviewEventId) {
+            const eventId = await createPeerReviewEvent(cohort);
+            builder.set('peerReviewEventId', eventId);
+        }
+        if (!cohort.senseiReviewEventId) {
+            const eventId = await createSenseiReviewEvent(cohort);
+            builder.set('senseiReviewEventId', eventId);
+        }
+
+        if (cohort.discordChannelId) {
+            builder.set('discordChannelId', cohort.discordChannelId);
+        } else {
             const discordChannelId = await createDiscordChannel(
                 discordClient,
                 cohort.name,
                 cohort.members,
             );
             builder.set('discordChannelId', discordChannelId);
-        }
-
-        if (!cohort.peerReviewEventId) {
-            const eventId = createPeerReviewEvent(cohort);
-            builder.set('peerReviewEventId', eventId);
-        }
-        if (!cohort.senseiReviewEventId) {
-            const eventId = createSenseiReviewEvent(cohort);
-            builder.set('senseiReviewEventId', eventId);
         }
 
         const newCohort = await builder.send();
@@ -105,13 +121,17 @@ async function handleRequest(request: SetGameReviewCohortsRequest) {
             await updateDiscordChannel(discordClient, cohort.discordChannelId, newCohort);
         }
     }
+
+    return newCohorts;
 }
 
 /**
  * @returns A logged-in and ready discord client.
  */
 async function getDiscordClient() {
-    const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+    const client = new Client({
+        intents: [GatewayIntentBits.Guilds],
+    });
     const readyClientPromise = new Promise<Client<true>>((resolve) => {
         client.once(Events.ClientReady, (readyClient) => resolve(readyClient));
     });
@@ -132,32 +152,24 @@ async function createDiscordChannel(
     name: string,
     members: Record<string, GameReviewCohortMember>,
 ): Promise<string> {
-    const memberIds = await getDiscordIds(Object.values(members).map((m) => m.username));
-    const guild = client.guilds.cache.get('TODO');
+    const guild = client.guilds.cache.get(DISCORD_GUILD_ID);
     if (!guild) {
         throw new ApiError({
             statusCode: 500,
             publicMessage: `Failed to find Discord guild`,
-            privateMessage: `Discord guild ${'TODO'} not found`,
+            privateMessage: `Discord guild ${DISCORD_GUILD_ID} not found`,
         });
     }
 
-    const channel = await guild.channels.create({
+    const createChannelInput = {
         name: name.toLowerCase().replaceAll(' ', '-'),
         type: ChannelType.GuildText,
-        parent: 'TODO',
-        permissionOverwrites: [
-            {
-                id: guild.roles.everyone.id,
-                deny: [PermissionFlagsBits.ViewChannel],
-            },
-            {
-                id: 'TODO',
-                deny: [PermissionFlagsBits.ViewChannel],
-            },
-            ...memberIds.map((id) => ({ id, allow: [PermissionFlagsBits.ViewChannel] })),
-        ],
-    });
+        parent: DISCORD_CATEGORY_ID,
+        permissionOverwrites: await getPermissionOverwrites(client, guild, members),
+    } as const;
+    console.log('Create Channel Input: ', createChannelInput);
+
+    const channel = await guild.channels.create(createChannelInput);
     return channel.id;
 }
 
@@ -168,14 +180,12 @@ async function createDiscordChannel(
  * @param cohort The GameReviewCohort to match.
  */
 async function updateDiscordChannel(client: Client, channelId: string, cohort: GameReviewCohort) {
-    const memberIds = await getDiscordIds(Object.values(cohort.members).map((m) => m.username));
-
-    const guild = client.guilds.cache.get('TODO');
+    const guild = client.guilds.cache.get(DISCORD_GUILD_ID);
     if (!guild) {
         throw new ApiError({
             statusCode: 500,
             publicMessage: `Failed to find Discord guild`,
-            privateMessage: `Discord guild ${'TODO'} not found`,
+            privateMessage: `Discord guild ${DISCORD_GUILD_ID} not found`,
         });
     }
 
@@ -190,18 +200,38 @@ async function updateDiscordChannel(client: Client, channelId: string, cohort: G
 
     await channel.edit({
         name: cohort.name.toLowerCase().replaceAll(' ', '-'),
-        permissionOverwrites: [
-            {
-                id: guild.roles.everyone.id,
-                deny: [PermissionFlagsBits.ViewChannel],
-            },
-            {
-                id: 'TODO',
-                deny: [PermissionFlagsBits.ViewChannel],
-            },
-            ...memberIds.map((id) => ({ id, allow: [PermissionFlagsBits.ViewChannel] })),
-        ],
+        permissionOverwrites: await getPermissionOverwrites(client, guild, cohort.members),
     });
+}
+
+async function getPermissionOverwrites(
+    client: Client,
+    guild: Guild,
+    members: Record<string, GameReviewCohortMember>,
+): Promise<GuildChannelEditOptions['permissionOverwrites']> {
+    const memberIds = await getDiscordIds(Object.values(members).map((m) => m.username));
+    return [
+        {
+            type: OverwriteType.Role,
+            id: guild.roles.everyone.id,
+            deny: [PermissionFlagsBits.ViewChannel],
+        },
+        {
+            type: OverwriteType.Role,
+            id: DISCORD_LIVE_CLASSES_ROLE_ID,
+            deny: [PermissionFlagsBits.ViewChannel],
+        },
+        {
+            type: OverwriteType.Member,
+            id: client.user?.id || '',
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ManageChannels],
+        },
+        ...memberIds.map((id) => ({
+            type: OverwriteType.Member,
+            id,
+            allow: [PermissionFlagsBits.ViewChannel],
+        })),
+    ];
 }
 
 /**
@@ -229,9 +259,9 @@ async function getDiscordIds(usernames: string[]): Promise<string[]> {
         });
     }
 
-    return output.Responses[USER_TABLE].map((data) => unmarshall(data)).map(
-        (user) => user.discordId,
-    );
+    return output.Responses[USER_TABLE].map((data) => unmarshall(data))
+        .map((user) => user.discordId)
+        .filter((id) => id);
 }
 
 /**
@@ -255,10 +285,16 @@ async function createPeerReviewEvent(
             publicMessage: `Unable to create peer review event for cohort ${cohort.name}: rrule is missing`,
         });
     }
+    if (!cohort.peerReviewGoogleMeetUrl) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Unable to create peer review event for cohort ${cohort.name}: Google Meet URL is missing`,
+        });
+    }
     return await createEvent({
         title: `${cohort.name} Peer Review`,
         description: `The peer review session for ${cohort.name}. Reivew a game (or multiple if there is time) from the first user in the review queue that is not paused. Try to improve the existing annotations of the game(s) and develop some questions about what was going on in the game(s). A few days later, you will meet with the sensei and share your perspective and questions.`,
-        location: 'TODO',
+        location: cohort.peerReviewGoogleMeetUrl,
         rrule: cohort.peerReviewRrule,
         cohortId: cohort.id,
     });
@@ -285,10 +321,16 @@ async function createSenseiReviewEvent(
             publicMessage: `Unable to create sensei review event for cohort ${cohort.name}: rrule is missing`,
         });
     }
+    if (!cohort.senseiReviewGoogleMeetUrl) {
+        throw new ApiError({
+            statusCode: 400,
+            publicMessage: `Unable to create sensei review event for cohort ${cohort.name}: Google Meet URL is missing`,
+        });
+    }
     return await createEvent({
         title: `${cohort.name} Sensei Review`,
-        description: `The sensei review session for ${cohort.name}. The sensei will cover the same user from the previous peer review session. The sense will begin by looking at the user's profile, and then look at the game(s) of the user. The sensei will share their perspective on the game and answer the questions the students came up with during the peer review session.`,
-        location: 'TODO',
+        description: `The sensei review session for ${cohort.name}. The sensei will cover the same user from the previous peer review session. The sensei will begin by looking at the user's profile, and then look at the game(s) of the user. The sensei will share their perspective on the game and answer the questions the students came up with during the peer review session.`,
+        location: cohort.senseiReviewGoogleMeetUrl,
         rrule: cohort.senseiReviewRrule,
         cohortId: cohort.id,
     });

@@ -146,6 +146,57 @@ functions:
           - dynamodb:UpdateItem
         Resource: !GetAtt LiveClassesTable.Arn
 
+  setGameReviewCohorts:
+    handler: admin/setGameReviewCohorts.handler
+    events:
+      - httpApi:
+          path: /admin/game-review-cohorts
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordLiveClassesCategoryId: ${file(../config-${sls:stage}.yml):discordLiveClassesCategoryId}
+      discordLiveClassesRoleId: ${file(../config-${sls:stage}.yml):discordLiveClassesRole}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt LiveClassesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - ${param:EventsTableArn}
+
+  listGameReviewCohorts:
+    handler: admin/listGameReviewCohorts.handler
+    events:
+      - httpApi:
+          path: /admin/game-review-cohorts
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt LiveClassesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+
 resources:
   Conditions:
     IsProd: !Equals ['${sls:stage}', 'prod']

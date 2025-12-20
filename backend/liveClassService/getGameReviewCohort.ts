@@ -40,6 +40,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 .key('id', gameReviewCohort.senseiReviewEventId)
                 .table(EVENTS_TABLE)
                 .send();
+            if (gameReviewCohort.senseiReviewEvent) {
+                gameReviewCohort.senseiReviewEvent.location = '';
+            }
         }
 
         if (gameReviewCohort.peerReviewEventId) {
@@ -47,6 +50,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 .key('id', gameReviewCohort.peerReviewEventId)
                 .table(EVENTS_TABLE)
                 .send();
+            if (gameReviewCohort.peerReviewEvent) {
+                gameReviewCohort.peerReviewEvent.location = '';
+            }
         }
 
         return success({ gameReviewCohort });
