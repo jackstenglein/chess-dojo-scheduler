@@ -224,7 +224,11 @@ async function getPermissionOverwrites(
         {
             type: OverwriteType.Member,
             id: client.user?.id || '',
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ManageChannels],
+            allow: [
+                PermissionFlagsBits.ViewChannel,
+                PermissionFlagsBits.ManageChannels,
+                PermissionFlagsBits.ManageRoles,
+            ],
         },
         ...memberIds.map((id) => ({
             type: OverwriteType.Member,
