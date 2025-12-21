@@ -10,5 +10,5 @@ const BASE_URL = getConfig().api.baseUrl;
  * @returns An AxiosResponse containing the list of coaches.
  */
 export function listCoaches() {
-    return axios.get<User[]>(`${BASE_URL}/public/coach`);
+    return axios.get<User[]>(`${BASE_URL}/public/coach`, { functionName: 'listCoaches' });
 }

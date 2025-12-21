@@ -93,6 +93,7 @@ export interface ClubApiContextType {
 export function createClub(idToken: string, club: Partial<Club>) {
     return axios.post<ClubDetails>(`${BASE_URL}/clubs`, club, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'createClub',
     });
 }
 
@@ -106,6 +107,7 @@ export function createClub(idToken: string, club: Partial<Club>) {
 export function updateClub(idToken: string, id: string, update: Partial<Club>) {
     return axios.put<ClubDetails>(`${BASE_URL}/clubs/${id}`, update, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'updateClub',
     });
 }
 
@@ -126,6 +128,7 @@ export async function listClubs(startKey?: string) {
     do {
         const resp = await axios.get<ListClubsResponse>(`${BASE_URL}/public/clubs`, {
             params,
+            functionName: 'listClubs',
         });
 
         result.push(...resp.data.clubs);
@@ -148,6 +151,7 @@ export interface GetClubResponse {
 export function getClub(id: string, scoreboard?: boolean) {
     return axios.get<GetClubResponse>(`${BASE_URL}/public/clubs/${id}`, {
         params: { scoreboard },
+        functionName: 'getClub',
     });
 }
 
@@ -159,6 +163,7 @@ export function getClub(id: string, scoreboard?: boolean) {
 export function batchGetClubs(ids: string[]) {
     return axios.get<Club[]>(`${BASE_URL}/public/clubs/batch`, {
         params: { ids: ids.join(',') },
+        functionName: 'batchGetClubs',
     });
 }
 
@@ -173,7 +178,7 @@ export function joinClub(idToken: string, id: string) {
     return axios.put<GetClubResponse>(
         `${BASE_URL}/clubs/${id}/members`,
         {},
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'joinClub' },
     );
 }
 
@@ -194,7 +199,7 @@ export function requestToJoinClub(idToken: string, id: string, notes: string, us
             cohort: user?.dojoCohort,
             notes,
         },
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'requestToJoinClub' },
     );
 }
 
@@ -215,7 +220,7 @@ export function processJoinRequest(
     return axios.put<GetClubResponse>(
         `${BASE_URL}/clubs/${clubId}/requests/${username}`,
         { status },
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'processJoinRequest' },
     );
 }
 
@@ -228,5 +233,6 @@ export function processJoinRequest(
 export function leaveClub(idToken: string, clubId: string) {
     return axios.delete<ClubDetails>(`${BASE_URL}/clubs/${clubId}/members`, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'leaveClub',
     });
 }

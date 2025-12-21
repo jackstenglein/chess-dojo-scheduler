@@ -65,6 +65,7 @@ export interface ExamApiContextType {
 export function getExam(idToken: string, type: ExamType, id: string) {
     return axios.get<{ exam: Exam; answer?: ExamAnswer }>(`${BASE_URL}/exams/${type}/${id}`, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'getExam',
     });
 }
 
@@ -90,6 +91,7 @@ export async function listExams(idToken: string, type: ExamType, startKey?: stri
             headers: {
                 Authorization: `Bearer ${idToken}`,
             },
+            functionName: 'listExams',
         });
 
         result.push(...resp.data.exams);
@@ -123,6 +125,7 @@ export function putExamAttempt(
         { examType, examId, attempt, index, totalScore },
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'putExamAttempt',
         },
     );
 }
@@ -136,5 +139,6 @@ export function putExamAttempt(
 export function getExamAnswer(idToken: string, id: string) {
     return axios.get<ExamAnswer>(`${BASE_URL}/exams/answers?id=${id}`, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'getExamAnswer',
     });
 }

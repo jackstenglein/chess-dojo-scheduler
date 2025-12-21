@@ -67,6 +67,7 @@ export function getPosition(idToken: string, fen: string) {
     return axios.get<GetExplorerPositionResult>(`${BASE_URL}/explorer/position`, {
         params: { fen },
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'getPosition',
     });
 }
 
@@ -80,7 +81,7 @@ export function followPosition(idToken: string, request: FollowPositionRequest) 
     return axios.put<ExplorerPositionFollower | null>(
         `${BASE_URL}/explorer/position/follower`,
         request,
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'followPosition' },
     );
 }
 
@@ -99,5 +100,6 @@ export interface ListFollowedPositionsResponse {
 export function listFollowedPositions(idToken: string) {
     return axios.get<ListFollowedPositionsResponse>(`${BASE_URL}/explorer/position/follower`, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'listFollowedPositions',
     });
 }

@@ -41,6 +41,7 @@ async function listGraduations(url: string, params: Record<string, string | unde
     do {
         const resp = await axios.get<ListGraduationsResponse>(url, {
             params,
+            functionName: 'listGraduations',
         });
 
         result.push(...resp.data.graduations);

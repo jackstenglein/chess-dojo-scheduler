@@ -163,6 +163,7 @@ export function checkUserAccess(idToken: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'checkUserAccess',
     });
 }
 
@@ -176,6 +177,7 @@ export function getUser(idToken: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'getUser',
     });
 }
 
@@ -185,7 +187,9 @@ export function getUser(idToken: string) {
  * @returns An AxiosResponse containing the requested user.
  */
 export function getUserPublic(username: string) {
-    return axios.get<User>(BASE_URL + '/public/user/' + username);
+    return axios.get<User>(BASE_URL + '/public/user/' + username, {
+        functionName: 'getUserPublic',
+    });
 }
 
 /**
@@ -194,7 +198,9 @@ export function getUserPublic(username: string) {
  * @returns An AxiosResponse containing the list of user summaries.
  */
 export function getUserSummaries(usernames: string[]) {
-    return axios.post<UserSummary[]>(`${BASE_URL}/public/users`, usernames);
+    return axios.post<UserSummary[]>(`${BASE_URL}/public/users`, usernames, {
+        functionName: 'getUserSummaries',
+    });
 }
 
 export interface ListUserTimelineResponse {
@@ -214,6 +220,7 @@ export async function listUserTimeline(owner: string, startKey?: string) {
         `${BASE_URL}/public/user/${owner}/timeline`,
         {
             params,
+            functionName: 'listUserTimeline',
         },
     );
     return resp.data;
@@ -240,6 +247,7 @@ export async function listUsersByCohort(idToken: string, cohort: string, startKe
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'listUsersByCohort',
         });
         result.push(...resp.data.users);
         params.startKey = resp.data.lastEvaluatedKey;
@@ -261,6 +269,7 @@ export async function searchUsers(query: string, fields: string[], startKey?: st
     do {
         const resp = await axios.get<ListUsersResponse>(BASE_URL + '/public/user/search', {
             params,
+            functionName: 'searchUsers',
         });
         result.push(...resp.data.users);
         params.startKey = resp.data.lastEvaluatedKey;
@@ -290,6 +299,7 @@ export async function updateUser(
         params: {
             autopickCohort,
         },
+        functionName: 'updateUser',
     });
     callback(result.data);
     return result;
@@ -334,6 +344,7 @@ export async function updateUserProgress(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'updateUserProgress',
         },
     );
     callback(result.data.user);
@@ -367,6 +378,7 @@ export async function updateUserTimeline(
         headers: {
             Authorization: `Bearer ${idToken}`,
         },
+        functionName: 'updateUserTimeline',
     });
     callback(result.data);
     return result;
@@ -397,6 +409,7 @@ export async function graduate(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'graduate',
         },
     );
     callback(result.data.userUpdate);
@@ -407,7 +420,9 @@ export async function graduate(
  * @returns An AxiosResponse containing the user statistics.
  */
 export function getUserStatistics() {
-    return axios.get<UserStatistics>(BASE_URL + '/public/user/statistics');
+    return axios.get<UserStatistics>(BASE_URL + '/public/user/statistics', {
+        functionName: 'getUserStatistics',
+    });
 }
 
 /**
@@ -421,6 +436,7 @@ export function getFollower(idToken: string, poster: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'getFollower',
     });
 }
 
@@ -439,6 +455,7 @@ export function editFollower(idToken: string, poster: string, action: 'follow' |
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'editFollower',
         },
     );
 }
@@ -457,6 +474,7 @@ export interface ListFollowersResponse {
 export function listFollowers(username: string, startKey?: string) {
     return axios.get<ListFollowersResponse>(`${BASE_URL}/public/user/${username}/followers`, {
         params: { startKey },
+        functionName: 'listFollowers',
     });
 }
 
@@ -469,6 +487,7 @@ export function listFollowers(username: string, startKey?: string) {
 export function listFollowing(username: string, startKey?: string) {
     return axios.get<ListFollowersResponse>(`${BASE_URL}/public/user/${username}/following`, {
         params: { startKey },
+        functionName: 'listFollowing',
     });
 }
 
@@ -484,6 +503,7 @@ export function discordAuth(idToken: string, request: DiscordAuthRequest) {
         request,
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'discordAuth',
         },
     );
 }

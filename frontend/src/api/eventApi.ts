@@ -96,7 +96,7 @@ export function bookEvent(idToken: string, id: string, startTime?: Date, type?: 
             startTime: startTime?.toISOString(),
             type,
         },
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'bookEvent' },
     );
 }
 
@@ -115,6 +115,7 @@ export function getEventCheckout(idToken: string, id: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'getEventCheckout',
     });
 }
 
@@ -132,6 +133,7 @@ export function cancelEvent(idToken: string, id: string) {
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'cancelEvent',
         },
     );
 }
@@ -147,6 +149,7 @@ export function deleteEvent(idToken: string, id: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'deleteEvent',
     });
 }
 
@@ -161,6 +164,7 @@ export function getEvent(idToken: string, id: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'getEvent',
     });
 }
 
@@ -189,6 +193,7 @@ export async function listEvents(idToken: string, startKey?: string) {
                           Authorization: 'Bearer ' + idToken,
                       }
                     : undefined,
+                functionName: 'listEvents',
             },
         );
 
@@ -210,6 +215,7 @@ export function setEvent(idToken: string, event: Partial<Event>) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'setEvent',
     });
 }
 
@@ -239,5 +245,6 @@ export function createMessage(
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'createMessage',
     });
 }

@@ -59,7 +59,9 @@ export interface NewsfeedApiContextType {
  * @returns An AxiosResponse containing the timeline entry.
  */
 export function getNewsfeedItem(owner: string, id: string) {
-    return axios.get<TimelineEntry>(`${BASE_URL}/public/newsfeed/${owner}/${id}`);
+    return axios.get<TimelineEntry>(`${BASE_URL}/public/newsfeed/${owner}/${id}`, {
+        functionName: 'getNewsfeedItem',
+    });
 }
 
 /**
@@ -98,6 +100,7 @@ export function listNewsfeed(
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listNewsfeed',
     });
 }
 
@@ -120,6 +123,7 @@ export function createNewsfeedComment(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'createNewsfeedComment',
         },
     );
 }
@@ -136,6 +140,6 @@ export function setNewsfeedReaction(idToken: string, owner: string, id: string, 
     return axios.put<TimelineEntry>(
         `${BASE_URL}/newsfeed/${owner}/${id}/reactions`,
         { types },
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'setNewsfeedReaction' },
     );
 }

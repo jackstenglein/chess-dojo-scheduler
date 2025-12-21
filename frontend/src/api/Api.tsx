@@ -247,18 +247,25 @@ const config = getConfig();
 
 axios.defaults.baseURL = config.api.baseUrl;
 
-axios.interceptors.request.use(async (config) => {
-    if (!config.url || !config.url.startsWith('/') || config.url.startsWith('/public/')) {
-        return config;
+axios.interceptors.request.use(async (request) => {
+    if (!request.url || !request.url.startsWith('/') || request.url.startsWith('/public/')) {
+        return request;
     }
 
     const authTokens = await fetchAuthSession();
     const idToken = authTokens.tokens?.idToken?.toString();
     if (idToken) {
-        config.headers.Authorization = `Bearer ${idToken}`;
+        request.headers.Authorization = `Bearer ${idToken}`;
     }
 
-    return config;
+    return request;
+});
+
+axios.interceptors.request.use((request) => {
+    if (config.logLevel <= LogLevel.Debug) {
+        console.debug(`${request.functionName ?? 'unnamed function'} request:`, request);
+    }
+    return request;
 });
 
 axios.interceptors.response.use(

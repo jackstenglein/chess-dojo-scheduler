@@ -42,6 +42,7 @@ export async function getScoreboard(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'getScoreboard',
         });
         result.push(...resp.data.data);
         params.startKey = resp.data.lastEvaluatedKey;

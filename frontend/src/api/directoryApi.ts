@@ -145,6 +145,7 @@ export function getDirectory(idToken: string, owner: string, id: string) {
         headers: {
             Authorization: `Bearer ${idToken}`,
         },
+        functionName: 'getDirectory',
     });
 }
 
@@ -161,6 +162,7 @@ export function getDirectoryStats(idToken: string, request: GetDirectoryStatsReq
         headers: {
             Authorization: `Bearer ${idToken}`,
         },
+        functionName: 'getDirectoryStats',
     });
 }
 
@@ -179,6 +181,7 @@ export function listBreadcrumbs(idToken: string, request: ListBreadcrumbsRequest
             headers: {
                 Authorization: `Bearer ${idToken}`,
             },
+            functionName: 'listBreadcrumbs',
         },
     );
 }
@@ -206,6 +209,7 @@ export function createDirectory(idToken: string, request: CreateDirectoryRequest
     const { owner, parent, ...rest } = request;
     return axios.post<CreateDirectoryResponse>(`${BASE_URL}/directory/${owner}/${parent}`, rest, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'createDirectory',
     });
 }
 
@@ -224,6 +228,7 @@ export function updateDirectory(idToken: string, request: UpdateDirectoryRequest
     const { owner, id, ...rest } = request;
     return axios.put<UpdateDirectoryResponse>(`${BASE_URL}/directory/${owner}/${id}`, rest, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'updateDirectory',
     });
 }
 
@@ -239,6 +244,7 @@ export function shareDirectory(idToken: string, request: ShareDirectoryRequest) 
         { access: request.access },
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'shareDirectory',
         },
     );
 }
@@ -258,6 +264,7 @@ export function deleteDirectories(idToken: string, owner: string, ids: string[])
             headers: {
                 Authorization: `Bearer ${idToken}`,
             },
+            functionName: 'deleteDirectories',
         },
     );
 }
@@ -280,6 +287,7 @@ export function addDirectoryItems(idToken: string, request: AddDirectoryItemsReq
         { games: request.games },
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'addDirectoryItems',
         },
     );
 }
@@ -296,6 +304,7 @@ export function removeDirectoryItem(idToken: string, request: RemoveDirectoryIte
         { itemIds: request.itemIds },
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'removeDirectoryItem',
         },
     );
 }
@@ -318,6 +327,7 @@ export interface MoveDirectoryItemsResponse {
 export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsRequestV2) {
     return axios.put<MoveDirectoryItemsResponse>(`${BASE_URL}/directory/items/move/v2`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'moveDirectoryItems',
     });
 }
 
@@ -330,6 +340,7 @@ export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsR
 export function exportDirectory(idToken: string, request: ExportDirectoryRequest) {
     return axios.post<{ id: string }>(`${BASE_URL}/directory/export`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'exportDirectory',
     });
 }
 
@@ -342,5 +353,6 @@ export function exportDirectory(idToken: string, request: ExportDirectoryRequest
 export function checkDirectoryExport(idToken: string, id: string) {
     return axios.get<ExportDirectoryRun>(`${BASE_URL}/directory/export/${id}`, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'checkDirectoryExport',
     });
 }
