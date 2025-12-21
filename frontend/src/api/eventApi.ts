@@ -144,11 +144,8 @@ export function cancelEvent(idToken: string, id: string) {
  * @param id The id of the Event to delete.
  * @returns An AxiosResponse containing the deleted Event.
  */
-export function deleteEvent(idToken: string, id: string) {
-    return axios.delete<Event>(`${BASE_URL}/calendar/${id}`, {
-        headers: {
-            Authorization: 'Bearer ' + idToken,
-        },
+export function deleteEvent(_idToken: string, id: string) {
+    return axios.delete<Event>(`/calendar/${id}`, {
         functionName: 'deleteEvent',
     });
 }
