@@ -86,11 +86,13 @@ export function getCourse(idToken: string, type: string, id: string, checkoutId?
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'getCourse',
         });
     }
 
     return axios.get<GetCourseResponse>(
         `${BASE_URL}/public/courses/${type}/${id}?checkoutId=${checkoutId}`,
+        { functionName: 'getCourse' },
     );
 }
 
@@ -116,6 +118,7 @@ export async function listCourses(idToken: string, type: string, startKey?: stri
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'listCourses',
         });
 
         result.push(...resp.data.courses);
@@ -137,6 +140,7 @@ export async function listAllCourses(startKey?: string) {
     do {
         const resp = await axios.get<ListCoursesResponse>(`${BASE_URL}/public/courses`, {
             params,
+            functionName: 'listAllCourses',
         });
 
         result.push(...resp.data.courses);
@@ -180,6 +184,7 @@ export function purchaseCourse(
     return axios.get<PurchaseCourseResponse>(url, {
         params: { purchaseOption, cancelUrl },
         headers,
+        functionName: 'purchaseCourse',
     });
 }
 
@@ -192,5 +197,6 @@ export function purchaseCourse(
 export function setCourse(idToken: string, course: Course) {
     return axios.put<Course>(`${BASE_URL}/courses`, course, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'setCourse',
     });
 }

@@ -297,9 +297,11 @@ type User struct {
 	// The ids of the user's purchased courses
 	PurchasedCourses map[string]bool `dynamodbav:"purchasedCourses" json:"purchasedCourses"`
 
-	// The user's subscription status. This field matches the value in PaymentInfo.SubscriptionStatus
-	// and exists only to act as a top-level DynamoDB GSI key.
+	// The user's subscription status. This must be a top-level attribute because it is a Dynamo GSI key.
 	SubscriptionStatus SubscriptionStatus `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+
+	// The user's subscription tier. This must be a top-level attribute because it is a Dynamo GSI key.
+	SubscriptionTier SubscriptionTier `dynamodbav:"subscriptionTier,omitempty" json:"subscriptionTier,omitempty"`
 
 	// The user's payment info
 	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo" json:"paymentInfo"`
@@ -341,6 +343,9 @@ type User struct {
 	// A map from puzzle theme to the user's overview stats for that theme. The user's
 	// overall stats will be under the theme OVERALL.
 	Puzzles map[string]PuzzleThemeOverview `dynamodbav:"puzzles,omitempty" json:"puzzles,omitempty"`
+
+	// The id of the user's game review cohort, if they are a member of the Game & Profile Review tier.
+	GameReviewCohortId string `dynamodbav:"gameReviewCohortId,omitempty" json:"gameReviewCohortId,omitempty"`
 }
 
 type PuzzleThemeOverview struct {
@@ -787,6 +792,9 @@ type UserUpdate struct {
 	// The user's subscription status. This field matches the value in PaymentInfo.SubscriptionStatus
 	// and exists only to act as a top-level DynamoDB GSI key. Cannot be passed by the user.
 	SubscriptionStatus *string `dynamodbav:"subscriptionStatus,omitempty" json:"-"`
+
+	// The user's subscription tier. Cannot be passed by the user.
+	SubscriptionTier *string `dynamodbav:"subscriptionTier,omitempty" json:"-"`
 
 	// The user's payment info. This field cannot be manually set by the user.
 	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo,omitempty" json:"-"`

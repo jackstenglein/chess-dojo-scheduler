@@ -59,6 +59,7 @@ export function registerForRoundRobin(idToken: string, request: RoundRobinRegist
         request,
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'registerForRoundRobin',
         },
     );
 }
@@ -72,6 +73,7 @@ export function registerForRoundRobin(idToken: string, request: RoundRobinRegist
 export function withdrawFromRoundRobin(idToken: string, request: RoundRobinWithdrawRequest) {
     return axios.post<RoundRobin>(`${BASE_URL}/tournaments/round-robin/withdraw`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'withdrawFromRoundRobin',
     });
 }
 
@@ -84,6 +86,7 @@ export function withdrawFromRoundRobin(idToken: string, request: RoundRobinWithd
 export function submitRoundRobinGame(idToken: string, request: RoundRobinSubmitGameRequest) {
     return axios.post<RoundRobin>(`${BASE_URL}/tournaments/round-robin/submit-game`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'submitRoundRobinGame',
     });
 }
 
@@ -100,5 +103,6 @@ export interface RoundRobinListResponse {
 export function listRoundRobins(request: RoundRobinListRequest) {
     return axios.get<RoundRobinListResponse>(`${BASE_URL}/public/tournaments/round-robin`, {
         params: request,
+        functionName: 'listRoundRobins',
     });
 }

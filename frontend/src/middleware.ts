@@ -23,6 +23,7 @@ const publicPaths = [
     /^\/clubs$/,
     /^\/games\/.*\/.*$/,
     /^\/profile\/.*\/postmortem\/.*$/,
+    /^\/calendar.*$/,
 ];
 
 const unauthenticatedPaths = [

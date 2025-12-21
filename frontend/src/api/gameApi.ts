@@ -218,6 +218,7 @@ export function createGame(idToken: string, req: CreateGameRequest) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'createGame',
     });
 }
 
@@ -231,7 +232,9 @@ export function getGame(cohort: string, id: string) {
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.get<Game>(`${BASE_URL}/public/game/${cohort}/${id}`);
+    return axios.get<Game>(`${BASE_URL}/public/game/${cohort}/${id}`, {
+        functionName: 'getGame',
+    });
 }
 
 /**
@@ -254,6 +257,7 @@ export function featureGame(idToken: string, cohort: string, id: string, feature
                 featured,
             },
             headers: { Authorization: 'Bearer ' + idToken },
+            functionName: 'featureGame',
         },
     );
 }
@@ -278,6 +282,7 @@ export function updateGame(
 
     return axios.put<Game>(BASE_URL + `/game2/${cohort}/${id}`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'updateGame',
     });
 }
 
@@ -291,6 +296,7 @@ export function updateGame(
 export function deleteGames(idToken: string, request: DeleteGamesRequest) {
     return axios.post<DeleteGamesResponse>(BASE_URL + `/game/delete`, request, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'deleteGames',
     });
 }
 
@@ -323,6 +329,7 @@ export function listGamesByCohort(
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listGamesByCohort',
     });
 }
 
@@ -352,6 +359,7 @@ export function listGamesByOwner(
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listGamesByOwner',
     });
 }
 
@@ -378,6 +386,7 @@ export function listGamesByOpening(
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listGamesByOpening',
     });
 }
 
@@ -402,6 +411,7 @@ export function listGamesByPosition(
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listGamesByPosition',
     });
 }
 
@@ -421,6 +431,7 @@ export async function listFeaturedGames(idToken: string, startKey?: string) {
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'listFeaturedGames',
         });
 
         result.push(...resp.data.games);
@@ -440,6 +451,7 @@ export function listGamesForReview(idToken: string, startKey?: string) {
     return axios.get<ListGamesResponse>(`${BASE_URL}/game/review`, {
         params: { startKey },
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'listGamesForReview',
     });
 }
 
@@ -469,6 +481,7 @@ export function createComment(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'createComment',
         },
     );
 }
@@ -505,6 +518,7 @@ export interface UpdateCommentRequest {
 export function updateComment(idToken: string, update: UpdateCommentRequest) {
     return axios.put<Game>(`${BASE_URL}/game/comment`, update, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'updateComment',
     });
 }
 
@@ -519,6 +533,7 @@ export type DeleteCommentRequest = Omit<UpdateCommentRequest, 'content' | 'sugge
 export function deleteComment(idToken: string, request: DeleteCommentRequest) {
     return axios.put<Game>(`${BASE_URL}/game/comment/delete`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'deleteComment',
     });
 }
 
@@ -552,6 +567,7 @@ export function requestReview(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'requestReview',
         },
     );
 }
@@ -567,7 +583,7 @@ export function markReviewed(idToken: string, cohort: string, id: string) {
     return axios.put<Game>(
         `${BASE_URL}/game/review/admin`,
         { cohort, id, reviewed: true },
-        { headers: { Authorization: `Bearer ${idToken}` } },
+        { headers: { Authorization: `Bearer ${idToken}` }, functionName: 'markReviewed' },
     );
 }
 
@@ -580,6 +596,7 @@ export function markReviewed(idToken: string, cohort: string, id: string) {
 export function mergePgn(idToken: string, request: PgnMergeRequest) {
     return axios.post<Pick<Game, 'cohort' | 'id'>>(`${BASE_URL}/game/merge`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'mergePgn',
     });
 }
 

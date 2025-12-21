@@ -225,6 +225,7 @@ export function getLeaderboard(
             timeControl,
             date,
         },
+        functionName: 'getLeaderboard',
     });
 }
 
@@ -237,6 +238,7 @@ export function getLeaderboard(
 export function getOpenClassical(startsAt?: string) {
     return axios.get<OpenClassical>(`${BASE_URL}/public/tournaments/open-classical`, {
         params: { startsAt },
+        functionName: 'getOpenClassical',
     });
 }
 
@@ -249,6 +251,7 @@ export function getOpenClassical(startsAt?: string) {
 export function registerForOpenClassical(idToken: string, req: OpenClassicalRegistrationRequest) {
     return axios.post<null>(`${BASE_URL}/tournaments/open-classical/register`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'registerForOpenClassical',
     });
 }
 
@@ -264,6 +267,7 @@ export function submitResultsForOpenClassical(
 ) {
     return axios.post<OpenClassical>(`${BASE_URL}/tournaments/open-classical/results`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'submitResultsForOpenClassical',
     });
 }
 
@@ -277,6 +281,7 @@ export function submitResultsForOpenClassical(
 export function putOpenClassicalPairings(idToken: string, req: OpenClassicalPutPairingsRequest) {
     return axios.post<OpenClassical>(`${BASE_URL}/tournaments/open-classical/admin/pairings`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'putOpenClassicalPairings',
     });
 }
 
@@ -299,6 +304,7 @@ export async function listPreviousOpenClassicals(startKey?: string) {
             `${BASE_URL}/public/tournaments/open-classical/previous`,
             {
                 params,
+                functionName: 'listPreviousOpenClassicals',
             },
         );
 
@@ -314,6 +320,7 @@ export function adminGetRegistrations(idToken: string, region: string, section: 
         params: { region, section },
         headers: { Authorization: 'Bearer ' + idToken },
         responseType: 'blob',
+        functionName: 'adminGetRegistrations',
     });
 }
 
@@ -335,6 +342,7 @@ export function adminBanPlayer(idToken: string, username: string, region: string
         },
         {
             headers: { Authorization: 'Bearer ' + idToken },
+            functionName: 'adminBanPlayer',
         },
     );
 }
@@ -349,7 +357,7 @@ export function adminUnbanPlayer(idToken: string, username: string) {
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/unban-player`,
         { username },
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'adminUnbanPlayer' },
     );
 }
 
@@ -369,7 +377,7 @@ export function adminWithdrawPlayer(
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/withdraw-player`,
         { username, region, section },
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'adminWithdrawPlayer' },
     );
 }
 
@@ -394,7 +402,7 @@ export function adminEmailPairings(idToken: string, round: number) {
     return axios.put<OpenClassicalEmailPairingsResponse>(
         `${BASE_URL}/tournaments/open-classical/admin/email-pairings`,
         { round },
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'adminEmailPairings' },
     );
 }
 
@@ -408,7 +416,7 @@ export function adminVerifyResult(idToken: string, request: OpenClassicalVerifyR
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/verify-result`,
         request,
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'adminVerifyResult' },
     );
 }
 
@@ -422,6 +430,9 @@ export function adminCompleteTournament(idToken: string, nextStartDate: string) 
     return axios.put<OpenClassical>(
         `${BASE_URL}/tournaments/open-classical/admin/complete`,
         { nextStartDate },
-        { headers: { Authorization: `Bearer ${idToken}` } },
+        {
+            headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'adminCompleteTournament',
+        },
     );
 }

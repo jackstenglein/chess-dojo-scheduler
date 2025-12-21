@@ -285,8 +285,8 @@ export function ShareTab() {
             a.href = window.URL.createObjectURL(response.data);
             a.dataset.downloadurl = ['application/octet-stream', a.download, a.href].join(':');
             a.click();
-
             pdfRequest.onSuccess();
+            window.URL.revokeObjectURL(a.href);
         } catch (err) {
             console.error('exportPgnPdf: ', err);
             pdfRequest.onFailure(err);

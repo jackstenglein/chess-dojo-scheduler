@@ -24,8 +24,6 @@ import {
     TimeControlType,
 } from '@/database/event';
 import { ALL_COHORTS, isFree, TimeFormat, User } from '@/database/user';
-import LoadingPage from '@/loading/LoadingPage';
-import UpsellAlert from '@/upsell/UpsellAlert';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { Scheduler } from '@jackstenglein/react-scheduler';
 import type { EventRendererProps, SchedulerRef } from '@jackstenglein/react-scheduler/types';
@@ -565,10 +563,6 @@ export default function CalendarPage() {
         );
     }, [calendarRef, weekStartOn, minHour, maxHour]);
 
-    if (!user) {
-        return <LoadingPage />;
-    }
-
     return (
         <Container sx={{ py: 3 }} maxWidth={false}>
             <RequestSnackbar request={request} />
@@ -601,13 +595,6 @@ export default function CalendarPage() {
                     }}
                 >
                     <Stack spacing={3}>
-                        {isFreeTier && (
-                            <UpsellAlert>
-                                Free-tier users can book events but cannot post their own events.
-                                Upgrade your account to add new events to the calendar.
-                            </UpsellAlert>
-                        )}
-
                         <Scheduler
                             ref={calendarRef}
                             agenda={false}

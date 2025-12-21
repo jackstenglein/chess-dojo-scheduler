@@ -47,6 +47,7 @@ export function listNotifications(idToken: string, startKey?: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listNotifications',
     });
 }
 
@@ -61,5 +62,6 @@ export function deleteNotification(idToken: string, id: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'deleteNotification',
     });
 }

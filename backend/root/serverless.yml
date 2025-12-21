@@ -200,6 +200,8 @@ resources:
             AttributeType: S
           - AttributeName: subscriptionStatus
             AttributeType: S
+          - AttributeName: subscriptionTier
+            AttributeType: S
           - AttributeName: discordId
             AttributeType: S
         KeySchema:
@@ -251,6 +253,22 @@ resources:
                 - dojoCohort
                 - updatedAt
                 - minutesSpent
+          - IndexName: SubscriptionTierIdx
+            KeySchema:
+              - AttributeName: subscriptionTier
+                KeyType: HASH
+              - AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - displayName
+                - dojoCohort
+                - discordUsername
+                - discordId
+                - createdAt
+                - updatedAt
+                - gameReviewCohortId
           - IndexName: DiscordIdIdx
             KeySchema:
               - AttributeName: discordId

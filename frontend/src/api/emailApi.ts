@@ -27,7 +27,11 @@ interface SupportTicketResponse {
  * @returns An empty AxiosResponse.
  */
 export function unsubscribeFromDojoDigest(email: string) {
-    return axios.post<null>(`${BASE_URL}/public/dojodigest/unsubscribe`, { email });
+    return axios.post<null>(
+        `${BASE_URL}/public/dojodigest/unsubscribe`,
+        { email },
+        { functionName: 'unsubscribeFromDojoDigest' },
+    );
 }
 
 /**
@@ -40,7 +44,10 @@ export function createSupportTicket(idToken: string, request: SupportTicketReque
     if (idToken) {
         return axios.post<SupportTicketResponse>(`${BASE_URL}/support-ticket`, request, {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'createSupportTicket',
         });
     }
-    return axios.post<SupportTicketResponse>(`${BASE_URL}/public/support-ticket`, request);
+    return axios.post<SupportTicketResponse>(`${BASE_URL}/public/support-ticket`, request, {
+        functionName: 'createSupportTicket',
+    });
 }

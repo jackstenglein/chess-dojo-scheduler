@@ -24,5 +24,7 @@ export interface YearReviewApiContextType {
  * @returns The year review for the given user and year.
  */
 export function getYearReview(username: string, year: string) {
-    return axios.get<YearReview>(`${BASE_URL}/public/yearreview/${username}/${year}`);
+    return axios.get<YearReview>(`${BASE_URL}/public/yearreview/${username}/${year}`, {
+        functionName: 'getYearReview',
+    });
 }

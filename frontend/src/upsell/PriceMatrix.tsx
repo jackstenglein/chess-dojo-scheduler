@@ -251,10 +251,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         children: 'Join Group Classes',
                     }}
                     afterButton={
-                        <Link
-                            target='_blank'
-                            href='https://calendar.google.com/calendar/u/0/embed?src=c_771ab8bd3bcf653ae9cecfe549531b3894a17d052e5986da0bd3e1259e2778fc@group.calendar.google.com&mode=MONTH&dates=20260101/20260131&showPrint=0&showNav=0&showTabs=0&showCalendars=0'
-                        >
+                        <Link target='_blank' href='/calendar'>
                             View Full Class Calendar
                         </Link>
                     }
@@ -302,10 +299,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         children: 'Get Sensei Feedback',
                     }}
                     afterButton={
-                        <Link
-                            target='_blank'
-                            href='https://calendar.google.com/calendar/u/0/embed?src=c_771ab8bd3bcf653ae9cecfe549531b3894a17d052e5986da0bd3e1259e2778fc@group.calendar.google.com&mode=MONTH&dates=20260101/20260131&showPrint=0&showNav=0&showTabs=0&showCalendars=0'
-                        >
+                        <Link target='_blank' href='/calendar'>
                             View Full Class Calendar
                         </Link>
                     }

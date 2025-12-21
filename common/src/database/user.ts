@@ -117,6 +117,9 @@ export interface User {
 
     /** The user's firebase cloud messaging tokens. */
     firebaseTokens?: string[];
+
+    /** The id of the user's game review cohort, if they are a member of the Game & Profile review tier. */
+    gameReviewCohortId?: string;
 }
 
 /**

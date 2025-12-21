@@ -9,12 +9,15 @@ import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displa
 import Field from '@/components/calendar/eventViewer/Field';
 import ParticipantsList from '@/components/calendar/eventViewer/ParticipantsList';
 import { Link } from '@/components/navigation/Link';
+import { GameReviewCohortQueue } from '@/components/profile/liveClasses/GameReviewCohortQueue';
+import { getConfig } from '@/config';
 import { Event, EventStatus, EventType, getDisplayString } from '@/database/event';
-import { User, dojoCohorts } from '@/database/user';
+import { dojoCohorts, User } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import CancelMeetingButton from '@/meeting/CancelMeetingButton';
 import MeetingMessages from '@/meeting/MeetingMessages';
+import { GameReviewCohort } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import { Warning } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -28,6 +31,8 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
+import { Fragment, useEffect } from 'react';
+import { datetime, RRule } from 'rrule';
 
 const CANCELATION_DEADLINE = 24 * 1000 * 60 * 60; // 24 hours
 
@@ -100,6 +105,13 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
     const api = useApi();
     const router = useRouter();
 
+    const putEvent = cache.events.put;
+    useEffect(() => {
+        void api.getEvent(meetingId).then((resp) => {
+            putEvent(resp.data);
+        });
+    }, [api, meetingId, putEvent]);
+
     if (!user) {
         return <LoadingPage />;
     }
@@ -111,6 +123,10 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
         }
         return <NotFoundPage />;
     }
+
+    const isLiveClass =
+        meeting.type === EventType.GameReviewTier || meeting.type === EventType.LectureTier;
+    const isGameReviewTier = meeting.type === EventType.GameReviewTier;
 
     if (
         meeting.owner !== user.username &&
@@ -124,14 +140,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
         router.push('/calendar');
     };
 
-    const start = new Date(meeting.bookedStartTime || meeting.startTime);
-    const startDate = toDojoDateString(start, user.timezoneOverride);
-    const startTime = toDojoTimeString(start, user.timezoneOverride, user.timeFormat);
-
-    const end = new Date(meeting.endTime);
-    const endTime = toDojoTimeString(end, user.timezoneOverride, user.timeFormat);
-
-    if (Object.values(meeting.participants).length === 0) {
+    if (!isLiveClass && Object.values(meeting.participants).length === 0) {
         return (
             <Container maxWidth='md' sx={{ py: 4 }}>
                 <Typography>This meeting has not been booked yet.</Typography>
@@ -141,6 +150,34 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
             </Container>
         );
     }
+
+    let dates: Date[] = [];
+    if (meeting.rrule) {
+        const options = RRule.parseString(meeting.rrule);
+        const rrule = new RRule(options);
+        if (!options.count && !options.until) {
+            dates = rrule.between(new Date(), datetime(2050, 0, 1), true, (_, i: number) => i < 4);
+        } else {
+            dates = rrule.all();
+        }
+    } else {
+        dates.push(new Date(meeting.bookedStartTime || meeting.startTime));
+    }
+
+    const startTime = toDojoTimeString(
+        new Date(meeting.startTime),
+        user.timezoneOverride,
+        user.timeFormat,
+    );
+    const endTime = toDojoTimeString(
+        new Date(meeting.endTime),
+        user.timezoneOverride,
+        user.timeFormat,
+    );
+    const times = dates.map((d) => {
+        const startDate = toDojoDateString(d, user.timezoneOverride);
+        return `${startDate} ${startTime} — ${endTime}`;
+    });
 
     const isOwner = meeting.owner === user.username;
     const isCoaching = meeting.type === EventType.Coaching;
@@ -160,10 +197,14 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
             .then((resp) => {
                 window.location.href = resp.data.url;
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error('getEventCheckout: ', err);
                 checkoutRequest.onFailure(err);
             });
+    };
+
+    const onUpdateGameReviewCohort = (grc: GameReviewCohort) => {
+        cache.events.put({ ...meeting, gameReviewCohort: grc });
     };
 
     console.log('Meeting: ', meeting);
@@ -204,7 +245,8 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                     <CardHeader
                         title={meeting.title || 'Meeting Details'}
                         action={
-                            !isCanceled && (
+                            !isCanceled &&
+                            !isLiveClass && (
                                 <CancelMeetingButton
                                     meetingId={meeting.id}
                                     dialogTitle={cancelDialogTitle}
@@ -218,19 +260,21 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                     />
                     <CardContent>
                         <Stack spacing={3}>
-                            <Field title='Time' body={`${startDate} ${startTime} - ${endTime}`} />
+                            <Field
+                                title='Times'
+                                body={times.map((t, i) => (
+                                    <Fragment key={t}>
+                                        {t}
+                                        {i < times.length - 1 && <br />}
+                                    </Fragment>
+                                ))}
+                            />
 
-                            {meeting.description && (
-                                <Stack>
-                                    <Typography variant='subtitle2' color='text.secondary'>
-                                        Description
-                                    </Typography>
-                                    <Typography variant='body1' style={{ whiteSpace: 'pre-line' }}>
-                                        {meeting.description}
-                                    </Typography>
-                                </Stack>
-                            )}
-
+                            <Field
+                                title='Description'
+                                slotProps={{ body: { whiteSpace: 'pre-line' } }}
+                                body={meeting.description}
+                            />
                             <Field title='Location' body={meeting.location || 'Discord'} />
 
                             <Field
@@ -242,7 +286,38 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                                 }
                             />
 
-                            {!isSolo && (
+                            {isLiveClass && (
+                                <>
+                                    <Field
+                                        title='Recordings'
+                                        body={
+                                            <>
+                                                Recordings will be available{' '}
+                                                <Link href='/material/live-classes'>here</Link> a
+                                                few hours after the class.
+                                            </>
+                                        }
+                                    />
+
+                                    <Field
+                                        title='Discord'
+                                        body={
+                                            <>
+                                                Communicate with other members of the class in{' '}
+                                                <Link
+                                                    href={`https://discord.com/channels/${getConfig().discord.guildId}/${meeting.gameReviewCohort?.discordChannelId || meeting.discordChannelId}`}
+                                                    target='_blank'
+                                                >
+                                                    this Discord channel
+                                                </Link>
+                                                .
+                                            </>
+                                        }
+                                    />
+                                </>
+                            )}
+
+                            {!isSolo && !isGameReviewTier && (
                                 <Field
                                     title='Cohorts'
                                     body={
@@ -256,27 +331,43 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                     </CardContent>
                 </Card>
 
-                <Card variant='outlined'>
-                    <CardHeader
-                        title={
-                            <Stack direction='row' spacing={2} alignItems='center'>
-                                <Typography variant='h5'>Participants</Typography>
-                                {isCoaching &&
-                                    isOwner &&
-                                    Object.values(meeting.participants).some((p) => !p.hasPaid) && (
-                                        <Tooltip title='Some users have not paid and will lose their booking in ~30 min'>
-                                            <Warning color='warning' />
-                                        </Tooltip>
-                                    )}
-                            </Stack>
-                        }
-                    />
-                    <CardContent>
-                        <ParticipantsList event={meeting} showPaymentWarning={isCoaching} />
-                    </CardContent>
-                </Card>
+                {isGameReviewTier && meeting.gameReviewCohort && (
+                    <Card variant='outlined'>
+                        <CardHeader title='Review Queue' />
+                        <CardContent>
+                            <GameReviewCohortQueue
+                                gameReviewCohort={meeting.gameReviewCohort}
+                                setGameReviewCohort={onUpdateGameReviewCohort}
+                            />
+                        </CardContent>
+                    </Card>
+                )}
 
-                <MeetingMessages meetingId={meetingId} />
+                {!isLiveClass && (
+                    <Card variant='outlined'>
+                        <CardHeader
+                            title={
+                                <Stack direction='row' spacing={2} alignItems='center'>
+                                    <Typography variant='h5'>Participants</Typography>
+                                    {isCoaching &&
+                                        isOwner &&
+                                        Object.values(meeting.participants).some(
+                                            (p) => !p.hasPaid,
+                                        ) && (
+                                            <Tooltip title='Some users have not paid and will lose their booking in ~30 min'>
+                                                <Warning color='warning' />
+                                            </Tooltip>
+                                        )}
+                                </Stack>
+                            }
+                        />
+                        <CardContent>
+                            <ParticipantsList event={meeting} showPaymentWarning={isCoaching} />
+                        </CardContent>
+                    </Card>
+                )}
+
+                {!isLiveClass && <MeetingMessages meetingId={meetingId} />}
             </Stack>
         </Container>
     );

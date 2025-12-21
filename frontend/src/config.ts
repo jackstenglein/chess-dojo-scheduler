@@ -4,6 +4,14 @@ import { z } from 'zod';
 export const MUI_LICENSE_KEY =
     '24a7fa97376749c937d182874ff9e0bcTz0xMjMxMjIsRT0xNzk3MjA2Mzk5MDAwLFM9cHJvLExNPXN1YnNjcmlwdGlvbixQVj1RMy0yMDI0LEtWPTI=';
 
+export enum LogLevel {
+    Debug,
+    Log,
+    Info,
+    Warning,
+    Error,
+}
+
 export const EnvSchema = z.object({
     auth: z.object({
         region: z.literal('us-east-1'),
@@ -58,6 +66,7 @@ export const EnvSchema = z.object({
         oauthRedirectUrl: z.string(),
         guildId: z.string(),
     }),
+    logLevel: z.nativeEnum(LogLevel),
 });
 
 export type Config = z.infer<typeof EnvSchema>;
@@ -108,5 +117,6 @@ export function getConfig(): Config {
             oauthRedirectUrl: process.env.NEXT_PUBLIC_DISCORD_OAUTH_REDIRECT_URL,
             guildId: process.env.NEXT_PUBLIC_DISCORD_GUILD_ID,
         },
+        logLevel: parseInt(process.env.NEXT_PUBLIC_LOG_LEVEL ?? ''),
     });
 }

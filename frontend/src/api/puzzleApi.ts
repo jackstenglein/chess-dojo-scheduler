@@ -21,6 +21,7 @@ export interface PuzzleApiContextType {
 export function nextPuzzle(idToken: string, request: NextPuzzleRequest) {
     return axios.post<NextPuzzleResponse>(`${BASE_URL}/puzzle/next`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'nextPuzzle',
     });
 }
 
@@ -28,5 +29,6 @@ export function getPuzzleHistory(idToken: string, request: GetPuzzleHistoryReque
     return axios.get<GetPuzzleHistoryResponse>(`${BASE_URL}/puzzle/history`, {
         params: request,
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'getPuzzleHistory',
     });
 }

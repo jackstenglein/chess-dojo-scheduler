@@ -14,7 +14,9 @@ const BASE_URL = getConfig().api.baseUrl;
  * @returns An Axios Response containing the bot's response.
  */
 export async function sendMessage(request: ChatRequest): Promise<AxiosResponse<ChatResponse>> {
-    return await axios.post(`${BASE_URL}/public/dojoai/chat`, request);
+    return await axios.post(`${BASE_URL}/public/dojoai/chat`, request, {
+        functionName: 'sendMessage',
+    });
 }
 
 /**
@@ -27,5 +29,6 @@ export async function getChatHistory(
 ): Promise<AxiosResponse<GetChatHistoryResponse>> {
     return await axios.get(`${BASE_URL}/public/dojoai/chat`, {
         params: { threadId },
+        functionName: 'getChatHistory',
     });
 }

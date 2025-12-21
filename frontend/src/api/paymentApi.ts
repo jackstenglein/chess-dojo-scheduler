@@ -77,6 +77,7 @@ export function subscriptionCheckout(idToken: string, request: SubscriptionCheck
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'subscriptionCheckout',
     });
 }
 
@@ -93,7 +94,7 @@ export function subscriptionManage(
     return axios.post<StripeUrlResponse>(
         `${BASE_URL}/subscription/manage`,
         { tier, interval },
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'subscriptionManage' },
     );
 }
 
@@ -107,6 +108,7 @@ export function syncPurchases(idToken: string, purchases: Record<string, string>
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'syncPurchases',
     });
 }
 
@@ -123,6 +125,7 @@ export function createPaymentAccount(idToken: string) {
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'createPaymentAccount',
         },
     );
 }
@@ -137,6 +140,7 @@ export function getPaymentAccount(idToken: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'getPaymentAccount',
     });
 }
 
@@ -150,5 +154,6 @@ export function paymentAccountLogin(idToken: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'paymentAccountLogin',
     });
 }

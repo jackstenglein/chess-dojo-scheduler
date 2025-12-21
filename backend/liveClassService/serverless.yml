@@ -1,0 +1,249 @@
+# Deploys the live class service.
+
+service: chess-dojo-live-class
+
+plugins:
+  - serverless-plugin-custom-roles
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  logRetentionInDays: 14
+  environment:
+    stage: ${sls:stage}
+  httpApi:
+    id: ${param:httpApiId}
+  deploymentMethod: direct
+
+functions:
+  copyRecordings:
+    handler: copyRecordings.handler
+    events:
+      - schedule:
+          rate: cron(0 0 * * ? *) # Once per day at 00:00 UTC
+    timeout: 600 # 10 min
+    environment:
+      stage: ${sls:stage}
+      meetRecordingsDriveFolder: ${file(../config-${sls:stage}.yml):meetRecordingsDriveFolder}
+      finishedUploadsDriveFolder: ${file(../config-${sls:stage}.yml):finishedUploadsDriveFolder}
+      s3Bucket: !Ref LiveClassesBucket
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref LiveClassesBucket
+            - /*
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${param:SecretsBucket}
+            - /liveClassesServiceAccountKey.json
+
+  listRecordings:
+    handler: listRecordings.handler
+    events:
+      - httpApi:
+          path: /public/live-classes/recordings
+          method: get
+    environment:
+      stage: ${sls:stage}
+      s3Bucket: !Ref LiveClassesBucket
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:ListBucket
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref LiveClassesBucket
+
+  getRecording:
+    handler: getRecording.handler
+    events:
+      - httpApi:
+          path: /live-classes/recording
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      stage: ${sls:stage}
+      s3Bucket: !Ref LiveClassesBucket
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: !Join
+          - ''
+          - - 'arn:aws:s3:::'
+            - !Ref LiveClassesBucket
+            - /*
+
+  getGameReviewCohort:
+    handler: getGameReviewCohort.handler
+    events:
+      - httpApi:
+          path: /public/game-review-cohort/{id}
+          method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt LiveClassesTable.Arn
+          - ${param:EventsTableArn}
+
+  resetQueueDate:
+    handler: admin/resetQueueDate.handler
+    events:
+      - httpApi:
+          path: /admin/game-review-cohort/{id}/{username}/reset
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt LiveClassesTable.Arn
+
+  pauseQueueDate:
+    handler: pauseQueueDate.handler
+    events:
+      - httpApi:
+          path: /game-review-cohort/{id}/{username}/pause
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt LiveClassesTable.Arn
+
+  setGameReviewCohorts:
+    handler: admin/setGameReviewCohorts.handler
+    events:
+      - httpApi:
+          path: /admin/game-review-cohorts
+          method: put
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    environment:
+      discordAuth: ${file(../discord.yml):discordAuth}
+      discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordLiveClassesCategoryId: ${file(../config-${sls:stage}.yml):discordLiveClassesCategoryId}
+      discordLiveClassesRoleId: ${file(../config-${sls:stage}.yml):discordLiveClassesRole}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt LiveClassesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchGetItem
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - ${param:EventsTableArn}
+
+  listGameReviewCohorts:
+    handler: admin/listGameReviewCohorts.handler
+    events:
+      - httpApi:
+          path: /admin/game-review-cohorts
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt LiveClassesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - ${param:UsersTableArn}
+                - '/index/SubscriptionTierIdx'
+
+resources:
+  Conditions:
+    IsProd: !Equals ['${sls:stage}', 'prod']
+    IsNotSimple: !Not [!Equals ['${sls:stage}', 'simple']]
+
+  Resources:
+    LiveClassesBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      Properties:
+        BucketName:
+          !If [
+            IsNotSimple,
+            'chess-dojo-${sls:stage}-live-classes',
+            'chess-dojo-simple-${aws:accountId}-live-classes',
+          ]
+
+    LiveClassesTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${sls:stage}-live-classes
+        AttributeDefinitions:
+          - AttributeName: type
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: type
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: !If
+            - IsProd
+            - true
+            - false
+
+  Outputs:
+    LiveClassesTableArn:
+      Value: !GetAtt LiveClassesTable.Arn

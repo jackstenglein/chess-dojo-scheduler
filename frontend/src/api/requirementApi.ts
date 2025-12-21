@@ -44,6 +44,7 @@ export function getRequirement(idToken: string, id: string) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'getRequirement',
     });
 }
 
@@ -77,6 +78,7 @@ export async function listRequirements(
                 headers: {
                     Authorization: 'Bearer ' + idToken,
                 },
+                functionName: 'listRequirements',
             },
         );
 
@@ -98,5 +100,6 @@ export function setRequirement(idToken: string, requirement: Requirement) {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'setRequirement',
     });
 }

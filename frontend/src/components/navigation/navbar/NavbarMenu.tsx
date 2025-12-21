@@ -9,6 +9,7 @@ import { PawnIcon } from '@/style/ChessIcons';
 import { CrossedSwordIcon } from '@/style/CrossedSwordIcon';
 import { DonateIcon } from '@/style/DonateIcon';
 import { FontAwesomeSvgIcon } from '@/style/Icon';
+import { PresenterIcon } from '@/style/PresenterIcon';
 import { DiscordIcon, TwitchIcon, YoutubeIcon } from '@/style/SocialMediaIcons';
 import { TournamentBracketIcon } from '@/style/TournamentIcon';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
@@ -203,6 +204,11 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
                     name: 'Courses',
                     icon: <ImportContacts />,
                     href: '/courses',
+                },
+                {
+                    name: 'Live Classes',
+                    icon: <PresenterIcon sx={{ fontSize: '24px' }} />,
+                    href: '/material/live-classes',
                 },
                 {
                     name: 'Tests',
