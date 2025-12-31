@@ -112,7 +112,7 @@ func updateStats(stats *database.UserStatistics, user *database.User, requiremen
 
 	isActive := user.UpdatedAt >= monthAgo
 
-	if user.GetSubscriptionStatus() != database.SubscriptionStatus_Subscribed {
+	if !user.IsSubscribed() {
 		if isActive {
 			stats.Cohorts[user.DojoCohort].FreeActiveParticipants += 1
 		} else {
