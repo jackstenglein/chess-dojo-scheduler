@@ -82,6 +82,8 @@ func shouldRemoveEvent(event *database.Event, user *database.User) bool {
 		return shouldRemoveDojo(event, user)
 	case database.EventType_Coaching:
 		return shouldRemoveCoaching(event, user)
+	case database.EventType_GameReviewTier:
+		return shouldRemoveGameReview(event, user)
 	}
 
 	return false
@@ -144,6 +146,15 @@ func shouldRemoveCoaching(event *database.Event, user *database.User) bool {
 	return false
 }
 
+// Returns true if the game review event should be removed from the list for
+// the given user.
+func shouldRemoveGameReview(event *database.Event, user *database.User) bool {
+	if user.GetSubscriptionTier() != database.SubscriptionTier_GameReview {
+		return false
+	}
+	return user.GameReviewCohortId != event.GameReviewCohortId
+}
+
 // Returns true if the event details (location, messages, etc) should be hidden.
 func shouldHideEventDetails(event *database.Event, user *database.User) bool {
 	if user.GetIsCalendarAdmin() {
@@ -155,8 +166,8 @@ func shouldHideEventDetails(event *database.Event, user *database.User) bool {
 		return false
 	}
 
-	isGameReviewTier := user.GetSubscriptionTier() == database.SubscriptionTier_GameReview && user.GetSubscriptionStatus() == database.SubscriptionStatus_Subscribed
-	isLectureTier := isGameReviewTier || (user.GetSubscriptionTier() == database.SubscriptionTier_Lecture && user.GetSubscriptionStatus() == database.SubscriptionStatus_Subscribed)
+	isGameReviewTier := user.GetSubscriptionTier() == database.SubscriptionTier_GameReview
+	isLectureTier := isGameReviewTier || (user.GetSubscriptionTier() == database.SubscriptionTier_Lecture)
 
 	p := event.Participants[username]
 	switch event.Type {
@@ -164,10 +175,10 @@ func shouldHideEventDetails(event *database.Event, user *database.User) bool {
 		return p == nil || !p.HasPaid
 
 	case database.EventType_GameReviewTier:
-		return !isGameReviewTier && (p == nil || !p.HasPaid)
+		return !isGameReviewTier
 
 	case database.EventType_LectureTier:
-		return !isLectureTier && (p == nil || !p.HasPaid)
+		return !isLectureTier
 
 	default:
 		return false
