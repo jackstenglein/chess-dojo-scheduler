@@ -4,10 +4,8 @@ import {
     ExamAttempt,
     ExamType,
 } from '@jackstenglein/chess-dojo-common/src/database/exam';
-import axios, { AxiosResponse } from 'axios';
-import { getConfig } from '../config';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { AxiosResponse } from 'axios';
+import { axiosService } from './axiosService';
 
 export interface ExamApiContextType {
     /**
@@ -63,7 +61,7 @@ export interface ExamApiContextType {
  * @returns The requested exam and answer, if it exists.
  */
 export function getExam(idToken: string, type: ExamType, id: string) {
-    return axios.get<{ exam: Exam; answer?: ExamAnswer }>(`${BASE_URL}/exams/${type}/${id}`, {
+    return axiosService.get<{ exam: Exam; answer?: ExamAnswer }>(`/exams/${type}/${id}`, {
         headers: { Authorization: `Bearer ${idToken}` },
         functionName: 'getExam',
     });
@@ -86,7 +84,7 @@ export async function listExams(idToken: string, type: ExamType, startKey?: stri
     const result: Exam[] = [];
 
     do {
-        const resp = await axios.get<ListExamsResponse>(`${BASE_URL}/exams`, {
+        const resp = await axiosService.get<ListExamsResponse>(`/exams`, {
             params,
             headers: {
                 Authorization: `Bearer ${idToken}`,
@@ -120,8 +118,8 @@ export function putExamAttempt(
     index?: number,
     totalScore?: number,
 ) {
-    return axios.put<{ exam?: Exam; answer: ExamAnswer }>(
-        `${BASE_URL}/exams/answers`,
+    return axiosService.put<{ exam?: Exam; answer: ExamAnswer }>(
+        `/exams/answers`,
         { examType, examId, attempt, index, totalScore },
         {
             headers: { Authorization: `Bearer ${idToken}` },
@@ -137,7 +135,7 @@ export function putExamAttempt(
  * @returns An AxiosResponse containing the requested ExamAnswer.
  */
 export function getExamAnswer(idToken: string, id: string) {
-    return axios.get<ExamAnswer>(`${BASE_URL}/exams/answers?id=${id}`, {
+    return axiosService.get<ExamAnswer>(`/exams/answers?id=${id}`, {
         headers: { Authorization: `Bearer ${idToken}` },
         functionName: 'getExamAnswer',
     });

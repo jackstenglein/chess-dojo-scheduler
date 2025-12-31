@@ -1,13 +1,11 @@
-import { getConfig } from '@/config';
 import {
     GetPuzzleHistoryRequest,
     GetPuzzleHistoryResponse,
     NextPuzzleRequest,
     NextPuzzleResponse,
 } from '@jackstenglein/chess-dojo-common/src/puzzles/api';
-import axios, { AxiosResponse } from 'axios';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { AxiosResponse } from 'axios';
+import { axiosService } from './axiosService';
 
 export interface PuzzleApiContextType {
     nextPuzzle: (request: NextPuzzleRequest) => Promise<AxiosResponse<NextPuzzleResponse>>;
@@ -19,14 +17,14 @@ export interface PuzzleApiContextType {
 }
 
 export function nextPuzzle(idToken: string, request: NextPuzzleRequest) {
-    return axios.post<NextPuzzleResponse>(`${BASE_URL}/puzzle/next`, request, {
+    return axiosService.post<NextPuzzleResponse>(`/puzzle/next`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
         functionName: 'nextPuzzle',
     });
 }
 
 export function getPuzzleHistory(idToken: string, request: GetPuzzleHistoryRequest) {
-    return axios.get<GetPuzzleHistoryResponse>(`${BASE_URL}/puzzle/history`, {
+    return axiosService.get<GetPuzzleHistoryResponse>(`/puzzle/history`, {
         params: request,
         headers: { Authorization: `Bearer ${idToken}` },
         functionName: 'getPuzzleHistory',
