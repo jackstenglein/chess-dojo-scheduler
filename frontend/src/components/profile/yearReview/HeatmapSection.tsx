@@ -38,6 +38,11 @@ function Section({ review }: SectionProps) {
             minDate={`${review.period}-01-01`}
             maxDate={endDateByPeriod[review.period]}
             workGoalHistory={[{ date: '', workGoal: DEFAULT_WORK_GOAL }]}
+            slotProps={{
+                weekdayLabelPaper: {
+                    elevation: 0,
+                },
+            }}
         />
     );
 }

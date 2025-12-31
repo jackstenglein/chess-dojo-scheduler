@@ -112,6 +112,11 @@ const (
 	Custom3  RatingSystem = "CUSTOM_3"
 )
 
+// IsCustom returns true if the rating system is a custom rating system.
+func (rs RatingSystem) IsCustom() bool {
+	return rs == Custom || rs == Custom2 || rs == Custom3
+}
+
 var ratingSystems = []RatingSystem{
 	Chesscom,
 	Lichess,

@@ -26,7 +26,7 @@ const YearReviewPage = ({ username, year }: { username: string; year: string }) 
                 .then((resp) => {
                     request.onSuccess(resp.data);
                 })
-                .catch((err) => {
+                .catch((err: unknown) => {
                     console.error('getYearReview: ', err);
                     request.onFailure(err);
                 });
