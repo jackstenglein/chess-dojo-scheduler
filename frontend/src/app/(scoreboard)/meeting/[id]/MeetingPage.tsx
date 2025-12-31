@@ -129,6 +129,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
     const isGameReviewTier = meeting.type === EventType.GameReviewTier;
 
     if (
+        !isLiveClass &&
         meeting.owner !== user.username &&
         !Object.keys(meeting.participants).includes(user.username)
     ) {
