@@ -211,7 +211,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
     console.log('Meeting: ', meeting);
 
     return (
-        <Container maxWidth='md' sx={{ py: 4 }}>
+        <Container maxWidth='lg' sx={{ py: 4 }}>
             <RequestSnackbar request={checkoutRequest} />
 
             <Stack spacing={4}>
@@ -333,15 +333,13 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                 </Card>
 
                 {isGameReviewTier && meeting.gameReviewCohort && (
-                    <Card variant='outlined'>
-                        <CardHeader title='Review Queue' />
-                        <CardContent>
-                            <GameReviewCohortQueue
-                                gameReviewCohort={meeting.gameReviewCohort}
-                                setGameReviewCohort={onUpdateGameReviewCohort}
-                            />
-                        </CardContent>
-                    </Card>
+                    <Stack spacing={1}>
+                        <Typography variant='h5'>Review Queue</Typography>
+                        <GameReviewCohortQueue
+                            gameReviewCohort={meeting.gameReviewCohort}
+                            setGameReviewCohort={onUpdateGameReviewCohort}
+                        />
+                    </Stack>
                 )}
 
                 {!isLiveClass && (

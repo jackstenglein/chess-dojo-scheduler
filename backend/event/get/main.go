@@ -43,28 +43,7 @@ func handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	if event.Type == database.EventType_GameReviewTier && event.GameReviewCohortId != "" {
-		gameReviewCohort, err := repository.GetGameReviewCohort(event.GameReviewCohortId)
-		if err != nil {
-			return api.Failure(err), nil
-		}
-
-		event.GameReviewCohort = gameReviewCohort
-		_, ok := event.GameReviewCohort.Members[info.Username]
-		isParticipant := ok || event.Owner == info.Username
-		if isParticipant {
-			return api.Success(&event), nil
-		}
-
-		user, err := repository.GetUser(info.Username)
-		if err != nil {
-			return api.Failure(err), nil
-		}
-		if user.IsAdmin {
-			return api.Success(&event), nil
-		}
-
-		err = errors.New(403, "Invalid request: user is not a member of this meeting", "")
-		return api.Failure(err), nil
+		return getGameReviewEvent(info, event), nil
 	}
 
 	if event.Owner == info.Username {
@@ -83,4 +62,45 @@ func handler(ctx context.Context, request api.Request) (api.Response, error) {
 	}
 
 	return api.Success(&event), nil
+}
+
+func getGameReviewEvent(userInfo *api.UserInfo, event *database.Event) api.Response {
+	gameReviewCohort, err := repository.GetGameReviewCohort(event.GameReviewCohortId)
+	if err != nil {
+		return api.Failure(err)
+	}
+
+	if gameReviewCohort.PeerReviewEventId == event.Id {
+		gameReviewCohort.PeerReviewEvent = *event
+		senseiEvent, err := repository.GetEvent(gameReviewCohort.SenseiReviewEventId)
+		if err != nil {
+			return api.Failure(err)
+		}
+		gameReviewCohort.SenseiReviewEvent = *senseiEvent
+	} else {
+		gameReviewCohort.SenseiReviewEvent = *event
+		peerEvent, err := repository.GetEvent(gameReviewCohort.PeerReviewEventId)
+		if err != nil {
+			return api.Failure(err)
+		}
+		gameReviewCohort.PeerReviewEvent = *peerEvent
+	}
+
+	event.GameReviewCohort = gameReviewCohort
+	_, ok := event.GameReviewCohort.Members[userInfo.Username]
+	isParticipant := ok || event.Owner == userInfo.Username
+	if isParticipant {
+		return api.Success(&event)
+	}
+
+	user, err := repository.GetUser(userInfo.Username)
+	if err != nil {
+		return api.Failure(err)
+	}
+	if user.IsAdmin {
+		return api.Success(&event)
+	}
+
+	err = errors.New(403, "Invalid request: user is not a member of this meeting", "")
+	return api.Failure(err)
 }

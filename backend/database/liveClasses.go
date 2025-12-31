@@ -18,8 +18,12 @@ type GameReviewCohort struct {
 	Members map[string]GameReviewCohortMember `dynamodbav:"members" json:"members"`
 	// The id of the calendar event for the peer review session.
 	PeerReviewEventId string `dynamodbav:"peerReviewEventId" json:"peerReviewEventId"`
+	// The peer review event. Output only, will not be saved to the database.
+	PeerReviewEvent Event `dynamodbav:"-" json:"peerReviewEvent,omitempty"`
 	// The id of the calendar event for the sensei review session
 	SenseiReviewEventId string `dynamodbav:"senseiReviewEventId" json:"senseiReviewEventId"`
+	// The sensei review event. Output only, will not be saved to the database.
+	SenseiReviewEvent Event `dynamodbav:"-" json:"senseiReviewEvent,omitempty"`
 	// The date the queue order of a member was last reset.
 	QueueLastResetAt string `dynamodbav:"queueLastResetAt" json:"queueLastResetAt"`
 }
