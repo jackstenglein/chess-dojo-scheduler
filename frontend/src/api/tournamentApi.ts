@@ -1,14 +1,11 @@
-import axios, { AxiosResponse } from 'axios';
-
-import { getConfig } from '../config';
+import { AxiosResponse } from 'axios';
 import {
     Leaderboard,
     LeaderboardSite,
     OpenClassical,
     TournamentType,
 } from '../database/tournament';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 export type TimePeriod = 'monthly' | 'yearly';
 export type TimeControl = 'blitz' | 'rapid' | 'classical';
@@ -217,7 +214,7 @@ export function getLeaderboard(
     timeControl: TimeControl,
     date: string,
 ) {
-    return axios.get<Leaderboard>(`${BASE_URL}/public/tournaments/leaderboard`, {
+    return axiosService.get<Leaderboard>(`/public/tournaments/leaderboard`, {
         params: {
             site,
             timePeriod,
@@ -236,7 +233,7 @@ export function getLeaderboard(
  * @returns An AxiosResponse containing the requested OpenClassical.
  */
 export function getOpenClassical(startsAt?: string) {
-    return axios.get<OpenClassical>(`${BASE_URL}/public/tournaments/open-classical`, {
+    return axiosService.get<OpenClassical>(`/public/tournaments/open-classical`, {
         params: { startsAt },
         functionName: 'getOpenClassical',
     });
@@ -249,7 +246,7 @@ export function getOpenClassical(startsAt?: string) {
  * @returns An empty AxiosResponse.
  */
 export function registerForOpenClassical(idToken: string, req: OpenClassicalRegistrationRequest) {
-    return axios.post<null>(`${BASE_URL}/tournaments/open-classical/register`, req, {
+    return axiosService.post<null>(`/tournaments/open-classical/register`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
         functionName: 'registerForOpenClassical',
     });
@@ -265,7 +262,7 @@ export function submitResultsForOpenClassical(
     idToken: string,
     req: OpenClassicalSubmitResultsRequest,
 ) {
-    return axios.post<OpenClassical>(`${BASE_URL}/tournaments/open-classical/results`, req, {
+    return axiosService.post<OpenClassical>(`/tournaments/open-classical/results`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
         functionName: 'submitResultsForOpenClassical',
     });
@@ -279,7 +276,7 @@ export function submitResultsForOpenClassical(
  * @returns An AxiosResponse containing the updated open classical.
  */
 export function putOpenClassicalPairings(idToken: string, req: OpenClassicalPutPairingsRequest) {
-    return axios.post<OpenClassical>(`${BASE_URL}/tournaments/open-classical/admin/pairings`, req, {
+    return axiosService.post<OpenClassical>(`/tournaments/open-classical/admin/pairings`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
         functionName: 'putOpenClassicalPairings',
     });
@@ -300,8 +297,8 @@ export async function listPreviousOpenClassicals(startKey?: string) {
     const params = { startKey };
 
     do {
-        const resp = await axios.get<ListPreviousOpenClassicalsResponse>(
-            `${BASE_URL}/public/tournaments/open-classical/previous`,
+        const resp = await axiosService.get<ListPreviousOpenClassicalsResponse>(
+            `/public/tournaments/open-classical/previous`,
             {
                 params,
                 functionName: 'listPreviousOpenClassicals',
@@ -316,7 +313,7 @@ export async function listPreviousOpenClassicals(startKey?: string) {
 }
 
 export function adminGetRegistrations(idToken: string, region: string, section: string) {
-    return axios.get(`${BASE_URL}/tournaments/open-classical/admin/registrations`, {
+    return axiosService.get(`/tournaments/open-classical/admin/registrations`, {
         params: { region, section },
         headers: { Authorization: 'Bearer ' + idToken },
         responseType: 'blob',
@@ -333,8 +330,8 @@ export function adminGetRegistrations(idToken: string, region: string, section: 
  * @returns An AxiosResponse containing the updated open classical.
  */
 export function adminBanPlayer(idToken: string, username: string, region: string, section: string) {
-    return axios.put<OpenClassical>(
-        `${BASE_URL}/tournaments/open-classical/admin/ban-player`,
+    return axiosService.put<OpenClassical>(
+        `/tournaments/open-classical/admin/ban-player`,
         {
             username,
             region,
@@ -354,8 +351,8 @@ export function adminBanPlayer(idToken: string, username: string, region: string
  * @returns An AxiosResponse containing the updated open classical.
  */
 export function adminUnbanPlayer(idToken: string, username: string) {
-    return axios.put<OpenClassical>(
-        `${BASE_URL}/tournaments/open-classical/admin/unban-player`,
+    return axiosService.put<OpenClassical>(
+        `/tournaments/open-classical/admin/unban-player`,
         { username },
         { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'adminUnbanPlayer' },
     );
@@ -374,8 +371,8 @@ export function adminWithdrawPlayer(
     region: string,
     section: string,
 ) {
-    return axios.put<OpenClassical>(
-        `${BASE_URL}/tournaments/open-classical/admin/withdraw-player`,
+    return axiosService.put<OpenClassical>(
+        `/tournaments/open-classical/admin/withdraw-player`,
         { username, region, section },
         { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'adminWithdrawPlayer' },
     );
@@ -399,8 +396,8 @@ export interface OpenClassicalEmailPairingsResponse {
  * @returns An AxiosResponse containing the updated open classical and the number of pairing emails sent.
  */
 export function adminEmailPairings(idToken: string, round: number) {
-    return axios.put<OpenClassicalEmailPairingsResponse>(
-        `${BASE_URL}/tournaments/open-classical/admin/email-pairings`,
+    return axiosService.put<OpenClassicalEmailPairingsResponse>(
+        `/tournaments/open-classical/admin/email-pairings`,
         { round },
         { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'adminEmailPairings' },
     );
@@ -413,10 +410,13 @@ export function adminEmailPairings(idToken: string, round: number) {
  * @returns An AxiosResponse containing the updated open classical.
  */
 export function adminVerifyResult(idToken: string, request: OpenClassicalVerifyResultRequest) {
-    return axios.put<OpenClassical>(
-        `${BASE_URL}/tournaments/open-classical/admin/verify-result`,
+    return axiosService.put<OpenClassical>(
+        `/tournaments/open-classical/admin/verify-result`,
         request,
-        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'adminVerifyResult' },
+        {
+            headers: { Authorization: 'Bearer ' + idToken },
+            functionName: 'adminVerifyResult',
+        },
     );
 }
 
@@ -427,8 +427,8 @@ export function adminVerifyResult(idToken: string, request: OpenClassicalVerifyR
  * @returns An AxiosResponse containing the new open classical.
  */
 export function adminCompleteTournament(idToken: string, nextStartDate: string) {
-    return axios.put<OpenClassical>(
-        `${BASE_URL}/tournaments/open-classical/admin/complete`,
+    return axiosService.put<OpenClassical>(
+        `/tournaments/open-classical/admin/complete`,
         { nextStartDate },
         {
             headers: { Authorization: `Bearer ${idToken}` },

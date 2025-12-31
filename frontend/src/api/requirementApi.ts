@@ -1,9 +1,6 @@
-import axios, { AxiosResponse } from 'axios';
-
-import { getConfig } from '../config';
+import { AxiosResponse } from 'axios';
 import { Requirement } from '../database/requirement';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 export interface RequirementApiContextType {
     /**
@@ -40,7 +37,7 @@ export interface RequirementApiContextType {
  * @returns The requirement with the provided id.
  */
 export function getRequirement(idToken: string, id: string) {
-    return axios.get<Requirement>(BASE_URL + `/requirement/${id}`, {
+    return axiosService.get<Requirement>(`/requirement/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -71,16 +68,13 @@ export async function listRequirements(
     const result: Requirement[] = [];
 
     do {
-        const resp = await axios.get<ListRequirementsResponse>(
-            BASE_URL + `/requirements/${cohort}`,
-            {
-                params,
-                headers: {
-                    Authorization: 'Bearer ' + idToken,
-                },
-                functionName: 'listRequirements',
+        const resp = await axiosService.get<ListRequirementsResponse>(`/requirements/${cohort}`, {
+            params,
+            headers: {
+                Authorization: 'Bearer ' + idToken,
             },
-        );
+            functionName: 'listRequirements',
+        });
 
         result.push(...resp.data.requirements);
         params.startKey = resp.data.lastEvaluatedKey;
@@ -96,7 +90,7 @@ export async function listRequirements(
  * @returns An AxiosResponse containing the updated Requirement.
  */
 export function setRequirement(idToken: string, requirement: Requirement) {
-    return axios.put<Requirement>(BASE_URL + `/requirement`, requirement, {
+    return axiosService.put<Requirement>(`/requirement`, requirement, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },

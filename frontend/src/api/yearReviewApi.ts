@@ -1,8 +1,6 @@
-import axios, { AxiosResponse } from 'axios';
-import { getConfig } from '../config';
+import { AxiosResponse } from 'axios';
 import { YearReview } from '../database/yearReview';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 /**
  * Provides an API for interacting with year reviews.
@@ -24,7 +22,7 @@ export interface YearReviewApiContextType {
  * @returns The year review for the given user and year.
  */
 export function getYearReview(username: string, year: string) {
-    return axios.get<YearReview>(`${BASE_URL}/public/yearreview/${username}/${year}`, {
+    return axiosService.get<YearReview>(`/public/yearreview/${username}/${year}`, {
         functionName: 'getYearReview',
     });
 }

@@ -9,7 +9,8 @@ import {
     ResetQueueDateRequest,
     SetGameReviewCohortsRequest,
 } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
+import { axiosService } from './axiosService';
 
 interface GameReviewCohortResponse {
     gameReviewCohort: GameReviewCohort;
@@ -29,13 +30,13 @@ export interface LiveClassesApiContextType {
 }
 
 export function listRecordings() {
-    return axios.get<{ classes: LiveClass[] }>(`/public/live-classes/recordings`, {
+    return axiosService.get<{ classes: LiveClass[] }>(`/public/live-classes/recordings`, {
         functionName: 'listRecordings',
     });
 }
 
 export function getRecording(request: GetRecordingRequest) {
-    return axios.get<{ url: string }>(`/live-classes/recording`, {
+    return axiosService.get<{ url: string }>(`/live-classes/recording`, {
         params: request,
         functionName: 'getRecording',
     });
@@ -47,7 +48,7 @@ export function getRecording(request: GetRecordingRequest) {
  * @returns The game review cohort specified in the request.
  */
 export function getGameReviewCohort(request: GetGameReviewCohortRequest) {
-    return axios.get<GameReviewCohortResponse>(`/public/game-review-cohort/${request.id}`, {
+    return axiosService.get<GameReviewCohortResponse>(`/public/game-review-cohort/${request.id}`, {
         functionName: 'getGameReviewCohort',
     });
 }
@@ -59,7 +60,7 @@ export function getGameReviewCohort(request: GetGameReviewCohortRequest) {
  * @returns The updated game review cohort.
  */
 export function resetQueueDate(request: ResetQueueDateRequest) {
-    return axios.put<GameReviewCohortResponse>(
+    return axiosService.put<GameReviewCohortResponse>(
         `/admin/game-review-cohort/${request.id}/${request.username}/reset`,
         { functionName: 'resetQueueDate' },
     );
@@ -72,7 +73,7 @@ export function resetQueueDate(request: ResetQueueDateRequest) {
  * @returns The updated game review cohort.
  */
 export function pauseQueueDate(request: PauseQueueDateRequest) {
-    return axios.put<GameReviewCohortResponse>(
+    return axiosService.put<GameReviewCohortResponse>(
         `/game-review-cohort/${request.id}/${request.username}/pause`,
         { pause: request.pause },
         { functionName: 'pauseQueueDate' },
@@ -90,7 +91,7 @@ export interface ListGameReviewCohortsResponse {
 export async function listGameReviewCohorts(): Promise<
     AxiosResponse<ListGameReviewCohortsResponse>
 > {
-    const response = await axios.get<{
+    const response = await axiosService.get<{
         gameReviewCohorts: GameReviewCohort[];
         unassignedUsers: User[];
     }>(`/admin/game-review-cohorts`, {
@@ -110,7 +111,7 @@ export async function listGameReviewCohorts(): Promise<
 }
 
 export function setGameReviewCohorts(request: SetGameReviewCohortsRequest) {
-    return axios.put<{ gameReviewCohorts: GameReviewCohort[] }>(
+    return axiosService.put<{ gameReviewCohorts: GameReviewCohort[] }>(
         `/admin/game-review-cohorts`,
         request,
         { functionName: 'setGameReviewCohorts' },

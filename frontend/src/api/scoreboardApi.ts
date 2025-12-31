@@ -1,10 +1,6 @@
-import axios from 'axios';
-
-import { getConfig } from '../config';
 import { ScoreboardSummary } from '../database/scoreboard';
 import { User } from '../database/user';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 /**
  * ScoreboardApiContextType provides an API for fetching the scoreboard.
@@ -37,7 +33,7 @@ export async function getScoreboard(
     const result: (User | ScoreboardSummary)[] = [];
 
     do {
-        const resp = await axios.get<GetScoreboardResponse>(BASE_URL + `/scoreboard/${type}`, {
+        const resp = await axiosService.get<GetScoreboardResponse>(`/scoreboard/${type}`, {
             params,
             headers: {
                 Authorization: 'Bearer ' + idToken,
