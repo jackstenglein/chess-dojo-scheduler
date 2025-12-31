@@ -1,4 +1,3 @@
-import { getConfig } from '@/config';
 import {
     RoundRobin,
     RoundRobinListRequest,
@@ -7,9 +6,8 @@ import {
     RoundRobinWaitlist,
     RoundRobinWithdrawRequest,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import axios, { AxiosResponse } from 'axios';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { AxiosResponse } from 'axios';
+import { axiosService } from './axiosService';
 
 export interface RoundRobinApiContextType {
     /**
@@ -54,8 +52,8 @@ export type RoundRobinRegisterResponse =
  * @returns The updated tournament and waitlist.
  */
 export function registerForRoundRobin(idToken: string, request: RoundRobinRegisterRequest) {
-    return axios.post<RoundRobinRegisterResponse>(
-        `${BASE_URL}/tournaments/round-robin/register`,
+    return axiosService.post<RoundRobinRegisterResponse>(
+        `/tournaments/round-robin/register`,
         request,
         {
             headers: { Authorization: `Bearer ${idToken}` },
@@ -71,7 +69,7 @@ export function registerForRoundRobin(idToken: string, request: RoundRobinRegist
  * @returns The updated tournament.
  */
 export function withdrawFromRoundRobin(idToken: string, request: RoundRobinWithdrawRequest) {
-    return axios.post<RoundRobin>(`${BASE_URL}/tournaments/round-robin/withdraw`, request, {
+    return axiosService.post<RoundRobin>(`/tournaments/round-robin/withdraw`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
         functionName: 'withdrawFromRoundRobin',
     });
@@ -84,7 +82,7 @@ export function withdrawFromRoundRobin(idToken: string, request: RoundRobinWithd
  * @returns The updated tournament.
  */
 export function submitRoundRobinGame(idToken: string, request: RoundRobinSubmitGameRequest) {
-    return axios.post<RoundRobin>(`${BASE_URL}/tournaments/round-robin/submit-game`, request, {
+    return axiosService.post<RoundRobin>(`/tournaments/round-robin/submit-game`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
         functionName: 'submitRoundRobinGame',
     });
@@ -101,7 +99,7 @@ export interface RoundRobinListResponse {
  * @returns The list of tournaments and the last evaluated key for pagination.
  */
 export function listRoundRobins(request: RoundRobinListRequest) {
-    return axios.get<RoundRobinListResponse>(`${BASE_URL}/public/tournaments/round-robin`, {
+    return axiosService.get<RoundRobinListResponse>(`/public/tournaments/round-robin`, {
         params: request,
         functionName: 'listRoundRobins',
     });

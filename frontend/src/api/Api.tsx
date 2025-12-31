@@ -1,6 +1,5 @@
 'use client';
 
-import { LogLevel, getConfig } from '@/config';
 import { DiscordAuthRequest } from '@jackstenglein/chess-dojo-common/src/auth/discord';
 import {
     AddDirectoryItemsRequestV2,
@@ -31,8 +30,6 @@ import {
     RoundRobinSubmitGameRequest,
     RoundRobinWithdrawRequest,
 } from '@jackstenglein/chess-dojo-common/src/roundRobin/api';
-import { fetchAuthSession } from 'aws-amplify/auth';
-import axios, { AxiosError } from 'axios';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useAuth } from '../auth/Auth';
 import { Club, ClubJoinRequestStatus } from '../database/club';
@@ -242,49 +239,6 @@ const ApiContext = createContext<ApiContextType>(null!);
 export function useApi() {
     return useContext(ApiContext);
 }
-
-const config = getConfig();
-
-axios.defaults.baseURL = config.api.baseUrl;
-
-axios.interceptors.request.use(async (request) => {
-    if (!request.url || !request.url.startsWith('/') || request.url.startsWith('/public/')) {
-        return request;
-    }
-
-    const authTokens = await fetchAuthSession();
-    const idToken = authTokens.tokens?.idToken?.toString();
-    if (idToken) {
-        request.headers.Authorization = `Bearer ${idToken}`;
-    }
-
-    return request;
-});
-
-axios.interceptors.request.use((request) => {
-    if (config.logLevel <= LogLevel.Debug) {
-        console.debug(`${request.functionName ?? 'unnamed function'} request:`, request);
-    }
-    return request;
-});
-
-axios.interceptors.response.use(
-    (response) => {
-        if (config.logLevel <= LogLevel.Debug) {
-            console.debug(
-                `${response.config.functionName ?? 'unnamed function'} response:`,
-                response,
-            );
-        }
-        return response;
-    },
-    (err: AxiosError) => {
-        if (config.logLevel <= LogLevel.Error) {
-            console.error(`${err.config?.functionName ?? 'unnamed function'} error:`, err);
-        }
-        return Promise.reject(err);
-    },
-);
 
 /**
  * ApiProvider provides access to API calls. It implements the ApiContextType interface.

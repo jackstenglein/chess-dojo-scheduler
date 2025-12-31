@@ -1,11 +1,8 @@
-import axios, { AxiosResponse } from 'axios';
-
-import { getConfig } from '../config';
+import { AxiosResponse } from 'axios';
 import { Club, ClubDetails, ClubJoinRequestStatus } from '../database/club';
 import { ScoreboardSummary } from '../database/scoreboard';
 import { User } from '../database/user';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 /** Provides an API for interacting with clubs. */
 export interface ClubApiContextType {
@@ -91,7 +88,7 @@ export interface ClubApiContextType {
  * @returns An AxiosResponse containing the created club.
  */
 export function createClub(idToken: string, club: Partial<Club>) {
-    return axios.post<ClubDetails>(`${BASE_URL}/clubs`, club, {
+    return axiosService.post<ClubDetails>(`/clubs`, club, {
         headers: { Authorization: 'Bearer ' + idToken },
         functionName: 'createClub',
     });
@@ -105,7 +102,7 @@ export function createClub(idToken: string, club: Partial<Club>) {
  * @returns An AxiosResponse containing the updated club.
  */
 export function updateClub(idToken: string, id: string, update: Partial<Club>) {
-    return axios.put<ClubDetails>(`${BASE_URL}/clubs/${id}`, update, {
+    return axiosService.put<ClubDetails>(`/clubs/${id}`, update, {
         headers: { Authorization: 'Bearer ' + idToken },
         functionName: 'updateClub',
     });
@@ -126,7 +123,7 @@ export async function listClubs(startKey?: string) {
     const result: Club[] = [];
 
     do {
-        const resp = await axios.get<ListClubsResponse>(`${BASE_URL}/public/clubs`, {
+        const resp = await axiosService.get<ListClubsResponse>(`/public/clubs`, {
             params,
             functionName: 'listClubs',
         });
@@ -149,7 +146,7 @@ export interface GetClubResponse {
  * @returns An AxiosResponse containing the requested club.
  */
 export function getClub(id: string, scoreboard?: boolean) {
-    return axios.get<GetClubResponse>(`${BASE_URL}/public/clubs/${id}`, {
+    return axiosService.get<GetClubResponse>(`/public/clubs/${id}`, {
         params: { scoreboard },
         functionName: 'getClub',
     });
@@ -161,7 +158,7 @@ export function getClub(id: string, scoreboard?: boolean) {
  * @returns A list of the given clubs.
  */
 export function batchGetClubs(ids: string[]) {
-    return axios.get<Club[]>(`${BASE_URL}/public/clubs/batch`, {
+    return axiosService.get<Club[]>(`/public/clubs/batch`, {
         params: { ids: ids.join(',') },
         functionName: 'batchGetClubs',
     });
@@ -175,8 +172,8 @@ export function batchGetClubs(ids: string[]) {
  * @returns An AxiosResponse containing the club's updated details.
  */
 export function joinClub(idToken: string, id: string) {
-    return axios.put<GetClubResponse>(
-        `${BASE_URL}/clubs/${id}/members`,
+    return axiosService.put<GetClubResponse>(
+        `/clubs/${id}/members`,
         {},
         { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'joinClub' },
     );
@@ -191,8 +188,8 @@ export function joinClub(idToken: string, id: string) {
  * @returns An AxiosResponse containing the updated club details.
  */
 export function requestToJoinClub(idToken: string, id: string, notes: string, user?: User) {
-    return axios.put<ClubDetails>(
-        `${BASE_URL}/clubs/${id}/requests`,
+    return axiosService.put<ClubDetails>(
+        `/clubs/${id}/requests`,
         {
             username: user?.username,
             displayName: user?.displayName,
@@ -212,15 +209,15 @@ export function requestToJoinClub(idToken: string, id: string, notes: string, us
  * @returns An AxiosResponse containing the club's updated details.
  */
 export function processJoinRequest(
-    idToken: string,
+    _idToken: string,
     clubId: string,
     username: string,
     status: ClubJoinRequestStatus,
 ) {
-    return axios.put<GetClubResponse>(
-        `${BASE_URL}/clubs/${clubId}/requests/${username}`,
+    return axiosService.put<GetClubResponse>(
+        `/clubs/${clubId}/requests/${username}`,
         { status },
-        { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'processJoinRequest' },
+        { functionName: 'processJoinRequest' },
     );
 }
 
@@ -230,9 +227,8 @@ export function processJoinRequest(
  * @param clubId The id of the club to leave.
  * @returns An AxiosResponse containing the club's updated details.
  */
-export function leaveClub(idToken: string, clubId: string) {
-    return axios.delete<ClubDetails>(`${BASE_URL}/clubs/${clubId}/members`, {
-        headers: { Authorization: 'Bearer ' + idToken },
+export function leaveClub(_idToken: string, clubId: string) {
+    return axiosService.delete<ClubDetails>(`/clubs/${clubId}/members`, {
         functionName: 'leaveClub',
     });
 }

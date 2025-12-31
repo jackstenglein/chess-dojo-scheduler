@@ -1,11 +1,8 @@
-import axios, { AxiosResponse } from 'axios';
-
 import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
-import { getConfig } from '../config';
+import { AxiosResponse } from 'axios';
 import { StripeAccount } from '../database/payment';
 import { User } from '../database/user';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 export interface PaymentApiContextType {
     /**
@@ -73,7 +70,7 @@ interface StripeUrlResponse {
  * @returns A subscription checkout session URL.
  */
 export function subscriptionCheckout(idToken: string, request: SubscriptionCheckoutRequest) {
-    return axios.post<StripeUrlResponse>(`${BASE_URL}/subscription/checkout`, request, {
+    return axiosService.post<StripeUrlResponse>(`/subscription/checkout`, request, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -91,8 +88,8 @@ export function subscriptionManage(
     tier?: SubscriptionTier,
     interval?: 'month' | 'year',
 ) {
-    return axios.post<StripeUrlResponse>(
-        `${BASE_URL}/subscription/manage`,
+    return axiosService.post<StripeUrlResponse>(
+        `/subscription/manage`,
         { tier, interval },
         { headers: { Authorization: 'Bearer ' + idToken }, functionName: 'subscriptionManage' },
     );
@@ -104,7 +101,7 @@ export function subscriptionManage(
  * @param purchases A map from the id of the purchased item to the Stripe checkout session id.
  */
 export function syncPurchases(idToken: string, purchases: Record<string, string>) {
-    return axios.post<User>(`${BASE_URL}/purchases/sync`, purchases, {
+    return axiosService.post<User>(`/purchases/sync`, purchases, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -118,8 +115,8 @@ export function syncPurchases(idToken: string, purchases: Record<string, string>
  * @returns A Stripe account link URL.
  */
 export function createPaymentAccount(idToken: string) {
-    return axios.put<StripeUrlResponse>(
-        `${BASE_URL}/payment/account`,
+    return axiosService.put<StripeUrlResponse>(
+        `/payment/account`,
         {},
         {
             headers: {
@@ -136,7 +133,7 @@ export function createPaymentAccount(idToken: string) {
  * @returns A Stripe account.
  */
 export function getPaymentAccount(idToken: string) {
-    return axios.get<StripeAccount>(`${BASE_URL}/payment/account`, {
+    return axiosService.get<StripeAccount>(`/payment/account`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
@@ -150,7 +147,7 @@ export function getPaymentAccount(idToken: string) {
  * @returns A stripe login link URL.
  */
 export function paymentAccountLogin(idToken: string) {
-    return axios.get<StripeUrlResponse>(`${BASE_URL}/payment/account/login`, {
+    return axiosService.get<StripeUrlResponse>(`/payment/account/login`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
