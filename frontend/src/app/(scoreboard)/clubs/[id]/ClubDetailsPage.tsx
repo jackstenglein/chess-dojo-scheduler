@@ -64,7 +64,6 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }
@@ -102,7 +101,6 @@ export const ClubDetailsPage = ({ id }: { id: string }) => {
                     joinRequest.onSuccess();
                 })
                 .catch((err) => {
-                    console.error('joinClub: ', err);
                     joinRequest.onFailure(err);
                 });
         }

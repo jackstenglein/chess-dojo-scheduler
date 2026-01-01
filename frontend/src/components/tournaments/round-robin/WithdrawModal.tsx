@@ -43,7 +43,6 @@ export function WithdrawModal({
         try {
             request.onStart();
             const resp = await api.withdrawFromRoundRobin({ cohort, startsAt });
-            console.log('withdrawFromRoundRobin: ', resp.data);
             request.onSuccess('Successfully withdrew from round robin');
             if (startsAt === RoundRobinStatuses.WAITING) {
                 onUpdateTournaments({ waitlist: resp.data });
@@ -53,7 +52,6 @@ export function WithdrawModal({
 
             onClose();
         } catch (err) {
-            console.error('withdrawFromRoundRobin: ', err);
             request.onFailure(err);
         }
     };

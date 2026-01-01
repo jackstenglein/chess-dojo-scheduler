@@ -29,7 +29,6 @@ const PersonalInfoForm: React.FC<ProfileCreatorFormProps> = ({ user, onNextStep 
         })
             .then(onNextStep)
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

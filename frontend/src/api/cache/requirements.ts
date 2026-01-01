@@ -48,7 +48,6 @@ export function useRequirements(cohort: string, scoreboardOnly: boolean): UseReq
                     request.onSuccess();
                 })
                 .catch((err) => {
-                    console.error('listRequirements: ', err);
                     request.onFailure(err);
                 });
         }
@@ -90,7 +89,6 @@ export function useRequirement(id?: string): UseRequirementResponse {
                     request.onSuccess();
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }

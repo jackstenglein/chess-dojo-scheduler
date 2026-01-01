@@ -57,7 +57,6 @@ const AccountStatusCard: React.FC<AccountStatusCardProps> = ({ account }) => {
                 window.location.href = resp.data.url;
             })
             .catch((err) => {
-                console.error('createPaymentAccount: ', err);
                 request.onFailure(err);
             });
     };

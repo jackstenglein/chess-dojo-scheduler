@@ -160,7 +160,7 @@ export function useFilters(): Filters {
     const setWeekStartOn = useCallback(
         (weekStart: WeekDays) => {
             updateUser({ weekStart });
-            api.updateUser({ weekStart }).catch(console.error);
+            void api.updateUser({ weekStart });
         },
         [api, updateUser],
     );

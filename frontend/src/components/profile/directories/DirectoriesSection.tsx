@@ -218,7 +218,6 @@ const DirectorySection = ({
             })
             .catch((err) => {
                 reorderRequest.onFailure(err);
-                console.error('updateDirectory: ', err);
             });
     };
 

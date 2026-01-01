@@ -1,4 +1,5 @@
 import { getConfig } from '@/config';
+import { logger } from '@/logging/logger';
 import { Mutex } from 'async-mutex';
 import { EngineWorker } from './EngineWorker';
 import {
@@ -39,10 +40,10 @@ export abstract class UciEngine {
                 worker.postMessage(command);
             },
             listen(data) {
-                console.log(data);
+                logger.debug?.(data);
             },
             onError(msg) {
-                console.error(msg);
+                logger.error?.(msg);
             },
             terminate() {
                 worker.terminate();
@@ -294,7 +295,7 @@ export abstract class UciEngine {
 
             const onNewMessage = (messages: string[]) => {
                 const parsedResults = parseEvaluationResults(fen, messages, whiteToPlay);
-                console.debug('Setting partial results: ', parsedResults);
+                logger.debug?.('Setting partial results: ', parsedResults);
                 setPartialEval?.(parsedResults);
             };
 
@@ -319,7 +320,7 @@ export abstract class UciEngine {
      */
     private debug(message?: unknown, ...optionalParams: unknown[]) {
         if (this._debug) {
-            console.debug(message, optionalParams);
+            logger.debug?.(message, optionalParams);
         }
     }
 }

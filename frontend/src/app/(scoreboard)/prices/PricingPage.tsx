@@ -63,7 +63,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
                     window.location.href = resp.data.url;
                 })
                 .catch((err: unknown) => {
-                    console.error(`subscriptionManage: `, err);
                     request.onFailure(err);
                 });
         } else {
@@ -77,7 +76,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onFreeTier }) => {
                     window.location.href = resp.data.url;
                 })
                 .catch((err: unknown) => {
-                    console.error('subscriptionCheckout: ', err);
                     request.onFailure(err);
                 });
         }

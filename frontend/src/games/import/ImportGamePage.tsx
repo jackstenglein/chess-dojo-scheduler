@@ -3,6 +3,7 @@
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import useSaveGame from '@/hooks/useSaveGame';
+import { logger } from '@/logging/logger';
 import { Chess } from '@jackstenglein/chess';
 import { MY_GAMES_DIRECTORY_ID } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { CreateGameRequest } from '@jackstenglein/chess-dojo-common/src/database/game';
@@ -41,7 +42,7 @@ const ImportGamePage = () => {
                 setStagedGame(req);
                 router.push('/games/analysis');
             } catch (err) {
-                console.error('setStagedGame: ', err);
+                logger.error?.('setStagedGame: ', err);
                 request.onFailure({ message: 'Invalid PGN' });
             }
         } else {

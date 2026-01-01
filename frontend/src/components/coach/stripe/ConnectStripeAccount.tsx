@@ -16,7 +16,6 @@ const ConnectStripeAccount = () => {
                 window.location.href = response.data.url;
             })
             .catch((err) => {
-                console.log('Create Payment Account: ', err);
                 request.onFailure(err);
             });
     };

@@ -78,7 +78,6 @@ export function RegisterModal({
                 lichessUsername,
                 chesscomUsername,
             });
-            console.log('registerForRoundRobin: ', resp);
 
             if ('banned' in resp.data && resp.data.banned) {
                 setUnbanUrl(resp.data.url);
@@ -93,7 +92,6 @@ export function RegisterModal({
                 onClose();
             }
         } catch (err) {
-            console.error('registerForRoundRobin: ', err);
             request.onFailure(err);
         }
     };

@@ -19,6 +19,7 @@ import {
     isCustom,
 } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
+import { logger } from '@/logging/logger';
 import InfoIcon from '@mui/icons-material/Info';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
@@ -123,7 +124,7 @@ export function encodeFileToBase64(file: File): Promise<string> {
         const reader = new FileReader();
         reader.onloadend = function () {
             const base64string = reader.result as string;
-            console.log('Base 64 string: ', base64string);
+            logger.debug?.('Base 64 string: ', base64string);
             const encodedString = base64string.split(',')[1];
             resolve(encodedString);
         };
@@ -225,7 +226,7 @@ export function ProfileEditorPage({ user }: { user: User }) {
 
         setErrors(newErrors);
         if (Object.entries(newErrors).length > 0) {
-            console.log('New Errors: ', newErrors);
+            logger.debug?.('New Errors: ', newErrors);
             return;
         }
 
@@ -245,7 +246,6 @@ export function ProfileEditorPage({ user }: { user: User }) {
                 router.push('/profile');
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

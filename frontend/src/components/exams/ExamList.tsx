@@ -95,13 +95,11 @@ export const ExamList: React.FC<ExamListProps> = ({ cohortRanges, examType }) =>
 
             api.listExams(examType)
                 .then((exams) => {
-                    console.log('Exams: ', exams);
                     request.onSuccess(
                         exams.map((e) => getExamInfo(e, user?.username, user?.timezoneOverride)),
                     );
                 })
                 .catch((err) => {
-                    console.error('listExams: ', err);
                     request.onFailure(err);
                 });
         }

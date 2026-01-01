@@ -272,7 +272,6 @@ const SaveGameButton = ({
                 setShowPreflight(false);
             })
             .catch((err) => {
-                console.error('updateGame: ', err);
                 request.onFailure(err);
             });
     };

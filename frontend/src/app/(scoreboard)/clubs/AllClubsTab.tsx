@@ -23,12 +23,10 @@ export const AllClubsTab: React.FC<AllClubsTabProps> = ({ filters }) => {
             request.onStart();
             api.listClubs()
                 .then((clubs) => {
-                    console.log('listClubs: ', clubs);
                     request.onSuccess(clubs);
                     cache.putMany(clubs);
                 })
                 .catch((err) => {
-                    console.error('listClubs: ', err);
                     request.onFailure(err);
                 });
         }

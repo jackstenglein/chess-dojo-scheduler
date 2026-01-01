@@ -1,3 +1,4 @@
+import { logger } from '@/logging/logger';
 import { useEffect, useState } from 'react';
 import { EngineName } from '../engine/engine';
 import { Stockfish11 } from '../engine/Stockfish11';
@@ -12,9 +13,9 @@ export const useEngine = (enabled: boolean, engineName: EngineName | undefined) 
         if (!enabled || !engineName) return;
 
         const engine = pickEngine(engineName);
-        console.log('Initializing engine');
+        logger.debug?.('Initializing engine');
         void engine.init().then(() => {
-            console.log('Engine initialized');
+            logger.debug?.('Engine initialized');
             setEngine(engine);
         });
 

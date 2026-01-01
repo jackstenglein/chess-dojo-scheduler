@@ -32,7 +32,6 @@ export function useClubs(clubIds: string[]) {
                     request.onSuccess();
                 })
                 .catch((err) => {
-                    console.error('batchGetClubs: ', err);
                     request.onFailure(err);
                 });
         }

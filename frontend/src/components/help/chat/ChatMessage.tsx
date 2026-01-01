@@ -1,5 +1,6 @@
 'use client';
 
+import { logger } from '@/logging/logger';
 import { Message } from '@jackstenglein/chess-dojo-common/src/chatBot/api';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -22,7 +23,7 @@ export function ChatMessage({ message }: { message: Message }) {
             copy(message.content);
             setCopied(true);
         } catch (err) {
-            console.error('Failed to copy:', err);
+            logger.error?.('Failed to copy:', err);
         }
     };
 

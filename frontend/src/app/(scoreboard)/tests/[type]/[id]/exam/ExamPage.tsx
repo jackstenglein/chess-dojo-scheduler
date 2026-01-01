@@ -245,7 +245,6 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                 answerRequest.onSuccess();
             })
             .catch((err) => {
-                console.error(err);
                 answerRequest.onFailure(err);
             });
     };
@@ -291,7 +290,6 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                 router.push(`/tests/${exam.type}/${exam.id}`);
             })
             .catch((err) => {
-                console.error(err);
                 answerRequest.onFailure(err);
             });
     };
@@ -312,7 +310,6 @@ export const InProgressExam: React.FC<InProgressExamProps> = ({
                     setIsRetaking(false);
                 })
                 .catch((err) => {
-                    console.error('putExamAttempt: ', err);
                     answerRequest.onFailure(err);
                 });
 

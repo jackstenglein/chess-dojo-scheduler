@@ -37,11 +37,9 @@ export function ListFollowedPositionsPage() {
 
             api.listFollowedPositions()
                 .then((resp) => {
-                    console.log('listFollowedPositions: ', resp);
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
-                    console.error('listFollowedPositions: ', err);
                     request.onFailure(err);
                 });
         }
@@ -95,7 +93,6 @@ export function ListFollowedPositionsPage() {
         }
     };
 
-    console.log('Data: ', request.data);
     return (
         <Container sx={{ py: 5 }}>
             <Typography variant='h5'>Subscriptions</Typography>

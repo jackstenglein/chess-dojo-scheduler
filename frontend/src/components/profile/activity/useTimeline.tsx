@@ -58,7 +58,6 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({ owner, child
                     setStartKey(res.lastEvaluatedKey);
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }

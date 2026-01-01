@@ -77,7 +77,6 @@ const CommentEditor: React.FC<CommentEditorProps> = ({ focusEditor, setFocusEdit
             request.onSuccess();
             onUpdateGame(resp.data.game);
         } catch (err) {
-            console.error('createComment: ', err);
             request.onFailure(err);
         }
     };

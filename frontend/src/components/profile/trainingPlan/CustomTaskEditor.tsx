@@ -164,7 +164,6 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
                 onClose();
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

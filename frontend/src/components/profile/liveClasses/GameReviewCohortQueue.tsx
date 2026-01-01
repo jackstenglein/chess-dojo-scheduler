@@ -3,6 +3,7 @@ import { useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
+import { logger } from '@/logging/logger';
 import Avatar from '@/profile/Avatar';
 import {
     GameReviewCohort,
@@ -269,11 +270,11 @@ function getDatesByUser(
         (_, i) => i < reviewQueue.length,
     );
 
-    console.log(
+    logger.debug?.(
         'Peer Review Dates: ',
         peerReviewDates.map((d) => d.toISOString()),
     );
-    console.log(
+    logger.debug?.(
         'Sensei Review Dates: ',
         senseiReviewDates.map((d) => d.toISOString()),
     );

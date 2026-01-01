@@ -47,7 +47,6 @@ export default function useSaveGame(): UseSaveGameFields {
             }
             setStagedGame(null);
         } catch (err) {
-            console.error('CreateGame ', err);
             request.onFailure(err);
         }
     };
@@ -62,7 +61,6 @@ export default function useSaveGame(): UseSaveGameFields {
             await api.updateGame(game.cohort, game.id, updateReq);
             request.onSuccess();
         } catch (err) {
-            console.error('updateGame ', err);
             request.onFailure(err);
         }
     };

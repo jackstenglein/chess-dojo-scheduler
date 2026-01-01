@@ -18,8 +18,8 @@ var Sf17179Web = (() => {
             typeof process.versions.node == 'string' &&
             process.type != 'renderer';
         var ENVIRONMENT_IS_PTHREAD = ENVIRONMENT_IS_WORKER && self.name?.startsWith('em-pthread');
-        if (!Module['listen']) Module['listen'] = (data) => console.log(data);
-        if (!Module['onError']) Module['onError'] = (data) => console.error(data);
+        if (!Module['listen']) Module['listen'] = (data) => logger.log?.(data);
+        if (!Module['onError']) Module['onError'] = (data) => logger.error?.(data);
         Module['getRecommendedNnue'] = (index = 0) => UTF8ToString(_getRecommendedNnue(index));
         Module['setNnueBuffer'] = function (buf, index = 0) {
             if (!buf) throw new Error('buf is null');
@@ -88,8 +88,8 @@ var Sf17179Web = (() => {
             }
         } else {
         }
-        var out = console.log.bind(console);
-        var err = console.error.bind(console);
+        var out = logger.log.bind?.(console);
+        var err = logger.error.bind?.(console);
         var wasmBinary;
         var wasmMemory;
         var wasmModule;

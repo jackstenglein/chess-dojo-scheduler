@@ -28,6 +28,7 @@ import { RenderPlayers } from '@/components/games/list/GameListItem';
 import { Link } from '@/components/navigation/Link';
 import { isCohortInRange, RatingSystem } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
+import { logger } from '@/logging/logger';
 import {
     GameImportTypes,
     OnlineGameImportType,
@@ -237,7 +238,7 @@ export const OnlineGameForm = ({ loading, onSubmit, onClose }: ImportDialogProps
                 importPgn(url)
                     .then(({ data: pgnText, error }) => {
                         if (error) {
-                            console.error(error.privateMessage);
+                            logger.error?.(error.privateMessage);
                             request.onFailure(error.publicMessage);
                             return;
                         }

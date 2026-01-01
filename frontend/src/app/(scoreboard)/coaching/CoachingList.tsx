@@ -110,7 +110,6 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
                 window.location.href = resp.data.checkoutUrl;
             })
             .catch((err) => {
-                console.error('bookEvent: ', err);
                 request.onFailure(err);
             });
     };

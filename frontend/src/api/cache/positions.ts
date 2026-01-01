@@ -33,7 +33,6 @@ export function usePosition(fen: string): UsePositionResponse {
                     request.onSuccess();
                 })
                 .catch((err: AxiosError) => {
-                    console.error('getPosition: ', err);
                     if (err.response?.status === 404) {
                         cache.positions.markFetched(normalizedFen);
                         request.onSuccess();

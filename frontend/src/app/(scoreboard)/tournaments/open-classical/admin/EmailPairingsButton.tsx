@@ -38,7 +38,6 @@ const EmailPairingsButton: React.FC<EmailPairingsButtonProps> = ({
                 setOpen(false);
             })
             .catch((err) => {
-                console.error('adminEmailPairings: ', err);
                 request.onFailure(err);
             });
     };

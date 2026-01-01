@@ -2,6 +2,7 @@ import { Chess, Move } from '@jackstenglein/chess';
 import { Box, Stack, SxProps, Theme, Typography } from '@mui/material';
 import { useCallback, useState } from 'react';
 
+import { logger } from '@/logging/logger';
 import Board, { BoardApi, PrimitiveMove, reconcile, toColor, toDests, toShapes } from '../Board';
 import { ChessContext } from '../pgn/PgnBoard';
 import HintSection from './HintSection';
@@ -155,7 +156,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
         });
         setStatus(Status.WaitingForMove);
         setMove(nextMove);
-        console.log('Setting last correct move: ', nextMove);
+        logger.debug?.('Setting last correct move: ', nextMove);
         setLastCorrectMove(nextMove);
     };
 

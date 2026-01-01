@@ -136,7 +136,6 @@ const PreferredRatingSystemForm: React.FC<ProfileCreatorFormProps> = ({
         api.updateUser(getUpdate(ratingSystem, username, hideUsername), true)
             .then(onNextStep)
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

@@ -120,7 +120,6 @@ function TooltipPlacement({ session }: { session: PuzzleSession }) {
     return (
         <Tooltip
             open
-            onClose={() => console.log('closing')}
             leaveDelay={Infinity}
             arrow
             disableInteractive

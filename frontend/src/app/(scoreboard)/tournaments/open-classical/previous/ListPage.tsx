@@ -26,11 +26,9 @@ const ListPage = () => {
             request.onStart();
             api.listPreviousOpenClassicals()
                 .then((openClassicals) => {
-                    console.log('listPreviousOpenClassicals: ', openClassicals);
                     request.onSuccess(openClassicals);
                 })
                 .catch((err) => {
-                    console.error('listPreviousOpenClassicals', err);
                     request.onFailure(err);
                 });
         }

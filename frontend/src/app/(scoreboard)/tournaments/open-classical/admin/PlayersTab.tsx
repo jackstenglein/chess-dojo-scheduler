@@ -125,9 +125,8 @@ function CustomToolbar({ region, ratingRange }: { region: string; ratingRange: s
                 downloadRequest.onSuccess();
                 link.remove();
             })
-            .catch((err: unknown) => {
-                console.error('adminGetRegistrations: ', err);
-                downloadRequest.onFailure();
+            .catch((err) => {
+                downloadRequest.onFailure(err);
             });
     };
 
@@ -218,7 +217,6 @@ const PlayersTab: React.FC<PlayersTabProps> = ({ openClassical, onUpdate }) => {
                 );
             })
             .catch((err: unknown) => {
-                console.error('updatePlayer: ', err);
                 updateRequest.onFailure(err);
             });
     };

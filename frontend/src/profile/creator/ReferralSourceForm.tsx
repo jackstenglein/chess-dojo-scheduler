@@ -67,7 +67,6 @@ const ReferralSourceForm: React.FC<ProfileCreatorFormProps> = ({ user, onPrevSte
                 trackEvent(EventType.CreateProfile);
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

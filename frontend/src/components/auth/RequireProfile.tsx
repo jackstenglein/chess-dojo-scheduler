@@ -27,7 +27,6 @@ export function RequireProfile() {
     useEffect(() => {
         if (status === AuthStatus.Authenticated && !request.isSent()) {
             request.onStart();
-            console.log('Checking user access');
             api.checkUserAccess()
                 .then(() => {
                     request.onSuccess();
@@ -43,7 +42,6 @@ export function RequireProfile() {
                     });
                 })
                 .catch((err: AxiosError) => {
-                    console.log('Check user access error: ', err);
                     request.onFailure(err);
                     if (err.response?.status === 403) {
                         updateUser({

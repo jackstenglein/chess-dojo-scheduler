@@ -21,7 +21,6 @@ const DashboardCard = ({ account }: { account?: StripeAccount }) => {
                 window.location.href = response.data.url;
             })
             .catch((err) => {
-                console.error('paymentAccountLogin: ', err);
                 request.onFailure(err);
             });
     };

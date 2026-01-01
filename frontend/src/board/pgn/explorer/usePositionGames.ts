@@ -112,7 +112,6 @@ export function usePositionGames({
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error('usePositionGames: ', err);
                 request.onFailure(err);
             });
     }, [page, pageSize, cache, request, api, fen, type, games]);

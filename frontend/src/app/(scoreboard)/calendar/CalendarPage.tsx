@@ -414,17 +414,13 @@ export default function CalendarPage() {
     const deleteAvailability = useCallback(
         async (id: string) => {
             try {
-                console.log('Deleting availability with id: ', id);
                 // Don't use deleteRequest.onStart as it messes up the
                 // scheduler library
                 await api.deleteEvent(id);
-                console.log(`Event ${id} deleted`);
-
                 removeEvent(id);
                 deleteRequest.onSuccess('Availability deleted');
                 return id;
             } catch (err) {
-                console.error(err);
                 deleteRequest.onFailure(err);
             }
         },

@@ -188,7 +188,6 @@ const ReactionList: React.FC<ReactionListProps> = ({ owner, id, reactions, onEdi
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
         handleClose();

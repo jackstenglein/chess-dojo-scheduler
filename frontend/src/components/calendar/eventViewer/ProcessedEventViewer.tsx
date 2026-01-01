@@ -1,5 +1,6 @@
 import { useAuth } from '@/auth/Auth';
 import { Event, EventType } from '@/database/event';
+import { logger } from '@/logging/logger';
 import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import React from 'react';
 import AvailabilityViewer from './AvailabilityViewer';
@@ -17,7 +18,7 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({ processedEv
     const { user } = useAuth();
     const event = processedEvent.event as Event | undefined;
 
-    console.log('Processed Event: ', processedEvent);
+    logger.debug?.('Processed Event: ', processedEvent);
 
     if (!event) {
         return null;

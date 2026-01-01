@@ -2,6 +2,7 @@ import { EventType, trackEvent } from '@/analytics/events';
 import GraduationCard from '@/components/graduations/GraduationCard';
 import { Graduation } from '@/database/graduation';
 import LoadingPage from '@/loading/LoadingPage';
+import { logger } from '@/logging/logger';
 import { LoadingButton } from '@mui/lab';
 import {
     Box,
@@ -51,8 +52,8 @@ export default function GraduationShareDialog({
             .then((dataUrl) => {
                 setImageData(dataUrl);
             })
-            .catch((error) => {
-                console.error('domToPng: ', error);
+            .catch((error: unknown) => {
+                logger.error?.('domToPng: ', error);
             });
     }, [reportRef, setImageData]);
 

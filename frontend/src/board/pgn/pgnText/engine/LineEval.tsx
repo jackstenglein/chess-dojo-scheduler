@@ -1,4 +1,5 @@
 import { useReconcile } from '@/board/Board';
+import { logger } from '@/logging/logger';
 import {
     ENGINE_ADD_INFO_ON_EVAL_CLICK,
     ENGINE_ADD_INFO_ON_MOVE_CLICK,
@@ -249,7 +250,7 @@ function moveLineUciToMove(fen: string): (moveUci: string) => Move | null {
             const move = game.move(moveUci);
             return move;
         } catch (e) {
-            console.error(`Failed to convert UCI ${moveUci}: `, e);
+            logger.error?.(`Failed to convert UCI ${moveUci}: `, e);
             return null;
         }
     };

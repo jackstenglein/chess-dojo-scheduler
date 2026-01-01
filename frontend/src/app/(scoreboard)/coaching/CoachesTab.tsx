@@ -29,7 +29,6 @@ const CoachesTab = () => {
                     );
                 })
                 .catch((err) => {
-                    console.error('listCoaches: ', err);
                     request.onFailure(err);
                 });
         }
@@ -64,7 +63,6 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
                     followRequest.onSuccess(resp.data || undefined);
                 })
                 .catch((err) => {
-                    console.error(err);
                     followRequest.onFailure(err);
                 });
         }
@@ -90,7 +88,6 @@ const CoachListItem: React.FC<{ coach: User }> = ({ coach }) => {
                 followRequest.onSuccess(resp.data || undefined);
             })
             .catch((err) => {
-                console.error(err);
                 followRequest.onFailure(err);
             });
     };

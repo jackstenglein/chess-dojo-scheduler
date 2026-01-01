@@ -192,7 +192,6 @@ const RecentGraduates = () => {
             api.listGraduationsByDate()
                 .then((graduations) => request.onSuccess(graduations))
                 .catch((err) => {
-                    console.error('listGraduationsByDate: ', err);
                     request.onFailure(err);
                 });
         }

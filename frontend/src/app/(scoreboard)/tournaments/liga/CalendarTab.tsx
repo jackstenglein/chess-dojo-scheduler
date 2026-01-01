@@ -102,7 +102,6 @@ const CalendarTab = () => {
 
     useEffect(() => {
         const timezone = filters.timezone === DefaultTimezone ? undefined : filters.timezone;
-        console.log('Setting timezone: ', timezone);
         calendarRef.current?.scheduler.handleState(timezone, 'timeZone');
     }, [calendarRef, filters.timezone]);
 

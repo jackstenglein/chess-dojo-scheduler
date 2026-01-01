@@ -60,7 +60,7 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         const newIds = newPinnedTasks.map((t) => t.id);
 
         updateUser({ pinnedTasks: newIds });
-        api.updateUser({ pinnedTasks: newIds }).catch(console.error);
+        void api.updateUser({ pinnedTasks: newIds });
     };
 
     const toggleSkip = (...ids: string[]) => {
@@ -70,7 +70,7 @@ export function useTrainingPlan(user: User, cohort?: string): UseTrainingPlanRes
         const skippedTasks = [...(user.weeklyPlan.skippedTasks ?? []), ...ids];
         const newPlan = { ...user.weeklyPlan, skippedTasks };
         updateUser({ weeklyPlan: newPlan });
-        api.updateUser({ weeklyPlan: newPlan }).catch(console.error);
+        void api.updateUser({ weeklyPlan: newPlan });
     };
 
     return {
@@ -164,9 +164,9 @@ export function useWeeklyTrainingPlan(user: User): UseWeeklyTrainingPlanResponse
                 (savedPlan?.endDate ?? '') >= endDate ? savedPlan?.skippedTasks : undefined,
         };
 
-        api.updateUser({
+        void api.updateUser({
             weeklyPlan: newPlan,
-        }).catch((err) => console.error('save weekly plan: ', err));
+        });
     }, [
         isCurrentUser,
         savedPlan,
