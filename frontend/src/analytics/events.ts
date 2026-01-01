@@ -6,6 +6,9 @@ import ReactGA from 'react-ga4';
 import { User } from '../database/user';
 
 export enum EventType {
+    // API events
+    ApiRequest = 'api_request',
+
     // Auth events
     Login = 'login',
     Logout = 'logout',
