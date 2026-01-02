@@ -15,6 +15,7 @@ import youtubeaward from './dojo-digest/vol-22/youtube.webp';
 import kraaichamp from './dojo-digest/vol-23/kraaichamp.jpg';
 import UIUpgrade from './dojo-digest/vol-24/UI+Upgrade.jpg';
 import solitairechess from './dojo-digest/vol-25/solitairechess.jpg';
+import danya from './dojo-digest/vol-26/danya.jpg';
 import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import worldrapid from './dojo-talks/2024-world-rapid-blitz/2024-rapid.png';
@@ -36,6 +37,28 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Dojo Core and Live Classes',
+        subtitle: 'Dojo Digest • January 1, 2026',
+        body: `Get a Free Month of Dojo Core and 10% off Live Classes`,
+        href: '/blog/dojo-digest/vol-28',
+    },
+    {
+        title: '24 hours left for 25% Off ChessDojo',
+        subtitle: 'Dojo Digest • December 1, 2025',
+        body: `Live class tiers and Black Friday sale end December 2nd!`,
+        href: '/blog/dojo-digest/vol-27',
+    },
+    {
+        title: 'Remembering Daniel Naroditsky',
+        subtitle: 'Dojo Digest • November 1, 2025',
+        body: `The Dojo was rocked by the news of Danya's passing.`,
+        href: '/blog/dojo-digest/vol-26',
+        image: {
+            src: danya,
+            alt: '',
+        },
+    },
     {
         title: 'ChessDojo Launches Live Group Classes',
         subtitle: 'November 24, 2025',
