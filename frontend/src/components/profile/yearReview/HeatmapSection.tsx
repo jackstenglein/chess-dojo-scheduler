@@ -7,6 +7,7 @@ import { DEFAULT_WORK_GOAL } from '../trainingPlan/workGoal';
 import { SectionProps } from './section';
 
 const endDateByPeriod: Record<string, string> = {
+    '2025': '2025-12-31',
     '2024': '2024-12-22',
     '2023': '2024-12-25',
 };
