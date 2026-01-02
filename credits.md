@@ -22,4 +22,7 @@ Thanks to Lichess for their amazing work in open source chess!
 
 ## Graduation Icons
 
-- [Jalpp](https://github.com/jalpp/DojoIcons)
+- [Jalp](https://github.com/jalpp/DojoIcons)
+
+## Neural Net API
+- [Jalp](https://github.com/jalpp/chessagineweb)
