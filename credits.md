@@ -24,5 +24,5 @@ Thanks to Lichess for their amazing work in open source chess!
 
 - [Jalp](https://github.com/jalpp/DojoIcons)
 
-## Neural Net API
+## Neural Net API & ChessAgine
 - [Jalp](https://github.com/jalpp/chessagineweb)

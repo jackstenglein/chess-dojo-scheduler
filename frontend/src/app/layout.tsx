@@ -2,6 +2,7 @@ import { MetaPixel } from '@/components/analytics/MetaPixel';
 import { WebVitals } from '@/components/analytics/WebVitals';
 import { NavigationGuardProvider } from 'next-navigation-guard';
 import { defaultMetadata } from './(scoreboard)/defaultMetadata';
+import { NetModelContextProvider } from '@/context/NetContext';
 
 export const metadata = defaultMetadata;
 
@@ -14,9 +15,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body>
                 <NavigationGuardProvider>
+                    <NetModelContextProvider>
+
                     <MetaPixel />
                     <WebVitals />
                     <div id='root'>{children}</div>
+                    </NetModelContextProvider>
                 </NavigationGuardProvider>
             </body>
         </html>
