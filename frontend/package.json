@@ -39,6 +39,7 @@
         "moment": "^2.30.1",
         "next": "15.5.4",
         "next-navigation-guard": "^0.2.0",
+        "onnxruntime-web": "^1.23.2",
         "react": "19.1.1",
         "react-activity-calendar": "^2.7.14",
         "react-charts": "^3.0.0-beta.57",
