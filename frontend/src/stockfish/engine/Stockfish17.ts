@@ -1,4 +1,4 @@
-import { logger } from '@/logging/logger.js';
+import { logger } from '@/logging/logger';
 import { EngineName } from './engine';
 import { EngineWorker } from './EngineWorker';
 import { objectStorage } from './objectStorage';
