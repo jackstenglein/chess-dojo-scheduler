@@ -2,6 +2,7 @@
 
 import { useApi } from '@/api/Api';
 import { useRequest } from '@/api/Request';
+import { updateUser as apiUpdateUser } from '@/api/userApi';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { hasCreatedProfile, SubscriptionStatus } from '@/database/user';
 import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
@@ -61,9 +62,54 @@ export function RequireProfile() {
 
     useEffect(() => {
         if (user && !hasCreatedProfile(user) && !validPathnames.includes(pathname)) {
-            router.push(`/profile?redirectUri=${pathname}`);
+            const isSocialFromMobile = localStorage.getItem('isSocialFromMobile');
+            const isTraditionalLogin = localStorage.getItem('isFromMobile');
+            router.push(
+                `/profile?redirectUri=${pathname}${isSocialFromMobile ? '&loggedInFromMobile=true' : ''}${isTraditionalLogin ? '&loggedInFromMobile=true' : ''}`,
+            );
+            localStorage.removeItem('isSocialFromMobile');
         }
     }, [user, pathname, router]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function updateUserWithFirebaseTokens() {
+            const stored = localStorage.getItem('firebaseTokens');
+            if (!stored) return;
+
+            let firebaseTokens: string[] = [];
+            try {
+                const parsed: unknown = JSON.parse(stored);
+                if (
+                    Array.isArray(parsed) &&
+                    parsed.every((t): t is string => typeof t === 'string')
+                ) {
+                    firebaseTokens = parsed;
+                } else if (typeof parsed === 'string') {
+                    firebaseTokens = [parsed];
+                } else {
+                    firebaseTokens = [stored];
+                }
+            } catch {
+                firebaseTokens = [stored];
+            }
+
+            const idToken = user?.cognitoUser?.tokens?.idToken?.toString() ?? '';
+            if (!idToken) return;
+
+            const res = await apiUpdateUser(idToken, { firebaseTokens }, updateUser);
+            if (isMounted && res?.status === 200) {
+                localStorage.removeItem('firebaseTokens');
+            }
+        }
+
+        void updateUserWithFirebaseTokens();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [api, request, apiUpdateUser]);
 
     return null;
 }

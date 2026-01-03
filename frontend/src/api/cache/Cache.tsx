@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 'use client';
 
+import { logger } from '@/logging/logger';
 import {
     createContext,
     ReactNode,
@@ -189,6 +190,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         (item) => item?.normalizedFen || '',
     );
     const clubs = useIdentifiableCache<Club>();
+
     const [imageBypass, setImageBypass] = useState(Date.now());
 
     const value = {
@@ -231,13 +233,19 @@ export function useEvents(): UseEventsResponse {
                     cache.events.putMany(events);
                 })
                 .catch((err) => {
-                    request.onFailure(err);
+                    // In offline mode, don't mark as failure if we have cached data
+                    if (typeof window !== 'undefined' && !navigator.onLine && events.length > 0) {
+                        logger.debug?.('[Cache] Using cached events in offline mode');
+                        request.onSuccess();
+                    } else {
+                        request.onFailure(err);
+                    }
                 })
                 .finally(() => {
                     cache.setIsLoading(false);
                 });
         }
-    }, [auth.status, request, api, cache]);
+    }, [auth.status, request, api, cache, events.length]);
 
     return {
         events,
@@ -272,10 +280,20 @@ export function useNotifications(): UseNotificationsResponse {
                     cache.notifications.putMany(resp.data.notifications);
                 })
                 .catch((err) => {
-                    request.onFailure(err);
+                    // In offline mode, don't mark as failure if we have cached data
+                    if (
+                        typeof window !== 'undefined' &&
+                        !navigator.onLine &&
+                        notifications.length >= 0
+                    ) {
+                        logger.debug?.('[Cache] Using cached notifications in offline mode');
+                        request.onSuccess();
+                    } else {
+                        request.onFailure(err);
+                    }
                 });
         }
-    }, [auth.status, request, api, cache]);
+    }, [auth.status, request, api, cache, notifications.length]);
 
     return {
         notifications,
