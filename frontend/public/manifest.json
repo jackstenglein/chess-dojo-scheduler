@@ -1,10 +1,10 @@
 {
-    "name": "Chess Dojo Scheduler",
+    "name": "ChessDojo",
     "short_name": "ChessDojo",
-    "description": "Train chess with the Chess Dojo community",
+    "description": "Chess training plans for all levels and a community to learn with",
     "start_url": "/",
     "scope": "/",
-    "id": "chessdojo-scheduler",
+    "id": "chessdojo",
     "display": "standalone",
     "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
     "orientation": "any",
@@ -61,14 +61,14 @@
             "sizes": "1280x720",
             "type": "image/png",
             "form_factor": "wide",
-            "label": "Chess Dojo Homepage - Desktop View"
+            "label": "ChessDojo Homepage - Desktop View"
         },
         {
             "src": "/static/screenshots/mobile-profile.png",
             "sizes": "390x844",
             "type": "image/png",
             "form_factor": "narrow",
-            "label": "Chess Training Profile - Mobile View"
+            "label": "ChessDojo Training Profile - Mobile View"
         }
     ],
     "shortcuts": [
@@ -159,8 +159,8 @@
     "related_applications": [
         {
             "platform": "play",
-            "url": "https://play.google.com/store/apps/details?id=com.chessdojo.scheduler",
-            "id": "com.chessdojo.scheduler"
+            "url": "https://play.google.com/store/apps/details?id=com.chessdojo.chessdojo",
+            "id": "com.chessdojo.chessdojo"
         },
         {
             "platform": "itunes",
