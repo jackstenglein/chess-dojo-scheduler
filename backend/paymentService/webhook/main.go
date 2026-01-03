@@ -323,6 +323,11 @@ func handleSubscriptionUpdated(event *stripe.Event) api.Response {
 	str := spew.Sdump(subscription)
 	log.Debugf("Got subscription: %s", str)
 
+	if subscription.Status != "active" {
+		log.Infof("Subscription has status %q, so no action is necessary", subscription.Status)
+		return api.Success(nil)
+	}
+
 	username := subscription.Metadata["username"]
 	if username == "" {
 		return api.Failure(errors.New(400, "Invalid request: no username in subscription metadata", ""))
