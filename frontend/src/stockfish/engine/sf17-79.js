@@ -47,8 +47,8 @@ var Sf1779Web = (() => {
             typeof process.versions == 'object' &&
             typeof process.versions.node == 'string';
         var ENVIRONMENT_IS_PTHREAD = ENVIRONMENT_IS_WORKER && self.name == 'em-pthread';
-        if (!Module['listen']) Module['listen'] = (data) => logger.log?.(data);
-        if (!Module['onError']) Module['onError'] = (data) => logger.error?.(data);
+        if (!Module['listen']) Module['listen'] = (data) => console.log(data);
+        if (!Module['onError']) Module['onError'] = (data) => console.error(data);
         Module['getRecommendedNnue'] = (index = 0) => UTF8ToString(_getRecommendedNnue(index));
         Module['setNnueBuffer'] = function (buf, index = 0) {
             if (!buf) throw new Error('buf is null');
@@ -112,8 +112,8 @@ var Sf1779Web = (() => {
             }
         } else {
         }
-        var out = Module['print'] || logger.log.bind?.(console);
-        var err = Module['printErr'] || logger.error.bind?.(console);
+        var out = Module['print'] || console.log.bind(console);
+        var err = Module['printErr'] || console.error.bind(console);
         Object.assign(Module, moduleOverrides);
         moduleOverrides = null;
         if (ENVIRONMENT_IS_PTHREAD) {
@@ -122,7 +122,7 @@ var Sf1779Web = (() => {
             var initializedJS = false;
             function threadPrintErr(...args) {
                 var text = args.join(' ');
-                logger.error?.(text);
+                console.error(text);
             }
             if (!Module['printErr']) err = threadPrintErr;
             function threadAlert(...args) {
@@ -355,7 +355,7 @@ var Sf1779Web = (() => {
                 !isDataURI(binaryFile) &&
                 typeof fetch == 'function'
             ) {
-                logger.log?.('Fetching binary file: ', binaryFile);
+                console.log('Fetching binary file: ', binaryFile);
                 return fetch(binaryFile, { credentials: 'same-origin' }).then((response) => {
                     var result = WebAssembly.instantiateStreaming(response, imports);
                     return result.then(callback, function (reason) {
@@ -365,7 +365,7 @@ var Sf1779Web = (() => {
                     });
                 });
             }
-            logger.log?.('Instantiating array buffer: ', binaryFile);
+            console.log('Instantiating array buffer: ', binaryFile);
 
             return instantiateArrayBuffer(binaryFile, imports, callback);
         }
