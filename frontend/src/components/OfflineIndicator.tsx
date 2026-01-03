@@ -12,7 +12,7 @@ export function OfflineIndicator() {
             setShowBackOnline(true);
             setTimeout(() => setShowBackOnline(false), 3000);
         };
-        
+
         const handleOffline = () => {
             setIsOffline(true);
             setShowBackOnline(false);
@@ -53,22 +53,33 @@ export function OfflineIndicator() {
                         animation: 'slideDown 0.4s ease-out',
                     }}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <div style={{ 
-                            width: '12px', 
-                            height: '12px', 
-                            borderRadius: '50%', 
-                            backgroundColor: '#fff',
-                            animation: 'pulse 2s infinite'
-                        }} />
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: '12px',
+                                height: '12px',
+                                borderRadius: '50%',
+                                backgroundColor: '#fff',
+                                animation: 'pulse 2s infinite',
+                            }}
+                        />
                         <span>You are offline - Please check your internet connection</span>
-                        <div style={{ 
-                            width: '12px', 
-                            height: '12px', 
-                            borderRadius: '50%', 
-                            backgroundColor: '#fff',
-                            animation: 'pulse 2s infinite 0.5s'
-                        }} />
+                        <div
+                            style={{
+                                width: '12px',
+                                height: '12px',
+                                borderRadius: '50%',
+                                backgroundColor: '#fff',
+                                animation: 'pulse 2s infinite 0.5s',
+                            }}
+                        />
                     </div>
                 </div>
             )}
@@ -93,7 +104,14 @@ export function OfflineIndicator() {
                         animation: 'slideDown 0.4s ease-out',
                     }}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                        }}
+                    >
                         <span>✅</span>
                         <span>Back online! Fresh content loading...</span>
                         <span>✅</span>
@@ -102,13 +120,12 @@ export function OfflineIndicator() {
             )}
 
             {/* Spacer to prevent content overlap */}
-            {(isOffline || showBackOnline) && (
-                <div style={{ height: '60px', width: '100%' }} />
-            )}
+            {(isOffline || showBackOnline) && <div style={{ height: '60px', width: '100%' }} />}
 
             {/* CSS Animations */}
-            <style dangerouslySetInnerHTML={{
-                __html: `
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
                     @keyframes slideDown {
                         from {
                             transform: translateY(-100%);
@@ -130,8 +147,9 @@ export function OfflineIndicator() {
                             transform: scale(0.8);
                         }
                     }
-                `
-            }} />
+                `,
+                }}
+            />
         </>
     );
 }

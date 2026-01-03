@@ -145,7 +145,11 @@ export function useScoreboard(cohort?: string): UseScoreboardResponse {
                 .catch((err) => {
                     console.error('Scoreboard API error:', err);
                     // In offline mode, don't mark as failure if we have cached data
-                    if (typeof window !== 'undefined' && !navigator.onLine && scoreboard.length > 0) {
+                    if (
+                        typeof window !== 'undefined' &&
+                        !navigator.onLine &&
+                        scoreboard.length > 0
+                    ) {
                         console.log('[Cache] Using cached scoreboard in offline mode');
                         request.onSuccess();
                     } else {

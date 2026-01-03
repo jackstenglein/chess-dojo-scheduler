@@ -81,7 +81,10 @@ export function RequireProfile() {
             let firebaseTokens: string[] = [];
             try {
                 const parsed: unknown = JSON.parse(stored);
-                if (Array.isArray(parsed) && parsed.every((t): t is string => typeof t === 'string')) {
+                if (
+                    Array.isArray(parsed) &&
+                    parsed.every((t): t is string => typeof t === 'string')
+                ) {
                     firebaseTokens = parsed;
                 } else if (typeof parsed === 'string') {
                     firebaseTokens = [parsed];

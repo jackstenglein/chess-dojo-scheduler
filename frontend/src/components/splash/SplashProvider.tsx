@@ -1,7 +1,7 @@
 'use client';
 
-import { SplashScreen } from './SplashScreen';
 import { useEffect, useState } from 'react';
+import { SplashScreen } from './SplashScreen';
 
 interface SplashProviderProps {
     children: React.ReactNode;
@@ -21,12 +21,7 @@ export function SplashProvider({ children }: SplashProviderProps) {
 
     return (
         <>
-            {showSplash && (
-                <SplashScreen
-                    onComplete={() => setShowSplash(false)}
-                    duration={1500}
-                />
-            )}
+            {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} duration={1500} />}
             {children}
         </>
     );

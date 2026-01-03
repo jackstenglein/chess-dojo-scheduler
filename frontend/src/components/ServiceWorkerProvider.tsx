@@ -20,19 +20,24 @@ export function ServiceWorkerProvider() {
             setIsOffline(offline);
             console.log('Network status changed:', offline ? 'OFFLINE' : 'ONLINE');
         };
-        
+
         // Set initial status
         updateOnlineStatus();
-        
+
         // Add event listeners
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
-        
+
         // Debug: Log every 5 seconds
         const debugInterval = setInterval(() => {
-            console.log('SW Debug - Online:', navigator.onLine, 'Offline indicator showing:', isOffline);
+            console.log(
+                'SW Debug - Online:',
+                navigator.onLine,
+                'Offline indicator showing:',
+                isOffline,
+            );
         }, 5000);
-        
+
         return () => {
             window.removeEventListener('online', updateOnlineStatus);
             window.removeEventListener('offline', updateOnlineStatus);
@@ -71,8 +76,8 @@ export function ServiceWorkerProvider() {
         <>
             {isOffline && (
                 <>
-                    <div 
-                        id="offline-indicator"
+                    <div
+                        id='offline-indicator'
                         style={{
                             position: 'fixed',
                             top: 0,
@@ -91,36 +96,43 @@ export function ServiceWorkerProvider() {
                             backdropFilter: 'blur(10px)',
                         }}
                     >
-                        <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            gap: '8px',
-                            maxWidth: '1200px',
-                            margin: '0 auto'
-                        }}>
-                            <div style={{ 
-                                width: '12px', 
-                                height: '12px', 
-                                borderRadius: '50%', 
-                                backgroundColor: '#fff',
-                                animation: 'pulse 2s infinite'
-                            }} />
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                maxWidth: '1200px',
+                                margin: '0 auto',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: '12px',
+                                    height: '12px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#fff',
+                                    animation: 'pulse 2s infinite',
+                                }}
+                            />
                             <span style={{ fontSize: '14px', fontWeight: '500' }}>
                                 You are offline - Please check your internet connection.
                             </span>
-                            <div style={{ 
-                                width: '12px', 
-                                height: '12px', 
-                                borderRadius: '50%', 
-                                backgroundColor: '#fff',
-                                animation: 'pulse 2s infinite 0.5s'
-                            }} />
+                            <div
+                                style={{
+                                    width: '12px',
+                                    height: '12px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#fff',
+                                    animation: 'pulse 2s infinite 0.5s',
+                                }}
+                            />
                         </div>
                     </div>
-                    
-                    <style dangerouslySetInnerHTML={{
-                        __html: `
+
+                    <style
+                        dangerouslySetInnerHTML={{
+                            __html: `
                             @keyframes slideDown {
                                 from {
                                     transform: translateY(-100%);
@@ -207,8 +219,9 @@ export function ServiceWorkerProvider() {
                                     padding-top: 45px !important;
                                 }
                             }
-                        `
-                    }} />
+                        `,
+                        }}
+                    />
                 </>
             )}
         </>

@@ -28,7 +28,6 @@ const fadeIn = keyframes`
   }
 `;
 
-
 interface SplashScreenProps {
     onComplete?: () => void;
     duration?: number;
@@ -77,8 +76,8 @@ export function SplashScreen({ onComplete, duration = 2000 }: SplashScreenProps)
                 }}
             >
                 <Image
-                    src="/android-chrome-512x512.png"
-                    alt="Chess Dojo"
+                    src='/android-chrome-512x512.png'
+                    alt='Chess Dojo'
                     width={150}
                     height={150}
                     priority
