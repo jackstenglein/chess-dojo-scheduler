@@ -160,6 +160,7 @@ functions:
       discordPrivateGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
       discordLiveClassesCategoryId: ${file(../config-${sls:stage}.yml):discordLiveClassesCategoryId}
       discordLiveClassesRoleId: ${file(../config-${sls:stage}.yml):discordLiveClassesRole}
+      discordSenseiRoleId: ${file(../config-${sls:stage}.yml):discordSenseiRoleId}
     iamRoleStatements:
       - Effect: Allow
         Action:

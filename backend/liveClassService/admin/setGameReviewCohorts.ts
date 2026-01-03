@@ -40,6 +40,7 @@ const EVENTS_TABLE = `${process.env.stage}-events`;
 const DISCORD_GUILD_ID = process.env.discordPrivateGuildId || '';
 const DISCORD_CATEGORY_ID = process.env.discordLiveClassesCategoryId || '';
 const DISCORD_LIVE_CLASSES_ROLE_ID = process.env.discordLiveClassesRoleId || '';
+const DISCORD_SENSEI_ROLE_ID = process.env.discordSenseiRoleId || '';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     try {
@@ -220,6 +221,11 @@ async function getPermissionOverwrites(
             type: OverwriteType.Role,
             id: DISCORD_LIVE_CLASSES_ROLE_ID,
             deny: [PermissionFlagsBits.ViewChannel],
+        },
+        {
+            type: OverwriteType.Role,
+            id: DISCORD_SENSEI_ROLE_ID,
+            allow: [PermissionFlagsBits.ViewChannel],
         },
         {
             type: OverwriteType.Member,
