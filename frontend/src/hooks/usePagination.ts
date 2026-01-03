@@ -119,7 +119,6 @@ export function usePagination(
                 setStartKey(response.data.lastEvaluatedKey);
             })
             .catch((err) => {
-                console.error('ListGames: ', err);
                 request.onFailure(err);
             });
     }, [page, pageSize, games, startKey, searchFunc, filterFunc, request]);

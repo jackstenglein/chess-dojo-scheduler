@@ -214,7 +214,6 @@ const EditableComment: React.FC<CommentProps> = ({ comment, move }) => {
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error('updateComment: ', err);
                 request.onFailure(err);
             });
     };
@@ -233,7 +232,6 @@ const EditableComment: React.FC<CommentProps> = ({ comment, move }) => {
                 setShowDelete(false);
             })
             .catch((err) => {
-                console.error('deleteComment: ', err);
                 deleteRequest.onFailure(err);
             });
     };

@@ -1,9 +1,6 @@
-import axios, { AxiosResponse } from 'axios';
-
-import { getConfig } from '../config';
+import { AxiosResponse } from 'axios';
 import { Course } from '../database/course';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 /**
  * CourseApiContextType provides an API for interacting with Courses.
@@ -82,15 +79,19 @@ export interface GetCourseResponse {
  */
 export function getCourse(idToken: string, type: string, id: string, checkoutId?: string) {
     if (idToken) {
-        return axios.get<GetCourseResponse>(`${BASE_URL}/courses/${type}/${id}`, {
+        return axiosService.get<GetCourseResponse>(`/courses/${type}/${id}`, {
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'getCourse',
         });
     }
 
-    return axios.get<GetCourseResponse>(
-        `${BASE_URL}/public/courses/${type}/${id}?checkoutId=${checkoutId}`,
+    return axiosService.get<GetCourseResponse>(
+        `/public/courses/${type}/${id}?checkoutId=${checkoutId}`,
+        {
+            functionName: 'getCourse',
+        },
     );
 }
 
@@ -111,11 +112,12 @@ export async function listCourses(idToken: string, type: string, startKey?: stri
     const result: Course[] = [];
 
     do {
-        const resp = await axios.get<ListCoursesResponse>(`${BASE_URL}/courses/${type}`, {
+        const resp = await axiosService.get<ListCoursesResponse>(`/courses/${type}`, {
             params,
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'listCourses',
         });
 
         result.push(...resp.data.courses);
@@ -135,8 +137,9 @@ export async function listAllCourses(startKey?: string) {
     const result: Course[] = [];
 
     do {
-        const resp = await axios.get<ListCoursesResponse>(`${BASE_URL}/public/courses`, {
+        const resp = await axiosService.get<ListCoursesResponse>(`/public/courses`, {
             params,
+            functionName: 'listAllCourses',
         });
 
         result.push(...resp.data.courses);
@@ -168,8 +171,8 @@ export function purchaseCourse(
     cancelUrl?: string,
 ) {
     const url = idToken
-        ? `${BASE_URL}/courses/${type}/${id}/purchase`
-        : `${BASE_URL}/public/courses/${type}/${id}/purchase`;
+        ? `/courses/${type}/${id}/purchase`
+        : `/public/courses/${type}/${id}/purchase`;
 
     const headers = idToken
         ? {
@@ -177,9 +180,10 @@ export function purchaseCourse(
           }
         : undefined;
 
-    return axios.get<PurchaseCourseResponse>(url, {
+    return axiosService.get<PurchaseCourseResponse>(url, {
         params: { purchaseOption, cancelUrl },
         headers,
+        functionName: 'purchaseCourse',
     });
 }
 
@@ -190,7 +194,8 @@ export function purchaseCourse(
  * @returns An AxiosResponse containing the Course as saved in the database.
  */
 export function setCourse(idToken: string, course: Course) {
-    return axios.put<Course>(`${BASE_URL}/courses`, course, {
+    return axiosService.put<Course>(`/courses`, course, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'setCourse',
     });
 }

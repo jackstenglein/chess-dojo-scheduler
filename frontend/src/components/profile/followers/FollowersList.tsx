@@ -33,7 +33,6 @@ export const FollowersList = ({
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }
@@ -101,7 +100,6 @@ const FollowerListItem: React.FC<FollowerListItemProps> = ({ entry, isFollowing,
                 onUnfollow(entry.poster);
             })
             .catch((err) => {
-                console.error(err);
                 unfollowRequest.onFailure(err);
             });
     };

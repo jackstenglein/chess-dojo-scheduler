@@ -13,11 +13,18 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/log"
 )
 
+type SubscriptionStatus string
+type SubscriptionTier string
+
 const (
-	SubscriptionStatus_Subscribed = "SUBSCRIBED"
-	SubscriptionStatus_FreeTier   = "FREE_TIER"
-	SubscriptionStatus_Canceled   = "CANCELED"
-	SubscriptionStatus_Unknown    = "UNKNOWN"
+	SubscriptionStatus_Subscribed    SubscriptionStatus = "SUBSCRIBED"
+	SubscriptionStatus_Canceled      SubscriptionStatus = "CANCELED"
+	SubscriptionStatus_NotSubscribed SubscriptionStatus = "NOT_SUBSCRIBED"
+
+	SubscriptionTier_Free       SubscriptionTier = "FREE"
+	SubscriptionTier_Basic      SubscriptionTier = "BASIC"
+	SubscriptionTier_Lecture    SubscriptionTier = "LECTURE"
+	SubscriptionTier_GameReview SubscriptionTier = "GAME_REVIEW"
 )
 
 type DojoCohort string
@@ -105,6 +112,11 @@ const (
 	Custom3  RatingSystem = "CUSTOM_3"
 )
 
+// IsCustom returns true if the rating system is a custom rating system.
+func (rs RatingSystem) IsCustom() bool {
+	return rs == Custom || rs == Custom2 || rs == Custom3
+}
+
 var ratingSystems = []RatingSystem{
 	Chesscom,
 	Lichess,
@@ -141,6 +153,9 @@ type Rating struct {
 
 	// The name of the rating system. Only present if this is a custom rating.
 	Name string `dynamodbav:"name,omitempty" json:"name,omitempty"`
+
+	// Whether the user's rating is provisional
+	IsProvisional bool `dynamodbav:"isProvisional,omitempty" json:"isProvisional,omitempty"`
 }
 
 type RatingHistory struct {
@@ -161,12 +176,6 @@ type User struct {
 	// The user's email address used to log into the wix site
 	WixEmail string `dynamodbav:"wixEmail" json:"-"`
 
-	// The user's subscription status
-	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
-
-	// Override subscription status to give full site access. Can only be set manually in DynamoDB
-	SubscriptionOverride bool `dynamodbav:"subscriptionOverride" json:"-"`
-
 	// The name of the user
 	Name string `dynamodbav:"name" json:"-"`
 
@@ -177,7 +186,7 @@ type User struct {
 	DiscordUsername string `dynamodbav:"discordUsername" json:"discordUsername"`
 
 	// The user's Discord id
-	DiscordId string `dynamodbav:"discordId" json:"discordId"`
+	DiscordId string `dynamodbav:"discordId,omitempty" json:"discordId,omitempty"`
 
 	// A search field of the form display:DisplayName_discord:DiscordUsername_[ratingSystem:RatingSystem.Username]
 	// Stored in all lowercase. Each rating's username is only included if its HideUsername field is false.
@@ -293,6 +302,12 @@ type User struct {
 	// The ids of the user's purchased courses
 	PurchasedCourses map[string]bool `dynamodbav:"purchasedCourses" json:"purchasedCourses"`
 
+	// The user's subscription status. This must be a top-level attribute because it is a Dynamo GSI key.
+	SubscriptionStatus SubscriptionStatus `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+
+	// The user's subscription tier. This must be a top-level attribute because it is a Dynamo GSI key.
+	SubscriptionTier SubscriptionTier `dynamodbav:"subscriptionTier,omitempty" json:"subscriptionTier,omitempty"`
+
 	// The user's payment info
 	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo" json:"paymentInfo"`
 
@@ -329,6 +344,24 @@ type User struct {
 
 	// The user's firebase cloud messaging tokens
 	FirebaseTokens []string `dynamodbav:"firebaseTokens,omitempty" json:"-"`
+
+	// A map from puzzle theme to the user's overview stats for that theme. The user's
+	// overall stats will be under the theme OVERALL.
+	Puzzles map[string]PuzzleThemeOverview `dynamodbav:"puzzles,omitempty" json:"puzzles,omitempty"`
+
+	// The id of the user's game review cohort, if they are a member of the Game & Profile Review tier.
+	GameReviewCohortId string `dynamodbav:"gameReviewCohortId,omitempty" json:"gameReviewCohortId,omitempty"`
+}
+
+type PuzzleThemeOverview struct {
+	// The user's rating for the theme.
+	Rating float32 `dynamodbav:"rating" json:"rating"`
+	// The user's rating deviation for the theme.
+	RatingDeviation float32 `dynamodbav:"ratingDeviation" json:"ratingDeviation"`
+	// The number of times the user has played a puzzle with the theme.
+	Plays int `dynamodbav:"plays" json:"plays"`
+	// The time the puzzle was last played, in ISO 8601.
+	LastPlayed string `dynamodbav:"lastPlayed" json:"lastPlayed"`
 }
 
 // A summary of a user's performance on a single exam.
@@ -354,7 +387,10 @@ type PaymentInfo struct {
 	SubscriptionId string `dynamodbav:"subscriptionId" json:"-"`
 
 	// The status of the subscription
-	SubscriptionStatus string `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+	SubscriptionStatus SubscriptionStatus `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
+
+	// The tier of the subscription
+	SubscriptionTier SubscriptionTier `dynamodbav:"subscriptionTier" json:"subscriptionTier"`
 }
 
 type WorkGoalSettings struct {
@@ -419,6 +455,30 @@ func (pi *PaymentInfo) GetCustomerId() string {
 		return ""
 	}
 	return pi.CustomerId
+}
+
+func (pi *PaymentInfo) GetSubscriptionStatus() SubscriptionStatus {
+	if pi == nil {
+		return SubscriptionStatus_NotSubscribed
+	}
+	return pi.SubscriptionStatus
+}
+
+func (pi *PaymentInfo) GetSubscriptionTier() SubscriptionTier {
+	if pi == nil {
+		return SubscriptionTier_Free
+	}
+	if pi.SubscriptionTier == "" {
+		return SubscriptionTier_Basic
+	}
+	return pi.SubscriptionTier
+}
+
+func (pi *PaymentInfo) GetSubscriptionId() string {
+	if pi == nil {
+		return ""
+	}
+	return pi.SubscriptionId
 }
 
 type CoachInfo struct {
@@ -510,6 +570,20 @@ type UserOpeningModule struct {
 	Exercises []bool `dynamodbav:"exercises,omitempty" json:"exercises,omitempty"`
 }
 
+func (u *User) GetUsername() string {
+	if u == nil {
+		return ""
+	}
+	return u.Username
+}
+
+func (u *User) GetCohort() DojoCohort {
+	if u == nil {
+		return NoCohort
+	}
+	return u.DojoCohort
+}
+
 // GetRatings returns the start and current ratings in the user's preferred rating system.
 func (u *User) GetRatings() (int, int) {
 	if u == nil {
@@ -594,7 +668,28 @@ func (u *User) IsSubscribed() bool {
 	if u == nil {
 		return false
 	}
-	return u.SubscriptionOverride || u.PaymentInfo.IsSubscribed() || u.SubscriptionStatus == SubscriptionStatus_Subscribed
+	return u.PaymentInfo.IsSubscribed() || u.SubscriptionStatus == SubscriptionStatus_Subscribed
+}
+
+func (u *User) GetSubscriptionStatus() SubscriptionStatus {
+	if u == nil {
+		return SubscriptionStatus_NotSubscribed
+	}
+	return u.PaymentInfo.GetSubscriptionStatus()
+}
+
+func (u *User) GetSubscriptionTier() SubscriptionTier {
+	if u.GetSubscriptionStatus() != SubscriptionStatus_Subscribed {
+		return SubscriptionTier_Free
+	}
+	return u.PaymentInfo.GetSubscriptionTier()
+}
+
+func (u *User) GetIsCalendarAdmin() bool {
+	if u == nil {
+		return false
+	}
+	return u.IsAdmin || u.IsCalendarAdmin
 }
 
 // UserUpdate contains pointers to fields included in the update of a user record. If a field
@@ -602,14 +697,8 @@ func (u *User) IsSubscribed() bool {
 // Some fields from the User type are removed as they cannot be updated. Other fields
 // are ignored by the json encoder because they cannot be manually updated by the user.
 type UserUpdate struct {
-	// The user's subscription status. Cannot be passed by the user.
-	SubscriptionStatus *string `dynamodbav:"subscriptionStatus,omitempty" json:"-"`
-
 	// The user's preferred display name on the site
 	DisplayName *string `dynamodbav:"displayName,omitempty" json:"displayName,omitempty"`
-
-	// The user's Discord username
-	DiscordUsername *string `dynamodbav:"discordUsername,omitempty" json:"discordUsername,omitempty"`
 
 	// A search field of the form display:DisplayName_discord:DiscordUsername_[ratingSystem:RatingSystem.Username]
 	// Stored in all lowercase. Each rating's username is only included if its HideUsername field is false.
@@ -705,6 +794,13 @@ type UserUpdate struct {
 	// The ids of the user's purchased courses. This field cannot be manually set by the user.
 	PurchasedCourses *map[string]bool `dynamodbav:"purchasedCourses,omitempty" json:"-"`
 
+	// The user's subscription status. This field matches the value in PaymentInfo.SubscriptionStatus
+	// and exists only to act as a top-level DynamoDB GSI key. Cannot be passed by the user.
+	SubscriptionStatus *string `dynamodbav:"subscriptionStatus,omitempty" json:"-"`
+
+	// The user's subscription tier. Cannot be passed by the user.
+	SubscriptionTier *string `dynamodbav:"subscriptionTier,omitempty" json:"-"`
+
 	// The user's payment info. This field cannot be manually set by the user.
 	PaymentInfo *PaymentInfo `dynamodbav:"paymentInfo,omitempty" json:"-"`
 
@@ -761,16 +857,6 @@ func (u *UserUpdate) getDisplayName() string {
 	return *u.DisplayName
 }
 
-func (u *UserUpdate) getDiscordName() string {
-	if u == nil {
-		return ""
-	}
-	if u.DiscordUsername == nil {
-		return ""
-	}
-	return *u.DiscordUsername
-}
-
 func (u *UserUpdate) getRating(rs RatingSystem) (string, bool) {
 	if u == nil || u.Ratings == nil || (*u.Ratings)[rs] == nil {
 		return "", false
@@ -784,13 +870,11 @@ func GetSearchKey(user *User, update *UserUpdate) string {
 		return ""
 	}
 
-	displayName, discordName := update.getDisplayName(), update.getDiscordName()
+	displayName := update.getDisplayName()
 	if displayName == "" {
 		displayName = user.getDisplayName()
 	}
-	if discordName == "" {
-		discordName = user.getDiscordName()
-	}
+	discordName := user.getDiscordName()
 
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("display:%s_discord:%s", displayName, discordName))
@@ -811,7 +895,7 @@ func GetSearchKey(user *User, update *UserUpdate) string {
 
 type UserCreator interface {
 	// CreateUser creates a new User object with the provided information.
-	CreateUser(username, email, name, subscriptionStatus string) (*User, error)
+	CreateUser(username, email, name string, paymentInfo *PaymentInfo) (*User, error)
 }
 
 type UserGetter interface {
@@ -867,7 +951,7 @@ type AdminUserLister interface {
 }
 
 // CreateUser creates a new User object with the provided information.
-func (repo *dynamoRepository) CreateUser(username, email, name, subscriptionStatus string) (*User, error) {
+func (repo *dynamoRepository) CreateUser(username, email, name string, paymentInfo *PaymentInfo) (*User, error) {
 	user := &User{
 		Username:           username,
 		Email:              email,
@@ -875,7 +959,8 @@ func (repo *dynamoRepository) CreateUser(username, email, name, subscriptionStat
 		Name:               name,
 		CreatedAt:          time.Now().Format(time.RFC3339),
 		DojoCohort:         NoCohort,
-		SubscriptionStatus: subscriptionStatus,
+		PaymentInfo:        paymentInfo,
+		SubscriptionStatus: paymentInfo.GetSubscriptionStatus(),
 	}
 
 	err := repo.SetUserConditional(user, aws.String("attribute_not_exists(username)"))
@@ -1139,6 +1224,27 @@ func (repo *dynamoRepository) GetUser(username string) (*User, error) {
 	return &user, nil
 }
 
+// GetUserByDiscordId returns the User object with the provided Discord ID.
+func (repo *dynamoRepository) GetUserByDiscordId(discordId string) (*User, error) {
+	input := &dynamodb.QueryInput{
+		KeyConditionExpression:    aws.String("#discordId = :discordId"),
+		ExpressionAttributeNames:  map[string]*string{"#discordId": aws.String("discordId")},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":discordId": {S: aws.String(discordId)}},
+		TableName:                 aws.String(userTable),
+		IndexName:                 aws.String("DiscordIdIdx"),
+	}
+
+	var results []*User
+	if _, err := repo.query(input, "", &results); err != nil {
+		return nil, err
+	}
+
+	if len(results) < 1 {
+		return nil, errors.New(404, fmt.Sprintf("Discord ID %q not found", discordId), "")
+	}
+	return results[0], nil
+}
+
 const ONE_MONTH_AGO = -time.Hour * 24 * 31
 
 // ListUsersByCohort returns a list of Users in the provided cohort, up to 1MB of data.
@@ -1196,7 +1302,7 @@ func (repo *dynamoRepository) ScanUsers(startKey string) ([]*User, string, error
 	return users, lastKey, nil
 }
 
-const ratingsProjection = "username, dojoCohort, subscriptionStatus, subscriptionOverride, paymentInfo, wixEmail, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories, lichessBan"
+const ratingsProjection = "username, dojoCohort, subscriptionStatus, paymentInfo, wixEmail, updatedAt, progress, minutesSpent, ratingSystem, ratings, ratingHistories, lichessBan"
 
 // ListUserRatings returns a list of Users matching the provided cohort, up to 1MB of data.
 // Only the fields necessary for the rating/statistics update are returned.
@@ -1231,7 +1337,7 @@ func (repo *dynamoRepository) UpdateUserRatings(users []*User) error {
 
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		params, err := dynamodbattribute.MarshalList([]interface{}{user.Ratings, user.RatingHistories, user.LichessBan, user.Username})
+		params, err := dynamodbattribute.MarshalList([]any{user.Ratings, user.RatingHistories, user.LichessBan, user.Username})
 		if err != nil {
 			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.Ratings", err)
 		}
@@ -1319,13 +1425,13 @@ func (repo *dynamoRepository) UpdateUserSubscriptionStatuses(users []*User) erro
 	var sb strings.Builder
 	statements := make([]*dynamodb.BatchStatementRequest, 0, len(users))
 	for _, user := range users {
-		params, err := dynamodbattribute.MarshalList([]interface{}{user.SubscriptionStatus})
+		params, err := dynamodbattribute.MarshalList([]any{user.GetSubscriptionStatus(), user.PaymentInfo})
 		if err != nil {
-			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.MinutesSpent", err)
+			return errors.Wrap(500, "Temporary server error", "Failed to marshal user.PaymentInfo", err)
 		}
 
 		sb.WriteString(fmt.Sprintf("UPDATE \"%s\"", userTable))
-		sb.WriteString(" SET subscriptionStatus=?")
+		sb.WriteString(" SET subscriptionStatus=? paymentInfo=?")
 		sb.WriteString(fmt.Sprintf(" WHERE username='%s'", user.Username))
 
 		statement := &dynamodb.BatchStatementRequest{

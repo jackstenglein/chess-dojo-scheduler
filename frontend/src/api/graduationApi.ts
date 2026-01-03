@@ -1,9 +1,5 @@
-import axios from 'axios';
-
-import { getConfig } from '../config';
 import { Graduation } from '../database/graduation';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 export interface GraduationApiContextType {
     /**
@@ -39,8 +35,9 @@ async function listGraduations(url: string, params: Record<string, string | unde
     const result: Graduation[] = [];
 
     do {
-        const resp = await axios.get<ListGraduationsResponse>(url, {
+        const resp = await axiosService.get<ListGraduationsResponse>(url, {
             params,
+            functionName: 'listGraduations',
         });
 
         result.push(...resp.data.graduations);
@@ -58,7 +55,7 @@ async function listGraduations(url: string, params: Record<string, string | unde
  */
 export async function listGraduationsByCohort(cohort: string, startKey?: string) {
     const params = { startKey };
-    return listGraduations(BASE_URL + `/public/graduations/${cohort}`, params);
+    return listGraduations(`/public/graduations/${cohort}`, params);
 }
 
 /**
@@ -69,7 +66,7 @@ export async function listGraduationsByCohort(cohort: string, startKey?: string)
  */
 export async function listGraduationsByOwner(username: string, startKey?: string) {
     const params = { startKey };
-    return listGraduations(BASE_URL + `/public/graduations/owner/${username}`, params);
+    return listGraduations(`/public/graduations/owner/${username}`, params);
 }
 
 /**
@@ -79,5 +76,5 @@ export async function listGraduationsByOwner(username: string, startKey?: string
  */
 export async function listGraduationsByDate(startKey?: string) {
     const params = { startKey };
-    return listGraduations(BASE_URL + `/public/graduations`, params);
+    return listGraduations(`/public/graduations`, params);
 }

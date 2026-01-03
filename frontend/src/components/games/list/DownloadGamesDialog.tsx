@@ -64,7 +64,6 @@ export function DownloadGamesDialog({
             setTimeout(() => {
                 api.checkDirectoryExport(id)
                     .then((response) => {
-                        console.log('checkDirectoryExport: ', response);
                         onSuccess(response.data);
                         if (response.data.downloadUrl) {
                             window.open(response.data.downloadUrl, '_blank');
@@ -74,7 +73,6 @@ export function DownloadGamesDialog({
                         }
                     })
                     .catch((err) => {
-                        console.error('checkDirectoryExport: ', err);
                         onFailure(err);
                         setDelay(Math.min(30000, delay * 1.3));
                         setRetries(retries + 1);
@@ -102,10 +100,8 @@ export function DownloadGamesDialog({
                     skipClocks,
                 },
             });
-            console.log('exportDirectory: ', response);
             startRequest.onSuccess(response.data.id);
         } catch (err) {
-            console.error('exportDirectory: ', err);
             startRequest.onFailure(err);
         }
     };

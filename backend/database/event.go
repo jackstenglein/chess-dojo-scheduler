@@ -72,6 +72,8 @@ const (
 	EventType_Dojo           EventType = "DOJO"
 	EventType_LigaTournament EventType = "LIGA_TOURNAMENT"
 	EventType_Coaching       EventType = "COACHING"
+	EventType_GameReviewTier EventType = "GAME_REVIEW_TIER"
+	EventType_LectureTier    EventType = "LECTURE_TIER"
 )
 
 // SchedulingStatus represents the status for events.
@@ -207,6 +209,19 @@ type Event struct {
 
 	// The recurrence rule of the event, if set.
 	RRule string `dynamodbav:"rrule,omitempty" json:"rrule,omitempty"`
+
+	// The color of the event.
+	Color string `dynamodbav:"color,omitempty" json:"color,omitempty"`
+
+	// The ID of the game review cohort of the event. Only relevant for game & profile review tier events.
+	GameReviewCohortId string `dynamodbav:"gameReviewCohortId,omitempty" json:"gameReviewCohortId,omitempty"`
+
+	// The game review cohort of the event. Populated in output only and will not be saved to Dynamo.
+	// Only relevant for game & profile review tier events.
+	GameReviewCohort *GameReviewCohort `dynamodbav:"-" json:"gameReviewCohort,omitempty"`
+
+	// The Discord channel id of the event, if one exists. Currently this is only set on lecture tier events.
+	DiscordChannelId string `dynamodbav:"discordChannelId,omitempty" json:"discordChannelId,omitempty"`
 }
 
 type TimeControlType string

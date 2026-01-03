@@ -1,3 +1,4 @@
+import { logger } from '@/logging/logger';
 import { EngineName } from './engine';
 import { EngineWorker } from './EngineWorker';
 import { objectStorage } from './objectStorage';
@@ -56,7 +57,7 @@ export class Stockfish17 extends UciEngine {
                 const req = new XMLHttpRequest();
                 req.open('get', `/static/engine/nnue/${nnueFilename}`, true);
                 req.responseType = 'arraybuffer';
-                req.onprogress = (e) => console.log(e);
+                req.onprogress = (e) => logger.debug?.(e);
 
                 const nnueBuffer = await new Promise<Uint8Array>((resolve, reject) => {
                     req.onerror = () => reject(new Error(`NNUE download failed: ${req.status}`));
@@ -67,7 +68,7 @@ export class Stockfish17 extends UciEngine {
                     };
                     req.send();
                 });
-                store?.put(nnueFilename, nnueBuffer).catch(() => console.warn('IDB store failed'));
+                store?.put(nnueFilename, nnueBuffer).catch(() => logger.warn?.('IDB store failed'));
                 return nnueBuffer;
             }),
         );

@@ -176,7 +176,6 @@ export const onUpdateDirectory =
                 handleClose();
             })
             .catch((err) => {
-                console.error('updateDirectory: ', err);
                 request.onFailure(err);
             });
     };

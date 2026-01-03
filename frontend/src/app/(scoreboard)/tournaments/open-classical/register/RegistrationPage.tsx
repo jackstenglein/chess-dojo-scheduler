@@ -6,6 +6,7 @@ import { AuthStatus, useAuth } from '@/auth/Auth';
 import DiscordOAuthButton from '@/components/profile/edit/DiscordOAuthButton';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
+import { logger } from '@/logging/logger';
 import { LocationOn } from '@mui/icons-material';
 import EmailIcon from '@mui/icons-material/Email';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
@@ -105,7 +106,7 @@ const RegistrationPage = () => {
         if (byeRequests.every((v) => v)) {
             newErrors.byeRequests = 'You cannot request a bye for every round';
         }
-        console.log('New errors: ', newErrors);
+        logger.debug?.('New errors: ', newErrors);
 
         setErrors(newErrors);
         if (Object.entries(newErrors).length > 0) {
@@ -129,7 +130,6 @@ const RegistrationPage = () => {
                 router.push(`/tournaments/open-classical?region=${region}&ratingRange=${section}`);
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

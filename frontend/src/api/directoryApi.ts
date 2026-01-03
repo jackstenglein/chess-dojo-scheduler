@@ -1,5 +1,4 @@
 import { BreadcrumbItem } from '@/components/profile/directories/DirectoryCache';
-import { getConfig } from '@/config';
 import {
     AddDirectoryItemsRequestV2,
     CreateDirectoryRequestV2Client,
@@ -15,9 +14,8 @@ import {
     ShareDirectoryRequest,
     UpdateDirectoryRequestV2,
 } from '@jackstenglein/chess-dojo-common/src/database/directory';
-import axios, { AxiosResponse } from 'axios';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { AxiosResponse } from 'axios';
+import { axiosService } from './axiosService';
 
 export interface DirectoryApiContextType {
     /**
@@ -141,10 +139,11 @@ export interface GetDirectoryStatsResponse {
  * @returns The requested directory and the caller's access role for that directory.
  */
 export function getDirectory(idToken: string, owner: string, id: string) {
-    return axios.get<GetDirectoryResponse>(`${BASE_URL}/directory/${owner}/${id}/v2`, {
+    return axiosService.get<GetDirectoryResponse>(`/directory/${owner}/${id}/v2`, {
         headers: {
             Authorization: `Bearer ${idToken}`,
         },
+        functionName: 'getDirectory',
     });
 }
 
@@ -156,11 +155,12 @@ export function getDirectory(idToken: string, owner: string, id: string) {
  */
 export function getDirectoryStats(idToken: string, request: GetDirectoryStatsRequest) {
     const { owner, id, ...rest } = request;
-    return axios.get<GetDirectoryStatsResponse>(`${BASE_URL}/directory/${owner}/${id}/stats`, {
+    return axiosService.get<GetDirectoryStatsResponse>(`/directory/${owner}/${id}/stats`, {
         params: rest,
         headers: {
             Authorization: `Bearer ${idToken}`,
         },
+        functionName: 'getDirectoryStats',
     });
 }
 
@@ -172,13 +172,14 @@ export function getDirectoryStats(idToken: string, request: GetDirectoryStatsReq
  */
 export function listBreadcrumbs(idToken: string, request: ListBreadcrumbsRequest) {
     const { owner, id, ...rest } = request;
-    return axios.get<Record<string, BreadcrumbItem>>(
-        `${BASE_URL}/directory/${owner}/${id}/breadcrumbs`,
+    return axiosService.get<Record<string, BreadcrumbItem>>(
+        `/directory/${owner}/${id}/breadcrumbs`,
         {
             params: rest,
             headers: {
                 Authorization: `Bearer ${idToken}`,
             },
+            functionName: 'listBreadcrumbs',
         },
     );
 }
@@ -204,8 +205,9 @@ export interface CreateDirectoryResponse {
  */
 export function createDirectory(idToken: string, request: CreateDirectoryRequestV2Client) {
     const { owner, parent, ...rest } = request;
-    return axios.post<CreateDirectoryResponse>(`${BASE_URL}/directory/${owner}/${parent}`, rest, {
+    return axiosService.post<CreateDirectoryResponse>(`/directory/${owner}/${parent}`, rest, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'createDirectory',
     });
 }
 
@@ -222,8 +224,9 @@ export interface UpdateDirectoryResponse {
  */
 export function updateDirectory(idToken: string, request: UpdateDirectoryRequestV2) {
     const { owner, id, ...rest } = request;
-    return axios.put<UpdateDirectoryResponse>(`${BASE_URL}/directory/${owner}/${id}`, rest, {
+    return axiosService.put<UpdateDirectoryResponse>(`/directory/${owner}/${id}`, rest, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'updateDirectory',
     });
 }
 
@@ -234,11 +237,12 @@ export function updateDirectory(idToken: string, request: UpdateDirectoryRequest
  * @returns The updated directory.
  */
 export function shareDirectory(idToken: string, request: ShareDirectoryRequest) {
-    return axios.put<Directory>(
-        `${BASE_URL}/directory/${request.owner}/${request.id}/share`,
+    return axiosService.put<Directory>(
+        `/directory/${request.owner}/${request.id}/share`,
         { access: request.access },
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'shareDirectory',
         },
     );
 }
@@ -251,13 +255,14 @@ export function shareDirectory(idToken: string, request: ShareDirectoryRequest) 
  * @returns The updated parent directory.
  */
 export function deleteDirectories(idToken: string, owner: string, ids: string[]) {
-    return axios.put<{ parent?: Directory }>(
-        `${BASE_URL}/directory/delete/v2`,
+    return axiosService.put<{ parent?: Directory }>(
+        `/directory/delete/v2`,
         { owner, ids },
         {
             headers: {
                 Authorization: `Bearer ${idToken}`,
             },
+            functionName: 'deleteDirectories',
         },
     );
 }
@@ -275,11 +280,12 @@ export interface AddDirectoryItemsResponse {
  * @returns The updated directory.
  */
 export function addDirectoryItems(idToken: string, request: AddDirectoryItemsRequestV2) {
-    return axios.put<AddDirectoryItemsResponse>(
-        `${BASE_URL}/directory/${request.owner}/${request.id}/items`,
+    return axiosService.put<AddDirectoryItemsResponse>(
+        `/directory/${request.owner}/${request.id}/items`,
         { games: request.games },
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'addDirectoryItems',
         },
     );
 }
@@ -291,11 +297,12 @@ export function addDirectoryItems(idToken: string, request: AddDirectoryItemsReq
  * @returns The updated directory.
  */
 export function removeDirectoryItem(idToken: string, request: RemoveDirectoryItemsRequestV2) {
-    return axios.put<AddDirectoryItemsResponse>(
-        `${BASE_URL}/directory/${request.owner}/${request.directoryId}/items/delete`,
+    return axiosService.put<AddDirectoryItemsResponse>(
+        `/directory/${request.owner}/${request.directoryId}/items/delete`,
         { itemIds: request.itemIds },
         {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'removeDirectoryItem',
         },
     );
 }
@@ -316,8 +323,9 @@ export interface MoveDirectoryItemsResponse {
  * @returns The updated source/target directories.
  */
 export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsRequestV2) {
-    return axios.put<MoveDirectoryItemsResponse>(`${BASE_URL}/directory/items/move/v2`, request, {
+    return axiosService.put<MoveDirectoryItemsResponse>(`/directory/items/move/v2`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'moveDirectoryItems',
     });
 }
 
@@ -328,8 +336,9 @@ export function moveDirectoryItems(idToken: string, request: MoveDirectoryItemsR
  * @returns The id of the generated export.
  */
 export function exportDirectory(idToken: string, request: ExportDirectoryRequest) {
-    return axios.post<{ id: string }>(`${BASE_URL}/directory/export`, request, {
+    return axiosService.post<{ id: string }>(`/directory/export`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'exportDirectory',
     });
 }
 
@@ -340,7 +349,8 @@ export function exportDirectory(idToken: string, request: ExportDirectoryRequest
  * @returns The requested run.
  */
 export function checkDirectoryExport(idToken: string, id: string) {
-    return axios.get<ExportDirectoryRun>(`${BASE_URL}/directory/export/${id}`, {
+    return axiosService.get<ExportDirectoryRun>(`/directory/export/${id}`, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'checkDirectoryExport',
     });
 }

@@ -2,6 +2,7 @@
 import SupportTicket from '@/components/help/SupportTicket';
 import { Link } from '@/components/navigation/Link';
 import { getConfig } from '@/config';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { SmartToy } from '@mui/icons-material';
 import {
     Button,
@@ -14,13 +15,16 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
+import { Fragment, useEffect } from 'react';
 import HelpItem from './HelpItem';
-import { faq } from './UnauthenticatedHelp';
+import { faq, scrollToId } from './UnauthenticatedHelp';
+import { liveClassesFaq } from './liveClasses';
 
 const config = getConfig();
 
 const helpSections = [
     faq,
+    liveClassesFaq,
     {
         title: 'Account/Profile',
         items: [
@@ -336,15 +340,14 @@ const helpSections = [
 ];
 
 const AuthenticatedHelp = () => {
-    const scrollToId = (e: React.MouseEvent, id: string) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const { searchParams } = useNextSearchParams();
 
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView();
+    const id = searchParams.get('id');
+    useEffect(() => {
+        if (id) {
+            scrollToId(undefined, id);
         }
-    };
+    }, [id]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 4 }}>
@@ -368,7 +371,7 @@ const AuthenticatedHelp = () => {
                         <CardContent>
                             <Stack>
                                 {helpSections.map((section) => (
-                                    <>
+                                    <Fragment key={section.title}>
                                         <Link
                                             key={section.title}
                                             href={`#${section.title}`}
@@ -388,7 +391,7 @@ const AuthenticatedHelp = () => {
                                                 </li>
                                             ))}
                                         </ul>
-                                    </>
+                                    </Fragment>
                                 ))}
                                 <Link
                                     href='#support-ticket'
@@ -468,7 +471,7 @@ const AuthenticatedHelp = () => {
                         {helpSections.map((section) => (
                             <Stack
                                 key={section.title}
-                                id={section.title}
+                                id={section.title.toLowerCase().replaceAll(' ', '-')}
                                 sx={{
                                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                                 }}

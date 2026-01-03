@@ -38,16 +38,15 @@ func Handler(ctx context.Context, request api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	if event.Participants == nil {
-		event.Participants = make(map[string]*database.Participant)
-	}
-
-	if event.Type == database.EventType_Availability {
+	switch event.Type {
+	case database.EventType_Availability:
 		return handleAvailability(info, event), nil
-	} else if event.Type == database.EventType_Dojo {
+	case database.EventType_Dojo:
 		return handleDojoEvent(info, event), nil
-	} else if event.Type == database.EventType_Coaching {
+	case database.EventType_Coaching:
 		return handleCoachingEvent(info, event), nil
+	case database.EventType_LectureTier, database.EventType_GameReviewTier:
+		return handleLiveClass(info, event), nil
 	}
 
 	err := errors.New(400, fmt.Sprintf("Invalid request: event type `%s` is not supported", event.Type), "")
@@ -282,6 +281,63 @@ func handleCoachingEvent(info *api.UserInfo, event *database.Event) api.Response
 		if err := repository.SetEvent(event); err != nil {
 			log.Error("Failed to set event.DiscordMessageId: ", err)
 		}
+	}
+
+	return api.Success(event)
+}
+
+func handleLiveClass(info *api.UserInfo, event *database.Event) api.Response {
+	user, err := repository.GetUser(info.Username)
+	if err != nil {
+		return api.Failure(err)
+	}
+	if !user.IsAdmin {
+		err := errors.New(403, "You do not have permission to create live class events", "")
+		return api.Failure(err)
+	}
+
+	if strings.TrimSpace(event.Title) == "" {
+		err := errors.New(400, "Invalid request: title is required", "")
+		return api.Failure(err)
+	}
+	if strings.TrimSpace(event.Description) == "" {
+		err := errors.New(400, "Invalid request: description cannot be empty", "")
+		return api.Failure(err)
+	}
+	if strings.TrimSpace(event.Location) == "" {
+		err := errors.New(400, "Invalid request: location cannot be empty", "")
+		return api.Failure(err)
+	}
+
+	if event.Status != database.SchedulingStatus_Scheduled {
+		err := errors.New(400, fmt.Sprintf("Invalid request: event status must be set to `%s`", database.SchedulingStatus_Scheduled), "")
+		return api.Failure(err)
+	}
+
+	if err := checkTimes(event); err != nil {
+		return api.Failure(err)
+	}
+
+	if err := checkCohorts(event.Cohorts); err != nil {
+		return api.Failure(err)
+	}
+
+	if event.Id == "" {
+		event.Id = uuid.NewString()
+	}
+
+	event.Owner = user.Username
+	event.OwnerDisplayName = user.DisplayName
+	event.OwnerCohort = user.DojoCohort
+	event.OwnerPreviousCohort = user.PreviousCohort
+	event.BookedStartTime = ""
+	event.Types = nil
+	event.BookedType = ""
+	event.MaxParticipants = 0
+	event.DiscordMessageId = ""
+
+	if err := repository.SetEvent(event); err != nil {
+		return api.Failure(err)
 	}
 
 	return api.Success(event)

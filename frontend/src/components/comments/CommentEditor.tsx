@@ -35,7 +35,6 @@ function CommentEditor<T, CreateFunctionProps>(props: CommentEditorProps<T, Crea
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

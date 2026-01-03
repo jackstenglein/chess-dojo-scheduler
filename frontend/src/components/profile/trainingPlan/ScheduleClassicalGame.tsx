@@ -283,14 +283,12 @@ function ScheduleClassicalGameDialog({
         request.onStart();
         parsed.sort((lhs, rhs) => lhs.date.localeCompare(rhs.date));
 
-        console.log('New game schedule: ', parsed);
         api.updateUser({ gameSchedule: parsed })
             .then(() => {
                 request.onSuccess();
                 onClose();
             })
             .catch((err) => {
-                console.error('updateUser: ', err);
                 request.onFailure(err);
             });
     };

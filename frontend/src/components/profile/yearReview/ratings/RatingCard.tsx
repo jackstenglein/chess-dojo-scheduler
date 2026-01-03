@@ -22,6 +22,7 @@ import { useMemo } from 'react';
 import { Chart } from 'react-charts';
 
 const endDateByPeriod: Record<string, string> = {
+    '2025': 'Dec 31, 2025',
     '2024': 'Dec 23, 2024',
     '2023': 'Dec 25, 2023',
 };
@@ -35,7 +36,27 @@ interface RatingCardProps {
 }
 
 const RatingCard: React.FC<RatingCardProps> = ({ cohort, system, data, dark, period }) => {
-    const historyData = useMemo(() => getChartData(data.history, data.currentRating.value), [data]);
+    const historyData = useMemo(() => {
+        const historyData = getChartData(data.history, data.currentRating.value);
+        const year = parseInt(period);
+        const endDate = `${year + 1}-01-07`;
+
+        let startIdx =
+            historyData[0]?.data.findIndex((v) => v.date.toISOString() >= `${period}-01-01`) - 1;
+        if (startIdx < 0) {
+            startIdx = 0;
+        }
+
+        let lastIdx: number | undefined = historyData[0]?.data.findIndex(
+            (v) => v.date.toISOString() >= endDate,
+        );
+        if (lastIdx < 0) {
+            lastIdx = undefined;
+        }
+
+        historyData[0].data = historyData[0].data.slice(startIdx, lastIdx);
+        return historyData;
+    }, [data, period]);
 
     return (
         <Card variant='outlined' sx={{ width: 1 }}>

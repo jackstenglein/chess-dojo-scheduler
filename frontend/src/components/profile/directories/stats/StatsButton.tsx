@@ -110,10 +110,8 @@ export function StatsButton({ directory }: StatsButtonProps) {
                 username: playerName,
                 ratingSystem: ratingSystem,
             });
-            console.debug('getDirectoryStats: ', result);
             request.onSuccess(result.data);
         } catch (err) {
-            console.error('getDirectoryStats:', err);
             request.onFailure(err);
         }
     };

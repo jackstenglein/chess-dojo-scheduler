@@ -55,7 +55,6 @@ const ExercisesModule: React.FC<ModuleProps> = ({ module }) => {
                     request.onSuccess();
                 })
                 .catch((err) => {
-                    console.error('updateUserExercises: ', err);
                     request.onFailure(err);
                 });
         }

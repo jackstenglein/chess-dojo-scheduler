@@ -47,7 +47,6 @@ const CancelMeetingButton: React.FC<React.PropsWithChildren<CancelMeetingButtonP
                 setShowCancelDialog(false);
             })
             .catch((err) => {
-                console.error(err);
                 cancelRequest.onFailure(err);
             });
     };

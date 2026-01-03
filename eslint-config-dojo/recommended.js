@@ -31,7 +31,8 @@ module.exports = {
         '@typescript-eslint/no-misused-promises': [
             'error',
             { checksVoidReturn: { attributes: false }}
-        ]
+        ],
+        'no-console': 'error',
     },
     plugins: ['@typescript-eslint'],
 };

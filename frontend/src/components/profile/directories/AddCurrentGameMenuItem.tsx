@@ -70,7 +70,6 @@ export const AddCurrentGameMenuItem = ({
                 onSuccess();
             })
             .catch((err) => {
-                console.error('addDirectoryItems: ', err);
                 request.onFailure(err);
             });
     };

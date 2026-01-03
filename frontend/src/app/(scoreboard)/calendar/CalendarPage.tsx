@@ -23,10 +23,7 @@ import {
     EventType,
     TimeControlType,
 } from '@/database/event';
-import { ALL_COHORTS, SubscriptionStatus, TimeFormat, User } from '@/database/user';
-import LoadingPage from '@/loading/LoadingPage';
-import Icon, { icons } from '@/style/Icon';
-import UpsellAlert from '@/upsell/UpsellAlert';
+import { ALL_COHORTS, isFree, TimeFormat, User } from '@/database/user';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { Scheduler } from '@jackstenglein/react-scheduler';
 import type { EventRendererProps, SchedulerRef } from '@jackstenglein/react-scheduler/types';
@@ -205,7 +202,7 @@ function processDojoEvent(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color,
+        color: event.color || color,
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
         draggable: user?.isAdmin || user?.isCalendarAdmin,
@@ -237,7 +234,7 @@ function processLigaTournament(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'liga.main',
+        color: event.color || 'liga.main',
         editable: user?.isAdmin || user?.isCalendarAdmin,
         deletable: user?.isAdmin || user?.isCalendarAdmin,
         draggable: user?.isAdmin || user?.isCalendarAdmin,
@@ -271,7 +268,7 @@ export function processCoachingEvent(
         return null;
     }
 
-    const isFreeTier = !user || user.subscriptionStatus === SubscriptionStatus.FreeTier;
+    const isFreeTier = isFree(user);
     if (!isOwner && isFreeTier && !event.coaching?.bookableByFreeUsers) {
         return null;
     }
@@ -291,7 +288,57 @@ export function processCoachingEvent(
         title: event.title,
         start: new Date(event.startTime),
         end: new Date(event.endTime),
-        color: 'coaching.main',
+        color: event.color || 'coaching.main',
+        editable: isOwner,
+        deletable: isOwner && Object.values(event.participants).length === 0,
+        draggable: isOwner,
+        isOwner,
+        event,
+        recurring: rruleOptions ? new RRule(rruleOptions) : undefined,
+    };
+}
+
+export function processLiveClassEvent(
+    user: User | undefined,
+    filters: Filters,
+    event: Event,
+): ProcessedEvent | null {
+    const eventType = event.type as unknown as CalendarSessionType;
+    if (
+        filters.sessions[0] !== CalendarSessionType.AllSessions &&
+        !filters.sessions.includes(eventType)
+    ) {
+        return null;
+    }
+
+    const isOwner = event.owner === user?.username;
+    if (
+        user &&
+        !isOwner &&
+        !user.isAdmin &&
+        !user.isCalendarAdmin &&
+        event.cohorts &&
+        event.cohorts.length > 0 &&
+        event.cohorts.every((c) => c !== user.dojoCohort)
+    ) {
+        return null;
+    }
+
+    const rruleOptions = event.rrule ? RRule.parseString(event.rrule) : undefined;
+    if (rruleOptions) {
+        rruleOptions.dtstart = toRRuleDate(new Date(event.startTime));
+    }
+
+    return {
+        event_id: event.id,
+        title: event.title,
+        start: new Date(event.startTime),
+        end: new Date(event.endTime),
+        color: event.color
+            ? event.color
+            : event.type === EventType.LectureTier
+              ? 'sage.main'
+              : 'peacock.main',
         editable: isOwner,
         deletable: isOwner && Object.values(event.participants).length === 0,
         draggable: isOwner,
@@ -327,6 +374,11 @@ export function getProcessedEvents(
             processedEvent = processLigaTournament(user, filters, event);
         } else if (event.type === EventType.Coaching) {
             processedEvent = processCoachingEvent(user, filters, event);
+        } else if (
+            event.type === EventType.LectureTier ||
+            event.type === EventType.GameReviewTier
+        ) {
+            processedEvent = processLiveClassEvent(user, filters, event);
         }
 
         if (processedEvent !== null) {
@@ -362,17 +414,13 @@ export default function CalendarPage() {
     const deleteAvailability = useCallback(
         async (id: string) => {
             try {
-                console.log('Deleting availability with id: ', id);
                 // Don't use deleteRequest.onStart as it messes up the
                 // scheduler library
                 await api.deleteEvent(id);
-                console.log(`Event ${id} deleted`);
-
                 removeEvent(id);
                 deleteRequest.onSuccess('Availability deleted');
                 return id;
             } catch (err) {
-                console.error(err);
                 deleteRequest.onFailure(err);
             }
         },
@@ -511,10 +559,6 @@ export default function CalendarPage() {
         );
     }, [calendarRef, weekStartOn, minHour, maxHour]);
 
-    if (!user) {
-        return <LoadingPage />;
-    }
-
     return (
         <Container sx={{ py: 3 }} maxWidth={false}>
             <RequestSnackbar request={request} />
@@ -547,13 +591,6 @@ export default function CalendarPage() {
                     }}
                 >
                     <Stack spacing={3}>
-                        {isFreeTier && (
-                            <UpsellAlert>
-                                Free-tier users can book events but cannot post their own events.
-                                Upgrade your account to add new events to the calendar.
-                            </UpsellAlert>
-                        )}
-
                         <Scheduler
                             ref={calendarRef}
                             agenda={false}
@@ -620,40 +657,6 @@ interface CustomEventRendererProps extends EventRendererProps {
     timeFormat: TimeFormat | undefined;
 }
 
-/**
- * Returns the location icon for the given event.
- * @param dojoEvent The event to get the location icon for.
- * @returns The location icon name or undefined if the event is undefined.
- */
-function getLocationIcon(dojoEvent: Event | undefined): keyof typeof icons | undefined {
-    if (!dojoEvent) {
-        return undefined;
-    }
-
-    if (dojoEvent.ligaTournament?.timeControlType) {
-        return dojoEvent.ligaTournament.timeControlType;
-    }
-
-    if (dojoEvent.type !== EventType.Dojo) {
-        return dojoEvent.type;
-    }
-
-    const location = dojoEvent.location;
-    if (!location) {
-        return dojoEvent.type;
-    }
-
-    if (location.toLowerCase().includes('discord')) {
-        return 'discord';
-    } else if (location.toLowerCase().includes('twitch')) {
-        return 'twitch';
-    } else if (location.toLowerCase().includes('youtube')) {
-        return 'youtube';
-    }
-
-    return dojoEvent.type;
-}
-
 export function CustomEventRenderer({ event, timeFormat, ...props }: CustomEventRendererProps) {
     const textColor = event.color?.endsWith('.main')
         ? event.color.replace('.main', '.contrastText')
@@ -671,7 +674,6 @@ export function CustomEventRenderer({ event, timeFormat, ...props }: CustomEvent
 
     const quarterHours = Math.abs(event.start.getTime() - event.end.getTime()) / 900000;
     const maxLines = 2 + Math.max(0, quarterHours - 4);
-    const dojoEvent = event.event as Event | undefined;
 
     return (
         <Stack
@@ -680,44 +682,29 @@ export function CustomEventRenderer({ event, timeFormat, ...props }: CustomEvent
                 backgroundColor: event.color,
                 color: textColor,
                 fontSize: '0.775em',
-                pl: 0.25,
+                pl: 0.55,
                 pt: 0.25,
             }}
             {...props}
         >
-            <Stack direction='row' alignItems='start' spacing={0.5}>
-                <Icon
-                    name={getLocationIcon(dojoEvent)}
-                    color='inherit'
-                    fontSize='inherit'
-                    sx={{
-                        // Makes the icon 0 width if the container is less than 80px wide
-                        '--container-min-width': '80px',
-                        maxWidth: 'calc((100% - var(--container-min-width)) * 9999)',
-                    }}
-                />
-
-                <Stack>
-                    <Typography
-                        fontSize='inherit'
-                        color='inherit'
-                        sx={{
-                            WebkitLineClamp: maxLines,
-                            display: '-webkit-box',
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            lineClamp: maxLines,
-                            fontWeight: 'bold',
-                            lineHeight: 1.3,
-                        }}
-                    >
-                        {event.title}
-                    </Typography>
-                    <Typography fontSize='inherit' color='inherit'>
-                        {start} – {end}
-                    </Typography>
-                </Stack>
-            </Stack>
+            <Typography
+                fontSize='inherit'
+                color='inherit'
+                sx={{
+                    WebkitLineClamp: maxLines,
+                    display: '-webkit-box',
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    lineClamp: maxLines,
+                    fontWeight: 'bold',
+                    lineHeight: 1.3,
+                }}
+            >
+                {event.title}
+            </Typography>
+            <Typography fontSize='inherit' color='inherit'>
+                {start} – {end}
+            </Typography>
         </Stack>
     );
 }

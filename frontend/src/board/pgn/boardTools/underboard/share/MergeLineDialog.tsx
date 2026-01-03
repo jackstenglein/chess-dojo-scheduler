@@ -108,7 +108,6 @@ export function MergeLineDialog({
             request.onSuccess(response.data);
             onClose();
         } catch (err) {
-            console.error('mergePgn', err);
             request.onFailure(err);
         }
     };

@@ -1,0 +1,14 @@
+export enum RatingSystem {
+    Chesscom = 'CHESSCOM',
+    Lichess = 'LICHESS',
+    Fide = 'FIDE',
+    Uscf = 'USCF',
+    Ecf = 'ECF',
+    Cfc = 'CFC',
+    Dwz = 'DWZ',
+    Acf = 'ACF',
+    Knsb = 'KNSB',
+    Custom = 'CUSTOM',
+    Custom2 = 'CUSTOM_2',
+    Custom3 = 'CUSTOM_3',
+}

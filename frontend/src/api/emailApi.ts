@@ -1,8 +1,5 @@
-import axios, { AxiosResponse } from 'axios';
-
-import { getConfig } from '../config';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { AxiosResponse } from 'axios';
+import { axiosService } from './axiosService';
 
 export interface EmailApiContextType {
     createSupportTicket: (
@@ -27,7 +24,11 @@ interface SupportTicketResponse {
  * @returns An empty AxiosResponse.
  */
 export function unsubscribeFromDojoDigest(email: string) {
-    return axios.post<null>(`${BASE_URL}/public/dojodigest/unsubscribe`, { email });
+    return axiosService.post<null>(
+        `/public/dojodigest/unsubscribe`,
+        { email },
+        { functionName: 'unsubscribeFromDojoDigest' },
+    );
 }
 
 /**
@@ -38,9 +39,12 @@ export function unsubscribeFromDojoDigest(email: string) {
  */
 export function createSupportTicket(idToken: string, request: SupportTicketRequest) {
     if (idToken) {
-        return axios.post<SupportTicketResponse>(`${BASE_URL}/support-ticket`, request, {
+        return axiosService.post<SupportTicketResponse>(`/support-ticket`, request, {
             headers: { Authorization: `Bearer ${idToken}` },
+            functionName: 'createSupportTicket',
         });
     }
-    return axios.post<SupportTicketResponse>(`${BASE_URL}/public/support-ticket`, request);
+    return axiosService.post<SupportTicketResponse>(`/public/support-ticket`, request, {
+        functionName: 'createSupportTicket',
+    });
 }

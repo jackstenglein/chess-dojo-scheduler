@@ -3,7 +3,7 @@ import { Button, Divider, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useChess } from '../PgnBoard';
 
-export function SolitareAfterPgnText() {
+export function SolitaireAfterPgnText() {
     const { solitaire } = useChess();
     if (solitaire?.complete) {
         return <CompletedAfterPgnText />;

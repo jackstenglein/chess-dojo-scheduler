@@ -13,6 +13,7 @@ import { BadgeCard } from '@/components/profile/info/BadgeCard';
 import DojoScoreCard from '@/components/profile/info/DojoScoreCard';
 import { HeatmapCard } from '@/components/profile/info/HeatmapCard';
 import { UserCard } from '@/components/profile/info/UserCard';
+import { LiveClassesTab } from '@/components/profile/liveClasses/LiveClassesTab';
 import StatsTab from '@/components/profile/stats/StatsTab';
 import { TrainingPlanTab } from '@/components/profile/trainingPlan/TrainingPlanTab';
 import { hasCreatedProfile, User } from '@/database/user';
@@ -22,10 +23,15 @@ import ClubsTab from '@/profile/clubs/ClubsTab';
 import CoachTab from '@/profile/coach/CoachTab';
 import ProfileCreatorPage from '@/profile/creator/ProfileCreatorPage';
 import { PawnIcon } from '@/style/ChessIcons';
+import { PresenterIcon } from '@/style/PresenterIcon';
+import {
+    getSubscriptionTier,
+    SubscriptionTier,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Groups, PieChart, RocketLaunch, Star, Timeline } from '@mui/icons-material';
 import { TabContext, TabPanel } from '@mui/lab';
-import { Box, Container, Tab, Tabs, useMediaQuery } from '@mui/material';
-import { useEffect, type JSX } from 'react';
+import { Box, Chip, Container, Stack, Tab, Tabs, useMediaQuery } from '@mui/material';
+import { ReactNode, useEffect, type JSX } from 'react';
 
 export function ProfilePage({ username }: { username?: string }) {
     const { user, status } = useAuth();
@@ -65,8 +71,7 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                 .then((response) => {
                     request.onSuccess(response.data);
                 })
-                .catch((err) => {
-                    console.error('Failed to get user profile: ', err);
+                .catch((err: unknown) => {
                     request.onFailure(err);
                 });
         }
@@ -144,6 +149,24 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                                 aria-label='profile tabs'
                                 variant='scrollable'
                             >
+                                {(getSubscriptionTier(user) === SubscriptionTier.GameReview ||
+                                    getSubscriptionTier(user) === SubscriptionTier.Lecture) && (
+                                    <ProfileTab
+                                        label={
+                                            <Stack direction='row' alignItems='center'>
+                                                Live Classes
+                                                <Chip
+                                                    label='New'
+                                                    color='success'
+                                                    size='small'
+                                                    sx={{ ml: 1 }}
+                                                />
+                                            </Stack>
+                                        }
+                                        value='classes'
+                                        icon={<PresenterIcon fontSize='small' />}
+                                    />
+                                )}
                                 <ProfileTab
                                     label='Ratings'
                                     value='stats'
@@ -179,6 +202,9 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                                 />
                             </Tabs>
                         </Box>
+                        <TabPanel value='classes' sx={{ px: 0, pl: { lg: 1 } }}>
+                            <LiveClassesTab user={user} />
+                        </TabPanel>
                         <TabPanel value='stats' sx={{ px: 0, pl: { lg: 1 } }}>
                             <StatsTab user={user} />
                         </TabPanel>
@@ -248,10 +274,10 @@ function ProfileTab({
     icon,
     ...others
 }: {
-    label: string;
+    label: ReactNode;
     value: string;
     icon: JSX.Element;
-    [key: string]: string | JSX.Element;
+    [key: string]: string | JSX.Element | ReactNode;
 }) {
     return (
         <Tab

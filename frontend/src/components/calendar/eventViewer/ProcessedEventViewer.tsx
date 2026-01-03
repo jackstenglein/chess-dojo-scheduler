@@ -1,11 +1,13 @@
 import { useAuth } from '@/auth/Auth';
 import { Event, EventType } from '@/database/event';
+import { logger } from '@/logging/logger';
 import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import React from 'react';
 import AvailabilityViewer from './AvailabilityViewer';
 import CoachingViewer from './CoachingViewer';
 import DojoEventViewer from './DojoEventViewer';
 import LigaTournamentViewer from './LigaTournamentViewer';
+import { LiveClassViewer } from './LiveClassViewer';
 import MeetingViewer from './MeetingViewer';
 
 interface ProcessedEventViewerProps {
@@ -16,7 +18,7 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({ processedEv
     const { user } = useAuth();
     const event = processedEvent.event as Event | undefined;
 
-    console.log('Processed Event: ', processedEvent);
+    logger.debug?.('Processed Event: ', processedEvent);
 
     if (!event) {
         return null;
@@ -30,12 +32,18 @@ const ProcessedEventViewer: React.FC<ProcessedEventViewerProps> = ({ processedEv
             return <AvailabilityViewer processedEvent={processedEvent} />;
         }
         return <MeetingViewer processedEvent={processedEvent} />;
-    } else if (event.type === EventType.Dojo) {
+    }
+    if (event.type === EventType.Dojo) {
         return <DojoEventViewer processedEvent={processedEvent} />;
-    } else if (event.type === EventType.LigaTournament) {
+    }
+    if (event.type === EventType.LigaTournament) {
         return <LigaTournamentViewer processedEvent={processedEvent} />;
-    } else if (event.type === EventType.Coaching) {
+    }
+    if (event.type === EventType.Coaching) {
         return <CoachingViewer processedEvent={processedEvent} />;
+    }
+    if (event.type === EventType.LectureTier || event.type === EventType.GameReviewTier) {
+        return <LiveClassViewer processedEvent={processedEvent} />;
     }
 
     return null;

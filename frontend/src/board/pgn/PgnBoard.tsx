@@ -21,7 +21,11 @@ import ResizableContainer from './ResizableContainer';
 import { UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
-import { useSolitaireChess, UseSolitareChessResponse } from './solitaire/useSolitaireChess';
+import {
+    SolitaireChessOptions,
+    useSolitaireChess,
+    UseSolitaireChessResponse,
+} from './solitaire/useSolitaireChess';
 
 export const BlockBoardKeyboardShortcuts = 'blockBoardKeyboardShortcuts';
 
@@ -45,7 +49,7 @@ interface ChessContextType {
     slots?: PgnBoardSlots;
     slotProps?: PgnBoardSlotProps;
     orientation?: 'white' | 'black';
-    solitaire?: UseSolitareChessResponse;
+    solitaire?: UseSolitaireChessResponse;
     addEngineMoveRef?: React.RefObject<(() => void) | null>;
 }
 
@@ -58,7 +62,7 @@ export function useChess() {
 export interface PgnBoardApi {
     getPgn: () => string;
     solitaire: {
-        start: (move: Move | null) => void;
+        start: (move: Move | null, opts?: SolitaireChessOptions) => void;
         stop: () => void;
     };
     addObserver: (observer: Observer) => void;

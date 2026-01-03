@@ -5,6 +5,7 @@ import { useRequest } from '@/api/Request';
 import { updateUser as apiUpdateUser } from '@/api/userApi';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { hasCreatedProfile, SubscriptionStatus } from '@/database/user';
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { AxiosError } from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -27,25 +28,37 @@ export function RequireProfile() {
     useEffect(() => {
         if (status === AuthStatus.Authenticated && !request.isSent()) {
             request.onStart();
-            console.log('Checking user access');
             api.checkUserAccess()
                 .then(() => {
                     request.onSuccess();
                     updateUser({
                         subscriptionStatus: SubscriptionStatus.Subscribed,
+                        paymentInfo: {
+                            customerId: 'WIX',
+                            subscriptionId: 'WIX',
+                            subscriptionTier: SubscriptionTier.Basic,
+                            ...user?.paymentInfo,
+                            subscriptionStatus: SubscriptionStatus.Subscribed,
+                        },
                     });
                 })
                 .catch((err: AxiosError) => {
-                    console.log('Check user access error: ', err);
                     request.onFailure(err);
                     if (err.response?.status === 403) {
                         updateUser({
-                            subscriptionStatus: SubscriptionStatus.FreeTier,
+                            subscriptionStatus: SubscriptionStatus.NotSubscribed,
+                            paymentInfo: {
+                                customerId: 'WIX',
+                                subscriptionId: 'WIX',
+                                subscriptionTier: SubscriptionTier.Free,
+                                ...user?.paymentInfo,
+                                subscriptionStatus: SubscriptionStatus.NotSubscribed,
+                            },
                         });
                     }
                 });
         }
-    }, [request, api, status, updateUser]);
+    }, [request, api, status, updateUser, user]);
 
     useEffect(() => {
         if (user && !hasCreatedProfile(user) && !validPathnames.includes(pathname)) {

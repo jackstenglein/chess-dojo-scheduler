@@ -1,12 +1,17 @@
 import {
+    CustomTask,
+    CustomTaskCategory,
     RequirementCategory,
+    RequirementProgress,
     ScoreboardDisplay,
 } from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { isObject } from './scoreboard';
 import { TimelineEntry } from './timeline';
-import { SubscriptionStatus, User } from './user';
+import { isFree, User } from './user';
 
 export { RequirementCategory, ScoreboardDisplay };
+
+export type { CustomTask, CustomTaskCategory, RequirementProgress };
 
 /** The status of a requirement. */
 export enum RequirementStatus {
@@ -18,58 +23,6 @@ export enum RequirementStatus {
      * We instead have just deleted old requirements.
      */
     Archived = 'ARCHIVED',
-}
-
-/** A custom non-dojo task created by a user. */
-export interface CustomTask {
-    /** The id of the CustomTask. */
-    id: string;
-
-    /** The username of the owner of the CustomTask. */
-    owner: string;
-
-    /** The name of the CustomTask. */
-    name: string;
-
-    /**
-     * Does not exist for CustomTasks, but makes the type system happy when
-     * working with both Requirements and CustomTasks.
-     */
-    dailyName?: undefined;
-
-    /** The description of the CustomTask. */
-    description: string;
-
-    /**
-     * The target count of the CustomTask per cohort. Currently defaults to the value 1 for
-     * each selected cohort that the task applies to.
-     */
-    counts: Record<string, number>;
-
-    /** The scoreboard display of the CustomTask. */
-    scoreboardDisplay: ScoreboardDisplay;
-
-    /** The category of the CustomTask. */
-    category: CustomTaskCategory;
-
-    /**
-     * The number of cohorts the requirement needs to be completed in before it
-     * stops being suggested. For requirements that restart their progress in every
-     * cohort, this is the special value -1.
-     */
-    numberOfCohorts: number;
-
-    /** An optional string that is used to label the count of the progress bar. */
-    progressBarSuffix: string;
-
-    /** The last time the CustomTask definition was updated. */
-    updatedAt: string;
-
-    /**
-     * Does not exist for CustomTasks, but including this makes it easier to
-     * perform operations on objects of type Requirement|CustomTask.
-     */
-    startCount?: number;
 }
 
 /** A position in a requirement. */
@@ -89,16 +42,6 @@ export interface Position {
     /** The expected result of the position. */
     result: string;
 }
-
-/** The categories of a custom task. This is a subset of RequirementCategory. */
-export type CustomTaskCategory = Extract<
-    RequirementCategory,
-    | RequirementCategory.Games
-    | RequirementCategory.Tactics
-    | RequirementCategory.Middlegames
-    | RequirementCategory.Endgame
-    | RequirementCategory.Opening
->;
 
 /**
  * Returns true if obj is of type CustomTaskCategory.
@@ -217,25 +160,6 @@ export interface Requirement {
 
     /** The expected amount of time it takes to complete a task. */
     expectedMinutes: number;
-}
-
-/** A user's progress on a specific requirement. */
-export interface RequirementProgress {
-    /** The id of the requirement. */
-    requirementId: string;
-
-    /**
-     * A map from the cohort to the user's current count in the requirement. For
-     * requirements whose progress carries over across cohorts, the special value
-     * ALL_COHORTS is used as a key.
-     */
-    counts?: Record<string, number>;
-
-    /** A map from the cohort to the user's time spent on the requirement in that cohort. */
-    minutesSpent: Record<string, number>;
-
-    /** The time the user last updated their progress on the requirement. */
-    updatedAt: string;
 }
 
 /**
@@ -689,7 +613,7 @@ export function isBlocked(
         return acc;
     }, {});
 
-    const isFreeTier = user.subscriptionStatus !== SubscriptionStatus.Subscribed;
+    const isFreeTier = isFree(user);
 
     for (const blockerId of requirement.blockers) {
         const blocker = requirementMap[blockerId];

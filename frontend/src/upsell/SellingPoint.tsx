@@ -7,7 +7,7 @@ export enum SellingPointStatus {
     Excluded = 'EXCLUDED',
 }
 
-interface SellingPointProps {
+export interface SellingPointProps {
     description: string;
     status: SellingPointStatus;
 }

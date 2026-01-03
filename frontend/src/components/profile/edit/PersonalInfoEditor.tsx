@@ -1,6 +1,7 @@
 import { Request } from '@/api/Request';
 import { TimezoneSelector } from '@/components/calendar/filters/TimezoneSelector';
 import { User } from '@/database/user';
+import { logger } from '@/logging/logger';
 import Avatar from '@/profile/Avatar';
 import { Delete, Info, Upload } from '@mui/icons-material';
 import { Button, Divider, FormLabel, Stack, TextField, Typography } from '@mui/material';
@@ -70,7 +71,7 @@ export function PersonalInfoEditor({
                     setProfilePictureUrl(URL.createObjectURL(files[0]));
                 })
                 .catch((err) => {
-                    console.log(err);
+                    logger.log?.(err);
                     request.onFailure(err);
                 });
         }
@@ -173,7 +174,7 @@ export function encodeFileToBase64(file: File): Promise<string> {
         const reader = new FileReader();
         reader.onloadend = function () {
             const base64string = reader.result as string;
-            console.log('Base 64 string: ', base64string);
+            logger.log?.('Base 64 string: ', base64string);
             const encodedString = base64string.split(',')[1];
             resolve(encodedString);
         };

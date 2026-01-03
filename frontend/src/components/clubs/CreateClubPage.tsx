@@ -10,6 +10,7 @@ import {
 import { ClubDetails } from '@/database/club';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
+import { logger } from '@/logging/logger';
 import { ClubAvatar } from '@/profile/Avatar';
 import { Delete, Upload } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -69,7 +70,6 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                     setAllowFreeTier(club.allowFreeTier);
                 })
                 .catch((err) => {
-                    console.error(err);
                     getRequest.onFailure(err);
                 });
         }
@@ -93,7 +93,7 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                     setLogoUrl(URL.createObjectURL(files[0]));
                 })
                 .catch((err) => {
-                    console.log(err);
+                    logger.error?.(err);
                     saveRequest.onFailure(err);
                 });
         }
@@ -156,7 +156,6 @@ export const CreateClubPage = ({ id }: { id: string }) => {
                 }
             })
             .catch((err) => {
-                console.error('createClub: ', err);
                 saveRequest.onFailure(err);
             });
     };

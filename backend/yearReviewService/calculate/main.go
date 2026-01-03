@@ -12,7 +12,8 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const PERIOD = "2024"
+const ENV = "prod"
+const PERIOD = "2025"
 const START_DATE = PERIOD + "-01-01"
 const END_DATE = PERIOD + "-12-31"
 const PREFERRED = "preferred"
@@ -102,7 +103,7 @@ func main() {
 	if err != nil {
 		log.Errorf("Failed to Marshal reviews: %v", err)
 	}
-	err = os.WriteFile("reviews-dev.json", jsonData, 0644)
+	err = os.WriteFile(fmt.Sprintf("reviews-%s.json", ENV), jsonData, 0644)
 	if err != nil {
 		log.Errorf("Failed to write JSON file: %v", err)
 	}
@@ -118,7 +119,7 @@ func main() {
 }
 
 func readFromFile() ([]*database.YearReview, error) {
-	file, err := os.ReadFile("reviews.json")
+	file, err := os.ReadFile(fmt.Sprintf("reviews-%s.json", ENV))
 	if err != nil {
 		log.Errorf("Failed to read file: %v", err)
 		return nil, nil
@@ -262,7 +263,7 @@ func processRatings(user *database.User, review *database.YearReview) {
 			History:      history[startIdx:],
 		}
 
-		if rs == database.Custom {
+		if rs.IsCustom() {
 			continue
 		}
 
@@ -477,7 +478,7 @@ func calculatePoints(timeline *database.TimelineEntry, requirements map[string]*
 
 func setPercentiles(review *database.YearReview) {
 	for rs, data := range review.Ratings {
-		if rs == database.Custom {
+		if rs.IsCustom() {
 			continue
 		}
 

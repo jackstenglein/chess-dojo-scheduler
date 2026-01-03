@@ -1,5 +1,6 @@
 'use client';
 
+import { logger } from '@/logging/logger';
 import { useEffect, useMemo } from 'react';
 import { useApi } from '../Api';
 import { useRequest } from '../Request';
@@ -32,10 +33,9 @@ export function useClubs(clubIds: string[]) {
                     request.onSuccess();
                 })
                 .catch((err) => {
-                    console.error('batchGetClubs: ', err);
                     // In offline mode, don't mark as failure if we have some cached data
                     if (typeof window !== 'undefined' && !navigator.onLine && clubs.length > 0) {
-                        console.log('[Cache] Using cached clubs in offline mode');
+                        logger.debug?.('[Cache] Using cached clubs in offline mode');
                         request.onSuccess();
                     } else {
                         request.onFailure(err);

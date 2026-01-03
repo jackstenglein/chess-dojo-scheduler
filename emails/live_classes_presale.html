@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"><!--[if mso]>
+<xml><w:WordDocument xmlns:w="urn:schemas-microsoft-com:office:word"><w:DontUseAdvancedTypographyReadingMail/></w:WordDocument>
+<o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml>
+<![endif]--><!--[if !mso]><!-->
+	<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@100;200;300;400;500;600;700;800;900" rel="stylesheet" type="text/css"><!--<![endif]-->
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		a[x-apple-data-detectors] {
+			color: inherit !important;
+			text-decoration: inherit !important;
+		}
+
+		#MessageViewBody a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		p {
+			line-height: inherit
+		}
+
+		.desktop_hide,
+		.desktop_hide table {
+			mso-hide: all;
+			display: none;
+			max-height: 0px;
+			overflow: hidden;
+		}
+
+		.image_block img+div {
+			display: none;
+		}
+
+		sup,
+		sub {
+			font-size: 75%;
+			line-height: 0;
+		}
+
+		@media (max-width:700px) {
+
+			.desktop_hide table.icons-inner,
+			.row-7 .column-1 .block-3.button_block .alignment .button,
+			.social_block.desktop_hide .social-table {
+				display: inline-block !important;
+			}
+
+			.icons-inner {
+				text-align: center;
+			}
+
+			.icons-inner td {
+				margin: 0 auto;
+			}
+
+			.image_block div.fullWidth {
+				max-width: 100% !important;
+			}
+
+			.mobile_hide {
+				display: none;
+			}
+
+			.row-content {
+				width: 100% !important;
+			}
+
+			.stack .column {
+				width: 100%;
+				display: block;
+			}
+
+			.mobile_hide {
+				min-height: 0;
+				max-height: 0;
+				max-width: 0;
+				overflow: hidden;
+				font-size: 0px;
+			}
+
+			.desktop_hide,
+			.desktop_hide table {
+				display: table !important;
+				max-height: none !important;
+			}
+
+			.reverse {
+				display: table;
+				width: 100%;
+			}
+
+			.reverse .column.first {
+				display: table-footer-group !important;
+			}
+
+			.reverse .column.last {
+				display: table-header-group !important;
+			}
+
+			.row-7 td.column.first .border {
+				padding: 10px;
+			}
+
+			.row-7 td.column.last .border {
+				padding: 20px;
+			}
+
+			.row-1 .column-1 .block-3.heading_block h1 {
+				font-size: 41px !important;
+			}
+
+			.row-1 .column-1 .block-4.paragraph_block td.pad>div {
+				font-size: 16px !important;
+			}
+
+			.row-3 .column-2 .block-2.paragraph_block td.pad>div,
+			.row-3 .column-2 .block-3.paragraph_block td.pad>div,
+			.row-4 .column-2 .block-2.paragraph_block td.pad>div,
+			.row-4 .column-2 .block-3.paragraph_block td.pad>div,
+			.row-5 .column-2 .block-2.paragraph_block td.pad>div,
+			.row-5 .column-2 .block-3.paragraph_block td.pad>div,
+			.row-8 .column-1 .block-2.paragraph_block td.pad>div {
+				text-align: left !important;
+				font-size: 16px !important;
+			}
+
+			.row-11 .column-1 .block-2.heading_block h2,
+			.row-2 .column-1 .block-2.heading_block h2,
+			.row-7 .column-1 .block-1.heading_block h2,
+			.row-7 .column-1 .block-2.paragraph_block td.pad>div,
+			.row-7 .column-1 .block-3.button_block .alignment,
+			.row-9 .column-1 .block-1.heading_block h2,
+			.row-9 .column-1 .block-2.paragraph_block td.pad>div {
+				text-align: center !important;
+			}
+
+			.row-11 .column-1 .block-2.heading_block h2,
+			.row-2 .column-1 .block-2.heading_block h2,
+			.row-7 .column-1 .block-1.heading_block h2,
+			.row-9 .column-1 .block-1.heading_block h2 {
+				font-size: 32px !important;
+			}
+
+			.row-3 .column-2 .block-1.heading_block h3,
+			.row-4 .column-2 .block-1.heading_block h3,
+			.row-5 .column-2 .block-1.heading_block h3 {
+				text-align: left !important;
+				font-size: 24px !important;
+			}
+
+			.row-3 .column-2 .block-1.heading_block td.pad,
+			.row-4 .column-2 .block-1.heading_block td.pad,
+			.row-5 .column-2 .block-1.heading_block td.pad {
+				padding: 10px 0 !important;
+			}
+
+			.row-7 .column-1 .block-3.button_block span {
+				line-height: 32px !important;
+			}
+
+			.row-1 .column-1 {
+				padding: 5px 10px 0 !important;
+			}
+
+			.row-3 .column-1,
+			.row-4 .column-1,
+			.row-5 .column-1 {
+				padding: 20px 20px 10px !important;
+			}
+
+			.row-3 .column-2,
+			.row-4 .column-2,
+			.row-5 .column-2 {
+				padding: 10px 20px 20px !important;
+			}
+		}
+	</style><!--[if mso ]><style>sup, sub { font-size: 100% !important; } sup { mso-text-raise:10% } sub { mso-text-raise:-10% }</style> <![endif]-->
+</head>
+
+<body class="body" style="margin: 0; background-color: #0d0b0e; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+	<table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-repeat: no-repeat; background-color: #0d0b0e; background-image: none; background-position: top left; background-size: auto;">
+		<tbody>
+			<tr>
+				<td>
+					<table class="row row-1" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e; background-image: url('https://55d45d6ef5.imgdist.com/pub/bfra/pqr330qd/hz5/xwf/xvr/background.webp'); background-repeat: no-repeat; background-size: cover;">
+						<tbody style="background: #0d0b0e60;">
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-size: auto; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-top: 5px; vertical-align: top;">
+													<div class="spacer_block block-1" style="height:20px;line-height:20px;font-size:1px;">&#8202;</div>
+													<table class="image_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<div class="alignment" align="center">
+																	<div style="max-width: 68px;"><a href="www.example.com" target="_blank"><img src="https://chess-dojo-images.s3.us-east-1.amazonaws.com/WhiteLogoNoText%403x.png" style="display: block; height: auto; border: 0; width: 100%;" width="68" alt="Company Logo" title="Company Logo" height="auto"></a></div>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="heading_block block-3" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 50px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 60px;"><span class="tinyMce-placeholder" style="word-break: break-word;">Group Classes on Sale Now</span></h1>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-4" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad" style="padding-bottom:25px;padding-left:10px;padding-right:10px;padding-top:10px;">
+																<div style="color:#ffffff;direction:ltr;font-family:'Fira Sans', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;font-size:21px;font-weight:300;letter-spacing:0px;line-height:1.5;text-align:center;mso-line-height-alt:32px;">
+																	<p style="margin: 0;">ChessDojo's interactive group classes start January 1st. Join before December 2nd and get<strong> 25% off </strong>with the code <strong>BLACKFRIDAY</strong>!</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="button_block block-5" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<div class="alignment" align="center"><a href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="color:#ffffff;text-decoration:none;"><!--[if mso]>
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"  href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale"  style="height:50px;width:235px;v-text-anchor:middle;" arcsize="114%" fillcolor="#f7941f">
+<v:stroke dashstyle="Solid" weight="1px" color="#f7941f"/>
+<w:anchorlock/>
+<v:textbox inset="0px,0px,0px,0px">
+<center dir="false" style="color:#ffffff;font-family:sans-serif;font-size:20px">
+<![endif]--><span class="button" style="background-color: #f7941f; mso-shading: transparent; border-bottom: 1px solid #f7941f; border-left: 1px solid #f7941f; border-radius: 60px; border-right: 1px solid #f7941f; border-top: 1px solid #f7941f; color: #ffffff; display: inline-block; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 20px; font-weight: 400; mso-border-alt: none; padding-bottom: 5px; padding-top: 5px; padding-left: 20px; padding-right: 20px; text-align: center; width: auto; word-break: keep-all; letter-spacing: normal;"><span style="word-break: break-word; line-height: 40px;"><strong>Join Group Classes</strong></span></span><!--[if mso]></center></v:textbox></v:roundrect><![endif]--></a></div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-6" style="height:35px;line-height:35px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top;">
+													<div class="spacer_block block-1" style="height:20px;line-height:20px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h2 style="margin: 0; color: #ffffff; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 35px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 42px;"><span class="tinyMce-placeholder" style="word-break: break-word;">Get master-level instruction from our senseis</span></h2>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-3" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="41.666666666666664%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-left: 20px; padding-right: 20px; padding-top: 20px; vertical-align: middle;">
+													<table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
+																<div class="alignment" align="center">
+																	<div class="fullWidth" style="max-width: 146px;"><img src="https://chess-dojo-images.s3.us-east-1.amazonaws.com/emails/subscriptionCreated/jesse.png" style="display: block; height: auto; border: 0; width: 100%; border-radius: 8px;" width="146" alt title height="auto"></div>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+												<td class="column column-2" width="58.333333333333336%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-right: 20px; padding-top: 20px; vertical-align: middle;">
+													<table class="heading_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-top:10px;text-align:center;width:100%;">
+																<h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 20px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 24px;"><span class="tinyMce-placeholder" style="word-break: break-word;">Endgame Fundamentals with GM Jesse Kraai (0-1200)</span></h3>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#d6d2d2;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:14px;font-weight:400;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:21px;">
+																	<p style="margin: 0;">The superpower of learning basic endgames as a beginner is that they train you to <em>see</em> which squares are controlled. We call this skill "grip" or "board vision." It's priority number one for anyone trying to reach 1200. You will of course also learn how to mate, get an introduction to the concept of Zugzwang, and learn how to calculate in “simple” positions.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-3" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad" style="padding-top:10px;">
+																<div style="color:#3b9ded;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:700;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:24px;">
+																	<p style="margin: 0;"><a href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="text-decoration: underline; color: #3b9ded;" rel="noopener"><u>Join Now &gt;</u></a></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-4" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="41.666666666666664%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-left: 20px; padding-right: 20px; padding-top: 20px; vertical-align: middle;">
+													<table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
+																<div class="alignment" align="center">
+																	<div class="fullWidth" style="max-width: 146px;"><img src="https://chess-dojo-images.s3.us-east-1.amazonaws.com/emails/subscriptionCreated/kostya.png" style="display: block; height: auto; border: 0; width: 100%; border-radius: 8px;" width="146" alt title height="auto"></div>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+												<td class="column column-2" width="58.333333333333336%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-right: 20px; padding-top: 20px; vertical-align: middle;">
+													<table class="heading_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-top:10px;text-align:center;width:100%;">
+																<h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 20px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 24px;"><span class="tinyMce-placeholder" style="word-break: break-word;">Calculation with IM Kostya Kavutskiy (1000-1400)</span></h3>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#d6d2d2;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:14px;font-weight:400;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:21px;">
+																	<p style="margin: 0;">A weekly class focusing on various techniques and skills within calculation. Students will be given weekly homework to work on before the next class, and encouraged to form study groups to solve the material together.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-3" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad" style="padding-top:10px;">
+																<div style="color:#3b9ded;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:700;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:24px;">
+																	<p style="margin: 0;"><a href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="text-decoration: underline; color: #3b9ded;" rel="noopener"><u>Join Now &gt;</u></a></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-5" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="41.666666666666664%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-left: 20px; padding-right: 20px; padding-top: 20px; vertical-align: middle;">
+													<table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
+																<div class="alignment" align="center">
+																	<div class="fullWidth" style="max-width: 146px;"><img src="https://chess-dojo-images.s3.us-east-1.amazonaws.com/emails/subscriptionCreated/david.png" style="display: block; height: auto; border: 0; width: 100%; border-radius: 8px;" width="146" alt title height="auto"></div>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+												<td class="column column-2" width="58.333333333333336%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-right: 20px; padding-top: 20px; vertical-align: middle;">
+													<table class="heading_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-top:10px;text-align:center;width:100%;">
+																<h3 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 20px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 24px;"><span class="tinyMce-placeholder" style="word-break: break-word;">The Najdorf with IM David Pruess (two sections 1400-1800, 1800+)</span></h3>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#d6d2d2;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:14px;font-weight:400;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:21px;">
+																	<p style="margin: 0;">The Najdorf Sicilian is the most unbalanced but objectively good response to 1.e4, and unsurprisingly, one of the most popular of all time. Wielded by the likes of Mikhail Tal, Bobby Fischer, Garry Kasparov, Viswanathan Anand, and Veselin Topalov, many amateurs wrongly fear it is an opening only for World Champions and opening monkeys. Not so! In this course we will learn to play the Najdorf intuitively, focusing on the main ideas, without needing to memorize any lines. Prior to each class, students will be expected to spar key positions, assigned ahead of time.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-3" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad" style="padding-top:10px;">
+																<div style="color:#3b9ded;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:700;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:24px;">
+																	<p style="margin: 0;"><a href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="text-decoration: underline; color: #3b9ded;" rel="noopener"><u>Join Now &gt;</u></a></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-6" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top;">
+													<div class="spacer_block block-1" style="height:20px;line-height:20px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-7" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f7f3ec; border-radius: 20px; color: #333; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr class="reverse">
+												<td class="column column-1 first" width="50%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 10px; padding-left: 10px; padding-right: 10px; padding-top: 10px; vertical-align: middle; border-radius: 0px;">
+													<div class="border">
+														<table class="heading_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+															<tr>
+																<td class="pad">
+																	<h2 style="margin: 0; color: #121212; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 35px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 42px;"><span class="tinyMce-placeholder" style="word-break: break-word;">Game &amp; Profile Reviews</span></h2>
+																</td>
+															</tr>
+														</table>
+														<table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+															<tr>
+																<td class="pad" style="padding-bottom:25px;padding-left:10px;padding-right:10px;padding-top:10px;">
+																	<div style="color:#0d0b0e;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:300;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:24px;">
+																		<p style="margin: 0;">Get personalized insights from a sensei based on your training habits and annotated games.</p>
+																	</div>
+																</td>
+															</tr>
+														</table>
+														<table class="button_block block-3" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+															<tr>
+																<td class="pad">
+																	<div class="alignment" align="left"><a href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="color:#ffffff;text-decoration:none;"><!--[if mso]>
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"  href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale"  style="height:42px;width:198px;v-text-anchor:middle;" arcsize="134%" fillcolor="#121212">
+<v:stroke dashstyle="Solid" weight="1px" color="#121212"/>
+<w:anchorlock/>
+<v:textbox inset="0px,0px,0px,0px">
+<center dir="false" style="color:#ffffff;font-family:sans-serif;font-size:16px">
+<![endif]--><span class="button" style="background-color: #121212; mso-shading: transparent; border-bottom: 1px solid #121212; border-left: 1px solid #121212; border-radius: 60px; border-right: 1px solid #121212; border-top: 1px solid #121212; color: #ffffff; display: inline-block; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 16px; font-weight: 400; mso-border-alt: none; padding-bottom: 5px; padding-top: 5px; padding-left: 20px; padding-right: 20px; text-align: center; width: auto; word-break: keep-all; letter-spacing: normal;"><span style="word-break: break-word; line-height: 32px;">Get Sensei Feedback</span></span><!--[if mso]></center></v:textbox></v:roundrect><![endif]--></a></div>
+																</td>
+															</tr>
+														</table>
+													</div>
+												</td>
+												<td class="column column-2 last" width="50%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-left: 20px; padding-right: 20px; padding-top: 20px; vertical-align: middle; border-radius: 0px;">
+													<div class="border">
+														<table class="image_block block-1" width="100%" border="0" cellpadding="20" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+															<tr>
+																<td style="padding: 0;">
+																	<div class="alignment" align="center">
+																		<div class="fullWidth" style="max-width: 260px;"><img src="https://chess-dojo-images.s3.us-east-1.amazonaws.com/emails/live-classes-sale/graph.png" style="display: block; height: auto; border: 0; width: 100%; border-radius: 4px;" width="260" alt="Dashboard" title="Dashboard" height="auto"></div>
+																	</div>
+																</td>
+															</tr>
+														</table>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-8" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top;">
+													<div class="spacer_block block-1" style="height:10px;line-height:10px;font-size:1px;">&#8202;</div>
+													<table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad" style="padding-top:10px;">
+																<div style="color:#3b9ded;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:700;letter-spacing:0px;line-height:1.5;text-align:center;mso-line-height-alt:24px;">
+																	<p style="margin: 0; text-align: center;"><a href="https://calendar.google.com/calendar/u/0/embed?src=c_771ab8bd3bcf653ae9cecfe549531b3894a17d052e5986da0bd3e1259e2778fc@group.calendar.google.com&mode=MONTH&dates=20260101/20260131&showPrint=0&showNav=0&showTabs=0&showCalendars=0" target="_blank" style="text-decoration: underline; color: #3b9ded;" rel="noopener"><u>View Full Class Calendar</u></a></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-3" style="height:25px;line-height:25px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-9" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 20px; color: #333; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-left: 20px; padding-right: 20px; padding-top: 20px; vertical-align: middle; border-radius: 0px;">
+													<table class="heading_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h2 style="margin: 0; color: #ffffff; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 35px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 42px;"><span class="tinyMce-placeholder" style="word-break: break-word;">Not interested in group classes?</span></h2>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad" style="padding-bottom:25px;padding-left:10px;padding-right:10px;padding-top:10px;">
+																<div style="color:#ffffff;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:19px;font-weight:300;letter-spacing:0px;line-height:1.5;text-align:center;mso-line-height-alt:29px;">
+																	<p style="margin: 0;">ChessDojo Core provides a full training plan, a game database and annotation tool, self-paced opening courses, unlimited puzzles, and more. Use code <strong>BLACKFRIDAY&nbsp;</strong>for&nbsp;<strong>25% off</strong> through Dec. 2nd.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="button_block block-3" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<div class="alignment" align="center"><a href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="color:#ffffff;text-decoration:none;"><!--[if mso]>
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"  href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale"  style="height:42px;width:211px;v-text-anchor:middle;" arcsize="134%" fillcolor="#f7941f">
+<v:stroke dashstyle="Solid" weight="1px" color="#0d0b0e"/>
+<w:anchorlock/>
+<v:textbox inset="0px,0px,0px,0px">
+<center dir="false" style="color:#ffffff;font-family:sans-serif;font-size:16px">
+<![endif]--><span class="button" style="background-color: #f7941f; mso-shading: transparent; border-bottom: 1px solid #0d0b0e; border-left: 1px solid #0d0b0e; border-radius: 60px; border-right: 1px solid #0d0b0e; border-top: 1px solid #0d0b0e; color: #ffffff; display: inline-block; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 16px; font-weight: 400; mso-border-alt: none; padding-bottom: 5px; padding-top: 5px; padding-left: 20px; padding-right: 20px; text-align: center; width: auto; word-break: keep-all; letter-spacing: normal;"><span style="word-break: break-word; line-height: 32px;">Join Now with 25% Off</span></span><!--[if mso]></center></v:textbox></v:roundrect><![endif]--></a></div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-10" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0d0b0e;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top;">
+													<div class="spacer_block block-1" style="height:15px;line-height:15px;font-size:1px;">&#8202;</div>
+													<div class="spacer_block block-2" style="height:15px;line-height:15px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-11" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top;">
+													<div class="spacer_block block-1" style="height:25px;line-height:25px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h2 style="margin: 0; color: #0d0b0e; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 35px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 42px;"><span class="tinyMce-placeholder" style="word-break: break-word;">A Brief and Personal History of ChessDojo's Group Classes</span></h2>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-3" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#4a474c;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:center;mso-line-height-alt:22px;">
+																	<p style="margin: 0;">GM Jesse Kraai describes the story behind ChessDojo's new classes. Read it on <a href="https://www.chessdojo.club/blog/live-classes?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="text-decoration: underline; color: #3b9ded;" rel="noopener">our blog</a> or below.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-4" style="height:40px;line-height:40px;font-size:1px;">&#8202;</div>
+													<table class="paragraph_block block-5" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">When we started the Dojo Training Program using a Google Doc on May 1st 2022 we felt strongly about the three principles we built it around:</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-6" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">1) You have to play longer games and analyze those games.<br>2) You need a plus, minus, equal — that is, someone to learn from, someone to teach, and a group of equals to spar and train with.<br>3) You need a structured plan to follow, and you have to commit to that plan.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-7" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;"><strong>The First Principle</strong></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-8" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">I say we felt strongly about these principles, but we weren’t especially confident that anyone would follow the first one. I was a glaring example of the first principle’s problem: I had resisted seriously studying my own games. It was such a hard and painful process that I couldn’t bring myself to do it with any kind of religion for years. But since I knew that the process did payoff and that I eventually did make GM with that process, I knew it had to be the first principle of our training program.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-9" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">It was also true that I had for years been spectacularly unsuccessful as a coach in getting my students to look seriously at their games. So I was completely unsure if the most important part of the program would be followed at all.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-10" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">The miracle of the Dojo came when we started getting many great annotations in the summer of 2022. And I’ve been reflecting for three years on how this miracle happened. After reviewing thousands of game annotations submitted by Dojo students in our weekly graduation show, I have two thoughts:&nbsp;</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-11" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">1) Players under 1700 have less of their identity tied up in the game, and it’s therefore easier for them to look at their mistakes.<br>2) My students knew I would look at their games in our lessons. And so I became their unwitting crutch. I became their way out of not looking at their games.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-12" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">We were able to showcase some of the best annotations we received from across the Dojo in our book <a href="https://www.amazon.com/How-Analyze-Your-Games-ChessDojo-ebook/dp/B0F1DB396G?crid=6L7ON0ZPCO0Z&dib=eyJ2IjoiMSJ9.RCCH0eOd0w7icZoESeNmwg.sUjHC_06CmYbDBsJMSi2ZN8AFpiwq55uR5cVkiMTewU&dib_tag=se&keywords=how+to+analyze+your+games+chessdojo&qid=1763940105&sprefix=how+to+analyze+your+games%2Caps%2C169&sr=8-1" target="_blank" style="text-decoration: underline; color: #3b9ded;" rel="noopener">How to Analyze Your Games</a>. But despite this success, there are many Dojoers who have not found their way to game analysis. The grad show can be deceiving because the people who graduate are the same ones who are analyzing their games. So it can seem like everyone is doing it when that is not actually true. I knew this was a problem, but for a long time I didn’t know what to do about it.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-13" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;"><strong>Plus, Minus, Equal</strong></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-14" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">We were by contrast much more confident that we could get people to work together. We already had a very encouraging and helpful Discord server prior to launch. But here our confidence was misplaced. We’ve struggled to match players with teachers and training partners.&nbsp;</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-15" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">At one point, we were convinced that all we needed was a calendar where players could schedule their availability. That would solve all our problems. And our lead developer started working with us by building a beautiful calendar. But that calendar found very little use. It turns out that putting people together is a difficult task of social engineering. Like game analysis, it was a problem I didn’t know how to address.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-16" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;"><strong>A Structured Plan</strong></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-17" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">Here we nailed the intentions of the principle. We've developed daily and weekly plans, as well as a training heatmap that keeps you accountable. When I do the grad shows now, I consistently see the disciplined work, displayed in gorgeous and colorful heatmaps, of those who graduate.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="image_block block-18 mobile_hide" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="width:100%;">
+																<div class="alignment" align="center">
+																	<div style="max-width: 680px;"><img src="https://chess-dojo-images.s3.us-east-1.amazonaws.com/emails/subscriptionCreated/heatmap.webp" style="display: block; height: auto; border: 0; width: 100%; border-radius: 8px;" width="680" alt title height="auto"></div>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-19" style="height:40px;line-height:40px;font-size:1px;">&#8202;</div>
+													<table class="paragraph_block block-20" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;"><strong>Game and Profile Reviews</strong></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-21" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">A primary motivation of the Dojo was to offer serious chess training for an affordable price. Personal lessons are wildly more expensive than the Dojo’s $15/month. Still, several Dojoers reached out to me for personal lessons. And I knew that I had personally benefited from lessons myself. I’d annotate a game deeply and then show it to my grumpy Soviet coach KGB. But my biggest problem was simply money. It cost too much, even though KGB was giving me a good deal. I frequently had to put my lessons on hold.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-22" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">So I decided to try teaching group lessons inside the Dojo. It was the kind of thing I was looking for myself – and something I could also afford. I started with a group between 1000 and 1400. In each session, we’d look at a game of one of the participants. Here I was unconsciously replicating my experience with KGB, where I’d analyze a game and he’d yell at me. Think of it as gentle Soviet yelling.&nbsp;</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-23" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">That first group was great, and I started working my way up the ladder: 1000-1400, 1100-1500 and so on. I’m now starting 500-900, and with usually 4-5 participants our workshop generally lasts about a month.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-24" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">Along the way I discovered two important improvements compared to my lessons with KGB:</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-25" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">1) I started to look at the profile of the player who was up that week at the start of every class. You can tell a lot about a player from their Dojo training heatmap, rating graph and tactics score. This is how the class gradually evolved into game <em>AND</em> profile reviews. Since participants know that I’ll take a look when their turn comes around, the profile review becomes a simple means of holding themselves accountable.<br>2) The group started meeting before I met with them. They’d review the profile and game of the person who was up that week. And here I witnessed some real magic happening: the group work dramatically improved the annotations, the other players came to the class with their own questions about the game and training in general, and most importantly they were making chess friendships and finding sparring partners.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-26" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">The first impetus then to start the Game and Profile Review as a permanent tier was the regret I had in leaving someone behind as I climbed up the ladder. They were part of a great group, and I felt I should facilitate that group’s continuation. It was also clear that the above two improvements would fill in the gaps for many Dojoers. Because in our original program, it was only the power users who could consistently find the courage and discipline to power through their annotations all by themselves. And it was the socially confident few who had found a training partner.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-27" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">The Game and Profile Review group from 0 all the way to 800 has become something of a family. They watch over each other’s progress, know everyone’s strengths and weaknesses, know what I am going to yell at them for, and have celebrations when someone plays a great move. Many of these players have made the effort to meet in real life.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-28" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;"><strong>Lecture Classes</strong></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-29" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">Largely due to the intimacy of the Game and Review Classes, I was determined to keep the class sizes small. At the moment, eight seems like the limit. A small size will of course make it much more costly than if we allowed say twenty players in. The intimacy of a seminar isn’t always necessary though. With bigger classes, we could radically reduce the price. And while a small group is wonderful to reflect on a player’s training and games, it’s not necessary for a class on the Najdorf or a series on the Dojo’s Rook Endgame Progression.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-30" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">This has been the story of how we came to launch our new venture on January 1st. The Game and Profile Review will cost $200/month and the lecture classes will cost $75/month. The more players that subscribe, the easier it will be to add time slots, tighter rating ranges and more classes – especially classes with famous instructors. Our biggest hurdle is certainly finding times that work best for as many players as possible. While participants will be able to watch videos of sessions they miss, we of course want you to make as many sessions as possible. So while our initial schedule is fixed, we will add more slots if the demand is there.</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-31" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">Signing up early guarantees you a spot and if you do so for Black Friday (until Dec 2) you can get 25% off your first month of any tier. So <a href="https://www.chessdojo.club/prices?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="text-decoration: underline; color: #3b9ded;" rel="noopener">join now</a> and start training today!</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-32" style="height:15px;line-height:15px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-12" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;" width="680">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top;">
+													<table class="social_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:20px;padding-left:10px;padding-right:10px;padding-top:40px;text-align:center;">
+																<div class="alignment" align="center">
+																	<table class="social-table" width="252px" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block;">
+																		<tr>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.youtube.com/chessdojo" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/youtube@2x.png" width="32" height="auto" alt="YouTube" title="YouTube" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.twitch.tv/chessdojo" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/twitch@2x.png" width="32" height="auto" alt="Twitch" title="Twitch" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://discord.gg/ehryScGMfP" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/discord@2x.png" width="32" height="auto" alt="Discord" title="Discord" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://twitter.com/chess_dojo" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/twitter@2x.png" width="32" height="auto" alt="twitter" title="twitter" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.instagram.com/chess_dojo" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/instagram@2x.png" width="32" height="auto" alt="instagram" title="instagram" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://open.spotify.com/show/0TcZHYLLx2KMe33YAgtyS6?si=943acce8c5aa4b1a" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/spotify@2x.png" width="32" height="auto" alt="Spotify" title="Spotify" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://facebook.com/chessdojo" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-white/facebook@2x.png" width="32" height="auto" alt="facebook" title="facebook" style="display: block; height: auto; border: 0;"></a></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#d6d2d2;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:center;mso-line-height-alt:19px;">
+																	<p style="margin: 0;">© 2025 ChessDojo</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-3" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#101112;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:center;mso-line-height-alt:19px;">
+																	<p style="margin: 0;"><a href="https://www.chessdojo.club/profile/edit?utm_medium=email&utm_source=newsletter&utm_campaign=live_classes_presale" target="_blank" style="text-decoration: none; color: #90caf9;" rel="noopener">Notification Preferences</a></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-4" style="height:20px;line-height:20px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table><!-- End -->
+</body>
+
+</html>

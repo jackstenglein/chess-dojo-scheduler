@@ -7,6 +7,7 @@ import { getConfig } from '@/config';
 import { Event, EventStatus } from '@/database/event';
 import { dojoCohorts } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
+import { logger } from '@/logging/logger';
 import Icon from '@/style/Icon';
 import { ProcessedEvent } from '@jackstenglein/react-scheduler/types';
 import { LinkOutlined } from '@mui/icons-material';
@@ -49,8 +50,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
                 });
                 window.location.href = resp.data.checkoutUrl;
             })
-            .catch((err) => {
-                console.error('bookEvent: ', err);
+            .catch((err: unknown) => {
                 request.onFailure(err);
             });
     };
@@ -59,7 +59,7 @@ const CoachingViewer: React.FC<CoachingViewerProps> = ({ processedEvent }) => {
         try {
             await navigator.clipboard.writeText(`${baseUrl}/calendar/availability/${event.id}`);
         } catch (err) {
-            console.error('Failed to copy event link: ', err);
+            logger.error?.('Failed to copy event link: ', err);
         }
     };
 

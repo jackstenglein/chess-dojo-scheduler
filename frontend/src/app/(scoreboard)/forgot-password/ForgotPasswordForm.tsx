@@ -3,6 +3,7 @@
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
+import { logger } from '@/logging/logger';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle } from '@mui/icons-material';
 import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
@@ -236,7 +237,7 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ email, onSuccess }) => {
             })
             .catch((err: { code?: string; message?: string }) => {
                 request.onFailure(err);
-                console.error(err);
+                logger.error?.(err);
                 if (err.code === 'CodeMismatchException') {
                     setCodeError('Incorrect recovery code');
                 } else {

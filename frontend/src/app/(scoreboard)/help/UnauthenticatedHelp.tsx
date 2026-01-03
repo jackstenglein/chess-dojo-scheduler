@@ -2,6 +2,7 @@ import SupportTicket from '@/components/help/SupportTicket';
 import { Link } from '@/components/navigation/Link';
 import { getConfig } from '@/config';
 import { RatingSystem, formatRatingSystem } from '@/database/user';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { SmartToy } from '@mui/icons-material';
 import {
     Button,
@@ -14,8 +15,9 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import HelpItem from './HelpItem';
+import { liveClassesFaq } from './liveClasses';
 
 const { Custom, Custom2, Custom3, ...ratingSystems } = RatingSystem;
 const config = getConfig();
@@ -124,6 +126,7 @@ export const faq = {
 
 const helpSections = [
     faq,
+    liveClassesFaq,
     {
         title: 'Account',
         items: [
@@ -163,16 +166,26 @@ const helpSections = [
     },
 ];
 
-const UnauthenticatedHelp = () => {
-    const scrollToId = (e: React.MouseEvent, id: string) => {
-        e.preventDefault();
-        e.stopPropagation();
+export function scrollToId(e: React.MouseEvent | undefined, id: string) {
+    e?.preventDefault();
+    e?.stopPropagation();
 
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView();
+    id = id.toLowerCase().replaceAll(' ', '-');
+    const element = document.getElementById(id);
+    if (element) {
+        element.scrollIntoView();
+    }
+}
+
+const UnauthenticatedHelp = () => {
+    const { searchParams } = useNextSearchParams();
+
+    const id = searchParams.get('id');
+    useEffect(() => {
+        if (id) {
+            scrollToId(undefined, id);
         }
-    };
+    }, [id]);
 
     return (
         <Container maxWidth='xl' sx={{ py: 4 }}>
@@ -262,7 +275,7 @@ const UnauthenticatedHelp = () => {
                         {helpSections.map((section) => (
                             <Stack
                                 key={section.title}
-                                id={section.title}
+                                id={section.title.toLowerCase().replaceAll(' ', '-')}
                                 sx={{
                                     scrollMarginTop: 'calc(var(--navbar-height) + 8px)',
                                 }}

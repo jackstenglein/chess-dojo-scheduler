@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState, type JSX } from 'react';
 import { useTimelineContext } from '../activity/useTimeline';
 import postmortem2023 from './2023-postmortem.png';
 import postmortem2024 from './2024-postmortem.png';
+import postmortem2025 from './2025-postmortem.png';
 import { BadgCabinetDialog } from './BadgeCabinetDialog';
 import BadgeDialog from './BadgeDialog';
 import { Badge, getBadges } from './badgeHandler';
@@ -62,11 +63,11 @@ export const BadgeCard = ({ user }: { user: User }) => {
         timeline,
     ]);
 
-    if (!user.createdAt || user.createdAt < '2023-12') {
+    if (!user.createdAt || user.createdAt < '2025-12-31') {
         badges.push(
-            <Link key='postmortem-2023' href={`/profile/${user.username}/postmortem/2023`}>
-                <Tooltip title='View my 2023 postmortem!'>
-                    <Image src={postmortem2023} alt='2023 postmortem' width={50} height={50} />
+            <Link key='postmortem-2025' href={`/profile/${user.username}/postmortem/2025`}>
+                <Tooltip title='View my 2025 postmortem!'>
+                    <Image src={postmortem2025} alt='2025 postmortem' width={50} height={50} />
                 </Tooltip>
             </Link>,
         );
@@ -77,6 +78,16 @@ export const BadgeCard = ({ user }: { user: User }) => {
             <Link key='postmortem-2024' href={`/profile/${user.username}/postmortem/2024`}>
                 <Tooltip title='View my 2024 postmortem!'>
                     <Image src={postmortem2024} alt='2024 postmortem' width={50} height={50} />
+                </Tooltip>
+            </Link>,
+        );
+    }
+
+    if (!user.createdAt || user.createdAt < '2023-12') {
+        badges.push(
+            <Link key='postmortem-2023' href={`/profile/${user.username}/postmortem/2023`}>
+                <Tooltip title='View my 2023 postmortem!'>
+                    <Image src={postmortem2023} alt='2023 postmortem' width={50} height={50} />
                 </Tooltip>
             </Link>,
         );

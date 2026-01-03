@@ -245,7 +245,6 @@ const MoveMenu = ({ anchor, move, onClose }: MoveMenuProps) => {
             }
             onClose();
         } catch (err) {
-            console.error('onSaveVariationAsComment: ', err);
             saveVariationRequest.onFailure(err);
         }
     };

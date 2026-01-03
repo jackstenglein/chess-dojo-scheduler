@@ -17,11 +17,11 @@ import (
 	"github.com/stripe/stripe-go/v81/checkout/session"
 	"github.com/stripe/stripe-go/v81/loginlink"
 	"github.com/stripe/stripe-go/v81/refund"
+	"github.com/stripe/stripe-go/v81/subscription"
 )
 
 var frontendHost = os.Getenv("frontendHost")
-var monthlyPriceId = os.Getenv("monthlyPriceId")
-var yearlyPriceId = os.Getenv("yearlyPriceId")
+
 var quickGameReviewPriceId = os.Getenv("quickGameReviewPriceId")
 var deepGameReviewPriceId = os.Getenv("deepGameReviewPriceId")
 
@@ -110,25 +110,76 @@ func PurchaseCourseUrl(user *database.User, course *database.Course, purchaseOpt
 	return checkoutSession.URL, nil
 }
 
+var subscriptionPriceIds = map[database.SubscriptionTier]map[string]string{
+	"": { // Empty string matches basic for legacy requests
+		string(stripe.PriceRecurringIntervalMonth): os.Getenv("monthlyPriceId"),
+		string(stripe.PriceRecurringIntervalYear):  os.Getenv("yearlyPriceId"),
+	},
+	database.SubscriptionTier_Basic: {
+		string(stripe.PriceRecurringIntervalMonth): os.Getenv("monthlyPriceId"),
+		string(stripe.PriceRecurringIntervalYear):  os.Getenv("yearlyPriceId"),
+	},
+	database.SubscriptionTier_Lecture: {
+		string(stripe.PriceRecurringIntervalMonth): os.Getenv("lectureTierMonthlyPriceId"),
+	},
+	database.SubscriptionTier_GameReview: {
+		string(stripe.PriceRecurringIntervalMonth): os.Getenv("gameReviewTierMonthlyPriceId"),
+	},
+}
+
+var presalePriceIds = map[database.SubscriptionTier]string{
+	database.SubscriptionTier_Lecture:    os.Getenv("lectureTierPresalePriceId"),
+	database.SubscriptionTier_GameReview: os.Getenv("gameReviewTierPresalePriceId"),
+}
+
 type PurchaseSubscriptionRequest struct {
-	Interval   string `json:"interval"`
-	SuccessUrl string `json:"successUrl"`
-	CancelUrl  string `json:"cancelUrl"`
+	Tier       database.SubscriptionTier `json:"tier"`
+	Interval   string                    `json:"interval"`
+	SuccessUrl string                    `json:"successUrl"`
+	CancelUrl  string                    `json:"cancelUrl"`
+}
+
+func getPriceId(request *PurchaseSubscriptionRequest) (string, error) {
+	tier, ok := subscriptionPriceIds[request.Tier]
+	if !ok {
+		return "", errors.New(400, fmt.Sprintf("Invalid request: tier %q is not recognized", request.Tier), "")
+	}
+	priceId, ok := tier[request.Interval]
+	if !ok || priceId == "" {
+		return "", errors.New(400, fmt.Sprintf("Invalid request: interval %q is not recognized for tier %q", request.Interval, request.Tier), "")
+	}
+	return priceId, nil
+}
+
+var jan1, _ = time.Parse(time.RFC3339, "2026-01-01T00:00:00Z")
+var feb1, _ = time.Parse(time.RFC3339, "2026-02-01T00:00:00Z")
+
+// TODO: delete this after Jan 1, 2026
+func updateCheckoutSessionForPresale(request *PurchaseSubscriptionRequest, params *stripe.CheckoutSessionParams) {
+	priceId := presalePriceIds[request.Tier]
+	if priceId == "" {
+		return
+	}
+
+	if time.Now().After(jan1) {
+		return
+	}
+
+	params.LineItems = append(params.LineItems, &stripe.CheckoutSessionLineItemParams{
+		Price:    stripe.String(priceId),
+		Quantity: stripe.Int64(1),
+	})
+	params.SubscriptionData.TrialEnd = stripe.Int64(feb1.Unix())
 }
 
 func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionRequest, userAgent, ipAddress string) (string, error) {
-	var priceId string
-
 	if user == nil {
 		return "", errors.New(400, "Invalid request: user is not authenticated", "")
 	}
 
-	if request.Interval == string(stripe.PriceRecurringIntervalMonth) {
-		priceId = monthlyPriceId
-	} else if request.Interval == string(stripe.PriceRecurringIntervalYear) {
-		priceId = yearlyPriceId
-	} else {
-		return "", errors.New(400, fmt.Sprintf("Invalid request: interval must be either `%s` or `%s`", stripe.PriceRecurringIntervalMonth, stripe.PriceRecurringIntervalYear), "")
+	priceId, err := getPriceId(request)
+	if err != nil {
+		return "", err
 	}
 
 	successUrl := request.SuccessUrl
@@ -161,6 +212,8 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 			"type":      string(CheckoutSessionType_Subscription),
 			"userAgent": userAgent,
 			"ipAddress": ipAddress,
+			"username":  user.Username,
+			"tier":      string(request.Tier),
 		},
 		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
 			TrialSettings: &stripe.CheckoutSessionSubscriptionDataTrialSettingsParams{
@@ -169,15 +222,19 @@ func PurchaseSubscriptionUrl(user *database.User, request *PurchaseSubscriptionR
 				},
 			},
 			Metadata: map[string]string{
-				"username": user.Username,
+				"username":     user.Username,
+				"originalTier": string(request.Tier),
 			},
 		},
 		PaymentMethodCollection: stripe.String(string(stripe.CheckoutSessionPaymentMethodCollectionAlways)),
 	}
 
-	if user.PaymentInfo.GetCustomerId() != "" {
-		params.Customer = stripe.String(user.PaymentInfo.GetCustomerId())
+	if customerId := user.PaymentInfo.GetCustomerId(); customerId != "" && customerId != "WIX" && customerId != "OVERRIDE" {
+		params.Customer = stripe.String(customerId)
 	}
+
+	// TODO: remove after Jan 1, 2026
+	updateCheckoutSessionForPresale(request, params)
 
 	checkoutSession, err := session.New(params)
 	if err != nil {
@@ -299,14 +356,37 @@ func GetCheckoutSession(id string) (*stripe.CheckoutSession, error) {
 	return session, nil
 }
 
-func GetBillingPortalSession(customerId string) (*stripe.BillingPortalSession, error) {
+func GetBillingPortalSession(paymentInfo *database.PaymentInfo, tier database.SubscriptionTier, interval string) (*stripe.BillingPortalSession, error) {
 	params := &stripe.BillingPortalSessionParams{
-		Customer:  stripe.String(customerId),
+		Customer:  stripe.String(paymentInfo.GetCustomerId()),
 		ReturnURL: stripe.String(fmt.Sprintf("%s/profile/edit", frontendHost)),
 	}
+
+	if tier != "" && interval != "" {
+		result, err := subscription.Get(paymentInfo.GetSubscriptionId(), &stripe.SubscriptionParams{})
+		if err != nil {
+			return nil, errors.Wrap(500, "Failed to create Stripe Billing Portal session", "Failed to fetch current subscription", err)
+		}
+
+		params.FlowData = &stripe.BillingPortalSessionFlowDataParams{
+			Type: stripe.String("subscription_update_confirm"),
+			SubscriptionUpdateConfirm: &stripe.BillingPortalSessionFlowDataSubscriptionUpdateConfirmParams{
+				Subscription: stripe.String(paymentInfo.GetSubscriptionId()),
+				Items: []*stripe.BillingPortalSessionFlowDataSubscriptionUpdateConfirmItemParams{
+					{
+						ID:       stripe.String(result.Items.Data[0].ID),
+						Quantity: stripe.Int64(1),
+						Price:    stripe.String(subscriptionPriceIds[tier][interval]),
+					},
+				},
+			},
+		}
+		params.ReturnURL = stripe.String(fmt.Sprintf("%s/profile", frontendHost))
+	}
+
 	session, err := bpsession.New(params)
 	if err != nil {
-		return nil, errors.Wrap(500, "Temporary server error", "Failed to create Stripe Billing Portal session", err)
+		return nil, errors.Wrap(500, "Failed to create Stripe Billing Portal session", "", err)
 	}
 	return session, nil
 }

@@ -83,22 +83,6 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		return api.Failure(err), nil
 	}
 
-	if update.DiscordUsername != nil {
-		username := strings.TrimSpace(*update.DiscordUsername)
-		update.DiscordUsername = &username
-		if *update.DiscordUsername != "" {
-			avatarUrl, err := discord.GetDiscordAvatarURL(*update.DiscordUsername)
-			if err != nil {
-				return api.Failure(err), nil
-			}
-			if !user.ProfilePictureSet && avatarUrl != "" {
-				if err := mediaStore.CopyImageFromURL(avatarUrl, fmt.Sprintf("/profile/%s", info.Username)); err != nil {
-					log.Errorf("Failed to copy Discord avatar URL: %v", err)
-				}
-			}
-		}
-	}
-
 	if err := fetchRatings(user, update); err != nil {
 		return api.Failure(err), nil
 	}

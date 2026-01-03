@@ -1,7 +1,12 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { Link } from '@/components/navigation/Link';
-import { SubscriptionStatus, User } from '@/database/user';
+import { isFree, User } from '@/database/user';
+import {
+    getSubscriptionTier,
+    PaymentInfo,
+    SubscriptionTier,
+} from '@jackstenglein/chess-dojo-common/src/database/user';
 import { OpenInNew } from '@mui/icons-material';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { LoadingButton } from '@mui/lab';
@@ -21,13 +26,12 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
             .then((resp) => {
                 window.location.href = resp.data.url;
             })
-            .catch((err) => {
-                console.error('subscriptionManage: ', err);
+            .catch((err: unknown) => {
                 request.onFailure(err);
             });
     };
 
-    const isFreeTier = user.subscriptionStatus !== SubscriptionStatus.Subscribed;
+    const isFreeTier = isFree(user);
     const paymentInfo = user.paymentInfo;
 
     return (
@@ -58,8 +62,9 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
             ) : (
                 <>
                     <Typography>Subscription Status: Subscribed</Typography>
+                    <Typography>Current Tier: {displaySubscriptionTier(user)}</Typography>
 
-                    {paymentInfo?.customerId ? (
+                    {!isWix(paymentInfo) ? (
                         <LoadingButton
                             loading={request.isLoading()}
                             onClick={onManageSubscription}
@@ -82,5 +87,25 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
         </Stack>
     );
 };
+
+function displaySubscriptionTier(user: User): string {
+    switch (getSubscriptionTier(user)) {
+        case SubscriptionTier.Free:
+            return 'Free Tier';
+        case SubscriptionTier.Basic:
+            return 'Core';
+        case SubscriptionTier.Lecture:
+            return 'Group Classes';
+        case SubscriptionTier.GameReview:
+            return 'Game & Profile Review';
+    }
+}
+
+function isWix(paymentInfo?: PaymentInfo): boolean {
+    if (!paymentInfo) {
+        return true;
+    }
+    return paymentInfo.customerId === '' || paymentInfo.customerId === 'WIX';
+}
 
 export default SubscriptionManager;

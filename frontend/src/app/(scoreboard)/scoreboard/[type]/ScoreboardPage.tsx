@@ -47,11 +47,9 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
             dataRequest.onStart();
             api.getScoreboard(type)
                 .then((data) => {
-                    console.log('getScoreboard: ', data);
                     dataRequest.onSuccess(data);
                 })
                 .catch((err) => {
-                    console.error('getScoreboard: ', err);
                     dataRequest.onFailure(err);
                 });
         }
@@ -65,7 +63,6 @@ function AuthScoreboardPage({ user, type }: { user: User; type?: string }) {
                     graduationsRequest.onSuccess(graduations);
                 })
                 .catch((err) => {
-                    console.error('listGraduations: ', err);
                     graduationsRequest.onFailure(err);
                 });
         }

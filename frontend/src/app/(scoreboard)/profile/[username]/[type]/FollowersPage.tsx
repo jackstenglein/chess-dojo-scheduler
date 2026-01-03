@@ -32,7 +32,6 @@ export function FollowersPage({
                     request.onSuccess(response.data);
                 })
                 .catch((err) => {
-                    console.error('Failed to get user profile: ', err);
                     request.onFailure(err);
                 });
         }

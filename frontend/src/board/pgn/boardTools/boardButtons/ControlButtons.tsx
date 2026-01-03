@@ -20,7 +20,7 @@ const ControlButtons = () => {
         GoToEndButtonBehaviorKey,
         GoToEndButtonBehavior.SingleClick,
     );
-    const { chess, toggleOrientation } = useChess();
+    const { chess, toggleOrientation, solitaire } = useChess();
     const reconcile = useReconcile();
 
     const onClickMove = (move: Move | null) => {
@@ -39,15 +39,24 @@ const ControlButtons = () => {
     };
 
     const onNextMove = () => {
-        if (chess) {
-            const nextMove = chess.nextMove();
-            if (nextMove) {
-                onClickMove(nextMove);
-            }
+        if (
+            solitaire?.enabled &&
+            !solitaire.complete &&
+            chess?.currentMove() === solitaire.currentMove
+        ) {
+            return;
+        }
+
+        const nextMove = chess?.nextMove();
+        if (nextMove) {
+            onClickMove(nextMove);
         }
     };
 
     const onLastMove = () => {
+        if (solitaire?.enabled && !solitaire.complete) {
+            return;
+        }
         if (chess) {
             onClickMove(chess.lastMove());
         }

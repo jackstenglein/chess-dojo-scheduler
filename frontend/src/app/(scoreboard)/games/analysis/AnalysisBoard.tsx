@@ -151,7 +151,7 @@ function getDefaultOrientation(pgn?: string, user?: User): GameOrientation {
     }
 
     for (const rating of Object.values(user.ratings)) {
-        if (rating.username.toLowerCase() === black) {
+        if (rating.username?.toLowerCase() === black) {
             return GameOrientations.black;
         }
     }

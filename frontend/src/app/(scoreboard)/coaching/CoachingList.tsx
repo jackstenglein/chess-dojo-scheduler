@@ -8,7 +8,7 @@ import OwnerField from '@/components/calendar/eventViewer/OwnerField';
 import PriceField from '@/components/calendar/eventViewer/PriceField';
 import { Link } from '@/components/navigation/Link';
 import { Event, EventStatus, EventType } from '@/database/event';
-import { SubscriptionStatus, User, dojoCohorts } from '@/database/user';
+import { User, dojoCohorts, isFree } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import { LoadingButton } from '@mui/lab';
@@ -36,7 +36,7 @@ export function displayEvent(event: Event, viewer?: User): boolean {
         return false;
     }
 
-    const isFreeTier = !viewer || viewer.subscriptionStatus === SubscriptionStatus.FreeTier;
+    const isFreeTier = isFree(viewer);
     if (!isOwner && isFreeTier && !event.coaching?.bookableByFreeUsers) {
         return false;
     }
@@ -110,7 +110,6 @@ const CoachingListItem: React.FC<{ event: Event }> = ({ event }) => {
                 window.location.href = resp.data.checkoutUrl;
             })
             .catch((err) => {
-                console.error('bookEvent: ', err);
                 request.onFailure(err);
             });
     };

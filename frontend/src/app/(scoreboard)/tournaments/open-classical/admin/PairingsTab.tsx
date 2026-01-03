@@ -191,7 +191,6 @@ const AdminPairingsTable: React.FC<AdminPairingsTableProps> = ({
                 updateRequest.onSuccess();
             })
             .catch((err: unknown) => {
-                console.error(err);
                 updateRequest.onFailure(err);
             });
     };

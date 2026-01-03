@@ -31,7 +31,7 @@ resources:
 
     HttpApi:
       Type: AWS::ApiGatewayV2::Api
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         Name: ${sls:stage}-chess-dojo-scheduler
         ProtocolType: HTTP
@@ -55,7 +55,7 @@ resources:
 
     HttpApiStage:
       Type: AWS::ApiGatewayV2::Stage
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         ApiId: !Ref HttpApi
         StageName: $default
@@ -65,7 +65,7 @@ resources:
 
     HttpApiAuthorizerServiceAuthorizer:
       Type: AWS::ApiGatewayV2::Authorizer
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         ApiId: !Ref HttpApi
         Name: serviceAuthorizer
@@ -81,7 +81,7 @@ resources:
 
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         UserPoolName: ${sls:stage}-chess-dojo-scheduler-auth-pool
         DeletionProtection: ACTIVE
@@ -101,7 +101,7 @@ resources:
 
     UserClient:
       Type: AWS::Cognito::UserPoolClient
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         ClientName: ${sls:stage}-chess-dojo-scheduler-auth-client
         GenerateSecret: false
@@ -126,24 +126,26 @@ resources:
           - ${file(../config-${sls:stage}.yml):mobileHost}
           - https://www.dojoscoreboard.com
           - https://beta.chessdojo.club
-        SupportedIdentityProviders: !If [IsNotSimple,
-          [COGNITO, Google],
-          [COGNITO]
-        ]
+        SupportedIdentityProviders: !If [IsNotSimple, [COGNITO, Google], [COGNITO]]
         AccessTokenValidity: 24
         IdTokenValidity: 24
 
     UserPoolDomain:
       Type: AWS::Cognito::UserPoolDomain
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         UserPoolId: { Ref: CognitoUserPool }
-        Domain: !If [IsNotSimple, 'user-pool-domain-${sls:stage}-chess-dojo-scheduler', 'user-pool-domain-${sls:stage}-${aws:accountId}-chess-dojo-scheduler']
+        Domain:
+          !If [
+            IsNotSimple,
+            'user-pool-domain-${sls:stage}-chess-dojo-scheduler',
+            'user-pool-domain-${sls:stage}-${aws:accountId}-chess-dojo-scheduler',
+          ]
 
     CustomDomainCertificate:
       Condition: IsNotSimple
       Type: AWS::CertificateManager::Certificate
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         DomainName: ${file(../config-${sls:stage}.yml):cognitoUserPoolDomain}
         ValidationMethod: DNS
@@ -154,7 +156,7 @@ resources:
     CustomUserPoolDomain:
       Condition: IsNotSimple
       Type: AWS::Cognito::UserPoolDomain
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         UserPoolId: { Ref: CognitoUserPool }
         Domain: !If
@@ -167,7 +169,7 @@ resources:
     UserPoolIdentityProvider:
       Condition: IsNotSimple
       Type: AWS::Cognito::UserPoolIdentityProvider
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         UserPoolId: { Ref: CognitoUserPool }
         ProviderName: 'Google'
@@ -188,7 +190,7 @@ resources:
 
     UsersTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-users
         AttributeDefinitions:
@@ -197,6 +199,10 @@ resources:
           - AttributeName: dojoCohort
             AttributeType: S
           - AttributeName: subscriptionStatus
+            AttributeType: S
+          - AttributeName: subscriptionTier
+            AttributeType: S
+          - AttributeName: discordId
             AttributeType: S
         KeySchema:
           - AttributeName: username
@@ -247,10 +253,40 @@ resources:
                 - dojoCohort
                 - updatedAt
                 - minutesSpent
+          - IndexName: SubscriptionTierIdx
+            KeySchema:
+              - AttributeName: subscriptionTier
+                KeyType: HASH
+              - AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - displayName
+                - dojoCohort
+                - discordUsername
+                - discordId
+                - createdAt
+                - updatedAt
+                - gameReviewCohortId
+          - IndexName: DiscordIdIdx
+            KeySchema:
+              - AttributeName: discordId
+                KeyType: HASH
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - displayName
+                - dojoCohort
+                - discordUsername
+                - bio
+                - ratingSystem
+                - ratings
+                - createdAt
 
     TimelineTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-timeline
         AttributeDefinitions:
@@ -274,7 +310,7 @@ resources:
 
     FollowersTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-followers
         AttributeDefinitions:
@@ -307,7 +343,7 @@ resources:
 
     EventsTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-events
         AttributeDefinitions:
@@ -333,7 +369,7 @@ resources:
 
     RequirementsTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-requirements
         AttributeDefinitions:
@@ -350,7 +386,7 @@ resources:
 
     GraduationsTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-graduations
         AttributeDefinitions:
@@ -393,7 +429,7 @@ resources:
 
     GamesTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-games
         AttributeDefinitions:
@@ -530,7 +566,7 @@ resources:
 
     TournamentsTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-tournaments
         AttributeDefinitions:
@@ -563,7 +599,7 @@ resources:
 
     NotificationsTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-notifications
         AttributeDefinitions:
@@ -580,7 +616,7 @@ resources:
 
     NewsfeedTable:
       Type: AWS::DynamoDB::Table
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         TableName: ${sls:stage}-newsfeed
         BillingMode: PAY_PER_REQUEST
@@ -617,9 +653,14 @@ resources:
 
     GameDatabaseBucket:
       Type: AWS::S3::Bucket
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
-        BucketName: !If [IsNotSimple, 'chess-dojo-${sls:stage}-game-database', 'chess-dojo-simple-${aws:accountId}-game-database']
+        BucketName:
+          !If [
+            IsNotSimple,
+            'chess-dojo-${sls:stage}-game-database',
+            'chess-dojo-simple-${aws:accountId}-game-database',
+          ]
         PublicAccessBlockConfiguration:
           BlockPublicPolicy: false
         LifecycleConfiguration:
@@ -630,7 +671,7 @@ resources:
 
     GameDatabaseBucketPolicy:
       Type: AWS::S3::BucketPolicy
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         Bucket: !Ref GameDatabaseBucket
         PolicyDocument:
@@ -648,15 +689,20 @@ resources:
 
     PicturesBucket:
       Type: AWS::S3::Bucket
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
-        BucketName: !If [IsNotSimple, 'chess-dojo-${sls:stage}-pictures', 'chess-dojo-simple-${aws:accountId}-pictures']
+        BucketName:
+          !If [
+            IsNotSimple,
+            'chess-dojo-${sls:stage}-pictures',
+            'chess-dojo-simple-${aws:accountId}-pictures',
+          ]
         PublicAccessBlockConfiguration:
           BlockPublicPolicy: false
 
     PicturesBucketPolicy:
       Type: AWS::S3::BucketPolicy
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
         Bucket: !Ref PicturesBucket
         PolicyDocument:
@@ -674,9 +720,14 @@ resources:
 
     SecretsBucket:
       Type: AWS::S3::Bucket
-      DeletionPolicy: !If [IsNotSimple, "Retain", "Delete"]
+      DeletionPolicy: !If [IsNotSimple, 'Retain', 'Delete']
       Properties:
-        BucketName: !If [IsNotSimple, 'chess-dojo-${sls:stage}-secrets', 'chess-dojo-simple-${aws:accountId}-secrets']
+        BucketName:
+          !If [
+            IsNotSimple,
+            'chess-dojo-${sls:stage}-secrets',
+            'chess-dojo-simple-${aws:accountId}-secrets',
+          ]
 
     ############# End S3 Resources ##############
 

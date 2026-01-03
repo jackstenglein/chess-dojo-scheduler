@@ -148,7 +148,6 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
                     request.onSuccess();
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }
@@ -192,7 +191,6 @@ const NewsfeedList: React.FC<NewsfeedListProps> = ({
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

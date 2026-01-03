@@ -125,7 +125,6 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                 router.push(`/meeting/${response.data.event.id}`);
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };
@@ -146,7 +145,6 @@ const AvailabilityBooker: React.FC<AvailabilityBookerProps> = ({ availability })
                 router.push(`/meeting/${response.data.event.id}`);
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

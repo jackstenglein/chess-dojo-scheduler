@@ -44,10 +44,6 @@ describe('Calendar Page', () => {
         cy.interceptApi('GET', '/user/access', { statusCode: 403 });
         cy.visit('/calendar');
 
-        cy.getBySel('upsell-alert')
-            .contains('View Options')
-            .should('have.attr', 'href', '/prices?redirect=/calendar');
-
         cy.get('.rs__cell.rs__header.rs__time').first().siblings().first().click();
 
         cy.getBySel('upsell-dialog')

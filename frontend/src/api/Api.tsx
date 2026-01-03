@@ -18,8 +18,13 @@ import {
     DeleteGamesRequest,
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
+import {
+    GetPuzzleHistoryRequest,
+    NextPuzzleRequest,
+} from '@jackstenglein/chess-dojo-common/src/puzzles/api';
 import {
     RoundRobinRegisterRequest,
     RoundRobinSubmitGameRequest,
@@ -117,6 +122,12 @@ import {
     listGraduationsByOwner,
 } from './graduationApi';
 import {
+    LiveClassesApiContextType,
+    getGameReviewCohort,
+    getRecording,
+    listRecordings,
+} from './liveClassesApi';
+import {
     NewsfeedApiContextType,
     createNewsfeedComment,
     getNewsfeedItem,
@@ -137,6 +148,7 @@ import {
     subscriptionCheckout,
     subscriptionManage,
 } from './paymentApi';
+import { PuzzleApiContextType, getPuzzleHistory, nextPuzzle } from './puzzleApi';
 import {
     RequirementApiContextType,
     getRequirement,
@@ -214,7 +226,9 @@ export type ApiContextType = UserApiContextType &
     ExamApiContextType &
     EmailApiContextType &
     DirectoryApiContextType &
-    RoundRobinApiContextType;
+    RoundRobinApiContextType &
+    PuzzleApiContextType &
+    LiveClassesApiContextType;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const ApiContext = createContext<ApiContextType>(null!);
@@ -390,7 +404,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
             subscriptionCheckout: (request: SubscriptionCheckoutRequest) =>
                 subscriptionCheckout(idToken, request),
-            subscriptionManage: () => subscriptionManage(idToken),
+            subscriptionManage: (tier?: SubscriptionTier, interval?: 'month' | 'year') =>
+                subscriptionManage(idToken, tier, interval),
             createPaymentAccount: () => createPaymentAccount(idToken),
             getPaymentAccount: () => getPaymentAccount(idToken),
             paymentAccountLogin: () => paymentAccountLogin(idToken),
@@ -447,6 +462,14 @@ export function ApiProvider({ children }: { children: ReactNode }) {
                 withdrawFromRoundRobin(idToken, request),
             submitRoundRobinGame: (request: RoundRobinSubmitGameRequest) =>
                 submitRoundRobinGame(idToken, request),
+
+            nextPuzzle: (request: NextPuzzleRequest) => nextPuzzle(idToken, request),
+            getPuzzleHistory: (request: GetPuzzleHistoryRequest) =>
+                getPuzzleHistory(idToken, request),
+
+            listRecordings,
+            getRecording,
+            getGameReviewCohort,
         };
     }, [idToken, auth.user, auth.updateUser]);
 

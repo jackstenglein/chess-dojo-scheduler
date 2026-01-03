@@ -25,6 +25,8 @@ export enum RestrictedAction {
     JoinSubscriberClubs = 'Join clubs restricted to subscribers',
     SubscriberChat = 'Access the subscriber-only chat',
     TacticsExams = 'Take all tactics exams',
+    ViewGroupClassRecording = 'Access recordings of live group classes',
+    ViewGameAndProfileReviewRecording = 'Access Game & Profile Review class recordings',
 }
 
 const defaultBulletPoints = [
@@ -39,6 +41,9 @@ const defaultBulletPoints = [
 export interface UpsellDialogProps {
     open: boolean;
     onClose: (value: boolean) => void;
+    title?: string;
+    description?: string;
+    postscript?: string;
     bulletPoints?: string[];
     currentAction?: string;
 }
@@ -46,6 +51,9 @@ export interface UpsellDialogProps {
 const UpsellDialog: React.FC<UpsellDialogProps> = ({
     open,
     onClose,
+    title = 'Upgrade to a Full Account',
+    description = "You're currently on the free plan. Subscribe to the full training plan to:",
+    postscript = 'Your progress on the free plan will be carried over when you subscribe.',
     bulletPoints = defaultBulletPoints,
     currentAction,
 }) => {
@@ -69,11 +77,9 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
             open={open}
             onClose={() => onClose(false)}
         >
-            <DialogTitle>Upgrade to a Full Account</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <DialogContentText>
-                    You're currently on the free plan. Subscribe to the full training plan to:
-                </DialogContentText>
+                <DialogContentText>{description}</DialogContentText>
                 <DialogContentText component='div'>
                     <ul>
                         {bulletPoints.slice(0, 6).map((item) => (
@@ -82,9 +88,7 @@ const UpsellDialog: React.FC<UpsellDialogProps> = ({
                         <li>And more!</li>
                     </ul>
                 </DialogContentText>
-                <DialogContentText>
-                    Your progress on the free plan will be carried over when you subscribe.
-                </DialogContentText>
+                <DialogContentText>{postscript}</DialogContentText>
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => onClose(false)}>Cancel</Button>

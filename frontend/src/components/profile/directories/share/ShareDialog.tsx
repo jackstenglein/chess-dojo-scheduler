@@ -134,7 +134,6 @@ export const ShareDialog = ({
                 putDirectory(resp.data);
             })
             .catch((err) => {
-                console.error('shareDirectory: ', err);
                 request.onFailure(err);
             });
     };
@@ -205,18 +204,14 @@ function AddAccessSection({
     const fetch = useMemo(
         () =>
             debounce((input: string, callback: (results?: User[]) => void) => {
-                searchUsers(input.trim(), [
+                void searchUsers(input.trim(), [
                     'display',
                     'discord',
                     RatingSystem.Chesscom,
                     RatingSystem.Lichess,
-                ])
-                    .then((resp) => {
-                        callback(resp);
-                    })
-                    .catch((err) => {
-                        console.error('searchUsers: ', err);
-                    });
+                ]).then((resp) => {
+                    callback(resp);
+                });
             }, 400),
         [searchUsers],
     );
@@ -327,7 +322,6 @@ function CurrentAccessSection({
                     );
                 })
                 .catch((err) => {
-                    console.error('getUserSummaries: ', err);
                     request.onFailure(err);
                 });
         }

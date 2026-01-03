@@ -24,7 +24,6 @@ const UnsubscribePage = () => {
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

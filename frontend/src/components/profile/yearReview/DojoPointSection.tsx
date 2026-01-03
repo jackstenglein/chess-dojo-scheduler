@@ -28,9 +28,9 @@ export const secondaryAxes: AxisOptions<Datum>[] = [
 ];
 
 export function getCategoryData(label: string, data: YearReviewDataSection, nonDojo?: boolean) {
-    let categories = [...ScoreCategories];
+    const categories = [RequirementCategory.Welcome, ...ScoreCategories];
     if (nonDojo) {
-        categories = [RequirementCategory.Welcome, ...categories, RequirementCategory.NonDojo];
+        categories.push(RequirementCategory.NonDojo);
     }
 
     return [

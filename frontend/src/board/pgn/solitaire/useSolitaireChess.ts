@@ -4,8 +4,12 @@ import {
     correctMoveGlyphHtml,
     incorrectMoveGlyphHtml,
 } from '@/components/material/memorizegames/moveGlyphs';
+import {
+    CORRECT_SOUND_KEY,
+    INCORRECT_SOUND_KEY,
+} from '@/components/puzzles/settings/puzzleSettingsKeys';
 import { Chess, Color, Move, Square } from '@jackstenglein/chess';
-import { RefObject, useCallback, useMemo, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 interface SimpleMove {
@@ -16,14 +20,14 @@ interface SimpleMove {
 
 export type PlayAs = 'both' | 'white' | 'black';
 
-interface SolitareColorResults {
+interface SolitaireColorResults {
     correct: number;
     total: number;
 }
 
 interface SolitaireResults {
-    white: SolitareColorResults;
-    black: SolitareColorResults;
+    white: SolitaireColorResults;
+    black: SolitaireColorResults;
 }
 
 const EMPTY_SOLITAIRE_RESULTS = {
@@ -31,7 +35,7 @@ const EMPTY_SOLITAIRE_RESULTS = {
     black: { correct: 0, total: 0 },
 };
 
-export interface UseSolitareChessResponse {
+export interface UseSolitaireChessResponse {
     /** Whether solitaire mode is enabled. */
     enabled: boolean;
     /** Which colors to play as. */
@@ -42,12 +46,12 @@ export interface UseSolitareChessResponse {
     addWrongMoves: boolean;
     /** Sets whether to add wrong moves to the PGN. */
     setAddWrongMoves: (v: boolean) => void;
-    /** Whether solitare mode has been completed. */
+    /** Whether solitaire mode has been completed. */
     complete: boolean;
     /** The last correctly guessed move. */
     currentMove: Move | null;
     /** A callback to start solitaire mode from the given move. */
-    start: (move: Move | null) => void;
+    start: (move: Move | null, opts?: SolitaireChessOptions) => void;
     /** A callback to stop solitaire mode. */
     stop: () => void;
     /** A callback to invoke when the user makes a move on the board. */
@@ -56,10 +60,25 @@ export interface UseSolitareChessResponse {
     results: SolitaireResults;
 }
 
+export type SolitaireChessOptions = Partial<
+    Pick<UseSolitaireChessResponse, 'playAs' | 'addWrongMoves'>
+> & {
+    /** The delay before the first move is played by the computer, if applicable. */
+    firstMoveDelayMs?: number;
+    /** The board object to use when reconciling with the chess object. */
+    board?: BoardApi;
+    /** Allow the user to play any move which checkmates, even if it isn't the mainline move. */
+    allowDifferentMates?: boolean;
+    /** A callback invoked when a wrong move is played. */
+    onWrongMove?: () => void;
+    /** A callback invoked when the full PGN is completed. */
+    onComplete?: () => void;
+};
+
 export function useSolitaireChess(
     chess: Chess,
     board: BoardApi | undefined,
-): UseSolitareChessResponse {
+): UseSolitaireChessResponse {
     const [enabled, setEnabled] = useState(false);
     const [playAs, setPlayAs] = useState<PlayAs>('both');
     const [addWrongMoves, setAddWrongMoves] = useState(true);
@@ -68,9 +87,24 @@ export function useSolitaireChess(
     const lastMove = useRef<Move | null>(null);
     const incorrectMoves = useRef<SimpleMove[]>([]);
     const [results, setResults] = useState<SolitaireResults>(EMPTY_SOLITAIRE_RESULTS);
+    const onWrongMove = useRef<() => void>(undefined);
+    const onComplete = useRef<() => void>(undefined);
+    const allowDifferentMates = useRef(false);
+    const [correctSound] = useLocalStorage(CORRECT_SOUND_KEY, true);
+    const [incorrectSound] = useLocalStorage(INCORRECT_SOUND_KEY, true);
 
     const start = useCallback(
-        (move: Move | null) => {
+        (move: Move | null, opts?: SolitaireChessOptions) => {
+            if (opts?.playAs) {
+                setPlayAs(opts.playAs);
+            }
+            if (opts?.addWrongMoves !== undefined) {
+                setAddWrongMoves(opts.addWrongMoves);
+            }
+            allowDifferentMates.current = opts?.allowDifferentMates ?? false;
+            onWrongMove.current = opts?.onWrongMove;
+            onComplete.current = opts?.onComplete;
+
             chess.seek(move);
             reconcile(chess, board, showGlyphs);
             incorrectMoves.current = [];
@@ -78,13 +112,20 @@ export function useSolitaireChess(
             setCurrentMove(move);
             setEnabled(true);
             lastMove.current = chess.lastMove();
-            if (playAs !== 'both' && chess.turn(move) !== playAs[0] && chess.nextMove(move)) {
+
+            const finalPlayAs = opts?.playAs ?? playAs;
+            if (
+                finalPlayAs !== 'both' &&
+                chess.turn(move) !== finalPlayAs[0] &&
+                chess.nextMove(move)
+            ) {
                 waitForOpponentMove({
                     chess,
-                    board,
+                    board: opts?.board ?? board,
                     showGlyphs,
                     move: chess.nextMove(move),
                     setCurrentMove,
+                    delay: opts?.firstMoveDelayMs,
                 });
             }
         },
@@ -107,23 +148,37 @@ export function useSolitaireChess(
             }
 
             const move = { from: primMove.orig, to: primMove.dest, promotion: primMove.promotion };
-            if (chess.isMainline(move)) {
+            const testMove = chess.move(move, { previousMove: currentMove, skipSeek: true });
+            if (
+                chess.isMainline(move) ||
+                (allowDifferentMates.current && chess.isCheckmate(testMove))
+            ) {
+                if (correctSound) {
+                    const audio = new Audio('/static/sounds/puzzles_correct_move.mp3');
+                    void audio.play();
+                }
                 handleCorrectMove({
                     chess,
                     board,
                     showGlyphs,
                     playAs,
                     move,
-                    addWrongMoves,
                     incorrectMoves,
-                    currentMove,
                     setCurrentMove,
                     setResults,
                 });
                 return;
             }
 
+            if (incorrectSound) {
+                const audio = new Audio('/static/sounds/puzzles_incorrect_move.mp3');
+                void audio.play();
+            }
+
             incorrectMoves.current.push(move);
+            if (!addWrongMoves) {
+                chess.delete(testMove);
+            }
             board.set({
                 movable: {},
                 premovable: {
@@ -137,9 +192,17 @@ export function useSolitaireChess(
             setTimeout(() => {
                 reconcile(chess, board, showGlyphs);
             }, 500);
+            onWrongMove.current?.();
         },
-        [showGlyphs, addWrongMoves, currentMove, playAs],
+        [showGlyphs, addWrongMoves, currentMove, playAs, incorrectSound, correctSound],
     );
+
+    const complete = currentMove === lastMove.current || chess.isCheckmate(currentMove);
+    useEffect(() => {
+        if (complete) {
+            onComplete.current?.();
+        }
+    }, [complete]);
 
     return useMemo(
         () => ({
@@ -148,14 +211,14 @@ export function useSolitaireChess(
             setPlayAs,
             addWrongMoves,
             setAddWrongMoves,
-            complete: currentMove === lastMove.current,
+            complete,
             currentMove,
             start,
             stop,
             onMove,
             results,
         }),
-        [addWrongMoves, enabled, onMove, start, stop, currentMove, playAs, results],
+        [addWrongMoves, enabled, onMove, start, stop, currentMove, playAs, results, complete],
     );
 }
 
@@ -165,9 +228,7 @@ function handleCorrectMove({
     showGlyphs,
     playAs,
     move,
-    addWrongMoves,
     incorrectMoves,
-    currentMove,
     setCurrentMove,
     setResults,
 }: {
@@ -176,19 +237,11 @@ function handleCorrectMove({
     showGlyphs: boolean;
     playAs: PlayAs;
     move: SimpleMove;
-    addWrongMoves: boolean;
     incorrectMoves: RefObject<SimpleMove[]>;
-    currentMove: Move | null;
     setCurrentMove: (v: Move | null) => void;
     setResults: React.Dispatch<React.SetStateAction<SolitaireResults>>;
 }) {
     const nextMove = chess.move(move);
-    if (addWrongMoves) {
-        for (const m of incorrectMoves.current) {
-            chess.move(m, { previousMove: currentMove, skipSeek: true });
-        }
-    }
-
     const color = nextMove?.color === Color.white ? 'white' : 'black';
     setResults((results) => ({
         ...results,
@@ -205,7 +258,7 @@ function handleCorrectMove({
             autoShapes: [{ orig: move.to, customSvg: { html: correctMoveGlyphHtml } }],
         },
     });
-    const isComplete = nextMove === chess.history().at(-1);
+    const isComplete = nextMove === chess.history().at(-1) || chess.isCheckmate(nextMove);
     if (!isComplete && playAs !== 'both') {
         waitForOpponentMove({
             chess,
@@ -225,12 +278,14 @@ function waitForOpponentMove({
     showGlyphs,
     move,
     setCurrentMove,
+    delay = 500,
 }: {
     chess: Chess;
     board: BoardApi | undefined;
     showGlyphs: boolean;
     move: Move | null;
     setCurrentMove: (v: Move | null) => void;
+    delay?: number;
 }) {
     board?.set({
         movable: {},
@@ -240,5 +295,5 @@ function waitForOpponentMove({
     setTimeout(() => {
         chess.seek(move);
         reconcile(chess, board, showGlyphs);
-    }, 500);
+    }, delay);
 }

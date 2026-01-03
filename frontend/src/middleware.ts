@@ -1,6 +1,7 @@
 import { runWithAmplifyServerContext } from '@/auth/amplifyServerUtils';
 import { fetchAuthSession } from 'aws-amplify/auth/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from './logging/logger';
 
 const publicPaths = [
     /^\/_next\/.*$/,
@@ -27,7 +28,9 @@ const publicPaths = [
     /^\/clubs$/,
     /^\/games\/.*\/.*$/,
     /^\/profile\/.*\/postmortem\/.*$/,
-    // Add icon files to public paths
+    /^\/calendar.*$/,
+
+    // Icon files
     /^\/apple-touch-icon.*\.png$/,
     /^\/favicon.*\.png$/,
     /^\/android-chrome.*\.png$/,
@@ -82,7 +85,7 @@ export async function middleware(request: NextRequest) {
                     session.tokens?.idToken !== undefined
                 );
             } catch (error) {
-                console.log(error);
+                logger.error?.(error);
                 return false;
             }
         },

@@ -76,6 +76,8 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
          * The id of the directory item. For a subdirectory, this is the id of the directory. */
         id: z.union([
             z.uuid(),
+            z.literal(HOME_DIRECTORY_ID),
+            z.literal(SHARED_DIRECTORY_ID),
             z.literal(MY_GAMES_DIRECTORY_ID),
             z.literal(ALL_MY_UPLOADS_DIRECTORY_ID),
         ]),
@@ -155,7 +157,12 @@ export const DirectoryItemSchema = z.discriminatedUnion('type', [
 ]);
 
 /** The ids of default directories. */
-const DEFAULT_DIRECTORIES = [HOME_DIRECTORY_ID, SHARED_DIRECTORY_ID, ALL_MY_UPLOADS_DIRECTORY_ID, MY_GAMES_DIRECTORY_ID];
+const DEFAULT_DIRECTORIES = [
+    HOME_DIRECTORY_ID,
+    SHARED_DIRECTORY_ID,
+    ALL_MY_UPLOADS_DIRECTORY_ID,
+    MY_GAMES_DIRECTORY_ID,
+];
 
 /**
  * The ids of directories fully managed by the platform.
@@ -180,7 +187,7 @@ export function isManagedDirectory(id: string): boolean {
     return PLATFORM_MANAGED_DIRECTORIES.includes(id);
 }
 
-/** 
+/**
  * Returns true if the given directory is selectable.
  * @param id The id to check.
  */
@@ -548,7 +555,6 @@ export interface PerformanceStats {
 }
 
 export type CohortPerformanceStats = Omit<PerformanceStats, 'cohortRatings'>;
-
 
 /**
  * Returns true if currRole has permissions greater than or equal to minRole.

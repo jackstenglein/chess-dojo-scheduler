@@ -1,20 +1,20 @@
 import MultipleSelectChip from '@/components/ui/MultipleSelectChip';
 import { ALL_COHORTS, dojoCohorts } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
-import Icon from '@/style/Icon';
-import { Stack, Typography } from '@mui/material';
 
 interface CohortsFormSectionProps {
-    description: string;
+    placeholder: string;
     allCohorts: boolean;
     setAllCohorts: (value: boolean) => void;
     cohorts: Record<string, boolean>;
     setCohort: (cohort: string, value: boolean) => void;
     error?: string;
+    helperText?: string;
 }
 
 const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
-    description,
+    placeholder,
+    helperText,
     allCohorts,
     setAllCohorts,
     cohorts,
@@ -42,42 +42,28 @@ const CohortsFormSection: React.FC<CohortsFormSectionProps> = ({
     };
 
     return (
-        <Stack data-cy='cohort-section'>
-            <Typography variant='h6'>
-                <Icon
-                    name='cohort'
-                    color='primary'
-                    sx={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
-                    fontSize='medium'
-                />
-                Cohorts
-            </Typography>
-            <Typography variant='subtitle1' color='text.secondary' mb={0.5}>
-                {description}
-            </Typography>
-
-            <MultipleSelectChip
-                selected={selectedCohorts}
-                setSelected={onChangeCohort}
-                options={[ALL_COHORTS, ...dojoCohorts].map((opt) => ({
-                    value: opt,
-                    label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
-                    icon: (
-                        <CohortIcon
-                            cohort={opt}
-                            size={25}
-                            sx={{ marginRight: '0.6rem' }}
-                            tooltip=''
-                            color='primary'
-                        />
-                    ),
-                }))}
-                sx={{ mb: 3, width: 1 }}
-                error={Boolean(error)}
-                helperText={error}
-                data-cy='cohort-selector'
-            />
-        </Stack>
+        <MultipleSelectChip
+            selected={selectedCohorts}
+            setSelected={onChangeCohort}
+            options={[ALL_COHORTS, ...dojoCohorts].map((opt) => ({
+                value: opt,
+                label: opt === ALL_COHORTS ? 'All Cohorts' : opt,
+                icon: (
+                    <CohortIcon
+                        cohort={opt}
+                        size={25}
+                        sx={{ marginRight: '0.6rem' }}
+                        tooltip=''
+                        color='primary'
+                    />
+                ),
+            }))}
+            sx={{ width: 1 }}
+            error={Boolean(error)}
+            helperText={error || helperText}
+            data-cy='cohort-selector'
+            displayEmpty={placeholder}
+        />
     );
 };
 

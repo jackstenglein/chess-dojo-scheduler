@@ -5,6 +5,7 @@ import { useAuth } from '@/auth/Auth';
 import { ChatInput } from '@/components/help/chat/ChatInput';
 import { ChatMessage } from '@/components/help/chat/ChatMessage';
 import LoadingPage from '@/loading/LoadingPage';
+import { logger } from '@/logging/logger';
 import { Message } from '@jackstenglein/chess-dojo-common/src/chatBot/api';
 import { Box, Button, CircularProgress, Container, Typography } from '@mui/material';
 import { Filter } from 'bad-words';
@@ -46,7 +47,7 @@ export function ChatPage() {
                 const res = await getChatHistory(threadId);
                 setMessages(res.data.messages);
             } catch (err) {
-                console.error('[ChatPage] Failed to fetch history:', err);
+                logger.error?.('[ChatPage] Failed to fetch history:', err);
             } finally {
                 setIsLoadingHistory(false);
             }
@@ -105,7 +106,7 @@ export function ChatPage() {
                 },
             ]);
         } catch (err) {
-            console.error('[ChatPage] Send message failed:', err);
+            logger.error?.('[ChatPage] Send message failed:', err);
             setMessages((prev) => [
                 ...prev,
                 {

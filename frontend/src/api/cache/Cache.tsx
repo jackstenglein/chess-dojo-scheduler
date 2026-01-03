@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 'use client';
 
+import { logger } from '@/logging/logger';
 import {
     createContext,
     ReactNode,
@@ -160,7 +161,7 @@ interface CacheContextType {
     notifications: IdentifiableCache<Notification>;
     positions: IdentifiableCache<GetExplorerPositionResult>;
     clubs: IdentifiableCache<Club>;
-    
+
     // Additional API caches
     users: IdentifiableCache<any>;
     games: IdentifiableCache<any>;
@@ -203,7 +204,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         (item) => item?.normalizedFen || '',
     );
     const clubs = useIdentifiableCache<Club>();
-    
+
     // Additional API caches
     const users = useIdentifiableCache<any>();
     const games = useIdentifiableCache<any>();
@@ -217,7 +218,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
     const directories = useIdentifiableCache<any>();
     const emails = useIdentifiableCache<any>();
     const yearReviews = useIdentifiableCache<any>();
-    
+
     const [imageBypass, setImageBypass] = useState(Date.now());
 
     const value = {
@@ -272,10 +273,9 @@ export function useEvents(): UseEventsResponse {
                     cache.events.putMany(events);
                 })
                 .catch((err) => {
-                    console.error('Events API error:', err);
                     // In offline mode, don't mark as failure if we have cached data
                     if (typeof window !== 'undefined' && !navigator.onLine && events.length > 0) {
-                        console.log('[Cache] Using cached events in offline mode');
+                        logger.debug?.('[Cache] Using cached events in offline mode');
                         request.onSuccess();
                     } else {
                         request.onFailure(err);
@@ -320,10 +320,13 @@ export function useNotifications(): UseNotificationsResponse {
                     cache.notifications.putMany(resp.data.notifications);
                 })
                 .catch((err) => {
-                    console.error('Notifications API error:', err);
                     // In offline mode, don't mark as failure if we have cached data
-                    if (typeof window !== 'undefined' && !navigator.onLine && notifications.length >= 0) {
-                        console.log('[Cache] Using cached notifications in offline mode');
+                    if (
+                        typeof window !== 'undefined' &&
+                        !navigator.onLine &&
+                        notifications.length >= 0
+                    ) {
+                        logger.debug?.('[Cache] Using cached notifications in offline mode');
                         request.onSuccess();
                     } else {
                         request.onFailure(err);

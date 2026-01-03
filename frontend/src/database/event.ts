@@ -1,11 +1,7 @@
-import { Comment } from '@jackstenglein/chess-dojo-common/src/database/timeline';
+import { Event, EventType } from '@jackstenglein/chess-dojo-common/src/database/event';
 
-export enum EventType {
-    Availability = 'AVAILABILITY',
-    Dojo = 'DOJO',
-    LigaTournament = 'LIGA_TOURNAMENT',
-    Coaching = 'COACHING',
-}
+export { EventType };
+export type { Event };
 
 export enum CalendarSessionType {
     AllSessions = 'ALL_SESSIONS',
@@ -13,51 +9,8 @@ export enum CalendarSessionType {
     Meetings = 'MEETINGS',
     DojoEvents = 'DOJO_EVENTS',
     CoachingSessions = 'COACHING_SESSIONS',
-}
-
-export interface Event {
-    id: string;
-    type: EventType;
-    owner: string;
-    ownerDisplayName: string;
-    ownerCohort: string;
-    ownerPreviousCohort: string;
-    title: string;
-    startTime: string;
-    endTime: string;
-    types?: AvailabilityType[];
-    bookedStartTime: string;
-    bookedType: AvailabilityType;
-    cohorts: string[];
-    status: EventStatus;
-    location: string;
-    description: string;
-    maxParticipants: number;
-    participants: Record<string, Participant>;
-    /** A list of users invited to the event. */
-    invited?: Participant[];
-    /** Whether the event can only be booked by people invited. */
-    inviteOnly?: boolean;
-    discordMessageId: string;
-    privateDiscordEventId: string;
-
-    /** Whether to hide the Event from the public Discord server. */
-    hideFromPublicDiscord: boolean;
-
-    /** The ID of the public Discord guild event for this Event. */
-    publicDiscordEventId: string;
-
-    /** The LigaTournament information for this event. Only present for LigaTournaments. */
-    ligaTournament?: LigaTournament;
-
-    /** The coaching information for this event. Only present for EventType.Coaching. */
-    coaching?: Coaching;
-
-    /** Messages on the meeting. */
-    messages?: Comment[];
-
-    /** The recurrence rule of the event, as a string. */
-    rrule?: string;
+    Lectures = 'LECTURE_TIER',
+    GameReviews = 'GAME_REVIEW_TIER',
 }
 
 export enum TournamentType {
@@ -176,6 +129,10 @@ export function getDisplaySessionString(type: CalendarSessionType | null | undef
             return 'Dojo Events';
         case CalendarSessionType.Meetings:
             return 'Meetings';
+        case CalendarSessionType.Lectures:
+            return 'Lectures';
+        case CalendarSessionType.GameReviews:
+            return 'Game & Profile Reviews';
     }
 }
 

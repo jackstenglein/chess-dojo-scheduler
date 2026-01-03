@@ -1,9 +1,6 @@
-import axios, { AxiosResponse } from 'axios';
-
-import { getConfig } from '../config';
+import { AxiosResponse } from 'axios';
 import { Notification } from '../database/notification';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 /**
  * NotificationApiContextType provides an API for interacting with Notifications.
@@ -42,11 +39,12 @@ export interface ListNotificationsResponse {
  * @returns A list of notifications and the next start key.
  */
 export function listNotifications(idToken: string, startKey?: string) {
-    return axios.get<ListNotificationsResponse>(`${BASE_URL}/user/notifications`, {
+    return axiosService.get<ListNotificationsResponse>(`/user/notifications`, {
         params: { startKey },
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listNotifications',
     });
 }
 
@@ -57,9 +55,10 @@ export function listNotifications(idToken: string, startKey?: string) {
  */
 export function deleteNotification(idToken: string, id: string) {
     id = btoa(id);
-    return axios.delete<null>(`${BASE_URL}/user/notifications/${id}`, {
+    return axiosService.delete<null>(`/user/notifications/${id}`, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'deleteNotification',
     });
 }

@@ -50,7 +50,6 @@ export function TournamentsPage({
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
-                    console.error('listRoundRobins: ', err);
                     request.onFailure(err);
                 });
         }
@@ -63,7 +62,6 @@ export function TournamentsPage({
             listRoundRobins({ cohort, status: RoundRobinStatuses.WAITING })
                 .then((resp) => waitlistRequest.onSuccess(resp.data))
                 .catch((err) => {
-                    console.error('listRoundRobin: ', err);
                     waitlistRequest.onFailure(err);
                 });
         }

@@ -58,7 +58,6 @@ const BannedPlayersTab: React.FC<BannedPlayersTabProps> = ({ openClassical, onUp
                 unbanRequest.onSuccess(`${unbanPlayer.displayName} unbanned`);
             })
             .catch((err) => {
-                console.error('adminUnbanPlayer: ', err);
                 unbanRequest.onFailure(err);
             });
     };

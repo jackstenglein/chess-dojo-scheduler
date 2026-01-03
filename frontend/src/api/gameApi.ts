@@ -1,3 +1,4 @@
+import { logger } from '@/logging/logger';
 import {
     CreateGameRequest,
     DeleteGamesRequest,
@@ -6,12 +7,10 @@ import {
     UpdateGameRequest,
 } from '@jackstenglein/chess-dojo-common/src/database/game';
 import { PgnMergeRequest } from '@jackstenglein/chess-dojo-common/src/pgn/merge';
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import { DateTime } from 'luxon';
-import { getConfig } from '../config';
 import { Game, GameInfo, GameReviewType, PositionComment, isGameResult } from '../database/game';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 export interface GameApiContextType {
     /**
@@ -214,10 +213,11 @@ export function isGame(obj: Game | EditGameResponse): obj is Game {
  * @returns The newly created Game.
  */
 export function createGame(idToken: string, req: CreateGameRequest) {
-    return axios.post<Game | EditGameResponse>(BASE_URL + '/game2', req, {
+    return axiosService.post<Game | EditGameResponse>('/game2', req, {
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'createGame',
     });
 }
 
@@ -231,7 +231,9 @@ export function getGame(cohort: string, id: string) {
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.get<Game>(`${BASE_URL}/public/game/${cohort}/${id}`);
+    return axiosService.get<Game>(`/public/game/${cohort}/${id}`, {
+        functionName: 'getGame',
+    });
 }
 
 /**
@@ -246,14 +248,15 @@ export function featureGame(idToken: string, cohort: string, id: string, feature
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.put<Game>(
-        BASE_URL + `/game/${cohort}/${id}`,
+    return axiosService.put<Game>(
+        `/game/${cohort}/${id}`,
         {},
         {
             params: {
                 featured,
             },
             headers: { Authorization: 'Bearer ' + idToken },
+            functionName: 'featureGame',
         },
     );
 }
@@ -276,8 +279,9 @@ export function updateGame(
     // Base64 encode id because API Gateway can't handle ? in the id, even if it is URI encoded
     id = btoa(id);
 
-    return axios.put<Game>(BASE_URL + `/game2/${cohort}/${id}`, req, {
+    return axiosService.put<Game>(`/game2/${cohort}/${id}`, req, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'updateGame',
     });
 }
 
@@ -289,8 +293,9 @@ export function updateGame(
  * @returns The keys of the successfully deleted games.
  */
 export function deleteGames(idToken: string, request: DeleteGamesRequest) {
-    return axios.post<DeleteGamesResponse>(BASE_URL + `/game/delete`, request, {
+    return axiosService.post<DeleteGamesResponse>(`/game/delete`, request, {
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'deleteGames',
     });
 }
 
@@ -318,11 +323,12 @@ export function listGamesByCohort(
 ) {
     const params = { startDate, endDate, startKey };
     cohort = encodeURIComponent(cohort);
-    return axios.get<ListGamesResponse>(BASE_URL + `/game/${cohort}`, {
+    return axiosService.get<ListGamesResponse>(`/game/${cohort}`, {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listGamesByCohort',
     });
 }
 
@@ -347,11 +353,12 @@ export function listGamesByOwner(
     color?: string,
 ) {
     const params = { owner, startKey, startDate, endDate, player, color };
-    return axios.get<ListGamesResponse>(BASE_URL + '/game', {
+    return axiosService.get<ListGamesResponse>('/game', {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listGamesByOwner',
     });
 }
 
@@ -373,11 +380,12 @@ export function listGamesByOpening(
     endDate?: string,
 ) {
     const params = { eco, startKey, startDate, endDate };
-    return axios.get<ListGamesResponse>(BASE_URL + '/game/opening', {
+    return axiosService.get<ListGamesResponse>('/game/opening', {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listGamesByOpening',
     });
 }
 
@@ -397,11 +405,12 @@ export function listGamesByPosition(
     startKey?: string,
 ) {
     const params = { fen, startKey, masters: mastersOnly };
-    return axios.get<ListGamesResponse>(BASE_URL + '/game/position', {
+    return axiosService.get<ListGamesResponse>('/game/position', {
         params,
         headers: {
             Authorization: 'Bearer ' + idToken,
         },
+        functionName: 'listGamesByPosition',
     });
 }
 
@@ -416,11 +425,12 @@ export async function listFeaturedGames(idToken: string, startKey?: string) {
     const result: GameInfo[] = [];
 
     do {
-        const resp = await axios.get<ListGamesResponse>(BASE_URL + '/game/featured', {
+        const resp = await axiosService.get<ListGamesResponse>('/game/featured', {
             params,
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'listFeaturedGames',
         });
 
         result.push(...resp.data.games);
@@ -437,9 +447,10 @@ export async function listFeaturedGames(idToken: string, startKey?: string) {
  * @returns A list of games submitted for review.
  */
 export function listGamesForReview(idToken: string, startKey?: string) {
-    return axios.get<ListGamesResponse>(`${BASE_URL}/game/review`, {
+    return axiosService.get<ListGamesResponse>(`/game/review`, {
         params: { startKey },
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'listGamesForReview',
     });
 }
 
@@ -461,14 +472,15 @@ export function createComment(
     cohort = encodeURIComponent(cohort);
     id = btoa(id); // Base64 encode id because API Gateway can't handle ? in the id
 
-    return axios.post<{ game: Game; comment: PositionComment }>(
-        BASE_URL + `/game/v2/${cohort}/${id}`,
+    return axiosService.post<{ game: Game; comment: PositionComment }>(
+        `/game/v2/${cohort}/${id}`,
         comment,
         {
             params: { existingComments },
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'createComment',
         },
     );
 }
@@ -503,8 +515,9 @@ export interface UpdateCommentRequest {
  * @returns The updated game.
  */
 export function updateComment(idToken: string, update: UpdateCommentRequest) {
-    return axios.put<Game>(`${BASE_URL}/game/comment`, update, {
+    return axiosService.put<Game>(`/game/comment`, update, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'updateComment',
     });
 }
 
@@ -517,8 +530,9 @@ export type DeleteCommentRequest = Omit<UpdateCommentRequest, 'content' | 'sugge
  * @returns An AxiosResponse containing the updated game.
  */
 export function deleteComment(idToken: string, request: DeleteCommentRequest) {
-    return axios.put<Game>(`${BASE_URL}/game/comment/delete`, request, {
+    return axiosService.put<Game>(`/game/comment/delete`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'deleteComment',
     });
 }
 
@@ -541,8 +555,8 @@ export function requestReview(
     id: string,
     reviewType: GameReviewType,
 ) {
-    return axios.put<RequestReviewResponse>(
-        `${BASE_URL}/game/review/request`,
+    return axiosService.put<RequestReviewResponse>(
+        `/game/review/request`,
         {
             cohort,
             id,
@@ -552,6 +566,7 @@ export function requestReview(
             headers: {
                 Authorization: 'Bearer ' + idToken,
             },
+            functionName: 'requestReview',
         },
     );
 }
@@ -564,10 +579,10 @@ export function requestReview(
  * @returns An AxiosResponse containing the updated game.
  */
 export function markReviewed(idToken: string, cohort: string, id: string) {
-    return axios.put<Game>(
-        `${BASE_URL}/game/review/admin`,
+    return axiosService.put<Game>(
+        `/game/review/admin`,
         { cohort, id, reviewed: true },
-        { headers: { Authorization: `Bearer ${idToken}` } },
+        { headers: { Authorization: `Bearer ${idToken}` }, functionName: 'markReviewed' },
     );
 }
 
@@ -578,8 +593,9 @@ export function markReviewed(idToken: string, cohort: string, id: string) {
  * @returns An AxiosResponse containing the cohort and id of the updated game.
  */
 export function mergePgn(idToken: string, request: PgnMergeRequest) {
-    return axios.post<Pick<Game, 'cohort' | 'id'>>(`${BASE_URL}/game/merge`, request, {
+    return axiosService.post<Pick<Game, 'cohort' | 'id'>>(`/game/merge`, request, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'mergePgn',
     });
 }
 
@@ -690,12 +706,12 @@ export function isChesscomEventsUrl(url: string) {
     try {
         urlObj = new URL(url.trim());
     } catch (error) {
-        console.log(error);
+        logger.error?.(error);
         return false;
     }
 
     if (urlObj.hostname !== 'www.chess.com') {
-        console.log('Hostname: ', urlObj.hostname);
+        logger.debug?.('Invalid hostname: ', urlObj.hostname);
         return false;
     }
 

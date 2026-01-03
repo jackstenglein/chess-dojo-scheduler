@@ -48,7 +48,6 @@ export const NotificationListItem: React.FC<NotificationListItemProps> = ({
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

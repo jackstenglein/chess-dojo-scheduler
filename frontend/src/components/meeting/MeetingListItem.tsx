@@ -38,7 +38,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({ meeting }) => {
             username: meeting.owner,
             displayName: meeting.ownerDisplayName,
             cohort: meeting.ownerCohort,
-            previousCohort: meeting.ownerPreviousCohort,
+            previousCohort: meeting.ownerPreviousCohort ?? '',
         };
     }
 

@@ -1,14 +1,12 @@
 import { FollowPositionRequest } from '@jackstenglein/chess-dojo-common/src/explorer/follower';
 import { LichessTablebasePosition } from '@jackstenglein/chess-dojo-common/src/explorer/types';
-import axios, { AxiosResponse } from 'axios';
-import { getConfig } from '../config';
+import { AxiosResponse } from 'axios';
 import {
     ExplorerPosition,
     ExplorerPositionFollower,
     LichessExplorerPosition,
 } from '../database/explorer';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { axiosService } from './axiosService';
 
 /**
  * Provides an API for interacting with the position explorer.
@@ -64,9 +62,10 @@ export interface GetExplorerPositionResult {
  * @returns An AxiosResponse containing the requested ExplorerPosition.
  */
 export function getPosition(idToken: string, fen: string) {
-    return axios.get<GetExplorerPositionResult>(`${BASE_URL}/explorer/position`, {
+    return axiosService.get<GetExplorerPositionResult>(`/explorer/position`, {
         params: { fen },
         headers: { Authorization: 'Bearer ' + idToken },
+        functionName: 'getPosition',
     });
 }
 
@@ -77,10 +76,13 @@ export function getPosition(idToken: string, fen: string) {
  * @returns The new ExplorerPositionFollower or null if request.unfollow is true.
  */
 export function followPosition(idToken: string, request: FollowPositionRequest) {
-    return axios.put<ExplorerPositionFollower | null>(
-        `${BASE_URL}/explorer/position/follower`,
+    return axiosService.put<ExplorerPositionFollower | null>(
+        `/explorer/position/follower`,
         request,
-        { headers: { Authorization: 'Bearer ' + idToken } },
+        {
+            headers: { Authorization: 'Bearer ' + idToken },
+            functionName: 'followPosition',
+        },
     );
 }
 
@@ -97,7 +99,8 @@ export interface ListFollowedPositionsResponse {
  * @returns The list of followed positions.
  */
 export function listFollowedPositions(idToken: string) {
-    return axios.get<ListFollowedPositionsResponse>(`${BASE_URL}/explorer/position/follower`, {
+    return axiosService.get<ListFollowedPositionsResponse>(`/explorer/position/follower`, {
         headers: { Authorization: `Bearer ${idToken}` },
+        functionName: 'listFollowedPositions',
     });
 }

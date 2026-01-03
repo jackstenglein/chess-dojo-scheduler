@@ -1,6 +1,5 @@
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { leaveClub } from '@/api/clubApi';
 import { ClubDetails } from '@/database/club';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -36,11 +35,9 @@ export const LeaveClubDialog: React.FC<LeaveClubDialogProps> = ({
         request.onStart();
         api.leaveClub(clubId)
             .then((resp) => {
-                console.log('leaveClub: ', leaveClub);
                 onSuccess(resp.data);
             })
             .catch((err) => {
-                console.error('leaveClub: ', err);
                 request.onFailure(err);
             });
     };

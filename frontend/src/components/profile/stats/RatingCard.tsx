@@ -35,7 +35,7 @@ export function getMemberLink(ratingSystem: RatingSystem, username: string): str
         case RatingSystem.Fide:
             return `https://ratings.fide.com/profile/${username}`;
         case RatingSystem.Uscf:
-            return `https://www.uschess.org/msa/MbrDtlMain.php?${username}`;
+            return `https://ratings.uschess.org/player/${username}`;
         case RatingSystem.Ecf:
             return `https://www.ecfrating.org.uk/v2/new/player.php?ECF_code=${username}`;
         case RatingSystem.Cfc:
@@ -170,6 +170,7 @@ interface RatingCardProps {
     name?: string;
     isPreferred?: boolean;
     ratingHistory?: RatingHistory[];
+    isProvisional?: boolean;
 }
 
 const RatingCard: React.FC<RatingCardProps> = ({
@@ -182,6 +183,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
     name,
     isPreferred,
     ratingHistory,
+    isProvisional,
 }) => {
     const { user } = useAuth();
     const dark = !user?.enableLightMode;
@@ -238,6 +240,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
                                     }}
                                 >
                                     {currentRating}
+                                    {isProvisional && '?'}
                                 </Typography>
                                 <Tooltip title='Ratings are updated every 24 hours'>
                                     <HelpIcon

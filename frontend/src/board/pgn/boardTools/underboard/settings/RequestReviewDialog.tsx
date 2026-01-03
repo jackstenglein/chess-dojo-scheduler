@@ -93,7 +93,6 @@ const SubmitDialogContent: React.FC<{
                 } while (startKey);
                 queueRequest.onSuccess(length);
             } catch (err) {
-                console.error('listGamesForReview: ', err);
                 queueRequest.onFailure(err);
             }
         }
@@ -127,7 +126,6 @@ const SubmitDialogContent: React.FC<{
                 window.location.href = resp.data.url;
             })
             .catch((err) => {
-                console.error('requestReview: ', err);
                 request.onFailure(err);
             });
     };
@@ -345,7 +343,6 @@ const PendingDialogContent: React.FC<{ game: Game }> = ({ game }) => {
 
                 queueRequest.onSuccess(index);
             } catch (err) {
-                console.error('listGamesForReview: ', err);
                 queueRequest.onFailure(err);
             }
         }

@@ -5,6 +5,7 @@ import { AuthStatus, useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import { useRouter } from '@/hooks/useRouter';
+import { logger } from '@/logging/logger';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle, Email as EmailIcon, Lock as LockIcon } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -63,7 +64,7 @@ export const SignUpForm = () => {
                 setStep(SignUpStep.Verify);
             })
             .catch((err) => {
-                console.error(err);
+                logger.error?.(err);
                 request.onFailure(err);
             });
     };

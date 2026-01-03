@@ -7,6 +7,7 @@ import { DEFAULT_WORK_GOAL } from '../trainingPlan/workGoal';
 import { SectionProps } from './section';
 
 const endDateByPeriod: Record<string, string> = {
+    '2025': '2025-12-31',
     '2024': '2024-12-22',
     '2023': '2024-12-25',
 };
@@ -38,6 +39,11 @@ function Section({ review }: SectionProps) {
             minDate={`${review.period}-01-01`}
             maxDate={endDateByPeriod[review.period]}
             workGoalHistory={[{ date: '', workGoal: DEFAULT_WORK_GOAL }]}
+            slotProps={{
+                weekdayLabelPaper: {
+                    elevation: 0,
+                },
+            }}
         />
     );
 }

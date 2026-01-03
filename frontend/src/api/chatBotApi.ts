@@ -3,10 +3,8 @@ import {
     ChatResponse,
     GetChatHistoryResponse,
 } from '@jackstenglein/chess-dojo-common/src/chatBot/api';
-import axios, { AxiosResponse } from 'axios';
-import { getConfig } from '../config';
-
-const BASE_URL = getConfig().api.baseUrl;
+import { AxiosResponse } from 'axios';
+import { axiosService } from './axiosService';
 
 /**
  * Sends a message to the chat bot.
@@ -14,7 +12,9 @@ const BASE_URL = getConfig().api.baseUrl;
  * @returns An Axios Response containing the bot's response.
  */
 export async function sendMessage(request: ChatRequest): Promise<AxiosResponse<ChatResponse>> {
-    return await axios.post(`${BASE_URL}/public/dojoai/chat`, request);
+    return await axiosService.post(`/public/dojoai/chat`, request, {
+        functionName: 'sendMessage',
+    });
 }
 
 /**
@@ -25,7 +25,8 @@ export async function sendMessage(request: ChatRequest): Promise<AxiosResponse<C
 export async function getChatHistory(
     threadId: string,
 ): Promise<AxiosResponse<GetChatHistoryResponse>> {
-    return await axios.get(`${BASE_URL}/public/dojoai/chat`, {
+    return await axiosService.get(`/public/dojoai/chat`, {
         params: { threadId },
+        functionName: 'getChatHistory',
     });
 }

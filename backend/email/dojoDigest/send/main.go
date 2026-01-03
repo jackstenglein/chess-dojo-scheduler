@@ -14,7 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
@@ -27,17 +26,17 @@ func main() {
 	}
 	svc := ses.New(sess)
 
-	f, err := os.Create("/tmp/email.html")
-	if err != nil {
-		log.Fatalln("Failed to create html file: ", errors.Wrap(500, "Temporary server error", "Failed to create file for service account key", err))
-	}
+	// f, err := os.Create("/tmp/email.html")
+	// if err != nil {
+	// 	log.Fatalln("Failed to create html file: ", errors.Wrap(500, "Temporary server error", "Failed to create file for service account key", err))
+	// }
 
-	if err = media.Download("chess-dojo-email-templates", "dojoDigest25Minified.html", f); err != nil {
-		log.Fatalln("Failed to download html", err)
-	}
-	f.Close()
+	// if err = media.Download("chess-dojo-email-templates", "dojoDigest27Minified.html", f); err != nil {
+	// 	log.Fatalln("Failed to download html", err)
+	// }
+	// f.Close()
 
-	b, err := os.ReadFile("/tmp/email.html")
+	b, err := os.ReadFile("email.html")
 	if err != nil {
 		log.Fatalln("Failed to read email file", err)
 	}
@@ -80,7 +79,7 @@ func main() {
 		msg := gomail.NewMessage()
 		msg.SetHeader("From", "ChessDojo Digest <digest@mail.chessdojo.club>")
 		msg.SetHeader("To", email)
-		msg.SetHeader("Subject", "CoachChamps, Solitaire Chess & More | Digest Vol. 25")
+		msg.SetHeader("Subject", "Get a Free Month of Dojo Core and 10% off Live Classes | Digest Vol. 28")
 		msg.SetHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
 		msg.SetHeader("List-Unsubscribe", fmt.Sprintf("<https://g4shdaq6ug.execute-api.us-east-1.amazonaws.com/public/dojodigest/unsubscribe?email=%s>", email))
 		msg.SetBody("text/html", content)

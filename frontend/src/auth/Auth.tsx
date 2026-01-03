@@ -2,6 +2,7 @@
 'use client';
 
 import { getConfig } from '@/config';
+import { logger } from '@/logging/logger';
 import { Amplify } from 'aws-amplify';
 import {
     confirmSignUp as amplifyConfirmSignUp,
@@ -112,10 +113,10 @@ function socialSignin(provider: 'Google', redirectUri: string) {
         customState: redirectUri,
     })
         .then((value) => {
-            console.log('Federated sign in value1: ', value);
+            logger.debug?.('Federated sign in value: ', value);
         })
-        .catch((err) => {
-            console.error('Federated sign in error: ', err);
+        .catch((err: unknown) => {
+            logger.error?.('Federated sign in error: ', err);
         });
 }
 
@@ -220,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 tokens: authSession.tokens,
             });
         } catch (err) {
-            console.error('Failed to get user: ', err);
+            logger.error?.('Failed to get user: ', err);
             setStatus(AuthStatus.Unauthenticated);
         }
     }, [handleCognitoResponse]);
@@ -229,6 +230,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return new Promise<void>((resolve, reject) => {
             void (async () => {
                 try {
+                    logger.debug?.('Signing in');
                     await amplifySignIn({ username: email, password });
                     const authUser = await amplifyGetCurrentUser();
                     const authSession = await fetchAuthSession({ forceRefresh: true });
@@ -250,7 +252,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                     resolve();
                 } catch (err) {
-                    console.error('Failed Auth.signIn: ', err);
+                    logger.error?.('Failed to sign in: ', err);
                     setStatus(AuthStatus.Unauthenticated);
                     reject(err as Error);
                 }
@@ -273,7 +275,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 window.location.href = '/';
             }
         } catch (err) {
-            console.error('Error signing out: ', err);
+            logger.error?.('Error signing out: ', err);
         }
     };
 
@@ -296,7 +298,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                 const secret = process.env.NEXT_PUBLIC_ENCRYPTION_SECRET ?? '';
                 if (!secret) {
-                    console.error('Encryption secret is missing');
+                    logger.error?.('Encryption secret is missing');
                     return;
                 }
 
@@ -309,7 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         localStorage.setItem('firebaseTokens', token);
                     }
                 } catch (err) {
-                    console.error('Decryption failed:', err);
+                    logger.error?.('Decryption failed:', err);
                 } finally {
                     // Clean URL
                     const cleanUrl = window.location.origin + window.location.pathname;
@@ -336,7 +338,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             const secret = process.env.NEXT_PUBLIC_ENCRYPTION_SECRET ?? '';
             if (!secret) {
-                console.error('Encryption secret is missing');
+                logger.error?.('Encryption secret is missing');
                 return;
             }
 
@@ -355,7 +357,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     void signin(email, password, true);
                 }
             } catch (err) {
-                console.error('Decryption failed:', err);
+                logger.error?.('Decryption failed:', err);
             }
         })();
     }, [isClient, signin, getCurrentUser]);

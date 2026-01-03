@@ -160,7 +160,7 @@ export function useFilters(): Filters {
     const setWeekStartOn = useCallback(
         (weekStart: WeekDays) => {
             updateUser({ weekStart });
-            api.updateUser({ weekStart }).catch(console.error);
+            void api.updateUser({ weekStart });
         },
         [api, updateUser],
     );
@@ -255,6 +255,10 @@ function getSessionTypeColor(sessionType: CalendarSessionType): SvgIconOwnProps[
             return 'dojoOrange';
         case CalendarSessionType.Meetings:
             return 'meet';
+        case CalendarSessionType.Lectures:
+            return 'sage';
+        case CalendarSessionType.GameReviews:
+            return 'info';
     }
     return 'primary';
 }

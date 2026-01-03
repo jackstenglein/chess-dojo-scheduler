@@ -10,6 +10,7 @@ import (
 var freeRoles = makeCohortRoles(os.Getenv("discordFreeRoles"))
 var paidRoles = makeCohortRoles(os.Getenv("discordPaidRoles"))
 var openClassicalRole = os.Getenv("discordOpenClassicalRole")
+var liveClassesRole = os.Getenv("discordLiveClassesRole")
 
 // makeCohortRoles returns a map from Dojo cohort to the corresponding Discord
 // role ID in the given comma separated list.
@@ -22,16 +23,22 @@ func makeCohortRoles(roleCsv string) map[database.DojoCohort]string {
 	return rolesByCohort
 }
 
-// getRole returns the Discord role ID for the given cohort and payment status.
-func getRole(cohort database.DojoCohort, paid bool) string {
-	if paid {
-		return paidRoles[cohort]
+// getRoles returns the Discord role IDs for the given cohort and tier.
+func getRoles(cohort database.DojoCohort, tier database.SubscriptionTier) []string {
+	if tier == database.SubscriptionTier_Free {
+		return []string{freeRoles[cohort]}
 	}
-	return freeRoles[cohort]
+
+	if tier == database.SubscriptionTier_Basic {
+		return []string{paidRoles[cohort]}
+	}
+
+	return []string{paidRoles[cohort], liveClassesRole}
 }
 
-// isCohortRole returns true if the given role ID is a paid or free cohort role.
-func isCohortRole(roleId string) bool {
+// isSubscriptionBasedRole returns true if the given role ID is automatically assigned
+// based on the user's subscription.
+func isSubscriptionBasedRole(roleId string) bool {
 	for _, r := range freeRoles {
 		if r == roleId {
 			return true
@@ -42,5 +49,5 @@ func isCohortRole(roleId string) bool {
 			return true
 		}
 	}
-	return false
+	return roleId == liveClassesRole
 }

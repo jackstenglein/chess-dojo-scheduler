@@ -66,6 +66,19 @@ declare module '@mui/material/styles' {
         meet: Palette['primary'];
         explorerTotal: Palette['primary'];
         trainingPlanTaskComplete: Palette['primary'];
+
+        // Calendar colors
+        tomato: Palette['primary'];
+        flamingo: Palette['primary'];
+        tangerine: Palette['primary'];
+        banana: Palette['primary'];
+        sage: Palette['primary'];
+        basil: Palette['primary'];
+        peacock: Palette['primary'];
+        blueberry: Palette['primary'];
+        lavendar: Palette['primary'];
+        grape: Palette['primary'];
+        graphite: Palette['primary'];
     }
     interface PaletteOptions extends RequirementCategoryPalette {
         opening?: PaletteOptions['primary'];
@@ -81,6 +94,19 @@ declare module '@mui/material/styles' {
         DataGrid: {
             bg: string;
         };
+
+        // Calendar colors
+        tomato: Palette['primary'];
+        flamingo: Palette['primary'];
+        tangerine: Palette['primary'];
+        banana: Palette['primary'];
+        sage: Palette['primary'];
+        basil: Palette['primary'];
+        peacock: Palette['primary'];
+        blueberry: Palette['primary'];
+        lavendar: Palette['primary'];
+        grape: Palette['primary'];
+        graphite: Palette['primary'];
     }
 }
 
@@ -132,6 +158,7 @@ declare module '@mui/material' {
         youtube: true;
         twitch: true;
         darkBlue: true;
+        sage: true;
     }
 }
 
@@ -199,6 +226,72 @@ const defaultPalette = {
         },
         name: 'darkBlue',
     }),
+    tomato: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#da5234',
+        },
+        name: 'tomato',
+    }),
+    flamingo: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#d6837a',
+        },
+        name: 'flamingo',
+    }),
+    tangerine: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#e3683e',
+        },
+        name: 'tangerine',
+    }),
+    banana: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#e7ba51',
+        },
+        name: 'banana',
+    }),
+    sage: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#55b080',
+        },
+        name: 'sage',
+    }),
+    basil: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#489160',
+        },
+        name: 'basil',
+    }),
+    peacock: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#4b99d2',
+        },
+        name: 'peacock',
+    }),
+    blueberry: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#6e72c3',
+        },
+        name: 'blueberry',
+    }),
+    lavendar: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#828bc2',
+        },
+        name: 'lavendar',
+    }),
+    grape: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#a75aba',
+        },
+        name: 'grape',
+    }),
+    graphite: defaultTheme.palette.augmentColor({
+        color: {
+            main: '#7c7c7c',
+        },
+        name: 'graphite',
+    }),
     ...Object.values(RequirementCategory).reduce<Record<string, PaletteColor>>((acc, category) => {
         acc[themeRequirementCategory(category)] = defaultTheme.palette.augmentColor({
             color: {
@@ -224,6 +317,72 @@ const theme = createTheme({
                         main: blue[400],
                     },
                     name: 'trainingPlanTaskComplete',
+                }),
+                tomato: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#d50000',
+                    },
+                    name: 'tomato',
+                }),
+                flamingo: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#e67c73',
+                    },
+                    name: 'flamingo',
+                }),
+                tangerine: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#f4511e',
+                    },
+                    name: 'tangerine',
+                }),
+                banana: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#f6bf26',
+                    },
+                    name: 'banana',
+                }),
+                sage: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#33b679',
+                    },
+                    name: 'sage',
+                }),
+                basil: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#0b8043',
+                    },
+                    name: 'basil',
+                }),
+                peacock: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#039be5',
+                    },
+                    name: 'peacock',
+                }),
+                blueberry: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#3f51b5',
+                    },
+                    name: 'blueberry',
+                }),
+                lavendar: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#7986cb',
+                    },
+                    name: 'lavendar',
+                }),
+                grape: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#8e24aa',
+                    },
+                    name: 'grape',
+                }),
+                graphite: defaultTheme.palette.augmentColor({
+                    color: {
+                        main: '#616161',
+                    },
+                    name: 'graphite',
                 }),
             },
         },

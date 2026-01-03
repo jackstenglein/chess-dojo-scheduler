@@ -47,7 +47,6 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                     }
                 })
                 .catch((err) => {
-                    console.error('listGamesToMemorize: ', err);
                     listRequest.onFailure(err);
                 });
         }
@@ -62,7 +61,6 @@ export function MemorizeGamesPage({ user }: { user: User }) {
                     getRequest.onSuccess(res.data);
                 })
                 .catch((err) => {
-                    console.error('getGame: ', err);
                     getRequest.onFailure(err);
                 });
         }

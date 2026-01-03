@@ -84,7 +84,6 @@ const ExtraRatingSystemsForm: React.FC<ProfileCreatorFormProps> = ({
         api.updateUser(update)
             .then(onNextStep)
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

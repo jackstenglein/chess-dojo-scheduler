@@ -1,6 +1,10 @@
 import { useChess } from '@/board/pgn/PgnBoard';
 import { PlayAs } from '@/board/pgn/solitaire/useSolitaireChess';
 import {
+    CORRECT_SOUND_KEY,
+    INCORRECT_SOUND_KEY,
+} from '@/components/puzzles/settings/puzzleSettingsKeys';
+import {
     Alert,
     Button,
     CardContent,
@@ -16,14 +20,17 @@ import {
     Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 
 /**
  * Renders an underboard tab with miscellaneous tools. Currently, this
- * contains only the solitare chess controls.
+ * contains only the solitaire chess controls.
  */
 export function Tools() {
     const { chess, solitaire } = useChess();
     const [error, setError] = useState('');
+    const [correctSound, setCorrectSound] = useLocalStorage(CORRECT_SOUND_KEY, true);
+    const [incorrectSound, setIncorrectSound] = useLocalStorage(INCORRECT_SOUND_KEY, true);
 
     const onStartFromMove = () => {
         if (chess?.currentMove() === chess?.lastMove()) {
@@ -75,6 +82,26 @@ export function Tools() {
                         />
                     }
                     sx={{ mt: 2 }}
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={correctSound}
+                            onChange={(e) => setCorrectSound(e.target.checked)}
+                        />
+                    }
+                    label='Play sound on correct move'
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={incorrectSound}
+                            onChange={(e) => setIncorrectSound(e.target.checked)}
+                        />
+                    }
+                    label='Play sound on incorrect move'
                 />
 
                 {!solitaire?.enabled ? (

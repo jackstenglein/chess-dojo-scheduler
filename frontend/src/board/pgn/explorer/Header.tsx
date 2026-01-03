@@ -198,7 +198,6 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                 onClose();
             })
             .catch((err) => {
-                console.error('followPosition: ', err);
                 request.onFailure(err);
             });
     };
@@ -216,7 +215,6 @@ export const FollowDialog: React.FC<FollowDialogProps> = ({
                 onClose();
             })
             .catch((err) => {
-                console.error('followPosition: ', err);
                 deleteRequest.onFailure(err);
             });
     };
