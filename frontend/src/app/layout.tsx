@@ -5,8 +5,7 @@ import { MetaPixel } from '@/components/analytics/MetaPixel';
 import { WebVitals } from '@/components/analytics/WebVitals';
 import { RequireProfile } from '@/components/auth/RequireProfile';
 import { LocalizationProvider } from '@/components/mui/LocalizationProvider';
-import { ServiceWorkerProvider } from '@/components/ServiceWorkerProvider';
-import Navbar from '@/navbar/Navbar';
+import Navbar from '@/components/navigation/navbar/Navbar';
 import ThemeProvider from '@/style/ThemeProvider';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import { NavigationGuardProvider } from 'next-navigation-guard';
@@ -43,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <meta name='theme-color' content='#1e3c72' />
                 <meta name='apple-mobile-web-app-capable' content='yes' />
                 <meta name='apple-mobile-web-app-status-bar-style' content='default' />
-                <meta name='apple-mobile-web-app-title' content='Chess Dojo' />
+                <meta name='apple-mobile-web-app-title' content='ChessDojo' />
                 <meta name='mobile-web-app-capable' content='yes' />
 
                 {/* Additional iOS meta tags */}
@@ -54,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <NavigationGuardProvider>
                     <MetaPixel />
                     <WebVitals />
-                    <ServiceWorkerProvider />
+                    {/* <ServiceWorkerProvider /> */}
                     {/* <OfflineIndicator /> */}
                     <AppRouterCacheProvider>
                         <ThemeProvider>

@@ -1,6 +1,32 @@
 'use client';
 
+import { logger } from '@/logging/logger';
 import { useEffect, useState } from 'react';
+
+async function registerServiceWorker() {
+    try {
+        const registration = await navigator.serviceWorker.register('/sw.js', {
+            scope: '/',
+        });
+
+        // Handle service worker updates
+        registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // New service worker is available. You could show a notification to the user here
+                        logger.debug?.('New service worker available');
+                    }
+                });
+            }
+        });
+
+        logger.debug?.('Service Worker registered successfully:', registration.scope);
+    } catch (err) {
+        logger.error?.('Service Worker registration failed:', err);
+    }
+}
 
 /**
  * ServiceWorkerProvider - Handles service worker registration and lifecycle
@@ -18,7 +44,7 @@ export function ServiceWorkerProvider() {
         const updateOnlineStatus = () => {
             const offline = !navigator.onLine;
             setIsOffline(offline);
-            console.log('Network status changed:', offline ? 'OFFLINE' : 'ONLINE');
+            logger.debug?.('Network status changed:', offline ? 'OFFLINE' : 'ONLINE');
         };
 
         // Set initial status
@@ -28,48 +54,15 @@ export function ServiceWorkerProvider() {
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
 
-        // Debug: Log every 5 seconds
-        const debugInterval = setInterval(() => {
-            console.log(
-                'SW Debug - Online:',
-                navigator.onLine,
-                'Offline indicator showing:',
-                isOffline,
-            );
-        }, 5000);
-
         return () => {
             window.removeEventListener('online', updateOnlineStatus);
             window.removeEventListener('offline', updateOnlineStatus);
-            clearInterval(debugInterval);
         };
     }, [isOffline]);
 
-    const registerServiceWorker = async () => {
-        try {
-            const registration = await navigator.serviceWorker.register('/sw.js', {
-                scope: '/',
-            });
-
-            // Handle service worker updates
-            registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-                if (newWorker) {
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            // New service worker is available
-                            console.log('New service worker available');
-                            // You could show a notification to the user here
-                        }
-                    });
-                }
-            });
-
-            console.log('Service Worker registered successfully:', registration.scope);
-        } catch (error) {
-            console.error('Service Worker registration failed:', error);
-        }
-    };
+    logger.debug?.(
+        `SW Debug - Online: ${navigator.onLine}. Offline indicator showing: ${isOffline}`,
+    );
 
     // Always render the component, show indicator when offline
     return (

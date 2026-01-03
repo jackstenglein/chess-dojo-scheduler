@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { getConfig } from '@/config';
@@ -67,6 +66,7 @@ interface AuthContextType {
 
     getCurrentUser: () => Promise<void>;
     updateUser: (update: Partial<User>) => void;
+
     socialSignin: (provider: 'Google', redirectUri: string) => void;
     signin: (email: string, password: string) => Promise<void>;
 
@@ -190,26 +190,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const checkoutSessionIds = getAllCheckoutSessionIds();
         let apiResponse: AxiosResponse<User>;
 
-        try {
-            if (Object.values(checkoutSessionIds).length > 0) {
-                apiResponse = await syncPurchases(
-                    cognitoUser.tokens?.idToken?.toString() ?? '',
-                    checkoutSessionIds,
-                );
-                clearCheckoutSessionIds();
-            } else {
-                const token = cognitoUser.tokens?.idToken?.toString() ?? '';
-                apiResponse = await getUser(token);
-            }
-
-            const user = parseUser(apiResponse.data, cognitoUser);
-            setUser(user);
-            setStatus(AuthStatus.Authenticated);
-            setAnalyticsUser(user);
-        } catch (apiError) {
-            console.error('API call failed in handleCognitoResponse:', apiError);
-            throw apiError; // Re-throw to be caught by
+        if (Object.values(checkoutSessionIds).length > 0) {
+            apiResponse = await syncPurchases(
+                cognitoUser.tokens?.idToken?.toString() ?? '',
+                checkoutSessionIds,
+            );
+            clearCheckoutSessionIds();
+        } else {
+            const token = cognitoUser.tokens?.idToken?.toString() ?? '';
+            apiResponse = await getUser(token);
         }
+
+        const user = parseUser(apiResponse.data, cognitoUser);
+        setUser(user);
+        setStatus(AuthStatus.Authenticated);
+        setAnalyticsUser(user);
     }, []);
 
     const getCurrentUser = useCallback(async () => {
@@ -226,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [handleCognitoResponse]);
 
-    const signin = (email: string, password: string, isFromParam = false) => {
+    const signin = (email: string, password: string, isFromMobile = false) => {
         return new Promise<void>((resolve, reject) => {
             void (async () => {
                 try {
@@ -239,15 +234,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         username: authUser.username,
                         tokens: authSession.tokens,
                     });
-                    if (isFromParam) {
-                        // Clean URL
-                        const cleanUrl = window.location.origin + window.location.pathname;
-
-                        // Save flag
+                    if (isFromMobile) {
+                        // Save flag in local storage and replace current page in history
+                        // so the user can't go back to the redirect
                         localStorage.setItem('isFromMobile', 'true');
-
-                        // Replace current page in history so user can't go "back" to redirect
-                        window.location.replace(cleanUrl);
+                        window.location.replace(window.location.origin + window.location.pathname);
                     }
 
                     resolve();
